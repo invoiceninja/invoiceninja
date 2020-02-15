@@ -19,6 +19,7 @@ use App\Models\CompanyUser;
 use App\Models\Country;
 use App\Models\Credit;
 use App\Models\Currency;
+use App\Models\Design;
 use App\Models\Expense;
 use App\Models\GroupSetting;
 use App\Models\Industry;
@@ -45,7 +46,9 @@ class Company extends BaseModel
     use MakesHash;
     use CompanySettingsSaver;
     use ThrottlesEmail;
-    
+    use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
+    use \Staudenmeir\EloquentHasManyDeep\HasTableAlias;
+
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 
     protected $fillable = [
@@ -225,6 +228,11 @@ class Company extends BaseModel
     public function timezone()
     {
         return Timezone::find($this->settings->timezone_id);
+    }
+
+    public function designs()
+    {
+        return $this->hasMany(Design::class)->whereCompanyId($this->id)->orWhere('company_id',null);
     }
 
     /**

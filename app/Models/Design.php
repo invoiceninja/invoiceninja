@@ -22,4 +22,5 @@ class Design extends BaseModel
         return $this->belongsTo(Company::class);
     }
 
+
 }
