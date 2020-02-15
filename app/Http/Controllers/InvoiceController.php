@@ -27,6 +27,7 @@ use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Jobs\Invoice\StoreInvoice;
+use App\Jobs\Invoice\ZipInvoices;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Repositories\InvoiceRepository;
@@ -473,11 +474,10 @@ class InvoiceController extends BaseController {
 	 *     ),
 	 *      @OA\Response(
 	 *          response=200,
-	 *          description="The Company User response",
+	 *          description="The Bulk Action response",
 	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
 	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
 	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-	 *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
 	 *       ),
 	 *       @OA\Response(
 	 *          response=422,
@@ -494,27 +494,50 @@ class InvoiceController extends BaseController {
 	 *
 	 */
 	public function bulk() {
+
+		/*
+		 * WIP!
+		 */
 		$action = request()->input('action');
 
 		$ids = request()->input('ids');
 
-		$invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids));
+		$invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
 		if (!$invoices) {
 			return response()->json(['message' => 'No Invoices Found']);
 		}
 
-		$invoices->each(function ($invoice, $key) use ($action) {
+		if($action == 'download' && $invoices->count() > 1)
+		{
+			
+			$invoices->each(function ($invoice) {
 
-				//      $this->invoice_repo->{$action}($invoice);
-
-				if (auth()->user()->can('edit', $invoice)) {
-					$this->performAction($invoice, $action, true);
+				if(auth()->user()->cannot('view', $invoice)){
+					return response()->json(['message'=>'Insufficient privileges to access invoice '. $invoice->number]);
 				}
+
 			});
 
-		return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+			ZipInvoices::dispatch($invoices, $invoices->first()->company);
+
+			return response()->json(['message' => 'Email Sent!'],200);
+		}
+
+
+		$invoices->each(function ($invoice, $key) use ($action) {
+
+			if (auth()->user()->can('edit', $invoice)) {
+				$this->performAction($invoice, $action, true);
+			}
+
+		});
+
+		/* Need to understand which permission are required for the given bulk action ie. view / edit */
+
+		return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
 	}
+
 
 	/**
 	 *

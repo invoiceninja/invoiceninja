@@ -439,4 +439,9 @@ class Client extends BaseModel implements HasLocalePreference
         //return $lang->locale;
     }
 
+    public function invoice_filepath()
+    {
+        return $this->client_hash . '/invoices/';
+    }
+
 }

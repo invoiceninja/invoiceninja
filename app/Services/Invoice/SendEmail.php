@@ -11,6 +11,9 @@
 
 namespace App\Services\Invoice;
 
+use App\Jobs\Invoice\EmailInvoice;
+use App\Models\Invoice;
+
 class SendEmail
 {
 

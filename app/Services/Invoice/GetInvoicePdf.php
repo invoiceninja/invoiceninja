@@ -23,7 +23,7 @@ class GetInvoicePdf
     	if(!$contact)
 			$contact = $invoice->client->primary_contact()->first();
 
-		$path      = $invoice->client->client_hash . '/invoices/';
+		$path      = $invoice->client->invoice_filepath();
 
 		$file_path = $path . $invoice->number . '.pdf';
 
