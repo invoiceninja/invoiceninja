@@ -19,7 +19,7 @@ class SendEmail
      * @param string $reminder_template The template name ie reminder1
      * @return array
      */
-    public function sendEmail($contact = null): array
+    public function run($contact = null): array
     {
         $email_builder = (new PaymentEmail())->build($this->payment, $contact);
 
