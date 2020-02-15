@@ -54,6 +54,8 @@ class ClientRepository extends BaseRepository
      * @param      \App\Models\Client              $client  The client
      *
      * @return     Client|\App\Models\Client|null  Client Object
+     * 
+     * @todo       Write tests to make sure that custom client numbers work as expected.
      */
     public function save(array $data, Client $client) : ?Client
     {
@@ -64,13 +66,11 @@ class ClientRepository extends BaseRepository
 
         if ($client->id_number == "" || !$client->id_number) {
             $client->id_number = $this->getNextClientNumber($client);
-        } //todo write tests for this and make sure that custom client numbers also works as expected from here
+        } 
 
         $client->save();
 
-        if (isset($data['contacts'])) {
-            $contacts = $this->contact_repo->save($data['contacts'], $client);
-        }
+        $this->contact_repo->save($data, $client);
 
         if (empty($data['name'])) {
             $data['name'] = $client->present()->name();

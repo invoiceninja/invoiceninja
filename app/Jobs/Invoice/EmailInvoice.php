@@ -46,6 +46,7 @@ class EmailInvoice implements ShouldQueue
 
     public function handle()
     {
+      
         $email_builder = $this->email_builder;
 
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())

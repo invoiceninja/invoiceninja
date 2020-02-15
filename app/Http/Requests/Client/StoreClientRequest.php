@@ -43,14 +43,14 @@ class StoreClientRequest extends Request
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
 
-        $contacts = request('contacts');
+//        $contacts = request('contacts');
 
-        if (is_array($contacts)) {
-            for ($i = 0; $i < count($contacts); $i++) {
+        // if (is_array($contacts)) {
+        //     for ($i = 0; $i < count($contacts); $i++) {
 
-                //$rules['contacts.' . $i . '.email'] = 'nullable|email|distinct';
-            }
-        }
+        //         //$rules['contacts.' . $i . '.email'] = 'nullable|email|distinct';
+        //     }
+        // }
 
         return $rules;
     }
@@ -66,6 +66,17 @@ class StoreClientRequest extends Request
         
         if (isset($input['group_settings_id'])) {
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+        }
+
+        if(isset($input['contacts']))
+        {
+            foreach($input['contacts'] as $contact)
+            {
+                if(is_numeric($contact['id']))
+                    unset($contact['id']);
+                elseif(is_string($contact['id']))
+                    $contact['id'] = $this->decodePrimaryKey($contact['id']);
+            }
         }
 
         $this->replace($input);

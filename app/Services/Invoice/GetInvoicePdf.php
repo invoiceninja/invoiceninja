@@ -17,12 +17,11 @@ use Illuminate\Support\Facades\Storage;
 class GetInvoicePdf
 {
 
-    public function __construct()
-    {
-    }
-
-  	public function __invoke($invoice, $contact = null)
+  	public function run($invoice, $contact = null)
   	{
+
+    	if(!$contact)
+			$contact = $invoice->client->primary_contact()->first();
 
 		$path      = $invoice->client->client_hash . '/invoices/';
 
@@ -32,12 +31,9 @@ class GetInvoicePdf
 
     	$file 	   = Storage::disk($disk)->exists($file_path);
 
-    	if(!$contact)
-			$contact = $invoice->client->primary_contact()->first();
-
 		if(!$file)
 		{
-		
+
 			$file_path = CreateInvoicePdf::dispatchNow($invoice, $invoice->company, $contact);
 
 		}

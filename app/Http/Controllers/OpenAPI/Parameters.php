@@ -33,6 +33,16 @@
  *           example="HcRvs0oCvYbY5g3RzgBZrSBOChCiq8u4AL0ieuFN5gn4wUV14t0clVhfPc5OX99q"
  *         )
  *     ),
+ *     @OA\Parameter(
+ *         name="X-Api-Password",
+ *         in="header",
+ *         description="The login password when challenged",
+ *         required=true,
+ *			 @OA\Schema(
+ *           type="string",
+ *           example="supersecretpassword"
+ *         )
+ *     ),
  *
  *     @OA\Parameter(
  *         name="include",

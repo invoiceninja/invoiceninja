@@ -152,7 +152,7 @@ class MigrationController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Password"), // Needs verification.
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Password"), 
      *      @OA\Parameter(
      *          name="migration",
      *          in="path",
@@ -160,7 +160,7 @@ class MigrationController extends BaseController
      *          example="migration.zip",
      *          required=true,
      *          @OA\Schema(
-     *              type="file",
+     *              type="object",
      *              format="file",
      *          ),
      *      ),

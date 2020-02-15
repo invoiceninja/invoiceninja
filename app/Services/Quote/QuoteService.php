@@ -16,7 +16,7 @@ class QuoteService
     {
         $create_invitation = new CreateInvitations();
 
-        $this->quote = $create_invitation($this->quote);
+        $this->quote = $create_invitation->run($this->quote);
 
         return $this;
     }
@@ -25,11 +25,11 @@ class QuoteService
     {
         $mark_approved = new MarkApproved($this->quote->client);
 
-        $this->quote = $mark_approved($this->quote);
+        $this->quote = $mark_approved->run($this->quote);
 
         if($this->quote->client->getSetting('auto_convert_quote') === true) {
             $convert_quote = new ConvertQuote($this->quote->client);
-            $this->quote = $convert_quote($this->quote);
+            $this->quote = $convert_quote->run($this->quote);
         }
 
         return $this;
@@ -57,7 +57,7 @@ class QuoteService
     {
         $apply_number = new ApplyNumber($this->quote->client);
 
-        $this->quote = $apply_number($this->quote);
+        $this->quote = $apply_number->run($this->quote);
 
         return $this;
     }
@@ -66,7 +66,7 @@ class QuoteService
     {
         $mark_sent = new MarkSent($this->quote->client);
 
-        $this->quote = $mark_sent($this->quote);
+        $this->quote = $mark_sent->run($this->quote);
 
         return $this;
     }

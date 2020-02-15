@@ -21,9 +21,10 @@ class CreateInvitations
 
     public function __construct()
     {
+        // ..
     }
 
-  	public function __invoke($invoice)
+  	public function run($invoice)
   	{
 
         $contacts = $invoice->client->contacts;
@@ -46,4 +47,4 @@ class CreateInvitations
 
         return $invoice;
   	}
-}	
+}

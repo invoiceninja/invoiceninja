@@ -5,7 +5,7 @@ return [
     'web_url' => 'https://www.invoiceninja.com',
     'app_name' => env('APP_NAME'),
     'site_url' => env('APP_URL', ''),
-    'app_domain' => env('APP_DOMAIN', 'invoiceninja.com'),
+    'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
     'app_version' => '0.0.1',
     'api_version' => '0.0.1',
     'terms_version' => '1.0.1',

@@ -9,13 +9,10 @@ use App\Events\Quote\QuoteWasEmailedAndFailed;
 use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
-
-;
-
 use App\Models\Company;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
-use App\SystemLog;
+use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -62,6 +59,7 @@ class EmailQuote implements ShouldQueue
         if (count(Mail::failures()) > 0) {
             return $this->logMailError($errors);
         }
+
     }
 
     private function logMailError($errors)

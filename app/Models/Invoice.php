@@ -355,12 +355,14 @@ class Invoice extends BaseModel
         $storage_path = $this->client->client_hash . '/invoices/' . $this->number . '.pdf';
 
 
-        if (!Storage::exists($storage_path)) {
+        $disk         = config('filesystems.default');
+
+        if (!Storage::disk($disk)->exists($public_path)) {
             event(new InvoiceWasUpdated($this, $this->company));
             CreateInvoicePdf::dispatch($this, $this->company, $this->client->primary_contact()->first());
         }
 
-        return $public_path;
+        return $storage_path;
     }
 
     public function pdf_file_path()

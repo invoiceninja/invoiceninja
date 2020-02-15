@@ -12,7 +12,7 @@ use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
 use App\Models\Company;
 use App\Models\Payment;
-use App\SystemLog;
+use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -30,6 +30,7 @@ class EmailPayment implements ShouldQueue
 
     private $contact;
 
+
     /**
      * Create a new job instance.
      *
@@ -41,6 +42,7 @@ class EmailPayment implements ShouldQueue
         $this->email_builder = $email_builder;
         $this->contact = $contact;
      }
+
 
     /**
      * Execute the job.
@@ -67,6 +69,7 @@ class EmailPayment implements ShouldQueue
 
             //sleep(5);
         }
+
     }
 
     private function logMailError($errors)

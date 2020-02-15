@@ -31,7 +31,7 @@ class InvoiceUploadTest extends TestCase
 
         CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->invoice->client->primary_contact()->first());
 
-        $this->assertNotNull($this->invoice->service()->getInvoicePdf());
+        $this->assertNotNull($this->invoice->service()->getInvoicePdf($this->invoice->client->primary_contact()->first()));
 
     }
 
