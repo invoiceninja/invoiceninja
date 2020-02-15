@@ -47,6 +47,6 @@ class PaymentService
     {
         $send_email = new SendEmail($this->payment);
 
-        return $send_email->sendEmail(null, $contact);
+        return $send_email->run(null, $contact);
     }
 }
