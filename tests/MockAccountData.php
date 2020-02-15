@@ -139,14 +139,14 @@ trait MockAccountData
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
-                'send_invoice' => true,
+                'send' => true,
             ]);
 
             factory(\App\Models\ClientContact::class,1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
-                'send_invoice' => true
+                'send' => true
             ]);
 
         

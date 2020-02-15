@@ -60,7 +60,7 @@ class InvoiceEmailTest extends TestCase
 
             if ($invitation->contact->send && $invitation->contact->email) {
 
-                EmailInvoice::dispatch($email_builder, $invitation);
+                EmailInvoice::dispatch($email_builder, $invitation, $invitation->company);
 
                 $this->expectsJobs(EmailInvoice::class);
 
