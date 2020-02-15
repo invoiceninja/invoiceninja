@@ -1,9 +1,13 @@
 <?php
+
 namespace App\Jobs\Payment;
 
+use App\Events\Invoice\InvoiceWasEmailed;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
-use App\Jobs\Util\SystemLogger;
+use App\Helpers\Email\BuildEmail;
+use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
 use App\Models\Company;
@@ -22,21 +26,23 @@ class EmailPayment implements ShouldQueue
 
     public $payment;
 
-    public $message_array = [];
+    public $email_builder;
 
-    private $company;
+    private $contact;
+
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Payment $payment, Company $company)
-    {
+     public function __construct(Payment $payment, $email_builder, $contact)
+     {
         $this->payment = $payment;
+        $this->email_builder = $email_builder;
+        $this->contact = $contact;
+     }
 
-        $this->company = $company;
-    }
 
     /**
      * Execute the job.
@@ -46,37 +52,24 @@ class EmailPayment implements ShouldQueue
      */
     public function handle()
     {
-        /*Jobs are not multi-db aware, need to set! */
-        MultiDB::setDB($this->company->db);
+        $email_builder = $this->email_builder;
 
-        //todo - change runtime config of mail driver if necessary
+        if ($this->contact->email) {
+            Mail::to($this->contact->email, $this->contact->present()->name())
+                ->send(new TemplateEmail($email_builder, $this->contact->user, $this->contact->customer));
 
-        $template_style = $this->payment->client->getSetting('email_style');
+            if (count(Mail::failures()) > 0) {
+                event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures()));
 
-        $this->payment->client->contacts->each(function ($contact) use ($template_style) {
-            if ($contact->email) {
-                $message_array = $this->payment->getEmailData('', $contact);
-                $message_array['title'] = &$message_array['subject'];
-                $message_array['footer'] = "Sent to ".$contact->present()->name();
-
-                //change the runtime config of the mail provider here:
-
-                //send message
-                Mail::to($contact->email, $contact->present()->name())
-                    ->send(new TemplateEmail($message_array, $template_style, $contact->user, $contact->client));
-
-                if (count(Mail::failures()) > 0) {
-                    event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures()));
-
-                    return $this->logMailError($errors);
-                }
-
-                //fire any events
-                event(new PaymentWasEmailed($this->payment));
-
-                //sleep(5);
+                return $this->logMailError($errors);
             }
-        });
+
+            //fire any events
+            event(new PaymentWasEmailed($this->payment));
+
+            //sleep(5);
+        }
+
     }
 
     private function logMailError($errors)

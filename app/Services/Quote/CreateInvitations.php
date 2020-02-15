@@ -11,7 +11,7 @@ class CreateInvitations
     {
     }
 
-    public function __invoke($quote)
+    public function run($quote)
     {
 
         $contacts = $quote->client->contacts;

@@ -146,7 +146,7 @@ class Invoice extends BaseModel
 
     public function payments()
     {
-        return $this->morphToMany(Payment::class, 'paymentable')->withPivot('amount','refunded')->withTimestamps();;
+        return $this->morphToMany(Payment::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps();;
     }
 
     public function company_ledger()
@@ -156,13 +156,14 @@ class Invoice extends BaseModel
 
     public function credits()
     {
-        return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot('amount','refunded')->withTimestamps();;
+        return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot('amount',
+            'refunded')->withTimestamps();;
     }
 
     /**
      * Service entry points
      */
-    public function service() :InvoiceService
+    public function service(): InvoiceService
     {
         return new InvoiceService($this);
     }
@@ -192,12 +193,12 @@ class Invoice extends BaseModel
      *
      * @return boolean isLocked
      */
-    public function isLocked() : bool
+    public function isLocked(): bool
     {
         return $this->client->getSetting('lock_sent_invoices');
     }
 
-    public function isPayable() : bool
+    public function isPayable(): bool
     {
         if ($this->status_id == Invoice::STATUS_SENT && $this->is_deleted == false) {
             return true;
@@ -212,23 +213,25 @@ class Invoice extends BaseModel
         }
     }
 
-    public function isRefundable() : bool
+    public function isRefundable(): bool
     {
 
-        if($this->is_deleted)
+        if ($this->is_deleted) {
             return false;
+        }
 
-        if(($this->amount - $this->balance) == 0)
+        if (($this->amount - $this->balance) == 0) {
             return false;
+        }
 
         return true;
-        
+
     }
 
     /**
      * @return bool
      */
-    public function isPartial() : bool
+    public function isPartial(): bool
     {
         return $this->status_id >= self::STATUS_PARTIAL;
     }
@@ -236,7 +239,7 @@ class Invoice extends BaseModel
     /**
      * @return bool
      */
-    public function hasPartial() : bool
+    public function hasPartial(): bool
     {
         return ($this->partial && $this->partial > 0) === true;
     }
@@ -245,28 +248,28 @@ class Invoice extends BaseModel
     {
         switch ($status) {
             case Invoice::STATUS_DRAFT:
-                return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
+                return '<h5><span class="badge badge-light">' . ctrans('texts.draft') . '</span></h5>';
                 break;
             case Invoice::STATUS_SENT:
-                return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
+                return '<h5><span class="badge badge-primary">' . ctrans('texts.sent') . '</span></h5>';
                 break;
             case Invoice::STATUS_PARTIAL:
-                return '<h5><span class="badge badge-primary">'.ctrans('texts.partial').'</span></h5>';
+                return '<h5><span class="badge badge-primary">' . ctrans('texts.partial') . '</span></h5>';
                 break;
             case Invoice::STATUS_PAID:
-                return '<h5><span class="badge badge-success">'.ctrans('texts.paid').'</span></h5>';
+                return '<h5><span class="badge badge-success">' . ctrans('texts.paid') . '</span></h5>';
                 break;
             case Invoice::STATUS_CANCELLED:
-                return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
+                return '<h5><span class="badge badge-secondary">' . ctrans('texts.cancelled') . '</span></h5>';
                 break;
             case Invoice::STATUS_OVERDUE:
-                return '<h5><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h5>';
+                return '<h5><span class="badge badge-danger">' . ctrans('texts.overdue') . '</span></h5>';
                 break;
             case Invoice::STATUS_UNPAID:
-                return '<h5><span class="badge badge-warning">'.ctrans('texts.unpaid').'</span></h5>';
+                return '<h5><span class="badge badge-warning">' . ctrans('texts.unpaid') . '</span></h5>';
                 break;
             case Invoice::STATUS_REVERSED:
-                return '<h5><span class="badge badge-info">'.ctrans('texts.reversed').'</span></h5>';
+                return '<h5><span class="badge badge-info">' . ctrans('texts.reversed') . '</span></h5>';
                 break;
             default:
                 # code...
@@ -306,13 +309,14 @@ class Invoice extends BaseModel
                 break;
         }
     }
+
     /**
      * Returns the template for the invoice
      *
      * @return string Either the template view, OR the template HTML string
      * @todo  this needs attention, invoice->settings needs clarification
      */
-    public function design() :string
+    public function design(): string
     {
         if ($this->client->getSetting('design')) {
             return File::exists(resource_path($this->client->getSetting('design'))) ? File::get(resource_path($this->client->getSetting('design'))) : File::get(resource_path('views/pdf/design1.blade.php'));
@@ -364,6 +368,7 @@ class Invoice extends BaseModel
     {
         $storage_path = 'storage/' . $this->client->invoice_filepath() . $this->number . '.pdf';
 
+
         if (!Storage::exists($storage_path)) {
             CreateInvoicePdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
         }
@@ -386,8 +391,7 @@ class Invoice extends BaseModel
         });
     }
 
-
-/* Graveyard */
+    /* Graveyard */
 
 //    /**
 //     * Determines if invoice overdue.
