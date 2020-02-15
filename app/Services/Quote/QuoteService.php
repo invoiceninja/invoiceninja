@@ -46,7 +46,7 @@ class QuoteService
     {
         $send_email = new SendEmail($this->quote);
 
-        return $send_email->sendEmail(null, $contact);
+        return $send_email->run(null, $contact);
     }
 
     /**
