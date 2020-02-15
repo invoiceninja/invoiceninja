@@ -98,42 +98,42 @@ trait InvoiceEmailBuilder
         return $data;
     }
 
-    private function calculateTemplate() :string
-    {
-        //if invoice is currently a draft, or being marked as sent, this will be the initial email
-        $client = $this->client;
+    // private function calculateTemplate() :string
+    // {
+    //     //if invoice is currently a draft, or being marked as sent, this will be the initial email
+    //     $client = $this->client;
 
-        //if the invoice
-        if ($this->status_id == Invoice::STATUS_DRAFT || Carbon::parse($this->due_date) > now()) {
-            return 'invoice';
-        } elseif ($client->getSetting('enable_reminder1') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder1'), $client->getSetting('num_days_reminder1'))) {
-            return 'template1';
-        } elseif ($client->getSetting('enable_reminder2') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder2'), $client->getSetting('num_days_reminder2'))) {
-            return 'template2';
-        } elseif ($client->getSetting('enable_reminder3') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder3'), $client->getSetting('num_days_reminder3'))) {
-            return 'template3';
-        } else {
-            return 'invoice';
-        }
+    //     //if the invoice
+    //     if ($this->status_id == Invoice::STATUS_DRAFT || Carbon::parse($this->due_date) > now()) {
+    //         return 'invoice';
+    //     } elseif ($client->getSetting('enable_reminder1') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder1'), $client->getSetting('num_days_reminder1'))) {
+    //         return 'template1';
+    //     } elseif ($client->getSetting('enable_reminder2') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder2'), $client->getSetting('num_days_reminder2'))) {
+    //         return 'template2';
+    //     } elseif ($client->getSetting('enable_reminder3') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder3'), $client->getSetting('num_days_reminder3'))) {
+    //         return 'template3';
+    //     } else {
+    //         return 'invoice';
+    //     }
 
-        //also implement endless reminders here
-    }
+    //     //also implement endless reminders here
+    // }
 
-    private function inReminderWindow($schedule_reminder, $num_days_reminder)
-    {
-        switch ($schedule_reminder) {
-            case 'after_invoice_date':
-                return Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
-            case 'before_due_date':
-                return Carbon::parse($this->due_date)->subDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
-            case 'after_due_date':
-                return Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
-                break;
-            default:
-                # code...
-                break;
-        }
-    }
+    // private function inReminderWindow($schedule_reminder, $num_days_reminder)
+    // {
+    //     switch ($schedule_reminder) {
+    //         case 'after_invoice_date':
+    //             return Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
+    //             break;
+    //         case 'before_due_date':
+    //             return Carbon::parse($this->due_date)->subDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
+    //             break;
+    //         case 'after_due_date':
+    //             return Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
+    //             break;
+    //         default:
+    //             # code...
+    //             break;
+    //     }
+    // }
 }

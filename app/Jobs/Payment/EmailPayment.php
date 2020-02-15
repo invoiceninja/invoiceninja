@@ -52,16 +52,15 @@ class EmailPayment implements ShouldQueue
      */
     public function handle()
     {
-        $email_builder = $this->email_builder;
 
         if ($this->contact->email) {
             Mail::to($this->contact->email, $this->contact->present()->name())
-                ->send(new TemplateEmail($email_builder, $this->contact->user, $this->contact->customer));
+                ->send(new TemplateEmail($this->email_builder, $this->contact->user, $this->contact->customer));
 
             if (count(Mail::failures()) > 0) {
                 event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures()));
 
-                return $this->logMailError($errors);
+                return $this->logMailError(Mail::failures());
             }
 
             //fire any events

@@ -212,6 +212,13 @@ trait MockAccountData
 
         });
 
+        $invitations = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
+                                        ->whereInvoiceId($this->invoice->id);
+
+        $this->invoice->setRelation('invitations', $invitations);
+
+        $this->invoice->save();
+
         UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount, $this->invoice->company);
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
