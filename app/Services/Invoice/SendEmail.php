@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Services\Invoice;
 
@@ -10,12 +19,13 @@ use Illuminate\Support\Carbon;
 class SendEmail
 {
 
-    public $invoice;
+    protected $invoice;
 
-    public function __construct($invoice)
+    public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
     }
+
 
     /**
      * Builds the correct template to send

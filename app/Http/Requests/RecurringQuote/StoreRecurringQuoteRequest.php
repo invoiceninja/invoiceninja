@@ -13,9 +13,14 @@ namespace App\Http\Requests\RecurringQuote;
 
 use App\Http\Requests\Request;
 use App\Models\RecurringQuote;
+use App\Utils\Traits\CleanLineItems;
+use App\Utils\Traits\MakesHash;
 
 class StoreRecurringQuoteRequest extends Request
 {
+    use MakesHash;
+    use CleanLineItems;
+    
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -31,8 +36,19 @@ class StoreRecurringQuoteRequest extends Request
     {
         return [
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
-            'client_id' => 'required|integer',
+            'client_id' => 'required|exists:clients,id',
 
         ];
     }
+
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+        $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        //$input['line_items'] = json_encode($input['line_items']);
+        $this->replace($input);
+    }
+
 }

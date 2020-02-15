@@ -346,14 +346,13 @@ class Invoice extends BaseModel
     /** TODO// DOCUMENT THIS FUNCTIONALITY */
     public function pdf_url()
     {
-        // $public_path = 'storage/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
+        // $public_path = 'storage/' . $this->client->invoice_filepath() . $this->number . '.pdf';
 
-        // $storage_path = 'public/' . $this->client->client_hash . '/invoices/'. $this->number . '.pdf';
+        // $storage_path = 'public/' . $this->client->invoice_filepath() . $this->number . '.pdf';
 
-        $public_path = $this->client->client_hash . '/invoices/' . $this->number . '.pdf';
+        $public_path  = $this->client->invoice_filepath() . $this->number . '.pdf';
 
-        $storage_path = $this->client->client_hash . '/invoices/' . $this->number . '.pdf';
-
+        $storage_path = 'storage/' . $this->client->invoice_filepath() . $this->number . '.pdf';
 
         $disk         = config('filesystems.default');
 
@@ -367,7 +366,8 @@ class Invoice extends BaseModel
 
     public function pdf_file_path()
     {
-        $storage_path = 'storage/' . $this->client->client_hash . '/invoices/' . $this->number . '.pdf';
+        $storage_path = 'storage/' . $this->client->invoice_filepath() . $this->number . '.pdf';
+
 
         if (!Storage::exists($storage_path)) {
             CreateInvoicePdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());

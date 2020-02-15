@@ -10,6 +10,7 @@ use App\Mail\TemplateEmail;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,6 +32,7 @@ class EmailInvoice implements ShouldQueue
      * @param BuildEmail $email_builder
      * @param QuoteInvitation $quote_invitation
      */
+
     public function __construct(InvoiceEmail $email_builder, InvoiceInvitation $invoice_invitation)
     {
         $this->invoice_invitation = $invoice_invitation;
