@@ -61,13 +61,14 @@ class TemplateEmail extends Mailable
                 'company' => $company
             ]);
 
-         //conditionally attach files
-         if($settings->pdf_email_attachment !== false && !empty($this->build_email->getAttachments())){
+        //conditionally attach files
+        if ($settings->pdf_email_attachment !== false && !empty($this->build_email->getAttachments())) {
 
-             foreach($this->build_email->getAttachments() as $file)
-                 $message->attach($file);
-         }
+            foreach ($this->build_email->getAttachments() as $file) {
+                $message->attach($file);
+            }
+        }
 
-         return $message;
+        return $message;
     }
 }
