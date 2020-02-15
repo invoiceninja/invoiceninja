@@ -44,7 +44,7 @@ class QuoteInvitation extends BaseModel
      */
     public function contact()
     {
-        return $this->belongsTo(ClientContact::class)->withTrashed();
+        return $this->belongsTo(ClientContact::class, 'client_contact_id', 'id')->withTrashed();
     }
 
     /**

@@ -120,14 +120,12 @@ class InvoiceService
         return $get_invoice_pdf->run($this->invoice, $contact);
     }
 
+    public function sendEmail($contact)
+    {
+        $send_email = new SendEmail($this->invoice);
 
-
-
-
-
-
-
-
+        return $send_email->run(null, $contact);
+    }
 
     public function markViewed()
     {

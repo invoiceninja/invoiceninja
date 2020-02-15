@@ -16,6 +16,8 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
 use App\Services\Quote\QuoteService;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesReminders;
+use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -24,6 +26,10 @@ class Quote extends BaseModel
     use MakesHash;
     use Filterable;
     use SoftDeletes;
+    use MakesReminders;
+    use PresentableTrait;
+
+    protected $presenter = 'App\Models\Presenters\QuotePresenter';
 
     protected $fillable = [
         'number',

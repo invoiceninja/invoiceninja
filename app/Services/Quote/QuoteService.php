@@ -35,6 +35,20 @@ class QuoteService
         return $this;
     }
 
+    public function getQuotePdf($contact)
+    {
+        $get_invoice_pdf = new GetQuotePdf();
+
+        return $get_invoice_pdf($this->quote, $contact);
+    }
+
+    public function sendEmail($contact)
+    {
+        $send_email = new SendEmail($this->quote);
+
+        return $send_email->run(null, $contact);
+    }
+
     /**
      * Applies the invoice number
      * @return $this InvoiceService object
