@@ -17,6 +17,7 @@ use App\Factory\CloneInvoiceFactory;
 use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\InvoiceFactory;
 use App\Filters\InvoiceFilters;
+use App\Helpers\Email\InvoiceEmail;
 use App\Http\Requests\Invoice\ActionInvoiceRequest;
 use App\Http\Requests\Invoice\CreateInvoiceRequest;
 use App\Http\Requests\Invoice\DestroyInvoiceRequest;
@@ -663,7 +664,12 @@ class InvoiceController extends BaseController {
 				}
 				break;
 			case 'email':
-				EmailInvoice::dispatch($invoice, $invoice->company);
+				$invoice->invitations->each(function ($invitation) use($invoice){
+
+					EmailInvoice::dispatch((new InvoiceEmail)->build($invoice, null, null), $invitation, $invoice->company);
+
+				});
+
 				if (!$bulk) {
 					return response()->json(['message' => 'email sent'], 200);
 				}

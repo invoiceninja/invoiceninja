@@ -24,7 +24,7 @@ class SendEmail
         $email_builder = (new PaymentEmail())->build($this->payment, $contact);
 
         $this->payment->client->contacts->each(function ($contact) use ($email_builder) {
-            if ($contact->send_invoice && $contact->email) {
+            if ($contact->send && $contact->email) {
                 EmailPayment::dispatchNow($this->payment, $email_builder, $contact);
             }
         });

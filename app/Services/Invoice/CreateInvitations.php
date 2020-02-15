@@ -35,12 +35,12 @@ class CreateInvitations
                                         ->whereInvoiceId($invoice->id)
                                         ->first();
 
-            if (!$invitation && $contact->send_invoice) {
+            if (!$invitation && $contact->send) {
                 $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
                 $ii->invoice_id = $invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send_invoice) {
+            } elseif ($invitation && !$contact->send) {
                 $invitation->delete();
             }
         });

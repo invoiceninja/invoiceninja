@@ -55,12 +55,12 @@ class CreateQuoteInvitations implements ShouldQueue
                                         ->whereQuoteId($this->quote->id)
                                         ->first();
 
-            if (!$invitation && $contact->send_invoice) {
+            if (!$invitation && $contact->send) {
                 $ii = QuoteInvitationFactory::create($this->quote->company_id, $this->quote->user_id);
                 $ii->quote_id = $this->quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send_invoice) {
+            } elseif ($invitation && !$contact->send) {
                 $invitation->delete();
             }
         });
