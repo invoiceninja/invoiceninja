@@ -6,6 +6,7 @@ use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Utils\SystemLogger;
+use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
 use App\Models\Company;
 use App\Models\Invoice;
@@ -27,14 +28,18 @@ class EmailInvoice implements ShouldQueue
 
     public $email_builder;
 
+    public $company;
     /**
+     * 
      * EmailQuote constructor.
      * @param BuildEmail $email_builder
      * @param QuoteInvitation $quote_invitation
      */
 
-    public function __construct(InvoiceEmail $email_builder, InvoiceInvitation $invoice_invitation)
+    public function __construct(InvoiceEmail $email_builder, InvoiceInvitation $invoice_invitation, Company $company)
     {
+        $this->company = $company;
+
         $this->invoice_invitation = $invoice_invitation;
 
         $this->email_builder = $email_builder;
@@ -49,7 +54,8 @@ class EmailInvoice implements ShouldQueue
 
     public function handle()
     {
-      
+        MultiDB::setDb($this->company->db);
+
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
             ->send(new TemplateEmail($this->email_builder,
                     $this->invoice_invitation->contact->user,
