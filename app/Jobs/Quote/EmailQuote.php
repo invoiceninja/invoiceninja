@@ -47,17 +47,16 @@ class EmailQuote implements ShouldQueue
      */
     public function handle()
     {
-        $email_builder = $this->email_builder;
 
         Mail::to($this->quote_invitation->contact->email, $this->quote_invitation->contact->present()->name())
-            ->send(new TemplateEmail($email_builder,
+            ->send(new TemplateEmail($this->email_builder,
                     $this->quote_invitation->contact->user,
                     $this->quote_invitation->contact->client
                 )
             );
 
         if (count(Mail::failures()) > 0) {
-            return $this->logMailError($errors);
+            return $this->logMailError(Mail::failures());
         }
 
     }

@@ -186,17 +186,17 @@ trait MakesReminders
     public function calculateTemplate(): string
     {
         //if invoice is currently a draft, or being marked as sent, this will be the initial email
-        $customer = $this->client;
+        $client = $this->client;
 
         //if the invoice
-        if ($customer->getSetting('enable_reminder1') !== false && $this->inReminderWindow($customer->getSetting('schedule_reminder1'),
-                $customer->getSetting('num_days_reminder1'))) {
+        if ($client->getSetting('enable_reminder1') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder1'),
+                $client->getSetting('num_days_reminder1'))) {
             return 'template1';
-        } elseif ($customer->getSetting('enable_reminder2') !== false && $this->inReminderWindow($customer->getSetting('schedule_reminder2'),
-                $customer->getSetting('num_days_reminder2'))) {
+        } elseif ($client->getSetting('enable_reminder2') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder2'),
+                $client->getSetting('num_days_reminder2'))) {
             return 'template2';
-        } elseif ($customer->getSetting('enable_reminder3') !== false && $this->inReminderWindow($customer->getSetting('schedule_reminder3'),
-                $customer->getSetting('num_days_reminder3'))) {
+        } elseif ($client->getSetting('enable_reminder3') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder3'),
+                $client->getSetting('num_days_reminder3'))) {
             return 'template3';
         } else {
             return 'invoice';

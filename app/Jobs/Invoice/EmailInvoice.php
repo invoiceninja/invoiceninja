@@ -36,6 +36,7 @@ class EmailInvoice implements ShouldQueue
     public function __construct(InvoiceEmail $email_builder, InvoiceInvitation $invoice_invitation)
     {
         $this->invoice_invitation = $invoice_invitation;
+
         $this->email_builder = $email_builder;
     }
 
@@ -49,18 +50,17 @@ class EmailInvoice implements ShouldQueue
     public function handle()
     {
       
-        $email_builder = $this->email_builder;
-
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
-            ->send(new TemplateEmail($email_builder,
+            ->send(new TemplateEmail($this->email_builder,
                     $this->invoice_invitation->contact->user,
                     $this->invoice_invitation->contact->client
                 )
             );
 
         if (count(Mail::failures()) > 0) {
-            return $this->logMailError($errors);
+            return $this->logMailError(Mail::failures());
         }
+
     }
 
     private function logMailError($errors)
