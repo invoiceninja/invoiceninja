@@ -41,7 +41,7 @@ class InvoiceEmailTest extends TestCase
         $this->makeTestData();
     }
 
-    public function test_initial_email_sends()
+    public function test_initial_email_send_emails()
     {
 
         $this->invoice->date = now();
@@ -58,7 +58,7 @@ class InvoiceEmailTest extends TestCase
 
         $invitations->each(function ($invitation) use ($email_builder) {
 
-            if ($invitation->contact->send && $invitation->contact->email) {
+            if ($invitation->contact->send_email && $invitation->contact->email) {
 
                 EmailInvoice::dispatch($email_builder, $invitation, $invitation->company);
 
