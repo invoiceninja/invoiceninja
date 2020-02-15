@@ -1,6 +1,8 @@
 <?php
 namespace App\Mail;
 
+use App\Models\Client;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -9,16 +11,24 @@ use Illuminate\Queue\SerializesModels;
 class TemplateEmail extends Mailable
 {
     use Queueable, SerializesModels;
-    private $build_email; //the message array  // ['body', 'footer', 'title', 'files']
+
+    private $build_email; 
+
     private $user; //the user the email will be sent from
-    private $customer;
+    
+    private $client;
+    
     private $footer;
 
-    public function __construct($build_email, $user, $customer)
+    public function __construct($build_email, User $user, Client $client)
     {
+    
         $this->build_email = $build_email;
+
         $this->user = $user; //this is inappropriate here, need to refactor 'user' in this context the 'user' could also be the 'system'
-        $this->customer = $customer;
+        
+        $this->client = $client;
+    
     }
 
     /**
@@ -29,17 +39,20 @@ class TemplateEmail extends Mailable
     public function build()
     {
         /*Alter Run Time Mailer configuration (driver etc etc) to regenerate the Mailer Singleton*/
+
         //if using a system level template
         $template_name = 'email.template.' . $this->build_email->getTemplate();
 
-        $settings = $this->customer->getMergedSettings();
-        \Log::error(print_r($settings, 1));
-        $company = $this->customer->account;
+        $settings = $this->client->getMergedSettings();
 
-        $message = $this->from($this->user->email,
-            $this->user->present()->name())//todo this needs to be fixed to handle the hosted version
-        ->subject($this->build_email->getSubject())
-            ->text('email.template.plain', ['body' => $this->build_email->getBody(), 'footer' => $this->build_email->getFooter()])
+        $company = $this->client->company;
+
+        $message = $this->from($this->user->email,$this->user->present()->name())//todo this needs to be fixed to handle the hosted version
+            ->subject($this->build_email->getSubject())
+            ->text('email.template.plain', [
+                'body' => $this->build_email->getBody(), 
+                'footer' => $this->build_email->getFooter()
+            ])
             ->view($template_name, [
                 'body' => $this->build_email->getBody(),
                 'footer' => $this->build_email->getFooter(),

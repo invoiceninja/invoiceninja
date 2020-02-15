@@ -2,6 +2,8 @@
 
 namespace Feature;
 
+use App\Helpers\Email\InvoiceEmail;
+use App\Jobs\Invoice\EmailInvoice;
 use App\Mail\TemplateEmail;
 use App\Models\ClientContact;
 use App\Models\Invoice;
@@ -42,63 +44,29 @@ class InvoiceEmailTest extends TestCase
     public function test_initial_email_sends()
     {
 
-      //  \Log::error($this->invoice->makeValues());
-
         $this->invoice->date = now();
         $this->invoice->due_date = now()->addDays(7);
         $this->invoice->number = $this->getNextInvoiceNumber($this->client);
 
-        $this->invoice->client = $this->client;
-
-        $message_array = $this->invoice->getEmailData();
-        $message_array['title'] = &$message_array['subject'];
-        $message_array['footer'] = 'The Footer';
-
-
- //       $template_style = $this->client->getSetting('email_style');
-
-        $template_style = 'light';
-        //iterate through the senders list and send from here
+        $this->invoice->client_id = $this->client->id;
+        $this->invoice->setRelation('client', $this->client);
+        $this->invoice->save();
 
         $invitations = InvoiceInvitation::whereInvoiceId($this->invoice->id)->get();
 
-        $invitations->each(function($invitation) use($message_array, $template_style) {
+        $email_builder = (new InvoiceEmail())->build($this->invoice, null, null);
 
-            $contact = $invitation->contact;
+        $invitations->each(function ($invitation) use ($email_builder) {
 
-            if($contact->send_invoice && $contact->email)
-            {
-                //there may be template variables left over for the specific contact? need to reparse here
-        
-                //change the runtime config of the mail provider here:
-                
-                //send message
-                Mail::to($contact->email)
-                ->send(new TemplateEmail($message_array, $template_style, $this->user, $contact->client));
+            if ($invitation->contact->send_invoice && $invitation->contact->email) {
 
-                //fire any events
-                
+                EmailInvoice::dispatch($email_builder, $invitation);
 
-                //sleep(5);//here to cope with mailtrap time delays
-                
+                $this->expectsJobs(EmailInvoice::class);
+
             }
-
         });
         
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

@@ -13,9 +13,13 @@ use App\Models\Invoice;
 
 class InvoiceEmail extends EmailBuilder
 {
+
     public function build(Invoice $invoice, $reminder_template, $contact = null)
     {
         $client = $invoice->client;
+
+        if(!$reminder_template)
+            $reminder_template = $invoice->calculateTemplate();
 
         $body_template = $client->getSetting('email_template_' . $reminder_template);
 
@@ -32,7 +36,7 @@ class InvoiceEmail extends EmailBuilder
             if ($reminder_template == 'quote') {
                 $subject_template = trans('texts.invoice_subject',
                     [
-                        'number' => $this->invoice->present()->invoice_number(),
+                        'number' => $invoice->present()->invoice_number(),
                         'company' => $invoice->company->present()->name()
                     ],
                     null, $invoice->client->locale());
