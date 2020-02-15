@@ -94,7 +94,7 @@ class SendTestEmails extends Command
                 'client_id' => $client->id,
                 'company_id' => $company->id,
                 'is_primary' => 1,
-                'send_invoice' => true,
+                'send' => true,
                 'email' => $faker->safeEmail,
             ]);
 
@@ -102,7 +102,7 @@ class SendTestEmails extends Command
                 'user_id' => $user->id,
                 'client_id' => $client->id,
                 'company_id' => $company->id,
-                'send_invoice' => true,
+                'send' => true,
                 'email' => $faker->safeEmail,
             ]);
         }

@@ -41,7 +41,7 @@ class SendEmail
         $email_builder = (new InvoiceEmail())->build($this->invoice, $reminder_template, $contact);
 
         $this->invoice->invitations->each(function ($invitation) use ($email_builder) {
-            if ($invitation->contact->send_invoice && $invitation->contact->email) {
+            if ($invitation->contact->send && $invitation->contact->email) {
                 EmailInvoice::dispatch($email_builder, $invitation);
             }
         });
