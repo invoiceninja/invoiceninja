@@ -21,7 +21,7 @@ class SendEmail
      * @param string $reminder_template The template name ie reminder1
      * @return array
      */
-    public function sendEmail($reminder_template = null, $contact = null): array
+    public function run($reminder_template = null, $contact = null): array
     {
         if (!$reminder_template) {
             $reminder_template = $this->quote->status_id == Quote::STATUS_DRAFT || Carbon::parse($this->quote->due_date) > now() ? 'invoice' : $this->quote->calculateTemplate();
