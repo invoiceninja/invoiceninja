@@ -12,7 +12,11 @@
             paymentToken: '{{ $transactionToken }}',
             customerEmail: '{{ $contact->email }}',
             customerName: '{{ $contact->getFullName() }}',
+            @if( $invoice->getCurrencyCode() == 'BHD' ||  $invoice->getCurrencyCode() == 'KWD' ||  $invoice->getCurrencyCode() == 'OMR')
+            value: {{ $invoice->getRequestedAmount() * 1000 }},
+            @else
             value: {{ $invoice->getRequestedAmount() * 100 }},
+            @endif
             currency: '{{ $invoice->getCurrencyCode() }}',
             widgetContainerSelector: '.payment-form',
             widgetColor: '#333',
