@@ -40,6 +40,10 @@ class PasswordProtection
                 return response()->json($error, 403);
             }
         } elseif (Cache::get(auth()->user()->email."_logged_in")) {
+
+            Cache::pull(auth()->user()->email."_logged_in");
+            Cache::add(auth()->user()->email."_logged_in", Str::random(64), now()->addMinutes(10));
+
             return $next($request);
         } else {
             $error = [
