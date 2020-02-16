@@ -160,7 +160,8 @@ class ClientPortalTest extends DuskTestCase
             $browser->visit('/client/invoices')
                 ->assertSee(ctrans('texts.pay_now'))
                 ->waitFor('.dataTable')
-                ->assertVisible('.page-link')
+                ->waitFor('.page-item')
+                ->assertVisible('.page-item')
                 ->assertVisible('tr.odd')
                 ->assertVisible('#datatable_info')
                 ->assertMissing('.dataTables_empty')
@@ -187,6 +188,7 @@ class ClientPortalTest extends DuskTestCase
 
             $browser->visit('/client/recurring_invoices')
                 ->waitFor('.dataTable')
+                ->waitFor('.page-link')
                 ->assertVisible('.page-link')
                 ->assertVisible('#datatable_info')
                 ->visit('client/logout')
@@ -203,7 +205,9 @@ class ClientPortalTest extends DuskTestCase
     {
         $this->browse(function ($browser) {
 
-            $browser->visit('/client/login')
+            $browser
+                ->visit('/client/logout')
+                ->visit('/client/login')
                 ->type('email', 'user@example.com')
                 ->type('password', config('ninja.testvars.password'))
                 ->press('Login')
@@ -212,7 +216,7 @@ class ClientPortalTest extends DuskTestCase
             $browser->visit('/client/payments')
                 ->waitFor('.dataTable')
                 ->assertVisible('#datatable_info')
-                ->visit('client/logout')
+                ->visit('/client/logout')
                 ->assertPathIs('/client/login');
         });
     }
@@ -226,7 +230,8 @@ class ClientPortalTest extends DuskTestCase
     {
         $this->browse(function ($browser) {
 
-            $browser->visit('/client/login')
+            $browser->visit('/client/logout')
+                ->visit('/client/login')
                 ->type('email', 'user@example.com')
                 ->type('password', config('ninja.testvars.password'))
                 ->press('Login')
