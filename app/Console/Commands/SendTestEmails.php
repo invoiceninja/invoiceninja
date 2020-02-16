@@ -49,9 +49,7 @@ class SendTestEmails extends Command
     public function handle()
     {
         $this->sendTemplateEmails('plain');
-        sleep(5);
         $this->sendTemplateEmails('light');
-        sleep(5);
         $this->sendTemplateEmails('dark');
     }
 
