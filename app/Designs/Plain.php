@@ -11,7 +11,7 @@
 
 namespace App\Designs;
 
-class Bold extends AbstractDesign
+class Plain extends AbstractDesign
 {
 
 	public function __construct() {
@@ -34,21 +34,31 @@ class Bold extends AbstractDesign
 			    </head>
 			    <body>
 
-                <div class="flex static bg-gray-800 p-12">
-                    <div class="w-1/2">
-                        <div class="absolute bg-white pt-10 px-10 pb-4 inline-block align-middle">
-                            $company_logo
+                <body>
+                    <div class="px-12 py-8">
+                        <div class="flex">
+                            <div class="w-1/3">
+                                Demo..
+                            </div>
+                            <div class="w-1/3 flex flex-col">
+                                $company_address
+                            </div>
+                            <div class="w-1/3 flex flex-col">
+                                $company_logo
+                                <div class="flex px-3 mt-6">
+                                    <section class="w-1/2">
+                                        $invoice_details_labels
+                                    </section>
+                                    <section>
+                                        $invoice_details
+                                    </section>
+                                </div>
+                                <section class="flex bg-gray-300 px-3">
+                                    <p class="w-1/2">$balance_due_label</p>
+                                    <p>$balance_due</p>
+                                </section>
+                            </div>
                         </div>
-                    </div>
-                    <div class="w-1/2 flex">
-                        <div class="w-64 flex flex-col text-white">
-                            $company_details
-                        </div>
-                        <div class="flex flex-col text-white">
-                            $company_address
-                        </div>
-                    </div>
-                </div>
 			';
 
 	}
@@ -56,31 +66,18 @@ class Bold extends AbstractDesign
 	public function body() {
 
         return '
-            <div class="flex mt-32 pl-12">
-            <div class="w-1/2 mr-40 flex flex-col">
-                <h2 class="text-2xl uppercase font-semibold text-teal-600 tracking-tight">Your Invoice</h2>
+            <div class="flex flex-col">
                 $client_details
             </div>
-            <div class="w-1/2">
-                <div class="w-full bg-teal-600 px-5 py-3 text-white flex">
-                    <div class="w-48 flex flex-col text-white">
-                        $invoice_details_labels
-                    </div>
-                    <div class="w-32 flex flex-col text-white">
-                        $invoice_details
-                    </div>
-                </div>
-            </div>
-        </div>
         ';
 
 	}
 
 	public function table_styles() {
 		return [
-			'table_header_thead_class' => "text-left",
-			'table_header_td_class'    => "px-12 text-2xl px-4 py-2",
-			'table_body_td_class'      => "bg-gray-200 py-5 pl-12",
+			'table_header_thead_class' => "text-left bg-gray-300",
+			'table_header_td_class'    => "px-4 py-2",
+			'table_body_td_class'      => "border-t-2 border-b border-gray-300 px-4 py-4",
 		];
 	}
 
@@ -88,7 +85,7 @@ class Bold extends AbstractDesign
 
         return '
         <table class="w-full table-auto mt-8">
-            <thead class="text-left">
+            <thead class="text-left bg-gray-300">
                 <tr>
                     $table_header
                 </tr>
@@ -98,36 +95,32 @@ class Bold extends AbstractDesign
             </tbody>
         </table>
 
-        <div class="flex px-4 mt-6 w-full px-12">
+        <div class="flex justify-between mt-8">
             <div class="w-1/2">
-                $invoice.public_notes
-            </div>
-            <div class="w-1/2 flex">
-                <div class="w-1/2 text-right flex flex-col">
-                    $total_tax_labels
-                    $line_tax_labels
-                </div>
-                <div class="w-1/2 text-right flex flex-col">
-                    $total_tax_values
-                    $line_tax_values
+                <div class="flex flex-col">
+                    <p>$invoice.public_notes</p>
+                    <div class="pt-4">
+                        <p class="font-bold">$terms_label</p>
+                        <p>$terms</p>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="flex px-4 mt-4 w-full items-end px-12">
-            <div class="w-1/2">
-                <p class="font-semibold">$terms_label</p>
-                $terms
-            </div>
-            <div class="w-1/2 flex">
-                <div class="w-1/2 text-right flex flex-col">
-                    <span class="text-2xl font-semibold">$balance_due_label</span>
+            <div class="w-1/3 flex flex-col">
+                <div class="flex px-3 mt-6">
+                    <section class="w-1/2 text-right">
+                        $total_tax_labels
+                        $line_tax_labels
+                    </section>
+                    <section class="w-1/2 text-right">
+                        $total_tax_values
+                        $line_tax_values
+                    </section>
                 </div>
-                <div class="w-1/2 text-right flex flex-col">
-                    <span class="text-2xl text-teal-600 font-semibold">$balance_due</span>
-                </div>
-            </div>
-        </div>';
+                <section class="flex bg-gray-300 px-3 mt-1">
+                    <p class="w-1/2 text-right">$balance_due_label</p>
+                    <p class="text-right w-1/2">$balance_due</p>
+                </section>
+            </div>';
 	}
 
 	public function footer() {

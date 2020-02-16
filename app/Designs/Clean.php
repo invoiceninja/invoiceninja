@@ -11,7 +11,7 @@
 
 namespace App\Designs;
 
-class Bold extends AbstractDesign
+class Clean extends AbstractDesign
 {
 
 	public function __construct() {
@@ -34,21 +34,21 @@ class Bold extends AbstractDesign
 			    </head>
 			    <body>
 
-                <div class="flex static bg-gray-800 p-12">
-                    <div class="w-1/2">
-                        <div class="absolute bg-white pt-10 px-10 pb-4 inline-block align-middle">
-                            $company_logo
-                        </div>
+                <div class="mx-16 my-10">
+                <div class="flex items-center">
+                    <div class="w-1/3">
+                        $company_logo
                     </div>
-                    <div class="w-1/2 flex">
-                        <div class="w-64 flex flex-col text-white">
+                    <div class="w-auto flex">
+                        <div class="mr-10 text-gray-600 flex flex-col">
                             $company_details
                         </div>
-                        <div class="flex flex-col text-white">
+                        <div classs="text-gray-600">
                             $company_address
                         </div>
                     </div>
                 </div>
+            
 			';
 
 	}
@@ -56,22 +56,27 @@ class Bold extends AbstractDesign
 	public function body() {
 
         return '
-            <div class="flex mt-32 pl-12">
-            <div class="w-1/2 mr-40 flex flex-col">
-                <h2 class="text-2xl uppercase font-semibold text-teal-600 tracking-tight">Your Invoice</h2>
-                $client_details
-            </div>
-            <div class="w-1/2">
-                <div class="w-full bg-teal-600 px-5 py-3 text-white flex">
-                    <div class="w-48 flex flex-col text-white">
+            <h1 class="mt-12 uppercase text-2xl text-blue-500 ml-4">
+                Invoice
+            </h1>
+
+            <div class="border-b border-gray-400"></div>
+
+            <div class="ml-4 py-4">
+                <div class="flex">
+                    <div class="w-40 flex flex-col">
                         $invoice_details_labels
                     </div>
-                    <div class="w-32 flex flex-col text-white">
+                    <div class="w-48 flex flex-col">
                         $invoice_details
+                    </div>
+                    <div class="w-56 flex flex-col">
+                        $client_details
                     </div>
                 </div>
             </div>
-        </div>
+
+            <div class="border-b border-gray-400"></div>
         ';
 
 	}
@@ -79,15 +84,15 @@ class Bold extends AbstractDesign
 	public function table_styles() {
 		return [
 			'table_header_thead_class' => "text-left",
-			'table_header_td_class'    => "px-12 text-2xl px-4 py-2",
-			'table_body_td_class'      => "bg-gray-200 py-5 pl-12",
+			'table_header_td_class'    => "px-4 py-2",
+			'table_body_td_class'      => "text-blue-600 border-t border-b border-gray-400 px-4 py-4",
 		];
 	}
 
 	public function table() {
 
         return '
-        <table class="w-full table-auto mt-8">
+            <table class="w-full table-auto mt-8">
             <thead class="text-left">
                 <tr>
                     $table_header
@@ -98,7 +103,7 @@ class Bold extends AbstractDesign
             </tbody>
         </table>
 
-        <div class="flex px-4 mt-6 w-full px-12">
+        <div class="flex px-4 mt-6 w-full">
             <div class="w-1/2">
                 $invoice.public_notes
             </div>
@@ -114,17 +119,17 @@ class Bold extends AbstractDesign
             </div>
         </div>
 
-        <div class="flex px-4 mt-4 w-full items-end px-12">
+        <div class="flex px-4 mt-4 w-full items-end">
             <div class="w-1/2">
                 <p class="font-semibold">$terms_label</p>
                 $terms
             </div>
             <div class="w-1/2 flex">
                 <div class="w-1/2 text-right flex flex-col">
-                    <span class="text-2xl font-semibold">$balance_due_label</span>
+                    <span>$balance_due_label</span>
                 </div>
                 <div class="w-1/2 text-right flex flex-col">
-                    <span class="text-2xl text-teal-600 font-semibold">$balance_due</span>
+                    <span class="text-blue-600">$balance_due</span>
                 </div>
             </div>
         </div>';
