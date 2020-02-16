@@ -287,6 +287,7 @@ class BaseController extends Controller
           'company.expenses',
           'company.tasks',
           'company.projects',
+          'company.designs',
         ];
 
         $mini_load = [

@@ -20,7 +20,7 @@ class ConvertQuote
      * @param $quote
      * @return mixed
      */
-    public function __invoke($quote)
+    public function run($quote)
     {
         $invoice = CloneQuoteToInvoiceFactory::create($quote, $quote->user_id, $quote->company_id);
         $this->invoice_repo->save([], $invoice);

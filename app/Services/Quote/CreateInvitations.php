@@ -11,7 +11,7 @@ class CreateInvitations
     {
     }
 
-    public function __invoke($quote)
+    public function run($quote)
     {
 
         $contacts = $quote->client->contacts;
@@ -22,12 +22,12 @@ class CreateInvitations
                 ->whereQuoteId($quote->id)
                 ->first();
 
-            if (!$invitation && $contact->send_quote) {
+            if (!$invitation && $contact->send) {
                 $ii = QuoteInvitationFactory::create($quote->company_id, $quote->user_id);
                 $ii->quote_id = $quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send_quote) {
+            } elseif ($invitation && !$contact->send) {
                 $invitation->delete();
             }
         });

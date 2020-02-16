@@ -31,10 +31,9 @@ class ApplyNumber
         $this->client = $client;
     }
 
-  	public function __invoke($invoice)
-  	{
-
-        if ($invoice->number != '') 
+  	public function run($invoice)
+    {
+        if ($invoice->number != '')
             return $invoice;
 
         switch ($this->client->getSetting('counter_number_applied')) {
@@ -46,12 +45,12 @@ class ApplyNumber
                     $invoice->number = $this->getNextInvoiceNumber($this->client);
                 }
                 break;
-            
+
             default:
                 # code...
                 break;
         }
-               
+
         return $invoice;
-  	}
+    }
 }

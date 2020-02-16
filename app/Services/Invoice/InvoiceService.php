@@ -38,15 +38,15 @@ class InvoiceService
     }
 
     /**
-     * Marks as invoice as paid 
+     * Marks as invoice as paid
      * and executes child sub functions
      * @return $this InvoiceService object
      */
     public function markPaid()
     {
         $mark_invoice_paid = new MarkPaid($this->client_service);
-        
-        $this->invoice = $mark_invoice_paid($this->invoice);
+
+        $this->invoice = $mark_invoice_paid->run($this->invoice);
 
         return $this;
     }
@@ -59,7 +59,7 @@ class InvoiceService
     {
         $apply_number = new ApplyNumber($this->invoice->client);
 
-        $this->invoice = $apply_number($this->invoice);
+        $this->invoice = $apply_number->run($this->invoice);
 
         return $this;
     }
@@ -74,7 +74,7 @@ class InvoiceService
     {
         $apply_payment = new ApplyPayment($this->invoice);
 
-        $this->invoice = $apply_payment($payment, $payment_amount);
+        $this->invoice = $apply_payment->run($payment, $payment_amount);
 
         return $this;
     }
@@ -90,7 +90,7 @@ class InvoiceService
     {
         $update_balance = new UpdateBalance($this->invoice);
 
-        $this->invoice = $update_balance($balance_adjustment);
+        $this->invoice = $update_balance->run($balance_adjustment);
 
         return $this;
     }
@@ -99,7 +99,7 @@ class InvoiceService
     {
         $create_invitation = new CreateInvitations();
 
-        $this->invoice = $create_invitation($this->invoice);
+        $this->invoice = $create_invitation->run($this->invoice);
 
         return $this;
     }
@@ -108,7 +108,7 @@ class InvoiceService
     {
         $mark_sent = new MarkSent($this->invoice->client);
 
-        $this->invoice = $mark_sent($this->invoice);
+        $this->invoice = $mark_sent->run($this->invoice);
 
         return $this;
     }
@@ -118,17 +118,15 @@ class InvoiceService
     {
         $get_invoice_pdf = new GetInvoicePdf();
 
-        return $get_invoice_pdf($this->invoice, $contact);
+        return $get_invoice_pdf->run($this->invoice, $contact);
     }
 
+    public function sendEmail($contact)
+    {
+        $send_email = new SendEmail($this->invoice);
 
-
-
-
-
-
-
-
+        return $send_email->run(null, $contact);
+    }
 
     public function markViewed()
     {
@@ -179,7 +177,7 @@ class InvoiceService
 
     /**
      * Saves the invoice
-     * @return Invoice object 
+     * @return Invoice object
      */
     public function save() :?Invoice
     {

@@ -22,7 +22,7 @@
     @else
         <script>
             function gtag(){}
-        </script>
+        </script>   
     @endif
 
     <meta charset="utf-8">

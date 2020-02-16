@@ -72,7 +72,7 @@ class CreateInvoicePdf implements ShouldQueue {
 
 		App::setLocale($this->contact->preferredLocale());
 
-		$path      = $this->invoice->client->client_hash . '/invoices/';
+		$path      = $this->invoice->client->invoice_filepath();
 
 		//$file_path = $path . $this->invoice->number . '-' . $this->contact->contact_key .'.pdf';
 		$file_path = $path . $this->invoice->number . '.pdf';

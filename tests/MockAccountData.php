@@ -139,14 +139,14 @@ trait MockAccountData
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
-                'send_invoice' => true,
+                'send_email' => true,
             ]);
 
             factory(\App\Models\ClientContact::class,1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
-                'send_invoice' => true
+                'send_email' => true
             ]);
 
         
@@ -200,17 +200,24 @@ trait MockAccountData
                                         ->whereInvoiceId($this->invoice->id)
                                         ->first();
 
-            if(!$invitation && $contact->send_invoice) {
+            if(!$invitation && $contact->send_email) {
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
             }
-            else if($invitation && !$contact->send_invoice) {
+            else if($invitation && !$contact->send_email) {
                 $invitation->delete();
             }
 
         });
+
+        $invitations = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
+                                        ->whereInvoiceId($this->invoice->id);
+
+        $this->invoice->setRelation('invitations', $invitations);
+
+        $this->invoice->save();
 
         UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount, $this->invoice->company);
 

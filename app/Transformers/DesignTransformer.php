@@ -1,0 +1,53 @@
+<?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
+namespace App\Transformers;
+
+use App\Models\Design;
+use App\Utils\Traits\MakesHash;
+
+/**
+ * Class DesignTransformer.
+ */
+class DesignTransformer extends EntityTransformer
+{
+    use MakesHash;
+
+    /**
+     * @var array
+     */
+    protected $defaultIncludes = [
+    ];
+
+    /**
+     * @var array
+     */
+    protected $availableIncludes = [
+    ];
+
+
+    /**
+     * @param Design $design
+     *      
+     * @return array
+     */
+    public function transform(Design $design)
+    {
+        return [
+            'id' => (string)$this->encodePrimaryKey($design->id),
+            'name' => (string)$design->name,
+            'is_custom' => (bool)$design->is_custom,
+            'is_active' => (bool)$design->is_active,
+            'design' => $design->design,
+        ];
+    }
+
+}

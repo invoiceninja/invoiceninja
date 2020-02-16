@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyUser;
+use App\Models\Design;
 use App\Models\Expense;
 use App\Models\GroupSetting;
 use App\Models\Payment;
@@ -47,6 +48,7 @@ class CompanyTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'users',
+        'designs',
         'account',
         'clients',
         'contacts',
@@ -219,5 +221,12 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new PaymentTransformer($this->serializer);
 
         return $this->includeCollection($company->payments, $transformer, Payment::class);
+    }
+
+    public function includeDesigns(Company $company)
+    {
+        $transformer = new DesignTransformer($this->serializer);
+
+        return $this->includeCollection($company->designs()->get(), $transformer, Design::class);
     }
 }

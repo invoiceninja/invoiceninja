@@ -378,7 +378,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->string('token')->nullable();
             $table->boolean('is_locked')->default(false);
-            $table->boolean('send_invoice')->default(true);
+            $table->boolean('send_email')->default(true);
             $table->string('contact_key')->nullable();
             $table->rememberToken();
             $table->timestamps(6);
