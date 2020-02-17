@@ -22,6 +22,7 @@
  *       @OA\Property(property="is_primary", type="boolean", example=true, description="________"),
  *       @OA\Property(property="confirmed", type="boolean", example=true, description="________"),
  *       @OA\Property(property="is_locked", type="boolean", example=true, description="________"),
+ *       @OA\Property(property="send_email", type="boolean", example=true, description="________"),
  *       @OA\Property(property="failed_logins", type="number", format="integer", example="3", description="________"),
  *       @OA\Property(property="email_verified_at", type="number", format="integer", example="134341234234", description="________"),
  *       @OA\Property(property="paid_to_date", type="number", format="float", example="10.00", description="________"),
