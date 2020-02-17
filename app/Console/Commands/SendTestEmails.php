@@ -116,8 +116,7 @@ class SendTestEmails extends Command
                 $ii->save();
 
         $invoice->setRelation('invitations', $ii);
-
-        $invoice->save();
+        $invoice->service()->markSent()->save();
 
         $cc_emails = [config('ninja.testvars.test_email')];
         $bcc_emails = [config('ninja.testvars.test_email')];

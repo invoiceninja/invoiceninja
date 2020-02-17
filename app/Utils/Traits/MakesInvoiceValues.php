@@ -576,8 +576,11 @@ trait MakesInvoiceValues
      * @param  array  $items The array of invoice items
      * @return array        The formatted array of invoice items
      */
-    private function transformLineItems(array $items) :array
+    private function transformLineItems($items) :array
     {
+        if(!is_array($items))
+            return [];
+
         foreach ($items as $item) {
             $item->cost = Number::formatMoney($item->cost, $this->client);
             $item->line_total = Number::formatMoney($item->line_total, $this->client);

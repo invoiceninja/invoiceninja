@@ -87,7 +87,7 @@
                             <div>
                                 <h2>trans('texts.sign_up_now')</h2>
                                 <p>trans('texts.not_a_member_yet')</p>
-                                <a class="btn btn-primary active mt-3" href="{{route('signup') }}">trans('texts.login_create_an_account')</a>
+                                <a class="btn btn-primary active mt-3" href=" route('signup') ">trans('texts.login_create_an_account')</a>
                             </div>
                         </div>
                     </div>

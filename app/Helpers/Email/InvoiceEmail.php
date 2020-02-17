@@ -26,7 +26,7 @@ class InvoiceEmail extends EmailBuilder
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
             $body_template = trans('texts.invoice_message',
-                ['amount' => $invoice->present()->amount(), 'company' => $invoice->company->present()->name()], null,
+                ['invoice' => $invoice->number, 'company' => $invoice->company->present()->name()], null,
                 $invoice->client->locale());
         }
 
@@ -36,14 +36,14 @@ class InvoiceEmail extends EmailBuilder
             if ($reminder_template == 'quote') {
                 $subject_template = trans('texts.invoice_subject',
                     [
-                        'number' => $invoice->present()->invoice_number(),
+                        'invoice' => $invoice->present()->invoice_number(),
                         'account' => $invoice->company->present()->name()
                     ],
                     null, $invoice->client->locale());
             } else {
                 $subject_template = trans('texts.reminder_subject',
                     [
-                        'number' => $invoice->present()->invoice_number(),
+                        'invoice' => $invoice->present()->invoice_number(),
                         'account' => $invoice->company->present()->name()
                     ],
                     null, $invoice->client->locale());
