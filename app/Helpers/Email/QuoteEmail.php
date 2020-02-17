@@ -17,7 +17,7 @@ class QuoteEmail extends EmailBuilder
 
     public function build(QuoteInvitation $invitation, $reminder_template)
     {
-        $client = $invitation->client;
+        $client = $invitation->contact->client;
         $quote = $invitation->quote;
         $contact = $invitation->contact;
 
