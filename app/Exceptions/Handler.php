@@ -71,7 +71,7 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
         if ($exception instanceof ModelNotFoundException && $request->expectsJson()) {
-            return response()->json(['message'=>'Record not found'], 400);
+            return response()->json(['message'=>$exception->getMessage()], 400);
         } elseif ($exception instanceof ThrottleRequestsException && $request->expectsJson()) {
             return response()->json(['message'=>'Too many requests'], 429);
         } elseif ($exception instanceof FatalThrowableError && $request->expectsJson()) {

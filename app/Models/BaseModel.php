@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use App\Filters\QueryFilters;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
@@ -153,6 +154,9 @@ class BaseModel extends Model
      */
     public function resolveRouteBinding($value)
     {
+        if(is_numeric($value))
+            throw new ModelNotFoundException("Record with value {$value} not found");
+
         return $this
             ->withTrashed()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
