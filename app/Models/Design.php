@@ -17,6 +17,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Design extends BaseModel
 {
 
+    protected $casts = [
+        'design' => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+    ];
+
     public function company()
     {
         return $this->belongsTo(Company::class);

@@ -24,18 +24,18 @@ class Custom extends AbstractDesign
 	
 	private $table_styles;
 
-	public function __construct(array $data) 
+	public function __construct($design) 
 	{
 
-		$this->header = $data['header'];
+		$this->header = $design->header;
 		
-		$this->body = $data['body'];
+		$this->body = $design->body;
 		
-		$this->table = $data['table'];
+		$this->table = $design->table;
 		
-		$this->footer = $data['footer'];
+		$this->footer = $design->footer;
 		
-		$this->table_styles = $data['table_styles'];
+		$this->table_styles = $design->table_styles;
 	
 	}
 

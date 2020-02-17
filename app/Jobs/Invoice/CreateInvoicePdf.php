@@ -11,13 +11,14 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Designs\Custom;
 use App\Designs\Designer;
 use App\Designs\Modern;
 use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\Design;
 use App\Models\Invoice;
-
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Bus\Queueable;
@@ -25,9 +26,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
 use Illuminate\Support\Facades\App;
-
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 
@@ -77,8 +76,17 @@ class CreateInvoicePdf implements ShouldQueue {
 		//$file_path = $path . $this->invoice->number . '-' . $this->contact->contact_key .'.pdf';
 		$file_path = $path . $this->invoice->number . '.pdf';
 
-		$modern   = new Modern();
-		$designer = new Designer($modern, $this->invoice->client->getSetting('invoice_variables'));
+		$design = Design::find($this->invoice->client->getSetting('invoice_design_id'));
+
+		if($design->is_custom){
+			$invoice_design = new Custom($design->design);
+		}
+		else{
+			$class = 'App\Designs\\'.$design->name;
+			$invoice_design = new $class();
+		}
+
+		$designer = new Designer($invoice_design, $this->invoice->client->getSetting('invoice_variables'));
 
 		//get invoice design
 		$html = $this->generateInvoiceHtml($designer->build($this->invoice)->getHtml(), $this->invoice, $this->contact);

@@ -41,7 +41,7 @@ class Plain extends AbstractDesign
                                 $invoice_label
                             </div>
                             <div class="w-1/3 flex flex-col">
-                                $company_address
+                                $company_details
                             </div>
                             <div class="w-1/3 flex flex-col">
                                 <div class="h-14">$company_logo</div>
