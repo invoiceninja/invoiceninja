@@ -11,7 +11,7 @@
 
 namespace App\Designs;
 
-class Bold extends AbstractDesign
+class Business extends AbstractDesign
 {
 
 	public function __construct() {
@@ -34,17 +34,16 @@ class Bold extends AbstractDesign
 			    </head>
 			    <body>
 
-                <div class="flex static bg-gray-800 p-12">
+                <div class="my-16 mx-16">
+                <div class="flex justify-between">
                     <div class="w-1/2">
-                        <div class="absolute bg-white pt-10 px-10 pb-4 inline-block align-middle">
-                            $company_logo
-                        </div>
+                        $company_logo
                     </div>
-                    <div class="w-1/2 flex">
-                        <div class="w-64 flex flex-col text-white">
+                    <div class="w-1/2 flex justify-end">
+                        <div class="flex flex-col text-gray-600">
                             $company_details
                         </div>
-                        <div class="flex flex-col text-white">
+                        <div class="flex flex-col text-gray-600 ml-8">
                             $company_address
                         </div>
                     </div>
@@ -56,18 +55,35 @@ class Bold extends AbstractDesign
 	public function body() {
 
         return '
-            <div class="flex mt-32 pl-12">
-                <div class="w-1/2 mr-40 flex flex-col">
-                    <h2 class="text-2xl uppercase font-semibold text-teal-600 tracking-tight">$your_invoice</h2> $client_details
+            <div class="flex items-center justify-between mt-24">
+                <div class="w-1/2 flex flex-col">
+                    <span>$invoice_issued_to_label</span>
+                    <section class="text-orange-600 mt-2">
+                        $client_details
+                    </section>
                 </div>
-                <div class="w-1/2">
-                    <div class="w-full bg-teal-600 px-5 py-3 text-white flex">
-                        <div class="w-48 flex flex-col text-white">
-                            $invoice_details_labels
-                        </div>
-                        <div class="w-32 flex flex-col text-white">
-                            $invoice_details
-                        </div>
+                <div class="w-1/2 ml-40 bg-orange-600 px-4 py-4 h-auto">
+                    <div class="flex flex-col text-white">
+                        <section class="flex">
+                            <span class="w-1/2 mr-3">$invoice_number_label</span>
+                            <span class="font-semibold">$invoice_number</span>
+                        </section>
+                        <section class="flex">
+                            <span class="w-1/2 mr-3">$po_number_label</span>
+                            <span>$po_number</span>
+                        </section>
+                        <section class="flex">
+                            <span class="w-1/2 mr-3">$date_label</span>
+                            <span>$date</span>
+                        </section>
+                        <section class="flex">
+                            <span class="w-1/2 mr-3">$due_date</span>
+                            <span>$due_date_label</span>
+                        </section>
+                        <section class="flex">
+                            <span class="w-1/2 mr-3">$balance_due_label</span>
+                            <span>$balance_due</span>
+                        </section>
                     </div>
                 </div>
             </div>
@@ -77,63 +93,61 @@ class Bold extends AbstractDesign
 
 	public function table_styles() {
 		return [
-			'table_header_thead_class' => "text-left",
-			'table_header_td_class'    => "px-12 text-2xl px-4 py-2",
-			'table_body_td_class'      => "bg-gray-200 py-5 pl-12",
+			'table_header_thead_class' => "text-left bg-blue-900 rounded-lg",
+			'table_header_td_class'    => "font-semibold text-white px-4 py-5",
+			'table_body_td_class'      => "border-4 border-white text-orange-700 px-4 py-4",
 		];
 	}
 
 	public function table() {
 
         return '
-            <table class="w-full table-auto mt-8">
-                <thead class="text-left">
+            <table class="w-full table-auto my-20">
+                <thead class="text-left bg-blue-900 rounded-lg">
                     <tr>
                         $table_header
                     </tr>
                 </thead>
                 <tbody>
                     $table_body
+                    <tr class="bg-gray-200">
+                        <td colspan="5" ref="note" class="px-4 py-4">$invoice.public_notes</td>
+                        <td ref="quantity" class="px-4 py-4">
+                            $total_tax_labels
+                            $line_tax_labels
+                        </td>
+                        <td ref="line.total" class="px-4 py-4 text-right">
+                            $total_tax_values
+                            $line_tax_values
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" ref="terms" class="px-4 py-4">
+                            <p ref="terms" class="font-semibold">$terms_label</p>
+                            <p>$terms</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" ref="terms" class="px-4 py-4"></td>
+                        <td ref="terms" class="bg-blue-900 px-4 py-3">
+                            <span class="text-white">$balance_due_label</span>
+                        </td>
+                        <td ref="terms" class="bg-blue-900 px-4 py-3 text-right">
+                            <span class="text-white">$balance_due</span>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
-            
-            <div class="flex px-4 mt-6 w-full px-12">
-                <div class="w-1/2">
-                    $invoice.public_notes
-                </div>
-                <div class="w-1/2 flex">
-                    <div class="w-1/2 text-right flex flex-col">
-                        $total_tax_labels $line_tax_labels
-                    </div>
-                    <div class="w-1/2 text-right flex flex-col">
-                        $total_tax_values $line_tax_values
-                    </div>
-                </div>
-            </div>
-            
-            <div class="flex px-4 mt-4 w-full items-end px-12">
-                <div class="w-1/2">
-                    <p class="font-semibold">$terms_label</p>
-                    $terms
-                </div>
-                <div class="w-1/2 flex">
-                    <div class="w-1/2 text-right flex flex-col">
-                        <span class="text-2xl font-semibold">$balance_due_label</span>
-                    </div>
-                    <div class="w-1/2 text-right flex flex-col">
-                        <span class="text-2xl text-teal-600 font-semibold">$balance_due</span>
-                    </div>
-                </div>
-            </div>
         ';
 	}
 
 	public function footer() {
 
         return '
-                </div>
+        </div>
             </body>
-        </html>';
+        </html>
+        ';
 
 	}
 
