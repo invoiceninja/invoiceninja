@@ -18,7 +18,7 @@ use App\Models\Invoice;
 class MarkSent
 {
 
-    private $client;
+    public $client;
 
     public function __construct($client)
     {

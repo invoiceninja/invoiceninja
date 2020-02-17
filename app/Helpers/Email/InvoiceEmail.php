@@ -37,19 +37,19 @@ class InvoiceEmail extends EmailBuilder
                 $subject_template = trans('texts.invoice_subject',
                     [
                         'number' => $invoice->present()->invoice_number(),
-                        'company' => $invoice->company->present()->name()
+                        'account' => $invoice->company->present()->name()
                     ],
                     null, $invoice->client->locale());
             } else {
                 $subject_template = trans('texts.reminder_subject',
                     [
                         'number' => $invoice->present()->invoice_number(),
-                        'company' => $invoice->company->present()->name()
+                        'account' => $invoice->company->present()->name()
                     ],
                     null, $invoice->client->locale());
             }
         }
-
+        
         $this->setTemplate($invoice->client->getSetting('email_style'))
             ->setContact($contact)
             ->setVariables($invoice->makeValues($contact))

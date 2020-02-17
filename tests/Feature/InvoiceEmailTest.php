@@ -50,13 +50,12 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->client_id = $this->client->id;
         $this->invoice->setRelation('client', $this->client);
+
         $this->invoice->save();
 
-        $invitations = InvoiceInvitation::whereInvoiceId($this->invoice->id)->get();
+        $this->invoice->invitations->each(function ($invitation) {
 
         $email_builder = (new InvoiceEmail())->build($this->invoice, null, null);
-
-        $invitations->each(function ($invitation) use ($email_builder) {
 
             if ($invitation->contact->send_email && $invitation->contact->email) {
 

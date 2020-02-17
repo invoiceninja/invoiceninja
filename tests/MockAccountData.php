@@ -176,6 +176,9 @@ trait MockAccountData
 
 		$this->invoice = $this->invoice_calc->getInvoice();
 
+        $this->invoice->setRelation('client', $this->client);
+        $this->invoice->setRelation('company', $this->company);
+
         $this->invoice->save();
 
         $this->invoice->service()->markSent();

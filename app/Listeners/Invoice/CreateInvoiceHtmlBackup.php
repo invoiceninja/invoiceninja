@@ -38,6 +38,7 @@ class CreateInvoiceHtmlBackup implements ShouldQueue
      */
     public function handle($event)
     {
+
         MultiDB::setDB($event->company->db);
 
         $fields = new \stdClass;

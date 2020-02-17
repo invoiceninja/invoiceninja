@@ -56,7 +56,7 @@ class Client extends BaseModel implements HasLocalePreference
         'user_id',
         'company_id',
         'backup',
-        'settings',
+//        'settings',
         'last_login',
         'private_notes'
     ];
@@ -245,6 +245,7 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function getMergedSettings() :object
     {
+
         if ($this->group_settings !== null) {
             $group_settings = ClientSettings::buildClientSettings($this->group_settings->settings, $this->settings);
 
@@ -431,7 +432,7 @@ class Client extends BaseModel implements HasLocalePreference
         $languages = Cache::get('languages');
         
         return $languages->filter(function ($item) {
-            return $item->id == $this->client->getSetting('language_id');
+            return $item->id == $this->getSetting('language_id');
         })->first()->locale;
 
         //$lang = Language::find($this->client->getSetting('language_id'));

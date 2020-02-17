@@ -105,7 +105,7 @@ class InvoiceService
     }
 
     public function markSent()
-    {
+    {        
         $mark_sent = new MarkSent($this->invoice->client);
 
         $this->invoice = $mark_sent->run($this->invoice);

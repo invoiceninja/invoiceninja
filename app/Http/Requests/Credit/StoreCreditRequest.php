@@ -40,7 +40,9 @@ class StoreCreditRequest extends FormRequest
     {
         $input = $this->all();
 
-        $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        if($input['client_id'])
+            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         //$input['line_items'] = json_encode($input['line_items']);
         $this->replace($input);
