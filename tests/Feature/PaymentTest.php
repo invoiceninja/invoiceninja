@@ -364,7 +364,17 @@ class PaymentTest extends TestCase
         $this->invoice = null;
 
         $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->setRelation('company', $this->company);
         $client->save();
+
+        $client_contact = factory(\App\Models\ClientContact::class, 1)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1
+            ]);
+
+        $client->setRelation('contacts', $client_contact);
 
         $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
         $this->invoice->client_id = $client->id;
@@ -379,6 +389,8 @@ class PaymentTest extends TestCase
         $this->invoice_calc->build();
 
         $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->company->setRelation('company', $this->company);
+        $this->invoice->company->setRelation('client', $client);
         $this->invoice->save();
         $this->invoice->service()->markSent()->save();
         $this->invoice->is_deleted = false;

@@ -6,7 +6,6 @@
  *       @OA\Property(property="id", type="string", example="Opnel5aKBz", description="_________"),
  *       @OA\Property(property="user_id", type="string", example="", description="__________"),
  *       @OA\Property(property="company_id", type="string", example="", description="________"),
- *       @OA\Property(property="client_id", type="string", example="", description="________"),
  *       @OA\Property(
  *       	property="contacts",
  *        	type="array",

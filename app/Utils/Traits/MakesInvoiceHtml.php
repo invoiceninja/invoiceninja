@@ -34,10 +34,11 @@ trait MakesInvoiceHtml
     {
         //$variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
         //$design = str_replace(array_keys($variables), array_values($variables), $design);
-        if(!$contact)
-            $contact = $invoice->client->primary_contact()->first();
+        $invoice->load('client');
 
-        App::setLocale($contact->preferredLocale());
+        $client = $invoice->client;
+
+        App::setLocale($client->preferredLocale());
 
         $labels = $invoice->makeLabels();
         $values = $invoice->makeValues($contact);

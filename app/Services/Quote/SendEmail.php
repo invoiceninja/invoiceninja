@@ -27,10 +27,13 @@ class SendEmail
             $reminder_template = $this->quote->status_id == Quote::STATUS_DRAFT || Carbon::parse($this->quote->due_date) > now() ? 'invoice' : $this->quote->calculateTemplate();
         }
 
-        $email_builder = (new QuoteEmail())->build($this->quote, $reminder_template, $contact);
+        $this->quote->invitations->each(function ($invitation){
 
-        $this->quote->invitations->each(function ($invitation) use ($email_builder) {
-            if ($invitation->contact->send && $invitation->contact->email) {
+            if ($invitation->contact->send && $invitation->contact->email) 
+            {
+
+                $email_builder = (new QuoteEmail())->build($invitation, $reminder_template);
+
                 EmailQuote::dispatchNow($email_builder, $invitation);
             }
         });

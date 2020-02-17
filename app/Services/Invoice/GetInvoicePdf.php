@@ -12,20 +12,32 @@
 namespace App\Services\Invoice;
 
 use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Models\ClientContact;
+use App\Models\Invoice;
+use App\Services\AbstractService;
 use Illuminate\Support\Facades\Storage;
 
-class GetInvoicePdf
+class GetInvoicePdf extends AbstractService
 {
 
-  	public function run($invoice, $contact = null)
+    public function __construct(Invoice $invoice, ClientContact $contact = null)
+    {
+
+        $this->invoice = $invoice;
+
+        $this->contact = $contact;
+
+    }
+
+  	public function run()
   	{
 
-    	if(!$contact)
-			$contact = $invoice->client->primary_contact()->first();
+    	if(!$this->contact)
+			$this->contact = $this->invoice->client->primary_contact()->first();
 
-		$path      = $invoice->client->invoice_filepath();
+		$path      = $this->invoice->client->invoice_filepath();
 
-		$file_path = $path . $invoice->number . '.pdf';
+		$file_path = $path . $this->invoice->number . '.pdf';
 
 		$disk 	   = config('filesystems.default');
 
@@ -34,7 +46,7 @@ class GetInvoicePdf
 		if(!$file)
 		{
 
-			$file_path = CreateInvoicePdf::dispatchNow($invoice, $invoice->company, $contact);
+			$file_path = CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->contact);
 
 		}
 

@@ -2,10 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\DataMapper\DefaultSettings;
 use App\Factory\ClientFactory;
+use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceInvitationFactory;
 use App\Helpers\Email\InvoiceEmail;
+use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Mail\TemplateEmail;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -49,9 +52,7 @@ class SendTestEmails extends Command
     public function handle()
     {
         $this->sendTemplateEmails('plain');
-        sleep(5);
         $this->sendTemplateEmails('light');
-        sleep(5);
         $this->sendTemplateEmails('dark');
     }
 
@@ -68,24 +69,46 @@ class SendTestEmails extends Command
 
         $user = User::whereEmail('user@example.com')->first();
 
-        $account = factory(\App\Models\Account::class)->create();
-
-        $company = factory(\App\Models\Company::class)->create([
-            'account_id' => $account->id,
-        ]);
-
-        $client = Client::all()->first();
 
         if (!$user) {
+
             $user = factory(\App\Models\User::class)->create([
                 'confirmation_code' => '123',
                 'email' => $faker->safeEmail,
                 'first_name' => 'John',
                 'last_name' => 'Doe',
             ]);
+
+            $account = factory(\App\Models\Account::class)->create();
+
+
+            $company = factory(\App\Models\Company::class)->create([
+                'account_id' => $account->id,
+            ]);
+
+            $user->companies()->attach($company->id, [
+                'account_id' => $account->id,
+                'is_owner' => 1,
+                'is_admin' => 1,
+                'is_locked' => 0,
+                'permissions' => '',
+                'settings' => DefaultSettings::userSettings(),
+            ]);
+
+        }
+        else
+        {
+            $company = $user->company_users->first()->company;
+            $account = $company->account;
         }
 
+
+
+        $client = Client::all()->first();
+
+
         if (!$client) {
+
             $client = ClientFactory::create($company->id, $user->id);
             $client->save();
 
@@ -118,13 +141,18 @@ class SendTestEmails extends Command
                 $ii->save();
 
         $invoice->setRelation('invitations', $ii);
+        $invoice->service()->markSent()->save();
 
-        $invoice->save();
+        CreateInvoicePdf::dispatch($invoice, $company, $client->primary_contact()->first());
 
         $cc_emails = [config('ninja.testvars.test_email')];
         $bcc_emails = [config('ninja.testvars.test_email')];
 
-        $email_builder = (new InvoiceEmail())->build($invoice, null, $client->primary_contact()->first());
+        $email_builder = (new InvoiceEmail())->build($ii, 'invoice');
+
+        $email_builder->setFooter($message['footer'])
+                      ->setSubject($message['subject'])
+                      ->setBody($message['body']);
 
         Mail::to(config('ninja.testvars.test_email'), 'Mr Test')
             ->cc($cc_emails)

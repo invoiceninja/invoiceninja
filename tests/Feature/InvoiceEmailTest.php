@@ -41,7 +41,7 @@ class InvoiceEmailTest extends TestCase
         $this->makeTestData();
     }
 
-    public function test_initial_email_sends()
+    public function test_initial_email_send_emails()
     {
 
         $this->invoice->date = now();
@@ -50,15 +50,14 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->client_id = $this->client->id;
         $this->invoice->setRelation('client', $this->client);
+
         $this->invoice->save();
 
-        $invitations = InvoiceInvitation::whereInvoiceId($this->invoice->id)->get();
+        $this->invoice->invitations->each(function ($invitation) {
 
-        $email_builder = (new InvoiceEmail())->build($this->invoice, null, null);
+            if ($invitation->contact->send_email && $invitation->contact->email) {
 
-        $invitations->each(function ($invitation) use ($email_builder) {
-
-            if ($invitation->contact->send && $invitation->contact->email) {
+                $email_builder = (new InvoiceEmail())->build($invitation, null);
 
                 EmailInvoice::dispatch($email_builder, $invitation, $invitation->company);
 

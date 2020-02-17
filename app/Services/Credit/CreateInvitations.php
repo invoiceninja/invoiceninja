@@ -3,18 +3,19 @@ namespace App\Services\Credit;
 
 use App\Factory\CreditInvitationFactory;
 use App\Models\CreditInvitation;
+use App\Services\AbstractService;
 
-class CreateInvitations
+class CreateInvitations extends AbstractService
 {
 
     public function __construct()
     {
     }
 
-    public function __invoke($credit)
+    public function run($credit)
     {
 
-        $contacts = $credit->customer->contacts;
+        $contacts = $credit->client->contacts;
 
         $contacts->each(function ($contact) use($credit){
             $invitation = CreditInvitation::whereCompanyId($credit->account_id)
@@ -23,11 +24,11 @@ class CreateInvitations
                 ->first();
 
             if (!$invitation) {
-                $ii = CreditInvitationFactory::create($credit->account_id, $credit->user_id);
+                $ii = CreditInvitationFactory::create($credit->company_id, $credit->user_id);
                 $ii->credit_id = $credit->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send_credit) {
+            } elseif ($invitation && !$contact->send_email) {
                 $invitation->delete();
             }
         });

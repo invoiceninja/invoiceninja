@@ -14,35 +14,41 @@ namespace App\Services\Invoice;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
 use App\Utils\Traits\GeneratesCounter;
 
-class ApplyNumber
+class ApplyNumber extends AbstractService
 {
 	use GeneratesCounter;
 
     private $client;
 
-    public function __construct($client)
+    private $invoice;
+
+    public function __construct(Client $client, Invoice $invoice)
     {
         $this->client = $client;
+        
+        $this->invoice = $invoice;
     }
 
-  	public function run($invoice)
+  	public function run()
     {
-        if ($invoice->number != '')
-            return $invoice;
+        if ($this->invoice->number != '')
+            return $this->invoice;
 
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':
-                $invoice->number = $this->getNextInvoiceNumber($this->client);
+                $this->invoice->number = $this->getNextInvoiceNumber($this->client);
                 break;
             case 'when_sent':
-                if ($invoice->status_id == Invoice::STATUS_SENT) {
-                    $invoice->number = $this->getNextInvoiceNumber($this->client);
+                if ($this->invoice->status_id == Invoice::STATUS_SENT) {
+                    $this->invoice->number = $this->getNextInvoiceNumber($this->client);
                 }
                 break;
 
@@ -51,6 +57,6 @@ class ApplyNumber
                 break;
         }
 
-        return $invoice;
+        return $this->invoice;
     }
 }

@@ -15,29 +15,31 @@ namespace App\Services\Invoice;
 use App\Factory\InvoiceInvitationFactory;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Services\AbstractService;
 
-class CreateInvitations
+class CreateInvitations extends AbstractService
 {
 
-    public function __construct()
+    private $invoice;
+
+    public function __construct(Invoice $invoice)
     {
-        // ..
+        $this->invoice = $invoice;
     }
 
-  	public function run($invoice)
+  	public function run()
   	{
 
-        $contacts = $invoice->client->contacts;
+        $this->invoice->client->contacts->each(function ($contact){
 
-        $contacts->each(function ($contact) use($invoice){
-            $invitation = InvoiceInvitation::whereCompanyId($invoice->company_id)
+            $invitation = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
                                         ->whereClientContactId($contact->id)
-                                        ->whereInvoiceId($invoice->id)
+                                        ->whereInvoiceId($this->invoice->id)
                                         ->first();
 
             if (!$invitation && $contact->send) {
-                $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
-                $ii->invoice_id = $invoice->id;
+                $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
+                $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
             } elseif ($invitation && !$contact->send) {
@@ -45,6 +47,6 @@ class CreateInvitations
             }
         });
 
-        return $invoice;
+        return $this->invoice;
   	}
 }

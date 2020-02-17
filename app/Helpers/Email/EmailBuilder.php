@@ -1,15 +1,13 @@
 <?php
 
-
 namespace App\Helpers\Email;
-
 
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Quote;
 use League\CommonMark\CommonMarkConverter;
 
-abstract class EmailBuilder
+class EmailBuilder
 {
     protected $subject;
     protected $body;
@@ -84,7 +82,7 @@ abstract class EmailBuilder
      */
     public function setBody($body)
     {
-        $this->parseTemplate($body, true);
+        $this->body = $this->parseTemplate($body, true);
         return $this;
     }
 

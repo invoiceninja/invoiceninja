@@ -12,6 +12,7 @@
 namespace App\Jobs\Invoice;
 
 use App\Libraries\MultiDB;
+use App\Mail\DownloadInvoices;
 use App\Models\Company;
 use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
@@ -19,15 +20,16 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 
 class ZipInvoices implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $invoice;
+    public $invoices;
 
     private $company;
 
@@ -66,7 +68,7 @@ class ZipInvoices implements ShouldQueue
 
         $zip = new ZipStream($file_name, $options);
 
-        foreach ($invoices as $invoice) {
+        foreach ($this->invoices as $invoice) {
             $zip->addFileFromPath(basename($invoice->pdf_file_path()), public_path($invoice->pdf_file_path()));
         }
 
@@ -76,9 +78,9 @@ class ZipInvoices implements ShouldQueue
 
         fclose($tempStream);
 
-
         //fire email here
-        return Storage::disk(config('filesystems.default'))->url($path . $file_name);
+        Mail::to(config('ninja.contact.ninja_official_contact'))
+            ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path . $file_name)));
 
     }
 }

@@ -33,6 +33,8 @@ class CompanySettings extends BaseSettings {
 	public $document_email_attachment      = false;
 	public $send_portal_password           = false;
 
+	public $portal_design_id    = '1';
+
 	public $timezone_id    = '';
 	public $date_format_id = '';
 	public $military_time  = false;
@@ -218,6 +220,7 @@ class CompanySettings extends BaseSettings {
 	public $invoice_variables = [];
 
 	public static $casts = [
+		'portal_design_id'					 => 'string',
 		'late_fee_endless_percent'           => 'float',
 		'late_fee_endless_amount'            => 'float',
 		'auto_email_invoice'                 => 'bool',
