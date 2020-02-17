@@ -9,10 +9,9 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Libraries\Utils;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\BaseController;
+use App\Models\Document;
 
 class StepsController extends BaseController
 {
@@ -65,6 +64,7 @@ class StepsController extends BaseController
             'quotes' => $this->getQuotes(),
             'payments' => array_merge($this->getPayments(), $this->getCredits()),
             'credits' => $this->getCreditsNotes(),
+            'documents' => $this->getDocuments(),
         ];
 
         $file = storage_path("{$fileName}.zip");
@@ -604,6 +604,37 @@ class StepsController extends BaseController
                 'created_at' => $credit->created_at ? $credit->created_at->toDateString() : null,
                 'updated_at' => $credit->updated_at ? $credit->updated_at->toDateString() : null,
                 'deleted_at' => $credit->deleted_at ? $credit->deleted_at->toDateString() : null,
+            ];
+        }
+
+        return $transformed;
+    }
+
+    private function getDocuments()
+    {
+        $documents = Document::where('account_id', $this->account->id)->get();
+
+        $transformed = [];
+
+        // Notes: 
+        // Missing: public_id
+
+        foreach ($documents as $document) {
+            $transformed[] = [
+                'id' => $document->id,
+                'user_id' => $document->user_id,
+                'company_id' => $this->account->id,
+                'path' => $document->path,
+                'preview' => $document->preview,
+                'name' => $document->name,
+                'type' => $document->type,
+                'disk' => $document->disk,
+                'hash' => $document->hash,
+                'size' => $document->size,
+                'width' => $document->width,
+                'height' => $document->height,
+                'created_at' => $document->created_at ? $document->created_at->toDateString() : null,
+                'updated_at' => $document->updated_at ? $document->updated_at->toDateString() : null,
             ];
         }
 
