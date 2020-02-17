@@ -17,7 +17,7 @@ class InvoiceEmail extends EmailBuilder
 
     public function build(InvoiceInvitation $invitation, $reminder_template)
     {
-        $client = $invitation->client;
+        $client = $invitation->contact->client;
         $invoice = $invitation->invoice;
         $contact = $invitation->contact;
 
@@ -25,6 +25,7 @@ class InvoiceEmail extends EmailBuilder
             $reminder_template = $invoice->calculateTemplate();
 
         $body_template = $client->getSetting('email_template_' . $reminder_template);
+
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {

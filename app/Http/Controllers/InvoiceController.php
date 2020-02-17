@@ -666,7 +666,9 @@ class InvoiceController extends BaseController {
 			case 'email':
 				$invoice->invitations->each(function ($invitation) use($invoice){
 
-					EmailInvoice::dispatch((new InvoiceEmail)->build($invoice, null, null), $invitation, $invoice->company);
+            		$email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
+
+					EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
 
 				});
 
