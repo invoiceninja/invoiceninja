@@ -34,17 +34,17 @@ class Business extends AbstractDesign
 			    </head>
 			    <body>
 
-                <div class="my-16 mx-24">
+                <div class="my-16 mx-16">
                 <div class="flex justify-between">
                     <div class="w-1/2">
-                        4company_logo
+                        $company_logo
                     </div>
                     <div class="w-1/2 flex justify-end">
                         <div class="flex flex-col text-gray-600">
                             $company_details
                         </div>
                         <div class="flex flex-col text-gray-600 ml-8">
-                            $company_details
+                            $company_address
                         </div>
                     </div>
                 </div>
@@ -57,7 +57,7 @@ class Business extends AbstractDesign
         return '
             <div class="flex items-center justify-between mt-24">
                 <div class="w-1/2 flex flex-col">
-                    <span>Invoice issued to</span>
+                    <span>$invoice_issued_to_label</span>
                     <section class="text-orange-600 mt-2">
                         $client_details
                     </section>
@@ -66,15 +66,15 @@ class Business extends AbstractDesign
                     <div class="flex flex-col text-white">
                         <section class="flex">
                             <span class="w-1/2 mr-3">$invoice_number_label</span>
-                            <span class="font-semibold">$invoice.number</span>
+                            <span class="font-semibold">$invoice_number</span>
                         </section>
                         <section class="flex">
                             <span class="w-1/2 mr-3">$po_number_label</span>
                             <span>$po_number</span>
                         </section>
                         <section class="flex">
-                            <span class="w-1/2 mr-3">$invoice_date_label</span>
-                            <span>$invoice.date</span>
+                            <span class="w-1/2 mr-3">$date_label</span>
+                            <span>$date</span>
                         </section>
                         <section class="flex">
                             <span class="w-1/2 mr-3">$due_date</span>
@@ -113,10 +113,12 @@ class Business extends AbstractDesign
                     <tr class="bg-gray-200">
                         <td colspan="5" ref="note" class="px-4 py-4">$invoice.public_notes</td>
                         <td ref="quantity" class="px-4 py-4">
-                            $total_tax_label $line_tax_label
+                            $total_tax_labels
+                            $line_tax_labels
                         </td>
                         <td ref="line.total" class="px-4 py-4 text-right">
-                            $total_tax_values $line_tax_values
+                            $total_tax_values
+                            $line_tax_values
                         </td>
                     </tr>
                     <tr>
@@ -143,7 +145,6 @@ class Business extends AbstractDesign
 
         return '
         </div>
-
             </body>
         </html>
         ';

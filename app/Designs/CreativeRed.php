@@ -11,7 +11,7 @@
 
 namespace App\Designs;
 
-class Creative extends AbstractDesign
+class CreativeRed extends AbstractDesign
 {
 
 	public function __construct() {
@@ -40,14 +40,16 @@ class Creative extends AbstractDesign
                             <div>
                                 $client_details
                             </div>
-                            <div class="ml-6">
+                            <div class="ml-6 flex flex-col">
                                 $company_details
                             </div>
-                            <div class="ml-6">
+                            <div class="ml-6 flex flex-col">
                                 $company_address
                             </div>
                         </div>
-                        $company_logo
+                        <div class="h-16">
+                            $company_logo
+                        </div>
                     </div>
 			';
 
@@ -58,22 +60,22 @@ class Creative extends AbstractDesign
         return '
         <div class="flex mt-8">
             <div class="w-2/3 flex">
-                <h1 class="text-6xl uppercase font-semibold">Invoice</h1>
-                <i class="ml-4 text-6xl text-pink-700">$invoice.number</i>
+                <h1 class="text-6xl uppercase font-semibold">$invoice_label</h1>
+                <i class="ml-4 text-6xl text-pink-700">#$invoice_number</i>
             </div>
             <div class="w-1/3">
                 <div class="flex flex-col">
                     <section class="flex">
                         <span class="w-1/2 mr-2">$invoice_number_label</span>
-                        <span class="font-semibold">$invoice.number</span>
+                        <span class="font-semibold">$invoice_number</span>
                     </section>
                     <section class="flex">
                         <span class="w-1/2 mr-2">$po_number_label</span>
                         <span>$po_number</span>
                     </section>
                     <section class="flex">
-                        <span class="w-1/2 mr-2">$invoice_date_label</span>
-                        <span>$invoice_date</span>
+                        <span class="w-1/2 mr-2">$date_label</span>
+                        <span>$date</span>
                     </section>
                     <section class="flex">
                         <span class="w-1/2 mr-2">$due_date_label</span>
@@ -104,13 +106,13 @@ class Creative extends AbstractDesign
         <table class="w-full table-auto mt-20 border-t-4 border-b-4 border-pink-700 bg-white">
         <thead class="text-left rounded-lg">
             <tr>
-                $table_head
+                $table_header
             </tr>
         </thead>
         <tbody>
             $table_body
             <tr>
-                <td colspan="5" ref="note" class="px-4 py-4">$invoice.public_note</td>
+                <td colspan="7" ref="note" class="px-4 py-4">$invoice.public_notes</td>
                 <td ref="quantity" class="px-4 py-4">
                     $total_tax_labels
                     $line_tax_labels
@@ -121,7 +123,7 @@ class Creative extends AbstractDesign
                 </td>
             </tr>
             <tr>
-                <td colspan="5" ref="terms" class="px-4 py-4">
+                <td colspan="7" ref="terms" class="px-4 py-4">
                     <p ref="terms" class="font-semibold">$terms_label</p>
                     <p>$terms</p>
                 </td>

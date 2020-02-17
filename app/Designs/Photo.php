@@ -50,21 +50,21 @@ class Photo extends AbstractDesign
             <div class="px-16 py-10">
                 <div class="flex justify-end">
                     <span class="text-orange-700">$invoice_number_label</span>
-                    <span class="ml-6">$invoice.id</span>
+                    <span class="ml-6">$invoice_number</span>
                 </div>
-                <div class="flex items-center justify-between mt-2s">
-                    <div ref="logo">
+                <div class="flex items-center justify-between mt-2">
+                    <div ref="logo" class="h-14">
                         $company_logo
                     </div>
                     <div class="flex">
-                        <span class="uppercase font-semibold">$payment_due_label</span>
-                        <span class="ml-4">$payment_due</span>
+                        <span class="uppercase font-semibold">$due_date_label</span>
+                        <span class="ml-4">$due_date</span>
                         <span class="ml-4 uppercase font-semibold">$balance_due_label</span>
                         <span class="ml-4 text-orange-700">$balance_due</span>
                     </div>
                 </div>
             </div>
-            <div class="flex content-center flex-wrap bg-gray-200 h-auto p-16" id="imageContainer">
+            <div class="flex content-center flex-wrap bg-gray-200 h-auto px-16 py-5" id="imageContainer">
                 <div class="flex flex-col">
                     <div class="flex">
                         <p class="uppercase text-orange-800">To:</p>

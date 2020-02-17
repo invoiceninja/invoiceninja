@@ -51,7 +51,7 @@ class Hipster extends AbstractDesign
                             <p class="font-semibold uppercase text-yellow-600">To:</p>
                             $client_details
                         </div>
-                        <div class="w-1/3 mt-5">
+                        <div class="w-1/3 mt-5 h-16">
                             $company_logo
                         </div>
                     </div>
@@ -63,20 +63,20 @@ class Hipster extends AbstractDesign
 
         return '
         <div class="flex flex-col mx-6 mt-10">
-            <h1 class="font-semibold uppercase text-6xl">Invoice</h1>
+            <h1 class="font-semibold uppercase text-6xl">$invoice_label</h1>
             <div class="flex mt-1">
-                <span class="font-semibold uppercase text-yellow-600">Invoice No. 2008027</span>
+                <span class="font-semibold uppercase text-yellow-600">$invoice_number</span>
                 <div class="ml-4">
-                    <span class="uppercase">$invoice_date_label</span>
-                    <span>$invoice_date</span>
+                    <span class="uppercase">$date_label</span>
+                    <span>$date</span>
                 </div>
                 <div class="ml-10">
-                    <span class="uppercase">$payment_due_label</span>
-                    <span>$payment_due</span>
+                    <span class="uppercase">$balance_due_label</span>
+                    <span>$due_date</span>
                 </div>
                 <div class="ml-4">
-                    <span class="uppercase">$amount_due_label</span>
-                    <span class="text-yellow-600">$amount_due</span>
+                    <span class="uppercase">$balance_due_label</span>
+                    <span class="text-yellow-600">$balance_due</span>
                 </div>
             </div>
         </div>

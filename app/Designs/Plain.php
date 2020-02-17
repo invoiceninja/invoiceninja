@@ -38,18 +38,18 @@ class Plain extends AbstractDesign
                     <div class="px-12 py-8">
                         <div class="flex">
                             <div class="w-1/3">
-                                Demo..
+                                $invoice_label
                             </div>
                             <div class="w-1/3 flex flex-col">
                                 $company_address
                             </div>
                             <div class="w-1/3 flex flex-col">
-                                $company_logo
+                                <div class="h-14">$company_logo</div>
                                 <div class="flex px-3 mt-6">
                                     <section class="w-1/2">
                                         $invoice_details_labels
                                     </section>
-                                    <section>
+                                    <section class="text-right">
                                         $invoice_details
                                     </section>
                                 </div>

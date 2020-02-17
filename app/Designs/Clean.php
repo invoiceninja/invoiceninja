@@ -57,7 +57,7 @@ class Clean extends AbstractDesign
 
         return '
             <h1 class="mt-12 uppercase text-2xl text-blue-500 ml-4">
-                Invoice
+                $invoice_label
             </h1>
 
             <div class="border-b border-gray-400"></div>

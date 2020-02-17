@@ -47,6 +47,7 @@ trait MakesInvoiceValues
      * @var array
      */
     private static $labels = [
+        'invoice',
         'date',
         'due_date',
         'invoice_number',
@@ -250,7 +251,7 @@ trait MakesInvoiceValues
     public function makeValues($contact = null) :array
     {
         if (!$this->client->currency() || !$this->client) {
-            throw new Exception(debug_backtrace()[1]['function'], 1);
+            throw new \Exception(debug_backtrace()[1]['function'], 1);
             exit;
         }
         
