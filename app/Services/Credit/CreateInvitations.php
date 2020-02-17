@@ -1,31 +1,35 @@
 <?php
+
 namespace App\Services\Credit;
 
 use App\Factory\CreditInvitationFactory;
+use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Services\AbstractService;
 
 class CreateInvitations extends AbstractService
 {
+    private $credit;
 
-    public function __construct()
+    public function __construct(Credit $credit)
     {
+        $this->credit = $credit;
     }
 
-    public function run($credit)
+    public function run()
     {
 
-        $contacts = $credit->client->contacts;
+        $contacts = $this->credit->client->contacts;
 
-        $contacts->each(function ($contact) use($credit){
-            $invitation = CreditInvitation::whereCompanyId($credit->account_id)
+        $contacts->each(function ($contact){
+            $invitation = CreditInvitation::whereCompanyId($this->credit->company_id)
                 ->whereClientContactId($contact->id)
-                ->whereCreditId($credit->id)
+                ->whereCreditId($this->credit->id)
                 ->first();
 
             if (!$invitation) {
-                $ii = CreditInvitationFactory::create($credit->company_id, $credit->user_id);
-                $ii->credit_id = $credit->id;
+                $ii = CreditInvitationFactory::create($this->credit->company_id, $this->credit->user_id);
+                $ii->credit_id = $this->credit->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
             } elseif ($invitation && !$contact->send_email) {

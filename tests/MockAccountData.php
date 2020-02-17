@@ -97,7 +97,6 @@ trait MockAccountData
 
         $settings = CompanySettings::defaults();
 
-        $settings->name         = 'The Best Company Name';
         $settings->company_logo = 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
         $settings->website      = 'www.invoiceninja.com';
         $settings->address1     = 'Address 1';
