@@ -95,6 +95,25 @@ trait MockAccountData
             'account_id' => $this->account->id,
         ]);
 
+        $settings = CompanySettings::defaults();
+
+        $settings->name         = 'The Best Company Name';
+        $settings->company_logo = 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+        $settings->website      = 'www.invoiceninja.com';
+        $settings->address1     = 'Address 1';
+        $settings->address2     = 'Address 2';
+        $settings->city         = 'City';
+        $settings->state        = 'State';
+        $settings->postal_code  = 'Postal Code';
+        $settings->phone        = '555-343-2323';
+        $settings->email        = 'user@example.com';
+        $settings->country_id   = '840';
+        $settings->vat_number = 'vat number';
+        $settings->id_number  = 'id number';
+
+        $this->company->settings = $settings;
+        $this->company->save();
+
         $this->account->default_company_id = $this->company->id;
         $this->account->save();
 
@@ -131,8 +150,14 @@ trait MockAccountData
         //     'settings' => json_encode(DefaultSettings::userSettings()),
         // ]);
 
-         $this->client = ClientFactory::create($this->company->id, $this->user->id);
-         $this->client->save();
+         // $this->client = ClientFactory::create($this->company->id, $this->user->id);
+         // $this->client->save();
+
+            $this->client = factory(\App\Models\Client::class)->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+            ]);
+
 
             factory(\App\Models\ClientContact::class,1)->create([
                 'user_id' => $this->user->id,
@@ -148,7 +173,6 @@ trait MockAccountData
                 'company_id' => $this->company->id,
                 'send_email' => true
             ]);
-
         
         $gs = new GroupSetting;
         $gs->name = 'Test';
