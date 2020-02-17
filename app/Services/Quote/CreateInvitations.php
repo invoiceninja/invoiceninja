@@ -22,12 +22,12 @@ class CreateInvitations
                 ->whereQuoteId($quote->id)
                 ->first();
 
-            if (!$invitation && $contact->send) {
+            if (!$invitation && $contact->send_email) {
                 $ii = QuoteInvitationFactory::create($quote->company_id, $quote->user_id);
                 $ii->quote_id = $quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send) {
+            } elseif ($invitation && !$contact->send_email) {
                 $invitation->delete();
             }
         });
