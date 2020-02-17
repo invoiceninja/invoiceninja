@@ -55,38 +55,38 @@ class Business extends AbstractDesign
 	public function body() {
 
         return '
-        <div class="flex items-center justify-between mt-24">
-        <div class="w-1/2 flex flex-col">
-            <span>Invoice issued to</span>
-            <section class="text-orange-600 mt-2">
-               $client_details
-            </section>
-        </div>
-        <div class="w-1/2 ml-40 bg-orange-600 px-4 py-4 h-auto">
-            <div class="flex flex-col text-white">
-                <section class="flex">
-                    <span class="w-1/2 mr-3">$invoice_number_label</span>
-                    <span class="font-semibold">$invoice.number</span>
-                </section>
-                <section class="flex">
-                    <span class="w-1/2 mr-3">$po_number_label</span>
-                    <span>$po_number</span>
-                </section>
-                <section class="flex">
-                    <span class="w-1/2 mr-3">$invoice_date_label</span>
-                    <span>$invoice.date</span>
-                </section>
-                <section class="flex">
-                    <span class="w-1/2 mr-3">$due_date</span>
-                    <span>$due_date_label</span>
-                </section>
-                <section class="flex">
-                    <span class="w-1/2 mr-3">$balance_due_label</span>
-                    <span>$balance_due</span>
-                </section>
+            <div class="flex items-center justify-between mt-24">
+                <div class="w-1/2 flex flex-col">
+                    <span>Invoice issued to</span>
+                    <section class="text-orange-600 mt-2">
+                        $client_details
+                    </section>
+                </div>
+                <div class="w-1/2 ml-40 bg-orange-600 px-4 py-4 h-auto">
+                    <div class="flex flex-col text-white">
+                        <section class="flex">
+                            <span class="w-1/2 mr-3">$invoice_number_label</span>
+                            <span class="font-semibold">$invoice.number</span>
+                        </section>
+                        <section class="flex">
+                            <span class="w-1/2 mr-3">$po_number_label</span>
+                            <span>$po_number</span>
+                        </section>
+                        <section class="flex">
+                            <span class="w-1/2 mr-3">$invoice_date_label</span>
+                            <span>$invoice.date</span>
+                        </section>
+                        <section class="flex">
+                            <span class="w-1/2 mr-3">$due_date</span>
+                            <span>$due_date_label</span>
+                        </section>
+                        <section class="flex">
+                            <span class="w-1/2 mr-3">$balance_due_label</span>
+                            <span>$balance_due</span>
+                        </section>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
         ';
 
 	}
@@ -102,42 +102,41 @@ class Business extends AbstractDesign
 	public function table() {
 
         return '
-        <table class="w-full table-auto my-20">
-            <thead class="text-left bg-blue-900 rounded-lg">
-                <tr>
-                    $table_header
-                </tr>
-            </thead>
-            <tbody>
-                $table_body
-                <tr class="bg-gray-200">
-                    <td colspan="5" ref="note" class="px-4 py-4">$invoice.public_notes</td>
-                    <td ref="quantity" class="px-4 py-4">
-                        $total_tax_label
-                        $line_tax_label
-                    </td>
-                    <td ref="line.total" class="px-4 py-4 text-right">
-                        $total_tax_values
-                        $line_tax_values
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="5" ref="terms" class="px-4 py-4">
-                        <p ref="terms" class="font-semibold">$terms_label</p>
-                        <p>$terms</p>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="5" ref="terms" class="px-4 py-4"></td>
-                    <td ref="terms" class="bg-blue-900 px-4 py-3">
-                        <span class="text-white">$balance_due_label</span>
-                    </td>
-                    <td ref="terms" class="bg-blue-900 px-4 py-3 text-right">
-                        <span class="text-white">$balance_due</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>';
+            <table class="w-full table-auto my-20">
+                <thead class="text-left bg-blue-900 rounded-lg">
+                    <tr>
+                        $table_header
+                    </tr>
+                </thead>
+                <tbody>
+                    $table_body
+                    <tr class="bg-gray-200">
+                        <td colspan="5" ref="note" class="px-4 py-4">$invoice.public_notes</td>
+                        <td ref="quantity" class="px-4 py-4">
+                            $total_tax_label $line_tax_label
+                        </td>
+                        <td ref="line.total" class="px-4 py-4 text-right">
+                            $total_tax_values $line_tax_values
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" ref="terms" class="px-4 py-4">
+                            <p ref="terms" class="font-semibold">$terms_label</p>
+                            <p>$terms</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" ref="terms" class="px-4 py-4"></td>
+                        <td ref="terms" class="bg-blue-900 px-4 py-3">
+                            <span class="text-white">$balance_due_label</span>
+                        </td>
+                        <td ref="terms" class="bg-blue-900 px-4 py-3 text-right">
+                            <span class="text-white">$balance_due</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        ';
 	}
 
 	public function footer() {
