@@ -24,32 +24,36 @@ class MarkPaid extends AbstractService
 {
     private $client_service;
 
-    public function __construct($client_service)
+    private $invoice;
+
+    public function __construct(ClientService $client_service, Invoice $invoice)
     {
         $this->client_service = $client_service;
+
+        $this->invoice = $invoice;
     }
 
-  	public function run($invoice)
+  	public function run()
   	{
 
-        if($invoice->status_id == Invoice::STATUS_DRAFT)
-            $invoice->service()->markSent();
+        if($this->invoice->status_id == Invoice::STATUS_DRAFT)
+            $this->invoice->service()->markSent();
 
         /* Create Payment */
-        $payment = PaymentFactory::create($invoice->company_id, $invoice->user_id);
+        $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
-        $payment->amount = $invoice->balance;
+        $payment->amount = $this->invoice->balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
-        $payment->client_id = $invoice->client_id;
+        $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = ctrans('texts.manual_entry');
         /* Create a payment relationship to the invoice entity */
         $payment->save();
 
-        $payment->invoices()->attach($invoice->id, [
+        $payment->invoices()->attach($this->invoice->id, [
             'amount' => $payment->amount
         ]);
 
-        $invoice->service()
+        $this->invoice->service()
                 ->updateBalance($payment->amount*-1)
                 ->setStatus(Invoice::STATUS_PAID)
                 ->save();
@@ -64,7 +68,7 @@ class MarkPaid extends AbstractService
             ->updatePaidToDate($payment->amount)
             ->save();
 
-        return $invoice;
+        return $this->invoice;
   	}
 
 }

@@ -19,34 +19,37 @@ use App\Services\AbstractService;
 class MarkSent extends AbstractService
 {
 
-    public $client;
+    private $client;
 
-    public function __construct($client)
+    private $invoice;
+
+    public function __construct($client, $invoice)
     {
         $this->client = $client;
+        $this->invoice = $invoice;
     }
 
-  	public function run($invoice)
+  	public function run()
   	{
 
         /* Return immediately if status is not draft */
-        if ($invoice->status_id != Invoice::STATUS_DRAFT) {
-            return $invoice;
+        if ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
+            return $this->invoice;
         }
 
-        $invoice->markInvitationsSent();
+        $this->invoice->markInvitationsSent();
 
-        $invoice->setReminder();
+        $this->invoice->setReminder();
 
-        event(new InvoiceWasMarkedSent($invoice, $invoice->company));
+        event(new InvoiceWasMarkedSent($this->invoice, $this->invoice->company));
 
-        $this->client->service()->updateBalance($invoice->balance)->save();
+        $this->client->service()->updateBalance($this->invoice->balance)->save();
 
-        $invoice->service()->setStatus(Invoice::STATUS_SENT)->applyNumber()->save();
+        $this->invoice->service()->setStatus(Invoice::STATUS_SENT)->applyNumber()->save();
 
-        UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
+        UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->balance, $this->invoice->company);
 
-        return $invoice;
+        return $this->invoice;
 
   	}
 }
