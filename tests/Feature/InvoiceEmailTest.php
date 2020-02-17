@@ -55,9 +55,9 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
 
-        $email_builder = (new InvoiceEmail())->build($this->invoice, null, null);
-
             if ($invitation->contact->send_email && $invitation->contact->email) {
+
+                $email_builder = (new InvoiceEmail())->build($invitation, null);
 
                 EmailInvoice::dispatch($email_builder, $invitation, $invitation->company);
 

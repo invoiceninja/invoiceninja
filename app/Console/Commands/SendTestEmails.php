@@ -121,7 +121,7 @@ class SendTestEmails extends Command
         $cc_emails = [config('ninja.testvars.test_email')];
         $bcc_emails = [config('ninja.testvars.test_email')];
 
-        $email_builder = (new InvoiceEmail())->build($invoice, null, $client->primary_contact()->first());
+        $email_builder = (new InvoiceEmail())->build($ii, null);
 
         Mail::to(config('ninja.testvars.test_email'), 'Mr Test')
             ->cc($cc_emails)

@@ -10,13 +10,16 @@ namespace App\Helpers\Email;
 
 
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 
 class InvoiceEmail extends EmailBuilder
 {
 
-    public function build(Invoice $invoice, $reminder_template, $contact = null)
+    public function build(InvoiceInvitation $invitation, $reminder_template)
     {
-        $client = $invoice->client;
+        $client = $invitation->client;
+        $invoice = $invitation->invoice;
+        $contact = $invitation->contact;
 
         if(!$reminder_template)
             $reminder_template = $invoice->calculateTemplate();
@@ -55,7 +58,7 @@ class InvoiceEmail extends EmailBuilder
             ->setVariables($invoice->makeValues($contact))
             ->setSubject($subject_template)
             ->setBody($body_template)
-            ->setFooter("<a href='{$invoice->invitations->first()->getLink()}'>Invoice Link</a>");
+            ->setFooter("<a href='{$invitation->getLink()}'>Invoice Link</a>");
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $this->setAttachments($invoice->pdf_file_path());
