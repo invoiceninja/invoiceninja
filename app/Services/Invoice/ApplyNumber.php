@@ -16,11 +16,12 @@ use App\Factory\PaymentFactory;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
 use App\Utils\Traits\GeneratesCounter;
 
-class ApplyNumber
+class ApplyNumber extends AbstractService
 {
 	use GeneratesCounter;
 

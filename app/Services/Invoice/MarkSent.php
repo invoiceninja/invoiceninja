@@ -14,8 +14,9 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Invoice;
+use App\Services\AbstractService;
 
-class MarkSent
+class MarkSent extends AbstractService
 {
 
     public $client;

@@ -12,8 +12,9 @@
 namespace App\Services\Invoice;
 
 use App\Models\Invoice;
+use App\Services\AbstractService;
 
-class UpdateBalance
+class UpdateBalance extends AbstractService
 {
 
     private $invoice;

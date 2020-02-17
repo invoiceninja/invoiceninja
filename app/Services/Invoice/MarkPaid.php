@@ -16,10 +16,11 @@ use App\Factory\PaymentFactory;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
 
-class MarkPaid
+class MarkPaid extends AbstractService
 {
     private $client_service;
 

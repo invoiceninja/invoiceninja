@@ -15,8 +15,9 @@ namespace App\Services\Invoice;
 use App\Factory\InvoiceInvitationFactory;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Services\AbstractService;
 
-class CreateInvitations
+class CreateInvitations extends AbstractService
 {
 
     public function __construct()

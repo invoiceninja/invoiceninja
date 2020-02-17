@@ -12,9 +12,10 @@
 namespace App\Services\Invoice;
 
 use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Services\AbstractService;
 use Illuminate\Support\Facades\Storage;
 
-class GetInvoicePdf
+class GetInvoicePdf extends AbstractService
 {
 
   	public function run($invoice, $contact = null)

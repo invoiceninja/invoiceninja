@@ -14,9 +14,10 @@ namespace App\Services\Invoice;
 use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Models\Invoice;
+use App\Services\AbstractService;
 use Illuminate\Support\Carbon;
 
-class SendEmail
+class SendEmail extends AbstractService
 {
 
     protected $invoice;

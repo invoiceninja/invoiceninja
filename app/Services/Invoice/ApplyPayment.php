@@ -14,9 +14,10 @@ namespace App\Services\Invoice;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 
-class ApplyPayment
+class ApplyPayment extends AbstractService
 {
 
     private $invoice;
