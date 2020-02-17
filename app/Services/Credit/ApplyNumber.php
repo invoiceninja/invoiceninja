@@ -14,7 +14,7 @@ use App\Models\Payment;
 use App\Services\AbstractService;
 use App\Services\Customer\CustomerService;
 use App\Services\Payment\PaymentService;
-use App\Traits\GeneratesCounter;
+use App\Utils\Traits\GeneratesCounter;
 
 class ApplyNumber extends AbstractService
 {
