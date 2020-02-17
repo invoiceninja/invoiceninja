@@ -59,7 +59,7 @@ class InvoiceEmail extends EmailBuilder
             ->setVariables($invoice->makeValues($contact))
             ->setSubject($subject_template)
             ->setBody($body_template)
-            ->setFooter("<a href='{$invitation->getLink()}'>Invoice Link</a>");
+            ->setFooter("<a href='{$invitation->getLink()}'>{$invitation->getLink()}</a>");
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $this->setAttachments($invoice->pdf_file_path());

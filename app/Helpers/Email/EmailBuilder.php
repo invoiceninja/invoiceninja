@@ -82,7 +82,7 @@ class EmailBuilder
      */
     public function setBody($body)
     {
-        $this->parseTemplate($body, true);
+        $this->body = $this->parseTemplate($body, true);
         return $this;
     }
 
