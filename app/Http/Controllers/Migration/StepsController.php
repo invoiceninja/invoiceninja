@@ -624,6 +624,8 @@ class StepsController extends BaseController
                 'id' => $document->id,
                 'user_id' => $document->user_id,
                 'company_id' => $this->account->id,
+                'invoice_id' => $document->invoice_id,
+                'expense_id' => $document->expense_id,
                 'path' => $document->path,
                 'preview' => $document->preview,
                 'name' => $document->name,
