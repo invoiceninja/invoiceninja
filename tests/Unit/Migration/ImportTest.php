@@ -12,6 +12,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Credit;
+use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
@@ -422,6 +423,15 @@ class ImportTest extends TestCase
             }
         }*/
 
+        foreach ($this->migration_array['documents'] as $key => $document) {
+            $record = Document::whereHash('5a81aa656c8aaf77dca259b7defdda1dc5ae7901')
+                ->first();
+
+            if (!$record) {
+                $differences['documents']['missing'][] = $document['id'];
+            }
+        }
+
         $this->assertCount(0, $differences);
     }
 
@@ -438,5 +448,21 @@ class ImportTest extends TestCase
         Import::dispatchNow($this->migration_array, $this->company, $this->user);
         
         $this->assertGreaterThan($original, ClientContact::count());
+    }
+
+    public function testDocumentsImport()
+    {
+        $this->invoice->forceDelete(); 
+
+        $original = Document::count();
+
+        Import::dispatchNow($this->migration_array, $this->company, $this->user);
+
+        $this->assertGreaterThan($original, Document::count());
+
+        $document = Document::first();
+
+        $this->assertNotNull(Invoice::find($document->documentable_id)->documents);
+        $this->assertNotNull($document->documentable);
     }
 }
