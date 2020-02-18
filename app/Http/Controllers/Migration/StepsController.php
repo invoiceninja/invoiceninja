@@ -610,14 +610,14 @@ class StepsController extends BaseController
         return $transformed;
     }
 
+    /**
+     * @return void
+     */
     private function getDocuments()
     {
         $documents = Document::where('account_id', $this->account->id)->get();
 
         $transformed = [];
-
-        // Notes: 
-        // Missing: public_id
 
         foreach ($documents as $document) {
             $transformed[] = [
