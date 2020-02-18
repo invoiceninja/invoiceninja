@@ -43,7 +43,7 @@ class Clean extends AbstractDesign
                         <div class="mr-10 text-gray-600 flex flex-col">
                             $company_details
                         </div>
-                        <div classs="text-gray-600">
+                        <div classs="text-gray-600 flex flex-col">
                             $company_address
                         </div>
                     </div>
