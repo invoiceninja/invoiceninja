@@ -459,5 +459,10 @@ class ImportTest extends TestCase
         Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
         $this->assertGreaterThan($original, Document::count());
+
+        $document = Document::first();
+
+        $this->assertNotNull(Invoice::find($document->documentable_id)->documents);
+        $this->assertNotNull($document->documentable);
     }
 }
