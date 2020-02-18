@@ -58,6 +58,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
 		Route::resource('quotes', 'QuoteController');// name = (quotes. index / create / show / update / destroy / edit
 
+		Route::get('quotes/{quote}/{action}', 'QuoteController@action')->name('quotes.action');
+
 		Route::post('quotes/bulk', 'QuoteController@bulk')->name('quotes.bulk');
 
 		Route::resource('recurring_invoices', 'RecurringInvoiceController');// name = (recurring_invoices. index / create / show / update / destroy / edit

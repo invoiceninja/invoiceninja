@@ -49,6 +49,18 @@ class StoreInvoiceRequest extends Request
         if($input['client_id'])
           $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
 
+        if(isset($input['client_contacts']))
+        {
+          foreach($input['client_contacts'] as $key => $contact)
+          {
+            if(!array_key_exists('send_email', $contact) || !array_key_exists('id', $contact))
+            {
+              unset($input['client_contacts'][$key]);
+            }
+          }
+
+        }
+
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         //$input['line_items'] = json_encode($input['line_items']);
         $this->replace($input);

@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\CloneInvoiceFactory;
 use App\Factory\QuoteFactory;
 use App\Filters\QuoteFilters;
 use App\Http\Requests\Quote\ActionQuoteRequest;
@@ -578,7 +579,7 @@ class QuoteController extends BaseController
     {
         switch ($action) {
             case 'clone_to_invoice':
-                //$quote = CloneInvoiceFactory::create($quote, auth()->user()->id);
+                $quote = CloneInvoiceFactory::create($quote, auth()->user()->id);
                 return $this->itemResponse($quote);
                 break;
             case 'clone_to_quote':
