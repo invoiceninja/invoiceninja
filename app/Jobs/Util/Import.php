@@ -519,10 +519,24 @@ class Import implements ShouldQueue
             if (array_key_exists('invoice_id', $resource) && !array_key_exists('invoices', $this->ids)) {
                 throw new ResourceDependencyMissing(array_key_first($data), 'invoices');
             }
+
+            if (array_key_exists('expense_id', $resource) && !array_key_exists('expenses', $this->ids)) {
+                throw new ResourceDependencyMissing(array_key_first($data), 'expenses');
+            }
             
-            /** Next 2 lines are for development only. */
-            // $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+            /** Remove because of polymorphic joins. */
             unset($modified['invoice_id']);
+            unset($modified['expense_id']);
+
+            if(array_key_exists('invoice_id', $resource) && $resource['invoice_id']) {
+                $modified['documentable_id'] = $this->transformId('invoices', $resource['invoice_id']);  
+                $modified['documentable_type'] = 'Invoice'; 
+            }
+
+            if(array_key_exists('expense_id', $resource) && $resource['expense_id']) {
+                $modified['documentable_id'] = $this->transformId('expense', $resource['expense_id']);
+                $modified['documentable_type'] = 'Expense';
+            }
 
             $modified['user_id'] = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
