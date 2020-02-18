@@ -49,7 +49,7 @@ class Plain extends AbstractDesign
                                     <section class="w-1/2 flex flex-col">
                                         $invoice_details_labels
                                     </section>
-                                    <section>
+                                    <section class="flex flex-col">
                                         $invoice_details
                                     </section>
                                 </div>
