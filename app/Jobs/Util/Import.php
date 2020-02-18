@@ -21,6 +21,7 @@ use App\Mail\MigrationFailed;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
+use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
@@ -63,7 +64,7 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company', 'users', 'tax_rates', 'clients', 'products', 'invoices', 'quotes', 'payments', 'credits',
+        'company', 'users', 'tax_rates', 'clients', 'products', 'invoices', 'quotes', 'payments', 'credits', 'documents',
     ];
 
     /**
@@ -504,6 +505,38 @@ class Import implements ShouldQueue
                 ]
             ];
 
+        }
+    }
+
+    private function processDocuments(array $data): void
+    {
+        /** No validators since data provided by database is already valid. */
+
+        foreach ($data as $resource) {
+
+            $modified = $resource;
+
+            if (array_key_exists('invoice_id', $resource) && !array_key_exists('invoices', $this->ids)) {
+                throw new ResourceDependencyMissing(array_key_first($data), 'invoices');
+            }
+            
+            /** Next 2 lines are for development only. */
+            // $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+            unset($modified['invoice_id']);
+
+            $modified['user_id'] = $this->processUserId($resource);
+            $modified['company_id'] = $this->company->id;
+
+            $payment = Document::create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['payments'] = [
+                "payments_{$old_user_key}" => [
+                    'old' => $old_user_key,
+                    'new' => $payment->id,
+                ]
+            ];
         }
     }
 
