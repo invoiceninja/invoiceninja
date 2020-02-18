@@ -47,7 +47,7 @@ class CreateInvoicePdf implements ShouldQueue {
 	 *
 	 * @return void
 	 */
-	public function __construct(Invoice $invoice, Company $company, ClientContact $contact = null, $disk = 'public') 
+	public function __construct(Invoice $invoice, Company $company, ClientContact $contact = null) 
 	{
 
 		$this->invoice = $invoice;
@@ -73,7 +73,6 @@ class CreateInvoicePdf implements ShouldQueue {
 
 		$path      = $this->invoice->client->invoice_filepath();
 
-		//$file_path = $path . $this->invoice->number . '-' . $this->contact->contact_key .'.pdf';
 		$file_path = $path . $this->invoice->number . '.pdf';
 
 		$design = Design::find($this->invoice->client->getSetting('invoice_design_id'));
@@ -95,7 +94,6 @@ class CreateInvoicePdf implements ShouldQueue {
 		Storage::makeDirectory($path, 0755);
 
 		//\Log::error($html);
-		//create pdf
 		$pdf = $this->makePdf(null, null, $html);
 
 		$instance = Storage::disk($this->disk)->put($file_path, $pdf);

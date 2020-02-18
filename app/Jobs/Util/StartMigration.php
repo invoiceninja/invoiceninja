@@ -3,6 +3,7 @@
 namespace App\Jobs\Util;
 
 use App\Exceptions\ProcessingMigrationArchiveFailed;
+use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -49,6 +50,9 @@ class StartMigration implements ShouldQueue
      */
     public function handle()
     {
+        
+        MultiDB::setDb($this->company->db);
+
         $zip = new \ZipArchive();
         $archive = $zip->open($this->filepath);
 
