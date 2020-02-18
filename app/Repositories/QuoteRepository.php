@@ -61,15 +61,14 @@ class QuoteRepository extends BaseRepository
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             collect($quote->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function ($invitation) {
-                    QuoteInvitation::whereRaw("BINARY `key`= ?", [$invitation])->delete();
+                    $this->getInvitationByKey($invitation)->delete();
                 });
 
             foreach ($data['invitations'] as $invitation) {
                 $inv = false;
 
                 if (array_key_exists('key', $invitation)) {
-                    // $inv = InvoiceInvitation::whereKey($invitation['key'])->first();
-                    $inv = QuoteInvitation::whereRaw("BINARY `key`= ?", [$invitation['key']])->first();
+                    $inv = $this->getInvitationByKey([$invitation['key']])->first();
                 }
 
                 if (!$inv) {
@@ -79,8 +78,7 @@ class QuoteRepository extends BaseRepository
                     }
 
                     $new_invitation = QuoteInvitationFactory::create($quote->company_id, $quote->user_id);
-                    //$new_invitation->fill($invitation);
-                    $new_invitation->quote_id        = $quote->id;
+                    $new_invitation->quote_id = $quote->id;
                     $new_invitation->client_contact_id = $this->decodePrimaryKey($invitation['client_contact_id']);
                     $new_invitation->save();
 
@@ -93,7 +91,7 @@ class QuoteRepository extends BaseRepository
             $quote->service()->createInvitations();
         }
 
-        $quote = $quote->calc()->getInvoice();
+        $quote = $quote->calc()->getQuote();
 
         $quote->save();
 
@@ -104,7 +102,7 @@ class QuoteRepository extends BaseRepository
         return $quote->fresh();
     }
 
-    public function getInvitationByKey($key)
+    public function getInvitationByKey($key) :QuoteInvitation
     {
         return QuoteInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
     }

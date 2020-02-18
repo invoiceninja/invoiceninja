@@ -521,7 +521,7 @@ class CreateTestData extends Command
         $invoice_calc = new InvoiceSum($credit);
         $invoice_calc->build();
 
-        $credit = $invoice_calc->getInvoice();
+        $credit = $invoice_calc->getCredit();
 
         $credit->save();
 
@@ -559,7 +559,7 @@ class CreateTestData extends Command
         $quote_calc = new InvoiceSum($quote);
         $quote_calc->build();
 
-        $quote = $quote_calc->getInvoice();
+        $quote = $quote_calc->getQuote();
 
         $quote->save();
 

@@ -224,7 +224,7 @@ trait MockAccountData
         $this->quote_calc = new InvoiceSum($this->quote);
         $this->quote_calc->build();
 
-        $this->quote = $this->quote_calc->getInvoice();
+        $this->quote = $this->quote_calc->getQuote();
 
         $this->quote->setRelation('client', $this->client);
         $this->quote->setRelation('company', $this->company);
