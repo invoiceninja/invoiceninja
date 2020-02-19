@@ -60,30 +60,16 @@ class Creative extends AbstractDesign
         return '
         <div class="flex mt-8">
             <div class="w-2/3 flex">
-                <h1 class="text-6xl uppercase font-semibold">$invoice_label</h1>
-                <i class="ml-4 text-6xl text-pink-700">#$invoice_number</i>
+                <h1 class="text-6xl uppercase font-semibold">$entity_label</h1>
+                <i class="ml-4 text-6xl text-pink-700">#$entity_number</i>
             </div>
             <div class="w-1/3">
-                <div class="flex flex-col">
-                    <section class="flex">
-                        <span class="w-1/2 mr-2">$invoice_number_label</span>
-                        <span class="font-semibold">$invoice_number</span>
+                <div class="flex">
+                    <section class="w-1/2 flex flex-col">
+                        $entity_labels
                     </section>
-                    <section class="flex">
-                        <span class="w-1/2 mr-2">$po_number_label</span>
-                        <span>$po_number</span>
-                    </section>
-                    <section class="flex">
-                        <span class="w-1/2 mr-2">$date_label</span>
-                        <span>$date</span>
-                    </section>
-                    <section class="flex">
-                        <span class="w-1/2 mr-2">$due_date_label</span>
-                        <span>$due_date</span>
-                    </section>
-                    <section class="flex">
-                        <span class="w-1/2 mr-2">$balance_due_label</span>
-                        <span>$balance_due</span>
+                    <section class="flex flex-col">
+                        $entity_details
                     </section>
                 </div>
             </div>
@@ -112,7 +98,7 @@ class Creative extends AbstractDesign
         <tbody>
             $table_body
             <tr>
-                <td colspan="7" ref="note" class="px-4 py-4">$invoice.public_notes</td>
+                <td colspan="7" ref="note" class="px-4 py-4">$entity.public_notes</td>
                 <td ref="quantity" class="px-4 py-4">
                     $total_tax_labels
                     $line_tax_labels

@@ -72,26 +72,12 @@ class Business extends AbstractDesign
                     </section>
                 </div>
                 <div class="w-1/2 ml-40 bg-orange-600 px-4 py-4 h-auto rounded-lg">
-                    <div class="flex flex-col text-white">
-                        <section class="flex">
-                            <span class="w-1/2 mr-3">$invoice_number_label</span>
-                            <span class="font-semibold">$invoice_number</span>
+                    <div class="flex text-white">
+                        <section class="w-1/2 flex flex-col">
+                            $entity_labels
                         </section>
-                        <section class="flex">
-                            <span class="w-1/2 mr-3">$po_number_label</span>
-                            <span>$po_number</span>
-                        </section>
-                        <section class="flex">
-                            <span class="w-1/2 mr-3">$date_label</span>
-                            <span>$date</span>
-                        </section>
-                        <section class="flex">
-                            <span class="w-1/2 mr-3">$due_date</span>
-                            <span>$due_date_label</span>
-                        </section>
-                        <section class="flex">
-                            <span class="w-1/2 mr-3">$balance_due_label</span>
-                            <span>$balance_due</span>
+                        <section class="flex flex-col">
+                            $entity_details
                         </section>
                     </div>
                 </div>
@@ -120,7 +106,7 @@ class Business extends AbstractDesign
                 <tbody>
                     $table_body
                     <tr>
-                        <td colspan="5" ref="note" class="px-4 py-4 bg-gray-200 rounded-l-lg">$invoice.public_notes</td>
+                        <td colspan="5" ref="note" class="px-4 py-4 bg-gray-200 rounded-l-lg">$entity.public_notes</td>
                         <td ref="quantity" class="px-4 py-4 bg-gray-200" style="color: black">
                             $total_tax_labels
                             $line_tax_labels

@@ -57,7 +57,7 @@ class Clean extends AbstractDesign
 
         return '
             <h1 class="mt-12 uppercase text-2xl text-blue-500 ml-4">
-                $invoice_label
+                $entity_label
             </h1>
 
             <div class="border-b border-gray-400"></div>
@@ -105,7 +105,7 @@ class Clean extends AbstractDesign
 
         <div class="flex px-4 mt-6 w-full">
             <div class="w-1/2">
-                $invoice.public_notes
+                $entity.public_notes
             </div>
             <div class="w-1/2 flex">
                 <div class="w-1/2 text-right flex flex-col">

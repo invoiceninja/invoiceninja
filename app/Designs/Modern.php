@@ -96,7 +96,7 @@ class Modern extends AbstractDesign
 
 			    <div class="flex px-4 mt-6 w-full" style="page-break-inside: avoid;">
 			        <div class="w-1/2">
-			            $invoice.public_notes
+			            $entity.public_notes
 			        </div>
 			        <div class="w-1/2 flex"">
 			            <div class="w-1/2 text-right flex flex-col">

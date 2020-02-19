@@ -44,14 +44,10 @@ class Playful extends AbstractDesign
                             <div class="bg-teal-600 p-5">
                                 <div class="flex text-white">
                                     <section class="w-1/2 flex flex-col">
-                                        <span>1</span>
-                                        <span>1</span>
-                                        <span>1</span>
+                                        $entity_labels
                                     </section>
                                     <section class="flex flex-col">
-                                        <span>1</span>
-                                        <span>1</span>
-                                        <span>1</span>
+                                        $entity_details
                                     </section>
                                 </div>
                             </div>
@@ -67,7 +63,7 @@ class Playful extends AbstractDesign
             <div class="flex mt-16">
                 <div class="w-1/2">
                     <div class="flex flex-col">
-                        <p class="font-semibold text-teal-600 pl-4">$invoice_to_label</p>
+                        <p class="font-semibold text-teal-600 pl-4">$entity_to_label</p>
                         <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
                             <section class="flex flex-col">
                                 $client_details
@@ -110,7 +106,7 @@ class Playful extends AbstractDesign
                 <tbody>
                     $table_body
                     <tr>
-                        <td colspan="5" ref="note" class="px-4 py-4">$invoice.public_notes</td>
+                        <td colspan="5" ref="note" class="px-4 py-4">$entity.public_notes</td>
                         <td ref="quantity" class="px-4 py-4 flex flex-col">
                             $total_tax_labels
                             $line_tax_labels

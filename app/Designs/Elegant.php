@@ -64,24 +64,14 @@ class Elegant extends AbstractDesign
                         </div>
                     </div>
                 </div>
-                <div class="mr-8">
+                <div class="ml-10 w-full">
                     <h2 class="text-2xl">$details_label:</h2>
-                    <div class="flex flex-col mt-4">
-                        <section class="flex justify-between text-left">
-                            <span>$invoice_number_label</span>
-                            <span class="ml-16 font-semibold">$invoice_number</span>
+                    <div class="flex mt-4">
+                        <section class="w-1/2 flex flex-col">
+                            $entity_labels
                         </section>
-                        <section class="flex justify-between text-left">
-                            <span>$date_label</span>
-                            <span class="ml-16">$date</span>
-                        </section>
-                        <section class="flex justify-between text-left">
-                            <span>$due_date_label</span>
-                            <span class="ml-16">$due_date</span>
-                        </section>
-                        <section class="flex justify-between text-left">
-                            <span>$balance_due_label</span>
-                            <span class="ml-16">$balance_due</span>
+                        <section class="flex flex-col">
+                            $entity_details
                         </section>
                     </div>
                 </div>
@@ -110,7 +100,7 @@ class Elegant extends AbstractDesign
         <tbody>
             $table_body
             <tr>
-                <td colspan="5" ref="note" class="px-4 py-4">$invoice.public_notes</td>
+                <td colspan="5" ref="note" class="px-4 py-4">$entity.public_notes</td>
                 <td ref="quantity" class="px-4 py-4">
                     $total_tax_labels
                     $line_tax_labels
