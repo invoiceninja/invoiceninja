@@ -299,7 +299,10 @@ trait GeneratesCounter
     private function incrementCounter($entity, string $counter_name) :void
     {
         $settings = $entity->settings;
-        $settings->$counter_name = $settings->$counter_name + 1;
+        $settings->{$counter_name} = $settings->{$counter_name} + 1;
+     
+        \Log::error("incrementing from ".$settings->{$counter_name});
+        
         $entity->settings = $settings;
         $entity->save();
     }
