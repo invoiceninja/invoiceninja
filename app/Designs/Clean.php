@@ -65,10 +65,10 @@ class Clean extends AbstractDesign
             <div class="ml-4 py-4">
                 <div class="flex">
                     <div class="w-40 flex flex-col">
-                        $invoice_details_labels
+                        $entity_labels
                     </div>
                     <div class="w-48 flex flex-col">
-                        $invoice_details
+                        $entity_details
                     </div>
                     <div class="w-56 flex flex-col">
                         $client_details

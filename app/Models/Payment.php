@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Events\Payment\PaymentWasVoided;
 use App\Models\BaseModel;
 use App\Models\Credit;
 use App\Models\DateFormat;
@@ -180,6 +181,68 @@ class Payment extends BaseModel
 
         return $this->processRefund($data);
 
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCompletedAmount() :float
+    {
+        return $this->amount - $this->refunded;
+    }
+
+    public function recordRefund($amount = null)
+    {
+        //do i need $this->isRefunded() here?
+        if ($this->isVoided()) {
+            return false;
+        }
+
+        //if no refund specified
+        if (! $amount) {
+            $amount = $this->amount;
+        }
+
+        $new_refund = min($this->amount, $this->refunded + $amount);
+        $refund_change = $new_refund - $this->refunded;
+
+        if ($refund_change) {
+            $this->refunded = $new_refund;
+            $this->status_id = $this->refunded == $this->amount ? self::STATUS_REFUNDED : self::STATUS_PARTIALLY_REFUNDED;
+            $this->save();
+
+            event(new PaymentWasRefunded($this, $refund_change));
+        }
+
+        return true;
+    }
+
+    public function isVoided()
+    {
+        return $this->status_id == self::STATUS_VOIDED;
+    }
+
+    public function isPartiallyRefunded()
+    {
+        return $this->status_id == self::STATUS_PARTIALLY_REFUNDED;
+    }
+
+    public function isRefunded()
+    {
+        return $this->status_id == self::STATUS_REFUNDED;
+    }
+
+    public function markVoided()
+    {
+        if ($this->isVoided() || $this->isPartiallyRefunded() || $this->isRefunded()) {
+            return false;
+        }
+
+        $this->refunded = $this->amount;
+        $this->status_id = self::STATUS_VOIDED;
+        $this->save();
+
+        event(new PaymentWasVoided($this));
     }
     
 }

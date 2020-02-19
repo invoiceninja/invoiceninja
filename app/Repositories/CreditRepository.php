@@ -86,7 +86,7 @@ class CreditRepository extends BaseRepository
          * credit note
          */
         
-        $credit = $credit->calc()->getInvoice();
+        $credit = $credit->calc()->getCredit();
         
         $credit->save();
 

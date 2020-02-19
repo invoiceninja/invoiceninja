@@ -171,6 +171,25 @@ class InvoiceSum
         return $this->invoice;
     }
 
+    public function getQuote()
+    {
+
+        $this->setCalculatedAttributes();
+        $this->invoice->save();
+        
+        return $this->invoice;
+
+    }
+
+    public function getCredit()
+    {
+
+        $this->setCalculatedAttributes();
+        $this->invoice->save();
+        
+        return $this->invoice;
+        
+    }
 
     /**
      * Build $this->invoice variables after

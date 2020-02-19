@@ -12,6 +12,7 @@
  *       @OA\Property(property="date", type="string", example="1-1-2014", description="The Payment date"),
  *       @OA\Property(property="transaction_reference", type="string", example="xcsSxcs124asd", description="The transaction reference as defined by the payment gateway"),
  *       @OA\Property(property="assigned_user_id", type="string", example="Opnel5aKBz", description="______"),
+ *       @OA\Property(property="private_notes", type="string", example="The payment was refunded due to error", description="______"),
  *       @OA\Property(property="is_manual", type="boolean", example=true, description="______"),
  *       @OA\Property(property="is_deleted", type="boolean", example=true, description="______"),
  *       @OA\Property(property="amount", type="number", example=10.00, description="The amount of this payment"),

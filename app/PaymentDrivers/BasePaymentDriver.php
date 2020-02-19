@@ -141,8 +141,46 @@ class BasePaymentDriver
      * Refunds a given payment
      * @return void
      */
-    public function refundPayment()
+    public function refundPayment($payment, $amount = 0)
     {
+        if ($amount) {
+            $amount = min($amount, $payment->getCompletedAmount());
+        } else {
+            $amount = $payment->getCompletedAmount();
+        }
+
+        if ($payment->is_deleted) {
+            return false;
+        }
+
+        if (! $amount) {
+            return false;
+        }
+
+        if ($payment->type_id == Payment::TYPE_CREDIT_CARD) {
+            return $payment->recordRefund($amount);
+        }
+
+        $details = $this->refundDetails($payment, $amount);
+        $response = $this->gateway()->refund($details)->send();
+
+        if ($response->isSuccessful()) {
+            return $payment->recordRefund($amount);
+        } elseif ($this->attemptVoidPayment($response, $payment, $amount)) {
+            $details = ['transactionReference' => $payment->transaction_reference];
+            $response = $this->gateway->void($details)->send();
+            if ($response->isSuccessful()) {
+                return $payment->markVoided();
+            }
+        }
+
+        return false;
+    }
+
+    protected function attemptVoidPayment($response, $payment, $amount)
+    {
+        // Partial refund not allowed for unsettled transactions
+        return $amount == $payment->amount;
     }
 
     public function authorizeCreditCardView(array $data)
@@ -246,4 +284,6 @@ class BasePaymentDriver
 
         return $payment;
     }
+
+
 }

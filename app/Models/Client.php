@@ -445,4 +445,13 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->client_hash . '/invoices/';
     }
 
+    public function quote_filepath()
+    {
+        return $this->client_hash . '/quotes/';
+    }
+
+    public function credit_filepath()
+    {
+        return $this->client_hash . '/credits/';
+    }
 }

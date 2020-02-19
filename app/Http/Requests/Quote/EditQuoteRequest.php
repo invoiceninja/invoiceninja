@@ -27,20 +27,5 @@ class EditQuoteRequest extends Request
         return auth()->user()->can('edit', $this->quote);
     }
 
-    public function rules()
-    {
-        $rules = [];
-        
-        return $rules;
-    }
 
-
-    protected function prepareForValidation()
-    {
-        $input = $this->all();
-
-        //$input['id'] = $this->encodePrimaryKey($input['id']);
-
-        $this->replace($input);
-    }
 }

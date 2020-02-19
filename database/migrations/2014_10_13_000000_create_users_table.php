@@ -949,6 +949,7 @@ class CreateUsersTable extends Migration
             $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->nullable();
             $t->string('number')->nullable();
+            $t->text('private_notes')->nullable();
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
             $t->boolean('is_deleted')->default(false);

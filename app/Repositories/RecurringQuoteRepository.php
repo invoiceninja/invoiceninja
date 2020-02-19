@@ -34,7 +34,7 @@ class RecurringQuoteRepository extends BaseRepository
 
         $quote_calc = new InvoiceSum($quote, $quote->settings);
 
-        $quote = $quote_calc->build()->getInvoice();
+        $quote = $quote_calc->build()->getQuote();
 
         //fire events here that cascading from the saving of an Quote
         //ie. client balance update...

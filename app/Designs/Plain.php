@@ -47,10 +47,10 @@ class Plain extends AbstractDesign
                                 <div class="h-14">$company_logo</div>
                                 <div class="flex px-3 mt-6">
                                     <section class="w-1/2 flex flex-col">
-                                        $invoice_details_labels
+                                        $entity_labels
                                     </section>
                                     <section class="flex flex-col">
-                                        $invoice_details
+                                        $entity_details
                                     </section>
                                 </div>
                                 <section class="flex bg-gray-300 px-3">

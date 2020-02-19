@@ -60,6 +60,10 @@ trait MockAccountData
 
     public $token;
 
+    public $invoice;
+
+    public $quote;
+
 	public function makeTestData()
 	{
 
@@ -205,6 +209,29 @@ trait MockAccountData
         $this->invoice->save();
 
         $this->invoice->service()->markSent();
+
+        $this->quote = factory(\App\Models\Quote::class)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+            ]);
+
+        $this->quote->line_items = $this->buildLineItems();
+        $this->quote->uses_inclusive_taxes = false;
+
+        $this->quote->save();
+
+        $this->quote_calc = new InvoiceSum($this->quote);
+        $this->quote_calc->build();
+
+        $this->quote = $this->quote_calc->getQuote();
+        
+        $this->quote->number = $this->getNextQuoteNumber($this->client);
+
+        $this->quote->setRelation('client', $this->client);
+        $this->quote->setRelation('company', $this->company);
+
+        $this->quote->save();
 
         $this->credit = CreditFactory::create($this->company->id,$this->user->id);
         $this->credit->client_id = $this->client->id;
