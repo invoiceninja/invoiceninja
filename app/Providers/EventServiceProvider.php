@@ -20,11 +20,15 @@ use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
+use App\Events\Payment\PaymentWasRefunded;
+use App\Events\Payment\PaymentWasVoided;
 use App\Events\User\UserLoggedIn;
 use App\Events\User\UserWasCreated;
 use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
 use App\Listeners\Activity\PaymentDeletedActivity;
+use App\Listeners\Activity\PaymentRefundedActivity;
+use App\Listeners\Activity\PaymentVoidedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
@@ -74,6 +78,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         PaymentWasDeleted::class => [
             PaymentDeletedActivity::class,
+        ],
+        PaymentWasRefunded::class => [
+            PaymentRefundedActivity::class,
+        ],
+        PaymentWasVoided::class => [
+            PaymentVoidedActivity::class,
         ],
         'App\Events\ClientWasArchived' => [
             'App\Listeners\ActivityListener@archivedClient',
