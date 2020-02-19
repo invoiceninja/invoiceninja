@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Jobs\Invoice;
+namespace App\Jobs\Quote;
 
 use App\Designs\Custom;
 use App\Designs\Designer;
@@ -31,11 +31,11 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 
-class CreateInvoicePdf implements ShouldQueue {
+class CreateQuotePdf implements ShouldQueue {
 
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker;
 
-	public $invoice;
+	public $quote;
 
 	public $company;
 
@@ -48,10 +48,10 @@ class CreateInvoicePdf implements ShouldQueue {
 	 *
 	 * @return void
 	 */
-	public function __construct($invoice, Company $company, ClientContact $contact = null) 
+	public function __construct($quote, Company $company, ClientContact $contact = null) 
 	{
 
-		$this->invoice = $invoice;
+		$this->quote = $quote;
 
 		$this->company = $company;
 
@@ -65,31 +65,31 @@ class CreateInvoicePdf implements ShouldQueue {
 
 		MultiDB::setDB($this->company->db);
 
-		$this->invoice->load('client');
+		$this->quote->load('client');
 
 		if(!$this->contact)
-			$this->contact = $this->invoice->client->primary_contact()->first();
+			$this->contact = $this->quote->client->primary_contact()->first();
 
 		App::setLocale($this->contact->preferredLocale());
 
-		$path      = $this->invoice->client->invoice_filepath();
+		$path      = $this->quote->client->quote_filepath();
 
-		$file_path = $path . $this->invoice->number . '.pdf';
+		$file_path = $path . $this->quote->number . '.pdf';
 
-		$design = Design::find($this->invoice->client->getSetting('invoice_design_id'));
+		$design = Design::find($this->quote->client->getSetting('quote_design_id'));
 
 		if($design->is_custom){
-			$invoice_design = new Custom($design->design);
+			$quote_design = new Custom($design->design);
 		}
 		else{
 			$class = 'App\Designs\\'.$design->name;
-			$invoice_design = new $class();
+			$quote_design = new $class();
 		}
 
-		$designer = new Designer($invoice_design, $this->invoice->client->getSetting('pdf_variables'), 'invoice');
+		$designer = new Designer($quote_design, $this->quote->client->getSetting('pdf_variables'), 'quote');
 
 		//get invoice design
-		$html = $this->generateInvoiceHtml($designer->build($this->invoice)->getHtml(), $this->invoice, $this->contact);
+		$html = $this->generateInvoiceHtml($designer->build($this->quote)->getHtml(), $this->quote, $this->contact);
 
 		//todo - move this to the client creation stage so we don't keep hitting this unnecessarily
 		Storage::makeDirectory($path, 0755);
@@ -104,5 +104,24 @@ class CreateInvoicePdf implements ShouldQueue {
 		return $file_path;	
 	}
 
-
+	/**
+	 * Returns a PDF stream
+	 *
+	 * @param  string $header Header to be included in PDF
+	 * @param  string $footer Footer to be included in PDF
+	 * @param  string $html   The HTML object to be converted into PDF
+	 *
+	 * @return string        The PDF string
+	 */
+	private function makePdf($header, $footer, $html) {
+		return Browsershot::html($html)
+		//->showBrowserHeaderAndFooter()
+		//->headerHtml($header)
+		//->footerHtml($footer)
+			->deviceScaleFactor(1)
+			->showBackground()
+			->waitUntilNetworkIdle(true)	->pdf();
+		//->margins(10,10,10,10)
+		//->savePdf('test.pdf');
+	}
 }

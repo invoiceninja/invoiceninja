@@ -225,6 +225,8 @@ trait MockAccountData
         $this->quote_calc->build();
 
         $this->quote = $this->quote_calc->getQuote();
+        
+        $this->quote->number = $this->getNextQuoteNumber($this->client);
 
         $this->quote->setRelation('client', $this->client);
         $this->quote->setRelation('company', $this->company);

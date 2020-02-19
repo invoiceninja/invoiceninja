@@ -40,10 +40,10 @@ class Modern extends AbstractDesign
 			    </div>
 			    <div class="w-1/2 flex justify-end">
 			        <div class="w-56 flex flex-col text-white">
-			            $invoice_details_labels
+			            $entity_labels
 			        </div>
 			        <div class="w-32 flex flex-col text-left text-white">
-			        	$invoice_details
+			        	$entity_details
 			        </div>
 			    </div>
 			</div>

@@ -560,8 +560,7 @@ class CreateTestData extends Command
         $quote_calc->build();
 
         $quote = $quote_calc->getQuote();
-
-        $quote->save();
+        $quote->service()->markSent()->save();
 
         CreateQuoteInvitations::dispatch($quote, $quote->company);
     }

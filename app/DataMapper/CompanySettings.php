@@ -217,7 +217,7 @@ class CompanySettings extends BaseSettings {
 	public $embed_documents   = false;
 	public $all_pages_header  = true;
 	public $all_pages_footer  = true;
-	public $invoice_variables = [];
+	public $pdf_variables = [];
 
 	public static $casts = [
 		'portal_design_id'					 => 'string',
@@ -372,7 +372,7 @@ class CompanySettings extends BaseSettings {
 		'counter_padding'                    => 'integer',
 		'design'                             => 'string',
 		'website'                            => 'string',
-		'invoice_variables'                  => 'object',
+		'pdf_variables'                  => 'object',
 	];
 
 	/**
@@ -415,7 +415,7 @@ class CompanySettings extends BaseSettings {
 		$data->date_format_id    = (string) config('ninja.i18n.date_format_id');
 		$data->country_id        = (string) config('ninja.i18n.country_id');
 		$data->translations      = (object) [];
-		$data->invoice_variables = (array) self::getInvoiceVariableDefaults();
+		$data->pdf_variables = (array) self::getEntityVariableDefaults();
 
 		// $data->email_subject_invoice = EmailTemplateDefaults::emailInvoiceSubject();
 		// $data->email_template_invoice = EmailTemplateDefaults:: emailInvoiceTemplate();
@@ -456,7 +456,7 @@ class CompanySettings extends BaseSettings {
 		return $settings;
 	}
 
-	private static function getInvoiceVariableDefaults() {
+	private static function getEntityVariableDefaults() {
 		$variables = [
 			'client_details' => [
 				'name',
