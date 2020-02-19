@@ -56,8 +56,8 @@ class InvoiceRepository extends BaseRepository {
 
 		if (isset($data['client_contacts'])) {
 			foreach ($data['client_contacts'] as $contact) {
-				if ($contact['send_email'] == 1) {
-					$client_contact               = ClientContact::find($this->decodePrimaryKey($contact['id']));
+				if ($contact['send_email'] == 1 && is_string($contact['id'])) {
+					$client_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
 					$client_contact->send_email = true;
 					$client_contact->save();
 				}

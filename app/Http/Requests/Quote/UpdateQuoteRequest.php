@@ -46,9 +46,10 @@ class UpdateQuoteRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-
-        // if(isset($input['client_id']))
-        //     $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        
+        if (isset($input['client_id'])) {
+            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        }
 
         if (isset($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];

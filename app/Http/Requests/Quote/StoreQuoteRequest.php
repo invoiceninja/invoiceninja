@@ -42,6 +42,18 @@ class StoreQuoteRequest extends Request
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
 
+        if(isset($input['client_contacts']))
+        {
+          foreach($input['client_contacts'] as $key => $contact)
+          {
+            if(!array_key_exists('send_email', $contact) || !array_key_exists('id', $contact))
+            {
+              unset($input['client_contacts'][$key]);
+            }
+          }
+
+        }
+        
         $this->replace($input);
     }
 

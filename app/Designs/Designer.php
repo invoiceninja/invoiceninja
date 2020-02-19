@@ -24,6 +24,8 @@ class Designer {
 
 	protected $html;
 
+	protected $entity_string;
+
 	private static $custom_fields = [
 		'invoice1',
 		'invoice2',
@@ -47,10 +49,15 @@ class Designer {
 		'company4',
 	];
 
-	public function __construct($design, $input_variables) {
+	public function __construct($design, $input_variables, $entity_string) 
+	{
+
 		$this->design = $design;
 
 		$this->input_variables = (array) $input_variables;
+
+		$this->entity_string = $entity_string;
+
 	}
 
 	/**
@@ -58,21 +65,24 @@ class Designer {
 	 * formatted HTML
 	 * @return string The HTML design built
 	 */
-	public function build(Invoice $invoice):Designer {
+	public function build($entity):Designer 
+	{
 
-		$this->exportVariables($invoice)
+		$this->exportVariables($entity)
 		     ->setDesign($this->getSection('header'))
 			->setDesign($this->getSection('body'))
-			->setDesign($this->getTable($invoice))
+			->setDesign($this->getTable($entity))
 			->setDesign($this->getSection('footer'));
 
 		return $this;
+
 	}
 
-	public function getTable(Invoice $invoice):string {
+	public function getTable($entity):string 
+	{
 
-		$table_header = $invoice->table_header($this->input_variables['table_columns'], $this->design->table_styles());
-		$table_body   = $invoice->table_body($this->input_variables['table_columns'], $this->design->table_styles());
+		$table_header = $entity->table_header($this->input_variables['table_columns'], $this->design->table_styles());
+		$table_body   = $entity->table_body($this->input_variables['table_columns'], $this->design->table_styles());
 
 		$data = str_replace('$table_header', $table_header, $this->getSection('table'));
 		$data = str_replace('$table_body', $table_body, $data);
@@ -81,11 +91,13 @@ class Designer {
 
 	}
 
-	public function getHtml():string {
+	public function getHtml():string 
+	{
 		return $this->html;
 	}
 
-	private function setDesign($section) {
+	private function setDesign($section) 
+	{
 
 		$this->html .= $section;
 
@@ -99,23 +111,40 @@ class Designer {
 	 * @param  string $section the method name to be executed ie header/body/table/footer
 	 * @return string The HTML of the template section
 	 */
-	public function getSection($section):string {
-		return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{ $section}());
+	public function getSection($section):string 
+	{
+		return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section}());
 	}
 
-	private function exportVariables($invoice) {
-		$company = $invoice->company;
+	private function exportVariables($entity) 
+	{
 
-		$this->exported_variables['$client_details']         = $this->processVariables($this->processInputVariables($company, $this->input_variables['client_details']), $this->clientDetails($company));
-		$this->exported_variables['$company_details']        = $this->processVariables($this->processInputVariables($company, $this->input_variables['company_details']), $this->companyDetails($company));
-		$this->exported_variables['$company_address']        = $this->processVariables($this->processInputVariables($company, $this->input_variables['company_address']), $this->companyAddress($company));
-		$this->exported_variables['$invoice_details_labels'] = $this->processLabels($this->processInputVariables($company, $this->input_variables['invoice_details']), $this->invoiceDetails($company));
-		$this->exported_variables['$invoice_details']        = $this->processVariables($this->processInputVariables($company, $this->input_variables['invoice_details']), $this->invoiceDetails($company));
+		$company = $entity->company;
 
+		$this->exported_variables['$client_details']  = $this->processVariables($this->processInputVariables($company, $this->input_variables['client_details']), $this->clientDetails($company));
+		$this->exported_variables['$company_details'] = $this->processVariables($this->processInputVariables($company, $this->input_variables['company_details']), $this->companyDetails($company));
+		$this->exported_variables['$company_address'] = $this->processVariables($this->processInputVariables($company, $this->input_variables['company_address']), $this->companyAddress($company));
+
+		if($this->entity_string == 'invoice')
+		{
+			$this->exported_variables['$entity_labels']  = $this->processLabels($this->processInputVariables($company, $this->input_variables['invoice_details']), $this->invoiceDetails($company));
+			$this->exported_variables['$entity_details'] = $this->processVariables($this->processInputVariables($company, $this->input_variables['invoice_details']), $this->invoiceDetails($company));
+		}
+		elseif($this->entity_string == 'credit')
+		{
+			$this->exported_variables['$entity_labels']   = $this->processLabels($this->processInputVariables($company, $this->input_variables['credit_details']), $this->creditDetails($company));
+			$this->exported_variables['$entity_details']  = $this->processVariables($this->processInputVariables($company, $this->input_variables['credit_details']), $this->creditDetails($company));
+		}
+		elseif($this->entity_string == 'quote')
+		{
+			$this->exported_variables['$entity_labels']    = $this->processLabels($this->processInputVariables($company, $this->input_variables['quote_details']), $this->quoteDetails($company));
+			$this->exported_variables['$entity_details']   = $this->processVariables($this->processInputVariables($company, $this->input_variables['quote_details']), $this->quoteDetails($company));
+		}
 		return $this;
 	}
 
-	private function processVariables($input_variables, $variables):string {
+	private function processVariables($input_variables, $variables):string 
+	{
 
 		$output = '';
 
@@ -126,7 +155,8 @@ class Designer {
 
 	}
 
-	private function processLabels($input_variables, $variables):string {
+	private function processLabels($input_variables, $variables):string 
+	{
 		$output = '';
 
 		foreach ($input_variables as $value) {
@@ -142,8 +172,8 @@ class Designer {
 	// private function exportVariables()
 	// {
 	// 	/*
-	// 	 * $invoice_details_labels
-	// 	 * $invoice_details
+	// 	 * $entity_labels
+	// 	 * $entity_details
 	// 	 */
 	// 	$header = $this->design->header();
 
@@ -168,7 +198,8 @@ class Designer {
 	// 	$footer = $this->design->footer();
 	// }
 
-	private function clientDetails(Company $company) {
+	private function clientDetails(Company $company) 
+	{
 
 		$data = [
 			'name'              => '<p>$client.name</p>',
@@ -193,7 +224,9 @@ class Designer {
 		return $this->processCustomFields($company, $data);
 	}
 
-	private function companyDetails(Company $company) {
+	private function companyDetails(Company $company) 
+	{
+
 		$data = [
 			'company_name' => '<span>$company.company_name</span>',
 			'id_number'    => '<span>$company.id_number</span>',
@@ -208,9 +241,11 @@ class Designer {
 		];
 
 		return $this->processCustomFields($company, $data);
+
 	}
 
-	private function companyAddress(Company $company) {
+	private function companyAddress(Company $company) 
+	{
 
 		$data = [
 			'address1'          => '<span>$company.address1</span>',
@@ -225,9 +260,11 @@ class Designer {
 		];
 
 		return $this->processCustomFields($company, $data);
+
 	}
 
-	private function invoiceDetails(Company $company) {
+	private function invoiceDetails(Company $company) 
+	{
 
 		$data = [
 			'invoice_number' => '<span>$invoice_number</span>',
@@ -248,9 +285,60 @@ class Designer {
 		];
 
 		return $this->processCustomFields($company, $data);
+
 	}
 
-	private function processCustomFields(Company $company, $data) {
+	private function quoteDetails(Company $company)
+	{
+		
+		$data = [
+			'quote_number' => '<span>$quote_number</span>',
+			'po_number'      => '<span>$po_number</span>',
+			'date'           => '<span>$date</span>',
+			'valid_until'       => '<span>$valid_until</span>',
+			'balance_due'    => '<span>$balance_due</span>',
+			'quote_total'  => '<span>$quote_total</span>',
+			'partial_due'    => '<span>$partial_due</span>',
+			'quote1'       => '<span>$quote1</span>',
+			'quote2'       => '<span>$quote2</span>',
+			'quote3'       => '<span>$quote3</span>',
+			'quote4'       => '<span>$quote4</span>',
+			'surcharge1'     => '<span>$surcharge1</span>',
+			'surcharge2'     => '<span>$surcharge2</span>',
+			'surcharge3'     => '<span>$surcharge3</span>',
+			'surcharge4'     => '<span>$surcharge4</span>',
+		];
+
+		return $this->processCustomFields($company, $data);
+
+	}
+
+	private function creditDetails(Company $company)
+	{
+
+		$data = [
+			'credit_number' => '<span>$credit_number</span>',
+			'po_number'      => '<span>$po_number</span>',
+			'date'           => '<span>$date</span>',
+			'credit_balance'    => '<span>$credit_balance</span>',
+			'credit_amount'  => '<span>$credit_amount</span>',
+			'partial_due'    => '<span>$partial_due</span>',
+			'invoice1'       => '<span>$invoice1</span>',
+			'invoice2'       => '<span>$invoice2</span>',
+			'invoice3'       => '<span>$invoice3</span>',
+			'invoice4'       => '<span>$invoice4</span>',
+			'surcharge1'     => '<span>$surcharge1</span>',
+			'surcharge2'     => '<span>$surcharge2</span>',
+			'surcharge3'     => '<span>$surcharge3</span>',
+			'surcharge4'     => '<span>$surcharge4</span>',
+		];
+
+		return $this->processCustomFields($company, $data);
+
+	}
+
+	private function processCustomFields(Company $company, $data) 
+	{
 
 		$custom_fields = $company->custom_fields;
 
@@ -270,7 +358,8 @@ class Designer {
 
 	}
 
-	private function processInputVariables($company, $variables) {
+	private function processInputVariables($company, $variables) 
+	{
 
 		$custom_fields = $company->custom_fields;
 
@@ -291,4 +380,5 @@ class Designer {
 		return $variables;
 
 	}
+
 }

@@ -49,8 +49,8 @@ class Photo extends AbstractDesign
             
             <div class="px-16 py-10">
                 <div class="flex justify-end">
-                    <span class="text-orange-700">$invoice_number_label</span>
-                    <span class="ml-6">$invoice_number</span>
+                    <span class="text-orange-700">$entity_labels</span>
+                    <span class="ml-6">$entity_details</span>
                 </div>
                 <div class="flex items-center justify-between mt-2">
                     <div ref="logo" class="h-14">

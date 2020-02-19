@@ -27,10 +27,4 @@ class EditInvoiceRequest extends Request
         return auth()->user()->can('edit', $this->invoice);
     }
 
-    public function rules()
-    {
-        $rules = [];
-        
-        return $rules;
-    }
 }

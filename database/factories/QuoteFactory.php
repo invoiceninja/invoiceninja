@@ -7,7 +7,7 @@ use Faker\Generator as Faker;
 $factory->define(App\Models\Quote::class, function (Faker $faker) {
     return [
 		'status_id' => App\Models\Quote::STATUS_DRAFT,
-		'number' => $faker->text(256),
+		'number' => '',
 		'discount' => $faker->numberBetween(1,10),
 		'is_amount_discount' => $faker->boolean(),
 		'tax_name1' => 'GST',

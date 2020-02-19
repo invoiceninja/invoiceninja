@@ -15,6 +15,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
@@ -27,6 +28,7 @@ class QuoteTest extends TestCase
 
     use MakesHash;
     use DatabaseTransactions;
+    use MockAccountData;
 
     public function setUp() :void
     {
@@ -39,67 +41,16 @@ class QuoteTest extends TestCase
 
         Model::reguard();
 
+        $this->makeTestData();
 
     }
 
     public function testQuoteList()
     {
-        $data = [
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-            'name' => $this->faker->company,
-            'email' => $this->faker->unique()->safeEmail,
-            'password' => 'ALongAndBrilliantPassword123',
-            '_token' => csrf_token(),
-            'privacy_policy' => 1,
-            'terms_of_service' => 1
-        ];
-
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-            ])->post('/api/v1/signup?include=account', $data);
-
-        $acc = $response->json();
-
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
-
-        $company_token = $account->default_company->tokens()->first();
-        $token = $company_token->token;
-        $company = $company_token->company;
-
-        $user = $company_token->user;
-
-        $this->assertNotNull($company_token);
-        $this->assertNotNull($token);
-        $this->assertNotNull($user);
-        $this->assertNotNull($company);
-        //$this->assertNotNull($user->token->company);
-
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
-
-            factory(\App\Models\ClientContact::class,1)->create([
-                'user_id' => $user->id,
-                'client_id' => $c->id,
-                'company_id' => $company->id,
-                'is_primary' => 1
-            ]);
-
-            factory(\App\Models\ClientContact::class,1)->create([
-                'user_id' => $user->id,
-                'client_id' => $c->id,
-                'company_id' => $company->id
-            ]);
-
-        });
-        $client = Client::all()->first();
-
-        factory(\App\Models\Quote::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
-
-
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
+                'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/quotes');
 
         $response->assertStatus(200);
@@ -108,72 +59,18 @@ class QuoteTest extends TestCase
 
     public function testQuoteRESTEndPoints()
     {
-        $data = [
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-          'name' => $this->faker->company,
-        'email' => $this->faker->unique()->safeEmail,
-            'password' => 'ALongAndBrilliantPassword123',
-            '_token' => csrf_token(),
-            'privacy_policy' => 1,
-            'terms_of_service' => 1
-        ];
-
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-            ])->post('/api/v1/signup?include=account', $data);
-
-        $acc = $response->json();
-
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
-
-        $company_token = $account->default_company->tokens()->first();
-        $token = $company_token->token;
-        $company = $company_token->company;
-
-        $user = $company_token->user;
-
-        $this->assertNotNull($company_token);
-        $this->assertNotNull($token);
-        $this->assertNotNull($user);
-        $this->assertNotNull($company);
-        //$this->assertNotNull($user->token->company);
-
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
-
-            factory(\App\Models\ClientContact::class,1)->create([
-                'user_id' => $user->id,
-                'client_id' => $c->id,
-                'company_id' => $company->id,
-                'is_primary' => 1
-            ]);
-
-            factory(\App\Models\ClientContact::class,1)->create([
-                'user_id' => $user->id,
-                'client_id' => $c->id,
-                'company_id' => $company->id
-            ]);
-
-        });
-        $client = Client::all()->first();
-
-        factory(\App\Models\Quote::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
-
-        $quote = Quote::where('user_id',$user->id)->first();
-        $quote->save();
-
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
-            ])->get('/api/v1/quotes/'.$this->encodePrimaryKey($quote->id));
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/quotes/'.$this->encodePrimaryKey($this->quote->id));
 
         $response->assertStatus(200);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
-            ])->get('/api/v1/quotes/'.$this->encodePrimaryKey($quote->id).'/edit');
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/quotes/'.$this->encodePrimaryKey($this->quote->id).'/edit');
 
         $response->assertStatus(200);
 
@@ -182,26 +79,26 @@ class QuoteTest extends TestCase
          //   'client_id' => $this->encodePrimaryKey($quote->client_id),
         ];
 
-        $this->assertNotNull($quote);
+        $this->assertNotNull($this->quote);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
-            ])->put('/api/v1/quotes/'.$this->encodePrimaryKey($quote->id), $quote_update);
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/quotes/'.$this->encodePrimaryKey($this->quote->id), $quote_update);
 
         $response->assertStatus(200);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
-            ])->delete('/api/v1/quotes/'.$this->encodePrimaryKey($quote->id));
+                'X-API-TOKEN' => $this->token,
+            ])->delete('/api/v1/quotes/'.$this->encodePrimaryKey($this->quote->id));
 
         $response->assertStatus(200);
 
-        $client_contact = ClientContact::whereClientId($client->id)->first();
+        $client_contact = ClientContact::whereClientId($this->client->id)->first();
 
         $data = [
-            'client_id' => $this->encodePrimaryKey($client->id),
+            'client_id' => $this->encodePrimaryKey($this->client->id),
             'date' => "2019-12-14",
             'line_items' => [],
             'invitations' => [
@@ -212,7 +109,7 @@ class QuoteTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
+                'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/quotes', $data);
 
         $response->assertStatus(200);

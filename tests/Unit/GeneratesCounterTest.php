@@ -89,11 +89,11 @@ class GeneratesCounterTest extends TestCase
 
         $quote_number = $this->getNextQuoteNumber($this->client);
 
-        $this->assertEquals($quote_number, 0001);
+        $this->assertEquals($quote_number, 0002);
 
         $quote_number = $this->getNextQuoteNumber($this->client);
 
-        $this->assertEquals($quote_number, '0002');
+        $this->assertEquals($quote_number, '0003');
 
     }
 

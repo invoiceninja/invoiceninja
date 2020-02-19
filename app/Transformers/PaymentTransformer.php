@@ -77,6 +77,7 @@ class PaymentTransformer extends EntityTransformer
             'is_deleted' => (bool) $payment->is_deleted,
             'type_id' => (string) $payment->payment_type_id ?: '',
             'invitation_id' => (string) $payment->invitation_id ?: '',
+            'private_notes' => (string) $payment->private_notes ?: '',
             'number' => (string) $payment->number ?: '',
             'client_id' => (string) $this->encodePrimaryKey($payment->client_id),
             'client_contact_id' => (string) $this->encodePrimaryKey($payment->client_contact_id),

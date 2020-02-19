@@ -521,7 +521,7 @@ class CreateTestData extends Command
         $invoice_calc = new InvoiceSum($credit);
         $invoice_calc->build();
 
-        $credit = $invoice_calc->getInvoice();
+        $credit = $invoice_calc->getCredit();
 
         $credit->save();
 
@@ -533,8 +533,7 @@ class CreateTestData extends Command
     {
         $faker = \Faker\Factory::create();
 
-        $quote = QuoteFactory::create($client->company->id, $client->user->id);//stub the company and user_id
-        $quote->client_id = $client->id;
+        $quote =factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
         $quote->date = $faker->date();
 
         $quote->line_items = $this->buildLineItems(rand(1,10));
@@ -560,9 +559,8 @@ class CreateTestData extends Command
         $quote_calc = new InvoiceSum($quote);
         $quote_calc->build();
 
-        $quote = $quote_calc->getInvoice();
-
-        $quote->save();
+        $quote = $quote_calc->getQuote();
+        $quote->service()->markSent()->save();
 
         CreateQuoteInvitations::dispatch($quote, $quote->company);
     }

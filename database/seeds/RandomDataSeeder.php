@@ -207,7 +207,7 @@ class RandomDataSeeder extends Seeder
             else
                 $credit_calc = new InvoiceSum($credit);
 
-            $credit = $credit_calc->build()->getInvoice();
+            $credit = $credit_calc->build()->getCredit();
 
             $credit->save();
 
