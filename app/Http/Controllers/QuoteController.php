@@ -12,6 +12,9 @@
 namespace App\Http\Controllers;
 
 use App\Factory\CloneInvoiceFactory;
+use App\Factory\CloneInvoiceToQuoteFactory;
+use App\Factory\CloneQuoteFactory;
+use App\Factory\CloneQuoteToInvoiceFactory;
 use App\Factory\QuoteFactory;
 use App\Filters\QuoteFilters;
 use App\Http\Requests\Quote\ActionQuoteRequest;
@@ -21,8 +24,10 @@ use App\Http\Requests\Quote\EditQuoteRequest;
 use App\Http\Requests\Quote\ShowQuoteRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
+use App\Models\Invoice;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
+use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -579,12 +584,16 @@ class QuoteController extends BaseController
     {
         switch ($action) {
             case 'clone_to_invoice':
-                $quote = CloneInvoiceFactory::create($quote, auth()->user()->id);
-                return $this->itemResponse($quote);
+
+                $this->entity_type = Invoice::class;
+                $this->entity_transformer = InvoiceTransformer::class;
+
+                $invoice = CloneQuoteToInvoiceFactory::create($quote, auth()->user()->id);
+                return $this->itemResponse($invoice);
                 break;
             case 'clone_to_quote':
-                //$quote = CloneInvoiceToQuoteFactory::create($quote, auth()->user()->id);
-                // todo build the quote transformer and return response here
+                $quote = CloneQuoteFactory::create($quote, auth()->user()->id);
+                return $this->itemResponse($quote);
                 break;
             case 'history':
                 # code...

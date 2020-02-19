@@ -19,9 +19,6 @@ class CloneInvoiceToQuoteFactory
     public static function create(Invoice $invoice, $user_id) : ?Quote
     {
         $quote = new Quote();
-        $quote->client_id = $invoice->client_id;
-        $quote->user_id = $user_id;
-        $quote->company_id = $invoice->company_id;
         $quote->discount = $invoice->discount;
         $quote->is_amount_discount = $invoice->is_amount_discount;
         $quote->po_number = $invoice->po_number;
@@ -35,12 +32,14 @@ class CloneInvoiceToQuoteFactory
         $quote->tax_rate1 = $invoice->tax_rate1;
         $quote->tax_name2 = $invoice->tax_name2;
         $quote->tax_rate2 = $invoice->tax_rate2;
+        $quote->tax_rate3 = $invoice->tax_rate3;
+        $quote->tax_rate3 = $invoice->tax_rate3;
         $quote->custom_value1 = $invoice->custom_value1;
         $quote->custom_value2 = $invoice->custom_value2;
         $quote->custom_value3 = $invoice->custom_value3;
         $quote->custom_value4 = $invoice->custom_value4;
         $quote->amount = $invoice->amount;
-        $quote->balance = $invoice->balance;
+        $quote->balance = $invoice->amount;
         $quote->partial = $invoice->partial;
         $quote->partial_due_date = $invoice->partial_due_date;
         $quote->last_viewed = $invoice->last_viewed;
@@ -50,7 +49,6 @@ class CloneInvoiceToQuoteFactory
         $quote->date = null;
         $quote->due_date = null;
         $quote->partial_due_date = null;
-        $quote->balance = $invoice->amount;
         $quote->line_items = $invoice->line_items;
 
         return $quote;

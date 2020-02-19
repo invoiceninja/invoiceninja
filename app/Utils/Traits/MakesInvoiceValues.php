@@ -47,6 +47,9 @@ trait MakesInvoiceValues
      * @var array
      */
     private static $labels = [
+        'credit_balance',
+        'credit_amount',
+        'quote_total',
         'invoice',
         'date',
         'due_date',
@@ -312,8 +315,18 @@ trait MakesInvoiceValues
         // $data['$your_invoice'] = ;
         // $data['$quote'] = ;
         // $data['$your_quote'] = ;
-        // $data['$quote_date'] = ;
-        // $data['$quote_number'] = ;
+        $data['$quote_date'] = &$data['$date'];
+        $data['$quote_number'] = &$data['$number'];
+        $data['$quote_no'] = &$data['$quote_number'];
+        $data['$quote.quote_no'] = &$data['$quote_number'];
+        $data['$valid_until'] = $this->due_date;
+        $data['$quote_total'] = &$data['$total'];
+
+
+        $data['$credit_amount'] =  &$data['$total'];
+        $data['$credit_balance'] =  &$data['$balance'];
+        $data['$credit.amount'] = &$data['$total'];
+
         // $data['$invoice_issued_to'] = ;
         // $data['$quote_issued_to'] = ;
         // $data['$rate'] = ;
@@ -325,8 +338,6 @@ trait MakesInvoiceValues
         // $data['$details'] = ;
         $data['$invoice_no'] = $this->number ?: '&nbsp;';
         $data['$invoice.invoice_no'] = &$data['$invoice_no'];
-        // $data['$quote_no'] = ;
-        // $data['$valid_until'] = ;
         $data['$client1'] = $this->client->custom_value1 ?: '&nbsp;';
         $data['$client2'] = $this->client->custom_value2 ?: '&nbsp;';
         $data['$client3'] = $this->client->custom_value3 ?: '&nbsp;';
@@ -529,11 +540,13 @@ trait MakesInvoiceValues
         return str_replace(
             [
                 'tax_name1',
-                'tax_name2'
+                'tax_name2',
+                'tax_name3'
             ],
             [
                 'tax',
                 'tax',
+                'tax'
             ],
             $columns
         );
@@ -558,7 +571,8 @@ trait MakesInvoiceValues
                 'custom_invoice_label3',
                 'custom_invoice_label4',
                 'tax_name1',
-                'tax_name2'
+                'tax_name2',
+                'tax_name3'
             ],
             [
                 'custom_invoice_value1',
@@ -566,7 +580,8 @@ trait MakesInvoiceValues
                 'custom_invoice_value3',
                 'custom_invoice_value4',
                 'tax_rate1',
-                'tax_rate2'
+                'tax_rate2',
+                'tax_rate3'
             ],
             $columns
         );

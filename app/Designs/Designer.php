@@ -58,7 +58,7 @@ class Designer {
 	 * formatted HTML
 	 * @return string The HTML design built
 	 */
-	public function build(Invoice $invoice):Designer {
+	public function build($invoice):Designer {
 
 		$this->exportVariables($invoice)
 		     ->setDesign($this->getSection('header'))
@@ -69,7 +69,7 @@ class Designer {
 		return $this;
 	}
 
-	public function getTable(Invoice $invoice):string {
+	public function getTable($invoice):string {
 
 		$table_header = $invoice->table_header($this->input_variables['table_columns'], $this->design->table_styles());
 		$table_body   = $invoice->table_body($this->input_variables['table_columns'], $this->design->table_styles());

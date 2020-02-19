@@ -19,6 +19,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Utils\Traits\Pdf\PdfMaker;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Bus\Queueable;
@@ -32,7 +33,7 @@ use Spatie\Browsershot\Browsershot;
 
 class CreateInvoicePdf implements ShouldQueue {
 
-	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml;
+	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker;
 
 	public $invoice;
 
@@ -47,7 +48,7 @@ class CreateInvoicePdf implements ShouldQueue {
 	 *
 	 * @return void
 	 */
-	public function __construct(Invoice $invoice, Company $company, ClientContact $contact = null) 
+	public function __construct($invoice, Company $company, ClientContact $contact = null) 
 	{
 
 		$this->invoice = $invoice;
@@ -103,24 +104,5 @@ class CreateInvoicePdf implements ShouldQueue {
 		return $file_path;	
 	}
 
-	/**
-	 * Returns a PDF stream
-	 *
-	 * @param  string $header Header to be included in PDF
-	 * @param  string $footer Footer to be included in PDF
-	 * @param  string $html   The HTML object to be converted into PDF
-	 *
-	 * @return string        The PDF string
-	 */
-	private function makePdf($header, $footer, $html) {
-		return Browsershot::html($html)
-		//->showBrowserHeaderAndFooter()
-		//->headerHtml($header)
-		//->footerHtml($footer)
-			->deviceScaleFactor(1)
-			->showBackground()
-			->waitUntilNetworkIdle(true)	->pdf();
-		//->margins(10,10,10,10)
-		//->savePdf('test.pdf');
-	}
+
 }

@@ -13,13 +13,16 @@ namespace App\Models;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\Filterable;
 use App\Services\Quote\QuoteService;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\MakesReminders;
-use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
+use Laracasts\Presenter\PresentableTrait;
 
 class Quote extends BaseModel
 {
@@ -28,6 +31,7 @@ class Quote extends BaseModel
     use SoftDeletes;
     use MakesReminders;
     use PresentableTrait;
+    use MakesInvoiceValues;
 
     protected $presenter = 'App\Models\Presenters\QuotePresenter';
 
@@ -135,7 +139,23 @@ class Quote extends BaseModel
     }
 
     public function service(): QuoteService
-     {
-         return new QuoteService($this);
-     }
+    {
+        return new QuoteService($this);
+    }
+
+    public function pdf_file_path($invitation = null)
+    {
+        $storage_path = 'storage/' . $this->client->quote_filepath() . $this->number . '.pdf';
+
+        if (Storage::exists($storage_path)) 
+            return $storage_path;
+
+        if(!$invitation)
+            CreateQuotePdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
+        else
+            CreateQuotePdf::dispatchNow($invitation->quote, $invitation->company, $invitation->contact);
+
+        return $storage_path;
+
+    }
 }

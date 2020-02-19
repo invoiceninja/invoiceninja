@@ -490,6 +490,21 @@ class CompanySettings extends BaseSettings {
 				'balance_due',
 				'invoice_total',
 			],
+			'quote_details' => [
+				'quote_number',
+				'po_number',
+				'date',
+				'valid_until',
+				'balance_due',
+				'quote_total',
+			],
+			'credit_details' => [
+				'credit_number',
+				'po_number',
+				'date',
+				'credit_balance',
+				'credit_amount',
+			],
 			'table_columns' => [
 				'product_key',
 				'notes',
