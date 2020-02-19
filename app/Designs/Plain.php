@@ -38,7 +38,7 @@ class Plain extends AbstractDesign
                     <div class="px-12 py-8">
                         <div class="flex">
                             <div class="w-1/3">
-                                $invoice_label
+                                $entity_label
                             </div>
                             <div class="w-1/3 flex flex-col">
                                 $company_details
@@ -98,7 +98,7 @@ class Plain extends AbstractDesign
         <div class="flex justify-between mt-8">
             <div class="w-1/2">
                 <div class="flex flex-col">
-                    <p>$invoice.public_notes</p>
+                    <p>$entity.public_notes</p>
                     <div class="pt-4">
                         <p class="font-bold">$terms_label</p>
                         <p>$terms</p>

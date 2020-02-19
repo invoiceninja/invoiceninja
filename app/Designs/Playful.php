@@ -11,7 +11,7 @@
 
 namespace App\Designs;
 
-class Photo extends AbstractDesign
+class Playful extends AbstractDesign
 {
 
 	public function __construct() {
@@ -33,6 +33,26 @@ class Photo extends AbstractDesign
 			        </style>
 			    </head>
 			    <body>
+                <div class="p-1 bg-teal-600"></div>
+
+                <div class="my-12 mx-16">
+                    <div class="flex items-center justify-between">
+                        <div class="w-1/2">
+                            $company_logo
+                        </div>
+                        <div class="w-1/3">
+                            <div class="bg-teal-600 p-5">
+                                <div class="flex text-white">
+                                    <section class="w-1/2 flex flex-col">
+                                        $entity_labels
+                                    </section>
+                                    <section class="flex flex-col">
+                                        $entity_details
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 			';
 
 	}
@@ -40,42 +60,24 @@ class Photo extends AbstractDesign
 	public function body() {
 
         return '
-            <style>
-                #imageContainer {
-                    background-image: url(/assets/images/006-photographer-2.jpg); // TODO: Enable passing custom image into invoice.
-                    background-size: cover;
-                }
-            </style>
-            
-            <div class="px-16 py-10">
-                <div class="flex justify-end">
-                    <span class="text-orange-700">$entity_labels</span>
-                    <span class="ml-6">$entity_details</span>
-                </div>
-                <div class="flex items-center justify-between mt-2">
-                    <div ref="logo" class="h-14">
-                        $company_logo
-                    </div>
-                    <div class="flex">
-                        <span class="uppercase font-semibold">$due_date_label</span>
-                        <span class="ml-4">$due_date</span>
-                        <span class="ml-4 uppercase font-semibold">$balance_due_label</span>
-                        <span class="ml-4 text-orange-700">$balance_due</span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex content-center flex-wrap bg-gray-200 h-auto px-16 py-5" id="imageContainer">
-                <div class="flex flex-col">
-                    <div class="flex">
-                        <p class="uppercase text-orange-800">To:</p>
-                        <div class="flex flex-col ml-2">
-                            $client_details
+            <div class="flex mt-16">
+                <div class="w-1/2">
+                    <div class="flex flex-col">
+                        <p class="font-semibold text-teal-600 pl-4">$entity_to_label</p>
+                        <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
+                            <section class="flex flex-col">
+                                $client_details
+                            </section>
                         </div>
                     </div>
-                    <div class="flex mt-5">
-                        <p class="uppercase text-orange-800">From:</p>
-                        <div class="flex flex-col ml-2">
-                            $company_details
+                </div>
+                <div class="w-1/2 ml-24">
+                    <div class="flex flex-col">
+                        <p class="font-semibold text-teal-600 pl-4">$from_label:</p>
+                        <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
+                            <section class="flex flex-col">
+                                $company_details
+                            </section>
                         </div>
                     </div>
                 </div>
@@ -86,31 +88,30 @@ class Photo extends AbstractDesign
 
 	public function table_styles() {
 		return [
-			'table_header_thead_class' => "text-left border-b-4 border-black",
-			'table_header_td_class'    => "font-normal px-4 py-2 uppercase",
-			'table_body_td_class'      => "text-orange-700 px-4 py-4",
+			'table_header_thead_class' => "text-left bg-teal-600 rounded-lg",
+			'table_header_td_class'    => "font-semibold text-white px-4 py-3",
+			'table_body_td_class'      => "border-b-4 border-teal-600 text-red-800 px-4 py-4",
 		];
 	}
 
 	public function table() {
 
         return '
-        <div class="px-16 py-16">
-            <table class="w-full table-auto">
-                <thead class="text-left border-b-4 border-black">
+            <table class="w-full table-auto my-20">
+                <thead class="text-left bg-teal-600 rounded-lg">
                     <tr>
                         $table_header
                     </tr>
                 </thead>
                 <tbody>
                     $table_body
-                    <tr class="border-b border-black">
-                        <td colspan="5" ref="note" class="px-4 py-4">$invoice.public_notes</td>
-                        <td ref="quantity" class="px-4 py-4">
+                    <tr>
+                        <td colspan="5" ref="note" class="px-4 py-4">$entity.public_notes</td>
+                        <td ref="quantity" class="px-4 py-4 flex flex-col">
                             $total_tax_labels
                             $line_tax_labels
                         </td>
-                        <td ref="line.total" class="px-4 py-4 text-right">
+                        <td ref="line.total" class="px-4 py-4 text-right flex flex-col">
                             $total_tax_values
                             $line_tax_values
                         </td>
@@ -123,10 +124,10 @@ class Photo extends AbstractDesign
                     </tr>
                     <tr>
                         <td colspan="5" ref="terms" class="px-4 py-4"></td>
-                        <td ref="terms" class="px-4 py-1 bg-orange-700">
+                        <td ref="terms" class="bg-teal-600 px-4 py-3">
                             <span class="text-white">$balance_due_label</span>
                         </td>
-                        <td ref="terms" class="px-4 py-1 bg-orange-700 text-right">
+                        <td ref="terms" class="bg-teal-600 px-4 py-3 text-right">
                             <span class="text-white">$balance_due</span>
                         </td>
                     </tr>
