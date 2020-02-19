@@ -99,6 +99,11 @@ class Credit extends BaseModel
         return $this->belongsTo(Invoice::class);
     }
 
+    public function company_ledger()
+    {
+        return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
+    }
+    
     /**
      * The invoice/s which the credit has
      * been applied to.
