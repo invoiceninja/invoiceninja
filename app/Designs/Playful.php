@@ -11,7 +11,7 @@
 
 namespace App\Designs;
 
-class Clean extends AbstractDesign
+class Playful extends AbstractDesign
 {
 
 	public function __construct() {
@@ -33,22 +33,30 @@ class Clean extends AbstractDesign
 			        </style>
 			    </head>
 			    <body>
+                <div class="p-1 bg-teal-600"></div>
 
-                <div class="px-12 my-10">
-                <div class="flex items-center">
-                    <div class="w-1/3">
-                        <div class="h-14 w-14">$company_logo</div>
-                    </div>
-                    <div class="w-auto flex">
-                        <div class="mr-10 text-gray-600 flex flex-col">
-                            $company_details
+                <div class="my-12 mx-16">
+                    <div class="flex items-center justify-between">
+                        <div class="w-1/2">
+                            $company_logo
                         </div>
-                        <div class="ml-5 text-gray-600 flex flex-col">
-                            $company_address
+                        <div class="w-1/3">
+                            <div class="bg-teal-600 p-5">
+                                <div class="flex text-white">
+                                    <section class="w-1/2 flex flex-col">
+                                        <span>1</span>
+                                        <span>1</span>
+                                        <span>1</span>
+                                    </section>
+                                    <section class="flex flex-col">
+                                        <span>1</span>
+                                        <span>1</span>
+                                        <span>1</span>
+                                    </section>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            
 			';
 
 	}
@@ -56,83 +64,79 @@ class Clean extends AbstractDesign
 	public function body() {
 
         return '
-            <h1 class="mt-12 uppercase text-2xl text-blue-500 ml-4">
-                $invoice_label
-            </h1>
-
-            <div class="border-b border-gray-400"></div>
-
-            <div class="ml-4 py-4">
-                <div class="flex">
-                    <div class="w-40 flex flex-col">
-                        $invoice_details_labels
+            <div class="flex mt-16">
+                <div class="w-1/2">
+                    <div class="flex flex-col">
+                        <p class="font-semibold text-teal-600 pl-4">$invoice_to_label</p>
+                        <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
+                            <section class="flex flex-col">
+                                $client_details
+                            </section>
+                        </div>
                     </div>
-                    <div class="w-48 flex flex-col">
-                        $invoice_details
-                    </div>
-                    <div class="w-56 flex flex-col">
-                        $client_details
+                </div>
+                <div class="w-1/2 ml-24">
+                    <div class="flex flex-col">
+                        <p class="font-semibold text-teal-600 pl-4">$from_label:</p>
+                        <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
+                            <section class="flex flex-col">
+                                $company_details
+                            </section>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="border-b border-gray-400"></div>
         ';
 
 	}
 
 	public function table_styles() {
 		return [
-			'table_header_thead_class' => "text-left",
-			'table_header_td_class'    => "px-4 py-2",
-			'table_body_td_class'      => "text-blue-600 border-t border-b border-gray-400 px-4 py-4",
+			'table_header_thead_class' => "text-left bg-teal-600 rounded-lg",
+			'table_header_td_class'    => "font-semibold text-white px-4 py-3",
+			'table_body_td_class'      => "border-b-4 border-teal-600 text-red-800 px-4 py-4",
 		];
 	}
 
 	public function table() {
 
         return '
-            <table class="w-full table-auto mt-8">
-            <thead class="text-left">
-                <tr>
-                    $table_header
-                </tr>
-            </thead>
-            <tbody>
-                $table_body
-            </tbody>
-        </table>
-
-        <div class="flex px-4 mt-6 w-full">
-            <div class="w-1/2">
-                $invoice.public_notes
-            </div>
-            <div class="w-1/2 flex">
-                <div class="w-1/2 text-right flex flex-col">
-                    $total_tax_labels
-                    $line_tax_labels
-                </div>
-                <div class="w-1/2 text-right flex flex-col">
-                    $total_tax_values
-                    $line_tax_values
-                </div>
-            </div>
-        </div>
-
-        <div class="flex px-4 mt-4 w-full items-end">
-            <div class="w-1/2">
-                <p class="font-semibold">$terms_label</p>
-                $terms
-            </div>
-            <div class="w-1/2 flex">
-                <div class="w-1/2 text-right flex flex-col">
-                    <span>$balance_due_label</span>
-                </div>
-                <div class="w-1/2 text-right flex flex-col">
-                    <span class="text-blue-600">$balance_due</span>
-                </div>
-            </div>
-        </div>';
+            <table class="w-full table-auto my-20">
+                <thead class="text-left bg-teal-600 rounded-lg">
+                    <tr>
+                        $table_header
+                    </tr>
+                </thead>
+                <tbody>
+                    $table_body
+                    <tr>
+                        <td colspan="5" ref="note" class="px-4 py-4">$invoice.public_notes</td>
+                        <td ref="quantity" class="px-4 py-4 flex flex-col">
+                            $total_tax_labels
+                            $line_tax_labels
+                        </td>
+                        <td ref="line.total" class="px-4 py-4 text-right flex flex-col">
+                            $total_tax_values
+                            $line_tax_values
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" ref="terms" class="px-4 py-4">
+                            <p ref="terms" class="font-semibold">$terms_label</p>
+                            <p>$terms</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" ref="terms" class="px-4 py-4"></td>
+                        <td ref="terms" class="bg-teal-600 px-4 py-3">
+                            <span class="text-white">$balance_due_label</span>
+                        </td>
+                        <td ref="terms" class="bg-teal-600 px-4 py-3 text-right">
+                            <span class="text-white">$balance_due</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>';
 	}
 
 	public function footer() {
