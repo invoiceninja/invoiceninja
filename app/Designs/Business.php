@@ -107,11 +107,11 @@ class Business extends AbstractDesign
                     $table_body
                     <tr>
                         <td colspan="5" ref="note" class="px-4 py-4 bg-gray-200 rounded-l-lg">$entity.public_notes</td>
-                        <td ref="quantity" class="px-4 py-4 bg-gray-200" style="color: black">
+                        <td ref="quantity" class="px-4 py-4 bg-gray-200 flex flex-col" style="color: black">
                             $total_tax_labels
                             $line_tax_labels
                         </td>
-                        <td ref="line.total" class="px-4 py-4 text-right bg-gray-200 rounded-r-lg" style="color: black">
+                        <td ref="line.total" class="px-4 py-4 text-right bg-gray-200 rounded-r-lg flex flex-col" style="color: black">
                             $total_tax_values
                             $line_tax_values
                         </td>

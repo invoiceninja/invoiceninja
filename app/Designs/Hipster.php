@@ -107,11 +107,11 @@ class Hipster extends AbstractDesign
                     <td colspan="3" ref="note" class="px-4 py-4">
                         $entity.public_notes
                     </td>
-                    <td ref="quantity" class="px-4 py-4">
+                    <td ref="quantity" class="px-4 py-4 flex flex-col">
                         $total_tax_labels
                         $line_tax_labels
                     </td>
-                    <td ref="line.total" class="border-l-2 border-black px-4 py-4 text-right">
+                    <td ref="line.total" class="border-l-2 border-black px-4 py-4 text-right flex flex-col">
                         $total_tax_values
                         $line_tax_values
                     </td>
