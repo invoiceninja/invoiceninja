@@ -13,7 +13,6 @@ namespace App\Services\Invoice;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
-use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
@@ -61,7 +60,8 @@ class MarkPaid extends AbstractService
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company));
 
-        UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount*-1), $payment->company);
+        $payment->ledger()
+                ->updatePaymentBalance($payment->amount*-1);
 
         $this->client_service
             ->updateBalance($payment->amount*-1)

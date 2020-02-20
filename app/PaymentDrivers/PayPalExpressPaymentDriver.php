@@ -12,7 +12,7 @@
 namespace App\PaymentDrivers;
 
 use App\Events\Payment\PaymentWasCreated;
-use App\Jobs\Invoice\UpdateInvoicePayment;
+//use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -160,7 +160,9 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         event(new PaymentWasCreated($payment, $payment->company));
 
-        UpdateInvoicePayment::dispatchNow($payment, $payment->company);
+        $payment->service()->UpdateInvoicePayment();
+
+        //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
 
         return redirect()->route('client.payments.show', ['payment'=>$this->encodePrimaryKey($payment->id)]);
     }

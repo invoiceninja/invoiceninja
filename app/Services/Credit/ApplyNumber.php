@@ -5,7 +5,6 @@ namespace App\Services\Credit;
 use App\Credit;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
-use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Customer\UpdateCustomerBalance;
 use App\Jobs\Customer\UpdateCustomerPaidToDate;
 use App\Models\Client;

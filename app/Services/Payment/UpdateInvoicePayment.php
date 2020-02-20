@@ -1,68 +1,35 @@
 <?php
-/**
- * Invoice Ninja (https://invoiceninja.com)
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
- *
- * @license https://opensource.org/licenses/AAL
- */
 
-namespace App\Jobs\Invoice;
+namespace App\Services\Payment;
 
-use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
+use App\Helpers\Email\PaymentEmail;
+use App\Jobs\Payment\EmailPayment;
 use App\Jobs\Util\SystemLogger;
-use App\Libraries\MultiDB;
-use App\Models\Company;
-use App\Models\Payment;
+use App\Models\Invoice;
 use App\Models\SystemLog;
-use App\Utils\Traits\SystemLogTrait;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
-class UpdateInvoicePayment implements ShouldQueue
+class UpdateInvoicePayment
 {
-    use SystemLogTrait, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
     public $payment;
 
-    private $company;
-
-    /**
-     * @deprecated we only use this in test data creation. shouldn't be used in production
-     * Create the event listener.
-     *
-     * @return void
-     */
-    public function __construct(Payment $payment, Company $company)
+    public function __construct($payment)
     {
         $this->payment = $payment;
-        $this->company = $company;
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  object  $event
-     * @return void
-     */
-    public function handle()
+    public function run()
     {
-        MultiDB::setDB($this->company->db);
-
-        $invoices = $this->payment->invoices()->get();
+    $invoices = $this->payment->invoices()->get();
 
         $invoices_total = $invoices->sum('balance');
 
         /* Simplest scenario - All invoices are paid in full*/
         if (strval($invoices_total) === strval($this->payment->amount)) {
             $invoices->each(function ($invoice) {
-                UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
+                
+                $this->payment
+                     ->ledger()
+                     ->updatePaymentBalance($this->payment, ($invoice->balance*-1));
                 
                 $this->payment->client
                     ->service()
@@ -96,7 +63,10 @@ class UpdateInvoicePayment implements ShouldQueue
             if ($this->payment->amount == $total) {
                 $invoices->each(function ($invoice) {
                     if ($invoice->hasPartial()) {
-                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->partial*-1), $this->company);
+
+                        $this->payment
+                             ->ledger()
+                             ->updatePaymentBalance($this->payment, ($invoice->partial*-1));
 
                         $this->payment->client->service()
                                                 ->updateBalance($invoice->partial*-1)
@@ -112,7 +82,10 @@ class UpdateInvoicePayment implements ShouldQueue
                                 ->setStatus(Invoice::STATUS_PARTIAL)
                                 ->save();
                     } else {
-                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
+                        
+                        $this->payment
+                             ->ledger()
+                             ->updatePaymentBalance($this->payment, ($invoice->balance*-1));
 
                         $this->payment->client->service()
                                               ->updateBalance($invoice->balance*-1)
@@ -148,5 +121,8 @@ class UpdateInvoicePayment implements ShouldQueue
                 $this->payment->delete();
             }
         }
+
+        return $this->payment;
     }
+
 }

@@ -22,7 +22,6 @@ use App\Factory\InvoiceInvitationFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
@@ -272,7 +271,8 @@ trait MockAccountData
 
         $this->invoice->save();
 
-        UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount, $this->invoice->company);
+        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount);
+        // UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount, $this->invoice->company);
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
         $recurring_invoice->next_send_date = Carbon::now();

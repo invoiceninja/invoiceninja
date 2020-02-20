@@ -12,8 +12,6 @@ use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
 use App\Factory\QuoteFactory;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Jobs\Quote\CreateQuoteInvitations;
 use App\Listeners\Credit\CreateCreditInvitation;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
@@ -459,7 +457,9 @@ class CreateTestData extends Command
         $invoice->save();
         $invoice->service()->createInvitations();
 
-        UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
+        $invoice->ledger()->updateInvoiceBalance($invoice->balance);
+
+        //UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
 
         $this->invoice_repo->markSent($invoice);
 
@@ -480,7 +480,8 @@ class CreateTestData extends Command
 
             event(new PaymentWasCreated($payment, $payment->company));
 
-            UpdateInvoicePayment::dispatchNow($payment, $payment->company);
+            $payment->service()->updateInvoicePayment();
+            //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
         }
         //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
         event(new InvoiceWasCreated($invoice, $invoice->company));

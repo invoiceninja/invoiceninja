@@ -312,6 +312,8 @@ trait MakesInvoiceValues
         $data['$invoice3'] = $this->custom_value3 ?: '&nbsp;';
         $data['$invoice4'] = $this->custom_value4 ?: '&nbsp;';
         $data['$invoice.public_notes'] = $this->public_notes ?: '&nbsp;';
+        $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
+        
         // $data['$your_invoice'] = ;
         // $data['$quote'] = ;
         // $data['$your_quote'] = ;

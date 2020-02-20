@@ -13,7 +13,6 @@ namespace App\Services\Invoice;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
-use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;

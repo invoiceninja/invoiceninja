@@ -12,7 +12,6 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasMarkedSent;
-use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Models\Invoice;
 use App\Services\AbstractService;
 
@@ -47,7 +46,9 @@ class MarkSent extends AbstractService
 
         $this->invoice->service()->setStatus(Invoice::STATUS_SENT)->applyNumber()->save();
 
-        UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->balance, $this->invoice->company);
+        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance);
+
+        //UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->balance, $this->invoice->company);
 
         return $this->invoice;
 

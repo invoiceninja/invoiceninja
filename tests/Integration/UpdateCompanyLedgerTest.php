@@ -18,6 +18,9 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
+/** @test
+/** @covers App\Services\Ledger\LedgerService */
+
 class UpdateCompanyLedgerTest extends TestCase
 {
     use MockAccountData;
