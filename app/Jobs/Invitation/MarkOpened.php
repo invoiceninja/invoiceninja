@@ -61,7 +61,8 @@ class MarkOpened implements ShouldQueue
             return false;
         }
 
-        $invitation->email_error = $error;
+        $invitation->opened_date = now();
+        //$invitation->email_error = $error;
         $invitation->save();
     }
 }

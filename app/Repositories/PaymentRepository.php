@@ -14,7 +14,7 @@ namespace App\Repositories;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
 use App\Jobs\Credit\ApplyCreditPayment;
-use App\Jobs\Invoice\UpdateInvoicePayment;
+//use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -129,7 +129,6 @@ class PaymentRepository extends BaseRepository
         elseif ($invoice_totals < $payment->amount)
             $payment->applied += $invoice_totals;
 
-        //UpdateInvoicePayment::dispatchNow($payment);
         $payment->save();
 
         return $payment->fresh();

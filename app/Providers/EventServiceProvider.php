@@ -38,7 +38,6 @@ use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
-use App\Listeners\Invoice\UpdateInvoicePayment;
 use App\Listeners\SendVerificationNotification;
 use App\Listeners\User\UpdateUserLastLogin;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -73,8 +72,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         PaymentWasCreated::class => [
             PaymentCreatedActivity::class,
-            //UpdateInvoicePayment::class,
-            //UpdateInvoiceInvitations::class,
         ],
         PaymentWasDeleted::class => [
             PaymentDeletedActivity::class,

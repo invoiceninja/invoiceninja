@@ -13,7 +13,7 @@ namespace App\PaymentDrivers;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
-use App\Jobs\Invoice\UpdateInvoicePayment;
+//use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -361,7 +361,8 @@ class StripePaymentDriver extends BasePaymentDriver
 
             event(new PaymentWasCreated($payment, $payment->company));
 
-            UpdateInvoicePayment::dispatchNow($payment, $payment->company);
+            $payment->service()->UpdateInvoicePayment();
+            //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
         
             SystemLogger::dispatch(
                 [

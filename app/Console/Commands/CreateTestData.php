@@ -12,7 +12,6 @@ use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
 use App\Factory\QuoteFactory;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Jobs\Quote\CreateQuoteInvitations;
 use App\Listeners\Credit\CreateCreditInvitation;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
@@ -481,7 +480,8 @@ class CreateTestData extends Command
 
             event(new PaymentWasCreated($payment, $payment->company));
 
-            UpdateInvoicePayment::dispatchNow($payment, $payment->company);
+            $payment->service()->updateInvoicePayment();
+            //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
         }
         //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
         event(new InvoiceWasCreated($invoice, $invoice->company));

@@ -12,7 +12,9 @@
 namespace App\Services\Payment;
 
 use App\Factory\PaymentFactory;
+use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\Payment\UpdateInvoicePayment;
 
 
 class PaymentService
@@ -45,8 +47,32 @@ class PaymentService
     
     public function sendEmail($contact = null)
     {
-        $send_email = new SendEmail($this->payment);
+        return (new SendEmail($this->payment))->run(null, $contact);
+    }
 
-        return $send_email->run(null, $contact);
+    public function reversePayment()
+    {
+        $invoices = $this->payment->invoices()->get();
+        $client = $this->payment->client;
+
+        $invoices->each(function ($invoice) {
+            if ($invoice->pivot->amount > 0) {
+                $invoice->status_id = Invoice::STATUS_SENT;
+                $invoice->balance = $invoice->pivot->amount;
+                $invoice->save();
+            }
+        });
+
+        $this->payment->ledger()->updatePaymentBalance($this->payment->amount);
+
+        $client->service()
+            ->updateBalance($this->payment->amount)
+            ->updatePaidToDate($this->payment->amount*-1)
+            ->save();
+    }
+
+    public function updateInvoicePayment()
+    {
+        return ((new UpdateInvoicePayment($this->payment)))->run();
     }
 }
