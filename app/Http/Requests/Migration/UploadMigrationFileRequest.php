@@ -23,8 +23,15 @@ class UploadMigrationFileRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'migration' => [], // TODO: Write mimes check for zip file.
+        $rules = [
+            'migration' => [],
         ];
+
+        /** We'll skip mime validation while running tests. */
+        if(app()->environment() !== 'testing') {
+            $rules['migration'] = ['required', 'mimes:zip'];
+        }
+
+        return $rules;
     }
 }
