@@ -459,7 +459,9 @@ class CreateTestData extends Command
         $invoice->save();
         $invoice->service()->createInvitations();
 
-        UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
+        $invoice->ledger()->updateInvoiceBalance($invoice->balance);
+
+        //UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
 
         $this->invoice_repo->markSent($invoice);
 

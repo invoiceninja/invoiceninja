@@ -11,6 +11,7 @@
 
 namespace App\Services\Ledger;
 
+use App\Factory\CompanyLedgerFactory;
 use App\Models\CompanyLedger;
 
 class LedgerService
@@ -28,7 +29,7 @@ class LedgerService
         $balance = 0;
 
         if ($this->ledger()) {
-            $balance = $this->ledger->balance;
+            $balance = $this->ledger()->balance;
         }
 
         $adjustment = $balance + $adjustment;
@@ -44,13 +45,14 @@ class LedgerService
         return $this;
     }
 
-    private function ledger() :CompanyLedger
+    private function ledger() :?CompanyLedger
     {
 
         return CompanyLedger::whereClientId($this->entity->client_id)
                         ->whereCompanyId($this->entity->company_id)
                         ->orderBy('id', 'DESC')
                         ->first();
+
     }
 
     public function save()

@@ -19,10 +19,12 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Client\UpdateClientBalance;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Models\CompanyLedger;
 use App\Models\Currency;
 use App\Models\Filterable;
 use App\Models\PaymentTerm;
 use App\Services\Invoice\InvoiceService;
+use App\Services\Ledger\LedgerService;
 use App\Utils\Number;
 use App\Utils\Traits\InvoiceEmailBuilder;
 use App\Utils\Traits\MakesDates;
@@ -163,9 +165,14 @@ class Invoice extends BaseModel
     /**
      * Service entry points
      */
-    public function service(): InvoiceService
+    public function service() :InvoiceService
     {
         return new InvoiceService($this);
+    }
+
+    public function ledger() 
+    {
+        return new LedgerService($this);
     }
 
     /* ---------------- */
