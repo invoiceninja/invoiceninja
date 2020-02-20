@@ -11,7 +11,6 @@
 
 namespace App\Services\Invoice;
 
-use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
@@ -35,8 +34,10 @@ class ApplyPayment extends AbstractService
 
   	public function run()
   	{
-
-        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->payment_amount*-1), $this->payment->company);
+        $this->payment
+             ->ledger()
+             ->updatePaymentBalance($this->payment_amount*-1);
+        //UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->payment_amount*-1), $this->payment->company);
 
         $this->payment->client->service()->updateBalance($this->payment_amount*-1)->save();
 

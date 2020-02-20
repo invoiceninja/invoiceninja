@@ -61,7 +61,9 @@ class MarkPaid extends AbstractService
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company));
 
-        UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount*-1), $payment->company);
+        $payment->ledger()
+                ->updatePaymentBalance($payment->amount*-1);
+        //pdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount*-1), $payment->company);
 
         $this->client_service
             ->updateBalance($payment->amount*-1)

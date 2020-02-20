@@ -28,8 +28,10 @@ class LedgerService
     {
         $balance = 0;
 
-        if ($this->ledger()) {
-            $balance = $this->ledger()->balance;
+        $company_ledger = $this->ledger();
+
+        if ($company_ledger) {
+            $balance = $company_ledger->balance;
         }
 
         $adjustment = $balance + $adjustment;
@@ -43,6 +45,27 @@ class LedgerService
         $this->entity->company_ledger()->save($company_ledger);
 
         return $this;
+    }
+
+    public function updatePaymentBalance($adjustment)
+    {
+        $balance = 0;
+        
+        /* Get the last record for the client and set the current balance*/
+        $company_ledger = $this->ledger();
+
+        if ($company_ledger) {
+            $balance = $company_ledger->balance;
+        }
+
+
+        $company_ledger = CompanyLedgerFactory::create($this->entity->company_id, $this->entity->user_id);
+        $company_ledger->client_id = $this->entity->client_id;
+        $company_ledger->adjustment = $adjustment;
+        $company_ledger->balance = $balance + $adjustment;
+        $company_ledger->save();
+
+        $this->entity->company_ledger()->save($company_ledger); 
     }
 
     private function ledger() :?CompanyLedger

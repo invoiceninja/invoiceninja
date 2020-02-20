@@ -17,6 +17,7 @@ use App\Models\Credit;
 use App\Models\DateFormat;
 use App\Models\Filterable;
 use App\Models\Paymentable;
+use App\Services\Ledger\LedgerService;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -167,6 +168,11 @@ class Payment extends BaseModel
                 # code...
                 break;
         }
+    }
+
+    public function ledger()
+    {
+        return new LedgerService($this);
     }
 
     public function resolveRouteBinding($value)

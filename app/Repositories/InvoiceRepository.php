@@ -109,7 +109,8 @@ class InvoiceRepository extends BaseRepository {
 
 		/**/
 		if (($finished_amount != $starting_amount) && ($invoice->status_id != Invoice::STATUS_DRAFT)) {
-			UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount-$starting_amount), $invoice->company);
+			$invoice->ledger()->updateInvoiceBalance(($finished_amount-$starting_amount));
+			//UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount-$starting_amount), $invoice->company);
 		}
 
 		$invoice = $invoice->service()->applyNumber()->save();

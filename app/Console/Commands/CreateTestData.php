@@ -12,7 +12,6 @@ use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
 use App\Factory\QuoteFactory;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Jobs\Quote\CreateQuoteInvitations;
 use App\Listeners\Credit\CreateCreditInvitation;

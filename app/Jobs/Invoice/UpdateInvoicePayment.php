@@ -62,7 +62,11 @@ class UpdateInvoicePayment implements ShouldQueue
         /* Simplest scenario - All invoices are paid in full*/
         if (strval($invoices_total) === strval($this->payment->amount)) {
             $invoices->each(function ($invoice) {
-                UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
+                
+                $this->payment
+                     ->ledger()
+                     ->updatePaymentBalance($this->payment, ($invoice->balance*-1));
+                //UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
                 
                 $this->payment->client
                     ->service()
@@ -96,7 +100,11 @@ class UpdateInvoicePayment implements ShouldQueue
             if ($this->payment->amount == $total) {
                 $invoices->each(function ($invoice) {
                     if ($invoice->hasPartial()) {
-                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->partial*-1), $this->company);
+
+                        $this->payment
+                             ->ledger()
+                             ->updatePaymentBalance($this->payment, ($invoice->partial*-1));
+//                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->partial*-1), $this->company);
 
                         $this->payment->client->service()
                                                 ->updateBalance($invoice->partial*-1)
@@ -112,7 +120,11 @@ class UpdateInvoicePayment implements ShouldQueue
                                 ->setStatus(Invoice::STATUS_PARTIAL)
                                 ->save();
                     } else {
-                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
+                        
+                        $this->payment
+                             ->ledger()
+                             ->updatePaymentBalance($this->payment, ($invoice->balance*-1));
+//                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
 
                         $this->payment->client->service()
                                               ->updateBalance($invoice->balance*-1)
