@@ -11,6 +11,7 @@ use App\Models\TaxRate;
 use App\Libraries\Utils;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\MigrationTypeRequest;
 use App\Models\Document;
 
 class StepsController extends BaseController
@@ -37,6 +38,24 @@ class StepsController extends BaseController
     {
         return view('migration.download');
     }
+
+    public function handleType(MigrationTypeRequest $request)
+    {
+        session()->put('MIGRATION_TYPE', $request->option);
+
+        return redirect('/migration/auth');
+    }
+
+    public function auth()
+    {
+        return view('migration.auth');
+    }
+
+    /**
+     * ==================================
+     * Rest of functions that are used as 'actions', not controller methods.
+     * ==================================
+     */
 
     /**
      * Handle data downloading for the migration.

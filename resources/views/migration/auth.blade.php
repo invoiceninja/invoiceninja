@@ -4,6 +4,8 @@
     @parent
     @include('accounts.nav', ['selected' => ACCOUNT_MANAGEMENT])
 
+    Authentication..
+
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.welcome_to_the_new_version') !!}</h3>
