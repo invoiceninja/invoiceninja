@@ -18,6 +18,13 @@ class StepsController extends BaseController
 {
     private $account;
 
+    private $access = [
+        'auth' => [
+            'steps' => ['MIGRATION_TYPE'],
+            'redirect' => '/migration/start',
+        ],
+    ];
+
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
@@ -48,7 +55,20 @@ class StepsController extends BaseController
 
     public function auth()
     {
+        if($this->shouldGoBack('auth')) {
+            return redirect($this->access['auth']['redirect']);
+        }
+
         return view('migration.auth');
+    }
+
+    public function handleAuth()
+    {   
+        if($this->shouldGoBack('auth')) {
+            return redirect($this->access['auth']['redirect']);
+        }
+
+        // ..
     }
 
     /**
@@ -56,6 +76,21 @@ class StepsController extends BaseController
      * Rest of functions that are used as 'actions', not controller methods.
      * ==================================
      */
+
+    public function shouldGoBack(string $step)
+    {
+        $redirect = true;
+
+        foreach ($this->access[$step]['steps'] as $step) {
+            if(session()->has($step)) {
+                $redirect = false;
+            }  else {
+                $redirect = true;
+            }
+        }
+
+        return $redirect;
+    }
 
     /**
      * Handle data downloading for the migration.
