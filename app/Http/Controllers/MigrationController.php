@@ -190,7 +190,11 @@ class MigrationController extends BaseController
             'migrations', $request->file('migration')->getClientOriginalName()
         );
 
-        // config('ninja.environment') - Returns 'selfhosted' instead of 'testing' while running with PhpUnit, which makes it run the migration file.
+        if(!auth()->user()->company) 
+            return response()->json(['message' => 'Company doesn\'t exists.'], 402);
+
+        if($request->has('force'))
+            $this->purgeCompany(auth()->user()->company);
 
         if(app()->environment() !== 'testing') {
             StartMigration::dispatchNow($file, auth()->user(), auth()->user()->company);
