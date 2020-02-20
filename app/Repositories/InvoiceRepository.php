@@ -13,9 +13,7 @@ namespace App\Repositories;
 
 use App\Factory\InvoiceInvitationFactory;
 
-use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Product\UpdateOrCreateProduct;
-
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
@@ -110,7 +108,6 @@ class InvoiceRepository extends BaseRepository {
 		/**/
 		if (($finished_amount != $starting_amount) && ($invoice->status_id != Invoice::STATUS_DRAFT)) {
 			$invoice->ledger()->updateInvoiceBalance(($finished_amount-$starting_amount));
-			//UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount-$starting_amount), $invoice->company);
 		}
 
 		$invoice = $invoice->service()->applyNumber()->save();

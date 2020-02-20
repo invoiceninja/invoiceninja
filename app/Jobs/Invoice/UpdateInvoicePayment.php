@@ -11,8 +11,6 @@
 
 namespace App\Jobs\Invoice;
 
-use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\Company;
@@ -66,7 +64,6 @@ class UpdateInvoicePayment implements ShouldQueue
                 $this->payment
                      ->ledger()
                      ->updatePaymentBalance($this->payment, ($invoice->balance*-1));
-                //UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
                 
                 $this->payment->client
                     ->service()
@@ -104,7 +101,6 @@ class UpdateInvoicePayment implements ShouldQueue
                         $this->payment
                              ->ledger()
                              ->updatePaymentBalance($this->payment, ($invoice->partial*-1));
-//                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->partial*-1), $this->company);
 
                         $this->payment->client->service()
                                                 ->updateBalance($invoice->partial*-1)
@@ -124,7 +120,6 @@ class UpdateInvoicePayment implements ShouldQueue
                         $this->payment
                              ->ledger()
                              ->updatePaymentBalance($this->payment, ($invoice->balance*-1));
-//                        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($invoice->balance*-1), $this->company);
 
                         $this->payment->client->service()
                                               ->updateBalance($invoice->balance*-1)

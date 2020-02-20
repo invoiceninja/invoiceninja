@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Invoice;
 
-use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\Company;
@@ -65,8 +64,7 @@ class ReverseInvoicePayment implements ShouldQueue
             }
         });
 
-        
-        UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->payment->amount), $this->company);
+        $this->payment->ledger()->updatePaymentBalance($this->payment->amount);
 
         $client->service()
             ->updateBalance($this->payment->amount)
