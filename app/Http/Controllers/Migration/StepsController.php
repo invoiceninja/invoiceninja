@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers\Migration;
 
+use App\Http\Controllers\BaseController;
+use App\Libraries\Utils;
+use App\Models\AccountGateway;
+use App\Models\AccountGatewaySettings;
+use App\Models\AccountGatewayToken;
+use App\Models\Contact;
 use App\Models\Credit;
-use App\Models\User;
+use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\TaxRate;
-use App\Libraries\Utils;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\BaseController;
-use App\Models\Document;
+use Illuminate\Support\Facades\Crypt;
 
 class StepsController extends BaseController
 {
@@ -65,6 +70,8 @@ class StepsController extends BaseController
             'payments' => array_merge($this->getPayments(), $this->getCredits()),
             'credits' => $this->getCreditsNotes(),
             'documents' => $this->getDocuments(),
+            'company_gateways' => $this->getCompanyGateways(),
+            'client_gateway_tokens' => $this->getClientGatewayTokens(),
         ];
 
         $file = storage_path("{$fileName}.zip");
@@ -641,5 +648,182 @@ class StepsController extends BaseController
         }
 
         return $transformed;
+    }
+
+    private function getCompanyGateways()
+    {
+        $account_gateways = AccountGateway::where('account_id', $this->account->id)->get();
+
+        $transformed = [];
+        
+        foreach ($account_gateways as $account_gateway) {
+        
+            $gateway_types = $account_gateway->paymentDriver()->gatewayTypes();
+
+            foreach($gateway_types as $gateway_type_id) {
+
+                $transformed[] = [
+                    'id' => $account_gateway->id,
+                    'user_id' => $account_gateway->user_id,
+                    'gateway_key' => $this->getGatewayKeyById($account_gateway->gateway_id),
+                    'accepted_credit_cards' => $account_gateway->accepted_credit_cards,
+                    'require_cvv' => $account_gateway->require_cvv,
+                    'show_billing_address' => $account_gateway->show_billing_address,
+                    'show_shipping_address' => $account_gateway->show_shipping_address,
+                    'update_details' => $account_gateway->update_details,
+                    'config' => Crypt::decrypt($account_gateway->config),
+                    'fees_and_limits' => $this->transformFeesAndLimits($gateway_type_id),
+                    'custom_value1' => '',
+                    'custom_value2' => '',
+                    'custom_value3' => '',
+                    'custom_value4' => '',
+                ];
+            }
+        }
+
+        return $transformed;
+
+    }
+
+    private function getClientGatewayTokens()
+    {
+        $payment_methods = PaymentMethod::where('account_id', $this->account->id)->get();
+
+        $transformed = [];
+        
+        $is_default = true;
+            
+        foreach ($payment_methods as $payment_method) {
+
+            $contact = Contact::find($payment_method->contact_id)->first();
+            $agt = AccountGatewayToken::find($payment_method->account_gateway_token_id)->first();
+
+            $transformed[] = [
+                'id' => $payment_method->id,
+                'company_id' => $this->account->id,
+                'client_id' => $contact->client_id,
+                'token' => $payment_method->source_reference,
+                'company_gateway_id' => $agt->account_gateway_id,
+                'gateway_customer_reference' => $agt->token,
+                'gateway_type_id' => $agt->gateway_type_id,
+                'is_default' => $is_default,
+                'meta' => $this->convertMeta($payment_method, $agt->gateway_type_id),
+            ];
+
+            $is_default = false;
+        }
+
+        return $transformed;
+    }
+
+    private function convertMeta($payment_method, $type)
+    {
+        $expiry = explode("-", $payment_method->expiration);
+
+        if(is_array($expiry)){
+            $exp_month = $expiry[1];
+            $exp_year = $expiry[0];
+        }
+        else{
+            $exp_month = '';
+            $exp_year = '';
+        }
+
+        $meta = new \stdClass;
+        $meta->exp_month = $exp_month;
+        $meta->exp_year = $exp_year;
+        $meta->brand = $payment_method->payment_type->name;
+        $meta->last4 = str_replace(",","", ($payment_method->expiration));
+        $meta->type = $type;
+
+        return $meta;
+    }
+
+    private function transformFeesAndLimits($gateway_type_id)
+    {
+       $ags = AccountGatewaySettings::where('account_id', $this->account->id)
+                                    ->where('gateway_type_id', $gateway_type_id)
+                                    ->first();
+
+        if(!$ags)
+            return json_encode(new \stdClass);
+
+        $fees_and_limits = new \stdClass;
+        $fees_and_limits->min_limit = $ags->min_limit;
+        $fees_and_limits->max_limit = $ags->max_limit;
+        $fees_and_limits->fee_amount = $ags->fee_amount;
+        $fees_and_limits->fee_percent = $ags->fee_percent;
+        $fees_and_limits->tax_name1 = $ags->tax_name1;
+        $fees_and_limits->tax_rate1 = $ags->tax_rate1;
+        $fees_and_limits->tax_name2 = $ags->tax_name2;
+        $fees_and_limits->tax_rate2 = $ags->tax_rate2;
+        $fees_and_limits->tax_name3 = '';
+        $fees_and_limits->tax_rate3 = 0;
+
+
+        return json_encode($fees_and_limits);
+    }
+
+    private function getGatewayKeyById($gateway_id)
+    {
+        $gateways = [
+            ['id' => 1, 'key' => '3b6621f970ab18887c4f6dca78d3f8bb'],
+            ['id' => 2, 'key' => '46c5c1fed2c43acf4f379bae9c8b9f76'],
+            ['id' => 3, 'key' => '944c20175bbe6b9972c05bcfe294c2c7'],
+            ['id' => 4, 'key' => '4e0ed0d34552e6cb433506d1ac03a418'],
+            ['id' => 5, 'key' => '513cdc81444c87c4b07258bc2858d3fa'],
+            ['id' => 6, 'key' => '99c2a271b5088951334d1302e038c01a'],
+            ['id' => 7, 'key' => '1bd651fb213ca0c9d66ae3c336dc77e8'],
+            ['id' => 8, 'key' => 'c3dec814e14cbd7d86abd92ce6789f8c'],
+            ['id' => 9, 'key' => '070dffc5ca94f4e66216e44028ebd52d'],
+            ['id' => 10, 'key' => '334d419939c06bd99b4dfd8a49243f0f'],
+            ['id' => 11, 'key' => 'd6814fc83f45d2935e7777071e629ef9'],
+            ['id' => 12, 'key' => '0d97c97d227f91c5d0cb86d01e4a52c9'],
+            ['id' => 13, 'key' => 'a66b7062f4c8212d2c428209a34aa6bf'],
+            ['id' => 14, 'key' => '7e6fc08b89467518a5953a4839f8baba'],
+            ['id' => 15, 'key' => '38f2c48af60c7dd69e04248cbb24c36e'],
+            ['id' => 16, 'key' => '80af24a6a69f5c0bbec33e930ab40665'],
+            ['id' => 17, 'key' => '0749cb92a6b36c88bd9ff8aabd2efcab'],
+            ['id' => 18, 'key' => '4c8f4e5d0f353a122045eb9a60cc0f2d'],
+            ['id' => 19, 'key' => '8036a5aadb2bdaafb23502da8790b6a2'],
+            ['id' => 20, 'key' => 'd14dd26a37cecc30fdd65700bfb55b23'],
+            ['id' => 21, 'key' => 'd14dd26a37cdcc30fdd65700bfb55b23'],
+            ['id' => 22, 'key' => 'ea3b328bd72d381387281c3bd83bd97c'],
+            ['id' => 23, 'key' => 'a0035fc0d87c4950fb82c73e2fcb825a'],
+            ['id' => 24, 'key' => '16dc1d3c8a865425421f64463faaf768'],
+            ['id' => 25, 'key' => '43e639234f660d581ddac725ba7bcd29'],
+            ['id' => 26, 'key' => '2f71dc17b0158ac30a7ae0839799e888'],
+            ['id' => 27, 'key' => '733998ee4760b10f11fb48652571e02c'],
+            ['id' => 28, 'key' => '6312879223e49c5cf92e194646bdee8f'],
+            ['id' => 29, 'key' => '106ef7e7da9062b0df363903b455711c'],
+            ['id' => 30, 'key' => 'e9a38f0896b5b82d196be3b7020c8664'],
+            ['id' => 31, 'key' => '0da4e18ed44a5bd5c8ec354d0ab7b301'],
+            ['id' => 32, 'key' => 'd3979e62eb603fbdf1c78fe3a8ba7009'],
+            ['id' => 33, 'key' => '557d98977e7ec02dfa53de4b69b335be'],
+            ['id' => 34, 'key' => '54dc60c869a7322d87efbec5c0c25805'],
+            ['id' => 35, 'key' => 'e4a02f0a4b235eb5e9e294730703bb74'],
+            ['id' => 36, 'key' => '1b3c6f3ccfea4f5e7eadeae188cccd7f'],
+            ['id' => 37, 'key' => '7cba6ce5c125f9cb47ea8443ae671b68'],
+            ['id' => 38, 'key' => 'b98cfa5f750e16cee3524b7b7e78fbf6'],
+            ['id' => 39, 'key' => '3758e7f7c6f4cecf0f4f348b9a00f456'],
+            ['id' => 40, 'key' => 'cbc7ef7c99d31ec05492fbcb37208263'],
+            ['id' => 41, 'key' => 'e186a98d3b079028a73390bdc11bdb82'],
+            ['id' => 42, 'key' => '761040aca40f685d1ab55e2084b30670'],
+            ['id' => 43, 'key' => '1b2cef0e8c800204a29f33953aaf3360'],
+            ['id' => 44, 'key' => '7ea2d40ecb1eb69ef8c3d03e5019028a'],
+            ['id' => 45, 'key' => '70ab90cd6c5c1ab13208b3cef51c0894'],
+            ['id' => 46, 'key' => 'bbd736b3254b0aabed6ad7fda1298c88'],
+            ['id' => 47, 'key' => '231cb401487b9f15babe04b1ac4f7a27'],
+            ['id' => 48, 'key' => 'bad8699d581d9fa040e59c0bb721a76c'],
+            ['id' => 49, 'key' => '8fdeed552015b3c7b44ed6c8ebd9e992'],
+            ['id' => 50, 'key' => 'f7ec488676d310683fb51802d076d713'],
+            ['id' => 51, 'key' => '30334a52fb698046572c627ca10412e8'],
+            ['id' => 52, 'key' => 'b9886f9257f0c6ee7c302f1c74475f6c'],
+            ['id' => 53, 'key' => 'ef498756b54db63c143af0ec433da803'],
+            ['id' => 54, 'key' => 'ca52f618a39367a4c944098ebf977e1c'],
+            ['id' => 55, 'key' => '54faab2ab6e3223dbe848b1686490baa'],
+        ];
+
+        return $gateways[$gateway_id]['key'];
     }
 }
