@@ -95,25 +95,25 @@ class MigrationTest extends TestCase
 
     }
 
-    public function testMigrationFileUpload()
-    {
-        $file = new UploadedFile(base_path('tests/Unit/Migration/migration.zip'), 'migration.zip');
+    // public function testMigrationFileUpload()
+    // {
+    //     $file = new UploadedFile(base_path('tests/Unit/Migration/migration.zip'), 'migration.zip');
 
-        $data = [
-            'migration' => $file,
-            'force' => true,
-        ];
+    //     $data = [
+    //         'migration' => $file,
+    //         'force' => true,
+    //     ];
 
-        $token = $this->company->tokens->first()->token;
+    //     $token = $this->company->tokens->first()->token;
 
-        $response = $this->withHeaders([
-                'X-API-TOKEN' => $token,
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-Requested-With' => 'XMLHttpRequest',
-                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-            ])->post('/api/v1/migration/start', $data);
+    //     $response = $this->withHeaders([
+    //             'X-API-TOKEN' => $token,
+    //             'X-API-SECRET' => config('ninja.api_secret'),
+    //             'X-Requested-With' => 'XMLHttpRequest',
+    //             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+    //         ])->post('/api/v1/migration/start', $data);
 
-        $response->assertStatus(200);
-        $this->assertTrue(file_exists(base_path('storage/migrations/migration/migration.json')));
-    }
+    //     $response->assertStatus(200);
+    //     $this->assertTrue(file_exists(base_path('storage/migrations/migration/migration.json')));
+    // }
 }
