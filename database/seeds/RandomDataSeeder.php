@@ -8,8 +8,6 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-//use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Listeners\Credit\CreateCreditInvitation;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\Account;
@@ -165,7 +163,7 @@ class RandomDataSeeder extends Seeder
 
             event(new CreateInvoiceInvitation($invoice));
 
-            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
+            $invoice->ledger()->updateInvoiceBalance($invoice->balance);
 
             $invoice->service()->markSent()->save();
 
@@ -187,7 +185,7 @@ class RandomDataSeeder extends Seeder
 
                 event(new PaymentWasCreated($payment, $payment->company));
 
-                $payment->service()->UpdateInvoicePayment();
+                $payment->service()->updateInvoicePayment();
 
     //            UpdateInvoicePayment::dispatchNow($payment, $payment->company);
             }

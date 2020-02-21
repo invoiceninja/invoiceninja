@@ -29,7 +29,7 @@ class UpdateInvoicePayment
                 
                 $this->payment
                      ->ledger()
-                     ->updatePaymentBalance($this->payment, ($invoice->balance*-1));
+                     ->updatePaymentBalance($invoice->balance*-1);
                 
                 $this->payment->client
                     ->service()
@@ -66,7 +66,7 @@ class UpdateInvoicePayment
 
                         $this->payment
                              ->ledger()
-                             ->updatePaymentBalance($this->payment, ($invoice->partial*-1));
+                             ->updatePaymentBalance($invoice->partial*-1);
 
                         $this->payment->client->service()
                                                 ->updateBalance($invoice->partial*-1)
@@ -85,7 +85,7 @@ class UpdateInvoicePayment
                         
                         $this->payment
                              ->ledger()
-                             ->updatePaymentBalance($this->payment, ($invoice->balance*-1));
+                             ->updatePaymentBalance($invoice->balance*-1);
 
                         $this->payment->client->service()
                                               ->updateBalance($invoice->balance*-1)
