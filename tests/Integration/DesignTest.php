@@ -38,7 +38,7 @@ class DesignTest extends TestCase
     	//\Log::error($html);
 
     	$settings = $this->invoice->client->settings;
-    	$settings->invoice_design_id = "5";
+    	$settings->invoice_design_id = "9";
 
     	$this->client->settings = $settings;
     	$this->client->save();

@@ -189,8 +189,14 @@ trait MockAccountData
         $this->client->group_settings_id = $gs->id;
         $this->client->save();
  
-        $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
-        $this->invoice->client_id = $this->client->id;
+//        $this->invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+
+        $this->invoice = factory(\App\Models\Invoice::class)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+            ]);
+
 
 		$this->invoice->line_items = $this->buildLineItems();
 		$this->invoice->uses_inclusive_taxes = false;
