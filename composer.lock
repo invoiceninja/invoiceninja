@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9124fcb26c4f7a15410a4b6899151938",
+    "content-hash": "5ebbda0ec4f775dcd10261da641f4c27",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -561,12 +561,12 @@
             "version": "v0.9.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/barryvdh/laravel-cors.git",
+                "url": "https://github.com/fruitcake/laravel-cors.git",
                 "reference": "2551489de60486471434b0c7050f7fc65f9c9119"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-cors/zipball/2551489de60486471434b0c7050f7fc65f9c9119",
+                "url": "https://api.github.com/repos/fruitcake/laravel-cors/zipball/2551489de60486471434b0c7050f7fc65f9c9119",
                 "reference": "2551489de60486471434b0c7050f7fc65f9c9119",
                 "shasum": ""
             },
@@ -1274,6 +1274,7 @@
             ],
             "description": "Promoting the interoperability of container objects (DIC, SL, etc.)",
             "homepage": "https://github.com/container-interop/container-interop",
+            "abandoned": "psr/container",
             "time": "2017-02-14T19:40:03+00:00"
         },
         {
@@ -5125,6 +5126,52 @@
             "time": "2018-03-09T13:14:19+00:00"
         },
         {
+            "name": "mashape/unirest-php",
+            "version": "v3.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Mashape/unirest-php.git",
+                "reference": "842c0f242dfaaf85f16b72e217bf7f7c19ab12cb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Mashape/unirest-php/zipball/842c0f242dfaaf85f16b72e217bf7f7c19ab12cb",
+                "reference": "842c0f242dfaaf85f16b72e217bf7f7c19ab12cb",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "codeclimate/php-test-reporter": "0.1.*",
+                "phpunit/phpunit": "~4.4"
+            },
+            "suggest": {
+                "ext-json": "Allows using JSON Bodies for sending and parsing requests"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Unirest\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Unirest PHP",
+            "homepage": "https://github.com/Mashape/unirest-php",
+            "keywords": [
+                "client",
+                "curl",
+                "http",
+                "https",
+                "rest"
+            ],
+            "time": "2016-08-11T17:49:21+00:00"
+        },
+        {
             "name": "maximebf/debugbar",
             "version": "v1.14.1",
             "source": {
@@ -5571,6 +5618,7 @@
                 "cron",
                 "schedule"
             ],
+            "abandoned": "dragonmantank/cron-expression",
             "time": "2017-01-23T04:29:33+00:00"
         },
         {
@@ -11352,6 +11400,7 @@
                 "escaper",
                 "zf2"
             ],
+            "abandoned": "laminas/laminas-escaper",
             "time": "2016-06-30T19:48:38+00:00"
         },
         {
@@ -11405,6 +11454,7 @@
                 "zend",
                 "zf"
             ],
+            "abandoned": "laminas/laminas-http",
             "time": "2017-10-13T12:06:24+00:00"
         },
         {
@@ -11460,6 +11510,7 @@
                 "json",
                 "zf2"
             ],
+            "abandoned": "laminas/laminas-json",
             "time": "2016-02-04T21:20:26+00:00"
         },
         {
@@ -11504,6 +11555,7 @@
                 "loader",
                 "zf2"
             ],
+            "abandoned": "laminas/laminas-loader",
             "time": "2015-06-03T14:05:47+00:00"
         },
         {
@@ -11549,6 +11601,7 @@
                 "stdlib",
                 "zf2"
             ],
+            "abandoned": "laminas/laminas-stdlib",
             "time": "2016-09-13T14:38:50+00:00"
         },
         {
@@ -11596,6 +11649,7 @@
                 "uri",
                 "zf2"
             ],
+            "abandoned": "laminas/laminas-uri",
             "time": "2016-02-17T22:38:51+00:00"
         },
         {
@@ -11667,6 +11721,7 @@
                 "validator",
                 "zf2"
             ],
+            "abandoned": "laminas/laminas-validator",
             "time": "2018-02-01T17:05:33+00:00"
         },
         {
@@ -11753,6 +11808,7 @@
                 "push",
                 "zf2"
             ],
+            "abandoned": true,
             "time": "2017-01-17T13:57:50+00:00"
         },
         {
@@ -13626,7 +13682,9 @@
     "platform": {
         "php": ">=7.0.0",
         "ext-gd": "*",
-        "ext-gmp": "*"
+        "ext-gmp": "*",
+        "ext-json": "*",
+        "ext-zip": "*"
     },
     "platform-dev": []
 }

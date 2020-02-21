@@ -16,6 +16,8 @@
         "php": ">=7.0.0",
         "ext-gd": "*",
         "ext-gmp": "*",
+        "ext-json": "*",
+        "ext-zip": "*",
         "anahkiasen/former": "4.*",
         "asgrim/ofxparser": "^1.1",
         "bacon/bacon-qr-code": "^1.0",
@@ -51,6 +53,7 @@
         "league/flysystem-rackspace": "~1.0",
         "league/fractal": "0.13.*",
         "maatwebsite/excel": "~2.0",
+        "mashape/unirest-php": "^3.0",
         "mpdf/mpdf": "7.1.7",
         "nesbot/carbon": "^1.26",
         "nwidart/laravel-modules": "2.0.*",
@@ -68,9 +71,7 @@
         "webpatser/laravel-countries": "dev-master#75992ad",
         "websight/l5-google-cloud-storage": "dev-master",
         "wepay/php-sdk": "^0.2",
-        "wildbit/postmark-php": "^2.5",
-        "ext-json": "*",
-        "ext-zip": "*"
+        "wildbit/postmark-php": "^2.5"
     },
     "require-dev": {
         "symfony/dom-crawler": "~3.1",

@@ -11,18 +11,18 @@
             <h3 class="panel-title">{!! trans('texts.welcome_to_the_new_version') !!}</h3>
         </div>
         <div class="panel-body">
-            <h4>Let's continue with authentication.</h4>
-            <form action="/migration/auth" method="post" id="auth-form">
+            <h4>Awesome! Please select the company you would like to apply migration.</h4>
+            <form action="/migration/companies" method="post" id="auth-form">
                 {{ csrf_field() }}
-                <div class="form-group">
-                    <label for="email">E-mail address</label>
-                    <input type="email" name="email" class="form form-control">
+                    
+                @foreach($companies as $company)
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="companies[]" id="company1" value="{{ $company->id }}" checked>
+                    <label class="form-check-label" for="company1">
+                        Name: {{ $company->settings->name }} ID: {{ $company->id }}
+                    </label>
                 </div>
-
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" name="password" class="form form-control">
-                </div>
+                @endforeach
             </form>
         </div>
         <div class="panel-footer text-right">
