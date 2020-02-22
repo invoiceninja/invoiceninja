@@ -5,13 +5,12 @@ use App\Credit;
 
 class CreditService
 {
+    
     protected $credit;
-
 
     public function __construct($credit)
     {
         $this->credit = $credit;
-
     }
 
     public function getCreditPdf($contact)
@@ -44,6 +43,7 @@ class CreditService
     public function save() : ?Credit
     {
         $this->credit->save();
+
         return $this->credit;
     }
 }

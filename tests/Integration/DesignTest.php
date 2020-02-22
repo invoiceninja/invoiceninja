@@ -35,10 +35,17 @@ class DesignTest extends TestCase
 
     	$this->assertNotNull($html);
 
-    	//\Log::error($html);
+
+        $this->invoice = factory(\App\Models\Invoice::class)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+            ]);
+
+        $this->invoice->uses_inclusive_taxes = false;
 
     	$settings = $this->invoice->client->settings;
-    	$settings->invoice_design_id = "5";
+    	$settings->invoice_design_id = "6";
 
     	$this->client->settings = $settings;
     	$this->client->save();
@@ -60,7 +67,7 @@ class DesignTest extends TestCase
     	//\Log::error($html);
 
     	$settings = $this->invoice->client->settings;
-    	$settings->quote_design_id = "10";
+    	$settings->quote_design_id = "6";
 
     	$this->client->settings = $settings;
     	$this->client->save();

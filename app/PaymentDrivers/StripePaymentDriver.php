@@ -178,7 +178,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $payment_meta->exp_year = $stripe_payment_method_obj['card']['exp_year'];
             $payment_meta->brand = $stripe_payment_method_obj['card']['brand'];
             $payment_meta->last4 = $stripe_payment_method_obj['card']['last4'];
-            $payment_meta->type = $stripe_payment_method_obj['type'];
+            $payment_meta->type = GatewayType::CREDIT_CARD;
         }
 
         $cgt = new ClientGatewayToken;

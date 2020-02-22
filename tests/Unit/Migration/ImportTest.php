@@ -103,12 +103,9 @@ class ImportTest extends TestCase
         $this->makeTestData();
 
         $this->invoice->forceDelete();
+        $this->quote->forceDelete();
 
         $original_count = Invoice::count();
-
-
-
-        //$this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
         Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
@@ -149,7 +146,7 @@ class ImportTest extends TestCase
         //$this->makeTestData();
 
         $this->invoice->forceDelete();
-
+        $this->quote->forceDelete();
         // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
         // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
@@ -190,7 +187,7 @@ class ImportTest extends TestCase
         $original_number = Invoice::count();
 
         $this->invoice->forceDelete();
-
+        $this->quote->forceDelete();
         // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
         // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
@@ -264,7 +261,7 @@ class ImportTest extends TestCase
         $original_count = Payment::count();
 
         $this->invoice->forceDelete();
-
+        $this->quote->forceDelete();
         // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
         // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
@@ -295,6 +292,7 @@ class ImportTest extends TestCase
         $original_count = Credit::count();
 
         $this->invoice->forceDelete();
+        $this->quote->forceDelete();
 
         // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
@@ -329,6 +327,7 @@ class ImportTest extends TestCase
     public function testValidityOfImportedData()
     {
         $this->invoice->forceDelete();
+        $this->quote->forceDelete();
 
         // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
@@ -424,7 +423,7 @@ class ImportTest extends TestCase
         }*/
 
         foreach ($this->migration_array['documents'] as $key => $document) {
-            $record = Document::whereHash('5a81aa656c8aaf77dca259b7defdda1dc5ae7901')
+            $record = Document::whereHash($document['hash'])
                 ->first();
 
             if (!$record) {
@@ -432,12 +431,14 @@ class ImportTest extends TestCase
             }
         }
 
+        \Log::error($differences);
         $this->assertCount(0, $differences);
     }
 
     public function testClientContactsImport()
     {
         $this->invoice->forceDelete();
+        $this->quote->forceDelete();
 
         $original = ClientContact::count();
 
@@ -453,6 +454,7 @@ class ImportTest extends TestCase
     public function testDocumentsImport()
     {
         $this->invoice->forceDelete(); 
+        $this->quote->forceDelete();
 
         $original = Document::count();
 
@@ -461,6 +463,8 @@ class ImportTest extends TestCase
         $this->assertGreaterThan($original, Document::count());
 
         $document = Document::first();
+        
+\Log::error($document);
 
         $this->assertNotNull(Invoice::find($document->documentable_id)->documents);
         $this->assertNotNull($document->documentable);

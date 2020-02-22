@@ -1128,6 +1128,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('client_id')->nullable();
             $table->text('token')->nullable();
+            $table->text('routing_number')->nullable();
             $table->unsignedInteger('company_gateway_id');
             $table->string('gateway_customer_reference')->nullable();
             $table->unsignedInteger('gateway_type_id');

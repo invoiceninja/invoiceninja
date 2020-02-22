@@ -98,7 +98,7 @@ class Creative extends AbstractDesign
         <tbody>
             $table_body
             <tr>
-                <td colspan="7" ref="note" class="px-4 py-4">$entity.public_notes</td>
+                <td colspan="5" ref="note" class="px-4 py-4">$entity.public_notes</td>
                 <td ref="quantity" class="px-4 py-4 flex flex-col">
                     $total_tax_labels
                     $line_tax_labels
