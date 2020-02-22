@@ -114,7 +114,7 @@
             "google_2fa_secret": null,
             "accepted_terms_version": "1.0.1",
             "password": "$2y$10$pDVj9LrItbYsvEenqOQe7.fSgdiIYzoLF86YnVtVVMLJzaBDI4iHC",
-            "remember_token": "m235XqpldN6sRAYOb3DZPZw5qfVADCvQQWyu5u7i8EvqCDPS5XXzsSNoNkIl",
+            "remember_token": "nMizwyeTun32YxDB1NPpdiWzb0kMeAgDBlvJCFAgUwOA8yo8qwiEGpG1xwUS",
             "created_at": "2020-02-11",
             "updated_at": "2020-02-11",
             "deleted_at": null
@@ -17149,18 +17149,20 @@
                 "enableApplePay": true,
                 "enableAch": true
             },
-            "fees_and_limits": {
-                "min_limit": 234,
-                "max_limit": 65317,
-                "fee_amount": "0.00",
-                "fee_percent": "0.000",
-                "tax_name1": null,
-                "tax_rate1": null,
-                "tax_name2": null,
-                "tax_rate2": null,
-                "tax_name3": "",
-                "tax_rate3": 0
-            },
+            "fees_and_limits": [
+                {
+                    "min_limit": 234,
+                    "max_limit": 65317,
+                    "fee_amount": "0.00",
+                    "fee_percent": "0.000",
+                    "tax_name1": null,
+                    "tax_rate1": null,
+                    "tax_name2": null,
+                    "tax_rate2": null,
+                    "tax_name3": "",
+                    "tax_rate3": 0
+                }
+            ],
             "custom_value1": "",
             "custom_value2": "",
             "custom_value3": "",
@@ -17216,18 +17218,20 @@
                 "enableApplePay": true,
                 "enableAch": true
             },
-            "fees_and_limits": {
-                "min_limit": 147,
-                "max_limit": 53254,
-                "fee_amount": "0.00",
-                "fee_percent": "0.000",
-                "tax_name1": null,
-                "tax_rate1": null,
-                "tax_name2": null,
-                "tax_rate2": null,
-                "tax_name3": "",
-                "tax_rate3": 0
-            },
+            "fees_and_limits": [
+                {
+                    "min_limit": 147,
+                    "max_limit": 53254,
+                    "fee_amount": "0.00",
+                    "fee_percent": "0.000",
+                    "tax_name1": null,
+                    "tax_rate1": null,
+                    "tax_name2": null,
+                    "tax_rate2": null,
+                    "tax_name3": "",
+                    "tax_rate3": 0
+                }
+            ],
             "custom_value1": "",
             "custom_value2": "",
             "custom_value3": "",
@@ -17255,18 +17259,20 @@
                 "enableApplePay": true,
                 "enableAch": true
             },
-            "fees_and_limits": {
-                "min_limit": 155,
-                "max_limit": 72857,
-                "fee_amount": "0.00",
-                "fee_percent": "0.000",
-                "tax_name1": null,
-                "tax_rate1": null,
-                "tax_name2": null,
-                "tax_rate2": null,
-                "tax_name3": "",
-                "tax_rate3": 0
-            },
+            "fees_and_limits": [
+                {
+                    "min_limit": 155,
+                    "max_limit": 72857,
+                    "fee_amount": "0.00",
+                    "fee_percent": "0.000",
+                    "tax_name1": null,
+                    "tax_rate1": null,
+                    "tax_name2": null,
+                    "tax_rate2": null,
+                    "tax_name3": "",
+                    "tax_rate3": 0
+                }
+            ],
             "custom_value1": "",
             "custom_value2": "",
             "custom_value3": "",
@@ -17294,18 +17300,20 @@
                 "enableApplePay": true,
                 "enableAch": true
             },
-            "fees_and_limits": {
-                "min_limit": 139,
-                "max_limit": 71349,
-                "fee_amount": "0.00",
-                "fee_percent": "0.000",
-                "tax_name1": null,
-                "tax_rate1": null,
-                "tax_name2": null,
-                "tax_rate2": null,
-                "tax_name3": "",
-                "tax_rate3": 0
-            },
+            "fees_and_limits": [
+                {
+                    "min_limit": 139,
+                    "max_limit": 71349,
+                    "fee_amount": "0.00",
+                    "fee_percent": "0.000",
+                    "tax_name1": null,
+                    "tax_rate1": null,
+                    "tax_name2": null,
+                    "tax_rate2": null,
+                    "tax_name3": "",
+                    "tax_rate3": 0
+                }
+            ],
             "custom_value1": "",
             "custom_value2": "",
             "custom_value3": "",
@@ -17333,18 +17341,20 @@
                 "enableApplePay": true,
                 "enableAch": true
             },
-            "fees_and_limits": {
-                "min_limit": 151,
-                "max_limit": 74365,
-                "fee_amount": "0.00",
-                "fee_percent": "0.000",
-                "tax_name1": null,
-                "tax_rate1": null,
-                "tax_name2": null,
-                "tax_rate2": null,
-                "tax_name3": "",
-                "tax_rate3": 0
-            },
+            "fees_and_limits": [
+                {
+                    "min_limit": 151,
+                    "max_limit": 74365,
+                    "fee_amount": "0.00",
+                    "fee_percent": "0.000",
+                    "tax_name1": null,
+                    "tax_rate1": null,
+                    "tax_name2": null,
+                    "tax_rate2": null,
+                    "tax_name3": "",
+                    "tax_rate3": 0
+                }
+            ],
             "custom_value1": "",
             "custom_value2": "",
             "custom_value3": "",
