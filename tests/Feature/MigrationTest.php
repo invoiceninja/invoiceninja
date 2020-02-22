@@ -116,4 +116,5 @@ class MigrationTest extends TestCase
     //     $response->assertStatus(200);
     //     $this->assertTrue(file_exists(base_path('storage/migrations/migration/migration.json')));
     // }
+
 }
