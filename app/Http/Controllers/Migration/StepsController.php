@@ -12,6 +12,7 @@ use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
@@ -78,7 +79,7 @@ class StepsController extends BaseController
 
         $zip = new \ZipArchive();
         $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-        $zip->addFromString('migration.json', json_encode($data));
+        $zip->addFromString('migration.json', json_encode($data, JSON_PRETTY_PRINT));
         $zip->close();
 
         header('Content-Type: application/zip');
@@ -127,75 +128,82 @@ class StepsController extends BaseController
         // V1: invoice_number_prefix, v2: invoice_number_pattern.. same with quote_number, client_number,
 
         return [
-            'timezone_id' => $this->account->timezone_id,
-            'date_format_id' => $this->account->date_format_id,
-            'currency_id' => $this->account->currency_id,
-            'name' => $this->account->name,
-            'address1' => $this->account->address1,
-            'address2' => $this->account->address2,
-            'city' => $this->account->city,
-            'state' => $this->account->state,
-            'postal_code' => $this->account->postal_code,
-            'country_id' => $this->account->country_id,
-            'invoice_terms' => $this->account->invoice_terms,
-            'enabled_item_tax_rates' => $this->account->invoice_item_taxes,
-            'invoice_design_id' => $this->account->invoice_design_id,
-            'phone' => $this->account->work_phone,
-            'email' => $this->account->work_email,
-            'language_id' => $this->account->language_id,
-            'custom_value1' => $this->account->custom_value1,
-            'custom_value2' => $this->account->custom_value2,
-            'hide_paid_to_date' => $this->account->hide_paid_to_date,
-            'vat_number' => $this->account->vat_number,
-            'shared_invoice_quote_counter' => $this->account->share_counter, // @verify,
-            'id_number' => $this->account->id_number,
-            'invoice_footer' => $this->account->invoice_footer,
-            'pdf_email_attachment' => $this->account->pdf_email_attachment,
-            'font_size' => $this->account->font_size,
-            'invoice_labels' => $this->account->invoice_labels,
-            'military_time' => $this->account->military_time,
-            'invoice_number_pattern' => $this->account->invoice_number_pattern,
-            'quote_number_pattern' => $this->account->quote_number_pattern,
-            'quote_terms' => $this->account->quote_terms,
-            'website' => $this->account->website,
-            'auto_convert_quote' => $this->account->auto_convert_quote,
-            'all_pages_footer' => $this->account->all_pages_footer,
-            'all_pages_header' => $this->account->all_pages_header,
-            'show_currency_code' => $this->account->show_currency_code,
-            'enable_client_portal_password' => $this->account->enable_portal_password,
-            'send_portal_password' => $this->account->send_portal_password,
-            'recurring_number_prefix' => $this->account->recurring_invoice_number_prefix, // @verify
-            'enable_client_portal' => $this->account->enable_client_portal,
-            'invoice_fields' => $this->account->invoice_fields,
-            'company_logo' => $this->account->logo,
-            'embed_documents' => $this->account->invoice_embed_documents,
-            'document_email_attachment' => $this->account->document_email_attachment,
-            'enable_client_portal_dashboard' => $this->account->enable_client_portal_dashboard,
-            'page_size' => $this->account->page_size,
-            'show_accept_invoice_terms' => $this->account->show_accept_invoice_terms,
-            'show_accept_quote_terms' => $this->account->show_accept_quote_terms,
-            'require_invoice_signature' => $this->account->require_invoice_signature,
-            'require_quote_signature' => $this->account->require_quote_signature,
-            'client_number_counter' => $this->account->client_number_counter,
-            'client_number_pattern' => $this->account->client_number_pattern,
-            'payment_terms' => $this->account->payment_terms,
-            'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id,
-            'payment_type_id' => $this->account->payment_type_id,
-            'reset_counter_date' => $this->account->reset_counter_date,
-            'tax_name1' => $this->account->tax_name1,
-            'tax_rate1' => $this->account->tax_rate1,
-            'tax_name2' => $this->account->tax_name2,
-            'tax_rate2' => $this->account->tax_rate2,
-            'quote_design_id' => $this->account->quote_design_id,
-            'credit_number_counter' => $this->account->credit_number_counter,
-            'credit_number_pattern' => $this->account->credit_number_pattern,
-            'default_task_rate' => $this->account->task_rate,
-            'inclusive_taxes' => $this->account->inclusive_taxes,
-            'signature_on_pdf' => $this->account->signature_on_pdf,
-            'ubl_email_attachment' => $this->account->ubl_email_attachment,
-            'auto_archive_invoice' => $this->account->auto_archive_invoice,
-            'auto_archive_quote' => $this->account->auto_archive_quote,
-            'auto_email_invoice' => $this->account->auto_email_invoice,
+            'timezone_id' => $this->account->timezone_id ? (string)$this->account->timezone_id : '15',
+            'date_format_id' => $this->account->date_format_id ? (string)$this->account->date_format_id : '1',
+            'currency_id' => $this->account->currency_id ? (string)$this->account->currency_id : '1',
+            'name' => $this->account->name ?: trans('texts.untitled'),
+            'address1' => $this->account->address1 ?: '',
+            'address2' => $this->account->address2 ?: '',
+            'city' => $this->account->city ?: '',
+            'state' => $this->account->state ?: '',
+            'postal_code' => $this->account->postal_code ?: '',
+            'country_id' => $this->account->country_id ? (string)$this->account->country_id : '840',
+            'invoice_terms' => $this->account->invoice_terms ?: '',
+            'enabled_item_tax_rates' => $this->account->invoice_item_taxes ? (bool)$this->account->invoice_item_taxes : false,
+            'invoice_design_id' => $this->account->invoice_design_id ?: (string)$this->account->invoice_design_id ?: '1',
+            'phone' => $this->account->work_phone ?: '',
+            'email' => $this->account->work_email ?: '',
+            'language_id' => $this->account->language_id ? (string)$this->account->language_id : '1',
+            'custom_value1' => $this->account->custom_value1 ? (string)$this->account->custom_value1 : '',
+            'custom_value2' => $this->account->custom_value2 ? (string)$this->account->custom_value2 : '',
+            'custom_value3' => '',
+            'custom_value4' => '',
+            'hide_paid_to_date' => $this->account->hide_paid_to_date ? (bool)$this->account->hide_paid_to_date : false,
+            'vat_number' => $this->account->vat_number ?: '',
+            'shared_invoice_quote_counter' => $this->account->share_counter ? (bool)$this->account->share_counter : true, 
+            'id_number' => $this->account->id_number ?: '',
+            'invoice_footer' => $this->account->invoice_footer ?: '',
+            'pdf_email_attachment' => $this->account->pdf_email_attachment ? (bool)$this->account->pdf_email_attachment : false,
+            'font_size' => $this->account->font_size ?: 9,
+            'invoice_labels' => $this->account->invoice_labels ?: '',
+            'military_time' => $this->account->military_time ? (bool)$this->account->military_time : false,
+            'invoice_number_pattern' => $this->account->invoice_number_pattern ?: '',
+            'quote_number_pattern' => $this->account->quote_number_pattern ?: '',
+            'quote_terms' => $this->account->quote_terms ?: '',
+            'website' => $this->account->website ?: '',
+            'auto_convert_quote' => $this->account->auto_convert_quote ? (bool)$this->account->auto_convert_quote : false,
+            'all_pages_footer' => $this->account->all_pages_footer ? (bool)$this->account->all_pages_footer : true,
+            'all_pages_header' => $this->account->all_pages_header ? (bool)$this->account->all_pages_header : true,
+            'show_currency_code' => $this->account->show_currency_code ?  (bool)$this->account->show_currency_code : false,
+            'enable_client_portal_password' => $this->account->enable_portal_password ? (bool)$this->account->enable_portal_password : true,
+            'send_portal_password' => $this->account->send_portal_password ? (bool)$this->account->send_portal_password : false,
+            'recurring_number_prefix' => $this->account->recurring_invoice_number_prefix ? $this->account->recurring_invoice_number_prefix : 'R',
+            'enable_client_portal' => $this->account->enable_client_portal ? (bool)$this->account->enable_client_portal : false,
+            'invoice_fields' => $this->account->invoice_fields ?: '',
+            'company_logo' => $this->account->logo ?: '',
+            'embed_documents' => $this->account->invoice_embed_documents ? (bool)$this->account->invoice_embed_documents : false,
+            'document_email_attachment' => $this->account->document_email_attachment ? (bool)$this->account->document_email_attachment : false,
+            'enable_client_portal_dashboard' => $this->account->enable_client_portal_dashboard ? (bool)$this->account->enable_client_portal_dashboard : true,
+            'page_size' => $this->account->page_size ?: 'A4',
+            'show_accept_invoice_terms' => $this->account->show_accept_invoice_terms ? (bool)$this->account->show_accept_invoice_terms : false,
+            'show_accept_quote_terms' => $this->account->show_accept_quote_terms ? (bool)$this->account->show_accept_quote_terms : false,
+            'require_invoice_signature' => $this->account->require_invoice_signature ? (bool)$this->account->require_invoice_signature : false,
+            'require_quote_signature' => $this->account->require_quote_signature ? (bool)$this->account->require_quote_signature : false,
+            'client_number_counter' => $this->account->client_number_counter ?: 0,
+            'client_number_pattern' => $this->account->client_number_pattern ?: '',
+            'payment_number_pattern' => '',
+            'payment_number_counter' => 0,
+            'payment_terms' => $this->account->payment_terms ?: '',
+            'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id ? (string)$this->account->reset_counter_frequency_id : '0',
+            'payment_type_id' => $this->account->payment_type_id ? (string)$this->account->payment_type_id : '1',
+            'reset_counter_date' => $this->account->reset_counter_date ?: '',
+            'tax_name1' => $this->account->tax_name1 ?: '',
+            'tax_rate1' => $this->account->tax_rate1 ?: 0,
+            'tax_name2' => $this->account->tax_name2 ?: '',
+            'tax_rate2' => $this->account->tax_rate2 ?: 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'quote_design_id' => $this->account->quote_design_id ? (string)$this->account->quote_design_id : '1',
+            'credit_number_counter' => $this->account->credit_number_counter ?: 0,
+            'credit_number_pattern' => $this->account->credit_number_pattern ?: '',
+            'default_task_rate' => $this->account->task_rate ?: 0,
+            'inclusive_taxes' => $this->account->inclusive_taxes ? (bool)$this->account->inclusive_taxes : false,
+            'signature_on_pdf' => $this->account->signature_on_pdf ? (bool) $this->account->signature_on_pdf : false,
+            'ubl_email_attachment' => $this->account->ubl_email_attachment ? (bool)$this->account->ubl_email_attachment : false,
+            'auto_archive_invoice' => $this->account->auto_archive_invoice ? (bool)$this->account->auto_archive_invoice : false,
+            'auto_archive_quote' => $this->account->auto_archive_quote ? (bool)$this->account->auto_archive_quote : false,
+            'auto_email_invoice' => $this->account->auto_email_invoice ? (bool)$this->account->auto_email_invoice : false,
+            'counter_padding' => $this->account->invoice_number_padding ?: 4,
         ];
     }
 
@@ -263,10 +271,22 @@ class StepsController extends BaseController
                 'shipping_postal_code' => $client->shipping_postal_code,
                 'shipping_country_id' => $client->shipping_country_id,
                 'contacts' => $this->getClientContacts($client->contacts),
+                'settings' => $this->getClientSettings($client),
             ];
         }
 
         return $clients;
+    }
+
+    private function getClientSettings($client)
+    {
+        $settings = new \stdClass;
+        $settings->currency_id = $client->currency_id ?: $client->account->currency_id;
+
+        if($client->language_id)
+            $settings->language_id = $client->language_id;
+
+        return $settings;
     }
 
     /**
@@ -376,7 +396,13 @@ class StepsController extends BaseController
     {
         $credits = [];
 
-        foreach ($this->account->invoices()->where('amount', '<', '0')->withTrashed()->get() as $credit) {
+        $export_credits = Invoice::where('account_id', $this->account->id)
+            ->where('amount', '<', '0')
+            ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+            ->withTrashed()
+            ->get();
+
+        foreach ($export_credits as $credit) {
             $credits[] = [
                 'id' => $credit->id,
                 'client_id' => $credit->client_id,
@@ -425,7 +451,13 @@ class StepsController extends BaseController
     {
         $invoices = [];
 
-        foreach ($this->account->invoices()->where('amount', '>=', '0')->withTrashed()->get() as $invoice) {
+        $export_invoices = Invoice::where('account_id', $this->account->id)
+            ->where('amount', '>=', '0')
+            ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+            ->withTrashed()
+            ->get();
+
+        foreach ($export_invoices as $invoice) {
             $invoices[] = [
                 'id' => $invoice->id,
                 'client_id' => $invoice->client_id,
@@ -539,6 +571,7 @@ class StepsController extends BaseController
                 'balance' => $quote->balance,
                 'partial' => $quote->partial,
                 'partial_due_date' => $quote->partial_due_date,
+                'line_items' => $this->getInvoiceItems($quote->invoice_items),
                 'created_at' => $quote->created_at ? $quote->created_at->toDateString() : null,
                 'updated_at' => $quote->updated_at ? $quote->updated_at->toDateString() : null,
                 'deleted_at' => $quote->deleted_at ? $quote->deleted_at->toDateString() : null,
@@ -705,9 +738,9 @@ class StepsController extends BaseController
                 'token' => $payment_method->source_reference,
                 'company_gateway_id' => $agt->account_gateway_id,
                 'gateway_customer_reference' => $agt->token,
-                'gateway_type_id' => $agt->gateway_type_id,
+                'gateway_type_id' => $payment_method->payment_type->gateway_type_id,
                 'is_default' => $is_default,
-                'meta' => $this->convertMeta($payment_method, $agt->gateway_type_id),
+                'meta' => $this->convertMeta($payment_method),
             ];
 
             $is_default = false;
@@ -716,7 +749,7 @@ class StepsController extends BaseController
         return $transformed;
     }
 
-    private function convertMeta($payment_method, $type)
+    private function convertMeta($payment_method)
     {
         $expiry = explode("-", $payment_method->expiration);
 
@@ -734,7 +767,7 @@ class StepsController extends BaseController
         $meta->exp_year = $exp_year;
         $meta->brand = $payment_method->payment_type->name;
         $meta->last4 = str_replace(",","", ($payment_method->expiration));
-        $meta->type = $type;
+        $meta->type = $payment_method->payment_type->gateway_type_id;
 
         return $meta;
     }
@@ -746,7 +779,7 @@ class StepsController extends BaseController
                                     ->first();
 
         if(!$ags)
-            return json_encode(new \stdClass);
+            return new \stdClass;
 
         $fees_and_limits = new \stdClass;
         $fees_and_limits->min_limit = $ags->min_limit;
@@ -761,7 +794,7 @@ class StepsController extends BaseController
         $fees_and_limits->tax_rate3 = 0;
 
 
-        return json_encode($fees_and_limits);
+        return $fees_and_limits;
     }
 
     private function getGatewayKeyById($gateway_id)
