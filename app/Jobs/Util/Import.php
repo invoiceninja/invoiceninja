@@ -517,13 +517,13 @@ class Import implements ShouldQueue
 
             $modified = $resource;
 
-            if (array_key_exists('invoice_id', $resource) && !array_key_exists('invoices', $this->ids)) {
-                \Log::error("ivoice id missing");
+            if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && !array_key_exists('invoices', $this->ids)) {
+                info($resource['id'] . '.. missing invoice_id');
                 throw new ResourceDependencyMissing(array_key_first($data), 'invoices');
             }
 
-            if (array_key_exists('expense_id', $resource) && !array_key_exists('expenses', $this->ids)) {
-                \Log::error("expense id missing");
+            if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && !array_key_exists('expenses', $this->ids)) {
+                info($resource['id'] . '.. missing expense_id');
                 throw new ResourceDependencyMissing(array_key_first($data), 'expenses');
             }
             
@@ -545,6 +545,8 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
 
             $document = Document::create($modified);
+
+            info($document);
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 

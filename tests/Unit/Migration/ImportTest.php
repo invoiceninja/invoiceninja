@@ -20,6 +20,7 @@ use App\Models\Product;
 use App\Models\Quote;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Services\Quote\QuoteService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -405,7 +406,7 @@ class ImportTest extends TestCase
                 ->first();
 
             if (!$record) {
-                $differences['quotes']['missing'][] = $payment['id'];
+                $differences['payments']['missing'][] = $payment['id'];
             }
         }
 
@@ -423,11 +424,15 @@ class ImportTest extends TestCase
         }*/
 
         foreach ($this->migration_array['documents'] as $key => $document) {
-            $record = Document::whereHash($document['hash'])
-                ->first();
 
-            if (!$record) {
-                $differences['documents']['missing'][] = $document['id'];
+            if(!is_null($document['invoice_id'])) {
+
+                $record = Document::where('hash', $document['hash'])
+                    ->first();
+
+                if (!$record) {
+                    $differences['documents']['missing'][] = $document['id'];
+                }   
             }
         }
 
@@ -453,6 +458,8 @@ class ImportTest extends TestCase
 
     public function testDocumentsImport()
     {
+        info(Quote::count());
+
         $this->invoice->forceDelete(); 
         $this->quote->forceDelete();
 
@@ -463,8 +470,8 @@ class ImportTest extends TestCase
         $this->assertGreaterThan($original, Document::count());
 
         $document = Document::first();
-        
-\Log::error($document);
+
+        info(Quote::count());
 
         $this->assertNotNull(Invoice::find($document->documentable_id)->documents);
         $this->assertNotNull($document->documentable);
