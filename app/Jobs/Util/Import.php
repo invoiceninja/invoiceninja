@@ -143,6 +143,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
+            \Log::error($validator->errors());
             throw new MigrationValidatorFailed($validator->errors());
         }
 
@@ -534,19 +535,19 @@ class Import implements ShouldQueue
             }
 
             if(array_key_exists('expense_id', $resource) && $resource['expense_id']) {
-                $modified['documentable_id'] = $this->transformId('expense', $resource['expense_id']);
+                $modified['documentable_id'] = $this->transformId('expenses', $resource['expense_id']);
                 $modified['documentable_type'] = 'App\\Models\\Expense';
             }
 
             $modified['user_id'] = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
 
-            $payment = Document::create($modified);
-
+            $document = Document::create($modified);
+            
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
-            $this->ids['payments'] = [
-                "payments_{$old_user_key}" => [
+            $this->ids['documents'] = [
+                "documents_{$old_user_key}" => [
                     'old' => $old_user_key,
                     'new' => $payment->id,
                 ]
