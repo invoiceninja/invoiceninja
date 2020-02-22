@@ -20,7 +20,6 @@ use App\Models\Product;
 use App\Models\Quote;
 use App\Models\TaxRate;
 use App\Models\User;
-use App\Services\Quote\QuoteService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -456,8 +455,6 @@ class ImportTest extends TestCase
 
     public function testDocumentsImport()
     {
-        info(Quote::count());
-
         $this->invoice->forceDelete(); 
         $this->quote->forceDelete();
 
@@ -468,8 +465,6 @@ class ImportTest extends TestCase
         $this->assertGreaterThan($original, Document::count());
 
         $document = Document::first();
-
-        info(Quote::count());
 
         $this->assertNotNull(Invoice::find($document->documentable_id)->documents);
         $this->assertNotNull($document->documentable);
