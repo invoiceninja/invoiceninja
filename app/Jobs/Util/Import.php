@@ -14,12 +14,14 @@ use App\Factory\QuoteFactory;
 use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
+use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
 use App\Mail\MigrationFailed;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Invoice;
@@ -37,6 +39,7 @@ use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
+use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -49,6 +52,7 @@ use Illuminate\Support\Str;
 class Import implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use CompanyGatewayFeesAndLimitsSaver;
 
     /**
      * @var array
@@ -64,7 +68,18 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company', 'users', 'tax_rates', 'clients', 'products', 'invoices', 'quotes', 'payments', 'credits', 'documents',
+        'company', 
+        'users', 
+        'tax_rates', 
+        'clients', 
+        'products', 
+        'invoices', 
+        'quotes', 
+        'payments', 
+        'credits', 
+        'company_gateways',
+        'documents',
+        //'client_gateway_tokens',
     ];
 
     /**
@@ -110,6 +125,7 @@ class Import implements ShouldQueue
      */
     public function handle()
     {
+    
         try {
             foreach ($this->data as $key => $resource) {
 
@@ -143,7 +159,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            \Log::error($validator->errors());
+            // \Log::error($validator->errors());
             throw new MigrationValidatorFailed($validator->errors());
         }
 
@@ -553,6 +569,53 @@ class Import implements ShouldQueue
                 ]
             ];
         }
+
+    }
+
+    private function processCompanyGateways(array $data) :void
+    {
+        CompanyGateway::unguard();
+
+        $rules = [
+            '*.gateway_key' => 'required',
+            '*.fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
+        ];
+        
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new MigrationValidatorFailed($validator->errors());
+        }
+
+        foreach ($data as $resource) {
+
+            $modified = $resource;
+
+            $modified['user_id'] = $this->processUserId($resource);
+            $modified['company_id'] = $this->company->id;
+
+            unset($modified['id']);
+
+            if (isset($modified['config'])) {
+                $modified['config'] = encrypt($modified['config']);
+            }
+
+            if (isset($modified['fees_and_limits'])) {
+                $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
+            }
+
+            $company_gateway = CompanyGateway::create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['company_gateways'] = [
+                "company_gateways_{$old_user_key}" => [
+                    'old' => $old_user_key,
+                    'new' => $company_gateway->id,
+                ]
+            ];
+        }
+
     }
 
     /**

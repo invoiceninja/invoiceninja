@@ -11,6 +11,7 @@ use App\Mail\MigrationFailed;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Invoice;
@@ -329,10 +330,9 @@ class ImportTest extends TestCase
         $this->invoice->forceDelete();
         $this->quote->forceDelete();
 
-        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+         // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
-
+         // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
         Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
@@ -407,7 +407,7 @@ class ImportTest extends TestCase
             }
         }
 
-        /*foreach ($this->migration_array['credits'] as $key => $credit) {
+        foreach ($this->migration_array['credits'] as $key => $credit) {
 
             // The Import::processCredits() does insert the credit record with number: 0053,
             // .. however this part of the code doesn't see it at all.
@@ -418,7 +418,23 @@ class ImportTest extends TestCase
             if (!$record) {
                 $differences['credits']['missing'][] = $credit['id'];
             }
-        }*/
+        }
+
+
+        foreach ($this->migration_array['company_gateways'] as $key => $company_gateway) {
+
+            // The Import::processCredits() does insert the credit record with number: 0053,
+            // .. however this part of the code doesn't see it at all.
+
+            $record = CompanyGateway::where('gateway_key' ,$company_gateway['gateway_key'])
+                ->first();
+
+            if (!$record) {
+                $differences['company_gateways']['missing'][] = $company_gateway['id'];
+            }
+        }
+
+        //@TODO we can uncomment tests for documents when we have imported expenses.
 
         // foreach ($this->migration_array['documents'] as $key => $document) {
 
@@ -433,7 +449,8 @@ class ImportTest extends TestCase
         //     }
         // }
 
-        \Log::error($differences);
+\Log::error($differences);
+
         $this->assertCount(0, $differences);
     }
 
