@@ -20,6 +20,7 @@ use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
 use App\Mail\MigrationFailed;
 use App\Models\Client;
+use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Credit;
@@ -79,7 +80,7 @@ class Import implements ShouldQueue
         'credits', 
         'company_gateways',
         'documents',
-        //'client_gateway_tokens',
+        'client_gateway_tokens',
     ];
 
     /**
@@ -564,7 +565,7 @@ class Import implements ShouldQueue
 
             $this->ids['documents'] = [
                 "documents_{$old_user_key}" => [
-                    'old' => $old_user_key,
+                    'old' => $resource['id'],
                     'new' => $document->id,
                 ]
             ];
@@ -610,12 +611,38 @@ class Import implements ShouldQueue
 
             $this->ids['company_gateways'] = [
                 "company_gateways_{$old_user_key}" => [
-                    'old' => $old_user_key,
+                    'old' => $resource['id'],
                     'new' => $company_gateway->id,
                 ]
             ];
         }
 
+    }
+
+    private function processClientGatewayTokens(array $data) :void
+    {
+        ClientGatewayToken::unguard();
+
+        foreach ($data as $resource) {
+            
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+
+            $cgt = ClientGatewayToken::Create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['client_gateway_tokens'] = [
+                "client_gateway_tokens_{$old_user_key}" => [
+                    'old' => $resource['id'],
+                    'new' => $cgt->id,
+                ]
+            ];
+        }
     }
 
     /**
