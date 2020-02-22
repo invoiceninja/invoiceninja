@@ -518,12 +518,10 @@ class Import implements ShouldQueue
             $modified = $resource;
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && !array_key_exists('invoices', $this->ids)) {
-                info($resource['id'] . '.. missing invoice_id');
                 throw new ResourceDependencyMissing(array_key_first($data), 'invoices');
             }
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && !array_key_exists('expenses', $this->ids)) {
-                info($resource['id'] . '.. missing expense_id');
                 throw new ResourceDependencyMissing(array_key_first($data), 'expenses');
             }
             
@@ -531,12 +529,12 @@ class Import implements ShouldQueue
             unset($modified['invoice_id']);
             unset($modified['expense_id']);
 
-            if(array_key_exists('invoice_id', $resource) && $resource['invoice_id']) {
+            if(array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
                 $modified['documentable_id'] = $this->transformId('invoices', $resource['invoice_id']);  
                 $modified['documentable_type'] = 'App\\Models\\Invoice'; 
             }
 
-            if(array_key_exists('expense_id', $resource) && $resource['expense_id']) {
+            if(array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $modified['documentable_id'] = $this->transformId('expenses', $resource['expense_id']);
                 $modified['documentable_type'] = 'App\\Models\\Expense';
             }
@@ -545,8 +543,6 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
 
             $document = Document::create($modified);
-
-            info($document);
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
