@@ -152,7 +152,14 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getCompany()
     {
-        return $this->company;
+        if($this->company)
+            return $this->company;
+
+        $co = Company::find($this->co);
+
+        if($co)
+            return $co;
+
     }
 
     /**
@@ -296,13 +303,14 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function routeNotificationForSlack($notification)
     {
-        \Log::error(print_r($this->company(),1));
         //todo need to return the company channel here for hosted users
         //else the env variable for selfhosted
         if(config('ninja.environment') == 'selfhosted')
             return config('ninja.notification.slack');
-        else
-            return $this->company()->settings->system_notifications_slack;
+
+        return $this->company()->settings->system_notifications_slack;
+
+        
     }
 
 

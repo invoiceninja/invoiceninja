@@ -48,7 +48,9 @@ class TokenAuth
             |
             */
             $user->setCompany($company_token->company);
-
+            $user->co = $company_token->company->id;
+            $user->save();
+            
             //user who once existed, but has been soft deleted
             if ($user->company_user->is_locked) {
                 $error = [
