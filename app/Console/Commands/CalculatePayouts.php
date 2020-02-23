@@ -81,6 +81,10 @@ class CalculatePayouts extends Command
                 ->get();
 
             foreach ($companies as $company) {
+                if (!isset($userMap[$company->referral_code])) {
+                    continue;
+                }
+
                 $user = $userMap[$company->referral_code];
                 $payment = $company->payment;
 
