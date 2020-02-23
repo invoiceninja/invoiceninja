@@ -80,6 +80,9 @@ class MobileLocalization extends Command
 
             foreach ($resources as $key => $val) {
                 $text = trim(addslashes(trans("texts.{$key}", [], $language->locale)));
+                if (substr($text, 0, 6) == 'texts.') {
+                    $text = $resources->$key;
+                }
                 echo "'$key': '$text',\n";
             }
 
@@ -100,7 +103,7 @@ class MobileLocalization extends Command
         $data = str_replace("\"", "\'", $data);
         $data = str_replace("'", "\"", $data);
 
-        return json_decode('{' . $data . '}');
+        return json_decode('{' . rtrim($data, ',') . '}');
     }
 
     protected function getOptions()
