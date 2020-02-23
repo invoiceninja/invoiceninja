@@ -2,18 +2,18 @@
 
 @slot('header')
     @component('email.components.header', ['p' => ''])
-        @lang('texts.download')
+        @lang($title)
     @endcomponent
 @endslot
 
-@lang('texts.download_timeframe')
+@lang($message)
 
 @component('email.components.button', ['url' => $url])
-    @lang('texts.download')
+    @lang($button)
 @endcomponent
 
 @slot('signature')
-    InvoiceNinja
+   {{ $signature }}
 @endslot
 
 @slot('footer')

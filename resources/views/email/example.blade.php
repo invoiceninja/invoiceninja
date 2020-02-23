@@ -1,4 +1,8 @@
+@if()
+@component('email.components.layout-dark')
+@else
 @component('email.components.layout')
+@endif
 
 @slot('header')
     @component('email.components.header', ['p' => 'Your upgrade has completed!'])

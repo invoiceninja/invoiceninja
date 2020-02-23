@@ -298,7 +298,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         //todo need to return the company channel here for hosted users
         //else the env variable for selfhosted
-        return config('ninja.notification.slack');
+        if(config('ninja.environment') == 'selfhosted')
+            return config('ninja.notification.slack');
+        else
+            return $this->company()->settings->system_notifications_slack;
     }
 
 
