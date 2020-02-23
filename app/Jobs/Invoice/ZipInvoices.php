@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadInvoices;
 use App\Models\Company;
@@ -85,5 +86,6 @@ class ZipInvoices implements ShouldQueue
         Mail::to($this->email)
             ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path . $file_name)));
 
+        UnlinkFile::dispatch(config('filesystems.default'), $path . $file_name)->delay(now()->addHours(1));
     }
 }
