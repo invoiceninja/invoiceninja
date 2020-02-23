@@ -37,8 +37,8 @@ class NewAccountCreated extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['mail'];
-        //return ['slack','mail'];
+        //return ['mail'];
+        return ['slack','mail'];
     }
 
     /**
@@ -85,6 +85,8 @@ class NewAccountCreated extends Notification implements ShouldQueue
 
     public function toSlack($notifiable)
     {
+        
+        $this->user->setCompany($this->company);
 
         $user_name = $this->user->first_name . " " . $this->user->last_name;
         $email = $this->user->email;

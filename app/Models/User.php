@@ -296,6 +296,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function routeNotificationForSlack($notification)
     {
+        \Log::error(print_r($this->company(),1));
         //todo need to return the company channel here for hosted users
         //else the env variable for selfhosted
         if(config('ninja.environment') == 'selfhosted')
