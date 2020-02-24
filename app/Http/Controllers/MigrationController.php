@@ -184,20 +184,13 @@ class MigrationController extends BaseController
      *       ),
      *     )
      */
-    public function startMigration(UploadMigrationFileRequest $request)
+    public function startMigration(Request $request, Company $company)
     {
-        $file = $request->file('migration')->storeAs(
-            'migrations', $request->file('migration')->getClientOriginalName()
-        );
-
-        if(!auth()->user()->company) 
-            return response()->json(['message' => 'Company doesn\'t exists.'], 402);
-
         if($request->has('force'))
-            $this->purgeCompany(auth()->user()->company);
+            $this->purgeCompany($company);
 
         if(app()->environment() !== 'testing') {
-            StartMigration::dispatchNow($file, auth()->user(), auth()->user()->company);
+            StartMigration::dispatchNow($request->file('migration'), auth()->user(), $company);
         }
 
         return response()->json([], 200);
