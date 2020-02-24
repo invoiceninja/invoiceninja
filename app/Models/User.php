@@ -155,6 +155,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if($this->company)
             return $this->company;
 
+        return Company::find(config('ninja.company_id');
     }
 
     /**

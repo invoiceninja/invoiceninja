@@ -43,7 +43,7 @@ class MultiDBProvider extends ServiceProvider
 
             if (isset($event->job->payload()['db'])) {
 
-            \Log::error("Provider Setting DB = ".$event->job->payload()['db']);
+            //\Log::error("Provider Setting DB = ".$event->job->payload()['db']);
 
                MultiDB::setDb($event->job->payload()['db']);
             }

@@ -17,6 +17,7 @@ return [
     'date_time_format' => 'Y-m-d H:i',
     'daily_email_limit' => 300,
     'error_email' => env('ERROR_EMAIL', ''),
+    'company_id' => 0,
 
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 
