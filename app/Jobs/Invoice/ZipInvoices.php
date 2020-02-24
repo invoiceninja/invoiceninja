@@ -82,11 +82,9 @@ class ZipInvoices implements ShouldQueue
 
         fclose($tempStream);
 
-        $file_path = $path . $file_name;
-
         Mail::to($this->email)
-            ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($file_path)));
+            ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path . $file_name)));
 
-        UnlinkFile::dispatch(config('filesystems.default'), $file_path)->delay(now()->addHours(1));
+        UnlinkFile::dispatch(config('filesystems.default'), $path . $file_name)->delay(now()->addHours(1));
     }
 }
