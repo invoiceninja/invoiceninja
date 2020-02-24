@@ -1,13 +1,15 @@
-@if()
-@component('email.components.layout-dark')
-@else
+{{-- @if()
+        @component('email.components.layout-dark')
+    @endif
+--}}
+
 @component('email.components.layout')
-@endif
 
 @slot('header')
-    @component('email.components.header', ['p' => 'Your upgrade has completed!'])
+    @component('email.components.header', ['p' => 'Your upgrade has completed!', 'image' => 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png'])
         Upgrade!
     @endcomponent
+
 @endslot
 
 @slot('greeting')
