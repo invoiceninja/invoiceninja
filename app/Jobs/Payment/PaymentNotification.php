@@ -48,7 +48,6 @@ class PaymentNotification implements ShouldQueue
      */
     public function handle()
     {
-        MultiDB::setDB($this->company->db);
 
         //notification for the payment.
         //

@@ -155,11 +155,6 @@ class User extends Authenticatable implements MustVerifyEmail
         if($this->company)
             return $this->company;
 
-        $co = Company::find($this->co);
-
-        if($co)
-            return $co;
-
     }
 
     /**
@@ -308,7 +303,8 @@ class User extends Authenticatable implements MustVerifyEmail
         if(config('ninja.environment') == 'selfhosted')
             return config('ninja.notification.slack');
 
-        return $this->company()->settings->system_notifications_slack;
+        if($this->company())
+            return $this->company()->settings->system_notifications_slack;
 
         
     }

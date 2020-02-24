@@ -262,7 +262,6 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('avatar_width')->nullable();
             $table->unsignedInteger('avatar_height')->nullable();
             $table->unsignedInteger('avatar_size')->nullable();
-            $table->unsignedInteger('co')->nullable();
             
             $table->datetime('last_login')->nullable();
             $table->mediumText('signature')->nullable();

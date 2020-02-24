@@ -63,8 +63,6 @@ class CreateInvoicePdf implements ShouldQueue {
 
 	public function handle() {
 
-		MultiDB::setDB($this->company->db);
-
 		$this->invoice->load('client');
 
 		if(!$this->contact)

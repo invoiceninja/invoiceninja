@@ -59,7 +59,6 @@ class ZipInvoices implements ShouldQueue
      */
     public function handle()
     {
-        MultiDB::setDB($this->company->db);
 
         $tempStream = fopen('php://memory', 'w+');
 
@@ -83,9 +82,11 @@ class ZipInvoices implements ShouldQueue
 
         fclose($tempStream);
 
-        Mail::to($this->email)
-            ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path . $file_name)));
+        $file_path = $path . $file_name;
 
-        UnlinkFile::dispatch(config('filesystems.default'), $path . $file_name)->delay(now()->addHours(1));
+        Mail::to($this->email)
+            ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($file_path)));
+
+        UnlinkFile::dispatch(config('filesystems.default'), $file_path)->delay(now()->addHours(1));
     }
 }

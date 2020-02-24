@@ -18,7 +18,7 @@ class UnlinkFile implements ShouldQueue
 
     protected $disk;
 
-    public function __construct(string $file_path, string $disk)
+    public function __construct(string $disk, string $file_path)
     {
         $this->file_path = $file_path;
         $this->disk = $disk;

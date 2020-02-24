@@ -21,20 +21,16 @@ class StoreCredit implements ShouldQueue
 
     protected $data;
 
-    private $company;
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Credit $credit, array $data, Company $company)
+    public function __construct(Credit $credit, array $data)
     {
         $this->credit = $credit;
 
         $this->data = $data;
-
-        $this->company = $company;
     }
 
     /**

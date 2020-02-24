@@ -12,6 +12,7 @@
 namespace App\Jobs\Cron;
 
 use App\Jobs\RecurringInvoice\SendRecurring;
+use App\Libraries\MultiDB;
 use App\Models\RecurringInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;

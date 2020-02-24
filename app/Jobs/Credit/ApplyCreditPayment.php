@@ -35,19 +35,17 @@ class ApplyCreditPayment implements ShouldQueue
 
     public $amount;
 
-    private $company;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Credit $credit, Payment $payment, float $amount, Company $company)
+    public function __construct(Credit $credit, Payment $payment, float $amount)
     {
         $this->credit = $credit;
         $this->payment = $payment;
         $this->amount = $amount;
-        $this->company = $company;
     }
 
     /**
@@ -58,7 +56,6 @@ class ApplyCreditPayment implements ShouldQueue
      */
     public function handle()
     {
-        MultiDB::setDB($this->company->db);
 
         /* Update Pivot Record amount */
         $this->payment->credits->each(function ($cred) {
