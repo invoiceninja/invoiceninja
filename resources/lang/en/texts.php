@@ -3273,7 +3273,6 @@ $LANG = array(
     'start_the_migration' => 'Start the migration',
     'migration' => 'Migration',
     'welcome_to_the_new_version' => 'Welcome to the new version of Invoice Ninja',
-    'next_step_data_download' => 'At the next step, we\'ll let you download your data for the migration.',
     'download_data' => 'Press button below to download the data.',
     'migration_import' => 'Awesome! Now you are ready to import your migration. Go to your new installation to import your data',
     'continue' => 'Continue',

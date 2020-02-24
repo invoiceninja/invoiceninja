@@ -149,9 +149,16 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
 
     Route::get('migration/start', 'Migration\StepsController@start');
-
+    Route::post('migration/type', 'Migration\StepsController@handleType');
     Route::get('migration/download', 'Migration\StepsController@download'); 
     Route::post('migration/download', 'Migration\StepsController@handleDownload');
+    Route::get('migration/endpoint', 'Migration\StepsController@endpoint');
+    Route::post('migration/endpoint', 'Migration\StepsController@handleEndpoint');
+    Route::get('migration/auth', 'Migration\StepsController@auth');
+    Route::post('migration/auth', 'Migration\StepsController@handleAuth');
+    Route::get('migration/companies', 'Migration\StepsController@companies');
+    Route::post('migration/companies', 'Migration\StepsController@handleCompanies');
+    Route::get('migration/completed', 'Migration\StepsController@completed');
 
     Route::get('migration/import', 'Migration\StepsController@import');
 

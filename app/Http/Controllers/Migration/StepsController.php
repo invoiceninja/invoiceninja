@@ -17,11 +17,36 @@ use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+
+use App\Http\Controllers\BaseController;
+use App\Http\Requests\MigrationAuthRequest;
+use App\Http\Requests\MigrationCompaniesRequest;
+use App\Http\Requests\MigrationEndpointRequest;
+use App\Http\Requests\MigrationTypeRequest;
+use App\Models\Document;
+use App\Services\Migration\AuthService;
+use App\Services\Migration\CompanyService;
+use App\Services\Migration\CompleteService;
 use Illuminate\Support\Facades\Crypt;
 
 class StepsController extends BaseController
 {
     private $account;
+
+    private $access = [
+        'auth' => [
+            'steps' => ['MIGRATION_TYPE'],
+            'redirect' => '/migration/start',
+        ],
+        'endpoint' => [
+            'steps' => ['MIGRATION_TYPE'],
+            'redirect' => '/migration/start',
+        ],
+        'companies' => [
+            'steps' => ['MIGRATION_TYPE', 'MIGRATION_ACCOUNT_TOKEN'],
+            'redirect' => '/migration/auth',
+        ],
+    ];
 
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
@@ -44,12 +69,142 @@ class StepsController extends BaseController
         return view('migration.download');
     }
 
+    public function handleType(MigrationTypeRequest $request)
+    {
+        session()->put('MIGRATION_TYPE', $request->option);
+
+        if($request->option == 0)
+            return redirect('/migration/auth');
+
+        return redirect('/migration/endpoint');
+    }
+
+    public function endpoint()
+    {
+        if($this->shouldGoBack('endpoint'))
+            return redirect($this->access['endpoint']['redirect']);
+
+        return view('migration.endpoint');
+    }
+
+    public function handleEndpoint(MigrationEndpointRequest $request)
+    {
+        if($this->shouldGoBack('endpoint'))
+            return redirect($this->access['endpoint']['redirect']);
+
+        session()->put('MIGRATION_ENDPOINT', $request->endpoint);
+
+        return redirect('/migration/auth');
+    }
+
+    public function auth()
+    {
+        if($this->shouldGoBack('auth'))
+            return redirect($this->access['auth']['redirect']);
+
+        return view('migration.auth');
+    }
+
+    public function handleAuth(MigrationAuthRequest $request)
+    {   
+        if($this->shouldGoBack('auth')) {
+            return redirect($this->access['auth']['redirect']);
+        }
+
+        $authentication = (new AuthService($request->email, $request->password))
+            ->endpoint(session('MIGRATION_ENDPOINT'))
+            ->start();
+
+        if($authentication->isSuccessful()) {
+            session()->put('MIGRATION_ACCOUNT_TOKEN', $authentication->getAccountToken());
+
+            return redirect('/migration/companies');
+        }
+
+        return back()->with('responseErrors', $authentication->getErrors());
+    }
+
+    public function companies()
+    {
+        if($this->shouldGoBack('companies'))
+            return redirect($this->access['companies']['redirect']);
+
+        $companyService = (new CompanyService(session('MIGRATION_ACCOUNT_TOKEN')))
+            ->endpoint(session('MIGRATION_ENDPOINT'))
+            ->start();
+
+        if($companyService->isSuccessful()) {
+            return view('migration.companies', ['companies' => $companyService->getCompanies()]);    
+        }
+
+        return response()->json([
+            'message' => 'Oops, looks like something failed. Please try again.'
+        ], 500);
+    }
+
+    public function handleCompanies(MigrationCompaniesRequest $request)
+    {
+        if($this->shouldGoBack('companies'))
+            return redirect($this->access['companies']['redirect']);
+
+        $successful = false;
+
+        foreach ($request->companies as $company) {
+            $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
+            ->file($this->getMigrationFile())
+            ->company($company)
+            ->endpoint(session('MIGRATION_ENDPOINT'))
+            ->start();
+
+            if($completeService->isSuccessful()) {
+                $successful = true;
+            }
+
+            $successful = false;
+        }
+
+        if($successful) {
+            return view('migration.completed');
+        }
+
+        return response([
+            'message' => 'Failed',
+            'errors' => $completeService->getErrors(),
+        ]);
+    }
+
+    public function completed()
+    {
+        return view('migration.completed');
+    }
+
+    /**
+     * ==================================
+     * Rest of functions that are used as 'actions', not controller methods.
+     * ==================================
+     */
+
+    public function shouldGoBack(string $step)
+    {
+        $redirect = true;
+
+        foreach ($this->access[$step]['steps'] as $step) {
+            if(session()->has($step)) {
+                $redirect = false;
+            }  else {
+                $redirect = true;
+            }
+        }
+
+        return $redirect;
+    }
+
     /**
      * Handle data downloading for the migration.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function handleDownload()
+    public function getMigrationFile()
     {
         $this->account = Auth::user()->account;
 
@@ -82,14 +237,11 @@ class StepsController extends BaseController
         $zip->addFromString('migration.json', json_encode($data, JSON_PRETTY_PRINT));
         $zip->close();
 
-        header('Content-Type: application/zip');
-        header('Content-Length: ' . filesize($file));
-        header("Content-Disposition: attachment; filename={$fileName}.zip");
+        // header('Content-Type: application/zip');
+        // header('Content-Length: ' . filesize($file));
+        // header("Content-Disposition: attachment; filename={$fileName}.zip");
 
-        readfile($file);
-        unlink($file);
-
-        return response()->json($data);
+        return $file;
     }
 
     /**
