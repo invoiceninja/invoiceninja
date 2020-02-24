@@ -143,7 +143,7 @@ class StepsController extends BaseController
         foreach ($request->companies as $company) {
             $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
             ->file($this->getMigrationFile())
-            ->companies($request->companies)
+            ->company($company)
             ->endpoint(session('MIGRATION_ENDPOINT'))
             ->start();
 

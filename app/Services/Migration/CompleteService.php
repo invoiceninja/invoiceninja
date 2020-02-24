@@ -9,7 +9,7 @@ use Unirest\Request\Body;
 class CompleteService
 {
     protected $token;
-    protected $companies = [];
+    protected $company;
     protected $file;
     protected $endpoint = 'https://app.invoiceninja.com';
     protected $uri = '/api/v1/migration/start/';
@@ -29,9 +29,9 @@ class CompleteService
         return $this;
     }
 
-    public function companies($companies)
+    public function company($company)
     {
-        $this->companies = $companies;
+        $this->company = $company;
 
         return $this;
     }
@@ -88,7 +88,7 @@ class CompleteService
 
     private function getUrl()
     {
-        return $this->endpoint . $this->uri . $this->companies[0];
+        return $this->endpoint . $this->uri . $this->company;
     }
 
     public function deleteFile()
