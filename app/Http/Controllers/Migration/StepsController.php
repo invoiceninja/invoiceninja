@@ -164,6 +164,11 @@ class StepsController extends BaseController
         ]);
     }
 
+    public function completed()
+    {
+        return view('migration.completed');
+    }
+
     /**
      * ==================================
      * Rest of functions that are used as 'actions', not controller methods.

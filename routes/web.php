@@ -158,6 +158,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('migration/auth', 'Migration\StepsController@handleAuth');
     Route::get('migration/companies', 'Migration\StepsController@companies');
     Route::post('migration/companies', 'Migration\StepsController@handleCompanies');
+    Route::get('migration/completed', 'Migration\StepsController@completed');
 
     Route::get('migration/import', 'Migration\StepsController@import');
 

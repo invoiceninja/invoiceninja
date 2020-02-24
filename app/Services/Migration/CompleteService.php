@@ -2,6 +2,7 @@
 
 namespace App\Services\Migration;
 
+use Illuminate\Support\Facades\Storage;
 use Unirest\Request;
 use Unirest\Request\Body;
 
@@ -52,6 +53,7 @@ class CompleteService
 
         if ($response->code == 200) {
             $this->isSuccessful = true;
+            $this->deleteFile();
         }
 
         if (in_array($response->code, [401, 422, 500])) {
@@ -87,5 +89,10 @@ class CompleteService
     private function getUrl()
     {
         return $this->endpoint . $this->uri . $this->companies[0];
+    }
+
+    public function deleteFile()
+    {
+        Storage::delete($this->file);
     }
 }
