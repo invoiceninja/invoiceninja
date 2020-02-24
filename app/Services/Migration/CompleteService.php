@@ -11,7 +11,7 @@ class CompleteService
     protected $companies = [];
     protected $file;
     protected $endpoint = 'https://app.invoiceninja.com';
-    protected $uri = '/api/v1/migration/start';
+    protected $uri = '/api/v1/migration/start/';
     protected $errors = [];
     protected $isSuccessful;
 
@@ -44,9 +44,22 @@ class CompleteService
 
     public function start()
     {
-        $response = Request::post($this->getUrl(), $this->getHeaders());
+        $body = [
+            'migration' => \Unirest\Request\Body::file($this->file, 'application/zip'),
+        ];
 
-        // ..
+        $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
+
+        if ($response->code == 200) {
+            $this->isSuccessful = true;
+        }
+
+        if (in_array($response->code, [401, 422, 500])) {
+            $this->isSuccessful = false;
+            $this->errors = [
+                'Oops, something went wrong. Migration can\'t be processed at the moment.',
+            ];
+        }
 
         return $this;
     }
@@ -67,18 +80,12 @@ class CompleteService
         return [
             'X-Requested-With' => 'XMLHttpRequest',
             'X-Api-Token' => $this->token,
+            'Content-Type' => 'multipart/form-data',
         ];
     }
 
     private function getUrl()
     {
-        return $this->endpoint . $this->uri;
-    }
-
-    private function processErrors($errors)
-    {
-        $array = (array) $errors;
-
-        $this->errors = $array;
+        return $this->endpoint . $this->uri . $this->companies[0];
     }
 }

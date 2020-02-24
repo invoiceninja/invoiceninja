@@ -138,13 +138,25 @@ class StepsController extends BaseController
         if($this->shouldGoBack('companies'))
             return redirect($this->access['companies']['redirect']);
 
-        $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
+        $successful = false;
+
+        foreach ($request->companies as $company) {
+            $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
             ->file($this->getMigrationFile())
             ->companies($request->companies)
+            ->endpoint(session('MIGRATION_ENDPOINT'))
             ->start();
 
-        if($completeService->isSuccessful())
-            return response('Migration started. Please check your e-mail.');
+            if($completeService->isSuccessful()) {
+                $successful = true;
+            }
+
+            $successful = false;
+        }
+
+        if($successful) {
+            return view('migration.completed');
+        }
 
         return response([
             'message' => 'Failed',
