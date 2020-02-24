@@ -46,7 +46,6 @@ class SendRecurring
      */
     public function handle() : void
     {
-        MultiDb::setDb($this->db);
 
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice);

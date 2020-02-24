@@ -102,7 +102,7 @@ class QuoteRepository extends BaseRepository
         return $quote->fresh();
     }
 
-    public function getInvitationByKey($key) :QuoteInvitation
+    public function getInvitationByKey($key) :?QuoteInvitation
     {
         return QuoteInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
     }

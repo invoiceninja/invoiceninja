@@ -2,7 +2,7 @@
 
 @slot('header')
     @component('email.components.header', ['p' => ''])
-        @lang('texts.download')
+        <img src="{{ $logo }}" alt="Company Logo" style="display: block">
     @endcomponent
 @endslot
 
