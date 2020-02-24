@@ -20,7 +20,9 @@ class CreditTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [];
+    protected $defaultIncludes = [
+        'invitations',
+    ];
 
     protected $availableIncludes = [
         'invitations',
