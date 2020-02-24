@@ -23,13 +23,12 @@ class ClientContactRepository extends BaseRepository
 {
     public function save(array $data, Client $client) : void
     {
-
         if(isset($data['contacts']))
             $contacts = collect($data['contacts']);
         else
             $contacts = collect();
 
-        collect($client->contacts->pluck('id'))->diff($contacts->pluck('id'))->each(function ($contact) {
+        $client->contacts->pluck('id')->diff($contacts->pluck('id'))->each(function ($contact) {
             ClientContact::destroy($contact);
         });
 
@@ -43,7 +42,7 @@ class ClientContactRepository extends BaseRepository
 
         //loop and update/create contacts
         $contacts->each(function ($contact) use ($client) {
-            //$update_contact = null;
+            $update_contact = null;
 
             if (isset($contact['id'])) {
                 $update_contact = ClientContact::find($contact['id']);

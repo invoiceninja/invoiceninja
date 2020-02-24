@@ -75,7 +75,7 @@ class InvoiceRepository extends BaseRepository {
 
 				if (array_key_exists('key', $invitation)) {
 					// $inv = InvoiceInvitation::whereKey($invitation['key'])->first();
-					$inv = InvoiceInvitation::whereRaw("BINARY `key`= ?", [$invitation['key']])->first();
+					$inv = $this->getInvitationByKey($invitation['key']);
 				}
 
 				if (!$inv) {
