@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadInvoices;
 use App\Models\Company;
@@ -20,10 +21,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
-use Illuminate\Support\Facades\Mail;
 
 class ZipInvoices implements ShouldQueue
 {
@@ -33,17 +34,21 @@ class ZipInvoices implements ShouldQueue
 
     private $company;
 
+    private $email;
+
     /**
      * @deprecated confirm to be deleted
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($invoices, Company $company)
+    public function __construct($invoices, Company $company, $email)
     {
         $this->invoices = $invoices;
 
         $this->company = $company;
+
+        $this->email = $email;
     }
 
     /**
@@ -54,7 +59,6 @@ class ZipInvoices implements ShouldQueue
      */
     public function handle()
     {
-        MultiDB::setDB($this->company->db);
 
         $tempStream = fopen('php://memory', 'w+');
 
@@ -78,9 +82,9 @@ class ZipInvoices implements ShouldQueue
 
         fclose($tempStream);
 
-        //fire email here
-        Mail::to(config('ninja.contact.ninja_official_contact'))
-            ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path . $file_name)));
+        Mail::to($this->email)
+            ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path . $file_name), $this->company));
 
+        UnlinkFile::dispatch(config('filesystems.default'), $path . $file_name)->delay(now()->addHours(1));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Mail\Signup\NewSignup;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -36,7 +37,8 @@ class NewAccountCreated extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['slack'];
+        //return ['mail'];
+        return ['slack','mail'];
     }
 
     /**
@@ -47,10 +49,25 @@ class NewAccountCreated extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
+
+        $user_name = $this->user->first_name . " " . $this->user->last_name;
+        $email = $this->user->email;
+        $ip = $this->user->ip;
+
+        $data = [
+            'title' => ctrans('texts.new_signup'),
+            'message' => ctrans('texts.new_signup_text', ['user' => $user_name, 'email' => $email, 'ip' => $ip]),
+            'url' => config('ninja.web_url'),
+            'button' => ctrans('texts.account_login'),
+            'signature' => '',
+        ];
+
+
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+                    ->subject(ctrans('texts.new_signup'))
+                    ->markdown('email.admin.generic', $data);
+
+
     }
 
     /**
@@ -68,6 +85,9 @@ class NewAccountCreated extends Notification implements ShouldQueue
 
     public function toSlack($notifiable)
     {
+        
+        $this->user->setCompany($this->company);
+
         $user_name = $this->user->first_name . " " . $this->user->last_name;
         $email = $this->user->email;
         $ip = $this->user->ip;

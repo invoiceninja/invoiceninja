@@ -179,6 +179,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
         Codedge\Updater\UpdaterServiceProvider::class,
+        App\Providers\MultiDBProvider::class,
 
     ],
 

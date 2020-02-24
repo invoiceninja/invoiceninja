@@ -64,8 +64,6 @@ class StoreInvoice implements ShouldQueue
      */
     public function handle(InvoiceRepository $invoice_repo) : ?Invoice
     {
-        MultiDB::setDB($this->company->db);
-
         $payment = false;
 
         // /* Test if we should auto-bill the invoice */

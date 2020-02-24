@@ -81,12 +81,12 @@ class UpdateClientRequest extends Request
 
         if(isset($input['contacts']))
         {
-            foreach($input['contacts'] as $contact)
+            foreach($input['contacts'] as $key => $contact)
             {
                 if(is_numeric($contact['id']))
-                    unset($contact['id']);
+                    unset($input['contacts'][$key]['id']);
                 elseif(is_string($contact['id']))
-                    $contact['id'] = $this->decodePrimaryKey($contact['id']);
+                    $input['contacts'][$key]['id'] = $this->decodePrimaryKey($contact['id']);
             }
         }
 

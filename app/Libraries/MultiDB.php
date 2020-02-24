@@ -215,7 +215,7 @@ class MultiDB
      * @param $database
      */
     public static function setDB(string $database) : void
-    {
+    {        
         /* This will set the database connection for the request */
         config(['database.default' => $database]);
     }

@@ -39,6 +39,7 @@ use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\SendVerificationNotification;
+use App\Listeners\SetDBListener;
 use App\Listeners\User\UpdateUserLastLogin;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 

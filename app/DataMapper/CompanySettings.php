@@ -193,6 +193,9 @@ class CompanySettings extends BaseSettings {
 	public $client_online_payment_notification = true;
 	public $client_manual_payment_notification = true;
 
+	public $system_notifications_slack = '';
+	public $system_notifications_email = '';
+
 	/* Company Meta data that we can use to build sub companies*/
 
 	public $name         = '';
@@ -220,6 +223,8 @@ class CompanySettings extends BaseSettings {
 	public $pdf_variables = [];
 
 	public static $casts = [
+		'system_notifications_slack'		 => 'string',
+		'system_notifications_email'		 => 'string',
 		'portal_design_id'					 => 'string',
 		'late_fee_endless_percent'           => 'float',
 		'late_fee_endless_amount'            => 'float',
@@ -401,9 +406,11 @@ class CompanySettings extends BaseSettings {
 	 * @return object
 	 */
 	public static function defaults():\stdClass {
+
 		$config = json_decode(config('ninja.settings'));
 
 		$data = (object) get_class_vars(CompanySettings::class );
+
 		unset($data->casts);
 		unset($data->protected_fields);
 
@@ -415,7 +422,7 @@ class CompanySettings extends BaseSettings {
 		$data->date_format_id    = (string) config('ninja.i18n.date_format_id');
 		$data->country_id        = (string) config('ninja.i18n.country_id');
 		$data->translations      = (object) [];
-		$data->pdf_variables = (array) self::getEntityVariableDefaults();
+		$data->pdf_variables 	 = (array) self::getEntityVariableDefaults();
 
 		// $data->email_subject_invoice = EmailTemplateDefaults::emailInvoiceSubject();
 		// $data->email_template_invoice = EmailTemplateDefaults:: emailInvoiceTemplate();

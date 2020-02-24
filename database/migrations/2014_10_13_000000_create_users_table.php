@@ -67,6 +67,7 @@ class CreateUsersTable extends Migration
             $table->string('decimal_separator');
             $table->string('code');
             $table->boolean('swap_currency_symbol')->default(false);
+            $table->decimal('exchange_rate', 6, 6);
 
         });
 
@@ -261,6 +262,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('avatar_width')->nullable();
             $table->unsignedInteger('avatar_height')->nullable();
             $table->unsignedInteger('avatar_size')->nullable();
+            
             $table->datetime('last_login')->nullable();
             $table->mediumText('signature')->nullable();
             $table->string('password');

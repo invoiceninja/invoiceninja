@@ -83,6 +83,14 @@ class CreateTestData extends Command
             'account_id' => $account->id,
         ]);
 
+        $settings = $company->settings;
+
+        $settings->system_notifications_slack = config('ninja.notification.slack');
+        $settings->system_notifications_email = config('ninja.contact.email');
+
+        $company->settings = $settings;
+        $company->save();
+
         $account->default_company_id = $company->id;
         $account->save();
 
@@ -166,6 +174,15 @@ class CreateTestData extends Command
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
         ]);
+
+
+        $settings = $company->settings;
+
+        $settings->system_notifications_slack = config('ninja.notification.slack');
+        $settings->system_notifications_email = config('ninja.contact.email');
+
+        $company->settings = $settings;
+        $company->save();
 
         $account->default_company_id = $company->id;
         $account->save();
@@ -264,6 +281,14 @@ class CreateTestData extends Command
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
         ]);
+
+        $settings = $company->settings;
+
+        $settings->system_notifications_slack = config('ninja.notification.slack');
+        $settings->system_notifications_email = config('ninja.contact.email');
+
+        $company->settings = $settings;
+        $company->save();
 
         $account->default_company_id = $company->id;
         $account->save();

@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Company;
 use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,9 +15,13 @@ class DownloadInvoices extends Mailable
 
     public $file_path;
 
-    public function __construct($file_path)
+    public $company;
+
+    public function __construct($file_path, Company $company)
     {
         $this->file_path = $file_path;
+
+        $this->company = $company;
     }
 
     /**
@@ -27,10 +32,17 @@ class DownloadInvoices extends Mailable
     public function build()
     {
 
-        return $this->from(config('mail.from.address')) //todo this needs to be fixed to handle the hosted version
-            ->subject(ctrans('texts.download_documents',['size'=>'']))
-            ->markdown('email.admin.download_files', [
-                'file_path' => $this->file_path
-            ]);
+        return $this->subject(ctrans('texts.download_files'))
+                    ->markdown('email.admin.download_files',
+                        [
+                            'url' => $this->file_path,
+                            'logo' => $this->company->present()->logo,
+                        ]);
+
+        // return $this->from(config('mail.from.address')) //todo this needs to be fixed to handle the hosted version
+        //     ->subject(ctrans('texts.download_documents',['size'=>'']))
+        //     ->markdown('email.admin.download_files', [
+        //         'file_path' => $this->file_path
+        //     ]);
     }
 }

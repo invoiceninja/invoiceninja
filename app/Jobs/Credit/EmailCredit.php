@@ -16,7 +16,6 @@ use App\Events\Credit\CreditWasEmailedAndFailed;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
-use App\Models\Company;
 use App\Models\Credit;
 use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
@@ -34,18 +33,15 @@ class EmailCredit implements ShouldQueue
 
     public $message_array = [];
     
-    private $company;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Credit $credit, Company $company)
+    public function __construct(Credit $credit)
     {
         $this->credit = $credit;
-
-        $this->company = $company;
     }
 
     /**
@@ -56,9 +52,6 @@ class EmailCredit implements ShouldQueue
      */
     public function handle()
     {
-        /*Jobs are not multi-db aware, need to set! */
-        MultiDB::setDB($this->company->db);
-
         //todo - change runtime config of mail driver if necessary
 
         $template_style = $this->credit->client->getSetting('email_style');

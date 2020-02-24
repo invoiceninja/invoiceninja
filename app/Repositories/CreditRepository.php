@@ -51,7 +51,8 @@ class CreditRepository extends BaseRepository
         $credit->fill($data);
         $credit->save();
 
-        $credit->number = $credit->client->getNextCreditNumber($credit->client);
+        if(!$credit->number)
+            $credit->number = $credit->client->getNextCreditNumber($credit->client);
 
         if (isset($data['invitations'])) {
             $invitations = collect($data['invitations']);

@@ -3113,6 +3113,19 @@ $LANG = array(
     'next_send_date' => 'Next send date',
     'cycles_remaining' => 'Cycles remaining',
     'i_understand_delete' => 'I understand, delete',
+
+
+
+    'download_files' => 'Download Files',
+    'download_timeframe' => 'Use this link to download your files, the link will expire in 1 hour.',
+    'new_signup' => 'New Signup',
+    'new_signup_text' => 'A new account has been created by :user - :email - from IP address: :ip'
+
+
+
+
+
+
 );
 
 return $LANG;

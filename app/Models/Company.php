@@ -32,11 +32,13 @@ use App\Models\TaxRate;
 use App\Models\Timezone;
 use App\Models\Traits\AccountTrait;
 use App\Models\User;
+use App\Services\Notification\NotificationService;
 use App\Utils\Ninja;
 use App\Utils\Traits\CompanySettingsSaver;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\ThrottlesEmail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -300,7 +302,8 @@ class Company extends BaseModel
 
     public function company_users()
     {
-        return $this->hasMany(CompanyUser::class)->withTimestamps();
+        //return $this->hasMany(CompanyUser::class)->withTimestamps();
+        return $this->hasMany(CompanyUser::class);
     }
 
     public function owner()
@@ -319,5 +322,20 @@ class Company extends BaseModel
     public function domain()
     {
         return 'https://' . $this->subdomain . config('ninja.app_domain');
+    }
+
+    public function notification(Notification $notification)
+    {
+        return new NotificationService($this, $notification);
+    }
+
+    public function routeNotificationForSlack($notification)
+    {
+        //todo need to return the company channel here for hosted users
+        //else the env variable for selfhosted
+        if(config('ninja.environment') == 'selfhosted')
+            return config('ninja.notification.slack');
+        else
+            return $this->settings->system_notifications_slack;
     }
 }

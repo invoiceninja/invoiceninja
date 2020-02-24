@@ -28,8 +28,8 @@ class TokenAuth
     public function handle($request, Closure $next)
     {
         if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user','company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first())) {
+
             $user = $company_token->user;
-            
 
             $error = [
                 'message' => 'User inactive',
@@ -48,6 +48,12 @@ class TokenAuth
             |
             */
             $user->setCompany($company_token->company);
+            
+            config(['ninja.company_id' => $company_token->company->id]);
+
+            app('queue')->createPayloadUsing(function () use($company_token) {
+                  return ['db' => $company_token->company->db];
+            });
 
             //user who once existed, but has been soft deleted
             if ($user->company_user->is_locked) {

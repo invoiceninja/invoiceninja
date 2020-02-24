@@ -92,8 +92,14 @@ class CreateAccount
         
         $user->fresh();
 
-        Notification::route('slack', config('ninja.notification.slack'))
-                    ->notify(new NewAccountCreated($user, $company));
+        $company->notification(new NewAccountCreated($user, $company))->run();
+        
+        // $user->route('slack', $company->settings->system_notifications_slack)
+        //      ->route('mail', $company->settings->system_notifications_email)
+        //      ->notify(new NewAccountCreated($user, $company));
+
+        // Notification::route('slack', config('ninja.notification.slack'))
+        //             ->notify(new NewAccountCreated($user, $company));
 
         return $account;
     }
