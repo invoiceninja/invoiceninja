@@ -68,12 +68,12 @@ class InvoiceRepository extends BaseRepository {
 			/* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
 			$invoice->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
 					
-					$invite = $this->getInvitationByKey($invitation);
+				$invite = $this->getInvitationByKey($invitation);
 
-					if($invite)
-						$invite->forceDelete();
+				if($invite)
+					$invite->forceDelete();
 
-				});
+			});
 
 			foreach ($data['invitations'] as $invitation) {
 				$inv = false;
@@ -91,7 +91,7 @@ class InvoiceRepository extends BaseRepository {
 					$new_invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
 					//$new_invitation->fill($invitation);
 					$new_invitation->invoice_id        = $invoice->id;
-					$new_invitation->client_contact_id = $this->decodePrimaryKey($invitation['client_contact_id']);
+					$new_invitation->client_contact_id = $invitation['client_contact_id'];
 					$new_invitation->save();
 
 				}
