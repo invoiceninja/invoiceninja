@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
+use App\Services\Credit\CreditService;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -137,7 +138,10 @@ class Credit extends BaseModel
     }
 
 
-
+    public function service()
+    {
+        return new CreditService($this);
+    }
 
     /**
      * @param float $balance_adjustment
