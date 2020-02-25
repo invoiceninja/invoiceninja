@@ -162,6 +162,7 @@ class CompanyLedgerTest extends TestCase
             'line_items' => $line_items
         ];
 
+/* Test adding one invoice */
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -182,6 +183,7 @@ class CompanyLedgerTest extends TestCase
         $this->assertEquals($invoice->client->paid_to_date, 0);
 
 
+/* Test adding another invoice */
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -199,6 +201,31 @@ class CompanyLedgerTest extends TestCase
         $this->assertEquals($invoice_ledger->balance, $invoice->client->balance);
         $this->assertEquals($invoice->client->paid_to_date, 0);
 
+/* Test making a payment */
+
+        $data = [
+            'amount' => $invoice->balance,
+            'invoices' => [
+                [
+                'invoice_id' => $invoice->hashed_id,
+                'amount' => $invoice->balance
+                ],
+            ],
+            'date' => '2020/12/11',
+
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/', $data);
+
+        $acc = $response->json();   
+        $payment = Payment::find($this->decodePrimaryKey($acc['data']['id']));
+
+        $payment_ledger = $payment->company_ledger->sortByDesc('id')->first();
+
+        $this->assertEquals($payment->client->balance, $payment_ledger->balance);
     }
 
 }
