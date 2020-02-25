@@ -60,15 +60,19 @@ class QuoteRepository extends BaseRepository
             $invitations = collect($data['invitations']);
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-            collect($quote->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function ($invitation) {
-                    $this->getInvitationByKey($invitation)->delete();
-                });
+            $quote->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
+                $this->getInvitationByKey($invitation)->delete();
+            });
 
             foreach ($data['invitations'] as $invitation) {
                 $inv = false;
 
                 if (array_key_exists('key', $invitation)) {
-                    $inv = $this->getInvitationByKey([$invitation['key']])->first();
+                    $inv = $this->getInvitationByKey([$invitation['key']]);
+
+                    if($inv)
+                        $inv->forceDelete();
+
                 }
 
                 if (!$inv) {
@@ -85,6 +89,8 @@ class QuoteRepository extends BaseRepository
                 }
             }
         }
+
+        $quote->load('invitations');
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
         if ($quote->invitations->count() == 0) {

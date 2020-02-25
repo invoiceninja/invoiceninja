@@ -73,6 +73,8 @@ class Company extends BaseModel
         'custom_surcharge_taxes3',
         'custom_surcharge_taxes4',
         'show_product_details',
+        'first_day_of_week',
+        'first_month_of_year',
 
     ];
 

@@ -37,6 +37,7 @@ class UpdateCreditRequest extends FormRequest
         ];
     }
 
+
     protected function prepareForValidation()
     {
         $input = $this->all();
@@ -45,6 +46,25 @@ class UpdateCreditRequest extends FormRequest
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 
+        if(isset($input['invitations']))
+        {
+
+          foreach($input['invitations'] as $key => $value)
+          {
+
+            if(is_numeric($input['invitations'][$key]['id']))
+              unset($input['invitations'][$key]['id']);
+
+            if(is_string($input['invitations'][$key]['id']))
+              $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
+
+            if(is_string($input['invitations'][$key]['client_contact_id']))
+              $input['invitations'][$key]['client_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['client_contact_id']);
+
+          }
+
+        }
+        
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
 
         $this->replace($input);
