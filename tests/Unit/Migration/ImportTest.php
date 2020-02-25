@@ -312,19 +312,19 @@ class ImportTest extends TestCase
         $this->assertTrue(file_exists($migration_archive));
     }
 
-    public function testMigrationFileBeingExtracted()
-    {
-        $migration_archive = base_path() . '/tests/Unit/Migration/migration.zip';
+    // public function testMigrationFileBeingExtracted()
+    // {
+    //     $migration_archive = base_path() . '/tests/Unit/Migration/migration.zip';
 
-        StartMigration::dispatchNow($migration_archive, $this->user, $this->company);
+    //     StartMigration::dispatchNow($migration_archive, $this->user, $this->company);
 
-        $extracted_archive = storage_path("migrations/migration");
-        $migration_file = storage_path("migrations/migration/migration.json");
+    //     $extracted_archive = storage_path("migrations/migration");
+    //     $migration_file = storage_path("migrations/migration/migration.json");
 
-        $this->assertTrue(file_exists($extracted_archive));
-        $this->assertTrue(is_dir($extracted_archive));
-        $this->assertTrue(file_exists($migration_file));
-    }
+    //     $this->assertTrue(file_exists($extracted_archive));
+    //     $this->assertTrue(is_dir($extracted_archive));
+    //     $this->assertTrue(file_exists($migration_file));
+    // }
 
     public function testValidityOfImportedData()
     {

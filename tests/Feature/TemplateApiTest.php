@@ -46,6 +46,10 @@ class TemplateApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
     }
 
 

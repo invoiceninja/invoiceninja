@@ -31,7 +31,7 @@ use Tests\TestCase;
 
 class CompanyLedgerTest extends TestCase
 {
-    //use DatabaseTransactions;
+    use DatabaseTransactions;
     use MakesHash;
 
     public $company;
@@ -222,6 +222,7 @@ class CompanyLedgerTest extends TestCase
         ])->post('/api/v1/payments/', $data);
 
         $acc = $response->json();   
+
         $payment = Payment::find($this->decodePrimaryKey($acc['data']['id']));
 
         $payment_ledger = $payment->company_ledger->sortByDesc('id')->first();

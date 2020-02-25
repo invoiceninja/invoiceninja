@@ -61,6 +61,7 @@ class Company extends BaseModel
         'custom_fields',
         'enable_product_cost',
         'enable_product_quantity',
+        'enabled_modules',
         'default_quantity',
         'enable_invoice_quantity',
         'enabled_tax_rates',
