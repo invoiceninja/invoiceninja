@@ -2,15 +2,15 @@
 
 namespace App\Jobs\Util;
 
-use App\Exceptions\ProcessingMigrationArchiveFailed;
-use App\Libraries\MultiDB;
-use App\Models\Company;
 use App\Models\User;
+use App\Models\Company;
+use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use App\Exceptions\ProcessingMigrationArchiveFailed;
 
 class StartMigration implements ShouldQueue
 {
@@ -50,7 +50,6 @@ class StartMigration implements ShouldQueue
      */
     public function handle()
     {
-        
         MultiDB::setDb($this->company->db);
 
         $zip = new \ZipArchive();
@@ -62,6 +61,14 @@ class StartMigration implements ShouldQueue
             if ($archive) {
                 $zip->extractTo(storage_path("migrations/{$filename}"));
                 $zip->close();
+
+                $migration_file = storage_path("migrations/$filename/migration.json");
+                $handle = fopen($migration_file, "r");
+                $migration_file = fread($handle, filesize($migration_file));
+                fclose($handle);
+
+                $data = json_decode($migration_file,1);
+                Import::dispatchNow($data, $this->company, $this->user);
             } else {
                 throw new ProcessingMigrationArchiveFailed();
             }

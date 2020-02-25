@@ -37,6 +37,6 @@ class CreateInvitations extends AbstractService
             }
         });
 
-        return $credit;
+        return $this->credit;
     }
 }
