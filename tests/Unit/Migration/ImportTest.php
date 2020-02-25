@@ -496,6 +496,7 @@ class ImportTest extends TestCase
         $this->assertGreaterThan($original, ClientGatewayToken::count());
     }
 
+
     public function testDocumentsImport()
     {
         $this->invoice->forceDelete(); 
@@ -511,5 +512,7 @@ class ImportTest extends TestCase
 
         // $this->assertNotNull(Invoice::find($document->documentable_id)->documents);
         // $this->assertNotNull($document->documentable);
+
+        $this->assertTrue(true, 'Documents importing not completed yet. Missing expenses.');
     }
 }
