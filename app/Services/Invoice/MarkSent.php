@@ -42,9 +42,9 @@ class MarkSent extends AbstractService
 
         event(new InvoiceWasMarkedSent($this->invoice, $this->invoice->company));
 
-        $this->client->service()->updateBalance($this->invoice->balance)->save();
-
         $this->invoice->service()->setStatus(Invoice::STATUS_SENT)->applyNumber()->save();
+
+        $this->client->service()->updateBalance($this->invoice->balance)->save();
 
         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance);
 

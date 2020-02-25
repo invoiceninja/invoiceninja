@@ -29,7 +29,7 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->terms = $recurring_invoice->terms;
         $invoice->public_notes = $recurring_invoice->public_notes;
         $invoice->private_notes = $recurring_invoice->private_notes;
-        $invoice->date = date_create()->format($client->date_format());
+        $invoice->date = date_create()->format($recurring_invoice->client->date_format());
         $invoice->due_date = $recurring_invoice->due_date; //todo calculate based on terms
         $invoice->is_deleted = $recurring_invoice->is_deleted;
         $invoice->line_items = $recurring_invoice->line_items;

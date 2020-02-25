@@ -31,7 +31,7 @@ use Tests\TestCase;
 
 class CompanyLedgerTest extends TestCase
 {
-    use DatabaseTransactions;
+    //use DatabaseTransactions;
     use MakesHash;
 
     public $company;
@@ -157,7 +157,7 @@ class CompanyLedgerTest extends TestCase
 
         $line_items[] = $item;
 
-        $invoice = [
+        $data = [
             'client_id' => $this->encodePrimaryKey($this->client->id),
             'line_items' => $line_items
         ];
@@ -165,7 +165,7 @@ class CompanyLedgerTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/invoices/', $invoice)
+        ])->post('/api/v1/invoices/', $data)
         ->assertStatus(200);
 
         $acc = $response->json();   
@@ -176,6 +176,24 @@ class CompanyLedgerTest extends TestCase
 
         $this->assertEquals($invoice->client->balance, 10);
 
+        $invoice_ledger = $invoice->company_ledger->sortByDesc('id')->first();
+
+        $this->assertEquals($invoice_ledger->balance, $invoice->client->balance);
+        $this->assertEquals($invoice->client->paid_to_date, 0);
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $data)
+        ->assertStatus(200);
+
+        $acc = $response->json();   
+
+        $invoice = Invoice::find($this->decodePrimaryKey($acc['data']['id']));
+        $invoice->service()->markSent()->save();
+
+        $this->assertEquals($invoice->client->balance, 20);
         $invoice_ledger = $invoice->company_ledger->sortByDesc('id')->first();
 
         $this->assertEquals($invoice_ledger->balance, $invoice->client->balance);
