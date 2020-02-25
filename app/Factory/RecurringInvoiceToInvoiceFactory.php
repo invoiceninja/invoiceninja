@@ -16,7 +16,7 @@ use App\DataMapper\CompanySettings;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 
-class recurring_invoiceToInvoiceFactory
+class RecurringInvoiceToInvoiceFactory
 {
     public static function create(RecurringInvoice $recurring_invoice) :Invoice
     {

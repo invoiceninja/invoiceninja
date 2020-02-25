@@ -49,7 +49,7 @@ class CreditRepository extends BaseRepository
      */
     public function save(array $data, Credit $credit) : ?Credit
     {
-\Log::error($data);
+
         $credit->fill($data);
 
         $credit->save();

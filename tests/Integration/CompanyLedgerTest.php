@@ -7,6 +7,7 @@ use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CompanyUserFactory;
+use App\Factory\InvoiceItemFactory;
 use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Models\Account;
 use App\Models\Activity;
@@ -141,10 +142,45 @@ class CompanyLedgerTest extends TestCase
 
     public function testBaseLine()
     {
-
         $this->assertEquals($this->company->invoices->count(), 0);
         $this->assertEquals($this->company->clients->count(), 1);
         $this->assertEquals($this->client->balance, 0);
+    }
+
+    public function testLedger()
+    {
+        $line_items = [];
+
+        $item = [];
+        $item['quantity'] = 1;
+        $item['cost'] = 10;
+
+        $line_items[] = $item;
+
+        $invoice = [
+            'client_id' => $this->encodePrimaryKey($this->client->id),
+            'line_items' => $line_items
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $invoice)
+        ->assertStatus(200);
+
+        $acc = $response->json();   
+
+        $invoice = Invoice::find($this->decodePrimaryKey($acc['data']['id']));
+
+        $invoice->service()->markSent()->save();
+
+        $this->assertEquals($invoice->client->balance, 10);
+
+        $invoice_ledger = $invoice->company_ledger->sortByDesc('id')->first();
+
+        $this->assertEquals($invoice_ledger->balance, $invoice->client->balance);
+        $this->assertEquals($invoice->client->paid_to_date, 0);
+
     }
 
 }
