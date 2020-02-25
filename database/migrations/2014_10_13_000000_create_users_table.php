@@ -263,6 +263,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('avatar_width')->nullable();
             $table->unsignedInteger('avatar_height')->nullable();
             $table->unsignedInteger('avatar_size')->nullable();
+            $table->boolean('is_deleted')->default(false);
             
             $table->datetime('last_login')->nullable();
             $table->mediumText('signature')->nullable();
@@ -306,6 +307,7 @@ class CreateUsersTable extends Migration
             $table->string('name')->nullable();
             $table->string('website')->nullable();
             $table->text('private_notes')->nullable();
+            $table->text('public_notes')->nullable();
             $table->text('client_hash')->nullable();
             $table->string('logo', 255)->nullable();
             $table->string('phone', 255)->nullable();

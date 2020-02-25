@@ -89,6 +89,7 @@ class Client extends BaseModel implements HasLocalePreference
         'vat_number',
         'id_number',
         'group_settings_id',
+        'public_notes'
     ];
     
     
