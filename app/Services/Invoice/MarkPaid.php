@@ -18,9 +18,12 @@ use App\Models\Payment;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
+use App\Utils\Traits\GeneratesCounter;
 
 class MarkPaid extends AbstractService
 {
+    use GeneratesCounter;
+
     private $client_service;
 
     private $invoice;
@@ -42,6 +45,7 @@ class MarkPaid extends AbstractService
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
         $payment->amount = $this->invoice->balance;
+        $payment->number = $this->getNextPaymentNumber($payment->client);
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = ctrans('texts.manual_entry');

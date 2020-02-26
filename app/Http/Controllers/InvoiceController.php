@@ -29,6 +29,7 @@ use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Jobs\Invoice\StoreInvoice;
 use App\Jobs\Invoice\ZipInvoices;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Repositories\InvoiceRepository;
@@ -203,7 +204,10 @@ class InvoiceController extends BaseController {
 	 *
 	 */
 	public function store(StoreInvoiceRequest $request) {
-		$invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
+
+		$client = Client::find($request->input('client_id'));
+
+		$invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id), $client->getMergedSettings(), $client);
 
 		$invoice = StoreInvoice::dispatchNow($invoice, $request->all(), $invoice->company);//todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
 
