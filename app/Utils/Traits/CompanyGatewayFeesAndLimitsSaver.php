@@ -87,7 +87,7 @@ trait CompanyGatewayFeesAndLimitsSaver
             $fal = new FeesAndLimits;
 
             foreach ($value as $k => $v) {
-                $fal->{$k} = $v ?: '';
+                $fal->{$k} = $v;
             }
 
             $new_arr[$key] = (array)$fal;
