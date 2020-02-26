@@ -51,6 +51,7 @@ class GatewayTransformer extends EntityTransformer
             'is_secure' => (bool)$gateway->is_secure,
             'fields' => (string)$gateway->fields ?: '',
             'updated_at' => (int)$gateway->updated_at,
+            'created_at' => (int)$gateway->created_at,
         ];
     }
 }

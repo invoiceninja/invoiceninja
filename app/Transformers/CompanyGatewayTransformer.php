@@ -14,6 +14,7 @@ namespace App\Transformers;
 use App\Models\CompanyGateway;
 use App\Transformers\GatewayTransformer;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class CompanyGatewayTransformer.
@@ -21,7 +22,7 @@ use App\Utils\Traits\MakesHash;
 class CompanyGatewayTransformer extends EntityTransformer
 {
     use MakesHash;
-
+    use SoftDeletes;
     /**
      * @var array
      */
@@ -55,6 +56,8 @@ class CompanyGatewayTransformer extends EntityTransformer
             'fees_and_limits' => $company_gateway->fees_and_limits ?: '',
             'updated_at' => (int)$company_gateway->updated_at,
             'archived_at' => (int)$company_gateway->deleted_at,
+            'created_at' => (int)$company_gateway->created_at,
+            'is_deleted' => (bool)$company_gateway->is_deleted,
             'custom_value1' => $company_gateway->custom_value1 ?: '',
             'custom_value2' => $company_gateway->custom_value2 ?: '',
             'custom_value3' => $company_gateway->custom_value3 ?: '',

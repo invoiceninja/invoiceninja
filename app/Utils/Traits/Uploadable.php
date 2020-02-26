@@ -26,7 +26,7 @@ trait Uploadable
 
             if ($path) {
                 $settings = $entity->settings;
-                $settings->company_logo = $company->domain() . $path;
+                $settings->company_logo = $path;
                 $entity->settings = $settings;
                 $entity->save();
             }

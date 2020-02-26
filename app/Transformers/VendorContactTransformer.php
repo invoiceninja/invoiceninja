@@ -34,6 +34,7 @@ class VendorContactTransformer extends EntityTransformer
             'first_name' => $vendor->first_name ?: '',
             'last_name' => $vendor->last_name ?: '',
             'email' => $vendor->email ?: '',
+            'created_at' => (int)$vendor->created_at,
             'updated_at' => (int)$vendor->updated_at,
             'archived_at' => (int)$vendor->deleted_at,
             'is_primary' => (bool) $vendor->is_primary,

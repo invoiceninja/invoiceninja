@@ -44,6 +44,9 @@ class CompanyTokenTransformer extends EntityTransformer
         return [
             'token' => $company_token->token,
             'name' => $company_token->name ?: '',
+            'updated_at' => (int)$company_token->updated_at,
+            'archived_at' => (int)$company_token->deleted_at,
+            'created_at' => (int)$company_token->created_at,
         ];
     }
 }

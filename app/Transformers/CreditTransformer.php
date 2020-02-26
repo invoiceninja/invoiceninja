@@ -84,6 +84,7 @@ class CreditTransformer extends EntityTransformer
             'invoice_id' => (string) ($credit->invoice_id ?: 1),
             'updated_at' => (int)$credit->updated_at,
             'archived_at' => (int)$credit->deleted_at,
+            'created_at' => (int)$credit->created_at,
             'number' => $credit->number ?: '',
             'discount' => (float) $credit->discount,
             'po_number' => $credit->po_number ?: '',

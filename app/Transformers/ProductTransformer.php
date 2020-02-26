@@ -73,6 +73,7 @@ class ProductTransformer extends EntityTransformer
             'tax_rate2' => (float) $product->tax_rate2 ?: 0,
             'tax_name3' => $product->tax_name3 ?: '',
             'tax_rate3' => (float) $product->tax_rate3 ?: 0,
+            'created_at' => (int)$product->created_at,
             'updated_at' => (int)$product->updated_at,
             'archived_at' => (int)$product->deleted_at,
             'custom_value1' => $product->custom_value1 ?: '',

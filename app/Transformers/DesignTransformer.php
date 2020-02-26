@@ -13,6 +13,7 @@ namespace App\Transformers;
 
 use App\Models\Design;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class DesignTransformer.
@@ -20,7 +21,7 @@ use App\Utils\Traits\MakesHash;
 class DesignTransformer extends EntityTransformer
 {
     use MakesHash;
-
+    use SoftDeletes;
     /**
      * @var array
      */
@@ -47,6 +48,9 @@ class DesignTransformer extends EntityTransformer
             'is_custom' => (bool)$design->is_custom,
             'is_active' => (bool)$design->is_active,
             'design' => $design->design,
+            'updated_at' => (int)$design->updated_at,
+            'archived_at' => (int)$design->deleted_at,
+            'created_at' => (int)$design->created_at,
         ];
     }
 

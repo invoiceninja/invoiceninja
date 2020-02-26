@@ -13,6 +13,7 @@ namespace App\Transformers;
 
 use App\Models\Expense;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * class ExpenseTransformer
@@ -20,7 +21,7 @@ use App\Utils\Traits\MakesHash;
 class ExpenseTransformer extends EntityTransformer
 {
     use MakesHash;
-
+    use SoftDeletes;
     protected $defaultIncludes = [
     ];
 
@@ -75,6 +76,7 @@ class ExpenseTransformer extends EntityTransformer
             'custom_value4' => $expense->custom_value4 ?: '',
             'updated_at' => (int)$expense->updated_at,
             'archived_at' => (int)$expense->deleted_at,
+            'created_at' => (int)$expense->created_at,
         ];
     }
 }

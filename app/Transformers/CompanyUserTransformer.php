@@ -59,6 +59,7 @@ class CompanyUserTransformer extends EntityTransformer
             'is_locked' => (bool) $company_user->is_locked,
             'updated_at' => (int)$company_user->updated_at,
             'archived_at' => (int)$company_user->deleted_at,
+            'created_at' => (int)$company_user->created_at,
             
         ];
     }
