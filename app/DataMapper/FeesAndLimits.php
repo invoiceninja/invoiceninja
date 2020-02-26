@@ -48,7 +48,7 @@ class FeesAndLimits
         'fee_tax_name1' => 'string',
         'fee_tax_name2' => 'string',
         'fee_tax_name3' => 'string',
-        'fee_tax_rate1' => 'void',
+        'fee_tax_rate1' => 'float',
         'fee_tax_rate2' => 'float',
         'fee_tax_rate3' => 'float',
         'fee_cap' => 'float',
