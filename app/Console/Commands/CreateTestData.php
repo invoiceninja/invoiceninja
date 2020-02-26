@@ -448,7 +448,7 @@ class CreateTestData extends Command
     {
         $faker = \Faker\Factory::create();
 
-        $invoice = InvoiceFactory::create($client->company->id, $client->user->id);//stub the company and user_id
+        $invoice = InvoiceFactory::create($client->company->id, $client->user->id, $client->getMergedSettings(), $client);//stub the company and user_id
         $invoice->client_id = $client->id;
 //        $invoice->date = $faker->date();
         $dateable = Carbon::now()->subDays(rand(0,90));
