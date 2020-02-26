@@ -37,75 +37,7 @@ class QuoteRepository extends BaseRepository
 
     public function save($data, Quote $quote) : ?Quote
     {
-
-        /* Always carry forward the initial invoice amount this is important for tracking client balance changes later......*/
-        $starting_amount = $quote->amount;
-
-        $quote->fill($data);
-
-        $quote->save();
-
-        if (isset($data['client_contacts'])) {
-            foreach ($data['client_contacts'] as $contact) {
-                if ($contact['send_email'] == 1 && is_string($contact['id'])) {
-                    $client_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
-                    $client_contact->send_email = true;
-                    $client_contact->save();
-                }
-            }
-        }
-
-
-        if (isset($data['invitations'])) {
-            $invitations = collect($data['invitations']);
-
-            /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-            $quote->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
-                $this->getInvitationByKey($invitation)->delete();
-            });
-
-            foreach ($data['invitations'] as $invitation) {
-                $inv = false;
-
-                if (array_key_exists('key', $invitation)) {
-                    $inv = $this->getInvitationByKey([$invitation['key']]);
-
-                    if($inv)
-                        $inv->forceDelete();
-
-                }
-
-                if (!$inv) {
-
-                    if (isset($invitation['id'])) {
-                        unset($invitation['id']);
-                    }
-
-                    $new_invitation = QuoteInvitationFactory::create($quote->company_id, $quote->user_id);
-                    $new_invitation->quote_id = $quote->id;
-                    $new_invitation->client_contact_id = $this->decodePrimaryKey($invitation['client_contact_id']);
-                    $new_invitation->save();
-
-                }
-            }
-        }
-
-        $quote->load('invitations');
-
-        /* If no invitations have been created, this is our fail safe to maintain state*/
-        if ($quote->invitations->count() == 0) {
-            $quote->service()->createInvitations();
-        }
-
-        $quote = $quote->calc()->getQuote();
-
-        $quote->save();
-
-        $finished_amount = $quote->amount;
-
-        $quote = $quote->service()->applyNumber()->save();
-
-        return $quote->fresh();
+        return $this->alternativeSave($data, $quote);
     }
 
     public function getInvitationByKey($key) :?QuoteInvitation

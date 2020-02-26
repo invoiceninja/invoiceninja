@@ -49,78 +49,7 @@ class CreditRepository extends BaseRepository
      */
     public function save(array $data, Credit $credit) : ?Credit
     {
-
-        $credit->fill($data);
-
-        $credit->save();
-
-        if(!$credit->number)
-            $credit->number = $credit->client->getNextCreditNumber($credit->client);
-
-        if (isset($data['client_contacts'])) {
-            foreach ($data['client_contacts'] as $contact) {
-                if ($contact['send_email'] == 1 && is_string($contact['id'])) {
-                    $client_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
-                    $client_contact->send_email = true;
-                    $client_contact->save();
-                }
-            }
-        }
-
-
-        if (isset($data['invitations'])) {
-            $invitations = collect($data['invitations']);
-
-            /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-            $credit->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
-                    
-                $invite = $this->getInvitationByKey($invitation);
-
-                if($invite)
-                    $invite->forceDelete();
-
-            });
-
-            foreach ($data['invitations'] as $invitation) {
-                $inv = false;
-
-                if (array_key_exists('key', $invitation)) {
-                    $inv = $this->getInvitationByKey($invitation['key']);
-                }
-
-                if (!$inv) {
-
-                    if (isset($invitation['id'])) {
-                        unset($invitation['id']);
-                    }
-
-                    $new_invitation = CreditInvitationFactory::create($credit->company_id, $credit->user_id);
-                    $new_invitation->fill($invitation);
-                    $new_invitation->credit_id = $credit->id;
-                    $new_invitation->client_contact_id = $invitation['client_contact_id'];
-                    $new_invitation->save();
-
-                }
-            }
-        }
-
-        $credit->load('invitations');
-
-        /* If no invitations have been created, this is our fail safe to maintain state*/
-        if ($credit->invitations->count() == 0) {
-            $credit->service()->createInvitations();
-        }
-        /**
-         * Perform calculations on the 
-         * credit note
-         */
-        
-        $credit = $credit->calc()->getCredit();
-        
-        $credit->save();
-
-        return $credit->fresh();
-
+        return $this->alternativeSave($data, $credit);
     }
 
     public function getInvitationByKey($key) :?CreditInvitation
