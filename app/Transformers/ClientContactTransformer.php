@@ -44,7 +44,9 @@ class ClientContactTransformer extends EntityTransformer
             'custom_value3' => $contact->custom_value3 ?: '',
             'custom_value4' => $contact->custom_value4 ?: '',
             'contact_key' => $contact->contact_key ?: '',
-            'send' => (bool) $contact->send,
+            'send_email' => (bool) $contact->send_email,
+            'last_login' => (int)$contact->last_login,
+            'password' => '',
         ];
     }
 }

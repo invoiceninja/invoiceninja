@@ -169,6 +169,9 @@ class Import implements ShouldQueue
 
         $company_repository = new CompanyRepository();
         $company_repository->save($data, $this->company);
+
+        Company::reguard();
+
     }
 
     /**
@@ -208,6 +211,9 @@ class Import implements ShouldQueue
 
             $tax_rate->save();
         }
+
+        TaxRate::reguard();
+
     }
 
     /**
@@ -254,6 +260,9 @@ class Import implements ShouldQueue
                 'new' => $user->id,
             ];
         }
+
+        User::reguard();
+
     }
 
     /**
@@ -302,6 +311,9 @@ class Import implements ShouldQueue
                 'new' => $client->id,
             ];
         }
+
+        Client::reguard();
+
     }
 
     private function processProducts(array $data): void
@@ -335,6 +347,9 @@ class Import implements ShouldQueue
                 $this->company->id, $modified['user_id'])
             );
         }
+
+        Product::reguard();
+
     }
 
     private function processInvoices(array $data): void
@@ -380,6 +395,9 @@ class Import implements ShouldQueue
             ];
 
         }
+
+        Invoice::reguard();
+
     }
 
     private function processCredits(array $data): void
@@ -423,6 +441,9 @@ class Import implements ShouldQueue
                 'new' => $credit->id,
             ];
         }
+
+        Credit::reguard();
+
     }
 
     private function processQuotes(array $data): void
@@ -470,6 +491,9 @@ class Import implements ShouldQueue
             ];
 
         }
+
+        Quote::reguard();
+
     }
 
     private function processPayments(array $data): void
@@ -524,6 +548,9 @@ class Import implements ShouldQueue
             ];
 
         }
+
+        Payment::reguard();
+
     }
 
     private function processDocuments(array $data): void
@@ -617,6 +644,8 @@ class Import implements ShouldQueue
             ];
         }
 
+        CompanyGateway::reguard();
+
     }
 
     private function processClientGatewayTokens(array $data) :void
@@ -643,6 +672,9 @@ class Import implements ShouldQueue
                 ]
             ];
         }
+
+    ClientGatewayToken::reguard();
+
     }
 
     /**

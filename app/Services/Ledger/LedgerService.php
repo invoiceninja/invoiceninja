@@ -33,8 +33,6 @@ class LedgerService
         if ($company_ledger) {
             $balance = $company_ledger->balance;
         }
-
-        $adjustment = $balance + $adjustment;
         
         $company_ledger = CompanyLedgerFactory::create($this->entity->company_id, $this->entity->user_id);
         $company_ledger->client_id = $this->entity->client_id;

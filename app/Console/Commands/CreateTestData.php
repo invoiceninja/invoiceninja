@@ -120,7 +120,7 @@ class CreateTestData extends Command
             'is_admin' => 1,
             'is_locked' => 0,
             'permissions' => '',
-            'settings' => new \stdClass,
+            'settings' => null,
         ]);
 
             factory(\App\Models\Product::class,50)->create([

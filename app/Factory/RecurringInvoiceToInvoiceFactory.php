@@ -13,12 +13,13 @@ namespace App\Factory;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 
-class recurring_invoiceToInvoiceFactory
+class RecurringInvoiceToInvoiceFactory
 {
-    public static function create(RecurringInvoice $recurring_invoice) :Invoice
+    public static function create(RecurringInvoice $recurring_invoice, Client $client) :Invoice
     {
         $invoice = new Invoice();
         $invoice->status_id = Invoice::STATUS_DRAFT;

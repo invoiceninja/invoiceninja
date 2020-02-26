@@ -53,7 +53,7 @@ class SendRecurring implements ShouldQueue
     {
 
         // Generate Standard Invoice
-        $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice);
+        $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
         $invoice->number = $this->getNextRecurringInvoiceNumber($this->recurring_invoice->client);
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->save();

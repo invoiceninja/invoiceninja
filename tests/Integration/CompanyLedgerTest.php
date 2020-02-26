@@ -7,6 +7,7 @@ use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CompanyUserFactory;
+use App\Factory\InvoiceItemFactory;
 use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Models\Account;
 use App\Models\Activity;
@@ -141,10 +142,139 @@ class CompanyLedgerTest extends TestCase
 
     public function testBaseLine()
     {
-
         $this->assertEquals($this->company->invoices->count(), 0);
         $this->assertEquals($this->company->clients->count(), 1);
         $this->assertEquals($this->client->balance, 0);
+    }
+
+    public function testLedger()
+    {
+        $line_items = [];
+
+        $item = [];
+        $item['quantity'] = 1;
+        $item['cost'] = 10;
+
+        $line_items[] = $item;
+
+        $data = [
+            'client_id' => $this->encodePrimaryKey($this->client->id),
+            'line_items' => $line_items
+        ];
+
+/* Test adding one invoice */
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $data)
+        ->assertStatus(200);
+
+        $acc = $response->json();   
+
+        $invoice = Invoice::find($this->decodePrimaryKey($acc['data']['id']));
+
+        $invoice->service()->markSent()->save();
+
+        $this->assertEquals($invoice->client->balance, 10);
+
+        $invoice_ledger = $invoice->company_ledger->sortByDesc('id')->first();
+
+        $this->assertEquals($invoice_ledger->balance, $invoice->client->balance);
+        $this->assertEquals($invoice->client->paid_to_date, 0);
+
+
+/* Test adding another invoice */
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $data)
+        ->assertStatus(200);
+
+        $acc = $response->json();   
+
+        $invoice = Invoice::find($this->decodePrimaryKey($acc['data']['id']));
+        $invoice->service()->markSent()->save();
+
+        $this->assertEquals($invoice->client->balance, 20);
+        $invoice_ledger = $invoice->company_ledger->sortByDesc('id')->first();
+
+        $this->assertEquals($invoice_ledger->balance, $invoice->client->balance);
+        $this->assertEquals($invoice->client->paid_to_date, 0);
+
+/* Test making a payment */
+
+        $data = [
+            'client_id' => $this->encodePrimaryKey($invoice->client_id),
+            'amount' => $invoice->balance,
+            'invoices' => [
+                [
+                'invoice_id' => $this->encodePrimaryKey($invoice->id),
+                'amount' => $invoice->balance
+                ],
+            ],
+            'date' => '2020/12/11',
+
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/', $data);
+
+        $acc = $response->json();   
+
+        $payment = Payment::find($this->decodePrimaryKey($acc['data']['id']));
+
+        $payment_ledger = $payment->company_ledger->sortByDesc('id')->first();
+        $invoice->fresh();
+
+        $this->assertEquals($payment->client->balance, $payment_ledger->balance);
+        $this->assertEquals($payment->client->paid_to_date, 10);
+        
+        $invoice = Invoice::find($invoice->id);
+
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+
+/* Test making a refund of a payment */
+        $refund = $invoice->amount;
+
+        $data = [
+            'id' => $this->encodePrimaryKey($payment->id),
+            'client_id' => $this->encodePrimaryKey($invoice->client_id),
+            'amount' => $refund,
+            'invoices' => [
+                [
+                'invoice_id' => $this->encodePrimaryKey($invoice->id),
+                'amount' => $refund,
+                ],
+            ],
+            'date' => '2020/12/11',
+
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/refund', $data);
+
+
+        $acc = $response->json();   
+        $invoice = Invoice::find($invoice->id);
+
+        $this->assertEquals($refund, $invoice->balance);
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
 }

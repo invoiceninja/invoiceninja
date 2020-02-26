@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
@@ -38,6 +39,9 @@ class RecurringQuoteTest extends TestCase
 
         Model::reguard();
 
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
 
     }
 

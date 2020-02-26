@@ -25,6 +25,7 @@ class ClientFactory
         $client->name = '';
         $client->website = '';
         $client->private_notes = '';
+        $client->public_notes = '';
         $client->balance = 0;
         $client->paid_to_date = 0;
         $client->country_id = 4;

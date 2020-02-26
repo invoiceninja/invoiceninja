@@ -60,11 +60,13 @@ class StoreUserRequest extends Request
             }
 
             if (!isset($input['company_user']['settings'])) {
-                $input['company_user']['settings'] = DefaultSettings::userSettings();
+                //$input['company_user']['settings'] = DefaultSettings::userSettings();
+                $input['company_user']['settings'] = null;
             }
         } else {
             $input['company_user'] = [
-                'settings' => DefaultSettings::userSettings(),
+                //'settings' => DefaultSettings::userSettings(),
+                'settings' => null,
                 'permissions' => '',
             ];
         }

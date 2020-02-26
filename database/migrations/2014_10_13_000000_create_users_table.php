@@ -158,7 +158,8 @@ class CreateUsersTable extends Migration
             $table->boolean('enable_invoice_quantity')->default(true);
             $table->boolean('show_product_cost')->default(false);
             $table->unsignedInteger('enabled_tax_rates')->default(1);
-
+            $table->unsignedInteger('enabled_modules')->default(0);
+            
             $table->boolean('enable_product_cost')->default(0);
             $table->boolean('enable_product_quantity')->default(1);
             $table->boolean('default_quantity')->default(1);
@@ -263,7 +264,8 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('avatar_width')->nullable();
             $table->unsignedInteger('avatar_height')->nullable();
             $table->unsignedInteger('avatar_size')->nullable();
-            
+            $table->boolean('is_deleted')->default(false);
+
             $table->datetime('last_login')->nullable();
             $table->mediumText('signature')->nullable();
             $table->string('password');
@@ -306,6 +308,7 @@ class CreateUsersTable extends Migration
             $table->string('name')->nullable();
             $table->string('website')->nullable();
             $table->text('private_notes')->nullable();
+            $table->text('public_notes')->nullable();
             $table->text('client_hash')->nullable();
             $table->string('logo', 255)->nullable();
             $table->string('phone', 255)->nullable();

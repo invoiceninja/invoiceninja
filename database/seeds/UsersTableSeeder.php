@@ -48,14 +48,13 @@ class UsersTableSeeder extends Seeder
                                     'create_client'
                                 ]);
 
-        $userSettings = DefaultSettings::userSettings();
 
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
             'is_owner' => 1,
             'is_admin' => 1,
             'permissions' => $userPermissions->toJson(),
-            'settings' => json_encode($userSettings),
+            'settings' => null,
             'is_locked' => 0,
         ]);
 
