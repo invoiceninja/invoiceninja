@@ -17155,12 +17155,12 @@
                     "max_limit": 65317,
                     "fee_amount": "0.00",
                     "fee_percent": "0.000",
-                    "tax_name1": null,
-                    "tax_rate1": null,
-                    "tax_name2": null,
-                    "tax_rate2": null,
-                    "tax_name3": "",
-                    "tax_rate3": 0
+                    "fee_tax_name1": null,
+                    "fee_tax_rate1": null,
+                    "fee_tax_name2": null,
+                    "fee_tax_rate2": null,
+                    "fee_tax_name3": "",
+                    "fee_tax_rate3": 0
                 }
             ],
             "custom_value1": "",
@@ -17224,12 +17224,12 @@
                     "max_limit": 53254,
                     "fee_amount": "0.00",
                     "fee_percent": "0.000",
-                    "tax_name1": null,
-                    "tax_rate1": null,
-                    "tax_name2": null,
-                    "tax_rate2": null,
-                    "tax_name3": "",
-                    "tax_rate3": 0
+                    "fee_tax_name1": null,
+                    "fee_tax_rate1": null,
+                    "fee_tax_name2": null,
+                    "fee_tax_rate2": null,
+                    "fee_tax_name3": "",
+                    "fee_tax_rate3": 0
                 }
             ],
             "custom_value1": "",
@@ -17265,12 +17265,12 @@
                     "max_limit": 72857,
                     "fee_amount": "0.00",
                     "fee_percent": "0.000",
-                    "tax_name1": null,
-                    "tax_rate1": null,
-                    "tax_name2": null,
-                    "tax_rate2": null,
-                    "tax_name3": "",
-                    "tax_rate3": 0
+                    "fee_tax_name1": null,
+                    "fee_tax_rate1": null,
+                    "fee_tax_name2": null,
+                    "fee_tax_rate2": null,
+                    "fee_tax_name3": "",
+                    "fee_tax_rate3": 0
                 }
             ],
             "custom_value1": "",
@@ -17306,12 +17306,12 @@
                     "max_limit": 71349,
                     "fee_amount": "0.00",
                     "fee_percent": "0.000",
-                    "tax_name1": null,
-                    "tax_rate1": null,
-                    "tax_name2": null,
-                    "tax_rate2": null,
-                    "tax_name3": "",
-                    "tax_rate3": 0
+                    "fee_tax_name1": null,
+                    "fee_tax_rate1": null,
+                    "fee_tax_name2": null,
+                    "fee_tax_rate2": null,
+                    "fee_tax_name3": "",
+                    "fee_tax_rate3": 0
                 }
             ],
             "custom_value1": "",
@@ -17347,12 +17347,12 @@
                     "max_limit": 74365,
                     "fee_amount": "0.00",
                     "fee_percent": "0.000",
-                    "tax_name1": null,
-                    "tax_rate1": null,
-                    "tax_name2": null,
-                    "tax_rate2": null,
-                    "tax_name3": "",
-                    "tax_rate3": 0
+                    "fee_tax_name1": null,
+                    "fee_tax_rate1": null,
+                    "fee_tax_name2": null,
+                    "fee_tax_rate2": null,
+                    "fee_tax_name3": "",
+                    "fee_tax_rate3": 0
                 }
             ],
             "custom_value1": "",

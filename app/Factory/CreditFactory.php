@@ -16,7 +16,7 @@ use App\Models\Credit;
 
 class CreditFactory
 {
-    public static function create(int $company_id, int $user_id, object $settings, Client $client) :Credit
+    public static function create(int $company_id, int $user_id, object $settings= null, Client $client = null) :Credit
     {
         $credit = new Credit();
         $credit->status_id = Credit::STATUS_DRAFT;
@@ -24,9 +24,9 @@ class CreditFactory
         $credit->discount = 0;
         $credit->is_amount_discount = true;
         $credit->po_number = '';
-        $credit->footer = strlen($settings->credit_footer) > 0 ? $settings->credit_footer : '';
-        $credit->terms = strlen($settings->credit_terms) > 0 ? $settings->credit_terms : '';
-        $credit->public_notes = strlen($client->public_notes) > 0 ? $client->public_notes : '';
+        $credit->footer = isset($settings) && strlen($settings->credit_footer) > 0 ? $settings->credit_footer : '';
+        $credit->terms = isset($settings) && strlen($settings->credit_terms) > 0 ? $settings->credit_terms : '';
+        $credit->public_notes = isset($client) && strlen($client->public_notes) > 0 ? $client->public_notes : '';
         $credit->private_notes = '';
         $credit->date = null;
         $credit->due_date = null;

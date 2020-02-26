@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 
 class InvoiceFactory
 {
-    public static function create(int $company_id, int $user_id, object $settings, Client $client) :Invoice
+    public static function create(int $company_id, int $user_id, object $settings = null, Client $client = null) :Invoice
     {
         $invoice = new Invoice();
         $invoice->status_id = Invoice::STATUS_DRAFT;
@@ -27,9 +27,9 @@ class InvoiceFactory
         $invoice->discount = 0;
         $invoice->is_amount_discount = true;
         $invoice->po_number = '';
-        $invoice->footer = strlen($settings->invoice_footer) > 0 ? $settings->invoice_footer : '';
-        $invoice->terms = strlen($settings->invoice_terms) > 0 ? $settings->invoice_terms : '';
-        $invoice->public_notes = strlen($client->public_notes) > 0 ? $client->public_notes : '';
+        $invoice->footer = isset($settings) && strlen($settings->invoice_footer) > 0 ? $settings->invoice_footer : '';
+        $invoice->terms = isset($settings) && strlen($settings->invoice_terms) > 0 ? $settings->invoice_terms : '';
+        $invoice->public_notes = isset($settings) && strlen($client->public_notes) > 0 ? $client->public_notes : '';
         $invoice->private_notes = '';
         $invoice->date = null;
         $invoice->due_date = null;

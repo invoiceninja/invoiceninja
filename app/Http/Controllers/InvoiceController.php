@@ -158,7 +158,8 @@ class InvoiceController extends BaseController {
 	 *
 	 */
 	public function create(CreateInvoiceRequest $request) {
-		$invoice = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+		
+		$invoice = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id, $client->getMergedSettings(), $client);
 
 		return $this->itemResponse($invoice);
 	}

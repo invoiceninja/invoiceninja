@@ -187,7 +187,7 @@ class CompanyGatewayApiTest extends TestCase
             ])->post('/api/v1/company_gateways', $data);
 
 
-        $response->assertStatus(302);
+        $response->assertStatus(200);
 
     }
 

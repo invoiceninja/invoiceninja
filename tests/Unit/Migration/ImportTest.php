@@ -42,12 +42,13 @@ class ImportTest extends TestCase
         $this->makeTestData();
 
         $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+// \Log::error($migration_file);
+//         $handle = fopen($migration_file, "r");
+//         $migration_file = fread($handle, filesize($migration_file));
+//         fclose($handle);
 
-        $handle = fopen($migration_file, "r");
-        $migration_file = fread($handle, filesize($migration_file));
-        fclose($handle);
+        $this->migration_array = json_decode(file_get_contents($migration_file),1);
 
-        $this->migration_array = json_decode($migration_file,1);
     }
 
     public function testImportClassExists()
@@ -102,7 +103,7 @@ class ImportTest extends TestCase
 
     public function testInvoicesImporting()
     {
-        $this->makeTestData();
+        //$this->makeTestData();
 
         $this->invoice->forceDelete();
         $this->quote->forceDelete();
