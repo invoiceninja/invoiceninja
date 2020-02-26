@@ -115,6 +115,8 @@ class CompanySettings extends BaseSettings {
 	public $invoice_design_id      = '1';
 	public $quote_design_id        = '1';
 	public $invoice_footer         = '';
+	public $credit_footer         = '';
+	public $credit_terms         = '';
 	public $invoice_labels         = '';
 	public $tax_name1              = '';
 	public $tax_rate1              = 0;
@@ -336,6 +338,8 @@ class CompanySettings extends BaseSettings {
 		'invoice_footer'                     => 'string',
 		'invoice_labels'                     => 'string',
 		'invoice_terms'                      => 'string',
+		'credit_footer'                     => 'string',
+		'credit_terms'                      => 'string',
 		'name'                               => 'string',
 		'payment_terms'                      => 'integer',
 		'payment_type_id'                    => 'string',
