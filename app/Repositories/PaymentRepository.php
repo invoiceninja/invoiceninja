@@ -72,8 +72,7 @@ class PaymentRepository extends BaseRepository
 
         $payment->save();
 
-
-        if (!$payment->number)
+        if (!$payment->number || strlen($payment->number) == 0)
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
 
         $payment->client->service()->updatePaidToDate($payment->amount)->save();
