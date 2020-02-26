@@ -271,7 +271,7 @@ class BaseRepository
             $model = $model->calc()->getCredit();
         }
         
-        if ($class->name == 'App\Models\Credit') {
+        if ($class->name == 'App\Models\Quote') {
             $model = $model->calc()->getQuote();
         }
 
