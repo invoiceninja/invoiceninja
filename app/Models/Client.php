@@ -58,7 +58,6 @@ class Client extends BaseModel implements HasLocalePreference
         'backup',
 //        'settings',
         'last_login',
-        'private_notes'
     ];
    
     protected $fillable = [
