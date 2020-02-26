@@ -1,12 +1,7 @@
-{{-- @if()
-        @component('email.components.layout-dark')
-    @endif
---}}
-
-@component('email.components.layout')
+@component('email.template.master', ['design' => 'light'])
 
 @slot('header')
-    @component('email.components.header', ['p' => 'Your upgrade has completed!', 'image' => 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png'])
+    @component('email.components.header', ['p' => 'Your upgrade has completed!', 'logo' => 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png'])
         Upgrade!
     @endcomponent
 
@@ -18,7 +13,7 @@
 
 Hello, this is really tiny template. We just want to inform you that upgrade has been completed.
 
-@component('email.components.button', ['url' => 'https://invoiceninja.com'])
+@component('email.components.button', ['url' => 'https://invoiceninja.com', 'show_link' => true])
     Visit InvoiceNinja
 @endcomponent
 
