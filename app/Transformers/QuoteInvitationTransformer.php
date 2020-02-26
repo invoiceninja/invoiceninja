@@ -29,6 +29,8 @@ class QuoteInvitationTransformer extends EntityTransformer
             'sent_date' => $invitation->sent_date ?: '',
             'viewed_date' => $invitation->viewed_date ?: '',
             'opened_date' => $invitation->opened_date ?: '',
+            'updated_at'        => (int) $invitation->updated_at,
+            'archived_at'       => (int) $invitation->deleted_at,
         ];
     }
 }
