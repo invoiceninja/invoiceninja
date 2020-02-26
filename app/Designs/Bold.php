@@ -66,7 +66,7 @@ class Bold extends AbstractDesign
         return '
             <div class="flex mt-32 pl-12">
                 <div class="w-1/2 mr-40 flex flex-col">
-                    <h2 class="text-2xl uppercase font-semibold text-teal-600 tracking-tight">$your_invoice_label</h2> $client_details
+                    <h2 class="text-2xl uppercase font-semibold text-teal-600 tracking-tight">$entity_label</h2> $client_details
                 </div>
                 <div class="w-1/2">
                     <div class="w-full bg-teal-600 px-5 py-3 text-white flex">

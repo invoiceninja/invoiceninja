@@ -67,7 +67,7 @@ class Playful extends AbstractDesign
         <div class="flex mt-16">
         <div class="w-1/2">
             <div class="flex flex-col">
-                <p class="font-semibold text-teal-600 pl-4">$invoice_to_label:</p>
+                <p class="font-semibold text-teal-600 pl-4">$entity_label</p>
                 <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
                     <section class="flex flex-col">
                         $client_details

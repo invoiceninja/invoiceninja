@@ -24,6 +24,7 @@ use App\Http\Requests\User\ShowUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Repositories\UserRepository;
@@ -627,7 +628,10 @@ class UserController extends BaseController
         $company_user = CompanyUser::whereUserId($user->id)
                                     ->whereCompanyId(auth()->user()->companyId())->first();
                                     
-        $company_user->token->delete();
+        $token = $company_user->token->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
+
+        $token->delete();
+
         $company_user->delete();
 
         return response()->json(['message' => 'User detached from company'], 200);

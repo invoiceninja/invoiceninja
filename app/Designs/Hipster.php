@@ -79,7 +79,7 @@ class Hipster extends AbstractDesign
                     <span>$date</span>
                 </div>
                 <div class="ml-10">
-                    <span class="uppercase">$balance_due_label</span>
+                    <span class="uppercase">$due_date_label</span>
                     <span>$due_date</span>
                 </div>
                 <div class="ml-4">

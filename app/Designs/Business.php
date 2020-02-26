@@ -71,7 +71,7 @@ class Business extends AbstractDesign
         return '
             <div class="flex items-center justify-between mt-20">
                 <div class="w-1/2 flex flex-col">
-                    <span>$invoice_issued_to_label</span>
+                    <span>$entity_label</span>
                     <section class="flex flex-col text-orange-600 mt-2">
                         $client_details
                     </section>

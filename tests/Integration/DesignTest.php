@@ -6,6 +6,7 @@ use App\Designs\Designer;
 use App\Designs\Modern;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Quote\CreateQuotePdf;
+use App\Utils\Traits\GeneratesCounter;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -16,6 +17,7 @@ use Tests\TestCase;
 class DesignTest extends TestCase
 {
   	use MockAccountData;
+    use GeneratesCounter;
 
     public function setUp() :void
     {
@@ -45,7 +47,7 @@ class DesignTest extends TestCase
         $this->invoice->uses_inclusive_taxes = false;
 
     	$settings = $this->invoice->client->settings;
-    	$settings->invoice_design_id = "6";
+    	$settings->invoice_design_id = "5";
 
     	$this->client->settings = $settings;
     	$this->client->save();
@@ -73,6 +75,29 @@ class DesignTest extends TestCase
     	$this->client->save();
 
     	CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+    }
+
+    public function testAllDesigns()
+    {
+
+        for($x=1; $x<=10; $x++)
+        {
+
+        $settings = $this->invoice->client->settings;
+        $settings->quote_design_id = (string)$x;
+
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+
+        $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
+        $this->quote->save();
+
+        }
+
+        $this->assertTrue(true);
+
     }
     
 }
