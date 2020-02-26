@@ -88,7 +88,7 @@ class ClientTransformer extends EntityTransformer
             'paid_to_date' => (float) $client->paid_to_date,
             'credit_balance' => (float) $client->credit_balance,
             'last_login' => (int)$client->last_login,
-            'size_id' => (int)$client->size_id,
+            'size_id' => (string)$client->size_id,
             'public_notes' => $client->public_notes,
         //    'currency_id' => (string)$client->currency_id,
             'address1' => $client->address1 ?: '',
