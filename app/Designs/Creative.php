@@ -69,8 +69,8 @@ class Creative extends AbstractDesign
         return '
             <div class="flex justify-between mt-8">
                 <div class="w-2/3 flex flex-col">
-                    <h1 class="text-5xl uppercase font-semibold">Invoice</h1>
-                    <i class="ml-4 text-5xl text-pink-700">#entity_number</i>
+                    <h1 class="text-5xl uppercase font-semibold">$entity_label</h1>
+                    <i class="ml-4 text-5xl text-pink-700">$entity_number</i>
                 </div>
                 <div class="flex">
                     <div class="flex justify-between flex-col">
