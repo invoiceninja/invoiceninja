@@ -1,7 +1,7 @@
 <?php
 namespace App\Services\Credit;
 
-use App\Credit;
+use App\Models\Credit;
 
 class CreditService
 {

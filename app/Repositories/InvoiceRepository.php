@@ -43,92 +43,9 @@ class InvoiceRepository extends BaseRepository {
 	 *
 	 * @return     Invoice|InvoiceSum|\App\Models\Invoice|null  Returns the invoice object
 	 */
-	public function save($data, Invoice $invoice):?Invoice {
-
-		/* Always carry forward the initial invoice amount this is important for tracking client balance changes later......*/
-		$starting_amount = $invoice->amount;
-
-		if(!$invoice->id) {
-			$client = Client::find($data['client_id']);
-			$invoice->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
-		}
-
-		$invoice->fill($data);
-
-		$invoice->save();
-
-		if (isset($data['client_contacts'])) {
-			foreach ($data['client_contacts'] as $contact) {
-				if ($contact['send_email'] == 1 && is_string($contact['id'])) {
-					$client_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
-					$client_contact->send_email = true;
-					$client_contact->save();
-				}
-			}
-		}
-
-		if (isset($data['invitations'])) {
-			$invitations = collect($data['invitations']);
-
-			/* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-			$invoice->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
-					
-				$invite = $this->getInvitationByKey($invitation);
-
-				if($invite)
-					$invite->forceDelete();
-
-			});
-
-			foreach ($data['invitations'] as $invitation) {
-				$inv = false;
-
-				if (array_key_exists('key', $invitation)) {
-					$inv = $this->getInvitationByKey($invitation['key']);
-				}
-
-				if (!$inv) {
-
-					if (isset($invitation['id'])) {
-						unset($invitation['id']);
-					}
-
-					$new_invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
-					//$new_invitation->fill($invitation);
-					$new_invitation->invoice_id        = $invoice->id;
-					$new_invitation->client_contact_id = $invitation['client_contact_id'];
-					$new_invitation->save();
-
-				}
-			}
-		}
-
-
-		$invoice->load('invitations');
-
-		/* If no invitations have been created, this is our fail safe to maintain state*/
-		if ($invoice->invitations->count() == 0) {
-			$invoice->service()->createInvitations();
-		}
-
-		$invoice = $invoice->calc()->getInvoice();
-
-		$invoice->save();
-
-		$finished_amount = $invoice->amount;
-
-		/**/
-		if (($finished_amount != $starting_amount) && ($invoice->status_id != Invoice::STATUS_DRAFT)) {
-			$invoice->ledger()->updateInvoiceBalance(($finished_amount-$starting_amount));
-		}
-
-		$invoice = $invoice->service()->applyNumber()->save();
-
-		if ($invoice->company->update_products !== false) {
-			UpdateOrCreateProduct::dispatch($invoice->line_items, $invoice, $invoice->company);
-		}
-
-		return $invoice->fresh();
+	public function save($data, Invoice $invoice):?Invoice
+	{
+		return $this->alternativeSave($data, $invoice);
 	}
 
 	/**
@@ -140,10 +57,5 @@ class InvoiceRepository extends BaseRepository {
 	 */
 	public function markSent(Invoice $invoice):?Invoice {
 		return $invoice->service()->markSent()->save();
-	}
-
-	public function getInvitationByKey($key)
-	{
-		return InvoiceInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
 	}
 }
