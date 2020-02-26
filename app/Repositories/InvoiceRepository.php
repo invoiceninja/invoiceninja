@@ -12,8 +12,8 @@
 namespace App\Repositories;
 
 use App\Factory\InvoiceInvitationFactory;
-
 use App\Jobs\Product\UpdateOrCreateProduct;
+use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
@@ -47,6 +47,11 @@ class InvoiceRepository extends BaseRepository {
 
 		/* Always carry forward the initial invoice amount this is important for tracking client balance changes later......*/
 		$starting_amount = $invoice->amount;
+
+		if(!$invoice->id) {
+			$client = Client::find($data['client_id']);
+			$invoice->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
+		}
 
 		$invoice->fill($data);
 
