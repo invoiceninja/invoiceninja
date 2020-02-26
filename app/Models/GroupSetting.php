@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
 class GroupSetting extends StaticModel
 {
     use MakesHash;
+    use SoftDeletes;
     
     public $timestamps = false;
 

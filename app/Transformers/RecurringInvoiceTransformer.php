@@ -87,6 +87,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'balance' => (float) $invoice->balance ?: '',
             'client_id' => (string) $invoice->client_id,
             'status_id' => (string) ($invoice->status_id ?: 1),
+            'created_at' => (int)$invoice->created_at,
             'updated_at' => (int)$invoice->updated_at,
             'archived_at' => (int)$invoice->deleted_at,
             'discount' => (float) $invoice->discount ?: '',

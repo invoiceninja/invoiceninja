@@ -12,9 +12,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Document extends BaseModel
 {
+    use SoftDeletes;
+    
     const DOCUMENT_PREVIEW_SIZE = 300; // pixels
 
     /**

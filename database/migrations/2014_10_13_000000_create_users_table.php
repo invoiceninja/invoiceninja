@@ -135,7 +135,6 @@ class CreateUsersTable extends Migration
             $table->string('referral_code')->nullable();
 
             $table->timestamps(6);
-            $table->softDeletes('deleted_at', 6);
         });
         
         Schema::create('companies', function (Blueprint $table) {
@@ -232,6 +231,7 @@ class CreateUsersTable extends Migration
             $table->string('custom_value2')->nullable();
             $table->string('custom_value3')->nullable();
             $table->string('custom_value4')->nullable();
+            $table->softDeletes('deleted_at', 6);
 
             $table->unsignedInteger('documentable_id');
             $table->string('documentable_type');
@@ -292,7 +292,9 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('user_id');
             $table->string('token')->nullable();
             $table->string('name')->nullable();
-            
+            $table->timestamps(6);
+            $table->softDeletes('deleted_at', 6);
+
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
@@ -405,6 +407,7 @@ class CreateUsersTable extends Migration
             $table->boolean('show_billing_address')->default(true)->nullable();
             $table->boolean('show_shipping_address')->default(true)->nullable();
             $table->boolean('update_details')->default(false)->nullable();
+            $table->boolean('is_deleted')->default(false);
             $table->mediumText('config');
             $table->text('fees_and_limits');
             $table->string('custom_value1')->nullable();
@@ -1153,6 +1156,8 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('user_id')->nullable();
             $table->string('name')->nullable();
             $table->mediumText('settings')->nullable();
+            $table->softDeletes('deleted_at', 6);
+            $table->timestamps(6);
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
         });
@@ -1371,7 +1376,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_active')->default(true);
             $table->mediumText('design')->nullable();
             $table->timestamps(6);
-            
+            $table->softDeletes('deleted_at', 6);
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
 
         });

@@ -34,6 +34,7 @@ class ClientContactTransformer extends EntityTransformer
             'first_name' => $contact->first_name ?: '',
             'last_name' => $contact->last_name ?: '',
             'email' => $contact->email ?: '',
+            'created_at' => (int)$contact->created_at,
             'updated_at' => (int)$contact->updated_at,
             'archived_at' => (int)$contact->deleted_at,
             'is_primary' => (bool) $contact->is_primary,

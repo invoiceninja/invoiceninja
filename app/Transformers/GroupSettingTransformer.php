@@ -42,6 +42,10 @@ class GroupSettingTransformer extends EntityTransformer
             'id' => $this->encodePrimaryKey($group_setting->id),
             'name' => (string)$group_setting->name ?: '',
             'settings' => $group_setting->settings ?: new \stdClass,
+            'created_at' => (int)$group_setting->created_at,
+            'updated_at' => (int)$group_setting->updated_at,
+            'archived_at' => (int)$group_setting->deleted_at,
+            'is_deleted' => (bool) $group_setting->is_deleted,
         ];
     }
 }

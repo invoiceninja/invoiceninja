@@ -108,6 +108,7 @@ class CompanyTransformer extends EntityTransformer
             'enabled_tax_rates' => (int)$company->enabled_tax_rates,
             'updated_at' => (int)$company->updated_at,
             'archived_at' => (int)$company->deleted_at,
+            'created_at' =>(int)$company->created_at,
         ];
     }
 

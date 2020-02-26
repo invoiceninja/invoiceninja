@@ -72,6 +72,7 @@ class PaymentTransformer extends EntityTransformer
             'transaction_reference' => $payment->transaction_reference ?: '',
             'date' => $payment->date ?: '',
             'is_manual' => (bool) $payment->is_manual,
+            'created_at' => (int)$payment->created_at,
             'updated_at' => (int)$payment->updated_at,
             'archived_at' => (int)$payment->deleted_at,
             'is_deleted' => (bool) $payment->is_deleted,

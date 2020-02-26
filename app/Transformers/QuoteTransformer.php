@@ -84,6 +84,7 @@ class QuoteTransformer extends EntityTransformer
             'invoice_id' => (string) ($quote->invoice_id ?: 1),
             'updated_at' => (int)$quote->updated_at,
             'archived_at' => (int)$quote->deleted_at,
+            'created_at' => (int)$quote->created_at,
             'number' => $quote->number ?: '',
             'discount' => (float) $quote->discount,
             'po_number' => $quote->po_number ?: '',

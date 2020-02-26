@@ -94,6 +94,7 @@ class VendorTransformer extends EntityTransformer
             'id_number' => $vendor->id_number ?: '',
             'updated_at' => (int)$vendor->updated_at,
             'archived_at' => (int)$vendor->deleted_at,
+            'created_at' => (int)$vendor->created_at,
         ];
     }
 }
