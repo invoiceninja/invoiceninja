@@ -1,6 +1,6 @@
 <div id="header" class="border-b {{ isset($logo) ? 'p-6' : '' }} flex justify-center">
     @isset($logo)
-        <img src="{{ $logo }}" style="height: 3rem;">
+        <img src="{{ $logo }}" style="height: 6rem;">
     @endisset
 </div>
 
