@@ -381,7 +381,7 @@ class CompanySettings extends BaseSettings {
 		'counter_padding'                    => 'integer',
 		'design'                             => 'string',
 		'website'                            => 'string',
-		'pdf_variables'                  	 => 'array',
+		'pdf_variables'                  	 => 'object',
 	];
 
 	/**
