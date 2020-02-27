@@ -192,8 +192,8 @@ class CompanySettings extends BaseSettings {
 	public $late_fee_endless_amount       = 0;
 	public $late_fee_endless_percent      = 0;
 
-	public $client_online_payment_notification = true;
-	public $client_manual_payment_notification = true;
+	public $client_online_payment_notification = true; //@todo implement in notifications
+	public $client_manual_payment_notification = true; //@todo implement in notifications
 
 	public $system_notifications_slack = '';
 	public $system_notifications_email = '';
@@ -381,7 +381,7 @@ class CompanySettings extends BaseSettings {
 		'counter_padding'                    => 'integer',
 		'design'                             => 'string',
 		'website'                            => 'string',
-		'pdf_variables'                  => 'object',
+		'pdf_variables'                  	 => 'array',
 	];
 
 	/**

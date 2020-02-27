@@ -11,7 +11,6 @@
  *       @OA\Property(property="portal_domain", type="string", example="https://subdomain.invoicing.co", description="The fully qualified domain for client facing URLS"),
  *       @OA\Property(property="enabled_tax_rates", type="integer", example="1", description="Number of taxes rates used per entity"),
  *       @OA\Property(property="fill_products", type="boolean", example=true, description="Toggles filling a product description based on product key"),
- *       @OA\Property(property="enable_invoice_quantity", type="boolean", example=true, description="Toggles filling a product description based on product key"),
  *       @OA\Property(property="convert_products", type="boolean", example=true, description="___________"),
  *       @OA\Property(property="update_products", type="boolean", example=true, description="Toggles updating a product description which description changes"),
  *       @OA\Property(property="show_product_details", type="boolean", example=true, description="Toggles showing a product description which description changes"),

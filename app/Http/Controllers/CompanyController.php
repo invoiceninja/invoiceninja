@@ -460,8 +460,12 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
-        $company->delete();
 
+        $company->delete();
+        
+        //@TODO if last company, delete the account also.
+        
         return response()->json([], 200);
+        
     }
 }

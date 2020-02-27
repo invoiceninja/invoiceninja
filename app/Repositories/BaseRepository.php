@@ -179,18 +179,14 @@ class BaseRepository
         $class = new ReflectionClass($model);        
         $state = [];
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
+        $lcfirst_resource_id = lcfirst($resource) . '_id';
 
-        if ($class->name == 'App\Models\Invoice') {
+        if ($class->name == Invoice::class || $class->name == Quote::class) 
             $state['starting_amount'] = $model->amount;
 
-            if (!$model->id) {
-                $client = Client::find($data['client_id']);
-                $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
-            }
-        }
-
-        if ($class->name == 'App\Models\Quote') {
-            $state['starting_amount'] = $model->amount;
+        if (!$model->id) {
+            $client = Client::find($data['client_id']);
+            $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
         }
 
         $model->fill($data);
@@ -234,7 +230,7 @@ class BaseRepository
                     }
 
                     $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
-                    $new_invitation->quote_id = $model->id;
+                    $new_invitation->{$lcfirst_resource_id} = $model->id;
                     $new_invitation->client_contact_id = $this->decodePrimaryKey($invitation['client_contact_id']);
                     $new_invitation->save();
 
@@ -253,7 +249,7 @@ class BaseRepository
 
 		$model = $model->service()->applyNumber()->save();
 
-        if ($class->name == 'App\Models\Invoice') {
+        if ($class->name == Invoice::class) {
             
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
@@ -267,11 +263,11 @@ class BaseRepository
 
         }
 
-        if ($class->name == 'App\Models\Credit') {
+        if ($class->name == Credit::class) {
             $model = $model->calc()->getCredit();
         }
         
-        if ($class->name == 'App\Models\Quote') {
+        if ($class->name == Quote::class) {
             $model = $model->calc()->getQuote();
         }
 
