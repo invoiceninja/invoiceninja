@@ -67,7 +67,7 @@ class CreateUsersTable extends Migration
             $table->string('decimal_separator');
             $table->string('code');
             $table->boolean('swap_currency_symbol')->default(false);
-            $table->decimal('exchange_rate', 6, 6);
+            $table->decimal('exchange_rate', 6, 6)->default(1);
 
         });
 
@@ -154,7 +154,7 @@ class CreateUsersTable extends Migration
             $table->boolean('custom_surcharge_taxes2')->default(false);
             $table->boolean('custom_surcharge_taxes3')->default(false);
             $table->boolean('custom_surcharge_taxes4')->default(false);
-            $table->boolean('enable_invoice_quantity')->default(true);
+            //$table->boolean('enable_invoice_quantity')->default(true);
             $table->boolean('show_product_cost')->default(false);
             $table->unsignedInteger('enabled_tax_rates')->default(1);
             $table->unsignedInteger('enabled_modules')->default(0);
