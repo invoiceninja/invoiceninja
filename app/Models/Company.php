@@ -63,7 +63,6 @@ class Company extends BaseModel
         'enable_product_quantity',
         'enabled_modules',
         'default_quantity',
-        'enable_invoice_quantity',
         'enabled_tax_rates',
         'portal_mode',
         'portal_domain',

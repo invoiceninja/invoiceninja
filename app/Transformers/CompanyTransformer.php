@@ -91,7 +91,6 @@ class CompanyTransformer extends EntityTransformer
             'custom_surcharge_taxes3' => (bool)$company->custom_surcharge_taxes3,
             'custom_surcharge_taxes4' => (bool)$company->custom_surcharge_taxes4,
             'show_product_cost' => (bool)$company->show_product_cost,
-            'enable_invoice_quantity' => (bool)$company->enable_invoice_quantity,
             'enable_product_cost' => (bool)$company->enable_product_cost,
             'show_product_details' => (bool)$company->show_product_details,
             'enable_product_quantity' => (bool)$company->enable_product_quantity,
