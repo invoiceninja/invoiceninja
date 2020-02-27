@@ -1,19 +1,19 @@
-@component('email.components.layout')
+@component('email.template.master', ['design' => 'light'])
 
 @slot('header')
-    @component('email.components.header', ['p' => ''])
-        <img src="{{ $logo }}" alt="Company Logo" style="display: block">
+    @component('email.components.header', ['p' => '', 'logo' => $url])
+    	@lang('texts.download')
     @endcomponent
+
+@endslot
+
+@slot('greeting')
 @endslot
 
 @lang('texts.download_timeframe')
 
-@component('email.components.button', ['url' => $url])
-    @lang('texts.download')
-@endcomponent
-
 @slot('signature')
-    InvoiceNinja
+    InvoiceNinja (contact@invoiceninja.com)
 @endslot
 
 @slot('footer')
