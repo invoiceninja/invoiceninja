@@ -1,18 +1,18 @@
 'use strict';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "/main.dart.js": "fa2c639a9577f242475de037e8c3c909",
-"/index.html": "2b291048759a26809bc606c981d175ad",
-"/assets/FontManifest.json": "280b2f61f6810d59bd1bcd4cf01d3bf4",
-"/assets/packages/font_awesome_flutter/lib/fonts/fa-regular-400.ttf": "bdd8d75eb9e6832ccd3117e06c51f0d3",
-"/assets/packages/font_awesome_flutter/lib/fonts/fa-solid-900.ttf": "d21f791b837673851dd14f7c132ef32e",
-"/assets/packages/font_awesome_flutter/lib/fonts/fa-brands-400.ttf": "3ca122272cfac33efb09d0717efde2fa",
-"/assets/LICENSE": "0134b30d1e80505d7a68fb6fa8d3e2cd",
-"/assets/AssetManifest.json": "90d7b27343fcf361dbf6385b3055ce4f",
-"/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
-"/assets/fonts/MaterialIcons-Regular.ttf": "56d3ffdef7a25659eab6a68a3fbfaf16",
+  "/assets/LICENSE": "faaa5d8d775756d7b9c4212cef78d944",
 "/assets/assets/images/logo.png": "090f69e23311a4b6d851b3880ae52541",
-"/assets/web/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2"
+"/assets/FontManifest.json": "280b2f61f6810d59bd1bcd4cf01d3bf4",
+"/assets/packages/font_awesome_flutter/lib/fonts/fa-brands-400.ttf": "51d23d1c30deda6f34673e0d5600fd38",
+"/assets/packages/font_awesome_flutter/lib/fonts/fa-solid-900.ttf": "0ea892e09437fcaa050b2b15c53173b7",
+"/assets/packages/font_awesome_flutter/lib/fonts/fa-regular-400.ttf": "d51b09f7b8345b41dd3b2201f653c62b",
+"/assets/fonts/MaterialIcons-Regular.ttf": "56d3ffdef7a25659eab6a68a3fbfaf16",
+"/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
+"/assets/web/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
+"/assets/AssetManifest.json": "90d7b27343fcf361dbf6385b3055ce4f",
+"/index.html": "2b291048759a26809bc606c981d175ad",
+"/main.dart.js": "5e5593824cbd3d093e66998564ee8860"
 };
 
 self.addEventListener('activate', function (event) {
@@ -34,9 +34,7 @@ self.addEventListener('fetch', function (event) {
         if (response) {
           return response;
         }
-        return fetch(event.request, {
-          credentials: 'include'
-        });
+        return fetch(event.request);
       })
   );
 });
