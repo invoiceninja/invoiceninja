@@ -12,7 +12,7 @@ const RESOURCES = {
 "/assets/web/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
 "/assets/AssetManifest.json": "90d7b27343fcf361dbf6385b3055ce4f",
 "/index.html": "2b291048759a26809bc606c981d175ad",
-"/main.dart.js": "5e5593824cbd3d093e66998564ee8860"
+"/main.dart.js": "84089bd9b264622fd945ed317530fcb9"
 };
 
 self.addEventListener('activate', function (event) {
