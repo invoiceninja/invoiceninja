@@ -59,7 +59,8 @@ class NewAccountCreated extends Notification implements ShouldQueue
             'message' => ctrans('texts.new_signup_text', ['user' => $user_name, 'email' => $email, 'ip' => $ip]),
             'url' => config('ninja.web_url'),
             'button' => ctrans('texts.account_login'),
-            'signature' => '',
+            'signature' => $this->company->settings->email_signature,
+            'logo' => $this->company->present()->logo(),
         ];
 
 

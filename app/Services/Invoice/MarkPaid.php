@@ -45,6 +45,7 @@ class MarkPaid extends AbstractService
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
         $payment->amount = $this->invoice->balance;
+        $payment->applied = $this->invoice->balance;
         $payment->number = $this->getNextPaymentNumber($this->invoice->client);
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
