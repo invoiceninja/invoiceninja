@@ -53,25 +53,35 @@ class ValidInvoicesRules implements Rule
     {
 
         if(!array_key_exists('client_id', $this->input)){
-            \Log::error("Client id is required");
             $this->error_msg = "Client id is required";
             return false;
         }
 
+        $unique_array = [];
+
     	foreach($this->input['invoices'] as $invoice)
     	{
-            $invoice = Invoice::whereId($invoice)->first();
+           $unique_array[] = $invoice['invoice_id'];
 
-            if(!$invoice){
+            $inv = Invoice::whereId($invoice['invoice_id'])->first();
+
+            if(!$inv){
                 $this->error_msg = "Invoice not found ";
                 return false;
             }
 
-    		if($invoice->client_id != $this->input['client_id']){
+    		if($inv->client_id != $this->input['client_id']){
                 $this->error_msg = "Selected invoices are not from a single client";
     			return false;
             }
     	}
+
+        if(!(array_unique($unique_array) == $unique_array))
+        {
+            $this->error_msg = "Duplicate invoices submitted.";
+            return false;
+        }
+
 
         return true;
 

@@ -90,7 +90,7 @@ class StorePaymentRequest extends Request
             'amount' => [new PaymentAmountsBalanceRule(),new ValidCreditsPresentRule()],
             'date' => 'required',
             'client_id' => 'bail|required|exists:clients,id',
-            'invoices.*.invoice_id' => 'required|exists:invoices,id',
+            'invoices.*.invoice_id' => 'required|distinct|exists:invoices,id',
             'invoices.*.invoice_id' => new ValidInvoicesRules($this->all()),
             'invoices.*.amount' => 'required',
             'credits.*.credit_id' => 'required|exists:credits,id',

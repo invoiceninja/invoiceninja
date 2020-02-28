@@ -1171,7 +1171,7 @@ class PaymentTest extends TestCase
     }
 
 
-    public function paymentWithSameInvoiceMultipleTimes()
+    public function testPaymentWithSameInvoiceMultipleTimes()
     {
 
         $client1 = ClientFactory::create($this->company->id, $this->user->id);
@@ -1194,7 +1194,7 @@ class PaymentTest extends TestCase
 
 
         $data = [
-            'amount' => $invoice1->amount + $invoice2->amount,
+            'amount' => $invoice1->amount,
             'client_id' => $client1->hashed_id,
             'invoices' => [
                 [
@@ -1227,16 +1227,7 @@ class PaymentTest extends TestCase
 
         }
 
-        $response->assertStatus(200);
-
-        $arr = $response->json();
-
-            $payment_id = $arr['data']['id'];
-
-            $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
-
-
-            $this->assertEquals(2, $payment->applied);
-        }
+        $this->assertNull($response);
+    }
 
 }
