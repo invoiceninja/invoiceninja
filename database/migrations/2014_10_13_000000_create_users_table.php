@@ -1378,6 +1378,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_custom')->default(true);
             $table->boolean('is_active')->default(true);
             $table->mediumText('design')->nullable();
+            $table->boolean('is_deleted')->default(false);
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');

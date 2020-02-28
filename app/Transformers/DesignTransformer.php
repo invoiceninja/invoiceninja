@@ -51,6 +51,7 @@ class DesignTransformer extends EntityTransformer
             'updated_at' => (int)$design->updated_at,
             'archived_at' => (int)$design->deleted_at,
             'created_at' => (int)$design->created_at,
+            'is_deleted' => (bool)$design->is_deleted,
         ];
     }
 
