@@ -1170,4 +1170,73 @@ class PaymentTest extends TestCase
         
     }
 
+
+    public function paymentWithSameInvoiceMultipleTimes()
+    {
+
+        $client1 = ClientFactory::create($this->company->id, $this->user->id);
+        $client1->save();
+
+        $invoice1 = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $invoice1->client_id = $client1->id;
+        $invoice1->status_id = Invoice::STATUS_SENT;
+
+        $invoice1->line_items = $this->buildLineItems();
+        $invoice1->uses_inclusive_Taxes = false;
+
+        $invoice1->save();
+
+        $invoice_calc = new InvoiceSum($invoice1);
+        $invoice_calc->build();
+
+        $invoice1 = $invoice_calc->getInvoice();
+        $invoice1->save();
+
+
+        $data = [
+            'amount' => $invoice1->amount + $invoice2->amount,
+            'client_id' => $client1->hashed_id,
+            'invoices' => [
+                [
+                'invoice_id' => $invoice1->hashed_id,
+                'amount' => 1
+                ],
+                [
+                'invoice_id' => $invoice1->hashed_id,
+                'amount' => 1
+                ]
+            ],
+            'date' => '2020/12/12',
+
+        ];
+
+        $response = null;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments?include=invoices', $data);
+
+        }
+        catch(ValidationException $e) {
+           // \Log::error('in the validator');
+            $message = json_decode($e->validator->getMessageBag(),1);
+            \Log::error($message);
+            $this->assertNotNull($message);
+
+        }
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+            $payment_id = $arr['data']['id'];
+
+            $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
+
+
+            $this->assertEquals(2, $payment->applied);
+        }
+
 }
