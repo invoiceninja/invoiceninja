@@ -67,7 +67,7 @@ class CreateUsersTable extends Migration
             $table->string('decimal_separator');
             $table->string('code');
             $table->boolean('swap_currency_symbol')->default(false);
-            $table->decimal('exchange_rate', 6, 6)->default(1);
+            $table->decimal('exchange_rate', 13, 6)->default(1);
 
         });
 
@@ -175,6 +175,9 @@ class CreateUsersTable extends Migration
             $table->mediumText('custom_fields');
             $table->mediumText('settings');
             
+            $table->string('slack_webhook_url');
+            $table->string('google_analytics_url');
+
             $table->timestamps(6);
             //$table->softDeletes('deleted_at', 6);
             
@@ -1375,6 +1378,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_custom')->default(true);
             $table->boolean('is_active')->default(true);
             $table->mediumText('design')->nullable();
+            $table->boolean('is_deleted')->default(false);
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');

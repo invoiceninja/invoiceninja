@@ -11,16 +11,27 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Design extends BaseModel
 {
 
+    use Filterable;
+    use SoftDeletes;
+
     protected $casts = [
         'design' => 'object',
+        'deleted_at' => 'timestamp',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
+    ];
+
+    protected $fillable = [
+        'name',
+        'design',
+        'is_active',
     ];
 
     public function company()

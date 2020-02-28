@@ -88,6 +88,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
 		Route::post('migrate', 'MigrationController@index')->name('migrate.start');
 
+		Route::resource('designs', 'DesignController');// name = (payments. index / create / show / update / destroy / edit
+
 		//  Route::resource('users', 'UserController')->middleware('password_protected'); // name = (users. index / create / show / update / destroy / edit
 		Route::get('users', 'UserController@index');
 		Route::put('users/{user}', 'UserController@update')->middleware('password_protected');
