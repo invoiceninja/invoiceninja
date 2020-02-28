@@ -195,9 +195,6 @@ class CompanySettings extends BaseSettings {
 	public $client_online_payment_notification = true; //@todo implement in notifications
 	public $client_manual_payment_notification = true; //@todo implement in notifications
 
-	public $system_notifications_slack = '';
-	public $system_notifications_email = '';
-
 	/* Company Meta data that we can use to build sub companies*/
 
 	public $name         = '';
@@ -225,8 +222,6 @@ class CompanySettings extends BaseSettings {
 	public $pdf_variables = [];
 
 	public static $casts = [
-		'system_notifications_slack'		 => 'string',
-		'system_notifications_email'		 => 'string',
 		'portal_design_id'					 => 'string',
 		'late_fee_endless_percent'           => 'float',
 		'late_fee_endless_amount'            => 'float',

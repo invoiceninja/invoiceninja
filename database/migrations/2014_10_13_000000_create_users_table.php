@@ -175,6 +175,9 @@ class CreateUsersTable extends Migration
             $table->mediumText('custom_fields');
             $table->mediumText('settings');
             
+            $table->string('slack_webhook_url');
+            $table->string('google_analytics_url');
+
             $table->timestamps(6);
             //$table->softDeletes('deleted_at', 6);
             

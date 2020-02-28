@@ -75,8 +75,10 @@ class Company extends BaseModel
         'show_product_details',
         'first_day_of_week',
         'first_month_of_year',
-
+        'slack_webhook_url',
+        'google_analytics_url',
     ];
+
 
     protected $hidden = [
         'id',
