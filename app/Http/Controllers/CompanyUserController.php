@@ -129,7 +129,12 @@ class CompanyUserController extends BaseController
             $company = auth()->user()->company();
 
             if(auth()->user()->isAdmin()){
-                $user->fill($request->all());
+                $user_array = $request->all();
+                
+                if(array_key_exists('company', $user_array));
+                    unset($user_array['company_user']);
+
+                $user->fill($user_array);
                 $user->save();
             }
 

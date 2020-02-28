@@ -3,6 +3,7 @@
 namespace Tests\Integration;
 
 use App\Models\CompanyUser;
+use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -28,6 +29,8 @@ class UpdateCompanyUserTest extends TestCase
 
     public function testUpdatingCompanyUserAsAdmin()
     {
+        User::unguard();
+
         $settings = new \stdClass;
         $settings->invoice = 'ninja';
 
