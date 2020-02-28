@@ -419,8 +419,8 @@ class PaymentTest extends TestCase
             catch(ValidationException $e) {
 
                 $message = json_decode($e->validator->getMessageBag(),1);
-                \Log::error($message);
-                \Log::error('errrr');
+                //\Log::error($message);
+                //\Log::error('errrr');
             }
 
             $arr = $response->json();
@@ -958,7 +958,7 @@ class PaymentTest extends TestCase
             \Log::error(print_r($e->validator->getMessageBag(),1));
 
             $this->assertTrue(array_key_exists('invoices', $message));
-            \Log::error('hit error');
+            //\Log::error('hit error');
         }
 
         $response->assertStatus(200);
@@ -1222,7 +1222,7 @@ class PaymentTest extends TestCase
         catch(ValidationException $e) {
            // \Log::error('in the validator');
             $message = json_decode($e->validator->getMessageBag(),1);
-            \Log::error($message);
+            //\Log::error($message);
             $this->assertNotNull($message);
 
         }
