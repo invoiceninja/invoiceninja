@@ -67,7 +67,7 @@ class CreateUsersTable extends Migration
             $table->string('decimal_separator');
             $table->string('code');
             $table->boolean('swap_currency_symbol')->default(false);
-            $table->decimal('exchange_rate', 6, 6)->default(1);
+            $table->decimal('exchange_rate', 13, 6)->default(1);
 
         });
 
