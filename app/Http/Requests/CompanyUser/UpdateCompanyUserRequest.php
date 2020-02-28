@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\Invoice;
+namespace App\Http\Requests\CompanyUser;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
@@ -39,20 +39,4 @@ class UpdateCompanyUserRequest extends Request
         return [];
     }
 
-    protected function prepareForValidation()
-    {
-        $input = $this->all();
-
-        $modified = [];
-
-        if(auth()->user()->isAdmin())
-          $modified = $input;
-        else{
-          $modified['company_user']['settings'] = $input['company_user']['settings'];
-          $modified['company_id'] = $this->decodePrimaryKey($input['company_id']);
-          $modified['user_id'] = $this->decodePrimaryKey($input['user_id']);
-        }
-
-        $this->replace($modified);
-    }
 }

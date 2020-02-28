@@ -159,6 +159,11 @@ class BaseController extends Controller
             }
         }
 
+        if (request()->has('updated_at') && request()->input('updated_at') > 0) {
+                $updated_at = intval(request()->input('updated_at'));
+                $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updated_at));
+        }
+
         $data = $this->createCollection($query, $transformer, $this->entity_type);
 
         return $this->response($data);

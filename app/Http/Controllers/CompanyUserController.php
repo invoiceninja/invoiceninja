@@ -11,7 +11,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Invoice\UpdateCompanyUserRequest;
+use App\Http\Requests\CompanyUser\UpdateCompanyUserRequest;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
@@ -128,13 +128,14 @@ class CompanyUserController extends BaseController
     {
             $company = auth()->user()->company();
 
-\Log::error($request->all());
+            if(auth()->user()->isAdmin()){
+                $user->fill($request->all());
+                $user->save();
+            }
 
             $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
-\Log::error($company_user);
-
-            $company_user->fill($request->all());
+            $company_user->fill($request->input('company_user'));
             $company_user->save();
 
             return $this->itemResponse($company_user->fresh());
