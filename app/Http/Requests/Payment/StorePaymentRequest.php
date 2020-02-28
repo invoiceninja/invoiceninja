@@ -12,9 +12,10 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\ValidPayableInvoicesRule;
 use App\Http\ValidationRules\PaymentAmountsBalanceRule;
+use App\Http\ValidationRules\Payment\ValidInvoicesRules;
 use App\Http\ValidationRules\ValidCreditsPresentRule;
+use App\Http\ValidationRules\ValidPayableInvoicesRule;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 
@@ -88,8 +89,9 @@ class StorePaymentRequest extends Request
             'amount' => 'numeric|required',
             'amount' => [new PaymentAmountsBalanceRule(),new ValidCreditsPresentRule()],
             'date' => 'required',
-            'client_id' => 'required|exists:clients,id',
+            'client_id' => 'bail|required|exists:clients,id',
             'invoices.*.invoice_id' => 'required|exists:invoices,id',
+            'invoices.*.invoice_id' => new ValidInvoicesRules($this->all()),
             'invoices.*.amount' => 'required',
             'credits.*.credit_id' => 'required|exists:credits,id',
             'credits.*.amount' => 'required',

@@ -396,7 +396,6 @@ class PaymentTest extends TestCase
         $this->invoice->is_deleted = false;
         $this->invoice->save();
 
-
         $data = [
             'amount' => 6.0,
             'client_id' => $client->hashed_id,
@@ -420,13 +419,13 @@ class PaymentTest extends TestCase
             catch(ValidationException $e) {
 
                 $message = json_decode($e->validator->getMessageBag(),1);
-
                 \Log::error($message);
+                \Log::error('errrr');
             }
 
             $arr = $response->json();
             $response->assertStatus(200);
-
+            
             $payment_id = $arr['data']['id'];
 
             $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
@@ -1095,6 +1094,80 @@ class PaymentTest extends TestCase
         $this->assertEquals(round($payment->amount,2), $this->invoice->amount);
     
         $this->assertEquals(round($payment->applied,2), $this->invoice->amount);
+    }
+
+    public function testPaymentForInvoicesFromDifferentClients()
+    {
+
+        $client1 = ClientFactory::create($this->company->id, $this->user->id);
+        $client1->save();
+
+        $client2 = ClientFactory::create($this->company->id, $this->user->id);
+        $client2->save();
+
+
+        $invoice1 = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $invoice1->client_id = $client1->id;
+        $invoice1->status_id = Invoice::STATUS_SENT;
+
+        $invoice1->line_items = $this->buildLineItems();
+        $invoice1->uses_inclusive_Taxes = false;
+
+        $invoice1->save();
+
+        $invoice_calc = new InvoiceSum($invoice1);
+        $invoice_calc->build();
+
+        $invoice1 = $invoice_calc->getInvoice();
+        $invoice1->save();
+
+        $invoice2 = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $invoice2->client_id = $client2->id;
+        $invoice2->status_id = Invoice::STATUS_SENT;
+
+        $invoice2->line_items = $this->buildLineItems();
+        $invoice2->uses_inclusive_Taxes = false;
+
+        $invoice2->save();
+
+        $invoice_calc = new InvoiceSum($invoice2);
+        $invoice_calc->build();
+
+        $invoice2 = $invoice_calc->getInvoice();
+        $invoice2->save();
+
+        $data = [
+            'amount' => $invoice1->amount + $invoice2->amount,
+            'client_id' => $client1->hashed_id,
+            'invoices' => [
+                [
+                'invoice_id' => $invoice1->hashed_id,
+                'amount' => $invoice1->amount
+                ],
+                [
+                'invoice_id' => $invoice2->hashed_id,
+                'amount' => $invoice2->amount
+                ]
+            ],
+            'date' => '2020/12/12',
+
+        ];
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments?include=invoices', $data);
+
+        }
+        catch(ValidationException $e) {
+           // \Log::error('in the validator');
+            $message = json_decode($e->validator->getMessageBag(),1);
+            \Log::error($message);
+            $this->assertNotNull($message);
+
+        }
+        
     }
 
 }
