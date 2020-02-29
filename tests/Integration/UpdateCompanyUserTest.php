@@ -13,6 +13,7 @@ use Tests\TestCase;
 
 /**
  * @test
+ * @covers App\Http\Controllers\CompanyUserController
  */
 class UpdateCompanyUserTest extends TestCase
 {
@@ -39,7 +40,6 @@ class UpdateCompanyUserTest extends TestCase
 
         $this->user->company_user = $company_user;
 
-        $user['first_name'] = 'sausage';
         $user['company_user'] = $company_user->toArray();
 
         $response = null;

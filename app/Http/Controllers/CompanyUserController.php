@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ModelNotFoundException;
 use App\Http\Requests\CompanyUser\UpdateCompanyUserRequest;
 use App\Models\CompanyUser;
 use App\Models\User;
@@ -128,19 +129,21 @@ class CompanyUserController extends BaseController
     {
             $company = auth()->user()->company();
 
-            if(auth()->user()->isAdmin()){
-                $user_array = $request->all();
-                
-                if(array_key_exists('company', $user_array));
-                    unset($user_array['company_user']);
-
-                $user->fill($user_array);
-                $user->save();
-            }
-
+            
             $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
-            $company_user->fill($request->input('company_user'));
+            if(!$company_user){
+                throw new ModelNotFoundException("Company User record not found");
+                return;
+            }
+
+            if(auth()->user()->isAdmin()){
+                $company_user->fill($request->input('company_user'));
+            }
+            else {
+                $company_user->fill($request->input('company_user')['settings']);
+            }
+            
             $company_user->save();
 
             return $this->itemResponse($company_user->fresh());
