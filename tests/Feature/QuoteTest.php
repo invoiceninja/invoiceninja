@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
@@ -43,6 +44,11 @@ class QuoteTest extends TestCase
 
         $this->makeTestData();
 
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
+
+
     }
 
     public function testQuoteList()
@@ -60,12 +66,27 @@ class QuoteTest extends TestCase
     public function testQuoteRESTEndPoints()
     {
 
-        $response = $this->withHeaders([
+
+
+        $response = null;
+
+        try{
+            $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/quotes/'.$this->encodePrimaryKey($this->quote->id));
+        }
+        catch(ValidationException $e) {
 
-        $response->assertStatus(200);
+            $message = json_decode($e->validator->getMessageBag(),1);
+
+            \Log::error($message);
+        }
+        
+        if($response)
+            $response->assertStatus(200);
+
+        $this->assertNotNull($response);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
