@@ -11,8 +11,8 @@ const RESOURCES = {
 "/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
 "/assets/web/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
 "/assets/AssetManifest.json": "90d7b27343fcf361dbf6385b3055ce4f",
-"/index.html": "2b291048759a26809bc606c981d175ad",
-"/main.dart.js": "a461b65bf5b7bc5621c1b9588e6bfff4",
+"/index.html": "02f52d8ed33971b0d7a938e631e89401",
+"/main.dart.js": "1b8870d50aa9d89127fd824e829d6aee",
 "/favicon.ico": "51636d3a390451561744c42188ccd628"
 };
 
