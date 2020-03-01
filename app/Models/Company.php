@@ -325,7 +325,7 @@ class Company extends BaseModel
 
     public function domain()
     {
-        return 'https://' . $this->subdomain . config('ninja.app_domain');
+        return $this->subdomain . config('ninja.app_domain');
     }
 
     public function notification(Notification $notification)

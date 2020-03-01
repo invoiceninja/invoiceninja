@@ -42,6 +42,16 @@ class StoreClientRequest extends Request
         $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
+        $rules['contacts.*.password'] = [
+                                        'sometimes',
+                                        'string',
+                                        'min:7',             // must be at least 10 characters in length
+                                        'regex:/[a-z]/',      // must contain at least one lowercase letter
+                                        'regex:/[A-Z]/',      // must contain at least one uppercase letter
+                                        'regex:/[0-9]/',      // must contain at least one digit
+                                        //'regex:/[@$!%*#?&.]/', // must contain a special character
+                                        ];
+
 
 //        $contacts = request('contacts');
 
@@ -72,12 +82,24 @@ class StoreClientRequest extends Request
         {
             foreach($input['contacts'] as $key => $contact)
             {
-                if(is_numeric($contact['id']))
+                if(array_key_exists('id', $contact) && is_numeric($contact['id']))
                     unset($input['contacts'][$key]['id']);
-                elseif(is_string($contact['id']))
+                elseif(array_key_exists('id', $contact) && is_string($contact['id']))
                     $input['contacts'][$key]['id'] = $this->decodePrimaryKey($contact['id']);
+
+
+                //Filter the client contact password - if it is sent with ***** we should ignore it!
+                if(isset($contact['password']))
+                {
+                    $contact['password'] = str_replace("*", "", $contact['password']);
+
+                    if(strlen($contact['password']) == 0)
+                        unset($input['contacts'][$key]['password']);
+                }
+
             }
         }
+
 
         $this->replace($input);
     }

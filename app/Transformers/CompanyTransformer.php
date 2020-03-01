@@ -105,6 +105,7 @@ class CompanyTransformer extends EntityTransformer
             'portal_domain' => (string) $company->portal_domain ?: '',
             'settings' => $company->settings ?: '',
             'enabled_tax_rates' => (int)$company->enabled_tax_rates,
+            'enabled_modules' => (int)$company->enabled_modules,
             'updated_at' => (int)$company->updated_at,
             'archived_at' => (int)$company->deleted_at,
             'created_at' =>(int)$company->created_at,
