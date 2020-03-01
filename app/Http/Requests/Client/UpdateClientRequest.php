@@ -52,11 +52,11 @@ class UpdateClientRequest extends Request
         $rules['contacts.*.password'] = [
                                         'sometimes',
                                         'string',
-                                        'min:10',             // must be at least 10 characters in length
+                                        'min:7',             // must be at least 10 characters in length
                                         'regex:/[a-z]/',      // must contain at least one lowercase letter
                                         'regex:/[A-Z]/',      // must contain at least one uppercase letter
                                         'regex:/[0-9]/',      // must contain at least one digit
-                                        'regex:/[@$!%*#?&]/', // must contain a special character
+                                        //'regex:/[@$!%*#?&.]/', // must contain a special character
                                         ];
 
         return $rules;

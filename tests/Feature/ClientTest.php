@@ -18,6 +18,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
@@ -38,6 +39,9 @@ class ClientTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+
+        $this->withoutExceptionHandling();
+
 
     }
 
@@ -317,7 +321,7 @@ class ClientTest extends TestCase
             ])->post('/api/v1/clients/', $data)
                 ->assertStatus(200);
 
-            $arr = $response->json();
+            // $arr = $response->json();
 
             $data = [
                 'name' => 'A loyal Client',
@@ -335,7 +339,90 @@ class ClientTest extends TestCase
                 'X-API-TOKEN' => $token,
             ])->post('/api/v1/clients/', $data)
                 ->assertStatus(200);
-            
+
+
+            $data = [
+                'name' => 'A loyal Client',
+                'contacts' => [
+                    [
+                        'email' => $this->faker->unique()->safeEmail,
+                        'password' => '1'
+                    ]
+                ]
+            ];
+
+            $response = null;
+
+            try{
+                $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $token,
+                ])->post('/api/v1/clients/', $data);
+            }
+            catch(ValidationException $e) {
+
+                $message = json_decode($e->validator->getMessageBag(),1);
+                \Log::error($message);
+                $this->assertNotNull($message);
+            }
+
+            $data = [
+                'name' => 'A loyal Client',
+                'contacts' => [
+                    [
+                        'email' => $this->faker->unique()->safeEmail,
+                        'password' => '1Qajsj...33'
+                    ],
+                ]
+            ];
+
+            $response = null;
+
+            try{
+                $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $token,
+                ])->post('/api/v1/clients/', $data);
+            }
+            catch(ValidationException $e) {
+
+                $message = json_decode($e->validator->getMessageBag(),1);
+                //\Log::error($message);
+                //$this->assertNotNull($message);
+            }
+
+            $response->assertStatus(200);
+
+            $data = [
+                'name' => 'A loyal Client',
+                'contacts' => [
+                    [
+                        'email' => $this->faker->unique()->safeEmail,
+                        'password' => '1Qajsj...33'
+                    ],
+                    [
+                        'email' => $this->faker->unique()->safeEmail,
+                        'password' => '1234AAAAAaaaaa'
+                    ],
+                ]
+            ];
+
+            $response = null;
+
+            try{
+                $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $token,
+                ])->post('/api/v1/clients/', $data);
+            }
+            catch(ValidationException $e) {
+
+                $message = json_decode($e->validator->getMessageBag(),1);
+                \Log::error($message);
+                $this->assertNotNull($message);
+            }
+
+            $response->assertStatus(200);
 
         }
     /** @test */
