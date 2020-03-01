@@ -52,7 +52,7 @@ class UserRepository extends BaseRepository
             $company = auth()->user()->company();
             $account_id = $company->account->id;
 
-            $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
+            $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->withTrashed()->first();
 
             /*No company user exists - attach the user*/
             if (!$cu) {
@@ -60,10 +60,34 @@ class UserRepository extends BaseRepository
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
                 $cu->fill($data['company_user']);
+                $cu->restore();
+                $cu->tokens()->restore();
                 $cu->save();
             }
         }
 
         return $user;
+    }
+
+    public function destroy(array $data, User $user)
+    {
+
+        if(array_key_exists('company_user', $data))
+        {
+            $this->forced_includes = 'company_users';
+
+            $company = auth()->user()->company();
+
+            $cu = CompanyUser::whereUserId($user->id)
+                             ->whereCompanyId($company->id)
+                             ->first();
+
+            $cu->tokens()->delete();
+            $cu->delete();
+        }
+        else
+            $user->delete();
+    
+        return $user->fresh();
     }
 }
