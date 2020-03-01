@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Faker\Factory;
@@ -266,6 +267,60 @@ class ClientTest extends TestCase
             $this->assertEquals($client->contacts->count(), 3);
         }
 
+
+        public function testCreatingClientAndContacts()
+        {
+
+            $account = factory(\App\Models\Account::class)->create();
+            $company = factory(\App\Models\Company::class)->create([
+                'account_id' => $account->id,
+                 ]);
+
+            $account->default_company_id = $company->id;
+            $account->save();
+
+            $user = factory(\App\Models\User::class)->create([
+            //    'account_id' => $account->id,
+                'confirmation_code' => $this->createDbHash(config('database.default'))
+            ]);
+
+            $user->companies()->attach($company->id, [
+                'account_id' => $account->id,
+                'is_owner' => 1,
+                'is_admin' => 1,
+                'permissions' => '',
+                'settings' => '',
+                'is_locked' => 0,
+            ]);
+
+            $ct = CompanyToken::create([
+                'account_id' => $account->id,
+                'company_id' => $company->id,
+                'user_id' => $user->id,
+                'token' => \Illuminate\Support\Str::random(64),
+                'name' => $user->first_name. ' '. $user->last_name,
+                ]);
+            
+            $token = $ct->token;
+
+            $data = [
+                'name' => 'A loyal Client',
+                'contacts' => [
+                    ['email' => $this->faker->unique()->safeEmail]
+                ]
+            ];
+
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $token,
+            ])->post('/api/v1/clients/', $data)
+                ->assertStatus(200);
+
+            $arr = $response->json();
+
+            \Log::error($arr);
+        }
     /** @test */
     // public function testMassivelyCreatingClients()
     // {
