@@ -146,10 +146,12 @@ class CompanySettings extends BaseSettings {
 	public $email_subject_invoice           = '';
 	public $email_subject_quote             = '';
 	public $email_subject_payment           = '';
+	public $email_subject_payment_partial   = '';
 	public $email_subject_statement         = '';
 	public $email_template_invoice          = '';
 	public $email_template_quote            = '';
 	public $email_template_payment          = '';
+	public $email_template_payment_partial  = '';
 	public $email_template_statement        = '';
 	public $email_subject_reminder1         = '';
 	public $email_subject_reminder2         = '';
@@ -311,9 +313,11 @@ class CompanySettings extends BaseSettings {
 		'email_subject_invoice'              => 'string',
 		'email_subject_quote'                => 'string',
 		'email_subject_payment'              => 'string',
+		'email_subject_payment_partial'      => 'string',
 		'email_template_invoice'             => 'string',
 		'email_template_quote'               => 'string',
 		'email_template_payment'             => 'string',
+		'email_template_payment_partial'     => 'string',
 		'email_subject_reminder1'            => 'string',
 		'email_subject_reminder2'            => 'string',
 		'email_subject_reminder3'            => 'string',
@@ -333,8 +337,8 @@ class CompanySettings extends BaseSettings {
 		'invoice_footer'                     => 'string',
 		'invoice_labels'                     => 'string',
 		'invoice_terms'                      => 'string',
-		'credit_footer'                     => 'string',
-		'credit_terms'                      => 'string',
+		'credit_footer'                      => 'string',
+		'credit_terms'                       => 'string',
 		'name'                               => 'string',
 		'payment_terms'                      => 'integer',
 		'payment_type_id'                    => 'string',

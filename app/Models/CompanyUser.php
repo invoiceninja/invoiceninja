@@ -12,16 +12,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CompanyUser extends Pivot
 {
 
     use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
+    use SoftDeletes;
 
     //   protected $guarded = ['id'];
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
-
 
     /**
      * The attributes that should be cast to native types.
@@ -38,6 +39,7 @@ class CompanyUser extends Pivot
     protected $fillable = [
         'account_id',
         'permissions',
+        'notifications',
         'settings',
         'is_admin',
         'is_owner',

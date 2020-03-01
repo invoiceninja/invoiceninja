@@ -198,10 +198,13 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id')->index();
             $table->mediumText('permissions')->nullable();
+            $table->mediumText('notifications')->nullable();
             $table->mediumText('settings')->nullable();
             $table->boolean('is_owner')->default(false);
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_locked')->default(false); // locks user out of account
+
+            $table->softDeletes('deleted_at', 6);
             $table->timestamps(6);
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');

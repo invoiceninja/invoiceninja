@@ -142,6 +142,7 @@ class CompanyUserController extends BaseController
             }
             else {
                 $company_user->fill($request->input('company_user')['settings']);
+                $company_user->fill($request->input('company_user')['notifications']);
             }
             
             $company_user->save();
