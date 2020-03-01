@@ -319,7 +319,24 @@ class ClientTest extends TestCase
 
             $arr = $response->json();
 
-            \Log::error($arr);
+            $data = [
+                'name' => 'A loyal Client',
+                'contacts' => [
+                    [
+                        'email' => $this->faker->unique()->safeEmail,
+                        'password' => '*****',
+                    ]
+                ]
+            ];
+
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $token,
+            ])->post('/api/v1/clients/', $data)
+                ->assertStatus(200);
+            
+
         }
     /** @test */
     // public function testMassivelyCreatingClients()
