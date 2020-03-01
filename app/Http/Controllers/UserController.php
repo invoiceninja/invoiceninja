@@ -438,9 +438,23 @@ class UserController extends BaseController
      */
     public function destroy(DestroyUserRequest $request, User $user)
     {
-        $user->delete();
+        /* If the user passes the company user we archive the company user */
+        if(array_key_exists('company_user', $request->all()))
+        {
+            $this->forced_includes = 'company_users';
+
+            $company = auth()->user()->company();
+
+            $cu = CompanyUser::whereUserId($user->id)
+                             ->whereCompanyId($company->id)
+                             ->first();
+
+            $cu->delete();
+        }
+        else
+            $user->delete();
         
-        return response()->json([], 200);
+        return $this->itemResponse($user->fresh());
     }
 
     /**

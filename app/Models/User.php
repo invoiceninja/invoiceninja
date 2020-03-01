@@ -178,7 +178,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function company_users()
     {
-        return $this->hasMany(CompanyUser::class);
+        return $this->hasMany(CompanyUser::class)->withTrashed();
     }
 
     public function company_user()
@@ -187,7 +187,7 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->id = auth()->user()->id;
         }
 
-        return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')->where('company_user.user_id', $this->id);
+        return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')->where('company_user.user_id', $this->id)->withTrashed();
     }
 
     /**
