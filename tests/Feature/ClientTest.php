@@ -424,6 +424,20 @@ class ClientTest extends TestCase
 
             $response->assertStatus(200);
 
+
+            $arr = $response->json();
+
+            $client_id = $arr['data']['id'];
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $token,
+            ])->put('/api/v1/clients/' . $client_id, $data)->assertStatus(200);
+
+            $arr = $response->json();
+
+            \Log::error($arr);
+
         }
     /** @test */
     // public function testMassivelyCreatingClients()
