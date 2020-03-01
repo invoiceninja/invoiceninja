@@ -12,7 +12,7 @@ const RESOURCES = {
 "/assets/web/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
 "/assets/AssetManifest.json": "90d7b27343fcf361dbf6385b3055ce4f",
 "/index.html": "02f52d8ed33971b0d7a938e631e89401",
-"/main.dart.js": "03f8d7e514f03a8f9c502065c30f3bc3",
+"/main.dart.js": "8190d304eb355dd65ebeaa2b26c873f6",
 "/favicon.ico": "51636d3a390451561744c42188ccd628"
 };
 
