@@ -436,7 +436,7 @@ class ClientTest extends TestCase
 
             $arr = $response->json();
 
-            \Log::error($arr);
+            //\Log::error($arr);
 
         }
     /** @test */

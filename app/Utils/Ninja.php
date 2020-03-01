@@ -28,6 +28,11 @@ class Ninja
         return config('ninja.environment') === 'hosted';
     }
 
+    public static function isNinja()
+    {
+        return config('ninja.production');
+    }
+
     public static function getDebugInfo()
     {
         $mysql_version = DB::select(DB::raw("select version() as version"))[0]->version;
