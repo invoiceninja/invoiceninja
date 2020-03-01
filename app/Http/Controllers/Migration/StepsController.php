@@ -2,20 +2,51 @@
 
 namespace App\Http\Controllers\Migration;
 
+use App\Http\Controllers\BaseController;
+use App\Libraries\Utils;
+use App\Models\AccountGateway;
+use App\Models\AccountGatewaySettings;
+use App\Models\AccountGatewayToken;
+use App\Models\Contact;
 use App\Models\Credit;
-use App\Models\User;
+use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\TaxRate;
-use App\Libraries\Utils;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\MigrationAuthRequest;
+use App\Http\Requests\MigrationCompaniesRequest;
+use App\Http\Requests\MigrationEndpointRequest;
+use App\Http\Requests\MigrationTypeRequest;
 use App\Models\Document;
+use App\Services\Migration\AuthService;
+use App\Services\Migration\CompanyService;
+use App\Services\Migration\CompleteService;
+use Illuminate\Support\Facades\Crypt;
 
 class StepsController extends BaseController
 {
     private $account;
+
+    private $access = [
+        'auth' => [
+            'steps' => ['MIGRATION_TYPE'],
+            'redirect' => '/migration/start',
+        ],
+        'endpoint' => [
+            'steps' => ['MIGRATION_TYPE'],
+            'redirect' => '/migration/start',
+        ],
+        'companies' => [
+            'steps' => ['MIGRATION_TYPE', 'MIGRATION_ACCOUNT_TOKEN'],
+            'redirect' => '/migration/auth',
+        ],
+    ];
 
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
@@ -38,12 +69,142 @@ class StepsController extends BaseController
         return view('migration.download');
     }
 
+    public function handleType(MigrationTypeRequest $request)
+    {
+        session()->put('MIGRATION_TYPE', $request->option);
+
+        if($request->option == 0)
+            return redirect('/migration/auth');
+
+        return redirect('/migration/endpoint');
+    }
+
+    public function endpoint()
+    {
+        if($this->shouldGoBack('endpoint'))
+            return redirect($this->access['endpoint']['redirect']);
+
+        return view('migration.endpoint');
+    }
+
+    public function handleEndpoint(MigrationEndpointRequest $request)
+    {
+        if($this->shouldGoBack('endpoint'))
+            return redirect($this->access['endpoint']['redirect']);
+
+        session()->put('MIGRATION_ENDPOINT', $request->endpoint);
+
+        return redirect('/migration/auth');
+    }
+
+    public function auth()
+    {
+        if($this->shouldGoBack('auth'))
+            return redirect($this->access['auth']['redirect']);
+
+        return view('migration.auth');
+    }
+
+    public function handleAuth(MigrationAuthRequest $request)
+    {   
+        if($this->shouldGoBack('auth')) {
+            return redirect($this->access['auth']['redirect']);
+        }
+
+        $authentication = (new AuthService($request->email, $request->password))
+            ->endpoint(session('MIGRATION_ENDPOINT'))
+            ->start();
+
+        if($authentication->isSuccessful()) {
+            session()->put('MIGRATION_ACCOUNT_TOKEN', $authentication->getAccountToken());
+
+            return redirect('/migration/companies');
+        }
+
+        return back()->with('responseErrors', $authentication->getErrors());
+    }
+
+    public function companies()
+    {
+        if($this->shouldGoBack('companies'))
+            return redirect($this->access['companies']['redirect']);
+
+        $companyService = (new CompanyService(session('MIGRATION_ACCOUNT_TOKEN')))
+            ->endpoint(session('MIGRATION_ENDPOINT'))
+            ->start();
+
+        if($companyService->isSuccessful()) {
+            return view('migration.companies', ['companies' => $companyService->getCompanies()]);    
+        }
+
+        return response()->json([
+            'message' => 'Oops, looks like something failed. Please try again.'
+        ], 500);
+    }
+
+    public function handleCompanies(MigrationCompaniesRequest $request)
+    {
+        if($this->shouldGoBack('companies'))
+            return redirect($this->access['companies']['redirect']);
+
+        $successful = false;
+
+        foreach ($request->companies as $company) {
+            $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
+            ->file($this->getMigrationFile())
+            ->company($company)
+            ->endpoint(session('MIGRATION_ENDPOINT'))
+            ->start();
+
+            if($completeService->isSuccessful()) {
+                $successful = true;
+            }
+
+            $successful = false;
+        }
+
+        if($successful) {
+            return view('migration.completed');
+        }
+
+        return response([
+            'message' => 'Failed',
+            'errors' => $completeService->getErrors(),
+        ]);
+    }
+
+    public function completed()
+    {
+        return view('migration.completed');
+    }
+
+    /**
+     * ==================================
+     * Rest of functions that are used as 'actions', not controller methods.
+     * ==================================
+     */
+
+    public function shouldGoBack(string $step)
+    {
+        $redirect = true;
+
+        foreach ($this->access[$step]['steps'] as $step) {
+            if(session()->has($step)) {
+                $redirect = false;
+            }  else {
+                $redirect = true;
+            }
+        }
+
+        return $redirect;
+    }
+
     /**
      * Handle data downloading for the migration.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function handleDownload()
+    public function getMigrationFile()
     {
         $this->account = Auth::user()->account;
 
@@ -65,23 +226,22 @@ class StepsController extends BaseController
             'payments' => array_merge($this->getPayments(), $this->getCredits()),
             'credits' => $this->getCreditsNotes(),
             'documents' => $this->getDocuments(),
+            'company_gateways' => $this->getCompanyGateways(),
+            'client_gateway_tokens' => $this->getClientGatewayTokens(),
         ];
 
         $file = storage_path("{$fileName}.zip");
 
         $zip = new \ZipArchive();
         $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-        $zip->addFromString('migration.json', json_encode($data));
+        $zip->addFromString('migration.json', json_encode($data, JSON_PRETTY_PRINT));
         $zip->close();
 
-        header('Content-Type: application/zip');
-        header('Content-Length: ' . filesize($file));
-        header("Content-Disposition: attachment; filename={$fileName}.zip");
+        // header('Content-Type: application/zip');
+        // header('Content-Length: ' . filesize($file));
+        // header("Content-Disposition: attachment; filename={$fileName}.zip");
 
-        readfile($file);
-        unlink($file);
-
-        return response()->json($data);
+        return $file;
     }
 
     /**
@@ -120,75 +280,82 @@ class StepsController extends BaseController
         // V1: invoice_number_prefix, v2: invoice_number_pattern.. same with quote_number, client_number,
 
         return [
-            'timezone_id' => $this->account->timezone_id,
-            'date_format_id' => $this->account->date_format_id,
-            'currency_id' => $this->account->currency_id,
-            'name' => $this->account->name,
-            'address1' => $this->account->address1,
-            'address2' => $this->account->address2,
-            'city' => $this->account->city,
-            'state' => $this->account->state,
-            'postal_code' => $this->account->postal_code,
-            'country_id' => $this->account->country_id,
-            'invoice_terms' => $this->account->invoice_terms,
-            'enabled_item_tax_rates' => $this->account->invoice_item_taxes,
-            'invoice_design_id' => $this->account->invoice_design_id,
-            'phone' => $this->account->work_phone,
-            'email' => $this->account->work_email,
-            'language_id' => $this->account->language_id,
-            'custom_value1' => $this->account->custom_value1,
-            'custom_value2' => $this->account->custom_value2,
-            'hide_paid_to_date' => $this->account->hide_paid_to_date,
-            'vat_number' => $this->account->vat_number,
-            'shared_invoice_quote_counter' => $this->account->share_counter, // @verify,
-            'id_number' => $this->account->id_number,
-            'invoice_footer' => $this->account->invoice_footer,
-            'pdf_email_attachment' => $this->account->pdf_email_attachment,
-            'font_size' => $this->account->font_size,
-            'invoice_labels' => $this->account->invoice_labels,
-            'military_time' => $this->account->military_time,
-            'invoice_number_pattern' => $this->account->invoice_number_pattern,
-            'quote_number_pattern' => $this->account->quote_number_pattern,
-            'quote_terms' => $this->account->quote_terms,
-            'website' => $this->account->website,
-            'auto_convert_quote' => $this->account->auto_convert_quote,
-            'all_pages_footer' => $this->account->all_pages_footer,
-            'all_pages_header' => $this->account->all_pages_header,
-            'show_currency_code' => $this->account->show_currency_code,
-            'enable_client_portal_password' => $this->account->enable_portal_password,
-            'send_portal_password' => $this->account->send_portal_password,
-            'recurring_number_prefix' => $this->account->recurring_invoice_number_prefix, // @verify
-            'enable_client_portal' => $this->account->enable_client_portal,
-            'invoice_fields' => $this->account->invoice_fields,
-            'company_logo' => $this->account->logo,
-            'embed_documents' => $this->account->invoice_embed_documents,
-            'document_email_attachment' => $this->account->document_email_attachment,
-            'enable_client_portal_dashboard' => $this->account->enable_client_portal_dashboard,
-            'page_size' => $this->account->page_size,
-            'show_accept_invoice_terms' => $this->account->show_accept_invoice_terms,
-            'show_accept_quote_terms' => $this->account->show_accept_quote_terms,
-            'require_invoice_signature' => $this->account->require_invoice_signature,
-            'require_quote_signature' => $this->account->require_quote_signature,
-            'client_number_counter' => $this->account->client_number_counter,
-            'client_number_pattern' => $this->account->client_number_pattern,
-            'payment_terms' => $this->account->payment_terms,
-            'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id,
-            'payment_type_id' => $this->account->payment_type_id,
-            'reset_counter_date' => $this->account->reset_counter_date,
-            'tax_name1' => $this->account->tax_name1,
-            'tax_rate1' => $this->account->tax_rate1,
-            'tax_name2' => $this->account->tax_name2,
-            'tax_rate2' => $this->account->tax_rate2,
-            'quote_design_id' => $this->account->quote_design_id,
-            'credit_number_counter' => $this->account->credit_number_counter,
-            'credit_number_pattern' => $this->account->credit_number_pattern,
-            'default_task_rate' => $this->account->task_rate,
-            'inclusive_taxes' => $this->account->inclusive_taxes,
-            'signature_on_pdf' => $this->account->signature_on_pdf,
-            'ubl_email_attachment' => $this->account->ubl_email_attachment,
-            'auto_archive_invoice' => $this->account->auto_archive_invoice,
-            'auto_archive_quote' => $this->account->auto_archive_quote,
-            'auto_email_invoice' => $this->account->auto_email_invoice,
+            'timezone_id' => $this->account->timezone_id ? (string)$this->account->timezone_id : '15',
+            'date_format_id' => $this->account->date_format_id ? (string)$this->account->date_format_id : '1',
+            'currency_id' => $this->account->currency_id ? (string)$this->account->currency_id : '1',
+            'name' => $this->account->name ?: trans('texts.untitled'),
+            'address1' => $this->account->address1 ?: '',
+            'address2' => $this->account->address2 ?: '',
+            'city' => $this->account->city ?: '',
+            'state' => $this->account->state ?: '',
+            'postal_code' => $this->account->postal_code ?: '',
+            'country_id' => $this->account->country_id ? (string)$this->account->country_id : '840',
+            'invoice_terms' => $this->account->invoice_terms ?: '',
+            'enabled_item_tax_rates' => $this->account->invoice_item_taxes ? (bool)$this->account->invoice_item_taxes : false,
+            'invoice_design_id' => $this->account->invoice_design_id ?: (string)$this->account->invoice_design_id ?: '1',
+            'phone' => $this->account->work_phone ?: '',
+            'email' => $this->account->work_email ?: '',
+            'language_id' => $this->account->language_id ? (string)$this->account->language_id : '1',
+            'custom_value1' => $this->account->custom_value1 ? (string)$this->account->custom_value1 : '',
+            'custom_value2' => $this->account->custom_value2 ? (string)$this->account->custom_value2 : '',
+            'custom_value3' => '',
+            'custom_value4' => '',
+            'hide_paid_to_date' => $this->account->hide_paid_to_date ? (bool)$this->account->hide_paid_to_date : false,
+            'vat_number' => $this->account->vat_number ?: '',
+            'shared_invoice_quote_counter' => $this->account->share_counter ? (bool)$this->account->share_counter : true, 
+            'id_number' => $this->account->id_number ?: '',
+            'invoice_footer' => $this->account->invoice_footer ?: '',
+            'pdf_email_attachment' => $this->account->pdf_email_attachment ? (bool)$this->account->pdf_email_attachment : false,
+            'font_size' => $this->account->font_size ?: 9,
+            'invoice_labels' => $this->account->invoice_labels ?: '',
+            'military_time' => $this->account->military_time ? (bool)$this->account->military_time : false,
+            'invoice_number_pattern' => $this->account->invoice_number_pattern ?: '',
+            'quote_number_pattern' => $this->account->quote_number_pattern ?: '',
+            'quote_terms' => $this->account->quote_terms ?: '',
+            'website' => $this->account->website ?: '',
+            'auto_convert_quote' => $this->account->auto_convert_quote ? (bool)$this->account->auto_convert_quote : false,
+            'all_pages_footer' => $this->account->all_pages_footer ? (bool)$this->account->all_pages_footer : true,
+            'all_pages_header' => $this->account->all_pages_header ? (bool)$this->account->all_pages_header : true,
+            'show_currency_code' => $this->account->show_currency_code ?  (bool)$this->account->show_currency_code : false,
+            'enable_client_portal_password' => $this->account->enable_portal_password ? (bool)$this->account->enable_portal_password : true,
+            'send_portal_password' => $this->account->send_portal_password ? (bool)$this->account->send_portal_password : false,
+            'recurring_number_prefix' => $this->account->recurring_invoice_number_prefix ? $this->account->recurring_invoice_number_prefix : 'R',
+            'enable_client_portal' => $this->account->enable_client_portal ? (bool)$this->account->enable_client_portal : false,
+            'invoice_fields' => $this->account->invoice_fields ?: '',
+            'company_logo' => $this->account->logo ?: '',
+            'embed_documents' => $this->account->invoice_embed_documents ? (bool)$this->account->invoice_embed_documents : false,
+            'document_email_attachment' => $this->account->document_email_attachment ? (bool)$this->account->document_email_attachment : false,
+            'enable_client_portal_dashboard' => $this->account->enable_client_portal_dashboard ? (bool)$this->account->enable_client_portal_dashboard : true,
+            'page_size' => $this->account->page_size ?: 'A4',
+            'show_accept_invoice_terms' => $this->account->show_accept_invoice_terms ? (bool)$this->account->show_accept_invoice_terms : false,
+            'show_accept_quote_terms' => $this->account->show_accept_quote_terms ? (bool)$this->account->show_accept_quote_terms : false,
+            'require_invoice_signature' => $this->account->require_invoice_signature ? (bool)$this->account->require_invoice_signature : false,
+            'require_quote_signature' => $this->account->require_quote_signature ? (bool)$this->account->require_quote_signature : false,
+            'client_number_counter' => $this->account->client_number_counter ?: 0,
+            'client_number_pattern' => $this->account->client_number_pattern ?: '',
+            'payment_number_pattern' => '',
+            'payment_number_counter' => 0,
+            'payment_terms' => $this->account->payment_terms ?: '',
+            'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id ? (string)$this->account->reset_counter_frequency_id : '0',
+            'payment_type_id' => $this->account->payment_type_id ? (string)$this->account->payment_type_id : '1',
+            'reset_counter_date' => $this->account->reset_counter_date ?: '',
+            'tax_name1' => $this->account->tax_name1 ?: '',
+            'tax_rate1' => $this->account->tax_rate1 ?: 0,
+            'tax_name2' => $this->account->tax_name2 ?: '',
+            'tax_rate2' => $this->account->tax_rate2 ?: 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'quote_design_id' => $this->account->quote_design_id ? (string)$this->account->quote_design_id : '1',
+            'credit_number_counter' => $this->account->credit_number_counter ?: 0,
+            'credit_number_pattern' => $this->account->credit_number_pattern ?: '',
+            'default_task_rate' => $this->account->task_rate ?: 0,
+            'inclusive_taxes' => $this->account->inclusive_taxes ? (bool)$this->account->inclusive_taxes : false,
+            'signature_on_pdf' => $this->account->signature_on_pdf ? (bool) $this->account->signature_on_pdf : false,
+            'ubl_email_attachment' => $this->account->ubl_email_attachment ? (bool)$this->account->ubl_email_attachment : false,
+            'auto_archive_invoice' => $this->account->auto_archive_invoice ? (bool)$this->account->auto_archive_invoice : false,
+            'auto_archive_quote' => $this->account->auto_archive_quote ? (bool)$this->account->auto_archive_quote : false,
+            'auto_email_invoice' => $this->account->auto_email_invoice ? (bool)$this->account->auto_email_invoice : false,
+            'counter_padding' => $this->account->invoice_number_padding ?: 4,
         ];
     }
 
@@ -256,10 +423,22 @@ class StepsController extends BaseController
                 'shipping_postal_code' => $client->shipping_postal_code,
                 'shipping_country_id' => $client->shipping_country_id,
                 'contacts' => $this->getClientContacts($client->contacts),
+                'settings' => $this->getClientSettings($client),
             ];
         }
 
         return $clients;
+    }
+
+    private function getClientSettings($client)
+    {
+        $settings = new \stdClass;
+        $settings->currency_id = $client->currency_id ?: $client->account->currency_id;
+
+        if($client->language_id)
+            $settings->language_id = $client->language_id;
+
+        return $settings;
     }
 
     /**
@@ -369,7 +548,13 @@ class StepsController extends BaseController
     {
         $credits = [];
 
-        foreach ($this->account->invoices()->where('amount', '<', '0')->withTrashed()->get() as $credit) {
+        $export_credits = Invoice::where('account_id', $this->account->id)
+            ->where('amount', '<', '0')
+            ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+            ->withTrashed()
+            ->get();
+
+        foreach ($export_credits as $credit) {
             $credits[] = [
                 'id' => $credit->id,
                 'client_id' => $credit->client_id,
@@ -418,7 +603,13 @@ class StepsController extends BaseController
     {
         $invoices = [];
 
-        foreach ($this->account->invoices()->where('amount', '>=', '0')->withTrashed()->get() as $invoice) {
+        $export_invoices = Invoice::where('account_id', $this->account->id)
+            ->where('amount', '>=', '0')
+            ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+            ->withTrashed()
+            ->get();
+
+        foreach ($export_invoices as $invoice) {
             $invoices[] = [
                 'id' => $invoice->id,
                 'client_id' => $invoice->client_id,
@@ -532,6 +723,7 @@ class StepsController extends BaseController
                 'balance' => $quote->balance,
                 'partial' => $quote->partial,
                 'partial_due_date' => $quote->partial_due_date,
+                'line_items' => $this->getInvoiceItems($quote->invoice_items),
                 'created_at' => $quote->created_at ? $quote->created_at->toDateString() : null,
                 'updated_at' => $quote->updated_at ? $quote->updated_at->toDateString() : null,
                 'deleted_at' => $quote->deleted_at ? $quote->deleted_at->toDateString() : null,
@@ -641,5 +833,182 @@ class StepsController extends BaseController
         }
 
         return $transformed;
+    }
+
+    private function getCompanyGateways()
+    {
+        $account_gateways = AccountGateway::where('account_id', $this->account->id)->get();
+
+        $transformed = [];
+        
+        foreach ($account_gateways as $account_gateway) {
+        
+            $gateway_types = $account_gateway->paymentDriver()->gatewayTypes();
+
+            foreach($gateway_types as $gateway_type_id) {
+
+                $transformed[] = [
+                    'id' => $account_gateway->id,
+                    'user_id' => $account_gateway->user_id,
+                    'gateway_key' => $this->getGatewayKeyById($account_gateway->gateway_id),
+                    'accepted_credit_cards' => $account_gateway->accepted_credit_cards,
+                    'require_cvv' => $account_gateway->require_cvv,
+                    'show_billing_address' => $account_gateway->show_billing_address,
+                    'show_shipping_address' => $account_gateway->show_shipping_address,
+                    'update_details' => $account_gateway->update_details,
+                    'config' => Crypt::decrypt($account_gateway->config),
+                    'fees_and_limits' => $this->transformFeesAndLimits($gateway_type_id),
+                    'custom_value1' => '',
+                    'custom_value2' => '',
+                    'custom_value3' => '',
+                    'custom_value4' => '',
+                ];
+            }
+        }
+
+        return $transformed;
+
+    }
+
+    private function getClientGatewayTokens()
+    {
+        $payment_methods = PaymentMethod::where('account_id', $this->account->id)->get();
+
+        $transformed = [];
+        
+        $is_default = true;
+            
+        foreach ($payment_methods as $payment_method) {
+
+            $contact = Contact::find($payment_method->contact_id)->first();
+            $agt = AccountGatewayToken::find($payment_method->account_gateway_token_id)->first();
+
+            $transformed[] = [
+                'id' => $payment_method->id,
+                'company_id' => $this->account->id,
+                'client_id' => $contact->client_id,
+                'token' => $payment_method->source_reference,
+                'company_gateway_id' => $agt->account_gateway_id,
+                'gateway_customer_reference' => $agt->token,
+                'gateway_type_id' => $payment_method->payment_type->gateway_type_id,
+                'is_default' => $is_default,
+                'meta' => $this->convertMeta($payment_method),
+            ];
+
+            $is_default = false;
+        }
+
+        return $transformed;
+    }
+
+    private function convertMeta($payment_method)
+    {
+        $expiry = explode("-", $payment_method->expiration);
+
+        if(is_array($expiry)){
+            $exp_month = $expiry[1];
+            $exp_year = $expiry[0];
+        }
+        else{
+            $exp_month = '';
+            $exp_year = '';
+        }
+
+        $meta = new \stdClass;
+        $meta->exp_month = $exp_month;
+        $meta->exp_year = $exp_year;
+        $meta->brand = $payment_method->payment_type->name;
+        $meta->last4 = str_replace(",","", ($payment_method->expiration));
+        $meta->type = $payment_method->payment_type->gateway_type_id;
+
+        return $meta;
+    }
+
+    private function transformFeesAndLimits($gateway_type_id)
+    {
+       $ags = AccountGatewaySettings::where('account_id', $this->account->id)
+                                    ->where('gateway_type_id', $gateway_type_id)
+                                    ->first();
+
+        if(!$ags)
+            return new \stdClass;
+
+        $fees_and_limits = new \stdClass;
+        $fees_and_limits->min_limit = $ags->min_limit;
+        $fees_and_limits->max_limit = $ags->max_limit;
+        $fees_and_limits->fee_amount = $ags->fee_amount;
+        $fees_and_limits->fee_percent = $ags->fee_percent;
+        $fees_and_limits->tax_name1 = $ags->tax_name1;
+        $fees_and_limits->tax_rate1 = $ags->tax_rate1;
+        $fees_and_limits->tax_name2 = $ags->tax_name2;
+        $fees_and_limits->tax_rate2 = $ags->tax_rate2;
+        $fees_and_limits->tax_name3 = '';
+        $fees_and_limits->tax_rate3 = 0;
+
+
+        return $fees_and_limits;
+    }
+
+    private function getGatewayKeyById($gateway_id)
+    {
+        $gateways = [
+            ['id' => 1, 'key' => '3b6621f970ab18887c4f6dca78d3f8bb'],
+            ['id' => 2, 'key' => '46c5c1fed2c43acf4f379bae9c8b9f76'],
+            ['id' => 3, 'key' => '944c20175bbe6b9972c05bcfe294c2c7'],
+            ['id' => 4, 'key' => '4e0ed0d34552e6cb433506d1ac03a418'],
+            ['id' => 5, 'key' => '513cdc81444c87c4b07258bc2858d3fa'],
+            ['id' => 6, 'key' => '99c2a271b5088951334d1302e038c01a'],
+            ['id' => 7, 'key' => '1bd651fb213ca0c9d66ae3c336dc77e8'],
+            ['id' => 8, 'key' => 'c3dec814e14cbd7d86abd92ce6789f8c'],
+            ['id' => 9, 'key' => '070dffc5ca94f4e66216e44028ebd52d'],
+            ['id' => 10, 'key' => '334d419939c06bd99b4dfd8a49243f0f'],
+            ['id' => 11, 'key' => 'd6814fc83f45d2935e7777071e629ef9'],
+            ['id' => 12, 'key' => '0d97c97d227f91c5d0cb86d01e4a52c9'],
+            ['id' => 13, 'key' => 'a66b7062f4c8212d2c428209a34aa6bf'],
+            ['id' => 14, 'key' => '7e6fc08b89467518a5953a4839f8baba'],
+            ['id' => 15, 'key' => '38f2c48af60c7dd69e04248cbb24c36e'],
+            ['id' => 16, 'key' => '80af24a6a69f5c0bbec33e930ab40665'],
+            ['id' => 17, 'key' => '0749cb92a6b36c88bd9ff8aabd2efcab'],
+            ['id' => 18, 'key' => '4c8f4e5d0f353a122045eb9a60cc0f2d'],
+            ['id' => 19, 'key' => '8036a5aadb2bdaafb23502da8790b6a2'],
+            ['id' => 20, 'key' => 'd14dd26a37cecc30fdd65700bfb55b23'],
+            ['id' => 21, 'key' => 'd14dd26a37cdcc30fdd65700bfb55b23'],
+            ['id' => 22, 'key' => 'ea3b328bd72d381387281c3bd83bd97c'],
+            ['id' => 23, 'key' => 'a0035fc0d87c4950fb82c73e2fcb825a'],
+            ['id' => 24, 'key' => '16dc1d3c8a865425421f64463faaf768'],
+            ['id' => 25, 'key' => '43e639234f660d581ddac725ba7bcd29'],
+            ['id' => 26, 'key' => '2f71dc17b0158ac30a7ae0839799e888'],
+            ['id' => 27, 'key' => '733998ee4760b10f11fb48652571e02c'],
+            ['id' => 28, 'key' => '6312879223e49c5cf92e194646bdee8f'],
+            ['id' => 29, 'key' => '106ef7e7da9062b0df363903b455711c'],
+            ['id' => 30, 'key' => 'e9a38f0896b5b82d196be3b7020c8664'],
+            ['id' => 31, 'key' => '0da4e18ed44a5bd5c8ec354d0ab7b301'],
+            ['id' => 32, 'key' => 'd3979e62eb603fbdf1c78fe3a8ba7009'],
+            ['id' => 33, 'key' => '557d98977e7ec02dfa53de4b69b335be'],
+            ['id' => 34, 'key' => '54dc60c869a7322d87efbec5c0c25805'],
+            ['id' => 35, 'key' => 'e4a02f0a4b235eb5e9e294730703bb74'],
+            ['id' => 36, 'key' => '1b3c6f3ccfea4f5e7eadeae188cccd7f'],
+            ['id' => 37, 'key' => '7cba6ce5c125f9cb47ea8443ae671b68'],
+            ['id' => 38, 'key' => 'b98cfa5f750e16cee3524b7b7e78fbf6'],
+            ['id' => 39, 'key' => '3758e7f7c6f4cecf0f4f348b9a00f456'],
+            ['id' => 40, 'key' => 'cbc7ef7c99d31ec05492fbcb37208263'],
+            ['id' => 41, 'key' => 'e186a98d3b079028a73390bdc11bdb82'],
+            ['id' => 42, 'key' => '761040aca40f685d1ab55e2084b30670'],
+            ['id' => 43, 'key' => '1b2cef0e8c800204a29f33953aaf3360'],
+            ['id' => 44, 'key' => '7ea2d40ecb1eb69ef8c3d03e5019028a'],
+            ['id' => 45, 'key' => '70ab90cd6c5c1ab13208b3cef51c0894'],
+            ['id' => 46, 'key' => 'bbd736b3254b0aabed6ad7fda1298c88'],
+            ['id' => 47, 'key' => '231cb401487b9f15babe04b1ac4f7a27'],
+            ['id' => 48, 'key' => 'bad8699d581d9fa040e59c0bb721a76c'],
+            ['id' => 49, 'key' => '8fdeed552015b3c7b44ed6c8ebd9e992'],
+            ['id' => 50, 'key' => 'f7ec488676d310683fb51802d076d713'],
+            ['id' => 51, 'key' => '30334a52fb698046572c627ca10412e8'],
+            ['id' => 52, 'key' => 'b9886f9257f0c6ee7c302f1c74475f6c'],
+            ['id' => 53, 'key' => 'ef498756b54db63c143af0ec433da803'],
+            ['id' => 54, 'key' => 'ca52f618a39367a4c944098ebf977e1c'],
+            ['id' => 55, 'key' => '54faab2ab6e3223dbe848b1686490baa'],
+        ];
+
+        return $gateways[$gateway_id]['key'];
     }
 }
