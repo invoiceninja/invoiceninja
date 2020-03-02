@@ -2,6 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Commands\TestData\CreateTestCreditJob;
+use App\Console\Commands\TestData\CreateTestInvoiceJob;
+use App\Console\Commands\TestData\CreateTestQuoteJob;
 use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasMarkedSent;
@@ -367,23 +370,27 @@ class CreateTestData extends Command
 
     private function createClient($company, $user)
     {
-        $client = factory(\App\Models\Client::class)->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id
-        ]);
 
-        factory(\App\Models\ClientContact::class, 1)->create([
+        // dispatch(function () use ($company, $user) {
+   
+        // });
+            $client = factory(\App\Models\Client::class)->create([
                 'user_id' => $user->id,
-                'client_id' => $client->id,
-                'company_id' => $company->id,
-                'is_primary' => 1
-            ]);
-
-        factory(\App\Models\ClientContact::class, rand(1, 5))->create([
-                'user_id' => $user->id,
-                'client_id' => $client->id,
                 'company_id' => $company->id
             ]);
+
+            factory(\App\Models\ClientContact::class, 1)->create([
+                    'user_id' => $user->id,
+                    'client_id' => $client->id,
+                    'company_id' => $company->id,
+                    'is_primary' => 1
+                ]);
+
+            factory(\App\Models\ClientContact::class, rand(1, 5))->create([
+                    'user_id' => $user->id,
+                    'client_id' => $client->id,
+                    'company_id' => $company->id
+                ]);
 
 
 
@@ -445,149 +452,162 @@ class CreateTestData extends Command
 
     private function createInvoice($client)
     {
-        $faker = \Faker\Factory::create();
-
-        $invoice = InvoiceFactory::create($client->company->id, $client->user->id, $client->getMergedSettings(), $client);//stub the company and user_id
-        $invoice->client_id = $client->id;
-//        $invoice->date = $faker->date();
-        $dateable = Carbon::now()->subDays(rand(0,90));
-        $invoice->date = $dateable;
-
-        $invoice->line_items = $this->buildLineItems(rand(1,10));
-        $invoice->uses_inclusive_taxes = false;
-
-        if (rand(0, 1)) {
-            $invoice->tax_name1 = 'GST';
-            $invoice->tax_rate1 = 10.00;
+        for($x=0; $x<$this->count; $x++){
+            dispatch(new CreateTestInvoiceJob($client));
         }
 
-        if (rand(0, 1)) {
-            $invoice->tax_name2 = 'VAT';
-            $invoice->tax_rate2 = 17.50;
-        }
+//         $faker = \Faker\Factory::create();
 
-        if (rand(0, 1)) {
-            $invoice->tax_name3 = 'CA Sales Tax';
-            $invoice->tax_rate3 = 5;
-        }
+//         $invoice = InvoiceFactory::create($client->company->id, $client->user->id, $client->getMergedSettings(), $client);//stub the company and user_id
+//         $invoice->client_id = $client->id;
+// //        $invoice->date = $faker->date();
+//         $dateable = Carbon::now()->subDays(rand(0,90));
+//         $invoice->date = $dateable;
 
-        $invoice->save();
+//         $invoice->line_items = $this->buildLineItems(rand(1,10));
+//         $invoice->uses_inclusive_taxes = false;
 
-        $invoice_calc = new InvoiceSum($invoice);
-        $invoice_calc->build();
+//         if (rand(0, 1)) {
+//             $invoice->tax_name1 = 'GST';
+//             $invoice->tax_rate1 = 10.00;
+//         }
 
-        $invoice = $invoice_calc->getInvoice();
+//         if (rand(0, 1)) {
+//             $invoice->tax_name2 = 'VAT';
+//             $invoice->tax_rate2 = 17.50;
+//         }
 
-        $invoice->save();
-        $invoice->service()->createInvitations();
+//         if (rand(0, 1)) {
+//             $invoice->tax_name3 = 'CA Sales Tax';
+//             $invoice->tax_rate3 = 5;
+//         }
 
-        $invoice->ledger()->updateInvoiceBalance($invoice->balance);
+//         $invoice->save();
 
-        //UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
+//         $invoice_calc = new InvoiceSum($invoice);
+//         $invoice_calc->build();
 
-        $this->invoice_repo->markSent($invoice);
+//         $invoice = $invoice_calc->getInvoice();
 
-        $invoice->service()->createInvitations();
+//         $invoice->save();
+//         $invoice->service()->createInvitations();
 
-        if (rand(0, 1)) {
-            $payment = PaymentFactory::create($client->company->id, $client->user->id);
-            $payment->date = $dateable;
-            $payment->client_id = $client->id;
-            $payment->amount = $invoice->balance;
-            $payment->transaction_reference = rand(0, 500);
-            $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->number = $client->getNextPaymentNumber($client);
-            $payment->save();
+//         $invoice->ledger()->updateInvoiceBalance($invoice->balance);
 
-            $payment->invoices()->save($invoice);
+//         //UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
 
-            event(new PaymentWasCreated($payment, $payment->company));
+//         $this->invoice_repo->markSent($invoice);
 
-            $payment->service()->updateInvoicePayment();
-            //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
-        }
-        //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
-        event(new InvoiceWasCreated($invoice, $invoice->company));
+//         $invoice->service()->createInvitations();
+
+//         if (rand(0, 1)) {
+//             $payment = PaymentFactory::create($client->company->id, $client->user->id);
+//             $payment->date = $dateable;
+//             $payment->client_id = $client->id;
+//             $payment->amount = $invoice->balance;
+//             $payment->transaction_reference = rand(0, 500);
+//             $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
+//             $payment->status_id = Payment::STATUS_COMPLETED;
+//             $payment->number = $client->getNextPaymentNumber($client);
+//             $payment->save();
+
+//             $payment->invoices()->save($invoice);
+
+//             event(new PaymentWasCreated($payment, $payment->company));
+
+//             $payment->service()->updateInvoicePayment();
+//             //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
+//         }
+//         //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
+//         event(new InvoiceWasCreated($invoice, $invoice->company));
     }
 
     private function createCredit($client)
     {
-        $faker = \Faker\Factory::create();
+        for($x=0; $x<$this->count; $x++){
 
-        $credit = factory(\App\Models\Credit::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
+            dispatch(new CreateTestCreditJob($client));
 
-        //$invoice = InvoiceFactory::create($client->company->id, $client->user->id);//stub the company and user_id
-        //$invoice->client_id = $client->id;
-//        $invoice->date = $faker->date();
-        $dateable = Carbon::now()->subDays(rand(0,90));
-        $credit->date = $dateable;
-
-        $credit->line_items = $this->buildLineItems(rand(1,10));
-        $credit->uses_inclusive_taxes = false;
-
-        if (rand(0, 1)) {
-            $credit->tax_name1 = 'GST';
-            $credit->tax_rate1 = 10.00;
         }
+//         $faker = \Faker\Factory::create();
 
-        if (rand(0, 1)) {
-            $credit->tax_name2 = 'VAT';
-            $credit->tax_rate2 = 17.50;
-        }
+//         $credit = factory(\App\Models\Credit::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
 
-        if (rand(0, 1)) {
-            $credit->tax_name3 = 'CA Sales Tax';
-            $credit->tax_rate3 = 5;
-        }
+//         //$invoice = InvoiceFactory::create($client->company->id, $client->user->id);//stub the company and user_id
+//         //$invoice->client_id = $client->id;
+// //        $invoice->date = $faker->date();
+//         $dateable = Carbon::now()->subDays(rand(0,90));
+//         $credit->date = $dateable;
 
-        $credit->save();
+//         $credit->line_items = $this->buildLineItems(rand(1,10));
+//         $credit->uses_inclusive_taxes = false;
 
-        $invoice_calc = new InvoiceSum($credit);
-        $invoice_calc->build();
+//         if (rand(0, 1)) {
+//             $credit->tax_name1 = 'GST';
+//             $credit->tax_rate1 = 10.00;
+//         }
 
-        $credit = $invoice_calc->getCredit();
+//         if (rand(0, 1)) {
+//             $credit->tax_name2 = 'VAT';
+//             $credit->tax_rate2 = 17.50;
+//         }
 
-        $credit->save();
+//         if (rand(0, 1)) {
+//             $credit->tax_name3 = 'CA Sales Tax';
+//             $credit->tax_rate3 = 5;
+//         }
 
-        event(new CreateCreditInvitation($credit));
+//         $credit->save();
+
+//         $invoice_calc = new InvoiceSum($credit);
+//         $invoice_calc->build();
+
+//         $credit = $invoice_calc->getCredit();
+
+//         $credit->save();
+
+//         event(new CreateCreditInvitation($credit));
 
     }
 
     private function createQuote($client)
     {
-        $faker = \Faker\Factory::create();
+        for($x=0; $x<$this->count; $x++){
 
-        $quote =factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
-        $quote->date = $faker->date();
-
-        $quote->line_items = $this->buildLineItems(rand(1,10));
-        $quote->uses_inclusive_taxes = false;
-
-        if (rand(0, 1)) {
-            $quote->tax_name1 = 'GST';
-            $quote->tax_rate1 = 10.00;
+            dispatch(new CreateTestQuoteJob($client));
         }
+        // $faker = \Faker\Factory::create();
 
-        if (rand(0, 1)) {
-            $quote->tax_name2 = 'VAT';
-            $quote->tax_rate2 = 17.50;
-        }
+        // $quote =factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
+        // $quote->date = $faker->date();
 
-        if (rand(0, 1)) {
-            $quote->tax_name3 = 'CA Sales Tax';
-            $quote->tax_rate3 = 5;
-        }
+        // $quote->line_items = $this->buildLineItems(rand(1,10));
+        // $quote->uses_inclusive_taxes = false;
 
-        $quote->save();
+        // if (rand(0, 1)) {
+        //     $quote->tax_name1 = 'GST';
+        //     $quote->tax_rate1 = 10.00;
+        // }
 
-        $quote_calc = new InvoiceSum($quote);
-        $quote_calc->build();
+        // if (rand(0, 1)) {
+        //     $quote->tax_name2 = 'VAT';
+        //     $quote->tax_rate2 = 17.50;
+        // }
 
-        $quote = $quote_calc->getQuote();
-        $quote->service()->markSent()->save();
+        // if (rand(0, 1)) {
+        //     $quote->tax_name3 = 'CA Sales Tax';
+        //     $quote->tax_rate3 = 5;
+        // }
 
-        CreateQuoteInvitations::dispatch($quote, $quote->company);
+        // $quote->save();
+
+        // $quote_calc = new InvoiceSum($quote);
+        // $quote_calc->build();
+
+        // $quote = $quote_calc->getQuote();
+        // $quote->service()->markSent()->save();
+
+        // CreateQuoteInvitations::dispatch($quote, $quote->company);
     }
 
     private function buildLineItems($count = 1)
