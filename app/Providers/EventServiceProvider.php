@@ -38,6 +38,7 @@ use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
+use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\SendVerificationNotification;
 use App\Listeners\SetDBListener;
 use App\Listeners\User\UpdateUserLastLogin;
@@ -73,6 +74,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PaymentWasCreated::class => [
             PaymentCreatedActivity::class,
+            PaymentNotification::class,
         ],
         PaymentWasDeleted::class => [
             PaymentDeletedActivity::class,

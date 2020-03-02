@@ -143,31 +143,31 @@ class Account extends BaseModel
                 return $self_host || ! empty($plan_details);
 
             // Pro; No trial allowed, unless they're trialing enterprise with an active pro plan
-            case FEATURE_MORE_CLIENTS:
+            case self::FEATURE_MORE_CLIENTS:
                 return $self_host || ! empty($plan_details) && (! $plan_details['trial'] || ! empty($this->getPlanDetails(false, false)));
 
             // White Label
-            case FEATURE_WHITE_LABEL:
+            case self::FEATURE_WHITE_LABEL:
                 if (! $self_host && $plan_details && ! $plan_details['expires']) {
                     return false;
                 }
                 // Fallthrough
-            case FEATURE_REMOVE_CREATED_BY:
+            case self::FEATURE_REMOVE_CREATED_BY:
                 return ! empty($plan_details); // A plan is required even for self-hosted users
 
             // Enterprise; No Trial allowed; grandfathered for old pro users
-            case FEATURE_USERS:// Grandfathered for old Pro users
+            case self::FEATURE_USERS:// Grandfathered for old Pro users
                 if ($planDetails && $planDetails['trial']) {
                     // Do they have a non-trial plan?
                     $planDetails = $this->getPlanDetails(false, false);
                 }
 
-                return $selfHost || ! empty($planDetails) && ($planDetails['plan'] == PLAN_ENTERPRISE || $planDetails['started'] <= date_create(PRO_USERS_GRANDFATHER_DEADLINE));
+                return $selfHost || ! empty($planDetails) && ($planDetails['plan'] == self::PLAN_ENTERPRISE);
 
             // Enterprise; No Trial allowed
-            case FEATURE_DOCUMENTS:
-            case FEATURE_USER_PERMISSIONS:
-                return $selfHost || ! empty($planDetails) && $planDetails['plan'] == PLAN_ENTERPRISE && ! $planDetails['trial'];
+            case self::FEATURE_DOCUMENTS:
+            case self::FEATURE_USER_PERMISSIONS:
+                return $selfHost || ! empty($planDetails) && $planDetails['plan'] == self::PLAN_ENTERPRISE && ! $planDetails['trial'];
 
             default:
                 return false;
@@ -181,14 +181,16 @@ class Account extends BaseModel
 
     public function isPaidHostedClient()
     {
+        if (! Ninja::isNinja()) 
+            return false;        
+
         return $this->plan == 'pro' || $this->plan == 'enterprise';
     }
 
     public function isTrial()
     {
-        if (! Ninja::isNinja()) {
+        if (! Ninja::isNinja()) 
             return false;
-        }
 
         $plan_details = $this->getPlanDetails();
 
@@ -197,10 +199,7 @@ class Account extends BaseModel
 
     public function getPlanDetails($include_inactive = false, $include_trial = true)
     {
-        if (!$this) {
-            return null;
-        }
-
+        
         $plan = $this->plan;
         $price = $this->plan_price;
         $trial_plan = $this->trial_plan;

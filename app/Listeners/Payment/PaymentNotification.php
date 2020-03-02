@@ -1,0 +1,50 @@
+<?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
+namespace App\Listeners\Payment;
+
+use App\Models\Activity;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Notifications\Payment\NewPaymentNotification;
+use App\Repositories\ActivityRepository;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+
+class PaymentNotification implements ShouldQueue
+{
+    /**
+     * Create the event listener.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+    }
+
+    /**
+     * Handle the event.
+     *
+     * @param  object  $event
+     * @return void
+     */
+    public function handle($event)
+    {
+        $payment = $event->payment;
+
+        //$invoices = $payment->invoices;
+
+        foreach($payment->company->company_users as $company_user)
+        {
+            $company_user->user->notify(new NewPaymentNotification($payment, $payment->company));
+        }
+    }
+}
