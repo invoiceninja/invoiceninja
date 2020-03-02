@@ -37,7 +37,9 @@ class Cors
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         $response->headers->set('Access-Control-Allow-Headers', 'X-API-SECRET,X-API-TOKEN,X-API-PASSWORD,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range');
-
+        $response->headers->set('X-APP-VERSION', config('ninja.app_version'));
+        $response->headers->set('X-API-VERSION', config('ninja.api_version'));
+        
         return $response;
     }
 }

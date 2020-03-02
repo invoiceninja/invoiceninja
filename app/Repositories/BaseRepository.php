@@ -166,9 +166,19 @@ class BaseRepository
         return $this->getInstance()->scope($ids)->withTrashed()->get();
     }
 
-    public function getInvitationByKey($key)
+    public function getInvitation($invitation, $resource)
 	{
-		return InvoiceInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
+        // \Log::error($resource);
+        // \Log::error($invitation);
+
+        if(!array_key_exists('key', $invitation))
+            return false;
+
+        $invitation_class = sprintf("App\\Models\\%sInvitation", $resource);
+
+		$invitation = $invitation_class::whereRaw("BINARY `key`= ?", [$invitation['key']])->first();
+
+        return $invitation;
 	}
 
     /**
@@ -209,21 +219,13 @@ class BaseRepository
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
-                $this->getInvitationByKey($invitation)->delete();
+                $this->getInvitation($invitation, $resource)->delete();
             });
 
             foreach ($data['invitations'] as $invitation) {
-                $inv = false;
 
-                if (array_key_exists('key', $invitation)) {
-                    $inv = $this->getInvitationByKey([$invitation['key']]);
-
-                    if($inv)
-                        $inv->forceDelete();
-
-                }
-
-                if (!$inv) {
+                //if no invitations are present - create one.
+                if (! $this->getInvitation($invitation, $resource) ) {
 
                     if (isset($invitation['id'])) {
                         unset($invitation['id']);

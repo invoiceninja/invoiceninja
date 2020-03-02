@@ -62,7 +62,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     ];
 
     protected $hidden = [
-        'password',
+        //'password',
         'remember_token',
         'user_id',
         'company_id',
