@@ -2,6 +2,10 @@
 
 namespace App\Jobs\Util;
 
+use App\Exceptions\MigrationValidatorFailed;
+use App\Exceptions\NonExistingMigrationFile;
+use App\Exceptions\ResourceDependencyMissing;
+use App\Mail\MigrationFailed;
 use App\Models\User;
 use App\Models\Company;
 use App\Libraries\MultiDB;
@@ -11,6 +15,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Exceptions\ProcessingMigrationArchiveFailed;
+use Illuminate\Support\Facades\Mail;
 
 class StartMigration implements ShouldQueue
 {
@@ -47,6 +52,8 @@ class StartMigration implements ShouldQueue
      * Execute the job.
      *
      * @return void
+     * @throws ProcessingMigrationArchiveFailed
+     * @throws NonExistingMigrationFile
      */
     public function handle()
     {
@@ -58,44 +65,35 @@ class StartMigration implements ShouldQueue
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);
 
 
-        try {
-            if ($archive) {
-                $zip->extractTo(storage_path("migrations/{$filename}"));
-                $zip->close();
+        if ($archive) {
+            $zip->extractTo(storage_path("migrations/{$filename}"));
+            $zip->close();
 
-                if (app()->environment() !== 'testing') {
-                    $this->start($filename);
-                }
-            } else {
-                throw new ProcessingMigrationArchiveFailed();
+            if (app()->environment() !== 'testing') {
+                $this->start($filename);
             }
-        } catch (ProcessingMigrationArchiveFailed $e) {
-            // TODO: Break the code, stop the migration.. send an e-mail.
+        } else {
+            throw new ProcessingMigrationArchiveFailed();
         }
-
-        // Rest of the migration..
     }
 
 
     /**
      * Main method to start the migration.
+     * @throws NonExistingMigrationFile
      */
     protected function start(string $filename): void
     {
         $file = storage_path("migrations/$filename/migration.json");
 
         if (!file_exists($file))
-            return;
+            throw new NonExistingMigrationFile();
 
-        try {
-            $handle = fopen($file, "r");
-            $file = fread($handle, filesize($file));
-            fclose($handle);
+        $handle = fopen($file, "r");
+        $file = fread($handle, filesize($file));
+        fclose($handle);
 
-            $data = json_decode($file, 1);
-            Import::dispatchNow($data, $this->company, $this->user);
-        } catch (\Exception $e) {
-            info($e->getMessage());
-        }
+        $data = json_decode($file, 1);
+        Import::dispatchNow($data, $this->company, $this->user);
     }
 }
