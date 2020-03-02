@@ -23,6 +23,8 @@ use App\Transformers\CompanyUserTransformer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use function GuzzleHttp\Promise\queue;
 
 class MigrationController extends BaseController
 {
@@ -152,7 +154,7 @@ class MigrationController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Password"), 
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Password"),
      *      @OA\Parameter(
      *          name="migration",
      *          in="path",
@@ -186,13 +188,22 @@ class MigrationController extends BaseController
      */
     public function startMigration(Request $request, Company $company)
     {
-        if($request->has('force'))
+        if ($request->has('force'))
             $this->purgeCompany($company);
 
-        if(app()->environment() !== 'testing') {
-            StartMigration::dispatchNow($request->file('migration'), auth()->user(), $company);
+        if (app()->environment() == 'testing') return;
+
+        if (config('queue.default') == 'sync') {
+            return StartMigration::dispatchNow($request->file('migration'), auth()->user(), $company);
         }
 
-        return response()->json([], 200);
+        if (config('queue.default') !== 'sync') {
+            StartMigration::dispatch($request->file('migration'), auth()->user(), $company);
+        }
+
+        return response()->json([
+            '_id' => Str::uuid(),
+            'method' => config('queue.default'),
+        ], 200);
     }
 }

@@ -57,6 +57,7 @@ class StartMigration implements ShouldQueue
 
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);
 
+
         try {
             if ($archive) {
                 $zip->extractTo(storage_path("migrations/{$filename}"));
@@ -94,7 +95,7 @@ class StartMigration implements ShouldQueue
             $data = json_decode($file, 1);
             Import::dispatchNow($data, $this->company, $this->user);
         } catch (\Exception $e) {
-            info('Migration failed. Handle this.'); // TODO: Handle the failed job.
+            info($e->getMessage());
         }
     }
 }
