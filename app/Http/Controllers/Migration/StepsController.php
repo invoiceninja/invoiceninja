@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Migration;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\MigrationAuthRequest;
+use App\Http\Requests\MigrationCompaniesRequest;
+use App\Http\Requests\MigrationEndpointRequest;
+use App\Http\Requests\MigrationTypeRequest;
 use App\Libraries\Utils;
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
@@ -16,17 +20,10 @@ use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-
-use App\Http\Controllers\BaseController;
-use App\Http\Requests\MigrationAuthRequest;
-use App\Http\Requests\MigrationCompaniesRequest;
-use App\Http\Requests\MigrationEndpointRequest;
-use App\Http\Requests\MigrationTypeRequest;
-use App\Models\Document;
 use App\Services\Migration\AuthService;
 use App\Services\Migration\CompanyService;
 use App\Services\Migration\CompleteService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 
 class StepsController extends BaseController
