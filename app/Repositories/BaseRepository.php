@@ -16,8 +16,10 @@ use App\Factory\QuoteInvitationFactory;
 use App\Jobs\Product\UpdateOrCreateProduct;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Quote;
 use App\Utils\Traits\MakesHash;
 use ReflectionClass;
 
@@ -168,8 +170,6 @@ class BaseRepository
 
     public function getInvitation($invitation, $resource)
 	{
-        // \Log::error($resource);
-        // \Log::error($invitation);
 
         if(!array_key_exists('key', $invitation))
             return false;
@@ -187,6 +187,7 @@ class BaseRepository
     protected function alternativeSave($data, $model)
     {
         $class = new ReflectionClass($model);        
+
         $state = [];
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
         $lcfirst_resource_id = lcfirst($resource) . '_id';
