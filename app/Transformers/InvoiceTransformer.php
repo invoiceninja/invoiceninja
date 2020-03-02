@@ -130,6 +130,7 @@ class InvoiceTransformer extends EntityTransformer
             'custom_surcharge_taxes' => (bool) $invoice->custom_surcharge_taxes,
             'line_items' => $invoice->line_items ?: (array)[],
             'backup' => $invoice->backup ?: '',
+            'entity_type' => 'invoice',
         ];
     }
 }

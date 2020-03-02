@@ -16,8 +16,10 @@ use App\Factory\QuoteInvitationFactory;
 use App\Jobs\Product\UpdateOrCreateProduct;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Quote;
 use App\Utils\Traits\MakesHash;
 use ReflectionClass;
 
@@ -166,9 +168,17 @@ class BaseRepository
         return $this->getInstance()->scope($ids)->withTrashed()->get();
     }
 
-    public function getInvitationByKey($key)
+    public function getInvitation($invitation, $resource)
 	{
-		return InvoiceInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
+
+        if(!array_key_exists('key', $invitation))
+            return false;
+
+        $invitation_class = sprintf("App\\Models\\%sInvitation", $resource);
+
+		$invitation = $invitation_class::whereRaw("BINARY `key`= ?", [$invitation['key']])->first();
+
+        return $invitation;
 	}
 
     /**
@@ -177,6 +187,7 @@ class BaseRepository
     protected function alternativeSave($data, $model)
     {
         $class = new ReflectionClass($model);        
+
         $state = [];
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
         $lcfirst_resource_id = lcfirst($resource) . '_id';
@@ -209,21 +220,13 @@ class BaseRepository
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
-                $this->getInvitationByKey($invitation)->delete();
+                $this->getInvitation($invitation, $resource)->delete();
             });
 
             foreach ($data['invitations'] as $invitation) {
-                $inv = false;
 
-                if (array_key_exists('key', $invitation)) {
-                    $inv = $this->getInvitationByKey([$invitation['key']]);
-
-                    if($inv)
-                        $inv->forceDelete();
-
-                }
-
-                if (!$inv) {
+                //if no invitations are present - create one.
+                if (! $this->getInvitation($invitation, $resource) ) {
 
                     if (isset($invitation['id'])) {
                         unset($invitation['id']);

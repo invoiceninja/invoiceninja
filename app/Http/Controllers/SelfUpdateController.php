@@ -62,4 +62,15 @@ class SelfUpdateController extends BaseController
 
     	return response()->json(['message'=>$res], 200);
     }
+
+    public function checkVersion(UpdaterManager $updater)
+    {
+
+        //echo $updater->source()->getVersionInstalled();
+
+        //echo $updater->source()->isNewVersionAvailable();
+
+        //echo $updater->source()->getVersionAvailable();
+
+    }
 }

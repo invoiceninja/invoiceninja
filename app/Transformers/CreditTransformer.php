@@ -121,6 +121,8 @@ class CreditTransformer extends EntityTransformer
             'custom_surcharge_taxes' => (bool) $credit->custom_surcharge_taxes,
             'line_items' => $credit->line_items ?: (array)[],
             'backup' => $credit->backup ?: '',
+            'entity_type' => 'credit',
+
         ];
     }
 }

@@ -16,7 +16,6 @@ use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use App\Models\Client;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class StoreClientRequest extends Request
@@ -43,6 +42,7 @@ class StoreClientRequest extends Request
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
         $rules['contacts.*.password'] = [
+                                        'nullable',
                                         'sometimes',
                                         'string',
                                         'min:7',             // must be at least 10 characters in length
@@ -72,7 +72,6 @@ class StoreClientRequest extends Request
         $input = $this->all();
 
         //@todo implement feature permissions for > 100 clients
-
         if (!isset($input['settings'])) {
             $input['settings'] = ClientSettings::defaults();
         }
@@ -94,15 +93,23 @@ class StoreClientRequest extends Request
                 //Filter the client contact password - if it is sent with ***** we should ignore it!
                 if(isset($contact['password']))
                 {
-                    $contact['password'] = str_replace("*", "", $contact['password']);
 
-                    if(strlen($contact['password']) == 0)
-                        unset($input['contacts'][$key]['password']);
+                    if(strlen($contact['password']) == 0){
+                        $input['contacts'][$key]['password'] = '';
+                    }
+                    else {
+                        $contact['password'] = str_replace("*", "", $contact['password']);
+
+                        if(strlen($contact['password']) == 0){
+                            unset($input['contacts'][$key]['password']);
+                        }
+
+                    }
+
                 }
 
             }
         }
-
 
         $this->replace($input);
     }

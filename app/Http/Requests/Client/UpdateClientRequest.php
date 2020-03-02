@@ -18,7 +18,6 @@ use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class UpdateClientRequest extends Request
@@ -50,6 +49,7 @@ class UpdateClientRequest extends Request
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
         $rules['contacts.*.password'] = [
+                                        'nullable',
                                         'sometimes',
                                         'string',
                                         'min:7',             // must be at least 10 characters in length
@@ -88,18 +88,28 @@ class UpdateClientRequest extends Request
                     unset($input['contacts'][$key]['id']);
                 elseif(array_key_exists('id', $contact) && is_string($contact['id']))
                     $input['contacts'][$key]['id'] = $this->decodePrimaryKey($contact['id']);
-            }
 
-            //Filter the client contact password - if it is sent with ***** we should ignore it!
-            if(isset($contact['password']))
-            {
-                $contact['password'] = str_replace("*", "", $contact['password']);
 
-                if(strlen($contact['password']) == 0)
-                    unset($input['contacts'][$key]['password']);
+                //Filter the client contact password - if it is sent with ***** we should ignore it!
+                if(isset($contact['password']))
+                {
+
+                    if(strlen($contact['password']) == 0){
+                        $input['contacts'][$key]['password'] = '';
+                    }
+                    else {
+                        $contact['password'] = str_replace("*", "", $contact['password']);
+
+                        if(strlen($contact['password']) == 0){
+                            unset($input['contacts'][$key]['password']);
+                        }
+
+                    }
+                    
+                }
+
             }
         }
-
         $this->replace($input);
     }
 }
