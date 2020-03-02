@@ -50,10 +50,9 @@ class PaymentNotification implements ShouldQueue
 
         if(isset($payment->company->slack_webhook_url)){
 
-            $url = 'https://hooks.slack.com/services/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';
-
-            Notification::route('slack', $url)
+            Notification::route('slack', $payment->company->slack_webhook_url)
                 ->notify(new NewPaymentNotification($payment, $payment->company, true));
+
         }
     }
 }
