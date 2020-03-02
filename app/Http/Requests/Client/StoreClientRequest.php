@@ -95,7 +95,7 @@ class StoreClientRequest extends Request
                 {
                     $contact['password'] = str_replace("*", "", $contact['password']);
 
-                    if(strlen($contact['password']) == 0)
+                    if(strlen($contact['password']) == 0 || is_null($contact['password']))
                         unset($input['contacts'][$key]['password']);
                 }
 
