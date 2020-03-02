@@ -81,8 +81,8 @@ class Designer {
 	public function getTable($entity):string 
 	{
 
-		$table_header = $entity->table_header($this->input_variables['table_columns'], $this->design->table_styles());
-		$table_body   = $entity->table_body($this->input_variables['table_columns'], $this->design->table_styles());
+		$table_header = $entity->table_header($this->input_variables['product_columns'], $this->design->table_styles());
+		$table_body   = $entity->table_body($this->input_variables['product_columns'], $this->design->table_styles());
 
 		$data = str_replace('$table_header', $table_header, $this->getSection('table'));
 		$data = str_replace('$table_body', $table_body, $data);
