@@ -515,7 +515,16 @@ class CompanySettings extends BaseSettings {
 				'credit_balance',
 				'credit_amount',
 			],
-			'table_columns' => [
+			'product_columns' => [
+				'product_key',
+				'notes',
+				'cost',
+				'quantity',
+				'discount',
+				'tax_name1',
+				'line_total'
+			],
+			'task_columns' => [
 				'product_key',
 				'notes',
 				'cost',
