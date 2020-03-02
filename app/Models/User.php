@@ -303,7 +303,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         if($this->company())
             return $this->company()->slack_webhook_url;
-
         
     }
 

@@ -3120,7 +3120,7 @@ $LANG = array(
     'new_signup_text' => 'A new account has been created by :user - :email - from IP address: :ip',
 
     'notification_payment_paid_subject' => 'Payment was made by :client',
-    'notification_paid_paid' => 'A payment of :amount was made by client :client towards :invoice.',
+    'notification_payment_paid' => 'A payment of :amount was made by client :client towards :invoice',
 
 
     'email_link_not_working' => 'If button above isn\'t working for you, please click on the link',

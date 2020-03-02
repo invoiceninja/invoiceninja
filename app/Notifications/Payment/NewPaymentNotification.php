@@ -26,11 +26,14 @@ class NewPaymentNotification extends Notification implements ShouldQueue
 
     protected $settings; 
 
-    public function __construct($payment, $company, $settings = null)
+    protected $is_system;
+
+    public function __construct($payment, $company, $is_system = false, $settings = null)
     {
         $this->payment = $payment;
         $this->company = $company;
         $this->settings = $payment->client->getMergedSettings();
+        $this->is_system = $is_system;
     }
 
     /**
@@ -41,8 +44,8 @@ class NewPaymentNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        //return ['mail'];
-        return ['mail'];
+
+        return $this->is_system ? ['slack'] : ['mail'];
     }
 
     /**
@@ -58,18 +61,16 @@ class NewPaymentNotification extends Notification implements ShouldQueue
         $invoice_texts = ctrans('texts.invoice_number_short');
 
         foreach($this->payment->invoices as $invoice)
-        {
             $invoice_texts .= $invoice->number . ',';
-        }
         
-        $invoice_texts = rtrim($invoice_texts);
+        $invoice_texts = substr($invoice_texts, 0, -1);
 
         $data = [
             'title' => ctrans('texts.notification_payment_paid_subject', ['client' => $this->payment->client->present()->name()]),
-            'message' => ctrans('texts.notification_paid_paid', ['amount' => $amount, 'client' => $this->payment->client->present()->name(), 'invoice' => $invoice_texts]),
+            'message' => ctrans('texts.notification_payment_paid', ['amount' => $amount, 'client' => $this->payment->client->present()->name(), 'invoice' => $invoice_texts]),
             'url' => config('ninja.site_url') . '/payments/' . $this->payment->hashed_id,
             'button' => ctrans('texts.view_payment'),
-            'signature' => $this->company->settings->email_signature,
+            'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),
         ];
 
@@ -97,13 +98,20 @@ class NewPaymentNotification extends Notification implements ShouldQueue
     public function toSlack($notifiable)
     {
         $logo = $this->company->present()->logo();
+        $amount = Number::formatMoney($this->payment->amount, $this->payment->client);
+        $invoice_texts = ctrans('texts.invoice_number_short');
+
+        foreach($this->payment->invoices as $invoice)
+            $invoice_texts .= $invoice->number . ',';
+        
+        $invoice_texts = substr($invoice_texts, 0, -1);
 
         return (new SlackMessage)
                 ->success()
-                ->to("#devv2")
+                //->to("#devv2")
                 ->from("System")
                 ->image($logo)
-                ->content("A new account has been created by {$user_name} - {$email} - from IP: {$ip}");
+                ->content(ctrans('texts.notification_payment_paid', ['amount' => $amount, 'client' => $this->payment->client->present()->name(), 'invoice' => $invoice_texts]));
     }
 
 }
