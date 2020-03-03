@@ -183,7 +183,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function company_user()
     {
-        if (!$this->id) {
+        if (!$this->id && auth()->user()) {
             $this->id = auth()->user()->id;
         }
 

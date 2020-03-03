@@ -81,7 +81,7 @@ class StoreClientRequest extends Request
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
         }
 
-        if(empty($input['settings']->currency_id))
+        if(empty($input['settings']) || empty($input['settings']->currency_id))
         {
             if(empty($input['group_settings_id']))
             {
