@@ -214,6 +214,7 @@ class CompanyController extends BaseController
             'is_admin' => 1,
             'is_locked' => 0,
             'permissions' => '',
+            'settings' => null,
             //'settings' => DefaultSettings::userSettings(),
         ]);
 
