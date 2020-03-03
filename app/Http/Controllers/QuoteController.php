@@ -24,6 +24,7 @@ use App\Http\Requests\Quote\EditQuoteRequest;
 use App\Http\Requests\Quote\ShowQuoteRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
@@ -201,7 +202,9 @@ class QuoteController extends BaseController
      */
     public function store(StoreQuoteRequest $request)
     {
-        $quote = $this->quote_repo->save($request->all(), QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $client = Client::find($request->input('client_id'));
+
+        $quote = $this->quote_repo->save($request->all(), $client->setQuoteDefaults());
 
         return $this->itemResponse($quote);
     }

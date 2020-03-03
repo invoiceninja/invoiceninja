@@ -18,6 +18,7 @@ use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Jobs\Credit\StoreCredit;
 use App\Jobs\Invoice\EmailCredit;
 use App\Jobs\Invoice\MarkInvoicePaid;
+use App\Models\Client;
 use App\Models\Credit;
 use App\Repositories\CreditRepository;
 use App\Transformers\CreditTransformer;
@@ -56,7 +57,9 @@ class CreditController extends BaseController
 
     public function store(StoreCreditRequest $request)
     {
-        $credit = $this->credit_repository->save($request->all(), CreditFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $client = Client::find($request->input('client_id'));
+
+        $credit = $this->credit_repository->save($request->all(), $client->setCreditDefaults());
 
         $credit = StoreCredit::dispatchNow($credit, $request->all(), $credit->company);
 

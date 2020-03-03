@@ -251,15 +251,15 @@ class BaseRepository
 		$state['finished_amount'] = $model->amount;
 
 		$model = $model->service()->applyNumber()->save();
+        
+        if ($model->client->getSetting('update_products') !== false) {
+            UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
+        }
 
         if ($class->name == Invoice::class) {
             
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
-            }
-
-            if ($model->company->update_products !== false) {
-                UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
             }
 
             $model = $model->calc()->getInvoice();

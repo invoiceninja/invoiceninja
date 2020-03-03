@@ -131,7 +131,7 @@ class SendTestEmails extends Command
             ]);
         }
 
-        $invoice = InvoiceFactory::create($company->id, $user->id, $client->getMergedSettings(), $client);
+        $invoice = InvoiceFactory::create($company->id, $user->id);
         $invoice->client_id = $client->id;
         $invoice->setRelation('client', $client);
         $invoice->save();

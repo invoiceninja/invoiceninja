@@ -58,7 +58,7 @@ class CreateTestInvoiceJob implements ShouldQueue
 
         $faker = \Faker\Factory::create();
 
-        $invoice = InvoiceFactory::create($this->client->company->id, $this->client->user->id, $this->client->getMergedSettings(), $this->client);//stub the company and user_id
+        $invoice = InvoiceFactory::create($this->client->company->id, $this->client->user->id);//stub the company and user_id
         $invoice->client_id = $this->client->id;
 //        $invoice->date = $faker->date();
         $dateable = Carbon::now()->subDays(rand(0,90));

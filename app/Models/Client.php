@@ -13,11 +13,14 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
+use App\Factory\QuoteFactory;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Country;
+use App\Models\Credit;
 use App\Models\Currency;
 use App\Models\DateFormat;
 use App\Models\DatetimeFormat;
@@ -26,6 +29,7 @@ use App\Models\GatewayType;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\Language;
+use App\Models\Quote;
 use App\Models\Timezone;
 use App\Models\User;
 use App\Services\Client\ClientService;
@@ -464,5 +468,23 @@ class Client extends BaseModel implements HasLocalePreference
         $invoice_factory->footer = $this->getSetting('invoice_footer');
         $invoice_factory->public_notes = isset($this->public_notes) ? $this->public_notes : '';
         return $invoice_factory;
+    }
+
+    public function setQuoteDefaults() :Quote
+    {
+        $quote_factory = QuoteFactory::create($this->company_id, auth()->user()->id);
+        $quote_factory->terms = $this->getSetting('quote_terms');
+        $quote_factory->footer = $this->getSetting('quote_footer');
+        $quote_factory->public_notes = isset($this->public_notes) ? $this->public_notes : '';
+        return $quote_factory;
+    }
+
+    public function setCreditDefaults() :Credit
+    {
+        $credit_factory = CreditFactory::create($this->company_id, auth()->user()->id);
+        $credit_factory->terms = $this->getSetting('credit_terms');
+        $credit_factory->footer = $this->getSetting('credit_footer');
+        $credit_factory->public_notes = isset($this->public_notes) ? $this->public_notes : '';
+        return $credit_factory;
     }
 }
