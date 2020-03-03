@@ -344,6 +344,9 @@ trait MakesInvoiceValues
         $data['$credit_amount'] =  &$data['$total'];
         $data['$credit_balance'] =  &$data['$balance'];
         $data['$credit.amount'] = &$data['$total'];
+        $data['$credit_number'] = &$data['$number'];
+        $data['$credit_no'] = &$data['$number'];
+        $data['$credit.credit_no'] = &$data['$number'];
 
         // $data['$invoice_issued_to'] = ;
         // $data['$quote_issued_to'] = ;
@@ -355,6 +358,7 @@ trait MakesInvoiceValues
         // $data['$quote_to'] = ;
         // $data['$details'] = ;
         $data['$invoice_no'] = $this->number ?: '&nbsp;';
+
         $data['$invoice.invoice_no'] = &$data['$invoice_no'];
         $data['$client1'] = $this->client->custom_value1 ?: '&nbsp;';
         $data['$client2'] = $this->client->custom_value2 ?: '&nbsp;';
@@ -432,7 +436,6 @@ trait MakesInvoiceValues
         $data['$statement_to'] = ;
         $data['$credit_note'] = ;
         $data['$credit_date'] = ;
-        $data['$credit_number'] = ;
         $data['$credit_issued_to'] = ;
         $data['$credit_to'] = ;
         $data['$your_credit'] = ;

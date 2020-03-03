@@ -47,7 +47,7 @@ class CreditService
 
     public function markSent()
     {
-        $this->credit = (new MarkSent($this->credit->client))->run($this->credit);
+        $this->credit = (new MarkSent($this->credit->client, $this->credit))->run();
 
         return $this;
     }

@@ -139,4 +139,40 @@ class EntityPresenter extends Presenter
             return $str . ' ' . $postalCode;
         }
     }
+
+    public function clientName()
+    {
+        return $this->client->present()->name();
+    }
+
+    public function address()
+    {
+        return $this->client->present()->address();
+    }
+
+    public function shippingAddress()
+    {
+        return $this->client->present()->shipping_address();
+    }
+
+    public function companyLogo()
+    {
+        return $this->company->logo;
+    }
+
+    public function clientLogo()
+    {
+        return $this->client->logo;
+    }
+
+    public function companyName()
+    {
+        return $this->company->present()->name();
+    }
+
+    public function companyAddress()
+    {
+        return $this->company->present()->address();
+    }
+
 }

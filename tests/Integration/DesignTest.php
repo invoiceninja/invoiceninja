@@ -4,6 +4,7 @@ namespace Tests\Integration;
 
 use App\Designs\Designer;
 use App\Designs\Modern;
+use App\Jobs\Credit\CreateCreditPdf;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Quote\CreateQuotePdf;
 use App\Utils\Traits\GeneratesCounter;
@@ -71,10 +72,38 @@ class DesignTest extends TestCase
     	$settings = $this->invoice->client->settings;
     	$settings->quote_design_id = "6";
 
+        $this->quote->client_id = $this->client->id;
+        $this->quote->setRelation('client', $this->client);
+        $this->quote->save();
+
     	$this->client->settings = $settings;
     	$this->client->save();
 
     	CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+    }
+
+    public function testCreditDesignExists()
+    {
+
+        $modern = new Modern();
+
+        $designer = new Designer($modern, $this->company->settings->pdf_variables, 'credit');
+
+        $html = $designer->build($this->credit)->getHtml();
+
+        $this->assertNotNull($html);
+
+        $settings = $this->invoice->client->settings;
+        $settings->quote_design_id = "6";
+
+        $this->credit->client_id = $this->client->id;
+        $this->credit->setRelation('client', $this->client);
+        $this->credit->save();
+        
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        CreateCreditPdf::dispatchNow($this->credit, $this->credit->company, $this->credit->client->primary_contact()->first());
     }
 
     public function testAllDesigns()
@@ -85,6 +114,10 @@ class DesignTest extends TestCase
 
         $settings = $this->invoice->client->settings;
         $settings->quote_design_id = (string)$x;
+        
+        $this->quote->client_id = $this->client->id;
+        $this->quote->setRelation('client', $this->client);
+        $this->quote->save();
 
         $this->client->settings = $settings;
         $this->client->save();
