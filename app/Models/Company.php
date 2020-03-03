@@ -337,9 +337,8 @@ class Company extends BaseModel
     {
         //todo need to return the company channel here for hosted users
         //else the env variable for selfhosted
-        if(config('ninja.environment') == 'selfhosted')
-            return config('ninja.notification.slack');
-        else
-            return $this->settings->system_notifications_slack;
+        //
+        return $this->slack_webhook_url;
+        
     }
 }

@@ -10,7 +10,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class NewPaymentNotification extends Notification implements ShouldQueue
+class NewPartialPaymentNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -66,9 +66,9 @@ class NewPaymentNotification extends Notification implements ShouldQueue
         $invoice_texts = substr($invoice_texts, 0, -1);
 
         $data = [
-            'title' => ctrans('texts.notification_payment_paid_subject', 
+            'title' => ctrans('texts.notification_partial_payment_paid_subject', 
                 ['client' => $this->payment->client->present()->name()]),
-            'message' => ctrans('texts.notification_payment_paid', 
+            'message' => ctrans('texts.notification_partial_payment_paid', 
                 ['amount' => $amount, 
                 'client' => $this->payment->client->present()->name(), 
                 'invoice' => $invoice_texts,
@@ -81,8 +81,8 @@ class NewPaymentNotification extends Notification implements ShouldQueue
 
 
         return (new MailMessage)
-                    ->subject(ctrans('texts.notification_payment_paid_subject', 
-                        ['client' => $this->payment->client->present()->name(),])
+                    ->subject(ctrans('texts.notification_partial_payment_paid_subject', 
+                        ['client' => $this->payment->client->present()->name()])
                     )->markdown('email.admin.generic', $data);
 
 

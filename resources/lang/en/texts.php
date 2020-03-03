@@ -3120,8 +3120,10 @@ $LANG = array(
     'new_signup_text' => 'A new account has been created by :user - :email - from IP address: :ip',
 
     'notification_payment_paid_subject' => 'Payment was made by :client',
+    'notification_partial_payment_paid_subject' => 'Partial payment was made by :client',
     'notification_payment_paid' => 'A payment of :amount was made by client :client towards :invoice',
-
+    'notification_partial_payment_paid' => 'A partial payment of :amount was made by client :client towards :invoice',
+    'notification_bot' => 'Notification Bot',
 
     'email_link_not_working' => 'If button above isn\'t working for you, please click on the link',
 );
