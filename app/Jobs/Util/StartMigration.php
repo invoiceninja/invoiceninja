@@ -2,6 +2,10 @@
 
 namespace App\Jobs\Util;
 
+use App\Exceptions\MigrationValidatorFailed;
+use App\Exceptions\NonExistingMigrationFile;
+use App\Exceptions\ResourceDependencyMissing;
+use App\Mail\MigrationFailed;
 use App\Models\User;
 use App\Models\Company;
 use App\Libraries\MultiDB;
@@ -11,6 +15,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Exceptions\ProcessingMigrationArchiveFailed;
+use App\Exceptions\ResourceNotAvailableForMigration;
+use Illuminate\Support\Facades\Mail;
 
 class StartMigration implements ShouldQueue
 {
@@ -38,7 +44,7 @@ class StartMigration implements ShouldQueue
      */
     public function __construct($filepath, User $user, Company $company)
     {
-        $this->filepath = $filepath;
+        $this->filepath = base_path("public/storage/$filepath");
         $this->user = $user;
         $this->company = $company;
     }
@@ -47,6 +53,8 @@ class StartMigration implements ShouldQueue
      * Execute the job.
      *
      * @return void
+     * @throws ProcessingMigrationArchiveFailed
+     * @throws NonExistingMigrationFile
      */
     public function handle()
     {
@@ -58,43 +66,39 @@ class StartMigration implements ShouldQueue
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);
 
         try {
-            if ($archive) {
-                $zip->extractTo(storage_path("migrations/{$filename}"));
-                $zip->close();
-
-                if (app()->environment() !== 'testing') {
-                    $this->start($filename);
-                }
-            } else {
+            if (!$archive)
                 throw new ProcessingMigrationArchiveFailed();
-            }
-        } catch (ProcessingMigrationArchiveFailed $e) {
-            // TODO: Break the code, stop the migration.. send an e-mail.
-        }
 
-        // Rest of the migration..
+            $zip->extractTo(storage_path("migrations/{$filename}"));
+            $zip->close();
+
+            if (app()->environment() == 'testing')
+                return;
+
+            $this->start($filename);
+        } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
+            Mail::to(auth()->user())->send(new MigrationFailed($e->getMessage()));
+            if(app()->environment() !== 'production') info($e->getMessage());
+        }
     }
 
 
     /**
      * Main method to start the migration.
+     * @throws NonExistingMigrationFile
      */
-    protected function start(string $filename): void
+    public function start(string $filename): void
     {
         $file = storage_path("migrations/$filename/migration.json");
 
         if (!file_exists($file))
-            return;
+            throw new NonExistingMigrationFile();
 
-        try {
-            $handle = fopen($file, "r");
-            $file = fread($handle, filesize($file));
-            fclose($handle);
+        $handle = fopen($file, "r");
+        $file = fread($handle, filesize($file));
+        fclose($handle);
 
-            $data = json_decode($file, 1);
-            Import::dispatchNow($data, $this->company, $this->user);
-        } catch (\Exception $e) {
-            info('Migration failed. Handle this.'); // TODO: Handle the failed job.
-        }
+        $data = json_decode($file, 1);
+        Import::dispatchNow($data, $this->company, $this->user);
     }
 }

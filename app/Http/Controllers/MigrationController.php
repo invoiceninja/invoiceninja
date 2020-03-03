@@ -11,10 +11,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\MigrationValidatorFailed;
+use App\Exceptions\NonExistingMigrationFile;
+use App\Exceptions\ProcessingMigrationArchiveFailed;
+use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Http\Requests\Account\CreateAccountRequest;
 use App\Http\Requests\Migration\UploadMigrationFileRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Jobs\Util\StartMigration;
+use App\Mail\MigrationFailed;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyUser;
@@ -23,6 +28,11 @@ use App\Transformers\CompanyUserTransformer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use function GuzzleHttp\Promise\queue;
+use App\Models\User;
+use Illuminate\Support\Facades\Artisan;
 
 class MigrationController extends BaseController
 {
@@ -69,7 +79,6 @@ class MigrationController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -82,9 +91,8 @@ class MigrationController extends BaseController
     {
         $company->delete();
 
-        return response()->json(['message'=>'Company purged'], 200);
+        return response()->json(['message' => 'Company purged'], 200);
     }
-
 
 
     /**
@@ -122,7 +130,6 @@ class MigrationController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -136,7 +143,7 @@ class MigrationController extends BaseController
         $company->client->delete();
         $company->save();
 
-        return response()->json(['message'=>'Settings preserved'], 200);
+        return response()->json(['message' => 'Settings preserved'], 200);
     }
 
     /**
@@ -152,7 +159,7 @@ class MigrationController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Password"), 
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Password"),
      *      @OA\Parameter(
      *          name="migration",
      *          in="path",
@@ -175,7 +182,6 @@ class MigrationController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -186,13 +192,23 @@ class MigrationController extends BaseController
      */
     public function startMigration(Request $request, Company $company)
     {
-        if($request->has('force'))
+        if ($request->has('force'))
             $this->purgeCompany($company);
 
-        if(app()->environment() !== 'testing') {
-            StartMigration::dispatchNow($request->file('migration'), auth()->user(), $company);
-        }
+        $migration_file = $request->file('migration')
+            ->storeAs('migrations', $request->file('migration')->getClientOriginalName());
 
-        return response()->json([], 200);
+        if (app()->environment() == 'testing') return;
+
+        $user = auth()->user();
+        $company = $company;
+
+        StartMigration::dispatch($migration_file, $user, $company);
+
+        return response()->json([
+            '_id' => Str::uuid(),   
+            'method' => config('queue.default'),
+            'started_at' => now(),
+        ], 200);
     }
 }

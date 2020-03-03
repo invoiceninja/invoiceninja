@@ -5,7 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Throwable;
 
-class MigrationValidatorFailed extends Exception
+class NonExistingMigrationFile extends Exception
 {
     public function __construct($message = "", $code = 0, Throwable $previous = null)
     {
@@ -14,6 +14,6 @@ class MigrationValidatorFailed extends Exception
 
     public function report()
     {
-        return $this->message;
+        return 'Migration file doesn\'t exist or it is corrupted.';
     }
 }

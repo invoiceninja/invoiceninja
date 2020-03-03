@@ -69,15 +69,15 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
-        'company', 
-        'users', 
-        'tax_rates', 
-        'clients', 
-        'products', 
-        'invoices', 
-        'quotes', 
-        'payments', 
-        'credits', 
+        'company',
+        'users',
+        'tax_rates',
+        'clients',
+        'products',
+        'invoices',
+        'quotes',
+        'payments',
+        'credits',
         'company_gateways',
         'documents',
         'client_gateway_tokens',
@@ -126,24 +126,15 @@ class Import implements ShouldQueue
      */
     public function handle()
     {
-    
-        try {
-            foreach ($this->data as $key => $resource) {
+        foreach ($this->data as $key => $resource) {
 
-                if (!in_array($key, $this->available_imports)) {
-                    throw new ResourceNotAvailableForMigration($key);
-                }
-
-                $method = sprintf("process%s", Str::ucfirst(Str::camel($key)));
-
-                $this->{$method}($resource);
+            if (!in_array($key, $this->available_imports)) {
+                throw new ResourceNotAvailableForMigration($key);
             }
-        } catch (ResourceNotAvailableForMigration $e) {
-            Mail::to($this->user)->send(new MigrationFailed($e));
-        } catch (MigrationValidatorFailed $e) {
-            Mail::to($this->user)->send(new MigrationFailed($e));
-        } catch (ResourceDependencyMissing $e) {
-            Mail::to($this->user)->send(new MigrationFailed($e));
+
+            $method = sprintf("process%s", Str::ucfirst(Str::camel($key)));
+
+            $this->{$method}($resource);
         }
     }
 
@@ -297,7 +288,7 @@ class Import implements ShouldQueue
                     $modified_contacts[$key]['company_id'] = $this->company->id;
                     $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
                     $modified_contacts[$key]['client_id'] = $client->id;
-                    $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code.. 
+                    $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code..
                     unset($modified_contacts[$key]['id']);
                 }
 
@@ -482,7 +473,7 @@ class Import implements ShouldQueue
             );
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
-            
+
             $key = "invoices_{$resource['id']}";
 
             $this->ids['quotes'][$key] = [
@@ -568,14 +559,14 @@ class Import implements ShouldQueue
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && !array_key_exists('expenses', $this->ids)) {
                 throw new ResourceDependencyMissing(array_key_first($data), 'expenses');
             }
-            
+
             /** Remove because of polymorphic joins. */
             unset($modified['invoice_id']);
             unset($modified['expense_id']);
 
             if(array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
-                $modified['documentable_id'] = $this->transformId('invoices', $resource['invoice_id']);  
-                $modified['documentable_type'] = 'App\\Models\\Invoice'; 
+                $modified['documentable_id'] = $this->transformId('invoices', $resource['invoice_id']);
+                $modified['documentable_type'] = 'App\\Models\\Invoice';
             }
 
             if(array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
@@ -608,7 +599,7 @@ class Import implements ShouldQueue
             '*.gateway_key' => 'required',
             '*.fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
         ];
-        
+
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
@@ -653,7 +644,7 @@ class Import implements ShouldQueue
         ClientGatewayToken::unguard();
 
         foreach ($data as $resource) {
-            
+
             $modified = $resource;
 
             unset($modified['id']);
