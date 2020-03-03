@@ -34,6 +34,7 @@ class CompanyFactory
         //$company->custom_fields = (object) ['invoice1' => '1', 'invoice2' => '2', 'client1'=>'3'];
         $company->custom_fields = (object) [];
         $company->subdomain = '';
+        $company->enabled_modules = 2047;
 
         return $company;
     }

@@ -89,6 +89,7 @@ return [
     ],
     'notification' => [
         'slack' => env('SLACK_WEBHOOK_URL',''),
+        'mail' => env('HOSTED_EMAIL',''),
     ],
     'payment_terms' => [
         [

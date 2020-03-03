@@ -18,6 +18,7 @@ use App\Notifications\Payment\NewPaymentNotification;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Notification;
 
 class PaymentNotification implements ShouldQueue
 {
@@ -45,6 +46,13 @@ class PaymentNotification implements ShouldQueue
         foreach($payment->company->company_users as $company_user)
         {
             $company_user->user->notify(new NewPaymentNotification($payment, $payment->company));
+        }
+
+        if(isset($payment->company->slack_webhook_url)){
+
+            Notification::route('slack', $payment->company->slack_webhook_url)
+                ->notify(new NewPaymentNotification($payment, $payment->company, true));
+
         }
     }
 }

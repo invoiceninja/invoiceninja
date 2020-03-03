@@ -17,7 +17,7 @@ use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\User\CreateUser;
 use App\Models\Account;
 use App\Models\User;
-use App\Notifications\NewAccountCreated;
+use App\Notifications\Ninja\NewAccountCreated;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
@@ -92,14 +92,7 @@ class CreateAccount
         
         $user->fresh();
 
-        $company->notification(new NewAccountCreated($user, $company))->run();
-        
-        // $user->route('slack', $company->settings->system_notifications_slack)
-        //      ->route('mail', $company->settings->system_notifications_email)
-        //      ->notify(new NewAccountCreated($user, $company));
-
-        // Notification::route('slack', config('ninja.notification.slack'))
-        //             ->notify(new NewAccountCreated($user, $company));
+        $company->notification(new NewAccountCreated($user, $company))->ninja();
 
         return $account;
     }

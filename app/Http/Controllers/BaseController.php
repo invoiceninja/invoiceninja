@@ -288,6 +288,7 @@ class BaseController extends Controller
           'company.invoices',
           'company.payments.paymentables',
           'company.quotes',
+          'company.credits',
           'company.vendors.contacts',
           'company.expenses',
           'company.tasks',

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Ninja;
 
 use App\Mail\Signup\NewSignup;
 use Illuminate\Bus\Queueable;

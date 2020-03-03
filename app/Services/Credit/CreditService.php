@@ -2,6 +2,8 @@
 namespace App\Services\Credit;
 
 use App\Models\Credit;
+use App\Services\Credit\CreateInvitations;
+use App\Services\Credit\MarkSent;
 
 class CreditService
 {
@@ -32,6 +34,20 @@ class CreditService
     public function createInvitations()
     {
         $this->credit = (new CreateInvitations($this->credit))->run();
+
+        return $this;
+    }
+
+    public function setStatus($status)
+    {
+        $this->credit->status_id = $status;
+
+        return $this;
+    }
+
+    public function markSent()
+    {
+        $this->credit = (new MarkSent($this->credit->client))->run($this->credit);
 
         return $this;
     }

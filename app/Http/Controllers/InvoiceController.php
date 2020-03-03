@@ -159,7 +159,7 @@ class InvoiceController extends BaseController {
 	 */
 	public function create(CreateInvoiceRequest $request) {
 		
-		$invoice = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id, $client->getMergedSettings(), $client);
+		$invoice = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
 		return $this->itemResponse($invoice);
 	}
@@ -208,7 +208,7 @@ class InvoiceController extends BaseController {
 
 		$client = Client::find($request->input('client_id'));
 
-		$invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id), $client->getMergedSettings(), $client);
+		$invoice = $this->invoice_repo->save($request->all(), $client->setInvoiceDefaults());
 
 		$invoice = StoreInvoice::dispatchNow($invoice, $request->all(), $invoice->company);//todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
 
@@ -514,6 +514,10 @@ class InvoiceController extends BaseController {
 			return response()->json(['message' => 'No Invoices Found']);
 		}
 
+		/*
+		 * Download Invoice/s
+		 */
+
 		if($action == 'download' && $invoices->count() > 1)
 		{
 			
@@ -530,7 +534,9 @@ class InvoiceController extends BaseController {
 			return response()->json(['message' => 'Email Sent!'],200);
 		}
 
-
+		/*
+		 * Send the other actions to the switch
+		 */
 		$invoices->each(function ($invoice, $key) use ($action) {
 
 			if (auth()->user()->can('edit', $invoice)) {

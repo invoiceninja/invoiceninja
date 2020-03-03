@@ -56,6 +56,8 @@ class StoreCompanyRequest extends Request
             $input['settings']['pdf_variables'] = CompanySettings::getEntityVariableDefaults();
         }
 
+
+        
         $this->replace($input);
     }
 }

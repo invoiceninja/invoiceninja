@@ -13,12 +13,14 @@ namespace App\Models;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Jobs\Credit\CreateCreditPdf;
 use App\Models\Filterable;
 use App\Services\Credit\CreditService;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Credit extends BaseModel
 {
@@ -64,8 +66,9 @@ class Credit extends BaseModel
     ];
 
     const STATUS_DRAFT = 1;
-    const STAUS_PARTIAL =  2;
-    const STATUS_APPLIED = 3;
+    const STATUS_SENT = 2;
+    const STATUS_PARTIAL = 3;
+    const STATUS_APPLIED = 4;
 
     public function assigned_user()
     {
@@ -171,6 +174,32 @@ class Credit extends BaseModel
     {
         $this->status_id = $status;
         $this->save();
+    }
+
+    public function pdf_file_path($invitation = null)
+    {
+        $storage_path = 'storage/' . $this->client->credit_filepath() . $this->number . '.pdf';
+
+        if (Storage::exists($storage_path)) 
+            return $storage_path;
+
+        if(!$invitation)
+            CreateCreditPdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
+        else
+            CreateCreditPdf::dispatchNow($invitation->credit, $invitation->company, $invitation->contact);
+
+        return $storage_path;
+
+    }
+
+    public function markInvitationsSent()
+    {
+        $this->invitations->each(function ($invitation) {
+            if (!isset($invitation->sent_date)) {
+                $invitation->sent_date = Carbon::now();
+                $invitation->save();
+            }
+        });
     }
     
 }
