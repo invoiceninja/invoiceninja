@@ -9,26 +9,29 @@ class MarkSent
 {
     private $client;
 
-    public function __construct($client)
+    private $credit;
+
+    public function __construct($client, $credit)
     {
         $this->client = $client;
+        $this->credit = $credit;
     }
 
-    public function run($credit)
+    public function run()
     {
 
         /* Return immediately if status is not draft */
-        if ($credit->status_id != Credit::STATUS_DRAFT) {
-            return $credit;
+        if ($this->credit->status_id != Credit::STATUS_DRAFT) {
+            return $this->credit;
         }
 
-        $credit->markInvitationsSent();
+        $this->credit->markInvitationsSent();
 
-        event(new CreditWasMarkedSent($credit, $credit->company));
+        event(new CreditWasMarkedSent($this->credit, $this->credit->company));
 
-        $credit->service()->setStatus(Credit::STATUS_SENT)->applyNumber()->save();
+        $this->credit->service()->setStatus(Credit::STATUS_SENT)->applyNumber()->save();
 
-        return $credit;
+        return $this->credit;
 
     }
 }

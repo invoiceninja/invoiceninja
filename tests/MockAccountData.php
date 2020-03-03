@@ -248,6 +248,13 @@ trait MockAccountData
 
         $this->credit->save();
         
+
+        $this->credit_calc = new InvoiceSum($this->credit);
+        $this->credit_calc->build();
+
+        $this->credit = $this->credit_calc->getCredit();
+        $this->credit->service()->markSent();
+
         $contacts = $this->invoice->client->contacts;
 
         $contacts->each(function ($contact) {

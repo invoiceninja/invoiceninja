@@ -18,9 +18,11 @@ use App\Models\Filterable;
 use App\Services\Credit\CreditService;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceValues;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Laracasts\Presenter\PresentableTrait;
 
 class Credit extends BaseModel
 {
@@ -28,7 +30,11 @@ class Credit extends BaseModel
     use Filterable;
     use MakesDates;
     use SoftDeletes;
-    
+    use PresentableTrait;
+    use MakesInvoiceValues;
+
+    protected $presenter = 'App\Models\Presenters\CreditPresenter';
+
     protected $fillable = [
         'number',
         'discount',
