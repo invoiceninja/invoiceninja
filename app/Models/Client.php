@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Factory\InvoiceFactory;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -23,6 +24,7 @@ use App\Models\DatetimeFormat;
 use App\Models\Filterable;
 use App\Models\GatewayType;
 use App\Models\GroupSetting;
+use App\Models\Invoice;
 use App\Models\Language;
 use App\Models\Timezone;
 use App\Models\User;
@@ -453,5 +455,14 @@ class Client extends BaseModel implements HasLocalePreference
     public function credit_filepath()
     {
         return $this->client_hash . '/credits/';
+    }
+
+    public function setInvoiceDefaults() :Invoice
+    {
+        $invoice_factory = InvoiceFactory::create($this->company_id, auth()->user()->id);
+        $invoice_factory->terms = $this->getSetting('invoice_terms');
+        $invoice_factory->footer = $this->getSetting('invoice_footer');
+        $invoice_factory->public_notes = isset($this->public_notes) ? $this->public_notes : '';
+        return $invoice_factory;
     }
 }
