@@ -2,6 +2,7 @@
 namespace App\Services\Quote;
 
 use App\Models\Quote;
+use App\Services\Quote\CreateInvitations;
 
 class QuoteService
 {

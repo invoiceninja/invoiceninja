@@ -15,6 +15,7 @@ use App\DataMapper\ClientSettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use App\Models\Client;
+use App\Models\GroupSetting;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
@@ -78,6 +79,23 @@ class StoreClientRequest extends Request
         
         if (isset($input['group_settings_id'])) {
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+        }
+
+        if(empty($input['settings']->currency_id))
+        {
+            if(empty($input['group_settings_id']))
+            {
+                $input['settings']->currency_id = auth()->user()->company()->settings->currency_id;
+            }
+            else
+            {
+                $group_settings = GroupSetting::find($input['group_settings_id']);
+
+                if($group_settings && property_exists($group_settings, 'currency_id') && is_int($group_settings->currency_id))
+                    $input['settings']->currency_id = $group_settings->currency_id;
+                else
+                  $input['settings']->currency_id = auth()->user()->company()->settings->currency_id;
+            }
         }
 
         if(isset($input['contacts']))

@@ -2,6 +2,7 @@
 namespace App\Services\Credit;
 
 use App\Models\Credit;
+use App\Services\Credit\CreateInvitations;
 
 class CreditService
 {
