@@ -104,8 +104,6 @@ class ImportTest extends TestCase
 
     public function testInvoicesImporting()
     {
-        $this->markTestSkipped('ErrorException : Undefined property: stdClass::$email_signature');
-
         $this->makeTestData();
 
         $this->invoice->forceDelete();
@@ -149,8 +147,6 @@ class ImportTest extends TestCase
 
     public function testAllImport()
     {
-        $this->markTestSkipped('ErrorException : Undefined property: stdClass::$email_signature');
-
         //$this->makeTestData();
 
         $this->invoice->forceDelete();
@@ -250,8 +246,6 @@ class ImportTest extends TestCase
 
     public function testPaymentsImport()
     {
-        $this->markTestSkipped('ErrorException : Undefined property: stdClass::$email_signature');
-
         $original_count = Payment::count();
 
         $this->invoice->forceDelete();
