@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Migration;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\MigrationAuthRequest;
+use App\Http\Requests\MigrationCompaniesRequest;
+use App\Http\Requests\MigrationEndpointRequest;
+use App\Http\Requests\MigrationTypeRequest;
 use App\Libraries\Utils;
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
@@ -16,17 +20,10 @@ use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-
-use App\Http\Controllers\BaseController;
-use App\Http\Requests\MigrationAuthRequest;
-use App\Http\Requests\MigrationCompaniesRequest;
-use App\Http\Requests\MigrationEndpointRequest;
-use App\Http\Requests\MigrationTypeRequest;
-use App\Models\Document;
 use App\Services\Migration\AuthService;
 use App\Services\Migration\CompanyService;
 use App\Services\Migration\CompleteService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 
 class StepsController extends BaseController
@@ -147,30 +144,15 @@ class StepsController extends BaseController
         if($this->shouldGoBack('companies'))
             return redirect($this->access['companies']['redirect']);
 
-        $successful = false;
-
         foreach ($request->companies as $company) {
             $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
             ->file($this->getMigrationFile())
             ->company($company)
             ->endpoint(session('MIGRATION_ENDPOINT'))
             ->start();
-
-            if($completeService->isSuccessful()) {
-                $successful = true;
-            }
-
-            $successful = false;
         }
 
-        if($successful) {
-            return view('migration.completed');
-        }
-
-        return response([
-            'message' => 'Failed',
-            'errors' => $completeService->getErrors(),
-        ]);
+        return view('migration.completed');
     }
 
     public function completed()
@@ -263,7 +245,6 @@ class StepsController extends BaseController
             'show_product_details' => $this->account->show_product_notes,
             'custom_surcharge_taxes1' => $this->account->custom_invoice_taxes1,
             'custom_surcharge_taxes2' => $this->account->custom_invoice_taxes2,
-            'enable_invoice_quantity' => !$this->account->hide_quantity,
             'subdomain' => $this->account->subdomain,
             'size_id' => $this->account->size_id,
             'enable_modules' => $this->account->enabled_modules,
