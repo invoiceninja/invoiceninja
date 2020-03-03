@@ -114,6 +114,7 @@ class CompanySettings extends BaseSettings {
 	public $enabled_item_tax_rates = 0;
 	public $invoice_design_id      = '1';
 	public $quote_design_id        = '1';
+	public $credit_design_id        = '1';
 	public $invoice_footer         = '';
 	public $credit_footer         = '';
 	public $credit_terms         = '';
@@ -345,6 +346,7 @@ class CompanySettings extends BaseSettings {
 		'phone'                              => 'string',
 		'postal_code'                        => 'string',
 		'quote_design_id'                    => 'string',
+		'credit_design_id'                   => 'string',
 		'quote_number_pattern'               => 'string',
 		'quote_number_counter'               => 'integer',
 		'quote_terms'                        => 'string',

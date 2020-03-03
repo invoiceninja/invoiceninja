@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Jobs\Credit\CreateCreditPdf;
 use App\Models\Filterable;
 use App\Services\Credit\CreditService;
 use App\Utils\Traits\MakesDates;
@@ -171,6 +172,22 @@ class Credit extends BaseModel
     {
         $this->status_id = $status;
         $this->save();
+    }
+
+    public function pdf_file_path($invitation = null)
+    {
+        $storage_path = 'storage/' . $this->client->credit_filepath() . $this->number . '.pdf';
+
+        if (Storage::exists($storage_path)) 
+            return $storage_path;
+
+        if(!$invitation)
+            CreateCreditPdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
+        else
+            CreateCreditPdf::dispatchNow($invitation->credit, $invitation->company, $invitation->contact);
+
+        return $storage_path;
+
     }
     
 }

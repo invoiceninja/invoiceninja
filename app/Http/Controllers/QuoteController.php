@@ -24,6 +24,7 @@ use App\Http\Requests\Quote\EditQuoteRequest;
 use App\Http\Requests\Quote\ShowQuoteRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
+use App\Jobs\Invoice\ZipInvoices;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Quote;
@@ -498,20 +499,55 @@ class QuoteController extends BaseController
      */
     public function bulk()
     {
+        /*
+         * WIP!
+         */
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
 
-        $quotes = Quote::withTrashed()->find($this->transformKeys($ids));
+        $quotes = Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
+        if (!$quotes) {
+            return response()->json(['message' => 'No Quotes Found']);
+        }
+
+        /*
+         * Download Invoice/s
+         */
+
+        if($action == 'download' && $quotes->count() > 1)
+        {
+            
+            $quotes->each(function ($quote) {
+
+                if(auth()->user()->cannot('view', $quote)){
+                    return response()->json(['message'=>'Insufficient privileges to access quote '. $quote->number]);
+                }
+
+            });
+
+            ZipInvoices::dispatch($quotes, $quotes->first()->company, auth()->user()->email);
+
+            return response()->json(['message' => 'Email Sent!'],200);
+        }
+
+        /*
+         * Send the other actions to the switch
+         */
         $quotes->each(function ($quote, $key) use ($action) {
+
             if (auth()->user()->can('edit', $quote)) {
-                $this->quote_repo->{$action}($quote);
+                $this->performAction($quote, $action, true);
             }
+
         });
 
-        return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        /* Need to understand which permission are required for the given bulk action ie. view / edit */
+
+        return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
     }
+    
 
     /**
      * Quote Actions
@@ -583,13 +619,19 @@ class QuoteController extends BaseController
      *     )
      *
      */
-    public function action(ActionQuoteRequest $request, Quote $quote, $action)
+    
+    public function action(ActionQuoteRequest $request, Quote $quote, $action) {
+        return $this->performAction($quote, $action);
+    }
+
+
+    private function performAction(Quote $quote, $action, $bulk = false)
     {
         switch ($action) {
             case 'clone_to_invoice':
 
-                $this->entity_type = Invoice::class;
-                $this->entity_transformer = InvoiceTransformer::class;
+                $this->entity_type = Quote::class;
+                $this->entity_transformer = QuoteTransformer::class;
 
                 $invoice = CloneQuoteToInvoiceFactory::create($quote, auth()->user()->id);
                 return $this->itemResponse($invoice);
@@ -621,9 +663,16 @@ class QuoteController extends BaseController
             case 'email':
                 return response()->json(['message'=>'email sent'], 200);
                 break;
+            case 'mark_sent':
+                $quote->service()->markSent()->save();
+
+                if (!$bulk) {
+                    return $this->itemResponse($quote);
+                }
             default:
                 return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
                 break;
         }
     }
+
 }

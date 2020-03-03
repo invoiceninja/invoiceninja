@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 
 class QuoteFactory
 {
-    public static function create(int $company_id, int $user_id, object $settings = null, Client $client = null) :Quote
+    public static function create(int $company_id, int $user_id) :Quote
     {
         $quote = new Quote();
         $quote->status_id = Quote::STATUS_DRAFT;
@@ -27,9 +27,9 @@ class QuoteFactory
         $quote->discount = 0;
         $quote->is_amount_discount = true;
         $quote->po_number = '';
-        $quote->footer = isset($settings) && strlen($settings->quote_footer) > 0 ? $settings->quote_footer : '';
-        $quote->terms = isset($settings) && strlen($settings->quote_terms) > 0 ? $settings->quote_terms : '';
-        $quote->public_notes = isset($client) && strlen($client->public_notes) > 0 ? $client->public_notes : '';
+        $quote->footer = '';
+        $quote->terms = '';
+        $quote->public_notes = '';
         $quote->private_notes = '';
         $quote->date = null;
         $quote->due_date = null;

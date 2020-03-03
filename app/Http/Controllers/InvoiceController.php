@@ -514,6 +514,10 @@ class InvoiceController extends BaseController {
 			return response()->json(['message' => 'No Invoices Found']);
 		}
 
+		/*
+		 * Download Invoice/s
+		 */
+
 		if($action == 'download' && $invoices->count() > 1)
 		{
 			
@@ -530,7 +534,9 @@ class InvoiceController extends BaseController {
 			return response()->json(['message' => 'Email Sent!'],200);
 		}
 
-
+		/*
+		 * Send the other actions to the switch
+		 */
 		$invoices->each(function ($invoice, $key) use ($action) {
 
 			if (auth()->user()->can('edit', $invoice)) {
