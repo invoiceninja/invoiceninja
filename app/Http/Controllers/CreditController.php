@@ -536,7 +536,7 @@ class CreditController extends BaseController
                 }
                 break;
             case 'mark_sent':
-                $credit->markSent();
+                $credit->service()->markSent()->save();
 
                 if (!$bulk) {
                     return $this->itemResponse($credit);

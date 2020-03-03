@@ -51,6 +51,18 @@ class Company extends BaseModel
     use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
     use \Staudenmeir\EloquentHasManyDeep\HasTableAlias;
 
+        const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
+        const ENTITY_CREDIT = 'credit';
+        const ENTITY_QUOTE = 'quote';
+        const ENTITY_TASK = 'task';
+        const ENTITY_EXPENSE = 'expense';
+        const ENTITY_PROJECT = 'project';
+        const ENTITY_VENDOR = 'vendor';
+        const ENTITY_TICKET = 'ticket';
+        const ENTITY_PROPOSAL = 'proposal';
+        const ENTITY_RECURRING_EXPENSE = 'expense';
+        const ENTITY_RECURRING_TASK = 'task';
+
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 
     protected $fillable = [
@@ -98,6 +110,20 @@ class Company extends BaseModel
 
     protected $with = [
    //     'tokens'
+    ];
+
+    public static $modules = [
+        self::ENTITY_RECURRING_INVOICE => 1,
+        self::ENTITY_CREDIT => 2,
+        self::ENTITY_QUOTE => 4,
+        self::ENTITY_TASK => 8,
+        self::ENTITY_EXPENSE => 16,
+        self::ENTITY_PROJECT => 32,
+        self::ENTITY_VENDOR => 64,
+        self::ENTITY_TICKET => 128,
+        self::ENTITY_PROPOSAL => 256,
+        self::ENTITY_RECURRING_EXPENSE => 512,
+        self::ENTITY_RECURRING_TASK => 1024,
     ];
 
     public function getCompanyIdAttribute()

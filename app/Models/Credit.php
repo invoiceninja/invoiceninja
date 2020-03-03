@@ -20,6 +20,7 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Credit extends BaseModel
 {
@@ -65,8 +66,9 @@ class Credit extends BaseModel
     ];
 
     const STATUS_DRAFT = 1;
-    const STAUS_PARTIAL =  2;
-    const STATUS_APPLIED = 3;
+    const STATUS_SENT = 2;
+    const STATUS_PARTIAL = 3;
+    const STATUS_APPLIED = 4;
 
     public function assigned_user()
     {
@@ -188,6 +190,16 @@ class Credit extends BaseModel
 
         return $storage_path;
 
+    }
+
+    public function markInvitationsSent()
+    {
+        $this->invitations->each(function ($invitation) {
+            if (!isset($invitation->sent_date)) {
+                $invitation->sent_date = Carbon::now();
+                $invitation->save();
+            }
+        });
     }
     
 }

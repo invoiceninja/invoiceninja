@@ -13,6 +13,7 @@ namespace App\Providers;
 
 use App\Events\Client\ClientWasCreated;
 use App\Events\Contact\ContactLoggedIn;
+use App\Events\Credit\CreditWasMarkedSent;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasMarkedSent;
@@ -100,8 +101,10 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\ActivityListener@restoredClient',
         ],
 
-        //Invoices
+        CreditWasMarkedSent::class => [
+        ],
         
+        //Invoices
         InvoiceWasMarkedSent::class => [
             CreateInvoiceHtmlBackup::class,
         ],

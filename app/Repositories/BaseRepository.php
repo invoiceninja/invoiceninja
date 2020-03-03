@@ -252,7 +252,7 @@ class BaseRepository
 
 		$model = $model->service()->applyNumber()->save();
         
-        if ($model->client->getSetting('update_products') !== false) {
+        if ($model->company->update_products !== false) {
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
         }
 
