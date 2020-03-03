@@ -69,7 +69,7 @@ class NewPaymentNotification extends Notification implements ShouldQueue
             'message' => ctrans('texts.notification_paid_paid', ['amount' => $amount, 'client' => $this->payment->client->present()->name(), 'invoice' => $invoice_texts]),
             'url' => config('ninja.site_url') . '/payments/' . $this->payment->hashed_id,
             'button' => ctrans('texts.view_payment'),
-            'signature' => $this->company->settings->email_signature,
+            'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),
         ];
 

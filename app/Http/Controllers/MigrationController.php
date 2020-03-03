@@ -31,6 +31,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use function GuzzleHttp\Promise\queue;
+use App\Models\User;
+use Illuminate\Support\Facades\Artisan;
 
 class MigrationController extends BaseController
 {
@@ -193,27 +195,20 @@ class MigrationController extends BaseController
         if ($request->has('force'))
             $this->purgeCompany($company);
 
-        $error_bag = null;
+        $migration_file = $request->file('migration')
+            ->storeAs('migrations', $request->file('migration')->getClientOriginalName());
 
         if (app()->environment() == 'testing') return;
 
-        try {
-            if(config('queue.default') == 'sync')
-                StartMigration::dispatchNow($request->file('migration'), auth()->user(), $company);
+        $user = auth()->user();
+        $company = $company;
 
-            if(config('queue.default') !== 'sync')
-                StartMigration::dispatch($request->file('migration'), auth()->user(), $company);
-
-        } catch (ProcessingMigrationArchiveFailed | NonExistingMigrationFile | ResourceNotAvailableForMigration | MigrationValidatorFailed $e) {
-            Mail::to(auth()->user())->send(new MigrationFailed($e->getMessage()));
-            $error_bag = $e->getMessage();
-        }
+        StartMigration::dispatch($migration_file, $user, $company);
 
         return response()->json([
-            '_id' => Str::uuid(),
+            '_id' => Str::uuid(),   
             'method' => config('queue.default'),
-            'errors' => $error_bag,
-            'success' => $error_bag ? true : false,
+            'started_at' => now(),
         ], 200);
     }
 }

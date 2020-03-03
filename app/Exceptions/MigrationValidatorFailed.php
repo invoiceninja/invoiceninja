@@ -14,6 +14,6 @@ class MigrationValidatorFailed extends Exception
 
     public function report()
     {
-        // Send, an e-mail & notify users.
+        return $this->message;
     }
 }

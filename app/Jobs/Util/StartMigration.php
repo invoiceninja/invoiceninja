@@ -15,6 +15,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Exceptions\ProcessingMigrationArchiveFailed;
+use App\Exceptions\ResourceNotAvailableForMigration;
 use Illuminate\Support\Facades\Mail;
 
 class StartMigration implements ShouldQueue
@@ -43,7 +44,7 @@ class StartMigration implements ShouldQueue
      */
     public function __construct($filepath, User $user, Company $company)
     {
-        $this->filepath = $filepath;
+        $this->filepath = base_path("public/storage/$filepath");
         $this->user = $user;
         $this->company = $company;
     }
@@ -64,16 +65,20 @@ class StartMigration implements ShouldQueue
 
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);
 
+        try {
+            if (!$archive)
+                throw new ProcessingMigrationArchiveFailed();
 
-        if ($archive) {
             $zip->extractTo(storage_path("migrations/{$filename}"));
             $zip->close();
 
-            if (app()->environment() !== 'testing') {
-                $this->start($filename);
-            }
-        } else {
-            throw new ProcessingMigrationArchiveFailed();
+            if (app()->environment() == 'testing')
+                return;
+
+            $this->start($filename);
+        } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
+            Mail::to(auth()->user())->send(new MigrationFailed($e->getMessage()));
+            if(app()->environment() !== 'production') info($e->getMessage());
         }
     }
 
@@ -82,7 +87,7 @@ class StartMigration implements ShouldQueue
      * Main method to start the migration.
      * @throws NonExistingMigrationFile
      */
-    protected function start(string $filename): void
+    public function start(string $filename): void
     {
         $file = storage_path("migrations/$filename/migration.json");
 
