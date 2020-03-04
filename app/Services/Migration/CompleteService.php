@@ -15,6 +15,7 @@ class CompleteService
     protected $uri = '/api/v1/migration/start/';
     protected $errors = [];
     protected $isSuccessful;
+    protected $force = false;
 
 
     public function __construct(string $token)
@@ -25,6 +26,13 @@ class CompleteService
     public function file($file)
     {
         $this->file = $file;
+
+        return $this;
+    }
+
+    public function force($option)
+    {
+        $this->force = $option;
 
         return $this;
     }
@@ -47,6 +55,7 @@ class CompleteService
     {
         $body = [
             'migration' => \Unirest\Request\Body::file($this->file, 'application/zip'),
+            'force' => $this->force,
         ];
 
         $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
