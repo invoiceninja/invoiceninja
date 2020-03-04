@@ -41,8 +41,14 @@ class InvitationController extends Controller
             } else {
                 auth()->guard('contact')->login($invitation->contact, false);
             }
-                
-            $invitation->markViewed();
+            
+            if(!request()->has('is_admin')){
+    
+                $invitation->markViewed();
+
+                event(new InvitationWasViewed($entity, $invitation));
+
+            }
 
             return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
         } else {

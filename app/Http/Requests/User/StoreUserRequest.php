@@ -74,7 +74,7 @@ class StoreUserRequest extends Request
         $this->replace($input);
     }
 
-
+    //@todo make sure the user links back to the account ID for this company!!!!!!
     public function fetchUser() :User
     {
         $user = MultiDB::hasUser(['email' => $this->input('email')]);

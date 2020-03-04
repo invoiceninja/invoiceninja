@@ -14,23 +14,19 @@ namespace App\Listeners\Invoice;
 use App\Models\Activity;
 use App\Models\ClientContact;
 use App\Models\InvoiceInvitation;
+use App\Notifications\Admin\InvoiceSentNotification;
 use App\Repositories\ActivityRepository;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
-class InvoiceEmailActivity implements ShouldQueue
+class InvoiceEmailedNotification implements ShouldQueue
 {
-    protected $activity_repo;
-    /**
-     * Create the event listener.
-     *
-     * @return void
-     */
-    public function __construct(ActivityRepository $activity_repo)
+
+    public function __construct()
     {
-        $this->activity_repo = $activity_repo;
     }
 
     /**
@@ -41,14 +37,20 @@ class InvoiceEmailActivity implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = new \stdClass;
+        $invitation = $event->invitation;
 
-        $fields->invoice_id = $event->invitation->invoice->id;
-        $fields->user_id = $event->invitation->invoice->user_id;
-        $fields->company_id = $event->invitation->invoice->company_id;
-        $fields->client_contact_id = $event->invitation->invoice->client_contact_id;
-        $fields->activity_type_id = Activity::EMAIL_INVOICE;
+        foreach($invitation->company->company_users as $company_user)
+        {
 
-        $this->activity_repo->save($fields, $event->invitation->invoice);
+           $company_user->user->notify(new InvoiceSentNotification($invitation, $invitation->company));
+           
+        }
+
+        if(isset($invitation->company->slack_webhook_url)){
+
+            Notification::route('slack', $invitation->company->slack_webhook_url)
+                ->notify(new InvoiceSentNotification($invitation, $invitation->company, true));
+
+        }
     }
 }

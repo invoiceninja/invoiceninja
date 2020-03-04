@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Payment;
+namespace App\Notifications\Admin;
 
 use App\Utils\Number;
 use Illuminate\Bus\Queueable;
@@ -9,7 +9,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class InvoiceViewedNotification extends Notification implements ShouldQueue
+class InvoiceSentNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -36,7 +36,7 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
         $this->invoice = $invitation->invoice;
         $this->contact = $invitation->contact;
         $this->company = $company;
-        $this->settings = $invoice->client->getMergedSettings();
+        $this->settings = $this->invoice->client->getMergedSettings();
         $this->is_system = $is_system;
     }
 
@@ -62,7 +62,7 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
     {
 
         $amount = Number::formatMoney($this->invoice->amount, $this->invoice->client);
-        $subject = ctrans('texts.notification_invoice_viewed_subject', 
+        $subject = ctrans('texts.notification_invoice_sent_subject', 
                 [
                     'client' => $this->contact->present()->name(), 
                     'invoice' => $this->invoice->number,
@@ -70,7 +70,7 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
 
         $data = [
             'title' => $subject,
-            'message' => ctrans('texts.notification_invoice_viewed', 
+            'message' => ctrans('texts.notification_invoice_sent', 
                 [
                     'amount' => $amount, 
                     'client' => $this->contact->present()->name(), 
@@ -108,16 +108,35 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
         $logo = $this->company->present()->logo();
         $amount = Number::formatMoney($this->invoice->amount, $this->invoice->client);
 
+        // return (new SlackMessage)
+        //         ->success()
+        //         ->from(ctrans('texts.notification_bot'))
+        //         ->image($logo)
+        //         ->content(ctrans('texts.notification_invoice_sent', 
+        //         [
+        //             'amount' => $amount, 
+        //             'client' => $this->contact->present()->name(), 
+        //             'invoice' => $this->invoice->number
+        //         ]));
+
+
         return (new SlackMessage)
-                ->success()
-                ->from(ctrans('texts.notification_bot'))
-                ->image($logo)
-                ->content(ctrans('texts.notification_invoice_viewed', 
-                [
-                    'amount' => $amount, 
-                    'client' => $this->contact->present()->name(), 
-                    'invoice' => $this->invoice->number,
-                ]);
+                    ->from(ctrans('texts.notification_bot'))
+                    ->success()
+                    ->image('https://app.invoiceninja.com/favicon-v2.png')
+                    ->content(trans('texts.notification_invoice_sent_subject',
+                    [
+                        'amount' => $amount, 
+                        'client' => $this->contact->present()->name(), 
+                        'invoice' => $this->invoice->number
+                    ]))
+                    ->attachment(function ($attachment) use($amount){
+                        $attachment->title(ctrans('texts.invoice_number_placeholder', ['invoice' => $this->invoice->number]), 'http://linky')
+                                   ->fields([
+                                        ctrans('texts.client') => $this->contact->present()->name(),
+                                        ctrans('texts.amount') => $amount,
+                                    ]);
+                    });
     }
 
 }

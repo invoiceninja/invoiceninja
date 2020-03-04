@@ -24,7 +24,7 @@ trait Inviteable
      *
      * @return     string  The status.
      */
-    public function getStatus() : string
+    public function getStatus() :string
     {
         $status = '';
 
@@ -44,7 +44,7 @@ trait Inviteable
         return $status;
     }
 
-    public function getLink() : string
+    public function getLink() :string
     {
         $entity_type = strtolower(class_basename($this->entityType()));
 
@@ -66,5 +66,11 @@ trait Inviteable
                 break;
 
         }
+    }
+
+    public function getAdminLink() :string
+    {
+
+        return $this->getLink(). '?is_admin=true';
     }
 }

@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\Invoice\InvoiceWasCreated;
+use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\CloneInvoiceFactory;
 use App\Factory\CloneInvoiceToQuoteFactory;
@@ -675,6 +676,9 @@ class InvoiceController extends BaseController {
 				}
 				break;
 			case 'email':
+
+				$this->reminder_template = $invoice->calculateTemplate();
+
 				$invoice->invitations->each(function ($invitation) use($invoice){
 
             		$email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
@@ -682,6 +686,11 @@ class InvoiceController extends BaseController {
 					EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
 
 				});
+
+				if($invoice->invitations->count() > 0){
+					\Log::error("more than one invitation to send");
+					event(new InvoiceWasEmailed($invoice->invitations->first()));
+				}
 
 				if (!$bulk) {
 					return response()->json(['message' => 'email sent'], 200);

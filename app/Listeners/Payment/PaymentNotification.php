@@ -14,7 +14,7 @@ namespace App\Listeners\Payment;
 use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Notifications\Payment\NewPaymentNotification;
+use App\Notifications\Admin\NewPaymentNotification;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -41,8 +41,9 @@ class PaymentNotification implements ShouldQueue
     {
         $payment = $event->payment;
 
-        //$invoices = $payment->invoices;
-
+        //todo need to iterate through teh company user and determine if the user 
+        //will receive this notification.
+        
         foreach($payment->company->company_users as $company_user)
         {
             $company_user->user->notify(new NewPaymentNotification($payment, $payment->company));

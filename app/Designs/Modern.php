@@ -17,10 +17,11 @@ class Modern extends AbstractDesign
 	public function __construct() {
 	}
 
-	public function header() {
 
-		return '
-			<!DOCTYPE html>
+    public function include()
+    {
+        return '
+        	<!DOCTYPE html>
 			<html lang="en">
 			    <head>
 			    	<title>$number</title>
@@ -34,6 +35,14 @@ class Modern extends AbstractDesign
 			    </head>
 				<body>
 
+        ';
+    }
+    
+
+	public function header() {
+
+		return '
+		
 				<div class="bg-orange-600 flex justify-between py-12 px-12">
 					<div class="w-1/2">
 						<h1 class="text-white font-bold text-5xl">$company.name</h1>

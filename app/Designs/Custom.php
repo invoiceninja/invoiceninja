@@ -13,7 +13,8 @@ namespace App\Designs;
 
 class Custom extends AbstractDesign
 {
-	
+	private $include;
+
 	private $header;
 
 	private $body;
@@ -26,6 +27,7 @@ class Custom extends AbstractDesign
 
 	public function __construct($design) 
 	{
+		$this->include = $design->include;
 
 		$this->header = $design->header;
 		
@@ -37,6 +39,11 @@ class Custom extends AbstractDesign
 		
 		$this->table_styles = $design->table_styles;
 	
+	}
+
+	public function include()
+	{
+		return $this->include;
 	}
 
 	public function header() 

@@ -13,6 +13,7 @@ namespace App\Designs;
 
 abstract class AbstractDesign
 {
+	abstract public function include();
 	
 	abstract public function header();
 	

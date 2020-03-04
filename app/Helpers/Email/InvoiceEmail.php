@@ -11,6 +11,7 @@ namespace App\Helpers\Email;
 
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Utils\Number;
 
 class InvoiceEmail extends EmailBuilder
 {
@@ -30,7 +31,12 @@ class InvoiceEmail extends EmailBuilder
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
             $body_template = trans('texts.invoice_message',
-                ['invoice' => $invoice->number, 'company' => $invoice->company->present()->name()], null,
+                [
+                    'invoice' => $invoice->number, 
+                    'company' => $invoice->company->present()->name(),
+                    'amount' => Number::formatMoney($invoice->balance, $invoice->client),
+                ], 
+                null,
                 $invoice->client->locale());
         }
 
