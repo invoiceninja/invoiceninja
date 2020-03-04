@@ -69,7 +69,8 @@ class Designer {
 	{
 
 		$this->exportVariables($entity)
-		     ->setDesign($this->getSection('header'))
+			->setDesign($this->getSection('include'))
+		    ->setDesign($this->getSection('header'))
 			->setDesign($this->getSection('body'))
 			->setDesign($this->getTable($entity))
 			->setDesign($this->getSection('footer'));

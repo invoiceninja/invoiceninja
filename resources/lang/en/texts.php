@@ -251,9 +251,13 @@ $LANG = array(
     'notification_invoice_paid_subject' => 'Invoice :invoice was paid by :client',
     'notification_invoice_sent_subject' => 'Invoice :invoice was sent to :client',
     'notification_invoice_viewed_subject' => 'Invoice :invoice was viewed by :client',
+    'notification_credit_viewed_subject' => 'Credit :credit was viewed by :client',
+    'notification_quote_viewed_subject' => 'Quote :quote was viewed by :client',
     'notification_invoice_paid' => 'A payment of :amount was made by client :client towards Invoice :invoice.',
     'notification_invoice_sent' => 'The following client :client was emailed Invoice :invoice for :amount.',
     'notification_invoice_viewed' => 'The following client :client viewed Invoice :invoice for :amount.',
+    'notification_credit_viewed' => 'The following client :client viewed Credit :credit for :amount.',
+    'notification_quote_viewed' => 'The following client :client viewed Quote :quote for :amount.',
     'reset_password' => 'You can reset your account password by clicking the following button:',
     'secure_payment' => 'Secure Payment',
     'card_number' => 'Card Number',
@@ -3126,6 +3130,7 @@ $LANG = array(
     'notification_bot' => 'Notification Bot',
     'invoice_number_placeholder' => 'Invoice # :invoice',
     'email_link_not_working' => 'If button above isn\'t working for you, please click on the link',
+
 );
 
 return $LANG;

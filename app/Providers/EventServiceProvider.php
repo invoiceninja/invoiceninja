@@ -19,6 +19,7 @@ use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Invoice\InvoiceWasUpdated;
+use App\Events\Misc\InvitationWasViewed;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasRefunded;
@@ -40,6 +41,7 @@ use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
+use App\Listeners\Misc\InvitationViewedListener;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\SendVerificationNotification;
 use App\Listeners\SetDBListener;
@@ -126,6 +128,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasEmailedAndFailed::class => [
             InvoiceEmailFailedActivity::class,
+        ],
+
+        InvitationWasViewed::class => [
+            InvitationViewedListener::class        
         ],
         
     ];

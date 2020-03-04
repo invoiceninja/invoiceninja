@@ -18,6 +18,7 @@ class Currency extends StaticModel
     public $timestamps = false;
 
     protected $casts = [
+    	'exchange_rate' => 'float',
         'swap_currency_symbol' => 'boolean',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',

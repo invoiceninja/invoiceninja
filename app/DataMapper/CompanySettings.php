@@ -495,7 +495,7 @@ class CompanySettings extends BaseSettings {
 				'country',
 			],
 			'invoice_details' => [
-				'number',
+				'invoice_number',
 				'po_number',
 				'date',
 				'due_date',
@@ -503,7 +503,7 @@ class CompanySettings extends BaseSettings {
 				'invoice_total',
 			],
 			'quote_details' => [
-				'number',
+				'quote_number',
 				'po_number',
 				'date',
 				'valid_until',
@@ -511,7 +511,7 @@ class CompanySettings extends BaseSettings {
 				'quote_total',
 			],
 			'credit_details' => [
-				'number',
+				'credit_number',
 				'po_number',
 				'date',
 				'credit_balance',
