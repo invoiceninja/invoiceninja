@@ -88,16 +88,16 @@ class StoreClientRequest extends Request
 
             if(empty($input['group_settings_id']))
             {
-                $input['settings']->currency_id = auth()->user()->company()->settings->currency_id;
+                $input['settings']->currency_id =(string) auth()->user()->company()->settings->currency_id;
             }
             else
             {
                 $group_settings = GroupSetting::find($input['group_settings_id']);
 
                 if($group_settings && property_exists($group_settings->settings, 'currency_id') && is_int($group_settings->settings->currency_id))
-                    $input['settings']->currency_id = $group_settings->currency_id;
+                    $input['settings']->currency_id = (string)$group_settings->settings->currency_id;
                 else
-                  $input['settings']->currency_id = auth()->user()->company()->settings->currency_id;
+                  $input['settings']->currency_id = (string)auth()->user()->company()->settings->currency_id;
             }
         }
 
