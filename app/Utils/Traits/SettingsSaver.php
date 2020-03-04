@@ -112,6 +112,11 @@ trait SettingsSaver
     private function checkSettingType($settings) : \stdClass
     {
         $settings = (object)$settings;
+
+        /* Because of the object casting we cannot check pdf_variables */
+        if(property_exists($settings, 'pdf_variables'))
+            unset($settings->pdf_variables);
+
         $casts = CompanySettings::$casts;
         
         foreach ($casts as $key => $value) {
