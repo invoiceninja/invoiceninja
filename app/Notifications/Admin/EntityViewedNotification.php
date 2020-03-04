@@ -90,16 +90,16 @@ class EntityViewedNotification extends Notification implements ShouldQueue
         $logo = $this->company->present()->logo();
         $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
 
-        return (new SlackMessage)
-                ->success()
-                ->from(ctrans('texts.notification_bot'))
-                ->image($logo)
-                ->content(ctrans("texts.notification_{$this->entity_name}_viewed", 
-                [
-                    'amount' => $amount, 
-                    'client' => $this->contact->present()->name(), 
-                    $this->entity_name => $this->entity->number
-                ]));
+        // return (new SlackMessage)
+        //         ->success()
+        //         ->from(ctrans('texts.notification_bot'))
+        //         ->image($logo)
+        //         ->content(ctrans("texts.notification_{$this->entity_name}_viewed", 
+        //         [
+        //             'amount' => $amount, 
+        //             'client' => $this->contact->present()->name(), 
+        //             $this->entity_name => $this->entity->number
+        //         ]));
 
         return (new SlackMessage)
             ->from(ctrans('texts.notification_bot'))
@@ -126,11 +126,6 @@ class EntityViewedNotification extends Notification implements ShouldQueue
     {
 
         $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
-        $subject = ctrans("texts.notification_{$this->entity_name}_viewed_subject", 
-                [
-                    'client' => $this->contact->present()->name(), 
-                    $this->entity_name => $this->entity->number,
-                ]);
 
         $data = [
             'title' => $subject,
@@ -145,6 +140,21 @@ class EntityViewedNotification extends Notification implements ShouldQueue
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),
         ];
+
+
+        return $data;
+
+    }
+
+    private function buildSubject()
+    {
+        $subject = ctrans("texts.notification_{$this->entity_name}_viewed_subject", 
+        [
+            'client' => $this->contact->present()->name(), 
+            $this->entity_name => $this->entity->number,
+        ]);
+
+        return $subject;
 
     }
 }
