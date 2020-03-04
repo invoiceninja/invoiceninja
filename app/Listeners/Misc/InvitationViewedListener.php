@@ -11,21 +11,19 @@
 
 namespace App\Listeners\Misc;
 
+use App\Notifications\Admin\EntityViewedNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Notification;
 
 class InvitationViewedListener implements ShouldQueue
 {
-    protected $activity_repo;
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct()
-    {
-
-    }
+    public function __construct(){}
 
     /**
      * Handle the event.
@@ -38,22 +36,19 @@ class InvitationViewedListener implements ShouldQueue
         $entity_name = $event->entity;
         $invitation = $event->invitation;
 
-
-        $notification = 
-
-
+        $notification = new EntityViewedNotification($invitation, $entity_name);
 
         foreach($invitation->company->company_users as $company_user)
         {
             $company_user->user->notify($notification);
         }
 
-        if(isset($payment->company->slack_webhook_url)){
+        if(isset($invitation->company->slack_webhook_url)){
 
             $notification->is_system = true;
 
             Notification::route('slack', $payment->company->slack_webhook_url)
-                ->notify($notification));
+                        ->notify($notification);
 
         }
     }

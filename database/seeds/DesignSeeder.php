@@ -35,6 +35,23 @@ class DesignSeeder extends Seeder
         	if(!$d)
         		Design::create($design);
         }
+
+        foreach(Design::all() as $design){
+
+            $class = 'App\Designs\\'.$design->name;
+            $invoice_design = new $class();
+
+            $design_object = new \stdClass;
+            $design_object->include = $invoice_design->include();
+            $design_object->header = $invoice_design->header();
+            $design_object->body = $invoice_design->body();
+            $design_object->table_styles = $invoice_design->table_styles();
+            $design_object->table = $invoice_design->table();
+            $design_object->footer = $invoice_design->footer();
+
+            $design->design = $design_object;
+            $design->save();
+        }
         
     }
 }
