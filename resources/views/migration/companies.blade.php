@@ -17,10 +17,15 @@
                     
                 @foreach($companies as $company)
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="companies[]" id="company1" value="{{ $company->id }}" checked>
+                    <input class="form-check-input" type="checkbox" name="companies[{{ $company->id }}][id]" id="company1" value="{{ $company->id }}" checked>
                     <label class="form-check-label" for="company1">
                         Name: {{ $company->settings->name }} ID: {{ $company->id }}
                     </label>
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" name="companies[{{ $company->id }}][force]">
+                    <label for="force">Force migration</label>
+                    <small>* All current company data will be wiped.</small>
                 </div>
                 @endforeach
             </form>

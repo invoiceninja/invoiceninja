@@ -2,29 +2,29 @@
 
 namespace App\Http\Controllers\Migration;
 
-use App\Http\Controllers\BaseController;
-use App\Http\Requests\MigrationAuthRequest;
-use App\Http\Requests\MigrationCompaniesRequest;
-use App\Http\Requests\MigrationEndpointRequest;
-use App\Http\Requests\MigrationTypeRequest;
-use App\Libraries\Utils;
-use App\Models\AccountGateway;
-use App\Models\AccountGatewaySettings;
-use App\Models\AccountGatewayToken;
-use App\Models\Contact;
+use App\Models\User;
 use App\Models\Credit;
-use App\Models\Document;
+use App\Models\Contact;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\TaxRate;
-use App\Models\User;
-use App\Services\Migration\AuthService;
-use App\Services\Migration\CompanyService;
-use App\Services\Migration\CompleteService;
+use App\Libraries\Utils;
+use App\Models\Document;
+use App\Models\PaymentMethod;
+use App\Models\AccountGateway;
+use App\Models\AccountGatewayToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use App\Models\AccountGatewaySettings;
+use App\Services\Migration\AuthService;
+use App\Http\Controllers\BaseController;
+use App\Services\Migration\CompanyService;
+use App\Http\Requests\MigrationAuthRequest;
+use App\Http\Requests\MigrationTypeRequest;
+use App\Services\Migration\CompleteService;
+use App\Http\Requests\MigrationEndpointRequest;
+use App\Http\Requests\MigrationCompaniesRequest;
 
 class StepsController extends BaseController
 {
@@ -147,7 +147,8 @@ class StepsController extends BaseController
         foreach ($request->companies as $company) {
             $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
             ->file($this->getMigrationFile())
-            ->company($company)
+            ->force(array_key_exists('force', $company))
+            ->company($company['id'])
             ->endpoint(session('MIGRATION_ENDPOINT'))
             ->start();
         }
@@ -257,9 +258,6 @@ class StepsController extends BaseController
 
     public function getCompanySettings()
     {
-        // In v1: custom_invoice_taxes1 & custom_invoice_taxes2, v2: 'invoice_taxes'. What do to with this?
-        // V1: invoice_number_prefix, v2: invoice_number_pattern.. same with quote_number, client_number,
-
         return [
             'timezone_id' => $this->account->timezone_id ? (string)$this->account->timezone_id : '15',
             'date_format_id' => $this->account->date_format_id ? (string)$this->account->date_format_id : '1',
