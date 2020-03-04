@@ -37,6 +37,7 @@ use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Listeners\Invoice\CreateInvoicePdf;
 use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
+use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\Payment\PaymentNotification;
@@ -121,6 +122,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasEmailed::class => [
             InvoiceEmailActivity::class,
+            InvoiceEmailedNotification::class,
         ],
         InvoiceWasEmailedAndFailed::class => [
             InvoiceEmailFailedActivity::class,

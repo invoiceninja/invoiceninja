@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Payment;
+namespace App\Notifications\Admin;
 
 use App\Mail\Signup\NewSignup;
 use App\Utils\Number;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications\Payment;
+namespace App\Notifications\Admin;
 
 use App\Utils\Number;
 use Illuminate\Bus\Queueable;
@@ -9,7 +9,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
-class InvoiceViewedNotification extends Notification implements ShouldQueue
+class InvoiceSentNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -36,7 +36,7 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
         $this->invoice = $invitation->invoice;
         $this->contact = $invitation->contact;
         $this->company = $company;
-        $this->settings = $invoice->client->getMergedSettings();
+        $this->settings = $this->invoice->client->getMergedSettings();
         $this->is_system = $is_system;
     }
 
@@ -62,7 +62,7 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
     {
 
         $amount = Number::formatMoney($this->invoice->amount, $this->invoice->client);
-        $subject = ctrans('texts.notification_invoice_viewed_subject', 
+        $subject = ctrans('texts.notification_invoice_sent_subject', 
                 [
                     'client' => $this->contact->present()->name(), 
                     'invoice' => $this->invoice->number,
@@ -70,7 +70,7 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
 
         $data = [
             'title' => $subject,
-            'message' => ctrans('texts.notification_invoice_viewed', 
+            'message' => ctrans('texts.notification_invoice_sent', 
                 [
                     'amount' => $amount, 
                     'client' => $this->contact->present()->name(), 
@@ -112,12 +112,13 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image($logo)
-                ->content(ctrans('texts.notification_invoice_viewed', 
+                ->content(ctrans('texts.notification_invoice_sent', 
                 [
                     'amount' => $amount, 
                     'client' => $this->contact->present()->name(), 
-                    'invoice' => $this->invoice->number,
-                ]);
+                    'invoice' => $this->invoice->number
+                ]));
+
     }
 
 }
