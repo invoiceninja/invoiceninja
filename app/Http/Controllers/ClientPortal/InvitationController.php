@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Events\Misc\InvitationWasViewed;
 use App\Http\Controllers\Controller;
 use App\Models\InvoiceInvitation;
 use App\Utils\Traits\MakesDates;

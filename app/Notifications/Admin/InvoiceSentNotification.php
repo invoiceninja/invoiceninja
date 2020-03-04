@@ -33,6 +33,7 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
 
     public function __construct($invitation, $company, $is_system = false, $settings = null)
     {
+        $this->invitation = $invitation;
         $this->invoice = $invitation->invoice;
         $this->contact = $invitation->contact;
         $this->company = $company;
@@ -131,7 +132,7 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
                         'invoice' => $this->invoice->number
                     ]))
                     ->attachment(function ($attachment) use($amount){
-                        $attachment->title(ctrans('texts.invoice_number_placeholder', ['invoice' => $this->invoice->number]), 'http://linky')
+                        $attachment->title(ctrans('texts.invoice_number_placeholder', ['invoice' => $this->invoice->number]), $this->invitation->getAdminLink())
                                    ->fields([
                                         ctrans('texts.client') => $this->contact->present()->name(),
                                         ctrans('texts.amount') => $amount,

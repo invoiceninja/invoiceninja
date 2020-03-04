@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notification;
 
 class EntityViewedNotification extends Notification implements ShouldQueue
 {
-    use Queueable, Dispatchable;
+    use Queueable;
 
     /**
      * Create a new notification instance.
@@ -36,6 +36,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
 
     public function __construct($invitation, $entity_name, $is_system = false, $settings = null)
     {
+        $this->entity_name = $entity_name;
         $this->entity = $invitation->{$entity_name};
         $this->contact = $invitation->contact;
         $this->company = $invitation->company;
@@ -99,6 +100,24 @@ class EntityViewedNotification extends Notification implements ShouldQueue
                     'client' => $this->contact->present()->name(), 
                     $this->entity_name => $this->entity->number
                 ]));
+
+        return (new SlackMessage)
+            ->from(ctrans('texts.notification_bot'))
+            ->success()
+            ->image('https://app.invoiceninja.com/favicon-v2.png')
+            ->content(ctrans("texts.notification_{$this->entity_name}_viewed", 
+                [
+                    'amount' => $amount, 
+                    'client' => $this->contact->present()->name(), 
+                    $this->entity_name => $this->entity->number
+                ]))
+            ->attachment(function ($attachment) use($amount){
+                $attachment->title(ctrans('texts.entity_number_placeholder', ['entity' => ucfirst($this->entity_name), 'entity_number' => $this->entity->number]), $this->invitation->getAdminLink())
+                           ->fields([
+                                ctrans('texts.client') => $this->contact->present()->name(),
+                                ctrans('texts.status_viewed') => $this->invitation->viewed_date,
+                            ]);
+            });
 
     }
 
