@@ -71,4 +71,9 @@ class QuoteInvitation extends BaseModel
 
         return sprintf('<img src="data:image/svg+xml;base64,%s"></img><p/>%s: %s', $this->signature_base64, ctrans('texts.signed'), $this->createClientDate($this->signature_date, $this->contact->client->timezone()->name));
     }
+
+    public function markViewed() {
+        $this->viewed_date = Carbon::now();
+        $this->save();
+    }
 }

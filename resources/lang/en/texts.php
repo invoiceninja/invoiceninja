@@ -3124,7 +3124,7 @@ $LANG = array(
     'notification_payment_paid' => 'A payment of :amount was made by client :client towards :invoice',
     'notification_partial_payment_paid' => 'A partial payment of :amount was made by client :client towards :invoice',
     'notification_bot' => 'Notification Bot',
-
+    'invoice_number_placeholder' => 'Invoice # :invoice',
     'email_link_not_working' => 'If button above isn\'t working for you, please click on the link',
 );
 

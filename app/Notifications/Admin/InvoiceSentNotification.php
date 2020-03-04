@@ -108,17 +108,35 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
         $logo = $this->company->present()->logo();
         $amount = Number::formatMoney($this->invoice->amount, $this->invoice->client);
 
-        return (new SlackMessage)
-                ->success()
-                ->from(ctrans('texts.notification_bot'))
-                ->image($logo)
-                ->content(ctrans('texts.notification_invoice_sent', 
-                [
-                    'amount' => $amount, 
-                    'client' => $this->contact->present()->name(), 
-                    'invoice' => $this->invoice->number
-                ]));
+        // return (new SlackMessage)
+        //         ->success()
+        //         ->from(ctrans('texts.notification_bot'))
+        //         ->image($logo)
+        //         ->content(ctrans('texts.notification_invoice_sent', 
+        //         [
+        //             'amount' => $amount, 
+        //             'client' => $this->contact->present()->name(), 
+        //             'invoice' => $this->invoice->number
+        //         ]));
 
+
+        return (new SlackMessage)
+                    ->from(ctrans('texts.notification_bot'))
+                    ->success()
+                    ->image('https://app.invoiceninja.com/favicon-v2.png')
+                    ->content(trans('texts.notification_invoice_sent_subject',
+                    [
+                        'amount' => $amount, 
+                        'client' => $this->contact->present()->name(), 
+                        'invoice' => $this->invoice->number
+                    ]))
+                    ->attachment(function ($attachment) use($amount){
+                        $attachment->title(ctrans('texts.invoice_number_placeholder', ['invoice' => $this->invoice->number]), 'http://linky')
+                                   ->fields([
+                                        ctrans('texts.client') => $this->contact->present()->name(),
+                                        ctrans('texts.amount') => $amount,
+                                    ]);
+                    });
     }
 
 }
