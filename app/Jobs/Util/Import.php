@@ -102,6 +102,8 @@ class Import implements ShouldQueue
      */
     private $ids = [];
 
+    public $tries = 1;
+
     /**
      * Create a new job instance.
      *
@@ -131,6 +133,7 @@ class Import implements ShouldQueue
             if (!in_array($key, $this->available_imports)) {
                 throw new ResourceNotAvailableForMigration($key);
             }
+\Log::error($key);
 
             $method = sprintf("process%s", Str::ucfirst(Str::camel($key)));
 
@@ -546,6 +549,7 @@ class Import implements ShouldQueue
 
     private function processDocuments(array $data): void
     {
+        Document::unguard();
         /** No validators since data provided by database is already valid. */
 
         foreach ($data as $resource) {
@@ -579,6 +583,9 @@ class Import implements ShouldQueue
 
             $document = Document::create($modified);
 
+            // $entity = $modified['documentable_type']::find($modified['documentable_id']);
+            // $entity->documents()->save($modified);
+
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
             $this->ids['documents'] = [
@@ -589,6 +596,7 @@ class Import implements ShouldQueue
             ];
         }
 
+        Document::reguard();
     }
 
     private function processCompanyGateways(array $data) :void

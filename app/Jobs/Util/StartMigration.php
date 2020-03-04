@@ -60,6 +60,10 @@ class StartMigration implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
+        auth()->login($this->user, false);
+
+        auth()->user()->setCompany($this->company);
+        
         $zip = new \ZipArchive();
         $archive = $zip->open($this->filepath);
 
@@ -77,7 +81,9 @@ class StartMigration implements ShouldQueue
 
             $this->start($filename);
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
-            Mail::to(auth()->user())->send(new MigrationFailed($e->getMessage()));
+            Mail::to($this->user)
+                    ->send(new MigrationFailed($e, $e->getMessage()));
+            
             if(app()->environment() !== 'production') info($e->getMessage());
         }
     }

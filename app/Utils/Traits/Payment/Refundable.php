@@ -49,7 +49,9 @@ trait Refundable
 			$line_items[] = $credit_line_item;
 
 		$credit_note->save();
-
+		$credit_note->number = $this->client->getNextCreditNumber($this->client);
+		$credit_note->save();
+		
 		$this->createActivity($data, $credit_note->id);
 
 		//determine if we need to refund via gateway
@@ -156,6 +158,9 @@ trait Refundable
 		$credit_note->line_items = $line_items;
 		$credit_note->save();
 
+		$credit_note->number = $this->client->getNextCreditNumber($this->client);
+		$credit_note->save();
+
 		//determine if we need to refund via gateway
 		if($data['gateway_refund'] !== false)
 		{
@@ -210,8 +215,7 @@ trait Refundable
 		$credit_note = CreditFactory::create($this->company_id, $this->user_id);
 		$credit_note->assigned_user_id = isset($this->assigned_user_id) ?: null;
 		$credit_note->date = $data['date'];
-		$credit_note->number = $this->client->getNextCreditNumber($this->client);
-		$credit_note->status_id = Credit::STATUS_DRAFT;
+		$credit_note->status_id = Credit::STATUS_SENT;
 		$credit_note->client_id = $this->client->id;
 		$credit_note->amount = $data['amount'];
 		$credit_note->balance = $data['amount'];
