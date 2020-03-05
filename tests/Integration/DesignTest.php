@@ -188,32 +188,32 @@ class DesignTest extends TestCase
         CreateCreditPdf::dispatchNow($this->credit, $this->credit->company, $this->credit->client->primary_contact()->first());
     }
 
-    public function testAllDesigns()
-    {
+    // public function testAllDesigns()
+    // {
 
-        for($x=1; $x<=10; $x++)
-        {
+    //     for($x=1; $x<=10; $x++)
+    //     {
 
-        $settings = $this->invoice->client->settings;
-        $settings->quote_design_id = (string)$x;
+    //     $settings = $this->invoice->client->settings;
+    //     $settings->quote_design_id = (string)$x;
         
-        $this->quote->client_id = $this->client->id;
-        $this->quote->setRelation('client', $this->client);
-        $this->quote->save();
+    //     $this->quote->client_id = $this->client->id;
+    //     $this->quote->setRelation('client', $this->client);
+    //     $this->quote->save();
 
-        $this->client->settings = $settings;
-        $this->client->save();
+    //     $this->client->settings = $settings;
+    //     $this->client->save();
 
-        CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+    //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
 
-        $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
-        $this->quote->save();
+    //     $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
+    //     $this->quote->save();
 
-        }
+    //     }
 
-        $this->assertTrue(true);
+    //     $this->assertTrue(true);
 
-    }
+    // }
     
 }
 

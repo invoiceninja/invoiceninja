@@ -46,17 +46,20 @@ class Modern extends AbstractDesign
 						}
 						@media print {
 						  div.div_footer {
-						    position: fixed;
-						    bottom: 0;
+						     display: block; 
+    							position: running(header);
 						    width: 100%;
 						  }
 						  div.div_header {
-						    position: fixed;
-						    top: 0;
+				    		    display: block; 
+    							position: running(header);
 						    width:100%;
 						  }
 						}
 
+						footer, header, hgroup, menu, nav, section {
+						    display: block;
+						}
                     </style>
 			    </head>
 				<body>
@@ -68,7 +71,7 @@ class Modern extends AbstractDesign
 	public function header() {
 
 		return '
-		
+				<header>
 				<div class="div_header bg-orange-600 flex justify-between py-12 px-12" style="page-break-inside: avoid;">
 					<div class="w-1/2">
 						<h1 class="text-white font-bold text-5xl">$company.name</h1>
@@ -82,6 +85,7 @@ class Modern extends AbstractDesign
 						</div>
 					</div>
 				</div>
+				</header>
 			';
 
 	}
@@ -89,6 +93,7 @@ class Modern extends AbstractDesign
 	public function body() {
 
 		return '
+			<section>
 			<div class="flex justify-between px-12 pt-12">
 			    <div class="w-1/2">
 			        $company_logo
@@ -119,7 +124,7 @@ class Modern extends AbstractDesign
 		return '
 			<div class="px-12 pt-5 pb-20">
 			    <table class="w-full table-auto mt-8">
-			        <thead class="text-left text-white bg-gray-900">
+			        <thead class="text-left text-white bg-gray-900 display: table-header-group;">
 			            <tr>
 			                $table_header
 			            </tr>
@@ -163,12 +168,15 @@ class Modern extends AbstractDesign
 			    </div>
 
 			</div>
+
 		';
 	}
 
 	public function footer() {
 
 		return '
+			</section>
+			<footer>
 			<div class="div_footer bg-orange-600 flex justify-between py-8 px-12" style="page-break-inside: avoid;">
 			    <div class="w-1/2">
 			        <!-- // -->
@@ -182,8 +190,7 @@ class Modern extends AbstractDesign
 			        </div>
 			    </div>
 			</div>
-
-			    </body>
+			</footer>
 			</html>
 		';
 
