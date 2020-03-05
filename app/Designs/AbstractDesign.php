@@ -19,7 +19,9 @@ abstract class AbstractDesign
 	
 	abstract public function body();
 	
-	abstract public function table();
+	abstract public function product_table();
+
+	abstract public function task_table();
 	
 	abstract public function footer();
 	

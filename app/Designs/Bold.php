@@ -99,8 +99,10 @@ class Bold extends AbstractDesign
 			'table_body_td_class'      => "bg-gray-200 py-5 pl-12",
 		];
 	}
+    public function task_table() {
+    }
 
-	public function table() {
+	public function product_table() {
 
         return '
             <table class="w-full table-auto mt-8">

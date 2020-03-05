@@ -113,18 +113,18 @@ class Designer {
 
 		$this->setDesign($this->getSection('include'))
 			->setDesign($this->getSection('body'))
-			->setDesign($this->getTable());
+			->setDesign($this->getProductTable());
 		
 		return $this;
 	}
 
-	public function getTable():string 
+	public function getProductTable():string 
 	{
 
 		$table_header = $this->entity->table_header($this->input_variables['product_columns'], $this->design->table_styles());
 		$table_body   = $this->entity->table_body($this->input_variables['product_columns'], $this->design->table_styles());
 
-		$data = str_replace('$table_header', $table_header, $this->getSection('table'));
+		$data = str_replace('$table_header', $table_header, $this->getSection('product_table'));
 		$data = str_replace('$table_body', $table_body, $data);
 
 		return $data;
@@ -215,35 +215,6 @@ class Designer {
 
 		return $output;
 	}
-
-	// private function exportVariables()
-	// {
-	// 	/*
-	// 	 * $entity_labels
-	// 	 * $entity_details
-	// 	 */
-	// 	$header = $this->design->header();
-
-	// 	/*
-	// 	 * $company_logo - full URL
-	// 	 * $client_details
-	// 	 */
-	// 	$body = $this->design->body();
-
-	// 	/*
-	// 	 * $table_header
-	// 	 * $table_body
-	// 	 * $total_labels
-	// 	 * $total_values
-	// 		 */
-	// 	$table = $this->design->table();
-
-	// 	/*
-	// 	 * $company_details
-	// 	 * $company_address
-	// 	 */
-	// 	$footer = $this->design->footer();
-	// }
 
 	private function clientDetails(Company $company) 
 	{

@@ -118,7 +118,6 @@ class CreateQuotePdf implements ShouldQueue {
 		// }
 		// else{
 			$design_body = $designer->build()->getHtml();
-			$quote_number = "regular invoice";
 		
 
 		
