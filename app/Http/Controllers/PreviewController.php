@@ -145,6 +145,7 @@ class PreviewController extends BaseController
                 ]);
 
             $invoice->setRelation('client', $client);
+            $invoice->setRelation('company', auth()->user()->company());
             $invoice->load('client');
 
             $invoice_design = new Custom((object)request()->input('body'));

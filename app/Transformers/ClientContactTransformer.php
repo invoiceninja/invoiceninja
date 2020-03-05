@@ -47,7 +47,7 @@ class ClientContactTransformer extends EntityTransformer
             'contact_key' => $contact->contact_key ?: '',
             'send_email' => (bool) $contact->send_email,
             'last_login' => (int)$contact->last_login,
-            'password' => isset($contact->password) ? '*****' : '',
+            'password' => empty($contact->password) ? '' : '**********',
         ];
     }
 }
