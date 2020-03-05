@@ -63,7 +63,7 @@ class StartMigration implements ShouldQueue
         auth()->login($this->user, false);
 
         auth()->user()->setCompany($this->company);
-        
+
         $zip = new \ZipArchive();
         $archive = $zip->open($this->filepath);
 
@@ -71,7 +71,7 @@ class StartMigration implements ShouldQueue
 
         try {
             if (!$archive)
-                throw new ProcessingMigrationArchiveFailed();
+                throw new ProcessingMigrationArchiveFailed('Processing migration archive failed. Migration file is possibly corrupted.');
 
             $zip->extractTo(storage_path("migrations/{$filename}"));
             $zip->close();
@@ -81,10 +81,9 @@ class StartMigration implements ShouldQueue
 
             $this->start($filename);
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
-            Mail::to($this->user)
-                    ->send(new MigrationFailed($e, $e->getMessage()));
-            
-            if(app()->environment() !== 'production') info($e->getMessage());
+            Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
+
+            if (app()->environment() !== 'production') info($e->getMessage());
         }
     }
 
@@ -98,7 +97,7 @@ class StartMigration implements ShouldQueue
         $file = storage_path("migrations/$filename/migration.json");
 
         if (!file_exists($file))
-            throw new NonExistingMigrationFile();
+            throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
 
         $handle = fopen($file, "r");
         $file = fread($handle, filesize($file));
