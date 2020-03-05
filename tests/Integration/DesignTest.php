@@ -82,87 +82,87 @@ class DesignTest extends TestCase
     	CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
     }
 
-    public function testQuoteDesignWithRepeatingHeader()
-    {
+    // public function testQuoteDesignWithRepeatingHeader()
+    // {
 
-        $modern = new Modern();
+    //     $modern = new Modern();
 
-        $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
+    //     $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
 
-        $html = $designer->build()->getHtml();
+    //     $html = $designer->build()->getHtml();
 
-        $this->assertNotNull($html);
+    //     $this->assertNotNull($html);
 
-        //\Log::error($html);
+    //     //\Log::error($html);
 
-        $settings = $this->invoice->client->settings;
-        $settings->quote_design_id = "4";
-        $settings->all_pages_header = true;
+    //     $settings = $this->invoice->client->settings;
+    //     $settings->quote_design_id = "4";
+    //     $settings->all_pages_header = true;
 
-        $this->quote->client_id = $this->client->id;
-        $this->quote->setRelation('client', $this->client);
-        $this->quote->save();
+    //     $this->quote->client_id = $this->client->id;
+    //     $this->quote->setRelation('client', $this->client);
+    //     $this->quote->save();
 
-        $this->client->settings = $settings;
-        $this->client->save();
+    //     $this->client->settings = $settings;
+    //     $this->client->save();
 
-        CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
-    }
+    //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+    // }
 
-    public function testQuoteDesignWithRepeatingFooter()
-    {
+    // public function testQuoteDesignWithRepeatingFooter()
+    // {
 
-        $modern = new Modern();
+    //     $modern = new Modern();
 
-        $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
+    //     $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
 
-        $html = $designer->build()->getHtml();
+    //     $html = $designer->build()->getHtml();
 
-        $this->assertNotNull($html);
+    //     $this->assertNotNull($html);
 
-        //\Log::error($html);
+    //     //\Log::error($html);
 
-        $settings = $this->invoice->client->settings;
-        $settings->quote_design_id = "4";
-        $settings->all_pages_footer = true;
+    //     $settings = $this->invoice->client->settings;
+    //     $settings->quote_design_id = "4";
+    //     $settings->all_pages_footer = true;
 
-        $this->quote->client_id = $this->client->id;
-        $this->quote->setRelation('client', $this->client);
-        $this->quote->save();
+    //     $this->quote->client_id = $this->client->id;
+    //     $this->quote->setRelation('client', $this->client);
+    //     $this->quote->save();
 
-        $this->client->settings = $settings;
-        $this->client->save();
+    //     $this->client->settings = $settings;
+    //     $this->client->save();
 
-        CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
-    }
+    //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+    // }
 
-    public function testQuoteDesignWithRepeatingHeaderAndFooter()
-    {
+    // public function testQuoteDesignWithRepeatingHeaderAndFooter()
+    // {
 
-        $modern = new Modern();
+    //     $modern = new Modern();
 
-        $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
+    //     $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
 
-        $html = $designer->build()->getHtml();
+    //     $html = $designer->build()->getHtml();
 
-        $this->assertNotNull($html);
+    //     $this->assertNotNull($html);
 
-        //\Log::error($html);
+    //     //\Log::error($html);
 
-        $settings = $this->invoice->client->settings;
-        $settings->quote_design_id = "4";
-        $settings->all_pages_header = true;
-        $settings->all_pages_footer = true;
+    //     $settings = $this->invoice->client->settings;
+    //     $settings->quote_design_id = "4";
+    //     $settings->all_pages_header = true;
+    //     $settings->all_pages_footer = true;
 
-        $this->quote->client_id = $this->client->id;
-        $this->quote->setRelation('client', $this->client);
-        $this->quote->save();
+    //     $this->quote->client_id = $this->client->id;
+    //     $this->quote->setRelation('client', $this->client);
+    //     $this->quote->save();
 
-        $this->client->settings = $settings;
-        $this->client->save();
+    //     $this->client->settings = $settings;
+    //     $this->client->save();
 
-        CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
-    }
+    //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+    // }
 
     public function testCreditDesignExists()
     {

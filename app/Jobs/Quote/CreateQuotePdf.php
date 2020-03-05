@@ -94,40 +94,39 @@ class CreateQuotePdf implements ShouldQueue {
 
 		//\Log::error($html);
 
-
 		$all_pages_header = $settings->all_pages_header;
 		$all_pages_footer = $settings->all_pages_footer;
 
 		$quote_number = $this->quote->number;
 
 
-		if($all_pages_header && $all_pages_footer){
-			$all_pages_header = $designer->init()->getHeader()->getHtml();
-			$all_pages_footer = $designer->init()->getFooter()->getHtml();
-			$design_body = $designer->init()->getBody()->getHtml();
-			$quote_number = "header_and_footer";
-		}
-		elseif($all_pages_header){
-			$all_pages_header = $designer->init()->getHeader()->getHtml();
-			$design_body = $designer->init()->getBody()->getFooter()->getHtml();
-			$quote_number = "header_only";
-		}
-		elseif($all_pages_footer){
-			$all_pages_footer = $designer->init()->getFooter()->getHtml();
-			$design_body = $designer->init()->getHeader()->getBody()->getHtml();
-			$quote_number = "footer_only";
-		}
-		else{
+		// if($all_pages_header && $all_pages_footer){
+		// 	$all_pages_header = $designer->init()->getHeader()->getHtml();
+		// 	$all_pages_footer = $designer->init()->getFooter()->getHtml();
+		// 	$design_body = $designer->init()->getBody()->getHtml();
+		// 	$quote_number = "header_and_footer";
+		// }
+		// elseif($all_pages_header){
+		// 	$all_pages_header = $designer->init()->getHeader()->getHtml();
+		// 	$design_body = $designer->init()->getBody()->getFooter()->getHtml();
+		// 	$quote_number = "header_only";
+		// }
+		// elseif($all_pages_footer){
+		// 	$all_pages_footer = $designer->init()->getFooter()->getHtml();
+		// 	$design_body = $designer->init()->getHeader()->getBody()->getHtml();
+		// 	$quote_number = "footer_only";
+		// }
+		// else{
 			$design_body = $designer->build()->getHtml();
 			$quote_number = "regular invoice";
-		}
+		
 
 		
 
 		//get invoice design
 		$html = $this->generateInvoiceHtml($design_body, $this->quote, $this->contact);
 		\Log::error($quote_number);
-		
+
 		$pdf = $this->makePdf($all_pages_header, $all_pages_footer, $html);
 		$file_path = $path . $quote_number . '.pdf';
 

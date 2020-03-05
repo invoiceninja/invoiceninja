@@ -21,22 +21,25 @@ trait PdfMaker
         
 
 
-        if($header && $footer){
-           $browser = Browsershot::html($html)
-                ->headerHtml($header)           
-                ->footerHtml($footer);     
-        }
-        elseif($header){
-            $browser = Browsershot::html($html)
-                ->headerHtml($header);         
-        }
-        else if($footer){
-            $browser = Browsershot::html($html)
-                ->footerHtml($footer);        
-        }
-        else {
-            $browser = Browsershot::html($html);
-        }
+        // if($header && $footer){
+        //    $browser = Browsershot::html($html)
+        //         ->headerHtml($header)           
+        //         ->footerHtml($footer);     
+        // }
+        // elseif($header){
+        //     $browser = Browsershot::html($html)
+        //         ->headerHtml($header);         
+        // }
+        // else if($footer){
+        //     $browser = Browsershot::html($html)
+        //         ->footerHtml($footer);        
+        // }
+        // else {
+        //     $browser = Browsershot::html($html);
+        // }
+
+        $browser = Browsershot::html($html);
+
 
         return $browser->deviceScaleFactor(1)
                 ->showBackground()

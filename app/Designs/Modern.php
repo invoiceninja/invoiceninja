@@ -36,6 +36,27 @@ class Modern extends AbstractDesign
 					 .table_header_td_class {padding-left:1rem;padding-right:1rem; padding-top:.5rem;padding-bottom:.5rem}
 					 .table_body_td_class {border-top-width:1px; border-bottom-width:1px; border-color:#1a202c; padding-left:1rem;padding-right:1rem; padding-top:1rem;padding-bottom:1rem;}
 
+					 @media screen {
+					 	div.div_header {
+						    display: none;
+						  }
+						  div.div_footer {
+						    display: none;
+						  }
+						}
+						@media print {
+						  div.div_footer {
+						    position: fixed;
+						    bottom: 0;
+						    width: 100%;
+						  }
+						  div.div_header {
+						    position: fixed;
+						    top: 0;
+						    width:100%;
+						  }
+						}
+
                     </style>
 			    </head>
 				<body>
@@ -48,7 +69,7 @@ class Modern extends AbstractDesign
 
 		return '
 		
-				<div class="bg-orange-600 flex justify-between py-12 px-12" style="page-break-inside: avoid;">
+				<div class="div_header bg-orange-600 flex justify-between py-12 px-12" style="page-break-inside: avoid;">
 					<div class="w-1/2">
 						<h1 class="text-white font-bold text-5xl">$company.name</h1>
 					</div>
@@ -112,12 +133,12 @@ class Modern extends AbstractDesign
 			        <div class="w-1/2">
 			            $entity.public_notes
 			        </div>
-			        <div class="w-1/2 flex"">
-			            <div class="w-1/2 text-right flex flex-col">
+			        <div class="w-1/2 flex" style="page-break-inside: avoid;">
+			            <div class="w-1/2 text-right flex flex-col"  style="page-break-inside: avoid;">
 			                $total_tax_labels
 			                $line_tax_labels
 			            </div>
-			            <div class="w-1/2 text-right flex flex-col">
+			            <div class="w-1/2 text-right flex flex-col"  style="page-break-inside: avoid;">
 			                $total_tax_values
 			                $line_tax_values
 			            </div>
@@ -125,7 +146,7 @@ class Modern extends AbstractDesign
 			    </div>
 
 			    <div class="flex px-4 mt-4 w-full items-end mt-5" style="page-break-inside: avoid;">
-			        <div class="w-1/2">
+			        <div class="w-1/2" style="page-break-inside: avoid;">
 			            <p class="font-semibold">$terms_label</p>
 			            $terms
 			        </div>
@@ -133,8 +154,8 @@ class Modern extends AbstractDesign
 
 			    <div class="mt-8 px-4 py-2 bg-gray-900 text-white" style="page-break-inside: avoid;">
 			        <div class="w-1/2"></div>
-			        <div class="w-auto flex justify-end">
-			            <div class="w-56">
+			        <div class="w-auto flex justify-end" style="page-break-inside: avoid;">
+			            <div class="w-56" style="page-break-inside: avoid;">
 			                <p class="font-bold">$balance_due_label</p>
 			            </div>
 			            <p>$balance_due</p>
@@ -148,7 +169,7 @@ class Modern extends AbstractDesign
 	public function footer() {
 
 		return '
-			<div class="bg-orange-600 flex justify-between py-8 px-12" style="page-break-inside: avoid;">
+			<div class="div_footer bg-orange-600 flex justify-between py-8 px-12" style="page-break-inside: avoid;">
 			    <div class="w-1/2">
 			        <!-- // -->
 			    </div>
