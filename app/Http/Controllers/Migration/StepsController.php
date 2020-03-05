@@ -31,8 +31,6 @@ class StepsController extends BaseController
 {
     use GenerateMigrationResources;
 
-    private $account;
-
     private $access = [
         'auth' => [
             'steps' => ['MIGRATION_TYPE'],
