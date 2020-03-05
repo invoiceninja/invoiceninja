@@ -361,7 +361,7 @@ class Designer {
 		$custom_fields = $company->custom_fields;
 
 		if (!$custom_fields) {
-			return [];
+			return $data;
 		}
 
 		foreach (self::$custom_fields as $cf) {
@@ -385,7 +385,7 @@ class Designer {
 
 		foreach ($matches as $match) {
 
-			if (!property_exists($custom_fields, $match) || (strlen($custom_fields->{ $match}) == 0)) {
+			if (!property_exists($custom_fields, $match) || (strlen($custom_fields->{$match}) == 0)) {
 				foreach ($variables as $key => $value) {
 					if ($value == $match) {
 						unset($variables[$key]);
