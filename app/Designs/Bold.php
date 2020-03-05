@@ -39,7 +39,11 @@ class Bold extends AbstractDesign
                 { 
                     size: auto;
                     margin-top: 5mm;
-                } 
+                }
+
+                 .text-left .table_header_thead_class {}
+                 .px-12 .text-2xl .px-4 .py-2 .table_header_td_class {}
+                 .bg-gray-200 .py-5 .pl-12 .table_body_td_class {}
                 </style>
         ';
     }

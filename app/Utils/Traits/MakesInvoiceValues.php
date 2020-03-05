@@ -516,7 +516,7 @@ trait MakesInvoiceValues
         $column_headers = $this->transformColumnsForHeader($columns);
 
         foreach ($column_headers as $column) 
-            $table_header .= '<td class="'.$css['table_header_td_class'].'">' . ctrans('texts.'.$column.'') . '</td>';
+            $table_header .= '<td class="table_header_td_class">' . ctrans('texts.'.$column.'') . '</td>';
         
         //$table_header .= '</tr></thead>';
 
@@ -538,7 +538,7 @@ trait MakesInvoiceValues
             $table_body .= '<tr class="">';
 
             foreach ($columns as $column) {
-                $table_body .= '<td class="'.$css['table_body_td_class'].'">'. $item->{$column} . '</td>';
+                $table_body .= '<td class="table_body_td_class">'. $item->{$column} . '</td>';
             }
 
             $table_body .= '</tr>';
