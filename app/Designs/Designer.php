@@ -76,7 +76,7 @@ class Designer {
 			->setDesign($this->getSection('include'))
 		    ->setDesign($this->getSection('header'))
 			->setDesign($this->getSection('body'))
-			->setDesign($this->getTable($this->entity))
+			->setDesign($this->getProductTable($this->entity))
 			->setDesign($this->getSection('footer'));
 
 		return $this;

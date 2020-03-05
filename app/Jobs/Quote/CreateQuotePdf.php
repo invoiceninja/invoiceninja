@@ -124,7 +124,6 @@ class CreateQuotePdf implements ShouldQueue {
 
 		//get invoice design
 		$html = $this->generateInvoiceHtml($design_body, $this->quote, $this->contact);
-		\Log::error($quote_number);
 
 		$pdf = $this->makePdf($all_pages_header, $all_pages_footer, $html);
 		$file_path = $path . $quote_number . '.pdf';

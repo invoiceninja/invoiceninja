@@ -448,18 +448,24 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function invoice_filepath()
     {
-        return $this->client_hash . '/invoices/';
+        return $this->company->company_key . '/' . $this->client_hash . '/invoices/';
     }
 
     public function quote_filepath()
     {
-        return $this->client_hash . '/quotes/';
+        return $this->company->company_key . '/' . $this->client_hash . '/quotes/';
     }
 
     public function credit_filepath()
     {
-        return $this->client_hash . '/credits/';
+        return $this->company->company_key . '/' . $this->client_hash . '/credits/';
     }
+
+    public function company_filepath()
+    {
+        return $this->company->company_key . '/';
+    }
+
 
     public function setInvoiceDefaults() :Invoice
     {

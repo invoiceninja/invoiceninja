@@ -11,10 +11,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Utils\Traits\MakesHash;
 use League\CommonMark\CommonMarkConverter;
 
 class TemplateController extends BaseController
 {
+    use MakesHash;
+
     public function __construct()
     {
         parent::__construct();
@@ -100,7 +103,7 @@ class TemplateController extends BaseController
     {
         if (request()->has('entity') && request()->has('entity_id')) {
             $class = 'App\Models\\'.ucfirst(request()->input('entity'));
-            $entity_obj = $class::whereId(request()->input('entity_id'))->company()->first();
+            $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
         }
 
         $subject = request()->input('subject') ?: '';

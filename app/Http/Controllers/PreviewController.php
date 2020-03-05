@@ -11,11 +11,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Designs\Custom;
+use App\Designs\Designer;
 use App\Factory\InvoiceFactory;
+use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Util\PreviewPdf;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceHtml;
+use Illuminate\Support\Facades\Storage;
 
 
 class PreviewController extends BaseController
 {
+    use MakesHash;
+    use MakesInvoiceHtml;
+
     public function __construct()
     {
         parent::__construct();
@@ -78,30 +88,53 @@ class PreviewController extends BaseController
      */
     public function show()
     {
-        if (request()->has('entity') && request()->has('entity_id')) {
-            $entity = .ucfirst(request()->input('entity');
-            $class = "App\Models\{$entity}";
 
-            $pdf_class = "App\Jobs\{$entity}\Create{$entity}Pdf";
+        if (request()->has('entity') && 
+            request()->has('entity_id') && 
+            request()->has('body'))
+        {
 
-            $entity_obj = $class::whereId(request()->input('entity_id'))->company()->first();
+            $invoice_design = new Custom((object)request()->input('body'));
 
-            $pdf = $pdf_class::dispatchNow($entity_obj, $entity_obj->company);
+            $entity = ucfirst(request()->input('entity'));
 
-            return response()->download(public_path($entity_obj->pdf_file_path()));
+            $class = "App\Models\\$entity";
+
+            $pdf_class = "App\Jobs\\$entity\\Create{$entity}Pdf";
+
+            $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
+
+            if(!$entity_obj)
+                return $this->blankEntity();
+
+            $entity_obj->load('client');
+
+            $designer = new Designer($entity_obj, $invoice_design, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
+
+            $html = $this->generateInvoiceHtml($designer->build()->getHtml(), $entity_obj);
+
+            $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
+
+            return response()->download($file_path)->deleteFileAfterSend(true);
+
         }
-        else {
 
-            $entity_obj = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
-
-            $pdf_class = "App\Jobs\Invoice}\CreateInvoicePdf";
-
-            $pdf = $pdf_class::dispatchNow($entity_obj, auth()->user()->company());
-
-            return response()->download(public_path($entity_obj->pdf_file_path()));
-
-        }
-
+        return $this->blankEntity();
 
     }
+
+    private function blankEntity()
+    {
+
+        return response()->json(['message' => 'Blank Entity not implemented.'], 200);
+
+        // $invoice_design = new Custom((object)request()->input('body'));
+
+        // $file_path = PreviewPdf::dispatchNow(request()->input('body'), auth()->user()->company());
+
+        // return response()->download($file_path)->deleteFileAfterSend(true);
+    }
+
+
+    
 }

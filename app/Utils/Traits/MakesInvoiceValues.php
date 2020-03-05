@@ -505,7 +505,7 @@ trait MakesInvoiceValues
     }
 
 
-    public function table_header(array $columns, array $css) :?string
+    public function table_header($columns, $css) :?string
     {
 
         /* Table Header */
@@ -524,7 +524,7 @@ trait MakesInvoiceValues
 
     }
 
-    public function table_body(array $columns, array $css) :?string
+    public function table_body($columns, $css) :?string
     {
         $table_body = '';
 
@@ -555,6 +555,9 @@ trait MakesInvoiceValues
      */
     private function transformColumnsForHeader(array $columns) :array
     {
+        if(count($columns) == 0)
+            return [];
+
         $pre_columns = $columns;
         $columns = array_intersect($columns, self::$master_columns);
 

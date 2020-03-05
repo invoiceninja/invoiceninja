@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Jobs\Invoice;
+namespace App\Jobs\Util;
 
 use App\Designs\Custom;
 use App\Designs\Designer;
@@ -43,14 +43,14 @@ class PreviewPdf implements ShouldQueue {
 
 	private $disk;
 
-	public $design_string
+	public $design_string;
 
 	/**
 	 * Create a new job instance.
 	 *
 	 * @return void
 	 */
-	public function __construct(Company $company, $design_string) 
+	public function __construct($design_string, Company $company) 
 	{
 
 		$this->company = $company;
@@ -63,8 +63,18 @@ class PreviewPdf implements ShouldQueue {
 
 	public function handle() {
 
-		return $this->makePdf(null, null, $this->design_string);
-	
+
+	    $path      = $this->company->company_key;
+
+		//Storage::makeDirectory($path, 0755);
+
+	    $file_path = $path . '/stream.pdf';
+
+		$pdf = $this->makePdf(null, null, $this->design_string);
+
+    	$instance = Storage::disk('local')->put($file_path, $pdf);
+
+		return storage_path('app') .'/'. $file_path;
 	}
 
 
