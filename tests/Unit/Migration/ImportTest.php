@@ -504,4 +504,21 @@ class ImportTest extends TestCase
 
         $this->assertTrue(true, 'Documents importing not completed yet. Missing expenses.');
     }
+
+    public function testExceptionMailSending()
+    {
+        Mail::fake();
+
+        $data['panda_bears'] = [
+            'name' => 'Awesome Panda Bear',
+        ];
+
+        try {
+            Import::dispatchNow($data, $this->company, $this->user);
+        }
+        catch (ResourceNotAvailableForMigration $e) {
+            Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
+            $this->assertTrue(true);
+        }
+    }
 }
