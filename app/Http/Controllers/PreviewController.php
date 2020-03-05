@@ -125,14 +125,44 @@ class PreviewController extends BaseController
 
     private function blankEntity()
     {
+            $client = factory(\App\Models\Client::class)->create([
+                'user_id' => auth()->user()->id,
+                'company_id' => auth()->user()->company()->id,
+            ]);
 
-        return response()->json(['message' => 'Blank Entity not implemented.'], 200);
+            $contact = factory(\App\Models\ClientContact::class)->create([
+                'user_id' => auth()->user()->id,
+                'company_id' => auth()->user()->company()->id,
+                'client_id' => $client->id,
+                'is_primary' => 1,
+                'send_email' => true,
+            ]);
 
-        // $invoice_design = new Custom((object)request()->input('body'));
+            $invoice = factory(\App\Models\Invoice::class)->create([
+                    'user_id' => auth()->user()->id,
+                    'company_id' => auth()->user()->company()->id,
+                    'client_id' => $client->id,
+                ]);
 
-        // $file_path = PreviewPdf::dispatchNow(request()->input('body'), auth()->user()->company());
+            $invoice->setRelation('client', $client);
+            $invoice->load('client');
 
-        // return response()->download($file_path)->deleteFileAfterSend(true);
+            $invoice_design = new Custom((object)request()->input('body'));
+
+            $designer = new Designer($invoice, $invoice_design, $invoice->client->getSetting('pdf_variables'), lcfirst(request()->has('entity')));
+
+            $html = $this->generateInvoiceHtml($designer->build()->getHtml(), $invoice);
+
+            $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
+
+            $invoice->forceDelete();
+            $contact->forceDelete();
+            $client->forceDelete();
+
+            return response()->download($file_path)->deleteFileAfterSend(true);
+
+
+
     }
 
 
