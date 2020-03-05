@@ -73,10 +73,21 @@ class StoreClientRequest extends Request
         $input = $this->all();
 
         //@todo implement feature permissions for > 100 clients
-        if (!isset($input['settings'])) {
-            $input['settings'] = ClientSettings::defaults();
-        }
+        //
+        $settings = ClientSettings::defaults();
         
+        if(array_key_exists('settings', $input) && !empty($input['settings']))
+        {
+
+            foreach($input['settings'] as $key => $value)
+            {
+                $settings->{$key} = $value;
+            }
+            
+        }
+
+        //is no settings->currency_id is set then lets dive in and find either a group or company currency all the below may be redundant!!
+
         if (isset($input['group_settings_id'])) {
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
         }
@@ -88,7 +99,7 @@ class StoreClientRequest extends Request
 
             if(empty($input['group_settings_id']))
             {
-                $input['settings']->currency_id =(string) auth()->user()->company()->settings->currency_id;
+                $currency_id =(string) auth()->user()->company()->settings->currency_id;
             }
             else
             {
@@ -100,6 +111,8 @@ class StoreClientRequest extends Request
                   $input['settings']->currency_id = (string)auth()->user()->company()->settings->currency_id;
             }
         }
+
+        $input['settings'] = $settings;
 
         if(isset($input['contacts']))
         {
