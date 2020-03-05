@@ -45,7 +45,6 @@ class DesignSeeder extends Seeder
             $design_object->include = $invoice_design->include();
             $design_object->header = $invoice_design->header();
             $design_object->body = $invoice_design->body();
-            $design_object->table_styles = $invoice_design->table_styles();
             $design_object->product_table = $invoice_design->product_table();
             $design_object->task_table = $invoice_design->task_table();
             $design_object->footer = $invoice_design->footer();
