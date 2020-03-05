@@ -65,6 +65,8 @@ class CreateQuotePdf implements ShouldQueue {
 
 		MultiDB::setDB($this->company->db);
 
+		$settings = $this->quote->client->getMergedSettings();
+
 		$this->quote->load('client');
 
 		if(!$this->contact)
@@ -74,7 +76,6 @@ class CreateQuotePdf implements ShouldQueue {
 
 		$path      = $this->quote->client->quote_filepath();
 
-		$file_path = $path . $this->quote->number . '.pdf';
 
 		$design = Design::find($this->quote->client->getSetting('quote_design_id'));
 
@@ -86,16 +87,46 @@ class CreateQuotePdf implements ShouldQueue {
 			$quote_design = new $class();
 		}
 
-		$designer = new Designer($quote_design, $this->quote->client->getSetting('pdf_variables'), 'quote');
-
-		//get invoice design
-		$html = $this->generateInvoiceHtml($designer->build($this->quote)->getHtml(), $this->quote, $this->contact);
+		$designer = new Designer($this->quote, $quote_design, $this->quote->client->getSetting('pdf_variables'), 'quote');
 
 		//todo - move this to the client creation stage so we don't keep hitting this unnecessarily
 		Storage::makeDirectory($path, 0755);
 
 		//\Log::error($html);
-		$pdf = $this->makePdf(null, null, $html);
+
+		$all_pages_header = $settings->all_pages_header;
+		$all_pages_footer = $settings->all_pages_footer;
+
+		$quote_number = $this->quote->number;
+
+
+		// if($all_pages_header && $all_pages_footer){
+		// 	$all_pages_header = $designer->init()->getHeader()->getHtml();
+		// 	$all_pages_footer = $designer->init()->getFooter()->getHtml();
+		// 	$design_body = $designer->init()->getBody()->getHtml();
+		// 	$quote_number = "header_and_footer";
+		// }
+		// elseif($all_pages_header){
+		// 	$all_pages_header = $designer->init()->getHeader()->getHtml();
+		// 	$design_body = $designer->init()->getBody()->getFooter()->getHtml();
+		// 	$quote_number = "header_only";
+		// }
+		// elseif($all_pages_footer){
+		// 	$all_pages_footer = $designer->init()->getFooter()->getHtml();
+		// 	$design_body = $designer->init()->getHeader()->getBody()->getHtml();
+		// 	$quote_number = "footer_only";
+		// }
+		// else{
+			$design_body = $designer->build()->getHtml();
+		
+
+		
+
+		//get invoice design
+		$html = $this->generateInvoiceHtml($design_body, $this->quote, $this->contact);
+
+		$pdf = $this->makePdf($all_pages_header, $all_pages_footer, $html);
+		$file_path = $path . $quote_number . '.pdf';
 
 		$instance = Storage::disk($this->disk)->put($file_path, $pdf);
 

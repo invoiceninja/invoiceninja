@@ -42,6 +42,8 @@ class EntityViewedNotification extends Notification implements ShouldQueue
         $this->company = $invitation->company;
         $this->settings = $this->entity->client->getMergedSettings();
         $this->is_system = $is_system;
+        $this->invitation = $invitation;
+
     }
 
     /**
@@ -128,7 +130,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
         $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
 
         $data = [
-            'title' => $subject,
+            'title' => $this->buildSubject(),
             'message' => ctrans("texts.notification_{$this->entity_name}_viewed", 
                 [
                     'amount' => $amount, 

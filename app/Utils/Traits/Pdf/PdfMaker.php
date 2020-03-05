@@ -18,15 +18,44 @@ trait PdfMaker
      * @return string        The PDF string
      */
     public function makePdf($header, $footer, $html) {
-        return Browsershot::html($html)
-        //->showBrowserHeaderAndFooter()
-        //->headerHtml($header)
-        //->footerHtml($footer)
-            ->deviceScaleFactor(1)
-            ->showBackground()
-            ->waitUntilNetworkIdle(true)    ->pdf();
-        //->margins(10,10,10,10)
-        //->savePdf('test.pdf');
+        
+
+
+        // if($header && $footer){
+        //    $browser = Browsershot::html($html)
+        //         ->headerHtml($header)           
+        //         ->footerHtml($footer);     
+        // }
+        // elseif($header){
+        //     $browser = Browsershot::html($html)
+        //         ->headerHtml($header);         
+        // }
+        // else if($footer){
+        //     $browser = Browsershot::html($html)
+        //         ->footerHtml($footer);        
+        // }
+        // else {
+        //     $browser = Browsershot::html($html);
+        // }
+
+        $browser = Browsershot::html($html);
+
+
+        return $browser->deviceScaleFactor(1)
+                ->showBackground()
+                ->deviceScaleFactor(1)
+                ->waitUntilNetworkIdle(true)
+                ->pdf();
+
+        // return Browsershot::html($html)
+        // //->showBrowserHeaderAndFooter()
+        // //->headerHtml($header)
+        // //->footerHtml($footer)
+        //     ->deviceScaleFactor(1)
+        //     ->showBackground()
+        //     ->waitUntilNetworkIdle(true)    ->pdf();
+        // //->margins(10,10,10,10)
+        // //->savePdf('test.pdf');
     }
 
 }

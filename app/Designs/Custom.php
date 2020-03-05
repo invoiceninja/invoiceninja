@@ -19,8 +19,10 @@ class Custom extends AbstractDesign
 
 	private $body;
 	
-	private $table;
+	private $product_table;
 	
+	private $task_table;
+
 	private $footer;
 	
 	private $table_styles;
@@ -33,8 +35,10 @@ class Custom extends AbstractDesign
 		
 		$this->body = $design->body;
 		
-		$this->table = $design->table;
+		$this->product_table = $design->product_table;
 		
+		$this->task_table = $design->task_table;
+
 		$this->footer = $design->footer;
 		
 		$this->table_styles = $design->table_styles;
@@ -67,18 +71,23 @@ class Custom extends AbstractDesign
 
 	}
 
-	public function table() 
+	public function product_table() 
 	{
 
-		return $this->table;
+		return $this->product_table;
 
+	}
+
+	public function task_table()
+	{
+		return $this->task_table;
 	}
 
 	public function footer() 
 	{
 
 		return $this->footer;
-
+		
 	}
 
 }

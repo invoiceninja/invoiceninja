@@ -1,8 +1,10 @@
 </div>
 <footer class="app-footer">
     <div class="ml-auto">
-        <span>Powered by</span>
-        <a href="https://invoiceninja.com">InvoiceNinja</a>  &copy; 2019 Invoice Ninja LLC.
+        @if(!$user->company->account->isPaid())
+            <span>Powered by</span>
+            <a href="https://invoiceninja.com">InvoiceNinja</a>  &copy; 2019 Invoice Ninja LLC.
+        @endif
     </div>
 </footer>
 <!-- Bootstrap and necessary plugins-->

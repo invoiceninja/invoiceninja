@@ -24,6 +24,10 @@
             function gtag(){}
         </script>
     @endif
+    
+    @php
+        $user = auth()->guard('contact')->user();
+    @endphp
 
     <meta charset="utf-8">
     <title>@yield('meta_title', 'Invoice Ninja') | {{ config('app.name') }}</title>

@@ -95,8 +95,10 @@ class Elegant extends AbstractDesign
 		];
 	}
 
-	public function table() {
+    public function task_table() {
+    }
 
+    public function product_table() {
         return '
         <table class="w-full table-auto mb-6 mt-16">
         <thead class="text-left border-dashed border-b border-black">

@@ -110,8 +110,10 @@ class Hipster extends AbstractDesign
 		];
 	}
 
-	public function table() {
+    public function task_table() {
+    }
 
+    public function product_table() {
         return '
         <table class="w-full table-auto mt-24">
             <thead class="text-left">
