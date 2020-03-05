@@ -394,6 +394,51 @@ trait MockAccountData
 
 		$line_items[] = $item;
 
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost =10;
+
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+        $line_items[] = $item;
+
 		return $line_items;
 
 	}

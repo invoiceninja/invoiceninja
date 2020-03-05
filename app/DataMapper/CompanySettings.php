@@ -220,8 +220,8 @@ class CompanySettings extends BaseSettings {
 	public $secondary_font    = 'Roboto';
 	public $hide_paid_to_date = false;
 	public $embed_documents   = false;
-	public $all_pages_header  = true;
-	public $all_pages_footer  = true;
+	public $all_pages_header  = false;
+	public $all_pages_footer  = false;
 	public $pdf_variables = [];
 
 	public static $casts = [

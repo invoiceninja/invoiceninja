@@ -102,8 +102,11 @@ class Creative extends AbstractDesign
 		];
 	}
 
-	public function table() {
+    public function task_table() {
+    }
 
+    public function product_table() {
+        
         return '
         <table class="w-full table-auto mt-12 border-t-4 border-pink-700 bg-white">
             <thead class="text-left rounded-lg">

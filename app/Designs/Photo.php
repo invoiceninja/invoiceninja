@@ -109,8 +109,10 @@ class Photo extends AbstractDesign
 		];
 	}
 
-	public function table() {
+    public function task_table() {
+    }
 
+    public function product_table() {
         return '
         <div class="px-16 py-16">
             <table class="w-full table-auto">

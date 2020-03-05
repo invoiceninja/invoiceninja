@@ -505,7 +505,7 @@ trait MakesInvoiceValues
     }
 
 
-    public function table_header(array $columns, array $css) :?string
+    public function table_header($columns, $css) :?string
     {
 
         /* Table Header */
@@ -516,7 +516,7 @@ trait MakesInvoiceValues
         $column_headers = $this->transformColumnsForHeader($columns);
 
         foreach ($column_headers as $column) 
-            $table_header .= '<td class="'.$css['table_header_td_class'].'">' . ctrans('texts.'.$column.'') . '</td>';
+            $table_header .= '<td class="table_header_td_class">' . ctrans('texts.'.$column.'') . '</td>';
         
         //$table_header .= '</tr></thead>';
 
@@ -524,7 +524,7 @@ trait MakesInvoiceValues
 
     }
 
-    public function table_body(array $columns, array $css) :?string
+    public function table_body($columns, $css) :?string
     {
         $table_body = '';
 
@@ -538,7 +538,7 @@ trait MakesInvoiceValues
             $table_body .= '<tr class="">';
 
             foreach ($columns as $column) {
-                $table_body .= '<td class="'.$css['table_body_td_class'].'">'. $item->{$column} . '</td>';
+                $table_body .= '<td class="table_body_td_class">'. $item->{$column} . '</td>';
             }
 
             $table_body .= '</tr>';
@@ -555,6 +555,9 @@ trait MakesInvoiceValues
      */
     private function transformColumnsForHeader(array $columns) :array
     {
+        if(count($columns) == 0)
+            return [];
+
         $pre_columns = $columns;
         $columns = array_intersect($columns, self::$master_columns);
 

@@ -26,6 +26,8 @@ class Designer {
 
 	protected $entity_string;
 
+	protected $entity;
+
 	private static $custom_fields = [
 		'invoice1',
 		'invoice2',
@@ -49,8 +51,9 @@ class Designer {
 		'company4',
 	];
 
-	public function __construct($design, $input_variables, $entity_string) 
+	public function __construct($entity, $design, $input_variables, $entity_string) 
 	{
+		$this->entity = $entity;
 
 		$this->design = $design;
 
@@ -65,27 +68,63 @@ class Designer {
 	 * formatted HTML
 	 * @return string The HTML design built
 	 */
-	public function build($entity):Designer 
+	public function build():Designer 
 	{
 
-		$this->exportVariables($entity)
+		$this->setHtml()
+			->exportVariables()
 			->setDesign($this->getSection('include'))
 		    ->setDesign($this->getSection('header'))
 			->setDesign($this->getSection('body'))
-			->setDesign($this->getTable($entity))
+			->setDesign($this->getProductTable($this->entity))
 			->setDesign($this->getSection('footer'));
 
 		return $this;
 
 	}
 
-	public function getTable($entity):string 
+	public function init()
+	{
+		$this->setHtml()
+		->exportVariables();
+
+		return $this;
+	}
+
+	public function getHeader()
 	{
 
-		$table_header = $entity->table_header($this->input_variables['product_columns'], $this->design->table_styles());
-		$table_body   = $entity->table_body($this->input_variables['product_columns'], $this->design->table_styles());
+		$this->setDesign($this->getSection('include'))
+		->setDesign($this->getSection('header'));
 
-		$data = str_replace('$table_header', $table_header, $this->getSection('table'));
+		return $this;
+	}
+
+	public function getFooter()
+	{
+
+		$this->setDesign($this->getSection('footer'));
+
+		return $this;		
+	}
+
+	public function getBody() 
+	{
+
+		$this->setDesign($this->getSection('include'))
+			->setDesign($this->getSection('body'))
+			->setDesign($this->getProductTable());
+		
+		return $this;
+	}
+
+	public function getProductTable():string 
+	{
+
+		$table_header = $this->entity->table_header($this->input_variables['product_columns'], $this->design->table_styles());
+		$table_body   = $this->entity->table_body($this->input_variables['product_columns'], $this->design->table_styles());
+
+		$data = str_replace('$table_header', $table_header, $this->getSection('product_table'));
 		$data = str_replace('$table_body', $table_body, $data);
 
 		return $data;
@@ -95,6 +134,13 @@ class Designer {
 	public function getHtml():string 
 	{
 		return $this->html;
+	}
+
+	public function setHtml()
+	{
+		$this->html =  '';
+
+		return $this;
 	}
 
 	private function setDesign($section) 
@@ -117,10 +163,10 @@ class Designer {
 		return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section}());
 	}
 
-	private function exportVariables($entity) 
+	private function exportVariables() 
 	{
 
-		$company = $entity->company;
+		$company = $this->entity->company;
 
 		$this->exported_variables['$client_details']  = $this->processVariables($this->processInputVariables($company, $this->input_variables['client_details']), $this->clientDetails($company));
 		$this->exported_variables['$company_details'] = $this->processVariables($this->processInputVariables($company, $this->input_variables['company_details']), $this->companyDetails($company));
@@ -169,35 +215,6 @@ class Designer {
 
 		return $output;
 	}
-
-	// private function exportVariables()
-	// {
-	// 	/*
-	// 	 * $entity_labels
-	// 	 * $entity_details
-	// 	 */
-	// 	$header = $this->design->header();
-
-	// 	/*
-	// 	 * $company_logo - full URL
-	// 	 * $client_details
-	// 	 */
-	// 	$body = $this->design->body();
-
-	// 	/*
-	// 	 * $table_header
-	// 	 * $table_body
-	// 	 * $total_labels
-	// 	 * $total_values
-	// 		 */
-	// 	$table = $this->design->table();
-
-	// 	/*
-	// 	 * $company_details
-	// 	 * $company_address
-	// 	 */
-	// 	$footer = $this->design->footer();
-	// }
 
 	private function clientDetails(Company $company) 
 	{

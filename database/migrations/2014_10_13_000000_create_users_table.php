@@ -969,6 +969,9 @@ class CreateUsersTable extends Migration
             $t->softDeletes('deleted_at', 6);
             $t->boolean('is_deleted')->default(false);
             $t->boolean('is_manual')->default(false);
+            $t->decimal('exchange_rate', 16, 6)->default(1);
+            $t->unsignedInteger('currency_id');
+            $t->unsignedInteger('exchange_currency_id');
 
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
