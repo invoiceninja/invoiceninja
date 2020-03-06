@@ -76,7 +76,7 @@ class CreateCreditPdf implements ShouldQueue {
 
 		$file_path = $path . $this->credit->number . '.pdf';
 
-		$design = Design::find($this->credit->client->getSetting('credit_design_id'));
+		$design = Design::find($this->decodePrimaryKey($this->credit->client->getSetting('credit_design_id')));
 
 		if($design->is_custom){
 			$credit_design = new Custom($design->design);

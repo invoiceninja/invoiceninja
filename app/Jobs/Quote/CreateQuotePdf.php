@@ -76,8 +76,7 @@ class CreateQuotePdf implements ShouldQueue {
 
 		$path      = $this->quote->client->quote_filepath();
 
-
-		$design = Design::find($this->quote->client->getSetting('quote_design_id'));
+		$design = Design::find($this->decodePrimaryKey($this->quote->client->getSetting('quote_design_id')));
 
 		if($design->is_custom){
 			$quote_design = new Custom($design->design);

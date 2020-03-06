@@ -19,9 +19,10 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\Invoice;
-use App\Utils\Traits\Pdf\PdfMaker;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
+use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -33,7 +34,7 @@ use Spatie\Browsershot\Browsershot;
 
 class CreateInvoicePdf implements ShouldQueue {
 
-	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker;
+	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash;
 
 	public $invoice;
 
@@ -74,7 +75,7 @@ class CreateInvoicePdf implements ShouldQueue {
 
 		$file_path = $path . $this->invoice->number . '.pdf';
 
-		$design = Design::find($this->invoice->client->getSetting('invoice_design_id'));
+		$design = Design::find($this->decodePrimaryKey($this->invoice->client->getSetting('invoice_design_id')));
 
 		if($design->is_custom){
 			$invoice_design = new Custom($design->design);
