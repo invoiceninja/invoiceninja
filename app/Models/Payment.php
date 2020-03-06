@@ -67,6 +67,7 @@ class Payment extends BaseModel
     ];
 
     protected $casts = [
+        'exchange_rate' => 'float',
         'settings' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
