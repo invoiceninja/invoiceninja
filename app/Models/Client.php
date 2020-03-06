@@ -466,31 +466,13 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->company->company_key . '/';
     }
 
-
-    public function setInvoiceDefaults($invoice) :Invoice
+    public function setCompanyDefaults($data, $entity_name)
     {
-        $invoice->terms = $this->getSetting('invoice_terms');
-        $invoice->footer = $this->getSetting('invoice_footer');
-        $invoice->public_notes = isset($this->public_notes) ? $this->public_notes : '';
+        $data['terms'] = $this->getSetting($entity_name.'_terms');
+        $data['footer'] =$this->getSetting($entity_name.'_footer');
+        $data['public_notes'] = isset($this->public_notes) ? $this->public_notes : '';
 
-        return $invoice;
+        return $data;
     }
 
-    public function setQuoteDefaults($quote) :Quote
-    {
-        $quote->terms = $this->getSetting('quote_terms');
-        $quote->footer = $this->getSetting('quote_footer');
-        $quote->public_notes = isset($this->public_notes) ? $this->public_notes : '';
-
-        return $quote;
-    }
-
-    public function setCreditDefaults($credit) :Credit
-    {
-        $credit->terms = $this->getSetting('credit_terms');
-        $credit->footer = $this->getSetting('credit_footer');
-        $credit->public_notes = isset($this->public_notes) ? $this->public_notes : '';
-
-        return $credit;
-    }
 }
