@@ -209,7 +209,7 @@ class GroupSettingsTest extends TestCase
 	{
 
 		$this->settings = $this->company->settings;
-
+		
 		$this->assertTrue($this->validateSettings($this->settings));
 
 		$new_settings = $this->saveSettings($this->settings, $this->client);
