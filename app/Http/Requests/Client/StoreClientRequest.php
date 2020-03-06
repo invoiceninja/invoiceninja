@@ -84,10 +84,10 @@ class StoreClientRequest extends Request
                 $settings->{$key} = $value;
             }
             
-        }
+        } 
 
         //is no settings->currency_id is set then lets dive in and find either a group or company currency all the below may be redundant!!
-        if(!property_exists('currency_id', $input['settings']) && isset($input['group_settings_id']))
+        if(!property_exists($settings, 'currency_id') && isset($input['group_settings_id']))
         {
 
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
@@ -99,7 +99,7 @@ class StoreClientRequest extends Request
                 $settings->currency_id = (string)auth()->user()->company()->settings->currency_id;
 
         }
-        elseif(!property_exists('currency_id', $input['settings']))
+        elseif(!property_exists($settings, 'currency_id'))
         {
             $settings->currency_id = (string)auth()->user()->company()->settings->currency_id;
         }

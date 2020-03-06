@@ -38,20 +38,20 @@ class Modern extends AbstractDesign
 
 					 @media screen {
 					 	div.div_header {
-						    display: none;
+						    display: flex;
 						  }
 						  div.div_footer {
-						    display: none;
+						    display: flex;
 						  }
 						}
 						@media print {
 						  div.div_footer {
-					     	display: block; 
+					     	display: flex; 
 							position: running(footer);
 					    	width: 100%;
 						  }
 						  div.div_header {
-			    		    display: block; 
+			    		    display: flex; 
 							position: running(header);
 					    	width:100%;
 						  }
