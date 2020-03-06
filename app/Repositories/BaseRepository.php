@@ -188,15 +188,23 @@ class BaseRepository
     {
         $class = new ReflectionClass($model);        
 
+        $client = Client::find($data['client_id']);
+
         $state = [];
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
         $lcfirst_resource_id = lcfirst($resource) . '_id';
+
+        //if new, set defaults!
+        if(!$model->id) {
+            $methodName = "set" . $resource . "Defaults";
+            $model = $client->{$methodName}();
+        }
+
 
         if ($class->name == Invoice::class || $class->name == Quote::class) 
             $state['starting_amount'] = $model->amount;
 
         if (!$model->id) {
-            $client = Client::find($data['client_id']);
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
         }
 
