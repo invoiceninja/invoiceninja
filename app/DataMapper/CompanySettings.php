@@ -114,9 +114,9 @@ class CompanySettings extends BaseSettings {
 	public $quote_terms            = '';
 	public $invoice_taxes          = 0;
 	public $enabled_item_tax_rates = 0;
-	public $invoice_design_id      = '1';
-	public $quote_design_id        = '1';
-	public $credit_design_id        = '1';
+	public $invoice_design_id      = 'VolejRejNm';
+	public $quote_design_id        = 'VolejRejNm';
+	public $credit_design_id        = 'VolejRejNm';
 	public $invoice_footer         = '';
 	public $credit_footer         = '';
 	public $credit_terms         = '';

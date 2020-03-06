@@ -680,4 +680,17 @@ class QuoteController extends BaseController
         }
     }
 
+    public function downloadPdf($invitation_key) 
+    {
+
+        $invitation = $this->quote_repo->getInvitationByKey($invitation_key);
+        $contact    = $invitation->contact;
+        $quote    = $invitation->quote;
+
+        $file_path = $quote->service()->getQuotePdf($contact); 
+
+        return response()->download($file_path);
+
+    }
+    
 }

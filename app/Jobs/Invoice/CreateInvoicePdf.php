@@ -74,7 +74,7 @@ class CreateInvoicePdf implements ShouldQueue {
 		$path      = $this->invoice->client->invoice_filepath();
 
 		$file_path = $path . $this->invoice->number . '.pdf';
-
+		
 		$design = Design::find($this->decodePrimaryKey($this->invoice->client->getSetting('invoice_design_id')));
 
 		if($design->is_custom){
@@ -98,9 +98,8 @@ class CreateInvoicePdf implements ShouldQueue {
 
 		$instance = Storage::disk($this->disk)->put($file_path, $pdf);
 
-		//$instance= Storage::disk($this->disk)->path($file_path);
-		//
 		return $file_path;	
+	
 	}
 
 

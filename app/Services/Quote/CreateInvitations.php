@@ -14,9 +14,7 @@ class CreateInvitations
     public function run($quote)
     {
 
-        $contacts = $quote->client->contacts;
-
-        $contacts->each(function ($contact) use($quote){
+        $quote->client->contacts->each(function ($contact) use($quote){
             $invitation = QuoteInvitation::whereCompanyId($quote->company_id)
                 ->whereClientContactId($contact->id)
                 ->whereQuoteId($quote->id)
@@ -32,6 +30,6 @@ class CreateInvitations
             }
         });
 
-        return $quote;
+        return $quote->fresh();
     }
 }

@@ -2,7 +2,10 @@
 
 namespace App\Services\Credit;
 
+use App\Jobs\Credit\CreateCreditPdf;
 use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Models\ClientContact;
+use App\Models\Credit;
 use App\Services\AbstractService;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,16 +28,19 @@ class GetCreditPdf extends AbstractService
             $this->contact = $this->credit->client->primary_contact()->first();
         }
 
-        $path = 'public/' . $this->credit->client->id . '/credits/';
+        $path      = $this->credit->client->credit_filepath();
+
         $file_path = $path . $this->credit->number . '.pdf';
+        
         $disk = config('filesystems.default');
+        
         $file = Storage::disk($disk)->exists($file_path);
 
         if (!$file) {
-            $file_path = CreateInvoicePdf::dispatchNow($this->credit, $this->credit->company, $this->contact);
+            $file_path = CreateCreditPdf::dispatchNow($this->credit, $this->credit->company, $this->contact);
         }
 
-        return Storage::disk($disk)->url($file_path);
+        return Storage::disk($disk)->path($file_path);
     }
 
 }

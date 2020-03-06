@@ -571,4 +571,17 @@ class CreditController extends BaseController
                 break;
         }
     }
+
+    public function downloadPdf($invitation_key) 
+    {
+
+        $invitation = $this->credit_repository->getInvitationByKey($invitation_key);
+        $contact    = $invitation->contact;
+        $credit    = $invitation->credit;
+
+        $file_path = $credit->service()->getCreditPdf($contact); 
+        
+        return response()->download($file_path);
+
+    }
 }

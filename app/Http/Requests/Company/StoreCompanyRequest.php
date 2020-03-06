@@ -66,11 +66,11 @@ class StoreCompanyRequest extends Request
             
         }
         
-        $company_settings->invoice_design_id = $this->encodePrimaryKey(1);
-        $company_settings->quote_design_id = $this->encodePrimaryKey(1);
-        $company_settings->credit_design_id = $this->encodePrimaryKey(1);
+        // $company_settings->invoice_design_id = $this->encodePrimaryKey(1);
+        // $company_settings->quote_design_id = $this->encodePrimaryKey(1);
+        // $company_settings->credit_design_id = $this->encodePrimaryKey(1);
 
-        $input['settings'] = $company_settings;
+        // $input['settings'] = $company_settings;
 
         
         $this->replace($input);
