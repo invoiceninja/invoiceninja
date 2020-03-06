@@ -73,33 +73,39 @@ class StoreClientRequest extends Request
         $input = $this->all();
 
         //@todo implement feature permissions for > 100 clients
-        if (!isset($input['settings'])) {
-            $input['settings'] = ClientSettings::defaults();
-        }
+        //
+        $settings = ClientSettings::defaults();
         
-        if (isset($input['group_settings_id'])) {
-            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
-        }
-
-        if(empty($input['settings']) || empty($input['settings']->currency_id))
+        if(array_key_exists('settings', $input) && !empty($input['settings']))
         {
-            if(!is_object($input['settings']))
-                $input['settings'] = ClientSettings::defaults();
 
-            if(empty($input['group_settings_id']))
+            foreach($input['settings'] as $key => $value)
             {
-                $input['settings']->currency_id =(string) auth()->user()->company()->settings->currency_id;
+                $settings->{$key} = $value;
             }
-            else
-            {
-                $group_settings = GroupSetting::find($input['group_settings_id']);
-
-                if($group_settings && property_exists($group_settings->settings, 'currency_id') && is_int($group_settings->settings->currency_id))
-                    $input['settings']->currency_id = (string)$group_settings->settings->currency_id;
-                else
-                  $input['settings']->currency_id = (string)auth()->user()->company()->settings->currency_id;
-            }
+            
         }
+
+        //is no settings->currency_id is set then lets dive in and find either a group or company currency all the below may be redundant!!
+        if(!property_exists('currency_id', $input['settings']) && isset($input['group_settings_id']))
+        {
+
+            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+            $group_settings = GroupSetting::find($input['group_settings_id']);
+
+            if($group_settings && property_exists($group_settings->settings, 'currency_id') && isset($group_settings->settings->currency_id))
+                $settings->currency_id = (string)$group_settings->settings->currency_id;
+            else
+                $settings->currency_id = (string)auth()->user()->company()->settings->currency_id;
+
+        }
+        elseif(!property_exists('currency_id', $input['settings']))
+        {
+            $settings->currency_id = (string)auth()->user()->company()->settings->currency_id;
+        }
+
+
+        $input['settings'] = $settings;
 
         if(isset($input['contacts']))
         {

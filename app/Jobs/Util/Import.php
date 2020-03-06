@@ -131,14 +131,19 @@ class Import implements ShouldQueue
         foreach ($this->data as $key => $resource) {
 
             if (!in_array($key, $this->available_imports)) {
-                throw new ResourceNotAvailableForMigration($key);
+                throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
             }
-\Log::error($key);
+
+            \Log::error($key);
 
             $method = sprintf("process%s", Str::ucfirst(Str::camel($key)));
 
             $this->{$method}($resource);
+
+            info("$key done!!");
         }
+
+        info('Completed🚀🚀🚀🚀🚀 at ' . now());
     }
 
     /**
@@ -155,7 +160,7 @@ class Import implements ShouldQueue
 
         if ($validator->fails()) {
             // \Log::error($validator->errors());
-            throw new MigrationValidatorFailed($validator->errors());
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
         if (isset($data['account_id']))
@@ -185,7 +190,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new MigrationValidatorFailed($validator->errors());
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
         foreach ($data as $resource) {
@@ -231,7 +236,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new MigrationValidatorFailed($validator->errors());
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
         $user_repository = new UserRepository();
@@ -324,7 +329,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new MigrationValidatorFailed($validator->errors());
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
         $product_repository = new ProductRepository();
@@ -358,7 +363,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new MigrationValidatorFailed($validator->errors());
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
         $invoice_repository = new InvoiceRepository();
@@ -368,7 +373,7 @@ class Import implements ShouldQueue
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
-                throw new ResourceDependencyMissing(array_key_first($data), 'clients');
+                throw new ResourceDependencyMissing('Processing invoices failed, because of missing dependency - clients.');
             }
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
@@ -405,7 +410,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new MigrationValidatorFailed($validator->errors());
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
         $credit_repository = new CreditRepository();
@@ -415,7 +420,7 @@ class Import implements ShouldQueue
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
-                throw new ResourceDependencyMissing(array_key_first($data), 'clients');
+                throw new ResourceDependencyMissing('Processing credits failed, because of missing dependency - clients.');
             }
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
@@ -451,7 +456,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new MigrationValidatorFailed($validator->errors());
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
         $quote_repository = new QuoteRepository();
@@ -461,7 +466,7 @@ class Import implements ShouldQueue
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
-                throw new ResourceDependencyMissing(array_key_first($data), 'clients');
+                throw new ResourceDependencyMissing('Processing quotes failed, because of missing dependency - clients.');
             }
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
@@ -502,7 +507,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new MigrationValidatorFailed($validator->errors());
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
         $payment_repository = new PaymentRepository(new CreditRepository());
@@ -512,7 +517,7 @@ class Import implements ShouldQueue
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
-                throw new ResourceDependencyMissing(array_key_first($data), 'clients');
+                throw new ResourceDependencyMissing('Processing payments failed, because of missing dependency - clients.');
             }
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
@@ -557,11 +562,11 @@ class Import implements ShouldQueue
             $modified = $resource;
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && !array_key_exists('invoices', $this->ids)) {
-                throw new ResourceDependencyMissing(array_key_first($data), 'invoices');
+                throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - invoices.');
             }
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && !array_key_exists('expenses', $this->ids)) {
-                throw new ResourceDependencyMissing(array_key_first($data), 'expenses');
+                throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - expenses.');
             }
 
             /** Remove because of polymorphic joins. */
@@ -611,7 +616,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            throw new MigrationValidatorFailed($validator->errors());
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
         foreach ($data as $resource) {

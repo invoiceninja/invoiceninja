@@ -15,6 +15,7 @@ use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\NonExistingMigrationFile;
 use App\Exceptions\ProcessingMigrationArchiveFailed;
 use App\Exceptions\ResourceNotAvailableForMigration;
+use App\Factory\CompanyFactory;
 use App\Http\Requests\Account\CreateAccountRequest;
 use App\Http\Requests\Migration\UploadMigrationFileRequest;
 use App\Jobs\Account\CreateAccount;
@@ -192,7 +193,7 @@ class MigrationController extends BaseController
      */
     public function startMigration(Request $request, Company $company)
     {
-        if ($request->has('force'))
+        if ($request->has('force') && !empty($request->force))
             $this->purgeCompany($company);
 
         $migration_file = $request->file('migration')
@@ -201,12 +202,11 @@ class MigrationController extends BaseController
         if (app()->environment() == 'testing') return;
 
         $user = auth()->user();
-        $company = $company;
 
         StartMigration::dispatch($migration_file, $user, $company);
 
         return response()->json([
-            '_id' => Str::uuid(),   
+            '_id' => Str::uuid(),
             'method' => config('queue.default'),
             'started_at' => now(),
         ], 200);

@@ -11,18 +11,17 @@ class MigrationFailed extends Mailable
     use Queueable, SerializesModels;
 
     public $exception;
-    public $message;
+    public $content;
 
     /**
      * Create a new message instance.
      *
-     * @param $message
+     * @param $content
      * @param $exception
      */
-    public function __construct($exception, $message = null)
+    public function __construct($exception, $content = null)
     {
         $this->exception = $exception;
-        $this->message = 'Oops, looks like something went wrong with your migration. Please try again, later.';
     }
 
     /**

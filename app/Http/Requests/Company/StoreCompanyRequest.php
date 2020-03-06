@@ -11,6 +11,7 @@
 
 namespace App\Http\Requests\Company;
 
+use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\ClientContact;
@@ -51,12 +52,28 @@ class StoreCompanyRequest extends Request
 
         $input = $this->all();
 
-        if(array_key_exists('settings', $input) && property_exists($input['settings'], 'pdf_variables') && empty((array) $input['settings']->pdf_variables))
+        $company_settings = CompanySettings::defaults();
+
+        if(array_key_exists('settings', $input) && !empty($input['settings']))
         {
-            $input['settings']['pdf_variables'] = CompanySettings::getEntityVariableDefaults();
+
+            foreach($input['settings'] as $key => $value)
+            {
+                $company_settings->{$key} = $value;
+            }
+            
         }
+        
+        $input['settings'] = $company_settings;
+// \Log::error($input);
+
+//         if(array_key_exists('settings', $input) && property_exists($input['settings'], 'pdf_variables') && empty((array) $input['settings']->pdf_variables))
+//         {
+//             $input['settings']['pdf_variables'] = CompanySettings::getEntityVariableDefaults();
+//         }
 
 
+// \Log::error($input);
         
         $this->replace($input);
     }
