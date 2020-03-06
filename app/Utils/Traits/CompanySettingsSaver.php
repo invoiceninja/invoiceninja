@@ -12,6 +12,7 @@
 namespace App\Utils\Traits;
 
 use App\DataMapper\CompanySettings;
+use App\Utils\Traits\SettingsSaver;
 
 /**
  * Class CompanySettingsSaver
@@ -79,8 +80,19 @@ trait CompanySettingsSaver
 
         foreach ($casts as $key => $value) {
 
+            if(in_array($key, SettingsSaver::$string_casts)) {
+                $value = "string";
+
+                if (!property_exists($settings, $key)) {
+                    continue;
+                } elseif (!$this->checkAttribute($value, $settings->{$key})) {
+                    return [$key, $value, $settings->{$key}];
+                }
+
+                continue;
+            }
             /*Separate loop if it is a _id field which is an integer cast as a string*/
-            if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
+            elseif (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
                 $value = "integer";
                 
                 if (!property_exists($settings, $key)) {
