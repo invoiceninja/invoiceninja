@@ -36,7 +36,7 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
         $this->invoice = $invitation->invoice;
         $this->contact = $invitation->contact;
         $this->company = $company;
-        $this->settings = $invoice->client->getMergedSettings();
+        $this->settings = $this->invoice->client->getMergedSettings();
         $this->is_system = $is_system;
     }
 
