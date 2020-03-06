@@ -68,7 +68,7 @@ class PaymentAppliedValidAmount implements Rule
         {
             foreach(request()->input('invoices') as $invoice)
             {
-                $invoice_amounts =+ $invoice['amount'];
+                $invoice_amounts += $invoice['amount'];
             }
         }
 
