@@ -49,4 +49,10 @@ class UpdateCompanyRequest extends Request
 
         return $rules;
     }
+
+    protected function prepareForValidation()
+    {
+
+    }
+
 }

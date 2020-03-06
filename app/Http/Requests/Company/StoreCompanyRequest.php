@@ -16,9 +16,11 @@ use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Utils\Traits\MakesHash;
 
 class StoreCompanyRequest extends Request
 {
+    use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -64,16 +66,12 @@ class StoreCompanyRequest extends Request
             
         }
         
+        $company_settings->invoice_design_id = $this->encodePrimaryKey(1);
+        $company_settings->quote_design_id = $this->encodePrimaryKey(1);
+        $company_settings->credit_design_id = $this->encodePrimaryKey(1);
+
         $input['settings'] = $company_settings;
-// \Log::error($input);
 
-//         if(array_key_exists('settings', $input) && property_exists($input['settings'], 'pdf_variables') && empty((array) $input['settings']->pdf_variables))
-//         {
-//             $input['settings']['pdf_variables'] = CompanySettings::getEntityVariableDefaults();
-//         }
-
-
-// \Log::error($input);
         
         $this->replace($input);
     }

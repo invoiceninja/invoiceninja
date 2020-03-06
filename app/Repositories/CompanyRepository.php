@@ -48,8 +48,11 @@ class CompanyRepository extends BaseRepository
         }
 
         $company->fill($data);
+        $company->saveSettings($data['settings'], $company);
 
         $company->save();
+
+//\Log::error(print_r($company->settings,1));
 
         return $company;
     }

@@ -30,22 +30,17 @@ trait CompanySettingsSaver
      */
     public function saveSettings($settings, $entity)
     {
-        if (!$settings) {
+        /* No Settings, No Save!*/        
+        if (!$settings) 
             return;
-        }
-
-        //unset protected properties.
-        foreach (CompanySettings::$protected_fields as $field) {
+        
+        //Unset Protected Properties.
+        foreach (CompanySettings::$protected_fields as $field) 
             unset($settings[$field]);
-        }
 
         $settings = $this->checkSettingType($settings);
 
         $company_settings = CompanySettings::defaults();
-
-        //Iterate and set CURRENT settings
-        // foreach($this->settings as $key => $value)
-        // 	$company_settings->{$key} = $value;
 
         //Iterate and set NEW settings
         foreach ($settings as $key => $value) {
@@ -57,7 +52,9 @@ trait CompanySettingsSaver
         }
 
         $entity->settings = $company_settings;
+
         $entity->save();
+
     }
 
     /**
@@ -72,6 +69,7 @@ trait CompanySettingsSaver
     public function validateSettings($settings)
     {
         $settings = (object)$settings;
+
         $casts = CompanySettings::$casts;
 
         if(property_exists($settings, 'pdf_variables'))
@@ -95,15 +93,15 @@ trait CompanySettingsSaver
             }
 
             /* Handles unset settings or blank strings */
-            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') {
+            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') 
                 continue;
-            }
+            
             
 
             /*Catch all filter */
-            if (!$this->checkAttribute($value, $settings->{$key})) {
+            if (!$this->checkAttribute($value, $settings->{$key})) 
                 return [$key, $value];
-            }
+            
         }
 
         return true;
@@ -123,10 +121,29 @@ trait CompanySettingsSaver
     private function checkSettingType($settings) : \stdClass
     {
         $settings = (object)$settings;
+
         $casts = CompanySettings::$casts;
         
         foreach ($casts as $key => $value) {
 
+            if(in_array($key, SettingsSaver::$string_casts))
+            {
+                $value = "string";
+                
+                if (!property_exists($settings, $key)) {
+                    continue;
+                } elseif ($this->checkAttribute($value, $settings->{$key})) {
+                    if (substr($key, -3) == '_id') {
+                        settype($settings->{$key}, 'string');
+                    } else {
+                        settype($settings->{$key}, $value);
+                    }
+                } else {
+                    unset($settings->{$key});
+                }
+
+                continue;   
+            }
             /*Separate loop if it is a _id field which is an integer cast as a string*/
             if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
                 $value = "integer";
@@ -147,9 +164,9 @@ trait CompanySettingsSaver
             }
 
             /* Handles unset settings or blank strings */
-            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') {
+            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') 
                 continue;
-            }
+            
 
             /*Catch all filter */
             if ($this->checkAttribute($value, $settings->{$key})) {
@@ -162,7 +179,9 @@ trait CompanySettingsSaver
                 unset($settings->{$key});
             }
         }
+
         return $settings;
+
     }
 
     /**
@@ -173,6 +192,7 @@ trait CompanySettingsSaver
      */
     private function checkAttribute($key, $value) :bool
     {
+
         switch ($key) {
             case 'int':
             case 'integer':
@@ -196,5 +216,6 @@ trait CompanySettingsSaver
             default:
                 return false;
         }
+        
     }
 }
