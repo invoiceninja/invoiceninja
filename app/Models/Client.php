@@ -468,9 +468,14 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function setCompanyDefaults($data, $entity_name)
     {
-        $data['terms'] = $this->getSetting($entity_name.'_terms');
-        $data['footer'] =$this->getSetting($entity_name.'_footer');
-        $data['public_notes'] = isset($this->public_notes) ? $this->public_notes : '';
+        if(strlen($this->getSetting($entity_name.'_terms')) >=1)
+            $data['terms'] = $this->getSetting($entity_name.'_terms');
+
+        if(strlen($this->getSetting($entity_name.'_footer')) >=1)
+            $data['footer'] =$this->getSetting($entity_name.'_footer');
+
+        if(strlen($this->public_notes) >=1)
+            $data['public_notes'] = $this->public_notes;
 
         return $data;
     }
