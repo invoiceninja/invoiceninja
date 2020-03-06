@@ -13,15 +13,15 @@ namespace App\Designs;
 
 class Custom extends AbstractDesign
 {
-	private $include;
+	private $includes;
 
 	private $header;
 
 	private $body;
 	
-	private $product_table;
+	private $product;
 	
-	private $task_table;
+	private $task;
 
 	private $footer;
 	
@@ -29,15 +29,15 @@ class Custom extends AbstractDesign
 
 	public function __construct($design) 
 	{
-		$this->include = $design->include;
+		$this->includes = $design->includes;
 
 		$this->header = $design->header;
 		
 		$this->body = $design->body;
 		
-		$this->product_table = $design->product_table;
+		$this->product = $design->product;
 		
-		$this->task_table = $design->task_table;
+		$this->task = $design->task;
 
 		$this->footer = $design->footer;
 		
@@ -45,9 +45,9 @@ class Custom extends AbstractDesign
 	
 	}
 
-	public function include()
+	public function includes()
 	{
-		return $this->include;
+		return $this->includes;
 	}
 
 	public function header() 
@@ -71,16 +71,16 @@ class Custom extends AbstractDesign
 
 	}
 
-	public function product_table() 
+	public function product() 
 	{
 
-		return $this->product_table;
+		return $this->product;
 
 	}
 
-	public function task_table()
+	public function task()
 	{
-		return $this->task_table;
+		return $this->task;
 	}
 
 	public function footer() 

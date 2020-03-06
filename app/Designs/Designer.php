@@ -73,7 +73,7 @@ class Designer {
 
 		$this->setHtml()
 			->exportVariables()
-			->setDesign($this->getSection('include'))
+			->setDesign($this->getSection('includes'))
 		    ->setDesign($this->getSection('header'))
 			->setDesign($this->getSection('body'))
 			->setDesign($this->getProductTable($this->entity))
@@ -94,7 +94,7 @@ class Designer {
 	public function getHeader()
 	{
 
-		$this->setDesign($this->getSection('include'))
+		$this->setDesign($this->getSection('includes'))
 		->setDesign($this->getSection('header'));
 
 		return $this;
@@ -111,7 +111,7 @@ class Designer {
 	public function getBody() 
 	{
 
-		$this->setDesign($this->getSection('include'))
+		$this->setDesign($this->getSection('includes'))
 			->setDesign($this->getSection('body'))
 			->setDesign($this->getProductTable());
 		
@@ -124,8 +124,21 @@ class Designer {
 		$table_header = $this->entity->table_header($this->input_variables['product_columns'], $this->design->table_styles());
 		$table_body   = $this->entity->table_body($this->input_variables['product_columns'], $this->design->table_styles());
 
-		$data = str_replace('$table_header', $table_header, $this->getSection('product_table'));
-		$data = str_replace('$table_body', $table_body, $data);
+		$data = str_replace('$product_table_header', $table_header, $this->getSection('product'));
+		$data = str_replace('$product_table_body', $table_body, $data);
+
+		return $data;
+
+	}
+
+	public function getTaskTable():string 
+	{
+
+		$table_header = $this->entity->table_header($this->input_variables['task_columns'], $this->design->table_styles());
+		$table_body   = $this->entity->table_body($this->input_variables['task_columns'], $this->design->table_styles());
+
+		$data = str_replace('$task_table_header', $table_header, $this->getSection('task'));
+		$data = str_replace('$task_table_body', $table_body, $data);
 
 		return $data;
 
