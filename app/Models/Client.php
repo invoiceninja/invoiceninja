@@ -467,7 +467,7 @@ class Client extends BaseModel implements HasLocalePreference
     }
 
 
-    public function setInvoiceDefaults() :Invoice
+    public function setInvoiceDefaults($invoice) :Invoice
     {
         $invoice->terms = $this->getSetting('invoice_terms');
         $invoice->footer = $this->getSetting('invoice_footer');
@@ -476,7 +476,7 @@ class Client extends BaseModel implements HasLocalePreference
         return $invoice;
     }
 
-    public function setQuoteDefaults() :Quote
+    public function setQuoteDefaults($quote) :Quote
     {
         $quote->terms = $this->getSetting('quote_terms');
         $quote->footer = $this->getSetting('quote_footer');
@@ -485,7 +485,7 @@ class Client extends BaseModel implements HasLocalePreference
         return $quote;
     }
 
-    public function setCreditDefaults() :Credit
+    public function setCreditDefaults($credit) :Credit
     {
         $credit->terms = $this->getSetting('credit_terms');
         $credit->footer = $this->getSetting('credit_footer');

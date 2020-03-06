@@ -197,7 +197,7 @@ class BaseRepository
         //if new, set defaults!
         if(!$model->id) {
             $methodName = "set" . $resource . "Defaults";
-            $model = $client->{$methodName}();
+            $model = $client->{$methodName}($model);
         }
 
 

@@ -209,7 +209,7 @@ class InvoiceController extends BaseController {
 
 		$client = Client::find($request->input('client_id'));
 
-		$invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company(), auth()->user()->id));
+		$invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
 		$invoice = StoreInvoice::dispatchNow($invoice, $request->all(), $invoice->company);//todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
 
