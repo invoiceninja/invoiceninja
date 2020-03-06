@@ -469,28 +469,28 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function setInvoiceDefaults() :Invoice
     {
-        $invoice_factory = InvoiceFactory::create($this->company_id, auth()->user()->id);
-        $invoice_factory->terms = $this->getSetting('invoice_terms');
-        $invoice_factory->footer = $this->getSetting('invoice_footer');
-        $invoice_factory->public_notes = isset($this->public_notes) ? $this->public_notes : '';
-        return $invoice_factory;
+        $invoice->terms = $this->getSetting('invoice_terms');
+        $invoice->footer = $this->getSetting('invoice_footer');
+        $invoice->public_notes = isset($this->public_notes) ? $this->public_notes : '';
+
+        return $invoice;
     }
 
     public function setQuoteDefaults() :Quote
     {
-        $quote_factory = QuoteFactory::create($this->company_id, auth()->user()->id);
-        $quote_factory->terms = $this->getSetting('quote_terms');
-        $quote_factory->footer = $this->getSetting('quote_footer');
-        $quote_factory->public_notes = isset($this->public_notes) ? $this->public_notes : '';
-        return $quote_factory;
+        $quote->terms = $this->getSetting('quote_terms');
+        $quote->footer = $this->getSetting('quote_footer');
+        $quote->public_notes = isset($this->public_notes) ? $this->public_notes : '';
+
+        return $quote;
     }
 
     public function setCreditDefaults() :Credit
     {
-        $credit_factory = CreditFactory::create($this->company_id, auth()->user()->id);
-        $credit_factory->terms = $this->getSetting('credit_terms');
-        $credit_factory->footer = $this->getSetting('credit_footer');
-        $credit_factory->public_notes = isset($this->public_notes) ? $this->public_notes : '';
-        return $credit_factory;
+        $credit->terms = $this->getSetting('credit_terms');
+        $credit->footer = $this->getSetting('credit_footer');
+        $credit->public_notes = isset($this->public_notes) ? $this->public_notes : '';
+
+        return $credit;
     }
 }
