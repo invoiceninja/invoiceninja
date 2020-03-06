@@ -541,6 +541,8 @@ class CreateTestData extends Command
         $credit = $invoice_calc->getCredit();
 
         $credit->save();
+        $credit->service()->markSent()->save();
+        $credit->service()->createInvitations();
 
         event(new CreateCreditInvitation($credit));
 
@@ -556,6 +558,8 @@ class CreateTestData extends Command
 
         $quote =factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
         $quote->date = $faker->date();
+
+        $quote->setRelation('client', $client);
 
         $quote->line_items = $this->buildLineItems(rand(1,10));
         $quote->uses_inclusive_taxes = false;
@@ -581,7 +585,11 @@ class CreateTestData extends Command
         $quote_calc->build();
 
         $quote = $quote_calc->getQuote();
+
+        $quote->save();
+
         $quote->service()->markSent()->save();
+        $quote->service()->createInvitations();
 
         CreateQuoteInvitations::dispatch($quote, $quote->company);
     }

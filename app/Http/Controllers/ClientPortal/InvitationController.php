@@ -32,11 +32,13 @@ class InvitationController extends Controller
     public function router(string $entity, string $invitation_key)
     {
         $key = $entity.'_id';
+
         $entity_obj = 'App\Models\\'.ucfirst($entity).'Invitation';
 
         $invitation = $entity_obj::whereRaw("BINARY `key`= ?", [$invitation_key])->first();
 
         if ($invitation) {
+
             if ((bool)$invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
                 $this->middleware('auth:contact');
             } else {
@@ -52,9 +54,15 @@ class InvitationController extends Controller
             }
 
             return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
-        } else {
+
+        } else 
             abort(404);
-        }
+        
+    }
+
+    public function routerForDownload(string $entity, string $invitation_key)
+    {
+        return redirect('/'.$entity.'/'.$invitation_key.'/download_pdf');
     }
 
     public function routerForIframe(string $entity, string $client_hash, string $invitation_key)
