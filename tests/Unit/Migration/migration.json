@@ -32,7 +32,7 @@
             "country_id": "840",
             "invoice_terms": "",
             "enabled_item_tax_rates": false,
-            "invoice_design_id": 1,
+            "invoice_design_id": "1",
             "phone": "",
             "email": "",
             "language_id": "1",

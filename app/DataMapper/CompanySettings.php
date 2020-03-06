@@ -12,6 +12,7 @@
 namespace App\DataMapper;
 
 use App\DataMapper\CompanySettings;
+use App\Utils\Traits\MakesHash;
 
 /**
  * CompanySettings
@@ -19,6 +20,7 @@ use App\DataMapper\CompanySettings;
 
 class CompanySettings extends BaseSettings {
 
+	use MakesHash;
 	/*Group settings based on functionality*/
 
 	/*Invoice*/

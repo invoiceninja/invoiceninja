@@ -91,13 +91,9 @@ class PaymentTransformer extends EntityTransformer
             'type_id'=> (string) $payment->type_id,
             'project_id' => (string) $this->encodePrimaryKey($payment->project_id),
             'vendor_id' => (string) $this->encodePrimaryKey($payment->vendor_id),
-/*
-            'private_notes' => $payment->private_notes ?: '',
-            'exchange_rate' => (float) $payment->exchange_rate,
-            'exchange_currency_id' => (int) $payment->exchange_currency_id,
-            'refunded' => (float) $payment->refunded,
-            'payment_status_id' => (string) $payment->payment_status_id,
-*/
+            'currency_id' => (string) $payment->currency_id ?: '',
+            'exchange_rate' => (string) $payment->exchange_rate ?: '',
+            'exchange_currency_id' => (string) $payment->exchange_currency_id ?: '',
         ];
     }
 }

@@ -97,7 +97,7 @@ trait ClientGroupSettingsSaver
                 if (!property_exists($settings, $key)) {
                     continue;
                 } elseif (!$this->checkAttribute($value, $settings->{$key})) {
-                    return [$key, $value];
+                    return [$key, $value, $settings->{$key}];
                 }
 
                 continue;
@@ -111,7 +111,7 @@ trait ClientGroupSettingsSaver
 
             /*Catch all filter */
             if (!$this->checkAttribute($value, $settings->{$key})) {
-                return [$key, $value];
+                return [$key, $value, $settings->{$key}];
             }
         }
 
