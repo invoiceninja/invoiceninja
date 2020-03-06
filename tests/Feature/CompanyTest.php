@@ -124,7 +124,7 @@ class CompanyTest extends TestCase
         $settings = CompanySettings::defaults();
         $settings->custom_value1 = 'test';
         $settings->invoice_design_id = '2';
-        $settings->quote_design_id = 1;
+        $settings->quote_design_id = '1';
 
         $company->settings = $settings;
         // $this->withoutExceptionHandling();

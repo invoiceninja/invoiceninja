@@ -640,6 +640,11 @@ class QuoteController extends BaseController
                 $quote = CloneQuoteFactory::create($quote, auth()->user()->id);
                 return $this->itemResponse($quote);
                 break;
+            case 'approve':
+                break;
+            case 'convert':
+            //convert  quote to an invoice make sure we link the two entities!!!
+                break;
             case 'history':
                 # code...
                 break;
