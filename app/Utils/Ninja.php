@@ -11,6 +11,8 @@
 
 namespace App\Utils;
 
+use App\Models\Account;
+use App\Utils\CurlUtils;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -44,5 +46,21 @@ class Ninja
             "MySQL Version: " . $mysql_version;
 
         return $info;
+    }
+
+    public static function checkLicense()
+    {
+        $data = [
+            'license' => config('ninja.license'),
+        ];
+
+        $data = trim(CurlUtils::post('https://license.invoiceninja.com/api/check', $data));
+
+        $data = json_decode($data);
+
+        if($data->message == sha1(config('ninja.license')))
+            return false;
+        else
+            return true;
     }
 }

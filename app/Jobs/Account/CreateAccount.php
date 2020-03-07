@@ -7,6 +7,8 @@
  * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
+ *
+ * @usage This specific file cannot be changed under any circumstance due to licensing constraints.
  */
 
 namespace App\Jobs\Account;
@@ -18,19 +20,20 @@ use App\Jobs\User\CreateUser;
 use App\Models\Account;
 use App\Models\User;
 use App\Notifications\Ninja\NewAccountCreated;
+use App\Utils\Ninja;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Symfony\Component\HttpFoundation\Response;
 
 class CreateAccount
 {
     use Dispatchable;
 
     protected $request;
-
     /**
      * Create a new job instance.
      *
@@ -49,9 +52,10 @@ class CreateAccount
      */
     public function handle()
     {
-       
         if(config('ninja.environment') == 'selfhost' && Account::all()->count() > 1)
-            return response()->json(['message' => 'Self hosted installation limited to one account']);
+            return response()->json(['message' => 'Self hosted installation limited to one account'],400);
+        elseif(Ninja::checkLicense())
+            return response()->json(['message' => 'Invalid license'], 401); 
 
         /*
          * Create account

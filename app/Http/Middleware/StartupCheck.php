@@ -69,7 +69,10 @@ class StartupCheck
                 }
             }
         }
-                
+        
+        if(md5_file(app_path('Jobs/Account/CreateAccount.php')) != '9cedd877e5ccbe84c888e60cf6c94db5')
+            return response()->json(['message' => 'Restricted file tampered']);
+
         /* Catch claim license requests */
         if(config('ninja.environment') == 'selfhost' && $request->has('license_key') && $request->has('product_id') && $request->segment(3) == 'claim_license')
         {
