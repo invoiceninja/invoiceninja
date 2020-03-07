@@ -473,6 +473,7 @@ class CompanyController extends BaseController
 
         }
         else {
+            
             $account = $company->account;
             $company_id = $company->id;
             $company->delete();
@@ -489,23 +490,10 @@ class CompanyController extends BaseController
             
         }
 
-
-        // $company->company_users->each(function ($user){
-        //     $user->forceDelete();
-        // });
-
-        // if($delete_account){
-            
-        //     $company->users->each(function ($user){
-        //         $user->forceDelete();
-        //     });
-
-        //     $company->account->delete();
-        // }
-
-        // $company->delete();
-    //@todo in the hosted version this will trigger an account refund.    
-        return response()->json([], 200);
+        //@todo in the hosted version deleting the last
+        //account will trigger an account refund. 
+           
+        return response()->json(['message' => 'success'], 200);
         
     }
 }
