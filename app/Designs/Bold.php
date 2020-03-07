@@ -33,10 +33,9 @@ class Bold extends AbstractDesign
                         margin-top: 5mm;
                     }
 
-
-                     .text-left .table_header_thead_class {}
-                     .px-12 .text-2xl .px-4 .py-2 .table_header_td_class {}
-                     .bg-gray-200 .py-5 .pl-12 .table_body_td_class {}
+                     .table_header_thead_class {text-align:left;}
+                     .table_header_td_class {padding-left:3rem; padding-right:3rem; font-size:1.5rem; padding-left:1rem;padding-right:1rem; padding-top:.5rem;padding-bottom:.5rem}
+                     .table_body_td_class {background-color:#edf2f7; adding-top:1.25rem;padding-bottom:1.25rem; padding-left:3rem;}
 
                     </style>
                 </head>
