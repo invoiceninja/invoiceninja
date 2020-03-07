@@ -64,6 +64,7 @@ class Quote extends BaseModel
         'line_items',
         'client_id',
         'footer',
+        'design_id',
     ];
 
     protected $casts = [

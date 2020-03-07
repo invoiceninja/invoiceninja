@@ -67,4 +67,9 @@ class Ninja
     {
         return 'Invalid license.';
     }
+
+    public static function selfHostedMessage()
+    {
+        return 'Self hosted installation limited to one account';
+    }
 }
