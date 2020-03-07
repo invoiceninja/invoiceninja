@@ -121,7 +121,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
 		Route::post('self-update', 'SelfUpdateController@update')->middleware('password_protected');
 
-		Route::post('self-update/check_version', 'SelfUpdateController@checkVersion')->middleware('password_protected');
+		Route::post('self-update/check_version', 'SelfUpdateController@checkVersion');
 
 		/*
 		Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
