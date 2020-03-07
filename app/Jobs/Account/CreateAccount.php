@@ -52,6 +52,7 @@ class CreateAccount
      */
     public function handle()
     {
+       
         if(config('ninja.environment') == 'selfhost' && Account::all()->count() > 1)
             return response()->json(['message' => 'Self hosted installation limited to one account'],400);
         elseif(Ninja::checkLicense())
