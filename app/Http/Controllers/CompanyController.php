@@ -459,11 +459,21 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
+        $delete_account = false;
+
+        $company_count = $company->account->companies->count();
+
+        if($company_count == 1)
+            $delete_account = true;
+
+        $company->company_users->each(function ($user){
+            $user->forceDelete();
+        });
+
+        $company->account->delete();
 
         $company->delete();
-        
-        //@TODO if last company, delete the account also.
-        
+    //@todo in the hosted version this will trigger an account refund.    
         return response()->json([], 200);
         
     }
