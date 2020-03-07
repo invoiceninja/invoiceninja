@@ -44,6 +44,11 @@ class Business extends AbstractDesign
                     thead th:last-child {
                         border-top-right-radius: 0.5rem;
                     }
+
+                .table_header_thead_class text-left bg-blue-900
+                .table_header_td_class font-semibold text-white px-4 bg-blue-900 py-5
+                .table_body_td_class border-4 border-white text-orange-700 px-4 py-4
+            
                 </style>
 
         ';
@@ -94,14 +99,6 @@ class Business extends AbstractDesign
             </div>
         ';
 
-	}
-
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left bg-blue-900",
-			'table_header_td_class'    => "font-semibold text-white px-4 bg-blue-900 py-5",
-			'table_body_td_class'      => "border-4 border-white text-orange-700 px-4 py-4",
-		];
 	}
 
     public function task() {

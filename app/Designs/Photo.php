@@ -56,6 +56,11 @@ class Photo extends AbstractDesign
                         background-image: url(/assets/images/006-photographer-2.jpg);
                         background-size: cover;
                     }
+
+
+            .table_header_thead_class text-left border-b-4 border-black
+            .table_header_td_class font-normal px-4 py-2 uppercase
+            .table_body_td_class text-orange-700 px-4 py-4
                 </style>
 
                 <div class="px-16 py-10">
@@ -97,14 +102,6 @@ class Photo extends AbstractDesign
                 </div>
             </div>';
 
-	}
-
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left border-b-4 border-black",
-			'table_header_td_class'    => "font-normal px-4 py-2 uppercase",
-			'table_body_td_class'      => "text-orange-700 px-4 py-4",
-		];
 	}
 
     public function task() {

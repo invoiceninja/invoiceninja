@@ -60,6 +60,11 @@ class Modern extends AbstractDesign
 						footer, header, hgroup, menu, nav, section {
 						    display: block;
 						}
+
+
+			.table_header_thead_class text-left text-white bg-gray-900
+			.table_header_td_class px-4 py-2
+			.table_body_td_class border-t border-b border-gray-900 px-4 py-4
                     </style>
 			    </head>
 				<body>
@@ -107,14 +112,6 @@ class Modern extends AbstractDesign
 			</div>
 			';
 
-	}
-
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left text-white bg-gray-900",
-			'table_header_td_class'    => "px-4 py-2",
-			'table_body_td_class'      => "border-t border-b border-gray-900 px-4 py-4",
-		];
 	}
 
     public function task() {

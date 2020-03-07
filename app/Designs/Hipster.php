@@ -39,6 +39,10 @@ class Hipster extends AbstractDesign
                     size: auto;
                     margin-top: 5mm;
                 } 
+
+            .table_header_thead_classtext-left
+            .table_header_td_class px-4 py-2 uppercase font-semibold border-l-2 border-black
+            .table_body_td_class border-l-2 border-black px-4 py-4
                 </style>
 
 
@@ -98,14 +102,6 @@ class Hipster extends AbstractDesign
         </div>
         ';
 
-	}
-
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left",
-			'table_header_td_class'    => "px-4 py-2 uppercase font-semibold border-l-2 border-black",
-			'table_body_td_class'      => "border-l-2 border-black px-4 py-4",
-		];
 	}
 
     public function task() {

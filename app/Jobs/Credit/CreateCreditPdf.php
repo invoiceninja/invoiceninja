@@ -79,14 +79,8 @@ class CreateCreditPdf implements ShouldQueue {
 
 		$design = Design::find($this->decodePrimaryKey($this->credit->client->getSetting('credit_design_id')));
 
-		if($design->is_custom){
-			$credit_design = new Custom($design->design);
-		}
-		else{
-			$class = 'App\Designs\\'.$design->name;
-			$credit_design = new $class();
-		}
-
+		$credit_design = new Custom($design->design);
+		
 		$designer = new Designer($this->credit, $credit_design, $this->credit->client->getSetting('pdf_variables'), 'credit');
 
 		//get invoice design

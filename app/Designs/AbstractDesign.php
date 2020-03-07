@@ -25,6 +25,4 @@ abstract class AbstractDesign
 	
 	abstract public function footer();
 	
-	abstract public function table_styles();
-
 }

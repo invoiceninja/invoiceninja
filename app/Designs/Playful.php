@@ -37,6 +37,11 @@ class Playful extends AbstractDesign
                     size: auto;
                     margin-top: 5mm;
                 } 
+
+
+            .table_header_thead_class text-left bg-teal-600 rounded-lg
+            .table_header_td_class font-semibold text-white px-4 py-3
+            .table_body_td_class border-b-4 border-teal-600 text-red-800 px-4 py-4
                 </style>
         ';
     }
@@ -90,14 +95,6 @@ class Playful extends AbstractDesign
         </div>
     </div>';
 
-	}
-
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left bg-teal-600 rounded-lg",
-			'table_header_td_class'    => "font-semibold text-white px-4 py-3",
-			'table_body_td_class'      => "border-b-4 border-teal-600 text-red-800 px-4 py-4",
-		];
 	}
 
     public function task() {

@@ -38,6 +38,12 @@ class Plain extends AbstractDesign
                     size: auto;
                     margin-top: 5mm;
                 } 
+
+
+            .table_header_thead_class text-left bg-gray-300
+            .table_header_td_class px-4 py-2
+            .table_body_td_class border-t-2 border-b border-gray-300 px-4 py-4
+
                 </style>
 
                 <body>
@@ -83,14 +89,6 @@ class Plain extends AbstractDesign
             </div>
         ';
 
-	}
-
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left bg-gray-300",
-			'table_header_td_class'    => "px-4 py-2",
-			'table_body_td_class'      => "border-t-2 border-b border-gray-300 px-4 py-4",
-		];
 	}
 
     public function task() {

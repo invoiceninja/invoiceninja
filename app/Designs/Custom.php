@@ -25,8 +25,6 @@ class Custom extends AbstractDesign
 
 	private $footer;
 	
-	private $table_styles;
-
 	public function __construct($design) 
 	{
 		$this->includes = $design->includes;
@@ -40,9 +38,7 @@ class Custom extends AbstractDesign
 		$this->task = $design->task;
 
 		$this->footer = $design->footer;
-		
-		$this->table_styles = $design->table_styles;
-	
+			
 	}
 
 	public function includes()
@@ -61,13 +57,6 @@ class Custom extends AbstractDesign
 	{
 
 		return $this->body;	
-
-	}
-
-	public function table_styles() 
-	{
-
-		return $this->table_styles;
 
 	}
 

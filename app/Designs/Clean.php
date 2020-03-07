@@ -39,6 +39,10 @@ class Clean extends AbstractDesign
                     size: auto;
                     margin-top: 5mm;
                 } 
+
+            .table_header_thead_class text-left
+            .table_header_td_class px-4 py-2
+            .table_body_td_class text-blue-600 border-t border-b border-gray-400 px-4 py-4
                 </style>
         ';
     }
@@ -94,14 +98,6 @@ class Clean extends AbstractDesign
             <div class="border-b border-gray-400"></div>
         ';
 
-	}
-
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left",
-			'table_header_td_class'    => "px-4 py-2",
-			'table_body_td_class'      => "text-blue-600 border-t border-b border-gray-400 px-4 py-4",
-		];
 	}
 
     public function task() {

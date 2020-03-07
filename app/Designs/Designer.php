@@ -91,11 +91,17 @@ class Designer {
 		return $this;
 	}
 
+	public function getIncludes()
+	{
+		$this->setDesign($this->getSection('includes'));
+
+		return $this;
+	}
+
 	public function getHeader()
 	{
 
-		$this->setDesign($this->getSection('includes'))
-		->setDesign($this->getSection('header'));
+		$this->setDesign($this->getSection('header'));
 
 		return $this;
 	}
@@ -111,9 +117,7 @@ class Designer {
 	public function getBody() 
 	{
 
-		$this->setDesign($this->getSection('includes'))
-			->setDesign($this->getSection('body'))
-			->setDesign($this->getProductTable());
+		$this->setDesign($this->getSection('body'));
 		
 		return $this;
 	}
@@ -121,8 +125,8 @@ class Designer {
 	public function getProductTable():string 
 	{
 
-		$table_header = $this->entity->table_header($this->input_variables['product_columns'], $this->design->table_styles());
-		$table_body   = $this->entity->table_body($this->input_variables['product_columns'], $this->design->table_styles());
+		$table_header = $this->entity->table_header($this->input_variables['product_columns'], $this->design->table_styles);
+		$table_body   = $this->entity->table_body($this->input_variables['product_columns'], $this->design->table_styles);
 
 		$data = str_replace('$product_table_header', $table_header, $this->getSection('product'));
 		$data = str_replace('$product_table_body', $table_body, $data);
@@ -134,8 +138,8 @@ class Designer {
 	public function getTaskTable():string 
 	{
 
-		$table_header = $this->entity->table_header($this->input_variables['task_columns'], $this->design->table_styles());
-		$table_body   = $this->entity->table_body($this->input_variables['task_columns'], $this->design->table_styles());
+		$table_header = $this->entity->table_header($this->input_variables['task_columns'], $this->design->table_styles);
+		$table_body   = $this->entity->table_body($this->input_variables['task_columns'], $this->design->table_styles);
 
 		$data = str_replace('$task_table_header', $table_header, $this->getSection('task'));
 		$data = str_replace('$task_table_body', $table_body, $data);
@@ -173,7 +177,7 @@ class Designer {
 	 */
 	public function getSection($section):string 
 	{
-		return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section}());
+		return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section});
 	}
 
 	private function exportVariables() 
@@ -379,7 +383,7 @@ class Designer {
 
 		foreach (self::$custom_fields as $cf) {
 
-			if (!property_exists($custom_fields, $cf) || (strlen($custom_fields->{ $cf}) == 0)) {
+			if (!property_exists($custom_fields, $cf) || (strlen($custom_fields->{$cf}) == 0)) {
 				unset($data[$cf]);
 
 			}

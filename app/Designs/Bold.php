@@ -20,29 +20,27 @@ class Bold extends AbstractDesign
     public function includes()
     {
         return '
-            <!DOCTYPE html>
-            <html lang="en">
                 <head>
                     <title>$number</title>
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
                     <link rel="stylesheet" href="/css/design/bold.css"> 
+                    <style>
+                    @page: not(:first-of-type)
+                    { 
+                        size: auto;
+                        margin-top: 5mm;
+                    }
 
+
+                     .text-left .table_header_thead_class {}
+                     .px-12 .text-2xl .px-4 .py-2 .table_header_td_class {}
+                     .bg-gray-200 .py-5 .pl-12 .table_body_td_class {}
+
+                    </style>
                 </head>
-                <body>
                 
-                <style>
-                @page: not(:first-of-type)
-                { 
-                    size: auto;
-                    margin-top: 5mm;
-                }
-
-                 .text-left .table_header_thead_class {}
-                 .px-12 .text-2xl .px-4 .py-2 .table_header_td_class {}
-                 .bg-gray-200 .py-5 .pl-12 .table_body_td_class {}
-                </style>
         ';
     }
 
@@ -90,14 +88,19 @@ class Bold extends AbstractDesign
 
 	}
 
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left",
-			'table_header_td_class'    => "px-12 text-2xl px-4 py-2",
-			'table_body_td_class'      => "bg-gray-200 py-5 pl-12",
-		];
-	}
     public function task() {
+        return '
+            <table class="w-full table-auto mt-8">
+                <thead class="text-left">
+                    <tr>
+                        $task_table_header
+                    </tr>
+                </thead>
+                <tbody>
+                    $task_table_body
+                </tbody>
+            </table>
+        ';
     }
 
 	public function product() {
@@ -113,7 +116,12 @@ class Bold extends AbstractDesign
                     $product_table_body
                 </tbody>
             </table>
-            
+        ';
+	}
+
+	public function footer() {
+
+        return '
             <div class="flex px-4 mt-6 w-full px-12">
                 <div class="w-1/2">
                     $entity.public_notes
@@ -142,15 +150,7 @@ class Bold extends AbstractDesign
                     </div>
                 </div>
             </div>
-        ';
-	}
-
-	public function footer() {
-
-        return '
-                </div>
-            </body>
-        </html>';
+            ';
 
 	}
 

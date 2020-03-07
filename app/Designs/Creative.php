@@ -41,6 +41,9 @@ class Creative extends AbstractDesign
                     size: auto;
                     margin-top: 6mm;
                 } 
+            .table_header_thead_class text-left rounded-lg
+            .table_header_td_class font-medium uppercase text-pink-700 text-xl px-4 py-5
+            .table_body_td_class px-4 py-4
                 </style>
 
         ';
@@ -91,13 +94,6 @@ class Creative extends AbstractDesign
 
 	}
 
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left rounded-lg",
-			'table_header_td_class'    => "font-medium uppercase text-pink-700 text-xl px-4 py-5",
-			'table_body_td_class'      => "px-4 py-4",
-		];
-	}
 
     public function task() {
     }

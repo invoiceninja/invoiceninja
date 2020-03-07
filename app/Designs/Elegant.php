@@ -38,6 +38,12 @@ class Elegant extends AbstractDesign
                     size: auto;
                     margin-top: 5mm;
                 } 
+
+             
+            .table_header_thead_class text-left border-dashed border-b border-black
+            .table_header_td_class font-normal text-green-700 px-4 py-2
+            .table_body_td_class px-4 py-4
+        ];
                 </style>
 
         ';
@@ -82,14 +88,6 @@ class Elegant extends AbstractDesign
             </div>
         </div>';
 
-	}
-
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left border-dashed border-b border-black",
-			'table_header_td_class'    => "font-normal text-green-700 px-4 py-2",
-			'table_body_td_class'      => "px-4 py-4",
-		];
 	}
 
     public function task() {
