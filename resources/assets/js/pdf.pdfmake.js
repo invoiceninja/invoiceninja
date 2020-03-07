@@ -596,7 +596,7 @@ NINJA.statementAging = function(invoice) {
             {text: formatMoneyInvoice(item.product_key, invoice), style:['subtotals', 'odd', 'firstColumn']},
             {text: formatMoneyInvoice(item.notes, invoice), style:['subtotals', 'odd']},
             {text: formatMoneyInvoice(item.custom_value1, invoice), style:['subtotals', 'odd']},
-            {text: formatMoneyInvoice(item.custom_value1, invoice), style:['subtotals', 'odd']},
+            {text: formatMoneyInvoice(item.custom_value2, invoice), style:['subtotals', 'odd']},
             {text: formatMoneyInvoice(item.cost, invoice), style:['subtotals', 'odd', 'lastColumn']},
         ]);
     }
