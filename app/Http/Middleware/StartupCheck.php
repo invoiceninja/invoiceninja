@@ -69,7 +69,7 @@ class StartupCheck
                 }
             }
         }
-                
+
         /* Catch claim license requests */
         if(config('ninja.environment') == 'selfhost' && $request->has('license_key') && $request->has('product_id') && $request->segment(3) == 'claim_license')
         {

@@ -146,7 +146,10 @@ class AccountController extends BaseController
     public function store(CreateAccountRequest $request)
     {
         $account = CreateAccount::dispatchNow($request->all());
-                
+            
+        if(!($account instanceof Account))
+            return $account;
+
         $ct = CompanyUser::whereUserId(auth()->user()->id);
         
         return $this->listResponse($ct);

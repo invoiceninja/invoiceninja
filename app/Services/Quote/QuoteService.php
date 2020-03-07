@@ -1,7 +1,9 @@
 <?php
 namespace App\Services\Quote;
 
+use App\Models\Invoice;
 use App\Models\Quote;
+use App\Repositories\QuoteRepository;
 use App\Services\Quote\CreateInvitations;
 
 class QuoteService
@@ -43,18 +45,20 @@ class QuoteService
         return $get_invoice_pdf($this->quote, $contact);
     }
 
-    public function sendEmail($contact)
+    public function sendEmail($contact) :QuoteService
     {
         $send_email = new SendEmail($this->quote);
 
-        return $send_email->run(null, $contact);
+        $send_email->run(null, $contact);
+
+        return $this;
     }
 
     /**
      * Applies the invoice number
      * @return $this InvoiceService object
      */
-    public function applyNumber()
+    public function applyNumber() :QuoteService
     {
         $apply_number = new ApplyNumber($this->quote->client);
 
@@ -63,7 +67,7 @@ class QuoteService
         return $this;
     }
 
-    public function markSent()
+    public function markSent() :QuoteService
     {
         $mark_sent = new MarkSent($this->quote->client);
 
@@ -72,11 +76,65 @@ class QuoteService
         return $this;
     }
 
-    public function setStatus($status)
+    public function setStatus($status) :QuoteService
     {
         $this->quote->status_id = $status;
 
         return $this;
+    }
+
+    public function approve() :QuoteService
+    {
+
+        if($this->quote->status_id != Quote::STATUS_SENT)
+            return response()->json(['message' => 'Unable to approve this quote as it has expired.'], 400);
+
+        $this->setStatus(Quote::STATUS_APPROVED)->save();
+
+        $invoice = null;
+
+        if($this->quote->client->getSetting('auto_convert_quote')){
+            $invoice = $this->convertToInvoice();
+            $this->linkInvoiceToQuote($invoice)->save();
+        }
+
+        if($this->quote->client->getSetting('auto_archive_quote')) {
+            $quote_repo = new QuoteRepository();
+            $quote_repo->archive($this->quote);
+        }
+
+        return $this;
+
+    }
+
+    /**
+     * Where we convert a quote to an invoice we link the two entities via the invoice_id parameter on the quote table
+     * @param  object $invoice The Invoice object
+     * @return object          QuoteService
+     */
+    public function linkInvoiceToQuote($invoice) :QuoteService
+    {
+        $this->quote->invoice_id = $invoice->id;
+
+        return $this;
+    }
+
+    public function convertToInvoice() :Invoice
+    {
+        Invoice::unguard();
+
+            $invoice = new Invoice((array) $this->quote);
+            $invoice->status_id = Invoice::STATUS_SENT;
+            $invoice->due_date = null;
+            $invoice->invitations = null;
+            $invoice->number = null;
+            $invoice->save();
+
+        Invoice::reguard();
+
+        $invoice->service()->markSent()->createInvitations()->save();   
+
+        return $invoice;
     }
 
     /**

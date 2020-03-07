@@ -5,6 +5,7 @@ return [
     'web_url' => 'https://www.invoiceninja.com',
     'license_url' => 'https://app.invoiceninja.com',
     'production' => env('NINJA_PROD', false),
+    'license'   => env('NINJA_LICENSE', ''),
     'app_name' => env('APP_NAME'),
     'site_url' => env('APP_URL', ''),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
