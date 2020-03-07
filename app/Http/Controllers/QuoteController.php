@@ -641,6 +641,8 @@ class QuoteController extends BaseController
                 return $this->itemResponse($quote);
                 break;
             case 'approve':
+            //make sure it hasn't already been approved!!
+                return $quote->service()->approve()->save();
                 break;
             case 'convert':
             //convert  quote to an invoice make sure we link the two entities!!!
