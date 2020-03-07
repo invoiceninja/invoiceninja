@@ -16,7 +16,9 @@ use App\Models\Invoice;
 
 class Designer {
 
-	protected $design;
+	public $design;
+
+	public $design_name;
 
 	protected $input_variables;
 
@@ -55,7 +57,9 @@ class Designer {
 	{
 		$this->entity = $entity;
 
-		$this->design = $design;
+		$this->design = $design->design;
+
+		$this->design_name = lcfirst($design->name);
 
 		$this->input_variables = (array) $input_variables;
 
@@ -125,8 +129,8 @@ class Designer {
 	public function getProductTable():string 
 	{
 
-		$table_header = $this->entity->table_header($this->input_variables['product_columns'], $this->design->table_styles);
-		$table_body   = $this->entity->table_body($this->input_variables['product_columns'], $this->design->table_styles);
+		$table_header = $this->entity->table_header($this->input_variables['product_columns']);
+		$table_body   = $this->entity->table_body($this->input_variables['product_columns']);
 
 		$data = str_replace('$product_table_header', $table_header, $this->getSection('product'));
 		$data = str_replace('$product_table_body', $table_body, $data);
@@ -138,8 +142,8 @@ class Designer {
 	public function getTaskTable():string 
 	{
 
-		$table_header = $this->entity->table_header($this->input_variables['task_columns'], $this->design->table_styles);
-		$table_body   = $this->entity->table_body($this->input_variables['task_columns'], $this->design->table_styles);
+		$table_header = $this->entity->table_header($this->input_variables['task_columns']);
+		$table_body   = $this->entity->table_body($this->input_variables['task_columns']);
 
 		$data = str_replace('$task_table_header', $table_header, $this->getSection('task'));
 		$data = str_replace('$task_table_body', $table_body, $data);

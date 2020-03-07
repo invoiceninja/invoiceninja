@@ -7,6 +7,7 @@ use App\Designs\Modern;
 use App\Jobs\Credit\CreateCreditPdf;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Quote\CreateQuotePdf;
+use App\Models\Design;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Tests\MockAccountData;
@@ -32,9 +33,9 @@ class DesignTest extends TestCase
     public function testInvoiceDesignExists()
     {
 
-    	$modern = new Modern();
+        $design = Design::find(3);
 
-    	$designer = new Designer($this->invoice, $modern, $this->company->settings->pdf_variables, 'quote');
+    	$designer = new Designer($this->invoice, $design, $this->company->settings->pdf_variables, 'quote');
 
     	$html = $designer->build()->getHtml();
 
@@ -61,9 +62,9 @@ class DesignTest extends TestCase
     public function testQuoteDesignExists()
     {
 
-    	$modern = new Modern();
+        $design = Design::find(3);
 
-    	$designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
+    	$designer = new Designer($this->quote, $design, $this->company->settings->pdf_variables, 'quote');
 
     	$html = $designer->build()->getHtml();
 
@@ -169,9 +170,9 @@ class DesignTest extends TestCase
     public function testCreditDesignExists()
     {
 
-        $modern = new Modern();
+        $design = Design::find(3);
 
-        $designer = new Designer($this->credit, $modern, $this->company->settings->pdf_variables, 'credit');
+        $designer = new Designer($this->credit, $design, $this->company->settings->pdf_variables, 'credit');
 
         $html = $designer->build()->getHtml();
 

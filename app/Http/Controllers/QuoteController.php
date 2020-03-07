@@ -205,7 +205,7 @@ class QuoteController extends BaseController
     {
         $client = Client::find($request->input('client_id'));
 
-        $quote = $this->quote_repo->save($request->all(), $client->setQuoteDefaults());
+        $quote = $this->quote_repo->save($request->all(), QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         return $this->itemResponse($quote);
     }

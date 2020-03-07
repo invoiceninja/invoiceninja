@@ -2,7 +2,6 @@
 <html lang="{!! $lang !!}">
 
 {!! $includes !!}
-
 	<body>
 
 		{!! $header !!}

@@ -188,7 +188,10 @@ class BaseRepository
     {
         $class = new ReflectionClass($model);        
 
-        $client = Client::find($data['client_id']);
+        if(array_key_exists('client_id', $data))
+            $client = Client::find($data['client_id']);
+        else
+            $client = Client::find($model->client_id);
 
         $state = [];
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
@@ -202,8 +205,6 @@ class BaseRepository
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
         }
         
-\Log::error(print_r($data,1));
-
         $model->fill($data);
         $model->save();
 

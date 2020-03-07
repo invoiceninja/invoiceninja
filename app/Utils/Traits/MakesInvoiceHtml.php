@@ -67,15 +67,21 @@ trait MakesInvoiceHtml
         $labels = $entity->makeLabels();
         $values = $entity->makeValues($contact);
 
+        $css_url = url('').'/css/design/'.$designer->design_name.'.css';
+        $css_url = "<link href=\"{$css_url}\" rel=\"stylesheet\">";
+
         $data = [];
         $data['entity'] = $entity;
         $data['lang'] = $client->preferredLocale();
         $data['includes'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getIncludes()->getHtml());
+        $data['includes'] = str_replace('$css_url', $css_url, $data['includes']);
         $data['header'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getHeader()->getHtml());
         $data['body'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getBody()->getHtml());
         $data['product'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getProductTable());
         $data['task'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getTaskTable());
         $data['footer'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getFooter()->getHtml());
+
+
 
         return view('pdf.stub', $data)->render();
     }

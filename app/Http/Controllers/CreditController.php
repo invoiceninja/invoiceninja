@@ -186,7 +186,7 @@ class CreditController extends BaseController
     {
         $client = Client::find($request->input('client_id'));
 
-        $credit = $this->credit_repository->save($request->all(), $client->setCreditDefaults());
+        $credit = $this->credit_repository->save($request->all(), CreditFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $credit = StoreCredit::dispatchNow($credit, $request->all(), $credit->company);
 

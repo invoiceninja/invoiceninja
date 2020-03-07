@@ -28,7 +28,7 @@ class HtmlGenerationTest extends TestCase
     {
         $design = Design::find(3);
 
-        $designer = new Designer($this->invoice, $design->design, $this->invoice->client->getSetting('pdf_variables'), 'invoice');
+        $designer = new Designer($this->invoice, $design, $this->invoice->client->getSetting('pdf_variables'), 'invoice');
 
         $html = $this->generateEntityHtml($designer, $this->invoice);
 
