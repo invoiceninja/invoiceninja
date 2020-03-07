@@ -80,7 +80,7 @@ class CreditTransformer extends EntityTransformer
             'balance' => (float) $credit->balance,
             'client_id' => (string) $this->encodePrimaryKey($credit->client_id),
             'status_id' => (string) ($credit->status_id ?: 1),
-            'design_id' => (string) ($credit->design_id ?: 1),
+            'design_id' => (string) $this->encodePrimaryKey($credit->design_id),
             'invoice_id' => (string) ($credit->invoice_id ?: 1),
             'updated_at' => (int)$credit->updated_at,
             'archived_at' => (int)$credit->deleted_at,

@@ -80,7 +80,7 @@ class QuoteTransformer extends EntityTransformer
             'balance' => (float) $quote->balance,
             'client_id' => (string) $this->encodePrimaryKey($quote->client_id),
             'status_id' => (string)$quote->status_id,
-            'design_id' => (string)$quote->design_id,
+            'design_id' => (string) $this->encodePrimaryKey($quote->design_id),
             'invoice_id' => (string)$quote->invoice_id,
             'updated_at' => (int)$quote->updated_at,
             'archived_at' => (int)$quote->deleted_at,

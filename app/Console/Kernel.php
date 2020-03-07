@@ -11,9 +11,10 @@
 
 namespace App\Console;
 
+use App\Jobs\Cron\RecurringInvoicesCron;
+use App\Jobs\Util\VersionCheck;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Jobs\Cron\RecurringInvoicesCron;
 
 class Kernel extends ConsoleKernel
 {
@@ -38,6 +39,7 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
 
         $schedule->job(new RecurringInvoicesCron)->hourly();
+        $schedule->job(new VersionCheck)->daily();
     }
 
     /**

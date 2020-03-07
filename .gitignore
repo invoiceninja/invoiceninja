@@ -11,6 +11,7 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+local_version.txt
 .env
 .phpunit.result.cache
 

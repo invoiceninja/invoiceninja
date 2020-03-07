@@ -86,9 +86,6 @@ class QuoteService
     public function approve() :QuoteService
     {
 
-        if($this->quote->status_id != Quote::STATUS_SENT)
-            return response()->json(['message' => 'Unable to approve this quote as it has expired.'], 400);
-
         $this->setStatus(Quote::STATUS_APPROVED)->save();
 
         $invoice = null;

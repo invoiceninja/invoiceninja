@@ -66,11 +66,13 @@ class SelfUpdateController extends BaseController
     public function checkVersion(UpdaterManager $updater)
     {
 
-        //echo $updater->source()->getVersionInstalled();
+        $file_version = storage_path().'app/local_version.txt';
 
-        //echo $updater->source()->isNewVersionAvailable();
-
-        //echo $updater->source()->getVersionAvailable();
+        if(file_exists($file_version)){
+            return response()->json(['message' => file_get_contents($file_version)]);
+        }else{
+            return response()->json(['message' => '0.0.0']);
+        }
 
     }
 }
