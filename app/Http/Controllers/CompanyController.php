@@ -459,20 +459,51 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
-        $delete_account = false;
-
         $company_count = $company->account->companies->count();
 
-        if($company_count == 1)
-            $delete_account = true;
+        if($company_count == 1){
 
-        $company->company_users->each(function ($user){
-            $user->forceDelete();
-        });
+            $company->company_users->each(function ($company_user) {
 
-        $company->account->delete();
+                $company_user->user->forceDelete();
 
-        $company->delete();
+            });
+
+            $company->account->delete();
+
+        }
+        else {
+            $account = $company->account;
+            $company_id = $company->id;
+            $company->delete();
+
+            //If we are deleting the default companies, we'll need to make a new company the default.
+            if($account->default_company == $company_id){
+
+                $account->fresh();
+                $account->default_company = $account->companies->first()->id();
+                $account->save();
+            
+            }
+
+            
+        }
+
+
+        // $company->company_users->each(function ($user){
+        //     $user->forceDelete();
+        // });
+
+        // if($delete_account){
+            
+        //     $company->users->each(function ($user){
+        //         $user->forceDelete();
+        //     });
+
+        //     $company->account->delete();
+        // }
+
+        // $company->delete();
     //@todo in the hosted version this will trigger an account refund.    
         return response()->json([], 200);
         
