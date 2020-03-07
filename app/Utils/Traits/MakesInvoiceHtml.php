@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits;
 
+use App\Designs\Designer;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
@@ -47,10 +48,49 @@ trait MakesInvoiceHtml
         $design = str_replace(array_keys($values), array_values($values), $design);
 
         $data['invoice'] = $invoice;
+        $data['lang'] = $client->preferredLocale();
 
         return $this->renderView($design, $data);
 
         //return view($design, $data)->render();
+    }
+
+    public function generateEntityHtml(Designer $designer, $entity, $contact = null) :string
+    {
+
+        $entity->load('client');
+        
+        $client = $entity->client;
+
+        App::setLocale($client->preferredLocale());
+
+        $labels = $entity->makeLabels();
+        $values = $entity->makeValues($contact);
+
+        $css_url = url('').'/css/design/'.$designer->design_name.'.css';
+        $css_url = "<link href=\"{$css_url}\" rel=\"stylesheet\">";
+
+        $data = [];
+        $data['entity'] = $entity;
+        $data['lang'] = $client->preferredLocale();
+        $data['includes'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getIncludes()->getHtml());
+        $data['includes'] = str_replace('$css_url', $css_url, $data['includes']);
+        $data['header'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getHeader()->getHtml());
+        $data['body'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getBody()->getHtml());
+        $data['product'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getProductTable());
+        $data['task'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getTaskTable());
+        $data['footer'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getFooter()->getHtml());
+
+
+
+        return view('pdf.stub', $data)->render();
+    }
+
+    private function parseLabelsAndValues($labels, $values, $section) :string
+    {
+        $section = str_replace(array_keys($labels), array_values($labels), $section);
+        $section = str_replace(array_keys($values), array_values($values), $section);
+        return $section;
     }
 
     /**
@@ -61,11 +101,8 @@ trait MakesInvoiceHtml
      * @return string         The return HTML string
      *
      */
-    public function renderView($string, $data) :string
+    public function renderView($string, $data = []) :string
     {
-        if (!$data) {
-            $data = [];
-        }
 
         $data['__env'] = app(\Illuminate\View\Factory::class);
 

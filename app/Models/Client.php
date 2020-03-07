@@ -468,10 +468,10 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function setCompanyDefaults($data, $entity_name)
     {
-        if(strlen($data['terms']) == 0)
+        if(isset($data['terms']) && strlen($data['terms']) == 0)
             $data['terms'] = $this->getSetting($entity_name.'_terms');
 
-        if(strlen($data['footer']) == 0)
+        if(isset($data['footer']) && strlen($data['footer']) == 0)
             $data['footer'] = $this->getSetting($entity_name.'_footer');
 
         if(strlen($this->public_notes) >=1)

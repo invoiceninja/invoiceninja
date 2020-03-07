@@ -42,11 +42,11 @@ class DesignSeeder extends Seeder
             $invoice_design = new $class();
 
             $design_object = new \stdClass;
-            $design_object->include = $invoice_design->include() ?: '';
+            $design_object->includes = $invoice_design->includes() ?: '';
             $design_object->header = $invoice_design->header() ?: '';
             $design_object->body = $invoice_design->body() ?: '';
-            $design_object->product_table = $invoice_design->product_table() ?: '';
-            $design_object->task_table = $invoice_design->task_table() ?: '';
+            $design_object->product = $invoice_design->product() ?: '';
+            $design_object->task = $invoice_design->task() ?: '';
             $design_object->footer = $invoice_design->footer() ?: '';
 
             $design->design = $design_object;

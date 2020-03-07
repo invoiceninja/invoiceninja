@@ -79,15 +79,7 @@ class CreateQuotePdf implements ShouldQueue {
 
 		$design = Design::find($this->decodePrimaryKey($this->quote->client->getSetting('quote_design_id')));
 
-		if($design->is_custom){
-			$quote_design = new Custom($design->design);
-		}
-		else{
-			$class = 'App\Designs\\'.$design->name;
-			$quote_design = new $class();
-		}
-
-		$designer = new Designer($this->quote, $quote_design, $this->quote->client->getSetting('pdf_variables'), 'quote');
+		$designer = new Designer($this->quote, $design, $this->quote->client->getSetting('pdf_variables'), 'quote');
 
 		//todo - move this to the client creation stage so we don't keep hitting this unnecessarily
 		Storage::makeDirectory($path, 0755);
@@ -123,7 +115,8 @@ class CreateQuotePdf implements ShouldQueue {
 		
 
 		//get invoice design
-		$html = $this->generateInvoiceHtml($design_body, $this->quote, $this->contact);
+//		$html = $this->generateInvoiceHtml($design_body, $this->quote, $this->contact);
+		$html = $this->generateEntityHtml($designer, $this->quote, $this->contact);
 
 		$pdf = $this->makePdf($all_pages_header, $all_pages_footer, $html);
 		$file_path = $path . $quote_number . '.pdf';

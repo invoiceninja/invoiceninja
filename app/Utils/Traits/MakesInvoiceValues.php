@@ -505,7 +505,7 @@ trait MakesInvoiceValues
     }
 
 
-    public function table_header($columns, $css) :?string
+    public function table_header($columns) :?string
     {
 
         /* Table Header */
@@ -524,7 +524,10 @@ trait MakesInvoiceValues
 
     }
 
-    public function table_body($columns, $css) :?string
+    /**
+     * @todo need to differentiate here between products and tasks - need to filter by invoice_type_id
+     */
+    public function table_body($columns) :?string
     {
         $table_body = '';
 

@@ -16,7 +16,9 @@ use App\Models\Invoice;
 
 class Designer {
 
-	protected $design;
+	public $design;
+
+	public $design_name;
 
 	protected $input_variables;
 
@@ -55,7 +57,9 @@ class Designer {
 	{
 		$this->entity = $entity;
 
-		$this->design = $design;
+		$this->design = $design->design;
+
+		$this->design_name = lcfirst($design->name);
 
 		$this->input_variables = (array) $input_variables;
 
@@ -73,7 +77,7 @@ class Designer {
 
 		$this->setHtml()
 			->exportVariables()
-			->setDesign($this->getSection('include'))
+			->setDesign($this->getSection('includes'))
 		    ->setDesign($this->getSection('header'))
 			->setDesign($this->getSection('body'))
 			->setDesign($this->getProductTable($this->entity))
@@ -91,11 +95,17 @@ class Designer {
 		return $this;
 	}
 
+	public function getIncludes()
+	{
+		$this->setDesign($this->getSection('includes'));
+
+		return $this;
+	}
+
 	public function getHeader()
 	{
 
-		$this->setDesign($this->getSection('include'))
-		->setDesign($this->getSection('header'));
+		$this->setDesign($this->getSection('header'));
 
 		return $this;
 	}
@@ -111,9 +121,7 @@ class Designer {
 	public function getBody() 
 	{
 
-		$this->setDesign($this->getSection('include'))
-			->setDesign($this->getSection('body'))
-			->setDesign($this->getProductTable());
+		$this->setDesign($this->getSection('body'));
 		
 		return $this;
 	}
@@ -121,11 +129,24 @@ class Designer {
 	public function getProductTable():string 
 	{
 
-		$table_header = $this->entity->table_header($this->input_variables['product_columns'], $this->design->table_styles());
-		$table_body   = $this->entity->table_body($this->input_variables['product_columns'], $this->design->table_styles());
+		$table_header = $this->entity->table_header($this->input_variables['product_columns']);
+		$table_body   = $this->entity->table_body($this->input_variables['product_columns']);
 
-		$data = str_replace('$table_header', $table_header, $this->getSection('product_table'));
-		$data = str_replace('$table_body', $table_body, $data);
+		$data = str_replace('$product_table_header', $table_header, $this->getSection('product'));
+		$data = str_replace('$product_table_body', $table_body, $data);
+
+		return $data;
+
+	}
+
+	public function getTaskTable():string 
+	{
+
+		$table_header = $this->entity->table_header($this->input_variables['task_columns']);
+		$table_body   = $this->entity->table_body($this->input_variables['task_columns']);
+
+		$data = str_replace('$task_table_header', $table_header, $this->getSection('task'));
+		$data = str_replace('$task_table_body', $table_body, $data);
 
 		return $data;
 
@@ -160,7 +181,7 @@ class Designer {
 	 */
 	public function getSection($section):string 
 	{
-		return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section}());
+		return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section});
 	}
 
 	private function exportVariables() 
@@ -366,7 +387,7 @@ class Designer {
 
 		foreach (self::$custom_fields as $cf) {
 
-			if (!property_exists($custom_fields, $cf) || (strlen($custom_fields->{ $cf}) == 0)) {
+			if (!property_exists($custom_fields, $cf) || (strlen($custom_fields->{$cf}) == 0)) {
 				unset($data[$cf]);
 
 			}

@@ -80,7 +80,6 @@ class QuoteTest extends TestCase
 
             $message = json_decode($e->validator->getMessageBag(),1);
 
-            \Log::error($message);
         }
         
         if($response)

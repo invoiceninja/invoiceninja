@@ -134,8 +134,6 @@ class Import implements ShouldQueue
                 throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
             }
 
-            \Log::error($key);
-
             $method = sprintf("process%s", Str::ucfirst(Str::camel($key)));
 
             $this->{$method}($resource);
