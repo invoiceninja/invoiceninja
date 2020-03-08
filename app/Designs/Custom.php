@@ -13,17 +13,17 @@ namespace App\Designs;
 
 class Custom extends AbstractDesign
 {
-	private $includes;
+	public $includes;
 
-	private $header;
+	public $header;
 
-	private $body;
+	public $body;
 	
-	private $product;
+	public $product;
 	
-	private $task;
+	public $task;
 
-	private $footer;
+	public $footer;
 	
 	public function __construct($design) 
 	{

@@ -94,7 +94,7 @@ class PreviewController extends BaseController
             request()->has('body'))
         {
 
-            $invoice_design = new Custom((object)request()->input('body'));
+            $invoice_design = new Custom(json_decode(request()->input('body')));
 
             $entity = ucfirst(request()->input('entity'));
 
@@ -148,12 +148,12 @@ class PreviewController extends BaseController
             $invoice->setRelation('company', auth()->user()->company());
             $invoice->load('client');
 
-            $design_object = json_decode(request()->input('body'));
+           // $design_object = json_decode(request()->input('body'));
 
             if(!is_object($design_object))
                 return response()->json(['message' => 'Invalid custom design object'], 400);
 
-            $invoice_design = new Custom($design_object);
+            $invoice_design = new Custom(json_decode(request()->input('body')));
 
             $designer = new Designer($invoice, $invoice_design, $invoice->client->getSetting('pdf_variables'), lcfirst(request()->has('entity')));
 
@@ -165,7 +165,8 @@ class PreviewController extends BaseController
             $contact->forceDelete();
             $client->forceDelete();
 
-            return response()->download($file_path)->deleteFileAfterSend(true);
+            return response()->file($file_path, array('content-type' => 'application/pdf'));
+            //return response()->download($file_path)->deleteFileAfterSend(true);
 
 
 
