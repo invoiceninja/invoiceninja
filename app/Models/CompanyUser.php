@@ -44,7 +44,8 @@ class CompanyUser extends Pivot
         'settings',
         'is_admin',
         'is_owner',
-        'is_locked'
+        'is_locked',
+        'slack_webhook_url',
     ];
 
     public function account()
@@ -54,12 +55,12 @@ class CompanyUser extends Pivot
 
     public function user_pivot()
     {
-        return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
+        return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked','slack_webhook_url');
     }
 
     public function company_pivot()
     {
-        return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
+        return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked','slack_webhook_url');
     }
 
     public function user()
