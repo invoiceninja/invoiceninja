@@ -27,7 +27,6 @@ class CloneQuoteFactory
         $clone_quote->balance = $quote->amount;
         $clone_quote->amount = $quote->amount;
         $clone_quote->line_items = $quote->line_items;
-        $clone_quote->backup = null;
         
         return $clone_quote;
     }

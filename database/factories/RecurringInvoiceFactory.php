@@ -24,7 +24,6 @@ $factory->define(App\Models\RecurringInvoice::class, function (Faker $faker) {
 		'date' => $faker->date(),
 		'due_date' => $faker->date(),
 		'line_items' => false,
-		'backup' => '', 
 		'frequency_id' => App\Models\RecurringInvoice::FREQUENCY_MONTHLY,
 		'start_date' => $faker->date(),
 		'last_sent_date' => $faker->date(),

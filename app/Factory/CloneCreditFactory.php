@@ -27,7 +27,6 @@ class CloneCreditFactory
         $clone_credit->user_id = $user_id;
         $clone_credit->balance = $credit->amount;
         $clone_credit->line_items = $credit->line_items;
-        $clone_credit->backup = null;
         
         return $clone_credit;
     }

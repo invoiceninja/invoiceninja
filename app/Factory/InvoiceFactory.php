@@ -36,7 +36,6 @@ class InvoiceFactory
         $invoice->partial_due_date = null;
         $invoice->is_deleted = false;
         $invoice->line_items = json_encode([]);
-        $invoice->backup = json_encode([]);
         $invoice->tax_name1 = '';
         $invoice->tax_rate1 = 0;
         $invoice->tax_name2 = '';

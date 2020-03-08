@@ -92,7 +92,7 @@ class CreateUsersTable extends Migration
             $table->string('site_url', 200)->nullable();
             $table->boolean('is_offsite')->default(false);
             $table->boolean('is_secure')->default(false);
-            $table->mediumText('fields')->nullable();
+            $table->json('fields')->nullable();
             $table->unsignedInteger('default_gateway_type_id')->default(1);
             $table->timestamps(6);
         });
@@ -173,8 +173,8 @@ class CreateUsersTable extends Migration
             $table->string('portal_domain')->nullable();
 
             $table->smallInteger('enable_modules')->default(0);
-            $table->mediumText('custom_fields');
-            $table->mediumText('settings');
+            $table->json('custom_fields');
+            $table->json('settings');
             
             $table->string('slack_webhook_url');
             $table->string('google_analytics_url');
@@ -198,9 +198,10 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id')->index();
-            $table->mediumText('permissions')->nullable();
-            $table->mediumText('notifications')->nullable();
-            $table->mediumText('settings')->nullable();
+            $table->json('permissions')->nullable();
+            $table->json('notifications')->nullable();
+            $table->json('settings')->nullable();
+            $table->string('slack_webhook_url');
             $table->boolean('is_owner')->default(false);
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_locked')->default(false); // locks user out of account
@@ -347,7 +348,7 @@ class CreateUsersTable extends Migration
             $table->string('shipping_state')->nullable();
             $table->string('shipping_postal_code')->nullable();
             $table->unsignedInteger('shipping_country_id')->nullable();
-            $table->mediumText('settings')->nullable();
+            $table->json('settings')->nullable();
 
             $table->boolean('is_deleted')->default(false);
             $table->unsignedInteger('group_settings_id')->nullable();  
@@ -415,7 +416,7 @@ class CreateUsersTable extends Migration
             $table->boolean('show_shipping_address')->default(true)->nullable();
             $table->boolean('update_details')->default(false)->nullable();
             $table->boolean('is_deleted')->default(false);
-            $table->mediumText('config');
+            $table->json('config');
             $table->text('fees_and_limits');
             $table->string('custom_value1')->nullable();
             $table->string('custom_value2')->nullable();
@@ -457,9 +458,7 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->mediumText('line_items')->nullable();
-            $t->mediumText('backup')->nullable();
-
+            $t->json('line_items')->nullable();
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
@@ -535,9 +534,7 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->mediumText('line_items')->nullable();
-            $t->mediumText('backup')->nullable();
-
+            $t->json('line_items')->nullable();
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
@@ -640,8 +637,7 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->mediumText('line_items')->nullable();
-            $t->mediumText('backup')->nullable();
+            $t->json('line_items')->nullable();
 
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
@@ -707,8 +703,7 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->mediumText('line_items')->nullable();
-            $t->mediumText('backup')->nullable();
+            $t->json('line_items')->nullable();
 
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
@@ -778,8 +773,7 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->mediumText('line_items')->nullable();
-            $t->mediumText('backup')->nullable();
+            $t->json('line_items')->nullable();
 
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
@@ -1107,7 +1101,7 @@ class CreateUsersTable extends Migration
         Schema::create('backups', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('activity_id');
-            $table->longText('json_backup')->nullable();
+            $table->json('json_backup')->nullable();
             $table->longText('html_backup')->nullable();
             $table->timestamps(6);
 
@@ -1165,7 +1159,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id')->nullable();
             $table->string('name')->nullable();
-            $table->mediumText('settings')->nullable();
+            $table->json('settings')->nullable();
             $table->softDeletes('deleted_at', 6);
             $table->timestamps(6);
 
@@ -1384,7 +1378,7 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->boolean('is_custom')->default(true);
             $table->boolean('is_active')->default(true);
-            $table->mediumText('design')->nullable();
+            $table->json('design')->nullable();
             $table->boolean('is_deleted')->default(false);
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);

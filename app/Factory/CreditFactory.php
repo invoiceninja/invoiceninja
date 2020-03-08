@@ -33,7 +33,6 @@ class CreditFactory
         $credit->partial_due_date = null;
         $credit->is_deleted = false;
         $credit->line_items = json_encode([]);
-        $credit->backup = json_encode([]);
         $credit->tax_name1 = '';
         $credit->tax_rate1 = 0;
         $credit->tax_name2 = '';

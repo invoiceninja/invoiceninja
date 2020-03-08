@@ -116,7 +116,7 @@ class CreateTestData extends Command
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
-            'permissions' => '',
+           // 'permissions' => '',
             'settings' => null,
         ]);
 
@@ -200,7 +200,7 @@ class CreateTestData extends Command
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
-            'permissions' => '',
+         //   'permissions' => '',
             'settings' => null,
         ]);
 
@@ -299,7 +299,7 @@ class CreateTestData extends Command
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
-            'permissions' => '',
+         //   'permissions' => '',
             'settings' => null,
         ]);
 
