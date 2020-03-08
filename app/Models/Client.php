@@ -272,22 +272,30 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function getSetting($setting)
     {
+        \Log::error(print_r($this->settings,1));
+
         /*Client Settings*/
-        if ($this->settings && (property_exists($this->settings, $setting) !== false) && (isset($this->settings->{$setting}) !== false)) {
+        if ($this->settings && property_exists($this->settings, $setting) && isset($this->settings->{$setting}) ) {
+
+\Log::error("we have this here!! ".$setting .$this->settings->{$setting});
+\Log::error("string length = ".iconv_strlen($this->settings->{$setting}));
+\Log::error("is string? ".is_string($this->settings->{$setting}));
+\Log::error($setting);
 
             /*need to catch empty string here*/
             if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >=1)) {
+                \Log::error("in the client data! ".$this->settings->{$setting});
                 return $this->settings->{$setting};
             }
         }
 
         /*Group Settings*/
-        if ($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) && (isset($this->group_settings->settings->{$setting}) !== false)) {
+        elseif ($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) && (isset($this->group_settings->settings->{$setting}) !== false)) {
             return $this->group_settings->settings->{$setting};
         }
 
         /*Company Settings*/
-        if ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
+        else if ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
             return $this->company->settings->{$setting};
         }
 

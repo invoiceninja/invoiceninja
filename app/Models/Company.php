@@ -124,6 +124,7 @@ class Company extends BaseModel
         self::ENTITY_PROPOSAL => 256,
         self::ENTITY_RECURRING_EXPENSE => 512,
         self::ENTITY_RECURRING_TASK => 1024,
+        self::ENTITY_RECURRING_QUOTE => 2048,
     ];
 
     public function getCompanyIdAttribute()
