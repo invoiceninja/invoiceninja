@@ -479,7 +479,7 @@ class CompanyController extends BaseController
             $company->delete();
 
             //If we are deleting the default companies, we'll need to make a new company the default.
-            if($account->default_company == $company_id){
+            if($account->default_company_id == $company_id){
 
                 $account->fresh();
                 $account->default_company = $account->companies->first()->id();
