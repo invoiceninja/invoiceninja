@@ -416,7 +416,7 @@ class CreateUsersTable extends Migration
             $table->boolean('show_shipping_address')->default(true)->nullable();
             $table->boolean('update_details')->default(false)->nullable();
             $table->boolean('is_deleted')->default(false);
-            $table->json('config');
+            $table->mediumText('config');
             $table->text('fees_and_limits');
             $table->string('custom_value1')->nullable();
             $table->string('custom_value2')->nullable();
