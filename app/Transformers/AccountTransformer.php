@@ -61,6 +61,7 @@ class AccountTransformer extends EntityTransformer
             'default_url' => config('ninja.site_url'),
             'plan' => $account->getPlan(),
             'latest_version' => (string)$account->latest_version,
+            'current_version' => (string)config('ninja.app_version'),
             'updated_at' => (int)$account->updated_at,
             'archived_at' => (int)$account->deleted_at,
         ];

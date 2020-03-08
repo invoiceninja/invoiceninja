@@ -21,7 +21,7 @@
         "php": ">=7.3",
         "anahkiasen/former": "^4.2",
         "asgrim/ofxparser": "^1.2",
-        "codedge/laravel-selfupdater": "^2.4",
+        "codedge/laravel-selfupdater": "^2.5.1",
         "dacastro4/laravel-gmail": "^3.2",
         "davejamesmiller/laravel-breadcrumbs": "5.x",
         "fideloper/proxy": "^4.0",

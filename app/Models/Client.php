@@ -41,7 +41,6 @@ use Hashids\Hashids;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -272,10 +271,10 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function getSetting($setting)
     {
-        /*Client Settings*/
-        if ($this->settings && (property_exists($this->settings, $setting) !== false) && (isset($this->settings->{$setting}) !== false)) {
 
-            /*need to catch empty string here*/
+        /*Client Settings*/
+        if ($this->settings && property_exists($this->settings, $setting) && isset($this->settings->{$setting}) ) {
+            /*need to catch empty string here*/ 
             if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >=1)) {
                 return $this->settings->{$setting};
             }
@@ -287,7 +286,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         /*Company Settings*/
-        if ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
+        else if ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
             return $this->company->settings->{$setting};
         }
 
@@ -468,10 +467,11 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function setCompanyDefaults($data, $entity_name)
     {
-        if(isset($data['terms']) && strlen($data['terms']) == 0)
+
+        if(!(array_key_exists('terms', $data) && strlen($data['terms']) > 1))
             $data['terms'] = $this->getSetting($entity_name.'_terms');
 
-        if(isset($data['footer']) && strlen($data['footer']) == 0)
+        if(!(array_key_exists('footer', $data) && strlen($data['footer']) > 1))
             $data['footer'] = $this->getSetting($entity_name.'_footer');
 
         if(strlen($this->public_notes) >=1)
