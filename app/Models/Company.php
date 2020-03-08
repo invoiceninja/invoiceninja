@@ -60,8 +60,9 @@ class Company extends BaseModel
         const ENTITY_VENDOR = 'vendor';
         const ENTITY_TICKET = 'ticket';
         const ENTITY_PROPOSAL = 'proposal';
-        const ENTITY_RECURRING_EXPENSE = 'expense';
+        const ENTITY_RECURRING_EXPENSE = 'recurring_expense';
         const ENTITY_RECURRING_TASK = 'task';
+        const ENTITY_RECURRING_QUOTE = 'recurring_quote';
 
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 
