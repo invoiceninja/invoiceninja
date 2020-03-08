@@ -490,6 +490,8 @@ class CompanyController extends BaseController
             
         }
 
+        //@todo delete documents also!!
+
         //@todo in the hosted version deleting the last
         //account will trigger an account refund. 
            
