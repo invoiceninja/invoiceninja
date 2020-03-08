@@ -34,6 +34,7 @@ class CompanyUser extends Pivot
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'settings' => 'object',
+        'notifications' => 'object',
     ];
 
     protected $fillable = [
