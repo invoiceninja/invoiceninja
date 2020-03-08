@@ -148,8 +148,6 @@ class PreviewController extends BaseController
             $invoice->setRelation('company', auth()->user()->company());
             $invoice->load('client');
 
-\Log::error(print_r(request()->input('body'),1));
-
             $design_object = json_decode(request()->input('body'));
 
             if(!is_object($design_object))

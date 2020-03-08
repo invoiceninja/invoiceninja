@@ -459,12 +459,43 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
+        $company_count = $company->account->companies->count();
 
-        $company->delete();
-        
-        //@TODO if last company, delete the account also.
-        
-        return response()->json([], 200);
+        if($company_count == 1){
+
+            $company->company_users->each(function ($company_user) {
+
+                $company_user->user->forceDelete();
+
+            });
+
+            $company->account->delete();
+
+        }
+        else {
+            
+            $account = $company->account;
+            $company_id = $company->id;
+            $company->delete();
+
+            //If we are deleting the default companies, we'll need to make a new company the default.
+            if($account->default_company == $company_id){
+
+                $account->fresh();
+                $account->default_company = $account->companies->first()->id();
+                $account->save();
+            
+            }
+
+            
+        }
+
+        //@todo delete documents also!!
+
+        //@todo in the hosted version deleting the last
+        //account will trigger an account refund. 
+           
+        return response()->json(['message' => 'success'], 200);
         
     }
 }

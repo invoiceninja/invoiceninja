@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use Codedge\Updater\UpdaterManager;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Facades\Storage;
 
 class SelfUpdateController extends BaseController
 {
@@ -61,18 +62,14 @@ class SelfUpdateController extends BaseController
     	$res = $updater->update();
 
     	return response()->json(['message'=>$res], 200);
+        
     }
 
     public function checkVersion(UpdaterManager $updater)
     {
 
-        $file_version = storage_path().'app/local_version.txt';
 
-        if(file_exists($file_version)){
-            return response()->json(['message' => file_get_contents($file_version)]);
-        }else{
-            return response()->json(['message' => '0.0.0']);
-        }
 
     }
+
 }
