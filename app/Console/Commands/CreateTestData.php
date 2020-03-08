@@ -488,6 +488,7 @@ class CreateTestData extends Command
             $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
             $payment->status_id = Payment::STATUS_COMPLETED;
             $payment->number = $client->getNextPaymentNumber($client);
+            $payment->currency_id = 1;
             $payment->save();
 
             $payment->invoices()->save($invoice);

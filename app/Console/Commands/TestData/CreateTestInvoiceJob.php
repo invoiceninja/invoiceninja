@@ -108,6 +108,7 @@ class CreateTestInvoiceJob implements ShouldQueue
             $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
             $payment->status_id = Payment::STATUS_COMPLETED;
             $payment->number = $this->client->getNextPaymentNumber($this->client);
+            $payment->currency_id = 1;
             $payment->save();
 
             $payment->invoices()->save($invoice);

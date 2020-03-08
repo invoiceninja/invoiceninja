@@ -267,6 +267,7 @@ class BasePaymentDriver
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
         $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->currency_id = $this->client->getSetting('currency_id');
         $payment->date = Carbon::now();
         
         return $payment;

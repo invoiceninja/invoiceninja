@@ -50,6 +50,7 @@ class MarkPaid extends AbstractService
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = ctrans('texts.manual_entry');
+        $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         /* Create a payment relationship to the invoice entity */
         $payment->save();
 
