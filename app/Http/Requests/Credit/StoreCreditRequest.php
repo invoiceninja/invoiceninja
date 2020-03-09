@@ -40,7 +40,7 @@ class StoreCreditRequest extends FormRequest
     {
         $input = $this->all();
 
-        if(array_key_exists('design_id', $input) && is_string($input['desing_id']))
+        if(array_key_exists('design_id', $input) && is_string($input['design_id']))
           $input['design_id'] = $this->decodePrimaryKey($input['design_id']);        
 
         if($input['client_id'])
