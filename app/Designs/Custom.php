@@ -25,20 +25,29 @@ class Custom extends AbstractDesign
 
 	public $footer;
 	
+	public $name;
+
 	public function __construct($design) 
 	{
-		$this->includes = $design->includes;
+		$this->name = $design->name;
 
-		$this->header = $design->header;
-		
-		$this->body = $design->body;
-		
-		$this->product = $design->product;
-		
-		$this->task = $design->task;
+		$this->includes = $design->design->includes;
 
-		$this->footer = $design->footer;
+		$this->header = $design->design->header;
+		
+		$this->body = $design->design->body;
+		
+		$this->product = $design->design->product;
+		
+		$this->task = $design->design->task;
+
+		$this->footer = $design->design->footer;
 			
+	}
+
+	public function name()
+	{
+		return $this->name;
 	}
 
 	public function includes()

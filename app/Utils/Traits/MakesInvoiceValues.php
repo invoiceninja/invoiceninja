@@ -511,14 +511,14 @@ trait MakesInvoiceValues
         /* Table Header */
         //$table_header = '<thead><tr class="'.$css['table_header_thead_class'].'">';
 
-        $table_header = '';
+        $table_header = '<tr>';
         
         $column_headers = $this->transformColumnsForHeader($columns);
 
         foreach ($column_headers as $column) 
             $table_header .= '<td class="table_header_td_class">' . ctrans('texts.'.$column.'') . '</td>';
         
-        //$table_header .= '</tr></thead>';
+        $table_header .= '</tr>';
 
         return $table_header;
 

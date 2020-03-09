@@ -99,7 +99,7 @@ class PreviewController extends BaseController
             if(!is_object($design_object))
                 return response()->json(['message' => 'Invalid custom design object'], 400);
 
-            $invoice_design = new Custom($design_object->design->design);
+            $invoice_design = new Custom($design_object->design);
 
             $entity = ucfirst(request()->input('entity'));
 
@@ -158,7 +158,7 @@ class PreviewController extends BaseController
             if(!is_object($design_object))
                 return response()->json(['message' => 'Invalid custom design object'], 400);
 
-            $invoice_design = new Custom($design_object->design->design);
+            $invoice_design = new Custom($design_object->design);
 
             $designer = new Designer($invoice, $invoice_design, $invoice->client->getSetting('pdf_variables'), lcfirst(request()->has('entity')));
 

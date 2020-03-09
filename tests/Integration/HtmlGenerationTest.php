@@ -32,8 +32,6 @@ class HtmlGenerationTest extends TestCase
 
         $html = $this->generateEntityHtml($designer, $this->invoice);
 
-        \Log::error($html);
-
         $this->assertNotNull($html);
     }
 

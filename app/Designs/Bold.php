@@ -88,12 +88,15 @@ class Bold extends AbstractDesign
 	}
 
     public function task() {
+        return '';
+    }
+
+
+    public function task_table() {
         return '
             <table class="w-full table-auto mt-8">
                 <thead class="text-left">
-                    <tr>
-                        $task_table_header
-                    </tr>
+                    $task_table_header
                 </thead>
                 <tbody>
                     $task_table_body
@@ -103,20 +106,22 @@ class Bold extends AbstractDesign
     }
 
 	public function product() {
+        return '';
+	}
+
+    public function product_table() {
 
         return '
             <table class="w-full table-auto mt-8">
                 <thead class="text-left">
-                    <tr>
-                        $product_table_header
-                    </tr>
+                    $product_table_header
                 </thead>
                 <tbody>
                     $product_table_body
                 </tbody>
             </table>
         ';
-	}
+    }
 
 	public function footer() {
 
