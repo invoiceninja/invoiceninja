@@ -11,9 +11,10 @@
 
 namespace App\Repositories;
 
-use App\Models\User;
-use App\Models\CompanyUser;
+use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
+use App\Models\CompanyUser;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 /**
@@ -43,7 +44,7 @@ class UserRepository extends BaseRepository
      *
      * @return     user|\App\Models\user|null  user Object
      */
-    public function save(array $data, User $user) : ?User
+    public function save(array $data, User $user)
     {
         $user->fill($data);
         $user->save();
@@ -57,6 +58,7 @@ class UserRepository extends BaseRepository
             /*No company user exists - attach the user*/
             if (!$cu) {
                 $data['company_user']['account_id'] = $account_id;
+                $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
                 $cu->fill($data['company_user']);
@@ -64,9 +66,16 @@ class UserRepository extends BaseRepository
                 $cu->tokens()->restore();
                 $cu->save();
             }
+
+            $user->with(['company_users' => function ($query) use($company, $user){
+                $query->whereCompanyId($company->id)
+                      ->whereUserId($user->id);
+            }])->first();
+            //return $user->with('company_user')->whereCompanyId($company->id)->first();
         }
 
         return $user;
+        
     }
 
     public function destroy(array $data, User $user)

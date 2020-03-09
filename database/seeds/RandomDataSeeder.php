@@ -99,6 +99,7 @@ class RandomDataSeeder extends Seeder
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
+            'notifications' => CompanySettings::notificationDefaults(),
             'permissions' => '',
             'settings' => null,
         ]);

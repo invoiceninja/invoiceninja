@@ -11,6 +11,7 @@
 
 namespace App\Jobs\User;
 
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Events\User\UserWasCreated;
 use App\Models\CompanyUser;
@@ -70,6 +71,7 @@ class CreateUser
             'is_admin' => 1,
             'is_locked' => 0,
             'permissions' => '',
+            'notifications' => CompanySettings::notificationDefaults(),
             //'settings' => DefaultSettings::userSettings(),
             'settings' => null,
         ]);

@@ -191,10 +191,12 @@ class UserTest extends TestCase
 
         $arr = $response->json();
 
+\Log::error($arr['data']['company_user']['permissions']);
+
         $this->assertNotNull($arr['data']['company_user']);
         $this->assertFalse($arr['data']['company_user']['is_admin']);
         $this->assertFalse($arr['data']['company_user']['is_owner']);
-        $this->assertEquals($arr['data']['company_user']['permissions'], 'create_client,create_invoice');
+        $this->assertEquals($arr['data']['company_user']['permissions'], ['create_client,create_invoice']);
 
         $user = User::whereEmail('bob@good.ole.boys.co2.com')->first();
 

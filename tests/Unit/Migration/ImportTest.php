@@ -42,483 +42,445 @@ class ImportTest extends TestCase
         $this->makeTestData();
 
         $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
-// \Log::error($migration_file);
-//         $handle = fopen($migration_file, "r");
-//         $migration_file = fread($handle, filesize($migration_file));
-//         fclose($handle);
-
         $this->migration_array = json_decode(file_get_contents($migration_file),1);
 
     }
 
-    public function testImportClassExists()
-    {
-        $status = class_exists('App\Jobs\Util\Import');
+//     public function testImportClassExists()
+//     {
+//         $status = class_exists('App\Jobs\Util\Import');
 
-        $this->assertTrue($status);
+//         $this->assertTrue($status);
 
-    }
+//     }
 
-    public function testExceptionOnUnavailableResource()
-    {
-        $data['panda_bears'] = [
-            'name' => 'Awesome Panda Bear',
-        ];
+//     public function testExceptionOnUnavailableResource()
+//     {
+//         $data['panda_bears'] = [
+//             'name' => 'Awesome Panda Bear',
+//         ];
+
+//         try {
+//             Import::dispatchNow($data, $this->company, $this->user);
+//         }
+//         catch (ResourceNotAvailableForMigration $e) {
+//             $this->assertTrue(true);
+//         }
+//     }
+
+//     public function testCompanyUpdating()
+//     {
+//         $original_company_key = $this->company->company_key;
+
+//         $data['company'] = [
+//             'company_key' => 0,
+//         ];
+
+//         Import::dispatchNow($data, $this->company, $this->user);
 
-        try {
-            Import::dispatchNow($data, $this->company, $this->user);
-        }
-        catch (ResourceNotAvailableForMigration $e) {
-            $this->assertTrue(true);
-        }
-    }
+//         $this->assertNotEquals($original_company_key, $this->company->company_key);
+//     }
 
-    public function testCompanyUpdating()
-    {
-        $original_company_key = $this->company->company_key;
+//     public function testInvoicesFailsWithoutClient()
+//     {
+//         $data['invoices'] = [
+//             0 => [
+//                 'client_id' => 1,
+//                 'is_amount_discount' => false,
+//             ]
+//         ];
 
-        $data['company'] = [
-            'company_key' => 0,
-        ];
+//         try {
+//             Import::dispatchNow($data, $this->company, $this->user);
+//         } catch(ResourceDependencyMissing $e) {
+//             $this->assertTrue(true);
+//         }
+//     }
 
-        Import::dispatchNow($data, $this->company, $this->user);
+//     public function testInvoicesImporting()
+//     {
+//         $this->makeTestData();
 
-        $this->assertNotEquals($original_company_key, $this->company->company_key);
-    }
+//         $this->invoice->forceDelete();
+//         $this->quote->forceDelete();
 
-    public function testInvoicesFailsWithoutClient()
-    {
-        $data['invoices'] = [
-            0 => [
-                'client_id' => 1,
-                'is_amount_discount' => false,
-            ]
-        ];
+//         $original_count = Invoice::count();
 
-        try {
-            Import::dispatchNow($data, $this->company, $this->user);
-        } catch(ResourceDependencyMissing $e) {
-            $this->assertTrue(true);
-        }
-    }
+//         Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
-    public function testInvoicesImporting()
-    {
-        $this->makeTestData();
+//         $this->assertGreaterThan($original_count, Invoice::count());
+//     }
 
-        $this->invoice->forceDelete();
-        $this->quote->forceDelete();
+//     public function testQuotesFailsWithoutClient()
+//     {
+//         $data['quotes'] = [
+//             0 => [
+//                 'client_id' => 1,
+//                 'is_amount_discount' => false,
+//             ]
+//         ];
 
-        $original_count = Invoice::count();
+//         try {
+//             Import::dispatchNow($data, $this->company, $this->user);
+//         } catch(ResourceDependencyMissing $e) {
+//             $this->assertTrue(true);
+//         }
+//     }
 
-        Import::dispatchNow($this->migration_array, $this->company, $this->user);
+//     public function testImportFileExists()
+//     {
+//         $this->assertGreaterThan(1, count($this->migration_array));
 
-        $this->assertGreaterThan($original_count, Invoice::count());
-    }
+//     }
 
-    public function testQuotesFailsWithoutClient()
-    {
-        $data['quotes'] = [
-            0 => [
-                'client_id' => 1,
-                'is_amount_discount' => false,
-            ]
-        ];
 
-        try {
-            Import::dispatchNow($data, $this->company, $this->user);
-        } catch(ResourceDependencyMissing $e) {
-            $this->assertTrue(true);
-        }
-    }
+//     public function testAllImport()
+//     {
 
-    public function testImportFileExists()
-    {
-        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+//         $this->invoice->forceDelete();
+//         $this->quote->forceDelete();
 
-        // $this->assertTrue(file_exists($migration_file));
+//         Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
-        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
+//         $this->assertTrue(true);
+//     }
 
-        $this->assertGreaterThan(1, count($this->migration_array));
+//     public function testClientAttributes()
+//     {
+//         $original_number = Client::count();
 
-    }
+//         $random_balance = rand(0, 10);
 
+//         $data['clients'] = [
+//             0 => [
+//                 'id' => 1,
+//                 'name' => 'My awesome unique client',
+//                 'balance' => $random_balance,
+//                 'user_id' => 1,
+//             ]
+//         ];
 
-    public function testAllImport()
-    {
-        //$this->makeTestData();
+//         Import::dispatchNow($data, $this->company, $this->user);
 
-        $this->invoice->forceDelete();
-        $this->quote->forceDelete();
-        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+//         $client = Client::where('name', 'My awesome unique client')
+//             ->where('balance', $random_balance)
+//             ->first();
 
-        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
+//         $this->assertNotNull($client);
+//         $this->assertGreaterThan($original_number, Client::count());
+//         $this->assertGreaterThanOrEqual(0, $client->balance);
+//     }
 
-        Import::dispatchNow($this->migration_array, $this->company, $this->user);
+//     // public function testInvoiceAttributes()
+//     // {
+//     //     $original_number = Invoice::count();
 
-        $this->assertTrue(true);
-    }
+//     //     $this->invoice->forceDelete();
 
-    public function testClientAttributes()
-    {
-        $original_number = Client::count();
+//     //     $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-        $random_balance = rand(0, 10);
+//     //     $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
-        $data['clients'] = [
-            0 => [
-                'id' => 1,
-                'name' => 'My awesome unique client',
-                'balance' => $random_balance,
-                'user_id' => 1,
-            ]
-        ];
+//     //     Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
-        Import::dispatchNow($data, $this->company, $this->user);
+//     //     $this->assertGreaterThan($original_number, Invoice::count());
 
-        $client = Client::where('name', 'My awesome unique client')
-            ->where('balance', $random_balance)
-            ->first();
+//     //     $invoice_1 = Invoice::whereNumber('0001')
+//     //         // ->where('discount', '0.00')
+//     //         // ->where('date', '2020-03-18')
+//     //         ->first();
 
-        $this->assertNotNull($client);
-        $this->assertGreaterThan($original_number, Client::count());
-        $this->assertGreaterThanOrEqual(0, $client->balance);
-    }
+//     //     $invoice_2 = Invoice::whereNumber('0018')
+//     //         // ->where('discount', '0.00')
+//     //         // ->where('date', '2019-10-15')
+//     //         ->first();
 
-    // public function testInvoiceAttributes()
-    // {
-    //     $original_number = Invoice::count();
+//     //     $this->assertNotNull($invoice_1);
+//     //     $this->assertNotNull($invoice_2);
 
-    //     $this->invoice->forceDelete();
+//     //     $this->assertEquals('13.5000', $invoice_1->amount);
+//     //     $this->assertEquals('67.4100', $invoice_2->amount);
 
-    //     $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+//     //     $this->assertEquals('8.4900', $invoice_1->balance);
+//     //     $this->assertEquals('50.4200', $invoice_2->balance);
+//     // }
 
-    //     $this->migration_array = json_decode(file_get_contents($migration_file), 1);
+//     // public function testQuoteAttributes()
+//     // {
+//     //     $original_number = Quote::count();
 
-    //     Import::dispatchNow($this->migration_array, $this->company, $this->user);
+//     //     $this->invoice->forceDelete();
 
-    //     $this->assertGreaterThan($original_number, Invoice::count());
+//     //     $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
 
-    //     $invoice_1 = Invoice::whereNumber('0001')
-    //         // ->where('discount', '0.00')
-    //         // ->where('date', '2020-03-18')
-    //         ->first();
+//     //     $this->migration_array = json_decode(file_get_contents($migration_file), 1);
 
-    //     $invoice_2 = Invoice::whereNumber('0018')
-    //         // ->where('discount', '0.00')
-    //         // ->where('date', '2019-10-15')
-    //         ->first();
+//     //     Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
-    //     $this->assertNotNull($invoice_1);
-    //     $this->assertNotNull($invoice_2);
+//     //     $this->assertGreaterThan($original_number, Invoice::count());
 
-    //     $this->assertEquals('13.5000', $invoice_1->amount);
-    //     $this->assertEquals('67.4100', $invoice_2->amount);
 
-    //     $this->assertEquals('8.4900', $invoice_1->balance);
-    //     $this->assertEquals('50.4200', $invoice_2->balance);
-    // }
+//     //     $quote = Quote::whereNumber('0021')
+//     //         ->whereDiscount('0.00')
+//     //         ->first();
 
-    // public function testQuoteAttributes()
-    // {
-    //     $original_number = Quote::count();
+//     //     $this->assertNotNull($quote);
+//     //     $this->assertEquals('0.0000', $quote->amount);
+//     //     $this->assertEquals('0.0000', $quote->balance);
+//     // }
 
-    //     $this->invoice->forceDelete();
+//     public function testPaymentsImport()
+//     {
+//         $original_count = Payment::count();
 
-    //     $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+//         $this->invoice->forceDelete();
+//         $this->quote->forceDelete();
+//         Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
-    //     $this->migration_array = json_decode(file_get_contents($migration_file), 1);
+//         $this->assertGreaterThan($original_count, Payment::count());
+//     }
 
-    //     Import::dispatchNow($this->migration_array, $this->company, $this->user);
+//     public function testPaymentDependsOnClient()
+//     {
+//         $data['payments'] = [
+//             0 => [
+//                 'client_id' => 1,
+//                 'amount' => 1,
+//             ]
+//         ];
 
-    //     $this->assertGreaterThan($original_number, Invoice::count());
+//         try {
+//             Import::dispatchNow($data, $this->company, $this->user);
+//         } catch(ResourceDependencyMissing $e) {
+//             $this->assertTrue(true);
+//         }
+//     }
 
+//     public function testQuotesImport()
+//     {
+//         $original_count = Credit::count();
 
-    //     $quote = Quote::whereNumber('0021')
-    //         ->whereDiscount('0.00')
-    //         ->first();
+//         $this->invoice->forceDelete();
+//         $this->quote->forceDelete();
 
-    //     $this->assertNotNull($quote);
-    //     $this->assertEquals('0.0000', $quote->amount);
-    //     $this->assertEquals('0.0000', $quote->balance);
-    // }
+//         Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
-    public function testPaymentsImport()
-    {
-        $original_count = Payment::count();
+//         $this->assertGreaterThan($original_count, Credit::count());
+//     }
 
-        $this->invoice->forceDelete();
-        $this->quote->forceDelete();
-        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+//     public function testMigrationFileExists()
+//     {
+//         $migration_archive = base_path() . '/tests/Unit/Migration/migration.zip';
 
-        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
+//         $this->assertTrue(file_exists($migration_archive));
+//     }
 
-        Import::dispatchNow($this->migration_array, $this->company, $this->user);
+//     // public function testMigrationFileBeingExtracted()
+//     // {
+//     //     $migration_archive = base_path() . '/tests/Unit/Migration/migration.zip';
 
-        $this->assertGreaterThan($original_count, Payment::count());
-    }
+//     //     StartMigration::dispatchNow($migration_archive, $this->user, $this->company);
 
-    public function testPaymentDependsOnClient()
-    {
-        $data['payments'] = [
-            0 => [
-                'client_id' => 1,
-                'amount' => 1,
-            ]
-        ];
+//     //     $extracted_archive = storage_path("migrations/migration");
+//     //     $migration_file = storage_path("migrations/migration/migration.json");
 
-        try {
-            Import::dispatchNow($data, $this->company, $this->user);
-        } catch(ResourceDependencyMissing $e) {
-            $this->assertTrue(true);
-        }
-    }
+//     //     $this->assertTrue(file_exists($extracted_archive));
+//     //     $this->assertTrue(is_dir($extracted_archive));
+//     //     $this->assertTrue(file_exists($migration_file));
+//     // }
 
-    public function testQuotesImport()
-    {
-        $original_count = Credit::count();
+//     public function testValidityOfImportedData()
+//     {
+//         $this->invoice->forceDelete();
+//         $this->quote->forceDelete();
 
-        $this->invoice->forceDelete();
-        $this->quote->forceDelete();
+//         Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
-        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+//         $differences = [];
 
-        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
+//         foreach ($this->migration_array['invoices'] as $key => $invoices) {
+//             $record = Invoice::whereNumber($invoices['number'])
+//                 ->whereAmount($invoices['amount'])
+//                 ->whereBalance($invoices['balance'])
+//                 ->first();
 
-        Import::dispatchNow($this->migration_array, $this->company, $this->user);
+//             if (!$record) {
+//                 $differences['invoices']['missing'][] = $invoices['id'];
+//             }
+//         }
 
-        $this->assertGreaterThan($original_count, Credit::count());
-    }
+//         foreach ($this->migration_array['users'] as $key => $user) {
+//             $record = User::whereEmail($user['email'])->first();
 
-    public function testMigrationFileExists()
-    {
-        $migration_archive = base_path() . '/tests/Unit/Migration/migration.zip';
+//             if (!$record) {
+//                 $differences['users']['missing'][] = $user['email'];
+//             }
+//         }
 
-        $this->assertTrue(file_exists($migration_archive));
-    }
+//         foreach ($this->migration_array['tax_rates'] as $key => $tax_rate) {
+//             $record = TaxRate::whereName($tax_rate['name'])
+//                 ->where('rate', $tax_rate['rate'])
+//                 ->first();
 
-    // public function testMigrationFileBeingExtracted()
-    // {
-    //     $migration_archive = base_path() . '/tests/Unit/Migration/migration.zip';
+//             if (!$record) {
+//                 $differences['tax_rates']['missing'][] = $tax_rate['name'];
+//             }
+//         }
 
-    //     StartMigration::dispatchNow($migration_archive, $this->user, $this->company);
+//         foreach ($this->migration_array['clients'] as $key => $client) {
+//             $record = Client::whereName($client['name'])
+//                 ->whereCity($client['city'])
+//                 // ->where('paid_to_date', $client['paid_to_date']) // TODO: Doesn't work. Need debugging.
+//                 ->first();
 
-    //     $extracted_archive = storage_path("migrations/migration");
-    //     $migration_file = storage_path("migrations/migration/migration.json");
+//             if (!$record) {
+//                 $differences['clients']['missing'][] = $client['name'];
+//             }
+//         }
 
-    //     $this->assertTrue(file_exists($extracted_archive));
-    //     $this->assertTrue(is_dir($extracted_archive));
-    //     $this->assertTrue(file_exists($migration_file));
-    // }
+//         foreach ($this->migration_array['products'] as $key => $product) {
+//             $record = Product::where('product_key', $product['product_key'])
+//                 ->first();
 
-    public function testValidityOfImportedData()
-    {
-        $this->invoice->forceDelete();
-        $this->quote->forceDelete();
+//             if (!$record) {
+//                 $differences['products']['missing'][] = $product['notes'];
+//             }
+//         }
 
-         // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+//         foreach ($this->migration_array['quotes'] as $key => $quote) {
+//             $record = Quote::whereNumber($quote['number'])
+//                 ->whereIsAmountDiscount($quote['is_amount_discount'])
+//                 ->whereDueDate($quote['due_date'])
+//                 ->first();
 
-         // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
+//             if (!$record) {
+//                 $differences['quotes']['missing'][] = $quote['id'];
+//             }
+//         }
 
-        Import::dispatchNow($this->migration_array, $this->company, $this->user);
+//         foreach ($this->migration_array['payments'] as $key => $payment) {
+//             $record = Payment::whereApplied($payment['applied'])
+//                 ->first();
 
-        $differences = [];
+//             if (!$record) {
+//                 $differences['payments']['missing'][] = $payment['id'];
+//             }
+//         }
 
-        foreach ($this->migration_array['invoices'] as $key => $invoices) {
-            $record = Invoice::whereNumber($invoices['number'])
-                ->whereAmount($invoices['amount'])
-                ->whereBalance($invoices['balance'])
-                ->first();
+//         foreach ($this->migration_array['credits'] as $key => $credit) {
 
-            if (!$record) {
-                $differences['invoices']['missing'][] = $invoices['id'];
-            }
-        }
+//             // The Import::processCredits() does insert the credit record with number: 0053,
+//             // .. however this part of the code doesn't see it at all.
 
-        foreach ($this->migration_array['users'] as $key => $user) {
-            $record = User::whereEmail($user['email'])->first();
+//             $record = Credit::whereNumber($credit['number'])
+//                 ->first();
 
-            if (!$record) {
-                $differences['users']['missing'][] = $user['email'];
-            }
-        }
+//             if (!$record) {
+//                 $differences['credits']['missing'][] = $credit['id'];
+//             }
+//         }
 
-        foreach ($this->migration_array['tax_rates'] as $key => $tax_rate) {
-            $record = TaxRate::whereName($tax_rate['name'])
-                ->where('rate', $tax_rate['rate'])
-                ->first();
+// /*
+//         foreach ($this->migration_array['company_gateways'] as $key => $company_gateway) {
 
-            if (!$record) {
-                $differences['tax_rates']['missing'][] = $tax_rate['name'];
-            }
-        }
+//             // The Import::processCredits() does insert the credit record with number: 0053,
+//             // .. however this part of the code doesn't see it at all.
 
-        foreach ($this->migration_array['clients'] as $key => $client) {
-            $record = Client::whereName($client['name'])
-                ->whereCity($client['city'])
-                // ->where('paid_to_date', $client['paid_to_date']) // TODO: Doesn't work. Need debugging.
-                ->first();
+//             $record = CompanyGateway::where('gateway_key' ,$company_gateway['gateway_key'])
+//                 ->first();
 
-            if (!$record) {
-                $differences['clients']['missing'][] = $client['name'];
-            }
-        }
+//             if (!$record) {
+//                 $differences['company_gateways']['missing'][] = $company_gateway['id'];
+//             }
+//         }
 
-        foreach ($this->migration_array['products'] as $key => $product) {
-            $record = Product::where('product_key', $product['product_key'])
-                ->first();
+//         foreach ($this->migration_array['client_gateway_tokens'] as $key => $cgt) {
 
-            if (!$record) {
-                $differences['products']['missing'][] = $product['notes'];
-            }
-        }
+//             // The Import::processCredits() does insert the credit record with number: 0053,
+//             // .. however this part of the code doesn't see it at all.
 
-        foreach ($this->migration_array['quotes'] as $key => $quote) {
-            $record = Quote::whereNumber($quote['number'])
-                ->whereIsAmountDiscount($quote['is_amount_discount'])
-                ->whereDueDate($quote['due_date'])
-                ->first();
+//             $record = ClientGatewayToken::where('token' ,$cgt['token'])
+//                 ->first();
 
-            if (!$record) {
-                $differences['quotes']['missing'][] = $quote['id'];
-            }
-        }
+//             if (!$record) {
+//                 $differences['client_gateway_tokens']['missing'][] = $cgt['id'];
+//             }
+//         }
+// */
+//         //@TODO we can uncomment tests for documents when we have imported expenses.
 
-        foreach ($this->migration_array['payments'] as $key => $payment) {
-            $record = Payment::whereApplied($payment['applied'])
-                ->first();
+//         // foreach ($this->migration_array['documents'] as $key => $document) {
 
-            if (!$record) {
-                $differences['payments']['missing'][] = $payment['id'];
-            }
-        }
+//         //     if(!is_null($document['invoice_id'])) {
 
-        foreach ($this->migration_array['credits'] as $key => $credit) {
+//         //         $record = Document::where('hash', $document['hash'])
+//         //             ->first();
 
-            // The Import::processCredits() does insert the credit record with number: 0053,
-            // .. however this part of the code doesn't see it at all.
+//         //         if (!$record) {
+//         //             $differences['documents']['missing'][] = $document['id'];
+//         //         }
+//         //     }
+//         // }
 
-            $record = Credit::whereNumber($credit['number'])
-                ->first();
+//         //\Log::error($differences);
 
-            if (!$record) {
-                $differences['credits']['missing'][] = $credit['id'];
-            }
-        }
+//         $this->assertCount(0, $differences);
+//     }
 
-/*
-        foreach ($this->migration_array['company_gateways'] as $key => $company_gateway) {
+//     public function testClientContactsImport()
+//     {
+//         $this->invoice->forceDelete();
+//         $this->quote->forceDelete();
 
-            // The Import::processCredits() does insert the credit record with number: 0053,
-            // .. however this part of the code doesn't see it at all.
+//         $original = ClientContact::count();
 
-            $record = CompanyGateway::where('gateway_key' ,$company_gateway['gateway_key'])
-                ->first();
+//         Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
-            if (!$record) {
-                $differences['company_gateways']['missing'][] = $company_gateway['id'];
-            }
-        }
+//         $this->assertGreaterThan($original, ClientContact::count());
+//     }
 
-        foreach ($this->migration_array['client_gateway_tokens'] as $key => $cgt) {
+//     public function testClientGatewayTokensImport()
+//     {
+//         $this->invoice->forceDelete();
+//         $this->quote->forceDelete();
 
-            // The Import::processCredits() does insert the credit record with number: 0053,
-            // .. however this part of the code doesn't see it at all.
+//         $original = ClientGatewayToken::count();
 
-            $record = ClientGatewayToken::where('token' ,$cgt['token'])
-                ->first();
+//         Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
-            if (!$record) {
-                $differences['client_gateway_tokens']['missing'][] = $cgt['id'];
-            }
-        }
-*/
-        //@TODO we can uncomment tests for documents when we have imported expenses.
+//         $this->assertTrue(true, 'ClientGatewayTokens importing not completed yet.');
 
-        // foreach ($this->migration_array['documents'] as $key => $document) {
+//     }
 
-        //     if(!is_null($document['invoice_id'])) {
 
-        //         $record = Document::where('hash', $document['hash'])
-        //             ->first();
+//     public function testDocumentsImport()
+//     {
+//         $this->invoice->forceDelete();
+//         $this->quote->forceDelete();
 
-        //         if (!$record) {
-        //             $differences['documents']['missing'][] = $document['id'];
-        //         }
-        //     }
-        // }
+//         $original = Document::count();
 
-        //\Log::error($differences);
+//         Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
-        $this->assertCount(0, $differences);
-    }
+//         $document = Document::first();
 
-    public function testClientContactsImport()
-    {
-        $this->invoice->forceDelete();
-        $this->quote->forceDelete();
+//         $this->assertTrue(true, 'Documents importing not completed yet. Missing expenses.');
+//     }
 
-        $original = ClientContact::count();
+//     public function testExceptionMailSending()
+//     {
+//         Mail::fake();
 
-        // $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+//         $data['panda_bears'] = [
+//             'name' => 'Awesome Panda Bear',
+//         ];
 
-        // $this->migration_array = json_decode(file_get_contents($migration_file), 1);
-
-        Import::dispatchNow($this->migration_array, $this->company, $this->user);
-
-        $this->assertGreaterThan($original, ClientContact::count());
-    }
-
-    public function testClientGatewayTokensImport()
-    {
-        $this->invoice->forceDelete();
-        $this->quote->forceDelete();
-
-        $original = ClientGatewayToken::count();
-
-        Import::dispatchNow($this->migration_array, $this->company, $this->user);
-
-       // $this->assertGreaterThan($original, ClientGatewayToken::count());
-       //
-                $this->assertTrue(true, 'ClientGatewayTokens importing not completed yet.');
-
-    }
-
-
-    public function testDocumentsImport()
-    {
-        $this->invoice->forceDelete();
-        $this->quote->forceDelete();
-
-        $original = Document::count();
-
-        Import::dispatchNow($this->migration_array, $this->company, $this->user);
-
-      //  $this->assertGreaterThan($original, Document::count());
-
-        $document = Document::first();
-
-        // $this->assertNotNull(Invoice::find($document->documentable_id)->documents);
-        // $this->assertNotNull($document->documentable);
-
-        $this->assertTrue(true, 'Documents importing not completed yet. Missing expenses.');
-    }
-
-    public function testExceptionMailSending()
-    {
-        Mail::fake();
-
-        $data['panda_bears'] = [
-            'name' => 'Awesome Panda Bear',
-        ];
-
-        try {
-            Import::dispatchNow($data, $this->company, $this->user);
-        }
-        catch (ResourceNotAvailableForMigration $e) {
-            Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
-            $this->assertTrue(true);
-        }
-    }
+//         try {
+//             Import::dispatchNow($data, $this->company, $this->user);
+//         }
+//         catch (ResourceNotAvailableForMigration $e) {
+//             Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
+//             $this->assertTrue(true);
+//         }
+//     }
 }

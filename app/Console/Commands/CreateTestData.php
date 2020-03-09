@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Console\Commands\TestData\CreateTestCreditJob;
 use App\Console\Commands\TestData\CreateTestInvoiceJob;
 use App\Console\Commands\TestData\CreateTestQuoteJob;
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasMarkedSent;
@@ -116,6 +117,7 @@ class CreateTestData extends Command
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
+            'notifications' => CompanySettings::notificationDefaults(),
            // 'permissions' => '',
             'settings' => null,
         ]);
@@ -200,6 +202,7 @@ class CreateTestData extends Command
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
+            'notifications' => CompanySettings::notificationDefaults(),
          //   'permissions' => '',
             'settings' => null,
         ]);
@@ -299,6 +302,7 @@ class CreateTestData extends Command
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
+            'notifications' => CompanySettings::notificationDefaults(),
          //   'permissions' => '',
             'settings' => null,
         ]);

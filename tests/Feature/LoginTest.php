@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\CompanyToken;
@@ -11,9 +12,9 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
-use Illuminate\Support\Facades\Log;
 
 /**
  * @test
@@ -157,6 +158,7 @@ class LoginTest extends TestCase
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
             'is_owner' => 1,
+            'notifications' => CompanySettings::notificationDefaults(),
             'is_admin' => 1,
         ]);
 

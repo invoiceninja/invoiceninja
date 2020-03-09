@@ -14,7 +14,7 @@ namespace App\Repositories;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
 use App\Jobs\Credit\ApplyCreditPayment;
-//use App\Jobs\Invoice\UpdateInvoicePayment;
+use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -65,6 +65,9 @@ class PaymentRepository extends BaseRepository
      */
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
+        //check currencies here and fill the exchange rate data if necessary
+        if(!$payment->id)
+            $this->processExchangeRates($data, $payment);
 
         $payment->fill($data);
 
@@ -182,5 +185,27 @@ class PaymentRepository extends BaseRepository
 
     }
 
+
+    /**
+     * If the client is paying in a currency other than 
+     * the company currency, we need to set a record
+     */
+    private function processExchangeRates($data, $payment)
+    {
+        $client = Client::find($data['client_id']);
+
+        $client_currency = $client->getSetting('currency_id');
+        $company_currency = $client->company->settings->currency_id;
+
+        if($company_currency != $client_currency)
+        {
+            $currency = $client->currency();
+
+            $payment->exchange_rate = $currency->exchange_rate;
+            $payment->exchange_currency_id = $client_currency;
+        }
+
+        return $payment;
+    }
 
 }

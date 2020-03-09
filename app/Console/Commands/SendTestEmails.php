@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Factory\ClientFactory;
 use App\Factory\CompanyUserFactory;
@@ -92,6 +93,7 @@ class SendTestEmails extends Command
                 'is_admin' => 1,
                 'is_locked' => 0,
                 'permissions' => '',
+                'notifications' => CompanySettings::notificationDefaults(),
                 //'settings' => DefaultSettings::userSettings(),
                 'settings' => null,
             ]);

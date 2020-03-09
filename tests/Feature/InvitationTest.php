@@ -3,6 +3,7 @@
 namespace Feature;
 
 use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Factory\InvoiceInvitationFactory;
@@ -76,6 +77,7 @@ class InvitationTest extends TestCase
             'account_id' => $account->id,
             'is_owner' => 1,
             'is_admin' => 1,
+            'notifications' => CompanySettings::notificationDefaults(),
             'permissions' => $userPermissions->toJson(),
             'settings' => json_encode($userSettings),
             'is_locked' => 0,
