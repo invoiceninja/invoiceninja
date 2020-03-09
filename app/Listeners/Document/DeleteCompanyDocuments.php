@@ -34,8 +34,8 @@ class DeleteCompanyDocuments
         // Remove all files & folders, under company's path.
         // This will delete directory itself, as well.
         // In case we want to remove the content of folder, we should use $fs->cleanDirectory();
-        $fs = new Filesystem();
-        $fs->deleteDirectory($path);
+        $filesystem = new Filesystem();
+        $filesystem->deleteDirectory($path);
 
         Document::whereCompanyId($event->company->id)->delete();
     }
