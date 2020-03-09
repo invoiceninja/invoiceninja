@@ -198,9 +198,9 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id')->index();
-            $table->json('permissions')->nullable();
-            $table->json('notifications')->nullable();
-            $table->json('settings')->nullable();
+            $table->mediumText('permissions')->nullable();
+            $table->mediumText('notifications')->nullable();
+            $table->mediumText('settings')->nullable();
             $table->string('slack_webhook_url');
             $table->boolean('is_owner')->default(false);
             $table->boolean('is_admin')->default(false);
@@ -458,7 +458,7 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->json('line_items')->nullable();
+            $t->mediumText('line_items')->nullable();
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
@@ -533,8 +533,7 @@ class CreateUsersTable extends Migration
             $t->datetime('due_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
-
-            $t->json('line_items')->nullable();
+            $t->mediumText('line_items')->nullable();
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
@@ -637,8 +636,7 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->json('line_items')->nullable();
-
+            $t->mediumText('line_items')->nullable();
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
@@ -703,7 +701,7 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->json('line_items')->nullable();
+            $t->mediumText('line_items')->nullable();
 
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
@@ -773,7 +771,8 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
 
-            $t->json('line_items')->nullable();
+            $t->mediumText('line_items')->nullable();
+
 
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
@@ -1101,7 +1100,7 @@ class CreateUsersTable extends Migration
         Schema::create('backups', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('activity_id');
-            $table->json('json_backup')->nullable();
+            $table->mediumText('json_backup')->nullable();
             $table->longText('html_backup')->nullable();
             $table->timestamps(6);
 
