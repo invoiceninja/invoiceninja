@@ -57,7 +57,7 @@ class Designer {
 	{
 		$this->entity = $entity;
 
-		$this->design = $design;
+		$this->design = $design->design;
 
 		$this->design_name = property_exists($design, 'name') ? lcfirst($design->name) : 'custom';
 

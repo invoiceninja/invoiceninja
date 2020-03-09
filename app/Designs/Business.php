@@ -20,8 +20,6 @@ class Business extends AbstractDesign
     public function includes()
     {
         return '
-        <!DOCTYPE html>
-            <html lang="en">
                 <head>
                     <title>$number</title>
                     <meta charset="utf-8">
@@ -29,9 +27,6 @@ class Business extends AbstractDesign
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
                     <link rel="stylesheet" href="/css/design/business.css"> 
 
-                </head>
-                <body>
-                
                 <style>
                     @page  
                     { 
@@ -50,6 +45,7 @@ class Business extends AbstractDesign
                 .table_body_td_class border-4 border-white text-orange-700 px-4 py-4
             
                 </style>
+                </head>
 
         ';
     }
@@ -57,7 +53,6 @@ class Business extends AbstractDesign
 	public function header() {
 
         return '
-			
                 <div class="my-16 mx-10">
                 <div class="flex justify-between">
                     <div class="w-1/2">
