@@ -116,7 +116,6 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'has_expenses' => (bool) $invoice->has_expenses,
             'custom_text_value1' => $invoice->custom_text_value1 ?: '',
             'custom_text_value2' => $invoice->custom_text_value2 ?: '',
-            'backup' => $invoice->backup ?: '',
             'settings' => $invoice->settings ?: '',
             'frequency_id' => (string) $invoice->frequency_id,
             'start_date' => $invoice->start_date ?: '',

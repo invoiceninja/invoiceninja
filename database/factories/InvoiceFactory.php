@@ -26,7 +26,6 @@ $factory->define(App\Models\Invoice::class, function (Faker $faker) {
 		'date' => $faker->date(),
 		'due_date' => $faker->date(),
 		'line_items' => InvoiceItemFactory::generate(5),
-		'backup' => '', 
 		'terms' => $faker->text(500),
     ];
 });

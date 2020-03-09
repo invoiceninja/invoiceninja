@@ -26,7 +26,6 @@ $factory->define(App\Models\Credit::class, function (Faker $faker) {
 		'date' => $faker->date(),
 		'due_date' => $faker->date(),
 		'line_items' => InvoiceItemFactory::generateCredit(5),
-		'backup' => '', 
 		'terms' => $faker->text(500),
     ];
 });

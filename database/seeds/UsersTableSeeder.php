@@ -1,5 +1,6 @@
 <?php
 
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Models\Account;
 use App\Models\Client;
@@ -53,6 +54,7 @@ class UsersTableSeeder extends Seeder
             'account_id' => $account->id,
             'is_owner' => 1,
             'is_admin' => 1,
+            'notifications' => CompanySettings::notificationDefaults(),
             'permissions' => $userPermissions->toJson(),
             'settings' => null,
             'is_locked' => 0,

@@ -23,7 +23,6 @@ class CloneInvoiceToQuoteFactory
         $quote->is_amount_discount = $invoice->is_amount_discount;
         $quote->po_number = $invoice->po_number;
         $quote->is_deleted = false;
-        $quote->backup = null;
         $quote->footer = $invoice->footer;
         $quote->public_notes = $invoice->public_notes;
         $quote->private_notes = $invoice->private_notes;

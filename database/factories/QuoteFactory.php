@@ -25,6 +25,5 @@ $factory->define(App\Models\Quote::class, function (Faker $faker) {
 		'date' => $faker->date(),
 		'due_date' => $faker->date(),
 		'line_items' => false,
-		'backup' => '', 
     ];
 });

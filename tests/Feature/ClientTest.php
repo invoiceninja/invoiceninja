@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Models\Account;
 use App\Models\Client;
@@ -236,6 +237,7 @@ class ClientTest extends TestCase
             'account_id' => $account->id,
             'is_owner' => 1,
             'is_admin' => 1,
+            'notifications' => CompanySettings::notificationDefaults(),
             'permissions' => $userPermissions->toJson(),
             'settings' => json_encode($userSettings),
             'is_locked' => 0,
@@ -293,6 +295,7 @@ class ClientTest extends TestCase
                 'account_id' => $account->id,
                 'is_owner' => 1,
                 'is_admin' => 1,
+                'notifications' => CompanySettings::notificationDefaults(),
                 'permissions' => '',
                 'settings' => '',
                 'is_locked' => 0,

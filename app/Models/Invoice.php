@@ -57,7 +57,6 @@ class Invoice extends BaseModel
         'user_id',
         'client_id',
         'company_id',
-        'backup',
     ];
 
     protected $fillable = [

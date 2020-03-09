@@ -26,7 +26,6 @@ class CloneCreditToQuoteFactory
         $quote->is_amount_discount = $credit->is_amount_discount;
         $quote->po_number = $credit->po_number;
         $quote->is_deleted = false;
-        $quote->backup = null;
         $quote->footer = $credit->footer;
         $quote->public_notes = $credit->public_notes;
         $quote->private_notes = $credit->private_notes;

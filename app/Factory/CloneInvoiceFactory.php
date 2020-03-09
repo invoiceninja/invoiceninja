@@ -27,7 +27,6 @@ class CloneInvoiceFactory
         $clone_invoice->balance = $invoice->amount;
         $clone_invoice->amount = $invoice->amount;
         $clone_invoice->line_items = $invoice->line_items;
-        $clone_invoice->backup = null;
         
         return $clone_invoice;
     }

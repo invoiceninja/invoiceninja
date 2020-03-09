@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Factory\UserFactory;
 use App\Filters\UserFilters;
@@ -572,7 +573,13 @@ class UserController extends BaseController
     {
         $company = auth()->user()->company();
 
-        $user->companies()->attach($company->id, array_merge($request->all(), ['account_id' => $company->account->id]));
+        $user->companies()->attach($company->id, 
+            array_merge($request->all(), 
+                [
+                    'account_id' => $company->account->id,
+                    'notifications' => CompanySettings::notificationDefaults(),
+            ]
+            ));
 
         $ct = CreateCompanyToken::dispatchNow($company, $user, 'User token created by'.auth()->user()->present()->name());
 

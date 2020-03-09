@@ -116,7 +116,6 @@ class RecurringQuoteTransformer extends EntityTransformer
             'has_expenses' => (bool) $quote->has_expenses,
             'custom_text_value1' => $quote->custom_text_value1 ?: '',
             'custom_text_value2' => $quote->custom_text_value2 ?: '',
-            'backup' => $quote->backup ?: '',
             'settings' => $quote->settings ?: '',
             'frequency_id' => (int) $quote->frequency_id,
             'start_date' => $quote->start_date ?: '',

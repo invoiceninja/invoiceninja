@@ -2,6 +2,7 @@
 
 namespace Tests\Browser;
 
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Models\ClientContact;
 use App\Utils\Traits\MakesHash;
@@ -66,6 +67,7 @@ class ClientPortalTest extends DuskTestCase
             'is_owner' => 1,
             'is_admin' => 1,
             'is_locked' => 0,
+            'notifications' => CompanySettings::notificationDefaults(),
             'permissions' => '',
             'settings' => null,
         ]);
