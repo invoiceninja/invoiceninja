@@ -52,7 +52,7 @@ class CompanyUserTransformer extends EntityTransformer
             // 'account_id' => $company_user->account_id,
             // 'user_id' => $company_user->user_id,
             // 'company_id' => $company_user->company_id,
-            'permissions' => (object)$company_user->permissions,
+            'permissions' => $company_user->permissions ?: '',
             'notifications' => (object)$company_user->notifications,
             'settings' => (object)$company_user->settings,
             'is_owner' => (bool) $company_user->is_owner,
