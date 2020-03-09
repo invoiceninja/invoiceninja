@@ -33,10 +33,10 @@ class UploadFile implements ShouldQueue
 
     const PROPERTIES = [
         self::IMAGE => [
-            'path' => 'public/images',
+            'path' => 'images',
         ],
         self::DOCUMENT => [
-            'path' => 'public/documents',
+            'path' => 'documents',
         ]
     ];
 
@@ -66,8 +66,13 @@ class UploadFile implements ShouldQueue
      */
     public function handle() : ?Document
     {
+        $path = self::PROPERTIES[$this->type]['path'];
+
+        if ($this->company)
+            $path = sprintf('%s/%s', $this->company->company_key, self::PROPERTIES[$this->type]['path']);
+
         $instance = Storage::disk($this->disk)->putFileAs(
-            self::PROPERTIES[$this->type]['path'], $this->file, $this->file->hashName() 
+            $path, $this->file, $this->file->hashName()
         );
 
         if (in_array($this->file->extension(), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {
@@ -110,7 +115,7 @@ class UploadFile implements ShouldQueue
         if (empty(Document::$types[$documentType])) {
             return 'Unsupported file type';
         }
-        
+
         $preview = '';
 
         if (in_array($this->file->getClientOriginalExtension(), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {
