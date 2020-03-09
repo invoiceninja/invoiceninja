@@ -148,12 +148,13 @@ class PreviewController extends BaseController
             $invoice->setRelation('company', auth()->user()->company());
             $invoice->load('client');
 
-           // $design_object = json_decode(request()->input('body'));
+
+            $design_object = json_encode(request()->all());
 
             if(!is_object($design_object))
                 return response()->json(['message' => 'Invalid custom design object'], 400);
 
-            $invoice_design = new Custom(json_encode(request()->input('body')));
+            $invoice_design = new Custom($design_object);
 
             $designer = new Designer($invoice, $invoice_design, $invoice->client->getSetting('pdf_variables'), lcfirst(request()->has('entity')));
 
