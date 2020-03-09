@@ -191,7 +191,8 @@ class UserTest extends TestCase
 
         $arr = $response->json();
 
-\Log::error($arr['data']['company_user']['permissions']);
+\Log::error($arr);
+\Log::error(print_r($arr['data']['company_user'],1));
 
         $this->assertNotNull($arr['data']['company_user']);
         $this->assertFalse($arr['data']['company_user']['is_admin']);

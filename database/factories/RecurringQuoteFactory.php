@@ -24,7 +24,7 @@ $factory->define(App\Models\RecurringQuote::class, function (Faker $faker) {
 		'po_number' => $faker->text(10),
 		'date' => $faker->date(),
 		'due_date' => $faker->date(),
-		'line_items' => false,
+		'line_items' => json_encode(''),
 		'frequency_id' => App\Models\RecurringQuote::FREQUENCY_MONTHLY,
 		'start_date' => $faker->date(),
 		'last_sent_date' => $faker->date(),
