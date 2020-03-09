@@ -12,6 +12,7 @@
 namespace App\Providers;
 
 use App\Events\Client\ClientWasCreated;
+use App\Events\Company\CompanyWasDeleted;
 use App\Events\Contact\ContactLoggedIn;
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Events\Invoice\InvoiceWasCreated;
@@ -32,6 +33,7 @@ use App\Listeners\Activity\PaymentDeletedActivity;
 use App\Listeners\Activity\PaymentRefundedActivity;
 use App\Listeners\Activity\PaymentVoidedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
+use App\Listeners\Document\DeleteCompanyDocuments;
 use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
@@ -61,7 +63,7 @@ class EventServiceProvider extends ServiceProvider
             ], // [3]
             \Codedge\Updater\Events\UpdateSucceeded::class => [
                 \Codedge\Updater\Listeners\SendUpdateSucceededNotification::class
-            ], 
+            ],
         UserWasCreated::class => [
             SendVerificationNotification::class,
         ],
@@ -106,7 +108,7 @@ class EventServiceProvider extends ServiceProvider
 
         CreditWasMarkedSent::class => [
         ],
-        
+
         //Invoices
         InvoiceWasMarkedSent::class => [
             CreateInvoiceHtmlBackup::class,
@@ -131,9 +133,12 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         InvitationWasViewed::class => [
-            InvitationViewedListener::class        
+            InvitationViewedListener::class
         ],
-        
+
+        CompanyWasDeleted::class => [
+            DeleteCompanyDocuments::class,
+        ],
     ];
 
     /**
