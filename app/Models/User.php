@@ -496,13 +496,7 @@ class User extends Authenticatable
 
     public function eligibleForMigration()
     {
-        if(is_null($this->public_id)) 
-            return true;
-        
-        if(!$this->public_id) 
-            return true;
-
-        return false;
+        return is_null($this->public_id) || $this->public_id == 0;
     }
 }
 
