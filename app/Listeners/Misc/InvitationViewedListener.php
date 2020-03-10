@@ -49,7 +49,7 @@ class InvitationViewedListener implements ShouldQueue
             /*** Check for Mail notifications***/
             $all_user_notifications = '';
 
-            if($event->entity->user_id == $company_user->user_id || $event->entity->assigned_user_id == $company_user->user_id)
+            if($invitation->{$entity_name}->user_id == $company_user->user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id)
                 $all_user_notifications = "all_user_notifications";
 
             $possible_permissions = [$entity_viewed, "all_notifications", $all_user_notifications];

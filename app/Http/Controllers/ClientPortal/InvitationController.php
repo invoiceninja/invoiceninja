@@ -45,7 +45,7 @@ class InvitationController extends Controller
                 auth()->guard('contact')->login($invitation->contact, false);
             }
             
-            if(!request()->has('is_admin')){
+            if(!request()->has('silent')){
     
                 $invitation->markViewed();
 
