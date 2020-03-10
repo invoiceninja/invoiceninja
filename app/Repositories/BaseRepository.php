@@ -201,8 +201,10 @@ class BaseRepository
             $state['starting_amount'] = $model->amount;
 
         if (!$model->id) {
-            $data = $client->setCompanyDefaults($data,lcfirst($resource));
+            $company_defaults = $client->setCompanyDefaults($data,lcfirst($resource));
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
+
+            $data = array_merge($company_defaults, $data);
         }
         
         $model->fill($data);

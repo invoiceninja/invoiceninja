@@ -464,19 +464,24 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->company->company_key . '/';
     }
 
-    public function setCompanyDefaults($data, $entity_name)
+    public function setCompanyDefaults($data, $entity_name) :array
     {
+        $defaults = [];
 
         if(!(array_key_exists('terms', $data) && strlen($data['terms']) > 1))
-            $data['terms'] = $this->getSetting($entity_name.'_terms');
+            $defaults['terms'] = $this->getSetting($entity_name.'_terms');
+        elseif(array_key_exists('terms', $data))
+            $defaults['terms'] = $data['terms'];
 
         if(!(array_key_exists('footer', $data) && strlen($data['footer']) > 1))
-            $data['footer'] = $this->getSetting($entity_name.'_footer');
+            $defaults['footer'] = $this->getSetting($entity_name.'_footer');
+        elseif(array_key_exists('footer', $data))
+            $defaults['footer'] = $data['footer'];
 
         if(strlen($this->public_notes) >=1)
-            $data['public_notes'] = $this->public_notes;
+            $defaults['public_notes'] = $this->public_notes;
 
-        return $data;
+        return $defaults;
     }
 
 }
