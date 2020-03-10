@@ -9,26 +9,29 @@ class MarkSent
 {
     private $client;
 
-    public function __construct($client)
+    private $quote;
+
+    public function __construct($client, $quote)
     {
         $this->client = $client;
+        $this->quote = $quote;
     }
 
-    public function run($quote)
+    public function run()
     {
 
         /* Return immediately if status is not draft */
-        if ($quote->status_id != Quote::STATUS_DRAFT) {
+        if ($this->quote->status_id != Quote::STATUS_DRAFT) {
             return $quote;
         }
 
-        $quote->markInvitationsSent();
+        $this->quote->markInvitationsSent();
 
-        event(new QuoteWasMarkedSent($quote, $quote->company));
+        event(new QuoteWasMarkedSent($this->quote, $this->quote->company));
 
-        $quote->service()->setStatus(Quote::STATUS_SENT)->applyNumber()->save();
+        $this->quote->service()->setStatus(Quote::STATUS_SENT)->applyNumber()->save();
 
-        return $quote;
+        return $this->quote;
 
     }
 }

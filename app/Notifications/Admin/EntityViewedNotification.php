@@ -30,7 +30,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
 
     protected   $settings; 
 
-    public      $is_system;
+    public      $method;
 
     protected   $contact;
 
@@ -55,7 +55,8 @@ class EntityViewedNotification extends Notification implements ShouldQueue
     public function via($notifiable)
     {
 
-        return $this->is_system ? ['slack'] : ['mail'];
+        return $this->method;
+        
     }
 
     /**

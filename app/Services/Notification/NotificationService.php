@@ -19,6 +19,28 @@ use Illuminate\Support\Facades\Notification;
 class NotificationService extends AbstractService
 {
 
+    const ALL = 'all_notifications';
+
+    const ALL_USER = 'all_user_notifications';
+
+    const PAYMENT_SUCCESS = 'payment_success';
+
+    const PAYMENT_FAILURE = 'payment_failure';
+
+    const INVOICE_SENT = 'invoice_sent';
+
+    const QUOTE_SENT = 'quote_sent';
+
+    const CREDIT_SENT = 'credit_sent';
+
+    const QUOTE_VIEWED = 'quote_viewed';
+
+    const INVOICE_VIEWED = 'invoice_viewed';
+
+    const CREDIT_VIEWED = 'credit_viewed';
+
+    const QUOTE_APPROVED = 'quote_approved';
+
     public $company;
 
     public $notification;

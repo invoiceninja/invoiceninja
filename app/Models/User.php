@@ -301,8 +301,8 @@ class User extends Authenticatable implements MustVerifyEmail
     public function routeNotificationForSlack($notification)
     {
 
-        if($this->company())
-            return $this->company()->slack_webhook_url;
+        if($this->company_user->slack_webhook_url)
+            return $this->company_user->slack_webhook_url;
         
     }
 
