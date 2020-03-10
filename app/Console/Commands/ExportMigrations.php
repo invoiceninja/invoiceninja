@@ -43,6 +43,8 @@ class ExportMigrations extends Command
      */
     public function handle()
     {
+        $this->info('Note: Migrations will be stored inside of (storage/migrations) folder.');
+
         foreach (User::all() as $user) {
             $this->account = $user->account;
 
