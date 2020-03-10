@@ -75,7 +75,7 @@ class CreateUser
             //'settings' => DefaultSettings::userSettings(),
             'settings' => null,
         ]);
-
+        
         event(new UserWasCreated($user, $this->company));
 
         return $user;

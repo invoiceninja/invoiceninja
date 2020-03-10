@@ -12,7 +12,7 @@
 namespace App\Listeners;
 
 use App\Libraries\MultiDB;
-use App\Mail\VerifyUser;
+use App\Notifications\Ninja\VerifyUser;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,14 +42,11 @@ class SendVerificationNotification implements ShouldQueue
      * @return void
      */
     public function handle($event)
-    {//todo handle the change of DB locaiton to Company Token table
-        /*send confirmation email using $event->user*/
+    {
 
         MultiDB::setDB($event->company->db);
 
-        Mail::to($event->user->email)
-            //->cc('')
-            //->bcc('')
-            ->queue(new VerifyUser($event->user));
+        $event->user->notify(new VerifyUser($event->user));
+
     }
 }

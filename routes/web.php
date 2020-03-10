@@ -19,7 +19,6 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => '', 'as' => ''], functi
   /*Invitation catches*/
   
   Route::get('{entity}/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
-
   Route::get('invoice/{invitation_key}/download_pdf', 'InvoiceController@downloadPdf')->name('invoice.download_pdf');
   Route::get('quote/{invitation_key}/download_pdf', 'QuoteController@downloadPdf')->name('quote.download_pdf');
   Route::get('credit/{invitation_key}/download_pdf', 'CreditController@downloadPdf')->name('credit.download_pdf');
@@ -34,10 +33,10 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => '', 'as' => ''], functi
  *  Password Reset Routes...
  */
 
-// Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
-// Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
-// Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
-// Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('password.update');
+Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('password.update');
 
 /*
  * Social authentication
@@ -100,11 +99,11 @@ Route::group(['middleware' => ['auth:user', 'web_db']], function () {
 /*
  * Inbound routes requiring DB Lookup
  */
-// Route::group(['middleware' => ['url_db']], function () {
+Route::group(['middleware' => ['url_db']], function () {
 
-//     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
+    Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
 
-// });
+});
 
 
 
