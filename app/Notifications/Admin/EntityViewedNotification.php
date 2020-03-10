@@ -43,7 +43,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
         $this->settings = $this->entity->client->getMergedSettings();
         $this->is_system = $is_system;
         $this->invitation = $invitation;
-
+        $this->method = null;
     }
 
     /**
@@ -55,7 +55,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
     public function via($notifiable)
     {
 
-        return $this->method;
+        return $this->method ?: [];
         
     }
 
@@ -138,7 +138,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
                     'client' => $this->contact->present()->name(), 
                     $this->entity_name => $this->entity->number,
                 ]),
-            'url' => config('ninja.site_url') . "/{$this->entity_name}s/" . $this->entity->hashed_id,
+            'url' => config('ninja.site_url') . "/client/{$this->entity_name}/" . $this->invitation->key . "?silent=true",
             'button' => ctrans("texts.view_{$this->entity_name}"),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),

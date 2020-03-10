@@ -60,7 +60,7 @@ class ApplyPayment extends AbstractService
         } elseif ($this->payment_amount == $this->invoice->balance) { //total invoice paid.
             $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PAID)->updateBalance($this->payment_amount*-1);
         } elseif($this->payment_amount < $this->invoice->balance) { //partial invoice payment made
-            $this->invoice->service()->clearPartial()->updateBalance($this->payment_amount*-1);
+            $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($this->payment_amount*-1);
         }
 
         return $this->invoice;
