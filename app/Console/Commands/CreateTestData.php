@@ -549,8 +549,6 @@ class CreateTestData extends Command
         $credit->service()->markSent()->save();
         $credit->service()->createInvitations();
 
-        event(new CreateCreditInvitation($credit));
-
     }
 
     private function createQuote($client)
@@ -561,9 +559,11 @@ class CreateTestData extends Command
         // }
         $faker = \Faker\Factory::create();
 
+        //$quote = QuoteFactory::create($client->company->id, $client->user->id);//stub the company and user_id
         $quote =factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
         $quote->date = $faker->date();
-
+        $quote->client_id = $client->id;
+        
         $quote->setRelation('client', $client);
 
         $quote->line_items = $this->buildLineItems(rand(1,10));
@@ -596,7 +596,6 @@ class CreateTestData extends Command
         $quote->service()->markSent()->save();
         $quote->service()->createInvitations();
 
-        CreateQuoteInvitations::dispatch($quote, $quote->company);
     }
 
     private function buildLineItems($count = 1)
