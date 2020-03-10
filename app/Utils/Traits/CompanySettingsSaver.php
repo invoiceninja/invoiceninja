@@ -42,9 +42,9 @@ trait CompanySettingsSaver
         $settings = $this->checkSettingType($settings);
 
         $company_settings = CompanySettings::defaults();
-
         //Iterate and set NEW settings
         foreach ($settings as $key => $value) {
+
             if (is_null($settings->{$key})) {
                 $company_settings->{$key} = '';
             } else {
@@ -73,8 +73,8 @@ trait CompanySettingsSaver
 
         $casts = CompanySettings::$casts;
 
-        if(property_exists($settings, 'pdf_variables'))
-            unset($settings->pdf_variables);
+        // if(property_exists($settings, 'pdf_variables'))
+        //     unset($settings->pdf_variables);
         
         ksort($casts);
 
@@ -101,6 +101,9 @@ trait CompanySettingsSaver
                     return [$key, $value, $settings->{$key}];
                 }
 
+                continue;
+            }
+            elseif($key == 'pdf_variables') {
                 continue;
             }
 
@@ -173,6 +176,9 @@ trait CompanySettingsSaver
                 }
 
                 continue;
+            }
+            elseif($key == 'pdf_variables') {
+                settype($settings->{$key}, 'object');
             }
 
             /* Handles unset settings or blank strings */
