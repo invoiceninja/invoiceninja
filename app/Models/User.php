@@ -493,6 +493,11 @@ class User extends Authenticatable
 
         return array_combine($keys, $values);
     }
+
+    public function eligibleForMigration()
+    {
+        return is_null($this->public_id);
+    }
 }
 
 User::created(function ($user)

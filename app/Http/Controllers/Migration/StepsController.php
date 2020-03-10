@@ -31,6 +31,11 @@ class StepsController extends BaseController
 {
     use GenerateMigrationResources;
 
+    public function __construct()
+    {
+        $this->middleware('migration');
+    }
+
     private $access = [
         'auth' => [
             'steps' => ['MIGRATION_TYPE'],
