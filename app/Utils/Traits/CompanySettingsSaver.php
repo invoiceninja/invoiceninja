@@ -44,7 +44,7 @@ trait CompanySettingsSaver
         $company_settings = CompanySettings::defaults();
         //Iterate and set NEW settings
         foreach ($settings as $key => $value) {
-\Log::error("saving {$key}");
+
             if (is_null($settings->{$key})) {
                 $company_settings->{$key} = '';
             } else {
