@@ -15,7 +15,7 @@ class EligibleForMigration
      */
     public function handle($request, Closure $next)
     {
-        if (is_null(auth()->user()->public_id)) {
+        if (auth()->user()->eligibleForMigration()) {
             return $next($request);
         }
 
