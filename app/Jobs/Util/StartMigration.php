@@ -44,7 +44,7 @@ class StartMigration implements ShouldQueue
      */
     public function __construct($filepath, User $user, Company $company)
     {
-        $this->filepath = base_path("public/storage/$filepath");
+        $this->filepath = base_path("storage/$filepath");
         $this->user = $user;
         $this->company = $company;
     }
