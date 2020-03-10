@@ -23,15 +23,15 @@ class NotificationService extends AbstractService
 
     const ALL_USER = 'all_user_notifications';
 
-    const PAYMENT_SUCCESS = 'payment_success';
+    const PAYMENT_SUCCESS = 'payment_success'; //@todo
 
-    const PAYMENT_FAILURE = 'payment_failure';
+    const PAYMENT_FAILURE = 'payment_failure'; //@todo
 
-    const INVOICE_SENT = 'invoice_sent';
+    const INVOICE_SENT = 'invoice_sent'; //@todo
 
-    const QUOTE_SENT = 'quote_sent';
+    const QUOTE_SENT = 'quote_sent'; //@todo
 
-    const CREDIT_SENT = 'credit_sent';
+    const CREDIT_SENT = 'credit_sent'; //@todo
 
     const QUOTE_VIEWED = 'quote_viewed';
 
@@ -39,7 +39,7 @@ class NotificationService extends AbstractService
 
     const CREDIT_VIEWED = 'credit_viewed';
 
-    const QUOTE_APPROVED = 'quote_approved';
+    const QUOTE_APPROVED = 'quote_approved'; //@todo
 
     public $company;
 

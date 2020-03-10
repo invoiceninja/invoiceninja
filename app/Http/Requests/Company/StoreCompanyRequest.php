@@ -13,6 +13,7 @@ namespace App\Http\Requests\Company;
 
 use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Company\ValidCompanyQuantity;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -36,7 +37,7 @@ class StoreCompanyRequest extends Request
     {
         $rules = [];
 
-        //$rules['name'] = 'required';
+        $rules['name'] = new ValidCompanyQuantity();
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb
         $rules['settings'] = new ValidSettingsRule();
     
