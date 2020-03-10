@@ -35,7 +35,7 @@ class CompanyUser extends Pivot
         'deleted_at' => 'timestamp',
         'settings' => 'object',
         'notifications' => 'object',
-        'permissions' => 'object',
+        'permissions' => 'string',
     ];
 
     protected $fillable = [
