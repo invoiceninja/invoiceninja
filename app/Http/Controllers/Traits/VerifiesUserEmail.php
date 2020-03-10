@@ -27,11 +27,10 @@ trait VerifiesUserEmail
      * @param $code
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function confirm($code)
+    public function confirm()
     {
-        //$user = User::where('confirmation_code', $code)->first();
-        
-        if ($user = User::whereRaw("BINARY `confirmation_code`= ?", $code)->first()) {
+
+        if ($user = User::whereRaw("BINARY `confirmation_code`= ?", request()->route('confirmation_code'))->first()) {
             $user->email_verified_at = now();
             $user->confirmation_code = null;
             $user->save();
