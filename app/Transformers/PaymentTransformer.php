@@ -11,12 +11,10 @@
 
 namespace App\Transformers;
 
-use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
-use App\Transformers\PaymentableTransformer;
 use App\Utils\Traits\MakesHash;
 
 class PaymentTransformer extends EntityTransformer
@@ -35,6 +33,8 @@ class PaymentTransformer extends EntityTransformer
 
     public function __construct($serializer = null)
     {
+        parent::__construct();
+
         $this->serializer = $serializer;
     }
 
@@ -88,7 +88,6 @@ class PaymentTransformer extends EntityTransformer
             'client_contact_id' => (string) $this->encodePrimaryKey($payment->client_contact_id),
             'company_gateway_id' => (string) $this->encodePrimaryKey($payment->company_gateway_id),
             'status_id'=> (string) $payment->status_id,
-            'type_id'=> (string) $payment->type_id,
             'project_id' => (string) $this->encodePrimaryKey($payment->project_id),
             'vendor_id' => (string) $this->encodePrimaryKey($payment->vendor_id),
             'currency_id' => (string) $payment->currency_id ?: '',
