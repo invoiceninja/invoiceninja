@@ -21,41 +21,30 @@ class Plain extends AbstractDesign
     public function includes()
     {
         return '
-        <!DOCTYPE html>
-            <html lang="en">
-                <head>
-                    <title>$number</title>
-                    <meta charset="utf-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-                    <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link rel="stylesheet" href="/css/design/plain.css"> 
-                </head>
-                <body>
-                
+            <head>
+                <title>$number</title>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                <meta http-equiv="x-ua-compatible" content="ie=edge">
+                <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
                 <style>
-                @page  
-                { 
+                @page {
                     size: auto;
                     margin-top: 5mm;
-                } 
-
-
-            .table_header_thead_class text-left bg-gray-300
-            .table_header_td_class px-4 py-2
-            .table_body_td_class border-t-2 border-b border-gray-300 px-4 py-4
-
+                }
+                .table_header_thead_class { text-align: left; background-color: #e2e8f0 }
+                .table_header_td_class { padding: 1rem .5rem; }
+                .table_body_td_class { padding: 1rem; border-bottom-width: 1px; border-top-width: 2px; border-color: #e2e8f0 }
                 </style>
-
-                <body>
-                
+            </head>
         ';
     }
-    
+
 
 	public function header() {
 
 		return '
-			
+
                     <div class="px-12 py-8">
                         <div class="flex justify-between">
                             $company_logo
@@ -92,9 +81,30 @@ class Plain extends AbstractDesign
 	}
 
     public function task() {
+	    return '';
     }
 
-    public function product() {
+    public function task_table()
+    {
+        return '
+        <table class="w-full table-auto mt-8">
+            <thead class="text-left bg-gray-300">
+                <tr>
+                    $task_table_header
+                </tr>
+            </thead>
+            <tbody>
+                $task_table_body
+            </tbody>
+        </table>';
+    }
+
+    public function product()
+    {
+        return '';
+    }
+
+    public function product_table() {
         return '
         <table class="w-full table-auto mt-8">
             <thead class="text-left bg-gray-300">
@@ -105,39 +115,39 @@ class Plain extends AbstractDesign
             <tbody>
                 $product_table_body
             </tbody>
-        </table>
-
-        <div class="flex justify-between mt-8">
-            <div class="w-1/2">
-                <div class="flex flex-col">
-                    <p>$entity.public_notes</p>
-                    <div class="pt-4">
-                        <p class="font-bold">$terms_label</p>
-                        <p>$terms</p>
-                    </div>
-                </div>
-            </div>
-            <div class="w-1/3 flex flex-col">
-                <div class="flex px-3 mt-6">
-                    <section class="w-1/2 text-right flex flex-col">
-                        $total_tax_labels
-                        $line_tax_labels
-                    </section>
-                    <section class="w-1/2 text-right flex flex-col">
-                        $total_tax_values
-                        $line_tax_values
-                    </section>
-                </div>
-                <section class="flex bg-gray-300 px-3 mt-1">
-                    <p class="w-1/2 text-right">$balance_due_label</p>
-                    <p class="text-right w-1/2">$balance_due</p>
-                </section>
-            </div>';
+        </table>';
 	}
 
 	public function footer() {
 
         return '
+               <div class="flex justify-between mt-8">
+                <div class="w-1/2">
+                    <div class="flex flex-col">
+                        <p>$entity.public_notes</p>
+                        <div class="pt-4">
+                            <p class="font-bold">$terms_label</p>
+                            <p>$terms</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-1/3 flex flex-col">
+                    <div class="flex px-3 mt-6">
+                        <section class="w-1/2 text-right flex flex-col">
+                            $total_tax_labels
+                            $line_tax_labels
+                        </section>
+                        <section class="w-1/2 text-right flex flex-col">
+                            $total_tax_values
+                            $line_tax_values
+                        </section>
+                    </div>
+                    <section class="flex bg-gray-300 px-3 mt-1">
+                        <p class="w-1/2 text-right">$balance_due_label</p>
+                        <p class="text-right w-1/2">$balance_due</p>
+                    </section>
+                </div>
+
                 </div>
             </body>
         </html>';
