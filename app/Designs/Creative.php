@@ -31,29 +31,29 @@ class Creative extends AbstractDesign
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link rel="stylesheet" href="/css/design/creative.css"> 
+                    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
                 </head>
                 <body>
-                
                 <style>
-                @page  
-                { 
+                body {font-size:90%}
+                @page
+                {
                     size: auto;
                     margin-top: 6mm;
-                } 
-            .table_header_thead_class text-left rounded-lg
-            .table_header_td_class font-medium uppercase text-pink-700 text-xl px-4 py-5
-            .table_body_td_class px-4 py-4
+                }
+                .table_header_thead_class { text-align: left; border-radius: .5rem; }
+                .table_header_td_class { text-transform: uppercase; font-size: 1.25rem; color: #b83280; padding: 1.25rem 1rem; font-weight: 500 }
+                .table_body_td_class { padding: 1rem;}
                 </style>
 
         ';
     }
-    
+
 
 	public function header() {
 
 		return '
-			
+
                 <div class="py-16 mx-16">
                     <div class="flex justify-between">
                         <div class="w-2/3 flex">
@@ -98,8 +98,29 @@ class Creative extends AbstractDesign
     public function task() {
     }
 
-    public function product() {
-        
+    public function task_table()
+    {
+        return '
+        <table class="w-full table-auto mt-12 border-t-4 border-pink-700 bg-white">
+            <thead class="text-left rounded-lg">
+                <tr>
+                    $task_table_header
+                </tr>
+            </thead>
+            <tbody>
+                $task_table_body
+            </tbody>
+        </table>
+        ';
+    }
+
+    public function product()
+    {
+        return '';
+    }
+
+    public function product_table() {
+
         return '
         <table class="w-full table-auto mt-12 border-t-4 border-pink-700 bg-white">
             <thead class="text-left rounded-lg">
@@ -110,8 +131,12 @@ class Creative extends AbstractDesign
             <tbody>
                 $product_table_body
             </tbody>
-        </table>
-        
+        </table>';
+	}
+
+	public function footer() {
+
+        return '
         <div class="border-b-4 border-pink-700">
             <div class="flex items-center justify-between mt-2 px-4 pb-4">
                 <div class="w-1/2">
@@ -142,12 +167,8 @@ class Creative extends AbstractDesign
                     </div>
                 </div>
             </div>
-        </div>';
-	}
+        </div>
 
-	public function footer() {
-
-        return '
         <div class="w-full flex justify-end mt-4">
             <p>Balance Due</p>
             <p class="ml-8 text-pink-700 font-semibold">$5,280.00</p>

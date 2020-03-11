@@ -21,38 +21,31 @@ class Clean extends AbstractDesign
     public function includes()
     {
         return '
-        <!DOCTYPE html>
-            <html lang="en">
                 <head>
                     <title>$number</title>
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link rel="stylesheet" href="/css/design/clean.css"> 
-
+                    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+                    <style>
+                        body {font-size:90%}
+                        @page
+                        {
+                            size: auto;
+                            margin-top: 5mm;
+                        }
+                        .table_header_thead_class { text-align: left; }
+                        .table_header_td_class { padding: .5rem 1rem;}
+                        .table_body_td_class { border-bottom-width: 1px; border-top-width: 1px; border-color: #cbd5e0; padding: 1rem;}
+                    </style>
                 </head>
-                <body>
-                
-                <style>
-                @page  
-                { 
-                    size: auto;
-                    margin-top: 5mm;
-                } 
-
-            .table_header_thead_class text-left
-            .table_header_td_class px-4 py-2
-            .table_body_td_class text-blue-600 border-t border-b border-gray-400 px-4 py-4
-                </style>
         ';
     }
-    
+
 
 	public function header() {
 
 		return '
-			
-
                 <div class="px-12 my-10">
                 <div class="flex items-center">
                     <div class="w-1/3">
@@ -67,9 +60,7 @@ class Clean extends AbstractDesign
                         </div>
                     </div>
                 </div>
-            
 			';
-
 	}
 
 	public function body() {
@@ -100,10 +91,33 @@ class Clean extends AbstractDesign
 
 	}
 
-    public function task() {
+    public function task()
+    {
+        return '';
     }
 
-    public function product() {
+    public function task_table()
+    {
+        return '
+            <table class="w-full table-auto mt-8">
+                <thead class="text-left">
+                    <tr>
+                        $task_table_header
+                    </tr>
+                </thead>
+                <tbody>
+                    $task_table_body
+                </tbody>
+            </table>
+        ';
+    }
+
+    public function product()
+    {
+        return '';
+    }
+
+    public function product_table() {
         return '
             <table class="w-full table-auto mt-8">
             <thead class="text-left">
@@ -115,42 +129,42 @@ class Clean extends AbstractDesign
                 $product_table_body
             </tbody>
         </table>
-
-        <div class="flex px-4 mt-6 w-full">
-            <div class="w-1/2">
-                $entity.public_notes
-            </div>
-            <div class="w-1/2 flex">
-                <div class="w-1/2 text-right flex flex-col">
-                    $total_tax_labels
-                    $line_tax_labels
-                </div>
-                <div class="w-1/2 text-right flex flex-col">
-                    $total_tax_values
-                    $line_tax_values
-                </div>
-            </div>
-        </div>
-
-        <div class="flex px-4 mt-4 w-full items-end">
-            <div class="w-1/2">
-                <p class="font-semibold">$terms_label</p>
-                $terms
-            </div>
-            <div class="w-1/2 flex">
-                <div class="w-1/2 text-right flex flex-col">
-                    <span>$balance_due_label</span>
-                </div>
-                <div class="w-1/2 text-right flex flex-col">
-                    <span class="text-blue-600">$balance_due</span>
-                </div>
-            </div>
-        </div>';
+        ';
 	}
 
 	public function footer() {
 
         return '
+                <div class="flex px-4 mt-6 w-full">
+                    <div class="w-1/2">
+                        $entity.public_notes
+                    </div>
+                    <div class="w-1/2 flex">
+                        <div class="w-1/2 text-right flex flex-col">
+                            $total_tax_labels
+                            $line_tax_labels
+                        </div>
+                        <div class="w-1/2 text-right flex flex-col">
+                            $total_tax_values
+                            $line_tax_values
+                        </div>
+                    </div>
+                </div>
+
+                    <div class="flex px-4 mt-4 w-full items-end">
+                        <div class="w-1/2">
+                            <p class="font-semibold">$terms_label</p>
+                            $terms
+                        </div>
+                        <div class="w-1/2 flex">
+                            <div class="w-1/2 text-right flex flex-col">
+                                <span>$balance_due_label</span>
+                            </div>
+                            <div class="w-1/2 text-right flex flex-col">
+                                <span class="text-blue-600">$balance_due</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </body>
         </html>';
