@@ -28,6 +28,7 @@ class Plain extends AbstractDesign
                 <meta http-equiv="x-ua-compatible" content="ie=edge">
                 <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
                 <style>
+                body {font-size:90%}
                 @page {
                     size: auto;
                     margin-top: 5mm;
