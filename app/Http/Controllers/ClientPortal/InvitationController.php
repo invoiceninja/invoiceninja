@@ -62,7 +62,7 @@ class InvitationController extends Controller
 
     public function routerForDownload(string $entity, string $invitation_key)
     {
-        return redirect('/'.$entity.'/'.$invitation_key.'/download_pdf');
+        return redirect('client/'.$entity.'/'.$invitation_key.'/download_pdf');
     }
 
     public function routerForIframe(string $entity, string $client_hash, string $invitation_key)

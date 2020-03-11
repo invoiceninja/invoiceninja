@@ -19,9 +19,6 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => '', 'as' => ''], functi
   /*Invitation catches*/
   
   Route::get('{entity}/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
-  Route::get('invoice/{invitation_key}/download_pdf', 'InvoiceController@downloadPdf')->name('invoice.download_pdf');
-  Route::get('quote/{invitation_key}/download_pdf', 'QuoteController@downloadPdf')->name('quote.download_pdf');
-  Route::get('credit/{invitation_key}/download_pdf', 'CreditController@downloadPdf')->name('credit.download_pdf');
 
 });
 

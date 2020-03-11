@@ -107,4 +107,11 @@ class CompanyUser extends Pivot
         return $this->hasMany(CompanyToken::class, 'user_id', 'user_id');
     }
 
+
+    public function scopeAuthCompany($query)
+    {
+        $query->where('company_id', auth()->user()->companyId());
+        
+        return $query;
+    }
 }
