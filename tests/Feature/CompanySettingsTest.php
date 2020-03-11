@@ -41,7 +41,7 @@ class CompanySettingsTest extends TestCase
         Session::start();
 
         $this->faker = \Faker\Factory::create();
-
+$this->withoutExceptionHandling();
         Model::reguard();
 
 
@@ -68,7 +68,7 @@ class CompanySettingsTest extends TestCase
         catch(ValidationException $e) {
 
             $message = json_decode($e->validator->getMessageBag(),1);
-        //    \Log::error($message);
+            \Log::error($message);
         }
 
         if($response) {

@@ -36,7 +36,7 @@ class SetInviteDb
         $entity = null;
 
         if(!$request->route('entity'))
-            $entity = $request->segment(1);
+            $entity = $request->segment(2);
         else
             $entity = $request->route('entity');
 

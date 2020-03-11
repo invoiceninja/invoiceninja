@@ -146,12 +146,14 @@ class AccountController extends BaseController
     public function store(CreateAccountRequest $request)
     {
         $account = CreateAccount::dispatchNow($request->all());
-            
+    
         if(!($account instanceof Account))
             return $account;
 
         $ct = CompanyUser::whereUserId(auth()->user()->id);
-        
+
+        config(['ninja.company_id' => $ct->first()->company->id]);
+
         return $this->listResponse($ct);
     }
 

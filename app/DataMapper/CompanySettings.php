@@ -24,39 +24,39 @@ class CompanySettings extends BaseSettings {
 	/*Group settings based on functionality*/
 
 	/*Invoice*/
-	public $auto_archive_invoice = false;
-	public $lock_sent_invoices   = false;
+	public $auto_archive_invoice 		    = false;
+	public $lock_sent_invoices              = false;
 
-	public $enable_client_portal_tasks     = false;
-	public $enable_client_portal_password  = false;
-	public $enable_client_portal           = true;//implemented
-	public $enable_client_portal_dashboard = true;//implemented
-	public $signature_on_pdf               = false;
-	public $document_email_attachment      = false;
-	public $send_portal_password           = false;
+	public $enable_client_portal_tasks      = false;
+	public $enable_client_portal_password   = false;
+	public $enable_client_portal            = true;//implemented
+	public $enable_client_portal_dashboard  = true;//implemented
+	public $signature_on_pdf                = false;
+	public $document_email_attachment       = false;
+	public $send_portal_password            = false;
 
-	public $portal_design_id    = '1';
+	public $portal_design_id     		    = '1';
 
-	public $timezone_id    = '';
-	public $date_format_id = '';
-	public $military_time  = false;
+	public $timezone_id    				    = '';
+	public $date_format_id 				    = '';
+	public $military_time  				    = false;
 
-	public $language_id        = '';
-	public $show_currency_code = false;
+	public $language_id        			    = '';
+	public $show_currency_code 			    = false;
 
-	public $company_gateway_ids = '';
+	public $company_gateway_ids 		    = '';
 
-	public $currency_id = '1';
+	public $currency_id 				    = '1';
 
-	public $custom_value1 = '';
-	public $custom_value2 = '';
-	public $custom_value3 = '';
-	public $custom_value4 = '';
+	public $custom_value1 				    = '';
+	public $custom_value2 				    = '';
+	public $custom_value3 				    = '';
+	public $custom_value4 				    = '';
 
-	public $default_task_rate = 0;
+	public $default_task_rate 			    = 0;
 
-	public $payment_terms  = 1;
-	public $send_reminders = false;
+	public $payment_terms  				    = 1;
+	public $send_reminders 				    = false;
 
 	public $custom_message_dashboard        = '';
 	public $custom_message_unpaid_invoice   = '';
@@ -116,10 +116,10 @@ class CompanySettings extends BaseSettings {
 	public $enabled_item_tax_rates = 0;
 	public $invoice_design_id      = 'VolejRejNm';
 	public $quote_design_id        = 'VolejRejNm';
-	public $credit_design_id        = 'VolejRejNm';
+	public $credit_design_id       = 'VolejRejNm';
 	public $invoice_footer         = '';
-	public $credit_footer         = '';
-	public $credit_terms         = '';
+	public $credit_footer          = '';
+	public $credit_terms           = '';
 	public $invoice_labels         = '';
 	public $tax_name1              = '';
 	public $tax_rate1              = 0;
@@ -127,7 +127,7 @@ class CompanySettings extends BaseSettings {
 	public $tax_rate2              = 0;
 	public $tax_name3              = '';
 	public $tax_rate3              = 0;
-	public $payment_type_id        = '1';
+	public $payment_type_id        = '0';
 	public $invoice_fields         = '';
 
 	public $show_accept_invoice_terms = false;

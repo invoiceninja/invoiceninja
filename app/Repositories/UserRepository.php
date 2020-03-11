@@ -91,12 +91,14 @@ class UserRepository extends BaseRepository
                              ->whereCompanyId($company->id)
                              ->first();
 
-            $cu->tokens()->delete();
-            $cu->delete();
+            $cu->tokens()->forceDelete();
+            $cu->forceDelete();
         }
-        else
-            $user->delete();
+
+        $user->delete();
     
         return $user->fresh();
+
     }
+
 }
