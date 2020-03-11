@@ -99,6 +99,8 @@ class UserTransformer extends EntityTransformer
     {
         $transformer = new CompanyUserTransformer($this->serializer);
 
-        return $this->includeItem($user->company_user, $transformer, CompanyUser::class);
+        $cu = $user->company_users()->whereCompanyId(config('ninja.company_id'))->first();
+
+        return $this->includeItem($cu, $transformer, CompanyUser::class);
     }
 }
