@@ -395,11 +395,42 @@ trait GenerateMigrationResources
                 'created_at' => $invoice->created_at ? $invoice->created_at->toDateString() : null,
                 'updated_at' => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
                 'deleted_at' => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
+                'invitations' => $this->getInvoiceInvitations($invoice->invitations),
             ];
         }
 
         return $invoices;
     }
+
+    public function getInvoiceInvitations($items)
+    {
+        $transformed = [];
+
+        foreach($items as $invitation) {
+            $transformed[] = [
+                'id' => $invitation->id,
+                'company_id' => $invitation->account_id,
+                'user_id' => $invitation->user_id,
+                'client_contact_id' => $invitation->contact_id,
+                'invoice_id' => $invitation->invoice_id,
+                'key' => $invitation->invitation_key,
+                'transaction_reference' => $invitation->transaction_reference,
+                'message_id' => $invitation->message_id,
+                'email_error' => $invitation->email_error,
+                'signature_base64' => $invitation->signature_base64,
+                'signature_date' => $invitation->signature_date,
+                'sent_date' => $invitation->sent_date,
+                'viewed_date' => $invitation->viewed_date,
+                'opened_date' => $invitation->opened_date,
+                'created_at' => $invitation->created_at ? $invitation->created_at->toDateString() : null,
+                'updated_at' => $invitation->updated_at ? $invitation->updated_at->toDateString() : null,
+                'deleted_at' => $invitation->deleted_at ? $invitation->deleted_at->toDateString() : null,
+            ];
+        }
+
+        return $transformed;
+    }
+
 
     public function getInvoiceItems($items)
     {
