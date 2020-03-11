@@ -214,7 +214,7 @@ trait CompanySettingsSaver
         switch ($key) {
             case 'int':
             case 'integer':
-                return ctype_digit(strval($value));
+                return ctype_digit(strval(abs($value)));
             case 'real':
             case 'float':
             case 'double':

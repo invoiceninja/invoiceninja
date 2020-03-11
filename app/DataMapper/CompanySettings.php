@@ -127,7 +127,7 @@ class CompanySettings extends BaseSettings {
 	public $tax_rate2              = 0;
 	public $tax_name3              = '';
 	public $tax_rate3              = 0;
-	public $payment_type_id        = '1';
+	public $payment_type_id        = '-1';
 	public $invoice_fields         = '';
 
 	public $show_accept_invoice_terms = false;
