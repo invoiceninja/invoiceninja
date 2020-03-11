@@ -40,7 +40,7 @@ class ArtisanUpgrade extends Command
      */
     public function handle()
     {
-
+        set_time_limit(0);
         // Composer\Factory::getHomeDir() method 
         // needs COMPOSER_HOME environment variable set
         putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
