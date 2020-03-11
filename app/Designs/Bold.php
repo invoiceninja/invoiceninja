@@ -25,21 +25,16 @@ class Bold extends AbstractDesign
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    $css_url
+                    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
                     <style>
-                    @page: not(:first-of-type)
-                    { 
-                        size: auto;
-                        margin-top: 5mm;
-                    }
-
-                     .table_header_thead_class {text-align:left;}
-                     .table_header_td_class {padding-left:3rem; padding-right:3rem; font-size:1.5rem; padding-left:1rem;padding-right:1rem; padding-top:.5rem;padding-bottom:.5rem}
-                     .table_body_td_class {background-color:#edf2f7; adding-top:1.25rem;padding-bottom:1.25rem; padding-left:3rem;}
-
+                        body {font-size:90%}
+                        @page: not(:first-of-type) { size: auto; margin-top: 5mm; }
+                        .table_header_thead_class {text-align:left;}
+                        .table_header_td_class {padding-left:3rem; padding-right:3rem; font-size:1.5rem; padding-left:1rem;padding-right:1rem; padding-top:.5rem;padding-bottom:.5rem}
+                        .table_body_td_class {background-color:#edf2f7; adding-top:1.25rem;padding-bottom:1.25rem; padding-left:3rem;}
                     </style>
                 </head>
-                
+
         ';
     }
 
@@ -91,7 +86,6 @@ class Bold extends AbstractDesign
         return '';
     }
 
-
     public function task_table() {
         return '
             <table class="w-full table-auto mt-8">
@@ -139,7 +133,7 @@ class Bold extends AbstractDesign
                     </div>
                 </div>
             </div>
-            
+
             <div class="flex px-4 mt-4 w-full items-end px-12">
                 <div class="w-1/2">
                     <p class="font-semibold">$terms_label</p>

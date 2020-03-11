@@ -14,8 +14,9 @@ namespace App\Designs;
 class Business extends AbstractDesign
 {
 
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
     public function includes()
     {
@@ -25,32 +26,33 @@ class Business extends AbstractDesign
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link rel="stylesheet" href="/css/design/business.css"> 
+                    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
 
                 <style>
-                    @page  
-                    { 
+                    body { font-size:90% }
+                    @page
+                    {
                         size: auto;
                         margin-top: 5mm;
-                    } 
+                    }
                     thead th:first-child {
                         border-top-left-radius: 0.5rem;
                     }
                     thead th:last-child {
                         border-top-right-radius: 0.5rem;
                     }
+                .table_header_thead_class { border-top-left-radius: .5rem; text-align: left }
+                .table_header_td_class { color: white; padding: .5rem 1rem; font-weight: 800; background-color: #2a4365; }
+                .table_body_td_class { color: #c05621; padding: 1rem; border-width: 4px; border-color: white; background-color: #edf2f7; }
 
-                .table_header_thead_class text-left bg-blue-900
-                .table_header_td_class font-semibold text-white px-4 bg-blue-900 py-5
-                .table_body_td_class border-4 border-white text-orange-700 px-4 py-4
-            
                 </style>
                 </head>
 
         ';
     }
 
-	public function header() {
+    public function header()
+    {
 
         return '
                 <div class="my-16 mx-10">
@@ -69,9 +71,10 @@ class Business extends AbstractDesign
                 </div>
 			';
 
-	}
+    }
 
-	public function body() {
+    public function body()
+    {
 
         return '
             <div class="flex items-center justify-between mt-20">
@@ -94,9 +97,15 @@ class Business extends AbstractDesign
             </div>
         ';
 
-	}
+    }
 
-    public function task() {
+    public function task()
+    {
+        return '';
+    }
+
+    public function task_table()
+    {
         return '
             <table class="w-full table-auto mt-20">
                 <thead class="text-left">
@@ -108,11 +117,16 @@ class Business extends AbstractDesign
                     $task_table_body
                 </tbody>
             </table>
-            ';
+        ';
     }
 
-    public function product() {
+    public function product()
+    {
+        return '';
+    }
 
+    public function product_table()
+    {
         return '
             <table class="w-full table-auto mt-20">
                 <thead class="text-left">
@@ -124,11 +138,11 @@ class Business extends AbstractDesign
                     $product_table_body
                 </tbody>
             </table>
-            
         ';
-	}
+    }
 
-	public function footer() {
+    public function footer()
+    {
 
         return '
                 <div class="flex items-center justify-between px-4 pb-4 bg-gray-200 rounded py-2">
@@ -169,6 +183,6 @@ class Business extends AbstractDesign
         </html>
         ';
 
-	}
+    }
 
 }
