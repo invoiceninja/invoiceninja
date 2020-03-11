@@ -395,14 +395,14 @@ trait GenerateMigrationResources
                 'created_at' => $invoice->created_at ? $invoice->created_at->toDateString() : null,
                 'updated_at' => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
                 'deleted_at' => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
-                'invitations' => $this->getResourceInvitations($invoice->invitations),
+                'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
             ];
         }
 
         return $invoices;
     }
 
-    public function getResourceInvitations($items)
+    public function getResourceInvitations($items, $resourceKeyId)
     {
         $transformed = [];
 
@@ -412,7 +412,7 @@ trait GenerateMigrationResources
                 'company_id' => $invitation->account_id,
                 'user_id' => $invitation->user_id,
                 'client_contact_id' => $invitation->contact_id,
-                'invoice_id' => $invitation->invoice_id,
+                $resourceKeyId => $invitation->invoice_id,
                 'key' => $invitation->invitation_key,
                 'transaction_reference' => $invitation->transaction_reference,
                 'message_id' => $invitation->message_id,
@@ -501,7 +501,7 @@ trait GenerateMigrationResources
                 'created_at' => $quote->created_at ? $quote->created_at->toDateString() : null,
                 'updated_at' => $quote->updated_at ? $quote->updated_at->toDateString() : null,
                 'deleted_at' => $quote->deleted_at ? $quote->deleted_at->toDateString() : null,
-                'invitations' => $this->getResourceInvitations($quote->invitations),
+                'invitations' => $this->getResourceInvitations($quote->invitations, 'quote_id'),
             ];
         }
 
