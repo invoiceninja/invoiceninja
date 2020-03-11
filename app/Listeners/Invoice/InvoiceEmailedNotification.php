@@ -18,6 +18,7 @@ use App\Notifications\Admin\EntitySentNotification;
 use App\Notifications\Admin\InvoiceSentNotification;
 use App\Repositories\ActivityRepository;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +26,8 @@ use Illuminate\Support\Facades\Notification;
 
 class InvoiceEmailedNotification implements ShouldQueue
 {
+
+    use UserNotifies;
 
     public function __construct()
     {
@@ -42,10 +45,13 @@ class InvoiceEmailedNotification implements ShouldQueue
 
         foreach($invitation->company->company_users as $company_user)
         {
-            $notification = new EntitySentNotification($invitation, 'invoice');
-            $notification->method = ['mail'];
+            $user = $company_user->user;
 
-            $company_user->user->notify($notification);
+            $notification = new EntitySentNotification($invitation, 'invoice');
+
+            $notification->method = $this->findUserNotificationTypes($invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent']);
+
+            $user->notify($notification);
            
         }
 
@@ -56,4 +62,6 @@ class InvoiceEmailedNotification implements ShouldQueue
 
         // }
     }
+
+
 }

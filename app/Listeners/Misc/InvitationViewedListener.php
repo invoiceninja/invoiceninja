@@ -12,12 +12,15 @@
 namespace App\Listeners\Misc;
 
 use App\Notifications\Admin\EntityViewedNotification;
+use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Notification;
 
 class InvitationViewedListener implements ShouldQueue
 {
+    use UserNotifies;
+
     /**
      * Create the event listener.
      *
@@ -40,36 +43,10 @@ class InvitationViewedListener implements ShouldQueue
 
         foreach($invitation->company->company_users as $company_user)
         {
-            $notifiable_methods = [];
-
-            $notifications = $company_user->notifications;
 
             $entity_viewed = "{$entity_name}_viewed";
 
-            /*** Check for Mail notifications***/
-            $all_user_notifications = '';
-
-            if($invitation->{$entity_name}->user_id == $company_user->user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id)
-                $all_user_notifications = "all_user_notifications";
-
-            $possible_permissions = [$entity_viewed, "all_notifications", $all_user_notifications];
-
-            $permission_count = array_intersect($possible_permissions, $notifications->email);
-
-            if(count($permission_count) >=1)
-                array_push($notifiable_methods, 'mail');
-            /*** Check for Mail notifications***/
-
-
-            /*** Check for Slack notifications***/
-                //@TODO when hillel implements this we can uncomment this.
-                // $permission_count = array_intersect($possible_permissions, $notifications->slack);
-                // if(count($permission_count) >=1)
-                //     array_push($notifiable_methods, 'slack');
-
-            /*** Check for Slack notifications***/
-
-            $notification->method = $notifiable_methods;
+            $notification->method = $this->findUserNotificationTypes($invitation, $company_user, $entity_name, ['all_notifications', $entity_viewed]);
 
             $company_user->user->notify($notification);
         }
