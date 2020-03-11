@@ -18,7 +18,7 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => '', 'as' => ''], functi
 
   /*Invitation catches*/
   
-  Route::get('{entity}/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
+  
 
 });
 
