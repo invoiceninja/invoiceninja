@@ -395,14 +395,14 @@ trait GenerateMigrationResources
                 'created_at' => $invoice->created_at ? $invoice->created_at->toDateString() : null,
                 'updated_at' => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
                 'deleted_at' => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
-                'invitations' => $this->getInvoiceInvitations($invoice->invitations),
+                'invitations' => $this->getResourceInvitations($invoice->invitations),
             ];
         }
 
         return $invoices;
     }
 
-    public function getInvoiceInvitations($items)
+    public function getResourceInvitations($items)
     {
         $transformed = [];
 
@@ -501,6 +501,7 @@ trait GenerateMigrationResources
                 'created_at' => $quote->created_at ? $quote->created_at->toDateString() : null,
                 'updated_at' => $quote->updated_at ? $quote->updated_at->toDateString() : null,
                 'deleted_at' => $quote->deleted_at ? $quote->deleted_at->toDateString() : null,
+                'invitations' => $this->getResourceInvitations($quote->invitations),
             ];
         }
 
