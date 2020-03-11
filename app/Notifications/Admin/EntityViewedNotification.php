@@ -97,17 +97,6 @@ class EntityViewedNotification extends Notification implements ShouldQueue
         $logo = $this->company->present()->logo();
         $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
 
-        // return (new SlackMessage)
-        //         ->success()
-        //         ->from(ctrans('texts.notification_bot'))
-        //         ->image($logo)
-        //         ->content(ctrans("texts.notification_{$this->entity_name}_viewed", 
-        //         [
-        //             'amount' => $amount, 
-        //             'client' => $this->contact->present()->name(), 
-        //             $this->entity_name => $this->entity->number
-        //         ]));
-
         return (new SlackMessage)
             ->from(ctrans('texts.notification_bot'))
             ->success()
@@ -142,7 +131,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
                     'client' => $this->contact->present()->name(), 
                     $this->entity_name => $this->entity->number,
                 ]),
-            'url' => config('ninja.site_url') . "/client/{$this->entity_name}/" . $this->invitation->key . "?silent=true",
+            'url' => $this->invitation->getAdminLink(),
             'button' => ctrans("texts.view_{$this->entity_name}"),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),

@@ -14,6 +14,7 @@ namespace App\Listeners\Invoice;
 use App\Models\Activity;
 use App\Models\ClientContact;
 use App\Models\InvoiceInvitation;
+use App\Notifications\Admin\EntitySentNotification;
 use App\Notifications\Admin\InvoiceSentNotification;
 use App\Repositories\ActivityRepository;
 use App\Utils\Traits\MakesHash;
@@ -41,16 +42,18 @@ class InvoiceEmailedNotification implements ShouldQueue
 
         foreach($invitation->company->company_users as $company_user)
         {
+            $notification = new EntitySentNotification($invitation, 'invoice');
+            $notification->method = ['mail'];
 
-           $company_user->user->notify(new InvoiceSentNotification($invitation, $invitation->company));
+            $company_user->user->notify($notification);
            
         }
 
-        if(isset($invitation->company->slack_webhook_url)){
+        // if(isset($invitation->company->slack_webhook_url)){
 
-            Notification::route('slack', $invitation->company->slack_webhook_url)
-                ->notify(new InvoiceSentNotification($invitation, $invitation->company, true));
+        //     Notification::route('slack', $invitation->company->slack_webhook_url)
+        //         ->notify(new EntitySentNotification($invitation, $invitation->company, true));
 
-        }
+        // }
     }
 }
