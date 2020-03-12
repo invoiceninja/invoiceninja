@@ -77,31 +77,32 @@ class DesignTest extends TestCase
 
     public function testQuoteDesignExists()
     {
-        $invoice_design = new Clean();
-        $design_object = new \stdClass;
-        $design_object->includes = $invoice_design->includes() ?: '';
-        $design_object->header = $invoice_design->header() ?: '';
-        $design_object->body = $invoice_design->body() ?: '';
-        $design_object->product = $invoice_design->product() ?: '';
-        $design_object->task = $invoice_design->task() ?: '';
-        $design_object->footer = $invoice_design->footer() ?: '';
-        $design = new \stdClass;
-        $design->name = 'Dave Rocks';
-        $design->design = $design_object;
-    	$designer = new Designer($this->invoice, $design, $this->company->settings->pdf_variables, 'quote');
+        $this->contact = $this->quote->client->primary_contact()->first();
 
-    	$html = $designer->build()->getHtml();
+        $design = Design::find(3);
 
-    	$this->assertNotNull($html);
+        $designer = new Designer($this->quote, $design, $this->company->settings->pdf_variables, 'quote');
 
-    	//\Log::error($html);
+        $html = $designer->build()->getHtml();
 
-        $html = $this->generateEntityHtml($designer, $this->invoice, $this->contact);
-        $pdf = $this->makePdf(null, null, $html);
+        $this->assertNotNull($html);
 
-        $instance = Storage::disk('local')->put('invoice.pdf', $pdf);
 
-        //exec('xdg-open ~/Code/invoiceninja/storage/app/invoice.pdf');
+        $this->quote = factory(\App\Models\Invoice::class)->create([
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->quote->uses_inclusive_taxes = false;
+
+        $settings = $this->quote->client->settings;
+        $settings->invoice_design_id = "VolejRejNm";
+
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        CreateInvoicePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
     }
 
     // public function testQuoteDesignWithRepeatingHeader()
