@@ -226,8 +226,6 @@ class MigrationController extends BaseController
         $migration_file = $request->file('migration')
             ->storeAs('migrations', $request->file('migration')->getClientOriginalName());
 
-        // return response(200);
-
         if (app()->environment() == 'testing') return;
 
         StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $company);
