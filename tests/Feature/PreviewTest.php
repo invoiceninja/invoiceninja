@@ -54,7 +54,7 @@ class PreviewTest extends TestCase
         $data = [
             'entity' => 'invoice',
             'entity_id' => $this->invoice->hashed_id,
-            'body' => $design,
+            'design' => $design,
         ];
 
 
@@ -77,7 +77,7 @@ class PreviewTest extends TestCase
         $design = Design::find(3);
 
         $data = [
-            'body' => $design,
+            'design' => $design,
         ];
 
 
