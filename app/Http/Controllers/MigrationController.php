@@ -11,6 +11,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Console\Commands\ImportMigrations;
+use App\DataMapper\CompanySettings;
 use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\NonExistingMigrationFile;
 use App\Exceptions\ProcessingMigrationArchiveFailed;
@@ -23,6 +25,7 @@ use App\Jobs\Util\StartMigration;
 use App\Mail\MigrationFailed;
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyUserTransformer;
@@ -193,20 +196,41 @@ class MigrationController extends BaseController
      */
     public function startMigration(Request $request, Company $company)
     {
-        if ($request->has('force') && !empty($request->force))
+        $user = auth()->user();
+
+        if ($request->has('force') && !empty($request->force)) {
             $this->purgeCompany($company);
+
+            $account = (new ImportMigrations())->getAccount();
+            $company = (new ImportMigrations())->getCompany($account);
+
+            CompanyToken::create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+                'account_id' => $account->id,
+                'name' => $request->token_name ?? Str::random(12),
+                'token' => $request->token ?? \Illuminate\Support\Str::random(64),
+            ]);
+
+            $user->companies()->attach($company->id, [
+                'account_id' => $account->id,
+                'is_owner' => 1,
+                'is_admin' => 1,
+                'is_locked' => 0,
+                'notifications' => CompanySettings::notificationDefaults(),
+                'permissions' => '',
+                'settings' => null,
+            ]);
+        }
 
         $migration_file = $request->file('migration')
             ->storeAs('migrations', $request->file('migration')->getClientOriginalName());
 
+        // return response(200);
+
         if (app()->environment() == 'testing') return;
 
-        $user = auth()->user();
-\Log::error($user);
-\Log::error($company);
-\Log::error("starting migration");
-
-        StartMigration::dispatch($migration_file, $user, $company);
+        StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $company);
 
         return response()->json([
             '_id' => Str::uuid(),
