@@ -66,7 +66,7 @@ class BaseRepository
         if ($entity->trashed()) {
             return;
         }
-        
+
         $entity->delete();
 
         $className = $this->getEventClass($entity, 'Archived');
@@ -183,10 +183,22 @@ class BaseRepository
 
     /**
      * Alternative save used for Invoices, Quotes & Credits.
+     * @throws \ReflectionException
      */
     protected function alternativeSave($data, $model)
     {
-        $class = new ReflectionClass($model);        
+        /**
+         * Getting 'array to string' conversion when $data object
+         * has an 'invitations' array, so here's the workaround.
+         *
+         * We unset it before saving, and restore into $data object,
+         * after storing the entity.
+         */
+
+        $invitations = array_key_exists('invitations', $data) ? $data['invitations'] : [];
+        unset($data['invitations']);
+
+        $class = new ReflectionClass($model);
 
         if(array_key_exists('client_id', $data))
             $client = Client::find($data['client_id']);
@@ -197,7 +209,7 @@ class BaseRepository
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
         $lcfirst_resource_id = lcfirst($resource) . '_id';
 
-        if ($class->name == Invoice::class || $class->name == Quote::class) 
+        if ($class->name == Invoice::class || $class->name == Quote::class)
             $state['starting_amount'] = $model->amount;
 
         if (!$model->id) {
@@ -206,9 +218,13 @@ class BaseRepository
 
             $data = array_merge($company_defaults, $data);
         }
-        
+
         $model->fill($data);
         $model->save();
+
+        // This is part two of workaround when it comes to inserting
+        // the invitations.
+        $data['invitations'] = $invitations;
 
         $invitation_factory_class = sprintf("App\\Factory\\%sInvitationFactory", $resource);
 
@@ -226,7 +242,7 @@ class BaseRepository
             $invitations = collect($data['invitations']);
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-            $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
+            $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
                 $this->getInvitation($invitation, $resource)->delete();
             });
 
@@ -241,7 +257,7 @@ class BaseRepository
 
                     //make sure we are creating an invite for a contact who belongs to the client only!
                     $contact = ClientContact::find($invitation['client_contact_id']);
-                    
+
                     if($model->client_id == $contact->client_id);
                     {
                         $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
@@ -264,13 +280,13 @@ class BaseRepository
 		$state['finished_amount'] = $model->amount;
 
 		$model = $model->service()->applyNumber()->save();
-        
+
         if ($model->company->update_products !== false) {
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
         }
 
         if ($class->name == Invoice::class) {
-            
+
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
             }
@@ -282,7 +298,7 @@ class BaseRepository
         if ($class->name == Credit::class) {
             $model = $model->calc()->getCredit();
         }
-        
+
         if ($class->name == Quote::class) {
             $model = $model->calc()->getQuote();
         }

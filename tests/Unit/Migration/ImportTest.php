@@ -20,6 +20,7 @@ use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Quote;
+use App\Models\QuoteInvitation;
 use App\Models\TaxRate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -483,4 +484,28 @@ class ImportTest extends TestCase
 //             $this->assertTrue(true);
 //         }
 //     }
+
+    public function testInvoiceInvitationsMigration()
+    {
+        $original_count = InvoiceInvitation::count();
+
+        $this->invoice->forceDelete();
+        $this->quote->forceDelete();
+
+        Import::dispatchNow($this->migration_array, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_count, Invoice::count());
+    }
+
+    public function testQuoteInvitationsMigration()
+    {
+        $original_count = QuoteInvitation::count();
+
+        $this->invoice->forceDelete();
+        $this->quote->forceDelete();
+
+        Import::dispatchNow($this->migration_array, $this->company, $this->user);
+
+        $this->assertGreaterThan($original_count, QuoteInvitation::count());
+    }
 }
