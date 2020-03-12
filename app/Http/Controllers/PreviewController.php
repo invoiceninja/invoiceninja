@@ -99,8 +99,6 @@ class PreviewController extends BaseController
             if(!is_object($design_object))
                 return response()->json(['message' => 'Invalid custom design object'], 400);
 
-            //$invoice_design = new Custom($design_object->design);
-
             $entity = ucfirst(request()->input('entity'));
 
             $class = "App\Models\\$entity";
@@ -116,11 +114,7 @@ class PreviewController extends BaseController
 
             $designer = new Designer($entity_obj, $design_object, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
 
-            //$html = $this->generateInvoiceHtml($designer->build()->getHtml(), $entity_obj);
-
             $html = $this->generateEntityHtml($designer, $entity_obj);
-
-\Log::error($html);
 
             $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
 
@@ -162,14 +156,9 @@ class PreviewController extends BaseController
             if(!is_object($design_object))
                 return response()->json(['message' => 'Invalid custom design object'], 400);
 
-            //$invoice_design = new Custom($design_object->design);
-
             $designer = new Designer($invoice, $design_object, $invoice->client->getSetting('pdf_variables'), lcfirst(request()->has('entity')));
 
-            $html = $this->generateEntityHtml($designer, $invoice);
-
-            //$html = $this->generateInvoiceHtml($designer->build()->getHtml(), $invoice);
-\Log::error($html);
+            $html = $this->generateEntityHtml($designer, $invoice, $contact);
 
             $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
 
@@ -178,9 +167,6 @@ class PreviewController extends BaseController
             $client->forceDelete();
 
             return response()->file($file_path, array('content-type' => 'application/pdf'));
-            //return response()->download($file_path)->deleteFileAfterSend(true);
-
-
 
     }
 
