@@ -101,7 +101,7 @@ class DesignTest extends TestCase
 
         $instance = Storage::disk('local')->put('invoice.pdf', $pdf);
 
-        exec('xdg-open ~/Code/invoiceninja/storage/app/invoice.pdf');
+        //exec('xdg-open ~/Code/invoiceninja/storage/app/invoice.pdf');
     }
 
     // public function testQuoteDesignWithRepeatingHeader()
