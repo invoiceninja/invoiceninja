@@ -102,7 +102,7 @@ class DesignTest extends TestCase
         $this->client->settings = $settings;
         $this->client->save();
 
-        CreateInvoicePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+        CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
     }
 
     // public function testQuoteDesignWithRepeatingHeader()
