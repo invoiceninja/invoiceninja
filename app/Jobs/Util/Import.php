@@ -129,7 +129,7 @@ class Import implements ShouldQueue
     public function handle()
     {
         foreach ($this->data as $key => $resource) {
-
+\Log::error("importing {$key}");
             if (!in_array($key, $this->available_imports)) {
                 throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
             }

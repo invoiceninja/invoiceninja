@@ -145,6 +145,8 @@ class User extends Authenticatable implements MustVerifyEmail
     */
     public function setCompany($company)
     {
+        config(['ninja.company_id' => $company->id]);
+        
         $this->company = $company;
     }
 

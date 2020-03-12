@@ -58,6 +58,7 @@ class StartMigration implements ShouldQueue
      */
     public function handle()
     {
+        \Log::error("start handle");
         MultiDB::setDb($this->company->db);
 
         auth()->login($this->user, false);
@@ -85,6 +86,8 @@ class StartMigration implements ShouldQueue
 
             if (app()->environment() !== 'production') info($e->getMessage());
         }
+
+        \Log::error("stop handle");
     }
 
 
@@ -94,6 +97,9 @@ class StartMigration implements ShouldQueue
      */
     public function start(string $filename): void
     {
+
+        \Log::error("start start");
+
         $file = storage_path("migrations/$filename/migration.json");
 
         if (!file_exists($file))
@@ -105,5 +111,8 @@ class StartMigration implements ShouldQueue
 
         $data = json_decode($file, 1);
         Import::dispatchNow($data, $this->company, $this->user);
+
+
+        \Log::error("start stop");
     }
 }
