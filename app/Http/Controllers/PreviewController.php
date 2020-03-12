@@ -94,7 +94,7 @@ class PreviewController extends BaseController
             request()->has('body'))
         {
 
-            $design_object = json_decode(json_encode(request()->input('body')));
+            $design_object = json_decode(json_encode(request()->input('design')));
 
             if(!is_object($design_object))
                 return response()->json(['message' => 'Invalid custom design object'], 400);
@@ -151,7 +151,7 @@ class PreviewController extends BaseController
             $invoice->setRelation('company', auth()->user()->company());
             $invoice->load('client');
 
-            $design_object = json_decode(json_encode(request()->input('body')));
+            $design_object = json_decode(json_encode(request()->input('design')));
 
             if(!is_object($design_object))
                 return response()->json(['message' => 'Invalid custom design object'], 400);

@@ -202,6 +202,9 @@ class MigrationController extends BaseController
         if (app()->environment() == 'testing') return;
 
         $user = auth()->user();
+\Log::error($user);
+\Log::error($company);
+\Log::error("starting migration");
 
         StartMigration::dispatch($migration_file, $user, $company);
 

@@ -1332,8 +1332,8 @@ class CreateUsersTable extends Migration
             $t->timestamps(6);
             $t->softDeletes();
             
+            $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            $t->foreign('company_id')->references('id')->on('companies')->onUpdate('cascade');
             
             $t->unique(['company_id', 'name']);
         });
