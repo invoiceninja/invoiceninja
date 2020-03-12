@@ -540,7 +540,7 @@ trait GenerateMigrationResources
                 'is_deleted' => $payment->is_deleted,
                 'exchange_rate' => $payment->exchange_rate ? number_format((float)$payment->exchange_rate, 6) : null,
                 'exchange_currency_id' => $payment->exchange_currency_id,
-                'currency_id' => $payment->client->currency->id,
+                'currency_id' => isset($payment->client->currency->id) ? $payment->client->currency->id : $this->account->currency_id,
                 'updated_at' => $payment->updated_at ? $payment->updated_at->toDateString() : null,
                 'created_at' => $payment->created_at ? $payment->created_at->toDateString() : null,
                 'deleted_at' => $payment->deleted_at ? $payment->deleted_at->toDateString() : null,
