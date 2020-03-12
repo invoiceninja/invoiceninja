@@ -2,14 +2,21 @@
 
 namespace Tests\Integration;
 
+use App\Designs\Bold;
+use App\Designs\Business;
+use App\Designs\Clean;
 use App\Designs\Designer;
 use App\Designs\Modern;
 use App\Jobs\Credit\CreateCreditPdf;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Quote\CreateQuotePdf;
+use App\Models\ClientContact;
 use App\Models\Design;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceHtml;
+use App\Utils\Traits\Pdf\PdfMaker;
+use Illuminate\Support\Facades\Storage;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -19,10 +26,18 @@ use Tests\TestCase;
  */
 class DesignTest extends TestCase
 {
+    use MakesInvoiceHtml;
+    use PdfMaker;
   	use MockAccountData;
     use GeneratesCounter;
     use MakesHash;
-    
+
+
+    /**
+     * @var ClientContact
+     */
+    private $contact;
+
     public function setUp() :void
     {
         parent::setUp();
@@ -32,6 +47,7 @@ class DesignTest extends TestCase
 
     public function testInvoiceDesignExists()
     {
+        $this->contact = $this->invoice->client->primary_contact()->first();
 
         $design = Design::find(3);
 
@@ -61,10 +77,18 @@ class DesignTest extends TestCase
 
     public function testQuoteDesignExists()
     {
-
-        $design = Design::find(3);
-
-    	$designer = new Designer($this->quote, $design, $this->company->settings->pdf_variables, 'quote');
+        $invoice_design = new Clean();
+        $design_object = new \stdClass;
+        $design_object->includes = $invoice_design->includes() ?: '';
+        $design_object->header = $invoice_design->header() ?: '';
+        $design_object->body = $invoice_design->body() ?: '';
+        $design_object->product = $invoice_design->product() ?: '';
+        $design_object->task = $invoice_design->task() ?: '';
+        $design_object->footer = $invoice_design->footer() ?: '';
+        $design = new \stdClass;
+        $design->name = 'Dave Rocks';
+        $design->design = $design_object;
+    	$designer = new Designer($this->invoice, $design, $this->company->settings->pdf_variables, 'quote');
 
     	$html = $designer->build()->getHtml();
 
@@ -72,17 +96,12 @@ class DesignTest extends TestCase
 
     	//\Log::error($html);
 
-    	$settings = $this->invoice->client->settings;
-    	$settings->quote_design_id = "VolejRejNm";
+        $html = $this->generateEntityHtml($designer, $this->invoice, $this->contact);
+        $pdf = $this->makePdf(null, null, $html);
 
-        $this->quote->client_id = $this->client->id;
-        $this->quote->setRelation('client', $this->client);
-        $this->quote->save();
+        $instance = Storage::disk('local')->put('invoice.pdf', $pdf);
 
-    	$this->client->settings = $settings;
-    	$this->client->save();
-
-    	CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+        //exec('xdg-open ~/Code/invoiceninja/storage/app/invoice.pdf');
     }
 
     // public function testQuoteDesignWithRepeatingHeader()
@@ -184,7 +203,7 @@ class DesignTest extends TestCase
         $this->credit->client_id = $this->client->id;
         $this->credit->setRelation('client', $this->client);
         $this->credit->save();
-        
+
         $this->client->settings = $settings;
         $this->client->save();
 
@@ -199,7 +218,7 @@ class DesignTest extends TestCase
 
         $settings = $this->invoice->client->settings;
         $settings->quote_design_id = (string)$this->encodePrimaryKey($x);
-        
+
         $this->quote->client_id = $this->client->id;
         $this->quote->setRelation('client', $this->client);
         $this->quote->save();
@@ -217,7 +236,6 @@ class DesignTest extends TestCase
         $this->assertTrue(true);
 
     }
-    
+
 }
 
-            

@@ -21,39 +21,33 @@ class Hipster extends AbstractDesign
     public function includes()
     {
         return '
-        <!DOCTYPE html>
-            <html lang="en">
-                <head>
-                    <title>$number</title>
-                    <meta charset="utf-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-                    <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link rel="stylesheet" href="/css/design/hipster.css"> 
-
-                </head>
-                <body>
-                
+            <head>
+                <title>$number</title>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                <meta http-equiv="x-ua-compatible" content="ie=edge">
+                <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
                 <style>
-                @page  
-                { 
+                body {font-size:90%}
+                @page
+                {
                     size: auto;
                     margin-top: 5mm;
-                } 
+                }
 
-            .table_header_thead_classtext-left
-            .table_header_td_class px-4 py-2 uppercase font-semibold border-l-2 border-black
-            .table_body_td_class border-l-2 border-black px-4 py-4
+                .table_header_thead_class { text-align: left }
+                .table_header_td_class { text-transform: uppercase; padding: .5rem 1rem; font-weight: 600; border-color: black;  }
+                .table_body_td_class { border-left-width: 2px; border-color: black; padding: 1rem; }
                 </style>
-
-
+            </head>
         ';
     }
-    
+
 
 	public function header() {
 
 		return '
-			
+
                 <div class="px-12 py-16">
                     <div class="flex">
                         <div class="w-1/2 border-l pl-4 border-black mr-4">
@@ -105,9 +99,32 @@ class Hipster extends AbstractDesign
 	}
 
     public function task() {
+	    return '';
     }
 
-    public function product() {
+    public function task_table()
+    {
+        return '
+	    <table class="w-full table-auto mt-24">
+            <thead class="text-left">
+                <tr>
+                    $task_table_header
+                </tr>
+            </thead>
+            <tbody>
+                $task_table_body
+            </tbody>
+        </table>
+        ';
+    }
+
+    public function product()
+    {
+	    return '
+        ';
+    }
+
+    public function product_table() {
         return '
         <table class="w-full table-auto mt-24">
             <thead class="text-left">
@@ -118,40 +135,39 @@ class Hipster extends AbstractDesign
             <tbody>
                 $product_table_body
             </tbody>
-        </table>
-        
-        <div class="flex justify-between mt-8">
-        <div class="w-1/2">
-            <div class="flex flex-col">
-                <p>$entity.public_notes</p>
-                <div class="pt-4">
-                    <p class="font-bold">$terms_label</p>
-                    <p>$terms</p>
-                </div>
-            </div>
-        </div>
-        <div class="w-1/3 flex flex-col">
-            <div class="flex px-3 mt-6">
-                <section class="w-1/2 text-right flex flex-col">
-                    $total_tax_labels
-                    $line_tax_labels
-                </section>
-                <section class="w-1/2 text-right flex flex-col">
-                    $total_tax_values
-                    $line_tax_values
-                </section>
-            </div>
-            <section class="flex bg-black text-white px-3 mt-1">
-                <p class="w-1/2 text-right">$balance_due_label</p>
-                <p class="text-right w-1/2">$balance_due</p>
-            </section>
-        </div>
-    </div>';
+        </table>';
 	}
 
 	public function footer() {
 
         return '
+                <div class="flex justify-between mt-8">
+                        <div class="w-1/2">
+                            <div class="flex flex-col">
+                                <p>$entity.public_notes</p>
+                                <div class="pt-4">
+                                    <p class="font-bold">$terms_label</p>
+                                    <p>$terms</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-1/3 flex flex-col">
+                            <div class="flex px-3 mt-6">
+                                <section class="w-1/2 text-right flex flex-col">
+                                    $total_tax_labels
+                                    $line_tax_labels
+                                </section>
+                                <section class="w-1/2 text-right flex flex-col">
+                                    $total_tax_values
+                                    $line_tax_values
+                                </section>
+                            </div>
+                            <section class="flex bg-black text-white px-3 mt-1">
+                                <p class="w-1/2 text-right">$balance_due_label</p>
+                                <p class="text-right w-1/2">$balance_due</p>
+                            </section>
+                        </div>
+                    </div>
                 </div>
             </body>
         </html>';

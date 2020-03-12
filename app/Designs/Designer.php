@@ -18,8 +18,6 @@ class Designer {
 
 	public $design;
 
-	public $design_name;
-
 	protected $input_variables;
 
 	protected $exported_variables;
@@ -58,8 +56,6 @@ class Designer {
 		$this->entity = $entity;
 
 		$this->design = $design->design;
-
-		$this->design_name = property_exists($design, 'name') ? lcfirst($design->name) : 'custom';
 
 		$this->input_variables = (array) $input_variables;
 

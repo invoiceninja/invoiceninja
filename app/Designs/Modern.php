@@ -28,10 +28,9 @@ class Modern extends AbstractDesign
 			        <meta charset="utf-8">
 			        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 			        <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link rel="stylesheet" href="/css/design/modern.css"> 
+                    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
 			        <style>
-                    
-
+                      body {font-size:90%}
     				 .table_header_thead_class {text-align:left; text-align:left; color:#fff; background-color:#1a202c;}
 					 .table_header_td_class {padding-left:1rem;padding-right:1rem; padding-top:.5rem;padding-bottom:.5rem}
 					 .table_body_td_class {border-top-width:1px; border-bottom-width:1px; border-color:#1a202c; padding-left:1rem;padding-right:1rem; padding-top:1rem;padding-bottom:1rem;}
@@ -46,12 +45,12 @@ class Modern extends AbstractDesign
 						}
 						@media print {
 						  div.div_footer {
-					     	display: flex; 
+					     	display: flex;
 							position: running(footer);
 					    	width: 100%;
 						  }
 						  div.div_header {
-			    		    display: flex; 
+			    		    display: flex;
 							position: running(header);
 					    	width:100%;
 						  }
@@ -60,18 +59,12 @@ class Modern extends AbstractDesign
 						footer, header, hgroup, menu, nav, section {
 						    display: block;
 						}
-
-
-			.table_header_thead_class text-left text-white bg-gray-900
-			.table_header_td_class px-4 py-2
-			.table_body_td_class border-t border-b border-gray-900 px-4 py-4
                     </style>
 			    </head>
 				<body>
-
         ';
     }
-    
+
 
 	public function header() {
 
@@ -110,6 +103,7 @@ class Modern extends AbstractDesign
 			        </div>
 			    </div>
 			</div>
+            <div class="px-12 pt-5 pb-20">
 			';
 
 	}
@@ -117,21 +111,46 @@ class Modern extends AbstractDesign
     public function task() {
     }
 
-	public function product() {
-		return '
-			<div class="px-12 pt-5 pb-20">
-			    <table class="w-full table-auto mt-8">
-			        <thead class="text-left text-white bg-gray-900 display: table-header-group;">
-			            <tr>
-			                $product_table_header
-			            </tr>
-			        </thead>
-			        <tbody>
-			                $product_table_body
-			        </tbody>
-			    </table>
+    public function task_table()
+    {
+        return '
+        <table class="w-full table-auto mt-8">
+                <thead class="text-left text-white bg-gray-900 display: table-header-group;">
+                    <tr>
+                        $task_table_header
+                    </tr>
+                </thead>
+                <tbody>
+                        $task_table_body
+                </tbody>
+            </table>
+        ';
+    }
 
-			    <div class="flex px-4 mt-6 w-full" style="page-break-inside: avoid;">
+    public function product()
+    {
+        return '';
+    }
+
+	public function product_table() {
+		return '
+            <table class="w-full table-auto mt-8">
+                <thead class="text-left text-white bg-gray-900 display: table-header-group;">
+                    <tr>
+                        $product_table_header
+                    </tr>
+                </thead>
+                <tbody>
+                        $product_table_body
+                </tbody>
+            </table>
+		';
+	}
+
+	public function footer() {
+
+		return '
+                <div class="flex px-4 mt-6 w-full" style="page-break-inside: avoid;">
 			        <div class="w-1/2">
 			            $entity.public_notes
 			        </div>
@@ -165,13 +184,6 @@ class Modern extends AbstractDesign
 			    </div>
 
 			</div>
-
-		';
-	}
-
-	public function footer() {
-
-		return '
 			</section>
 			<footer>
 			<div class="div_footer bg-orange-600 flex justify-between py-8 px-12" style="page-break-inside: avoid;">

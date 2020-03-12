@@ -94,12 +94,10 @@ class PreviewController extends BaseController
             request()->has('body'))
         {
 
-            $design_object = json_decode(json_encode(request()->all()));
+            $design_object = json_decode(json_encode(request()->input('body')));
 
             if(!is_object($design_object))
                 return response()->json(['message' => 'Invalid custom design object'], 400);
-
-            $invoice_design = new Custom($design_object->design);
 
             $entity = ucfirst(request()->input('entity'));
 
@@ -114,9 +112,9 @@ class PreviewController extends BaseController
 
             $entity_obj->load('client');
 
-            $designer = new Designer($entity_obj, $invoice_design, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
+            $designer = new Designer($entity_obj, $design_object, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
 
-            $html = $this->generateInvoiceHtml($designer->build()->getHtml(), $entity_obj);
+            $html = $this->generateEntityHtml($designer, $entity_obj);
 
             $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
 
@@ -153,16 +151,14 @@ class PreviewController extends BaseController
             $invoice->setRelation('company', auth()->user()->company());
             $invoice->load('client');
 
-            $design_object = json_decode(json_encode(request()->all()));
+            $design_object = json_decode(json_encode(request()->input('body')));
 
             if(!is_object($design_object))
                 return response()->json(['message' => 'Invalid custom design object'], 400);
 
-            $invoice_design = new Custom($design_object->design);
+            $designer = new Designer($invoice, $design_object, $invoice->client->getSetting('pdf_variables'), lcfirst(request()->has('entity')));
 
-            $designer = new Designer($invoice, $invoice_design, $invoice->client->getSetting('pdf_variables'), lcfirst(request()->has('entity')));
-
-            $html = $this->generateInvoiceHtml($designer->build()->getHtml(), $invoice);
+            $html = $this->generateEntityHtml($designer, $invoice, $contact);
 
             $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
 
@@ -171,9 +167,6 @@ class PreviewController extends BaseController
             $client->forceDelete();
 
             return response()->file($file_path, array('content-type' => 'application/pdf'));
-            //return response()->download($file_path)->deleteFileAfterSend(true);
-
-
 
     }
 
