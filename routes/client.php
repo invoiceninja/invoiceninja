@@ -46,9 +46,9 @@ Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', '
 
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
 
-	Route::get('invoice/{invitation_key}/download_pdf', 'InvoiceController@downloadPdf')->name('invoice.download_pdf');
-  	Route::get('quote/{invitation_key}/download_pdf', 'QuoteController@downloadPdf')->name('quote.download_pdf');
-  	Route::get('credit/{invitation_key}/download_pdf', 'CreditController@downloadPdf')->name('credit.download_pdf'); 
+	Route::get('invoice/{invitation_key}/download_pdf', 'InvoiceController@downloadPdf');
+  	Route::get('quote/{invitation_key}/download_pdf', 'QuoteController@downloadPdf');
+  	Route::get('credit/{invitation_key}/download_pdf', 'CreditController@downloadPdf'); 
   	Route::get('{entity}/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
   	
 	/*Invitation catches*/
