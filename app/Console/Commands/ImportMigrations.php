@@ -65,7 +65,7 @@ class ImportMigrations extends Command
         }
     }
 
-    private function getUser(): User
+    public function getUser(): User
     {
         $user = factory(\App\Models\User::class)->create([
             'email' => $this->faker->email,
@@ -96,12 +96,12 @@ class ImportMigrations extends Command
         return $user;
     }
 
-    private function getAccount(): Account
+    public function getAccount(): Account
     {
         return factory(\App\Models\Account::class)->create();
     }
 
-    private function getCompany(Account $account): Company
+    public function getCompany(Account $account): Company
     {
         $company = factory(Company::class)->create([
             'account_id' => $account->id,
