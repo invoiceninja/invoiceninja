@@ -60,7 +60,7 @@ class ImportMigrations extends Command
         foreach ($directory as $file) {
             if ($file->getExtension() === 'zip') {
                 $this->info('Started processing: ' . $file->getBasename() . ' at ' . now());
-                StartMigration::dispatch('migrations/import/' . $file->getFilename(), $this->getUser(), $this->getUser()->companies()->first());
+                StartMigration::dispatch($file->getRealPath(), $this->getUser(), $this->getUser()->companies()->first());
             }
         }
     }
