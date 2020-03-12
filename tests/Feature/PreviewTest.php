@@ -55,6 +55,7 @@ class PreviewTest extends TestCase
             'entity' => 'invoice',
             'entity_id' => $this->invoice->hashed_id,
             'design' => $design,
+
         ];
 
 
