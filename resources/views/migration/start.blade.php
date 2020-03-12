@@ -9,7 +9,7 @@
             <h3 class="panel-title">{!! trans('texts.welcome_to_the_new_version') !!}</h3>
         </div>
         <div class="panel-body">
-            <h4>In order to start the migration, we need to know where do you want to migrate.</h4>
+            <h4>In order to start the migration, we need to know where do you want to migrate.</h4><br/>
             <form action="/migration/type" method="post" id="select-type-form">
                 {{ csrf_field() }}
                 <div class="form-check">

@@ -9,7 +9,7 @@
             <h3 class="panel-title">{!! trans('texts.welcome_to_the_new_version') !!}</h3>
         </div>
         <div class="panel-body">
-            <h4>We need to know the link of your application.</h4>
+            <h4>We need to know the link of your application.</h4><br/>
             <form action="/migration/endpoint" method="post" id="input-endpoint-form">
                 {{ csrf_field() }}
                 <div class="form-check">

@@ -11,7 +11,7 @@
             <h3 class="panel-title">{!! trans('texts.welcome_to_the_new_version') !!}</h3>
         </div>
         <div class="panel-body">
-            <h4>Let's continue with authentication.</h4>
+            <h4>Let's continue with authentication.</h4><br/>
             <form action="/migration/auth" method="post" id="auth-form">
                 {{ csrf_field() }}
                 <div class="form-group">
