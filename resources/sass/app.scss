@@ -8,5 +8,9 @@
 @import 'components/inputs';
 @import 'components/alerts';
 
+.active-page {
+    @apply bg-blue-900 #{!important};
+}
+
 // ..
 @tailwind utilities;

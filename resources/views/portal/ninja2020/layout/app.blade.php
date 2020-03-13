@@ -44,6 +44,7 @@
 
         <!-- Scripts -->
         <script src="{{ mix('js/app.js') }}" defer></script>
+        <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js" defer></script>
         <script src="https://kit.fontawesome.com/8a87eb8352.js" crossorigin="anonymous"></script>
 
         <!-- Fonts -->
@@ -62,7 +63,9 @@
     </head>
 
     <body class="antialiased">
-        @yield('body')
+        @component('portal.ninja2020.components.general.sidebar.main')
+            @yield('body')
+        @endcomponent
     </body>
 
     <footer>

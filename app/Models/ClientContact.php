@@ -45,7 +45,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     protected $dates = [
         'deleted_at'
     ];
-    
+
     protected $appends = [
         'hashed_id'
     ];
@@ -85,12 +85,12 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'email',
         'is_primary',
     ];
-    
+
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
     }
-    
+
     /**/
     public function getRouteKeyName()
     {
@@ -139,7 +139,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     public function preferredLocale()
     {
         $languages = Cache::get('languages');
-        
+
         return $languages->filter(function ($item) {
             return $item->id == $this->client->getSetting('language_id');
         })->first()->locale;
@@ -161,5 +161,16 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         return $this
             ->withTrashed()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function avatar()
+    {
+        if($this->avatar)
+            return $this->avatar;
+
+        return asset('images/svg/user.svg');
     }
 }
