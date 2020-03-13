@@ -23,17 +23,20 @@ class Controller extends BaseController
 
     /**
      * @param string $path
-     * @param string $theme
-     * @param boolean $global
+     * @param array $options
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function render(string $path, string $theme = 'ninja2020', bool $global = false)
+    public function render(string $path, array $options = [])
     {
-        if($global) {
-            return view("$theme.$path");
+        $theme = array_key_exists('theme', $options) ? $options['theme'] : 'ninja2020';
+
+        if (array_key_exists('root', $options)) {
+            return view(
+                sprintf('%s.%s.%s', $options['root'], $theme, $path)
+            , $options);
         }
 
-        return view("portal.$theme.$path");
+        return view("portal.$theme.$path", $options);
     }
 }

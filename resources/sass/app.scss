@@ -1,6 +1,12 @@
 @tailwind base;
 
+// ..
 @tailwind components;
-@import 'components/buttons';
 
+@import 'components/buttons';
+@import 'components/validation';
+@import 'components/inputs';
+@import 'components/alerts';
+
+// ..
 @tailwind utilities;

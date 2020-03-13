@@ -1,7 +1,15 @@
 .button {
-    @apply bg-blue-600 text-white py-2 px-3 rounded;
+    @apply rounded py-3 px-4;
+}
+
+.button-primary {
+    @apply bg-blue-500 text-white;
 
     &:hover {
-        @apply bg-blue-700;
+        @apply bg-blue-600;
     }
+}
+
+.button-block {
+    @apply block w-full;
 }

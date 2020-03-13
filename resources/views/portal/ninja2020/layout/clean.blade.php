@@ -60,7 +60,7 @@
 
     </head>
 
-    <body class="antialiased bg-gray-100">
+    <body class="antialiased">
         @yield('body')
     </body>
 

@@ -1,0 +1,11 @@
+.input {
+    @apply items-center border border-gray-300 rounded mt-2 w-full py-3 px-4;
+
+    &:focus {
+        @apply outline-none border-blue-500;
+    }
+}
+
+.input-label {
+    @apply text-sm text-gray-600;
+}

@@ -1,0 +1,11 @@
+.alert {
+    @apply bg-gray-100 py-3 mt-4 px-4 text-sm border-l-2 mt-2 mb-1 bg-gray-100 border-gray-400;
+}
+
+.alert-success {
+    @apply border-green-500;
+}
+
+.alert-failure {
+    @apply border-red-500;
+}
