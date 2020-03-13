@@ -128,5 +128,8 @@ return [
         ]
     ],
 
-
+    'themes' => [
+        'global' => 'ninja2020',
+        'portal' => 'ninja2020',
+    ],
 ];

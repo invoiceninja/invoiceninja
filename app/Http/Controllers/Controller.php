@@ -20,4 +20,20 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    /**
+     * @param string $path
+     * @param string $theme
+     * @param boolean $global
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function render(string $path, string $theme = 'ninja2020', bool $global = false)
+    {
+        if($global) {
+            return view("$theme.$path");
+        }
+
+        return view("portal.$theme.$path");
+    }
 }

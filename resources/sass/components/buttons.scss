@@ -1,0 +1,7 @@
+.button {
+    @apply bg-blue-600 text-white py-2 px-3 rounded;
+
+    &:hover {
+        @apply bg-blue-700;
+    }
+}
