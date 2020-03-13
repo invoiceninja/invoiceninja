@@ -24,7 +24,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return $this->render('dashboard.index');
+        return view('dashboard.index');
     }
 
     /**
