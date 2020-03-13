@@ -143,7 +143,7 @@ class LoginTest extends TestCase
             'account_id' => $account->id,
         ]);
 
-        $account->default_company_id = $account->id;
+        $account->default_company_id = $company->id;
         $account->save();
 
 

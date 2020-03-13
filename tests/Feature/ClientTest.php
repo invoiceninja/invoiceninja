@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
@@ -45,6 +46,10 @@ class ClientTest extends TestCase
 
         Client::reguard();
         ClientContact::reguard();
+
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
     }
 
     public function testClientList()
