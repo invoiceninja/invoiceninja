@@ -44,11 +44,11 @@ class ContactForgotPasswordController extends Controller
     /**
     * Show the reset email form.
     *
-    * @return \Illuminate\Http\Response
+    * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     */
     public function showLinkRequestForm()
     {
-        return view('portal.default.auth.passwords.email', [
+        return $this->render('auth.passwords.request', [
             'title' => 'Client Password Reset',
             'passwordEmailRoute' => 'client.password.email'
         ]);

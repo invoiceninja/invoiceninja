@@ -504,6 +504,7 @@ return [
     'api_tokens' => 'API Tokens',
     'users_and_tokens' => 'Users & Tokens',
     'account_login' => 'Account Login',
+    'account_login_text' => 'Welcome back! Glad to see you.',
     'recover_password' => 'Recover your password',
     'forgot_password' => 'Forgot your password?',
     'email_address' => 'Email address',
