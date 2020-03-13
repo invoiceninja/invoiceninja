@@ -20,4 +20,23 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    /**
+     * @param string $path
+     * @param array $options
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function render(string $path, array $options = [])
+    {
+        $theme = array_key_exists('theme', $options) ? $options['theme'] : 'ninja2020';
+
+        if (array_key_exists('root', $options)) {
+            return view(
+                sprintf('%s.%s.%s', $options['root'], $theme, $path)
+            , $options);
+        }
+
+        return view("portal.$theme.$path", $options);
+    }
 }

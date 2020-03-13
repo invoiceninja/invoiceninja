@@ -90,7 +90,6 @@ class ForgotPasswordController extends Controller
      *              example="Unable to send password reset link",
      *              ),
      *          ),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -110,9 +109,20 @@ class ForgotPasswordController extends Controller
         $response = $this->broker()->sendResetLink(
             $this->credentials($request)
         );
-        
+
+        if ($request->ajax()) {
+            return $response == Password::RESET_LINK_SENT
+                ? response()->json(['message' => 'Reset link sent to your email.', 'status' => true], 201)
+                : response()->json(['message' => 'Email not found', 'status' => false], 401);
+        }
+
         return $response == Password::RESET_LINK_SENT
-            ? response()->json(['message' => 'Reset link sent to your email.', 'status' => true], 201)
-            : response()->json(['message' => 'Email not found', 'status' => false], 401);
+            ? $this->sendResetLinkResponse($request, $response)
+            : $this->sendResetLinkFailedResponse($request, $response);
+    }
+
+    public function showLinkRequestForm()
+    {
+        return $this->render('auth.passwords.request', ['root' => 'themes']);
     }
 }

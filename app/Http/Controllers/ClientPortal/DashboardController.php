@@ -20,11 +20,11 @@ class DashboardController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
     {
-        return view('portal.default.dashboard.index');
+        return view('dashboard.index');
     }
 
     /**

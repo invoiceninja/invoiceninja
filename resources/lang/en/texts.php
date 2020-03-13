@@ -1,7 +1,10 @@
 <?php
 
-$LANG = array(
-
+return [
+    'continue' => 'Continue',
+    'complete' => 'Complete',
+    'next' => 'Next',
+    'next_step' => 'Next step',
     'organization' => 'Organization',
     'name' => 'Name',
     'website' => 'Website',
@@ -263,6 +266,8 @@ $LANG = array(
     'notification_credit_viewed' => 'The following client :client viewed Credit :credit for :amount.',
     'notification_quote_viewed' => 'The following client :client viewed Quote :quote for :amount.',
     'reset_password' => 'You can reset your account password by clicking the following button:',
+    'reset_password_text' => 'Enter your email to reset your password.',
+    'password_reset' => 'Password reset',
     'secure_payment' => 'Secure Payment',
     'card_number' => 'Card Number',
     'expiration_month' => 'Expiration Month',
@@ -3135,8 +3140,4 @@ $LANG = array(
     'invoice_number_placeholder' => 'Invoice # :invoice',
     'entity_number_placeholder' => ':entity # :entity_number',
     'email_link_not_working' => 'If button above isn\'t working for you, please click on the link',
-);
-
-return $LANG;
-
-?>
+];
