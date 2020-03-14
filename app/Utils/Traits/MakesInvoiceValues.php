@@ -294,15 +294,7 @@ trait MakesInvoiceValues
         if($this instanceof Credit)
             $data['$entity_label'] = ctrans('texts.credit');
 
-
-
-        // $data['$tax'] = ;
-        // $data['$item'] = ;
-        // $data['$description'] = ;
-        // $data['$unit_cost'] = ;
-        // $data['$quantity'] = ;
-        // $data['$line_total'] = ;
-        //        $data['$paid_to_date'] = ;
+        //$data['$paid_to_date'] = ;
         $data['$discount'] = Number::formatMoney($this->calc()->getTotalDiscount(), $this->client) ?: '&nbsp;';
         $data['$invoice.discount'] = &$data['$discount'];
         $data['$subtotal'] = Number::formatMoney($this->calc()->getSubTotal(), $this->client) ?: '&nbsp;';
@@ -340,7 +332,6 @@ trait MakesInvoiceValues
         $data['$valid_until'] = $this->due_date;
         $data['$quote_total'] = &$data['$total'];
 
-
         $data['$credit_amount'] =  &$data['$total'];
         $data['$credit_balance'] =  &$data['$balance'];
         $data['$credit.amount'] = &$data['$total'];
@@ -364,29 +355,29 @@ trait MakesInvoiceValues
         $data['$client2'] = $this->client->custom_value2 ?: '&nbsp;';
         $data['$client3'] = $this->client->custom_value3 ?: '&nbsp;';
         $data['$client4'] = $this->client->custom_value4 ?: '&nbsp;';
-        $data['$client_name'] = $this->present()->clientName() ?: '&nbsp;';
-        $data['$client.name'] = &$data['$client_name'];
         $data['$address1'] = $this->client->address1 ?: '&nbsp;';
         $data['$address2'] = $this->client->address2 ?: '&nbsp;';
-        $data['$client.address2'] = &$data['$address2'];
+        $data['$id_number'] = $this->client->id_number ?: '&nbsp;';
+        $data['$vat_number'] = $this->client->vat_number ?: '&nbsp;';
+        $data['$website'] = $this->client->present()->website() ?: '&nbsp;';
+        $data['$phone'] = $this->client->present()->phone() ?: '&nbsp;';
+        $data['$country'] = isset($this->client->country->name) ? $this->client->country->name : 'No Country Set';
+        $data['$email'] = isset($this->client->primary_contact()->first()->email) ? $this->client->primary_contact()->first()->email : 'no contact email on record';
+        $data['$client_name'] = $this->present()->clientName() ?: '&nbsp;';
+        $data['$client.name'] = &$data['$client_name'];
         $data['$client.address1'] = &$data['$address1'];
+        $data['$client.address2'] = &$data['$address2'];
         $data['$client.address'] = &$data['$client_address'];
         $data['$client_address'] = $this->present()->address() ?: '&nbsp;';
-        $data['$id_number'] = $this->client->id_number ?: '&nbsp;';
         $data['$client.id_number'] = &$data['$id_number'];
-        $data['$vat_number'] = $this->client->vat_number ?: '&nbsp;';
         $data['$client.vat_number'] = &$data['$vat_number'];
-        $data['$website'] = $this->client->present()->website() ?: '&nbsp;';
         $data['$client.website'] = &$data['$website'];
-        $data['$phone'] = $this->client->present()->phone() ?: '&nbsp;';
         $data['$client.phone'] = &$data['$phone'];
         $data['$city_state_postal'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, false) ?: '&nbsp;';
         $data['$client.city_state_postal'] = &$data['$city_state_postal'];
         $data['$postal_city_state'] = $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, true) ?: '&nbsp;';
         $data['$client.postal_city_state'] = &$data['$postal_city_state'];
-        $data['$country'] = isset($this->client->country->name) ? $this->client->country->name : 'No Country Set';
         $data['$client.country'] = &$data['$country'];
-        $data['$email'] = isset($this->client->primary_contact()->first()->email) ? $this->client->primary_contact()->first()->email : 'no contact email on record';
         $data['$client.email'] = &$data['$email'];
 
         if(!$contact)
@@ -464,6 +455,44 @@ trait MakesInvoiceValues
         //\Log::error(print_r($data,1));
 
         return $data;
+    }
+
+    /**
+     * 
+     * We prepend $entity to the labels, we need to 
+     * strip this so we can parse the labels correctly.
+     * 
+     */
+    private function stripEntityFromString($entity_string) :string
+    {
+
+    }
+
+    /**
+     * V2 of building a table header for PDFs
+     * @param  array $columns The array (or string of column headers)
+     * @return string  injectable HTML string
+     */
+    public function buildTableHeader($default_columns, $user_columns = null) :?string
+    {
+
+        if($user_columns) {
+
+        }
+        else {
+
+        }
+
+    }
+
+    /**
+     * V2 of building a table body for PDFs
+     * @param  array $columns The array (or string of column headers)
+     * @return string  injectable HTML string
+     */
+    public function buildTable($columns) :?string
+    {
+
     }
 
     /**
