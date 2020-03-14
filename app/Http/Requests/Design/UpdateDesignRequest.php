@@ -32,8 +32,19 @@ class UpdateDesignRequest extends Request
 
     public function rules()
     {
-        return [
-        //    'name' => 'unique:designs,name,'.$this->designs->name.',id,company_id,'.auth()->user()->companyId(),
-        ];
+        return [];
+    }
+
+   protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+            if(is_null($input['design']['product']))
+                $input['design']['product'] = '';
+
+            if(is_null($input['design']['task']))
+                $input['design']['task'] = '';
+
+        $this->replace($input);
     }
 }

@@ -35,4 +35,17 @@ class StoreDesignRequest extends Request
             'design' => 'required',
         ];
     }
+
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+            if(is_null($input['design']['product']))
+                $input['design']['product'] = '';
+
+            if(is_null($input['design']['task']))
+                $input['design']['task'] = '';
+
+        $this->replace($input);
+    }
 }
