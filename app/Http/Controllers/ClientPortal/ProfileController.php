@@ -37,35 +37,26 @@ class ProfileController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ClientContact $client_contact
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function edit(ClientContact $client_contact)
     {
-        /* Dropzone configuration */
-        $data = [
-            'params' => [
-                'is_avatar' => true,
-            ],
-            'url' => '/client/document',
-            'multi_upload' => false,
-        ];
-        
-        return view('portal.default.profile.index', $data);
+        return $this->render('profile.index');
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateContactRequest $request
+     * @param ClientContact $client_contact
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(UpdateContactRequest $request, ClientContact $client_contact)
     {
         $client_contact->fill($request->all());
 
-        //update password if needed
+        // update password if needed
         if ($request->input('password')) {
             $client_contact->password = Hash::make($request->input('password'));
         }
