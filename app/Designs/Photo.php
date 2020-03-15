@@ -21,13 +21,12 @@ class Photo extends AbstractDesign
     public function includes()
     {
         return '
-            <html lang="en">
                 <head>
                     <title>$number</title>
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+                    <link href="$app_url/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
                     <style>
                     body {font-size:90%}
                     @page {
@@ -90,26 +89,29 @@ class Photo extends AbstractDesign
                     </div>
                 </div>
             </div>
-            <div class="px-16 py-16">';
-
-	}
-
-    public function task() {
-    }
-
-    public function task_table()
-    {
-        return '
+            <div class="px-16 py-16">
             <table class="w-full table-auto">
                 <thead class="text-left border-b-4 border-black">
-                    <tr>
-                        $task_table_header
-                    </tr>
+                    $product_table_header
+                </thead>
+                <tbody>
+                    $product_table_body
+                </tbody>
+            </table>
+            <table class="w-full table-auto">
+                <thead class="text-left border-b-4 border-black">
+                    $task_table_header
                 </thead>
                 <tbody>
                     $task_table_body
                 </tbody>
-            </table>';
+            </table>
+            ';
+
+	}
+
+    public function task() {
+        return '';
     }
 
     public function product()
@@ -117,25 +119,10 @@ class Photo extends AbstractDesign
         return '';
     }
 
-    public function product_table() {
-        return '
-            <table class="w-full table-auto">
-                <thead class="text-left border-b-4 border-black">
-                    <tr>
-                        $product_table_header
-                    </tr>
-                </thead>
-                <tbody>
-                    $product_table_body
-                </tbody>
-            </table>
-            ';
-	}
-
 	public function footer() {
 
         return '
-                            <div class="flex items-center justify-between mt-2 px-4 pb-4">
+                    <div class="flex items-center justify-between mt-2 px-4 pb-4">
                         <div class="w-1/2">
                             <div class="flex flex-col">
                                 <p>$entity.public_notes</p>

@@ -21,13 +21,12 @@ class Modern extends AbstractDesign
     public function includes()
     {
         return '
-			<html lang="en">
 			    <head>
 			    	<title>$number</title>
 			        <meta charset="utf-8">
 			        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 			        <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+                    <link href="$app_url/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
 			        <style>
                       body {font-size:90%}
     				 .table_header_thead_class {text-align:left; text-align:left; color:#fff; background-color:#1a202c;}
@@ -103,48 +102,34 @@ class Modern extends AbstractDesign
 			    </div>
 			</div>
             <div class="px-12 pt-5 pb-20">
-			';
-
-	}
-
-    public function task() {
-    }
-
-    public function task_table()
-    {
-        return '
-        <table class="w-full table-auto mt-8">
+            <table class="w-full table-auto mt-8">
                 <thead class="text-left text-white bg-gray-900 display: table-header-group;">
-                    <tr>
-                        $task_table_header
-                    </tr>
+                   $product_table_header
+                </thead>
+                <tbody>
+                        $product_table_body
+                </tbody>
+            </table>
+        	<table class="w-full table-auto mt-8">
+                <thead class="text-left text-white bg-gray-900 display: table-header-group;">
+                    $task_table_header
                 </thead>
                 <tbody>
                         $task_table_body
                 </tbody>
             </table>
-        ';
+			';
+
+	}
+
+    public function task() {
+    	return '';
     }
 
     public function product()
     {
         return '';
     }
-
-	public function product_table() {
-		return '
-            <table class="w-full table-auto mt-8">
-                <thead class="text-left text-white bg-gray-900 display: table-header-group;">
-                    <tr>
-                        $product_table_header
-                    </tr>
-                </thead>
-                <tbody>
-                        $product_table_body
-                </tbody>
-            </table>
-		';
-	}
 
 	public function footer() {
 

@@ -26,7 +26,7 @@ class Clean extends AbstractDesign
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+                    <link href="$app_url/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
                     <style>
                         body {font-size:90%}
                         @page
@@ -85,8 +85,23 @@ class Clean extends AbstractDesign
                     </div>
                 </div>
             </div>
-
             <div class="border-b border-gray-400"></div>
+            <table class="w-full table-auto mt-8">
+                <thead class="text-left">
+                    $product_table_header
+                </thead>
+                <tbody>
+                    $product_table_body
+                </tbody>
+            </table>
+            <table class="w-full table-auto mt-8">
+                <thead class="text-left">
+                    $task_table_header
+                </thead>
+                <tbody>
+                    $task_table_body
+                </tbody>
+            </table>
         ';
 
 	}
@@ -96,41 +111,10 @@ class Clean extends AbstractDesign
         return '';
     }
 
-    public function task_table()
-    {
-        return '
-            <table class="w-full table-auto mt-8">
-                <thead class="text-left">
-                    <tr>
-                        $task_table_header
-                    </tr>
-                </thead>
-                <tbody>
-                    $task_table_body
-                </tbody>
-            </table>
-        ';
-    }
-
     public function product()
     {
         return '';
     }
-
-    public function product_table() {
-        return '
-            <table class="w-full table-auto mt-8">
-            <thead class="text-left">
-                <tr>
-                    $product_table_header
-                </tr>
-            </thead>
-            <tbody>
-                $product_table_body
-            </tbody>
-        </table>
-        ';
-	}
 
 	public function footer() {
 

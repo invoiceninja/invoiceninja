@@ -24,13 +24,12 @@ class Creative extends AbstractDesign
     public function includes()
     {
         return '
-            <html lang="en">
                 <head>
                     <title>$number</title>
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+                    <link href="$app_url/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
                 </head>
                 <body>
                 <style>
@@ -52,7 +51,6 @@ class Creative extends AbstractDesign
 	public function header() {
 
 		return '
-
                 <div class="py-16 mx-16">
                     <div class="flex justify-between">
                         <div class="w-2/3 flex">
@@ -89,39 +87,7 @@ class Creative extends AbstractDesign
                     </div>
                 </div>
             </div>
-        ';
-
-	}
-
-
-    public function task() {
-    }
-
-    public function task_table()
-    {
-        return '
-        <table class="w-full table-auto mt-12 border-t-4 border-pink-700 bg-white">
-            <thead class="text-left rounded-lg">
-                <tr>
-                    $task_table_header
-                </tr>
-            </thead>
-            <tbody>
-                $task_table_body
-            </tbody>
-        </table>
-        ';
-    }
-
-    public function product()
-    {
-        return '';
-    }
-
-    public function product_table() {
-
-        return '
-        <table class="w-full table-auto mt-12 border-t-4 border-pink-700 bg-white">
+            <table class="w-full table-auto mt-12 border-t-4 border-pink-700 bg-white">
             <thead class="text-left rounded-lg">
                 <tr>
                     $product_table_header
@@ -130,8 +96,29 @@ class Creative extends AbstractDesign
             <tbody>
                 $product_table_body
             </tbody>
-        </table>';
+            </table>
+            <table class="w-full table-auto mt-12 border-t-4 border-pink-700 bg-white">
+                <thead class="text-left rounded-lg">
+                    <tr>
+                        $task_table_header
+                    </tr>
+                </thead>
+                <tbody>
+                    $task_table_body
+                </tbody>
+            </table>
+        ';
 	}
+
+    public function task() {
+        return '';
+    }
+
+
+    public function product()
+    {
+        return '';
+    }
 
 	public function footer() {
 

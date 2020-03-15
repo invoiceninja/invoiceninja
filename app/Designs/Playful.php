@@ -21,12 +21,12 @@ class Playful extends AbstractDesign
     public function includes()
     {
         return '
-                <head>
-                    <title>$number</title>
+            <head>
+                <title>$number</title>
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+                    <link href="$app_url/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
                 <style>
                 body {font-size:90%}
                 @page
@@ -68,68 +68,56 @@ class Playful extends AbstractDesign
 	public function body() {
 
         return '
-        <div class="flex mt-16">
-        <div class="w-1/2">
-            <div class="flex flex-col">
-                <p class="font-semibold text-teal-600 pl-4">$entity_label</p>
-                <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
-                    <section class="flex flex-col">
-                        $client_details
-                    </section>
+            <div class="flex mt-16">
+            <div class="w-1/2">
+                <div class="flex flex-col">
+                    <p class="font-semibold text-teal-600 pl-4">$entity_label</p>
+                    <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
+                        <section class="flex flex-col">
+                            $client_details
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <div class="w-1/2 ml-24">
+                <div class="flex flex-col">
+                    <p class="font-semibold text-teal-600 pl-4">$from_label:</p>
+                    <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
+                        <section class="flex flex-col">
+                            $company_details
+                        </section>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="w-1/2 ml-24">
-            <div class="flex flex-col">
-                <p class="font-semibold text-teal-600 pl-4">$from_label:</p>
-                <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
-                    <section class="flex flex-col">
-                        $company_details
-                    </section>
-                </div>
-            </div>
-        </div>
-    </div>';
+        <table class="w-full table-auto mt-20 mb-8">
+            <thead class="text-left bg-teal-600 rounded-lg">
+                $product_table_header
+            </thead>
+            <tbody>
+                $product_table_body
+            </tbody>
+        </table>
+        <table class="w-full table-auto mt-20 mb-8">
+            <thead class="text-left bg-teal-600 rounded-lg">
+                $task_table_header
+            </thead>
+            <tbody>
+                $task_table_body
+            </tbody>
+        </table>
+    ';
 
 	}
 
     public function task() {
-    }
-
-    public function task_table()
-    {
-        return '
-            <table class="w-full table-auto mt-20 mb-8">
-                <thead class="text-left bg-teal-600 rounded-lg">
-                    <tr>
-                        $task_table_header
-                    </tr>
-                </thead>
-                <tbody>
-                    $task_table_body
-                </tbody>
-            </table>
-        ';
+        return '';
     }
 
     public function product()
     {
         return '';
     }
-
-    public function product_table() {
-        return '
-            <table class="w-full table-auto mt-20 mb-8">
-                <thead class="text-left bg-teal-600 rounded-lg">
-                    <tr>
-                        $product_table_header
-                    </tr>
-                </thead>
-                <tbody>
-                    $product_table_body
-                </tbody>
-            </table> ';
-	}
 
 	public function footer() {
 

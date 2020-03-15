@@ -80,7 +80,7 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
                     'client' => $this->contact->present()->name(), 
                     'invoice' => $this->invoice->number,
                 ]),
-            'url' => config('ninja.site_url') . '/invoices/' . $this->invoice->hashed_id,
+            'url' => config('ninja.app_url') . '/invoices/' . $this->invoice->hashed_id,
             'button' => ctrans('texts.view_invoice'),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),

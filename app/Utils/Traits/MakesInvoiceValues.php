@@ -184,7 +184,7 @@ trait MakesInvoiceValues
         $settings = $this->client->getMergedSettings();
 
         $data = [];
-
+        $data['$app_url']                = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from']                   = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to']                     = ['value' => '', 'label' => ctrans('texts.to')];
         $data['$total_tax_labels']       = ['value' => $this->totalTaxLabels(), 'label' => ctrans('texts.taxes')];
@@ -832,5 +832,13 @@ trait MakesInvoiceValues
             $data .= '<span>'. Number::formatMoney($tax['total'], $this->client) .'</span>';
         
         return $data;
+    }
+
+    /*
+    | Ensures the URL doesn't have duplicated trailing slash
+    */
+    private function generateAppUrl()
+    {
+        return rtrim(config('ninja.app_url'),"/");
     }
 }
