@@ -29,7 +29,7 @@ Include the following two setting in the .env file, the rest of the email settin
 
 .. code-block:: shell
 
-   POSTMARK_API_TICKET_TOKEN=
+   POSTMARK_API_TOKEN=
    MAIL_FROM_ADDRESS=
 
 In your Postmark account settings make sure ‘Open tracking’ is enabled and enter the following values under Settings > Outbound.
