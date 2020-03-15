@@ -184,6 +184,12 @@ class Designer {
         $this->exported_variables['$task_table_header']   = $this->entity->buildTableHeader($this->input_variables['task_columns']);
         $this->exported_variables['$task_table_body']     = $this->entity->buildTableBody($this->input_variables['task_columns'], $this->design->task, '$task');
 
+        if(strlen($this->exported_variables['$task_table_body']) == 0)
+        	$this->exported_variables['$task_table_header'] = '';
+
+		if(strlen($this->exported_variables['$product_table_body']) == 0)
+        	$this->exported_variables['$product_table_header'] = '';
+        
 		return $this;
 	}
 

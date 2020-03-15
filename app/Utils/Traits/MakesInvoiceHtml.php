@@ -55,7 +55,7 @@ trait MakesInvoiceHtml
 
         $html = view('pdf.stub', $data)->render();
         
-        \Log::error($html);
+       // \Log::error($html);
         
         return $html;
     }
