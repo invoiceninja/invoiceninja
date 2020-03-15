@@ -87,7 +87,7 @@ class Designer {
 	public function init()
 	{
 		$this->setHtml()
-		->exportVariables();
+			 ->exportVariables();
 
 		return $this;
 	}
@@ -121,36 +121,6 @@ class Designer {
 		$this->setDesign($this->getSection('body'));
 		
 		return $this;
-	}
-
-	public function getProductTable():string 
-	{
-
-		return $this->entity->buildTable($this->input_variables['product_columns'], $this->getSection('product'), '$product');
-		// $table_header = $this->entity->buildTableHeader($this->input_variables['product_columns'], $this->getSection('product'));
-		// $table_body   = $this->entity->buildTableBody($this->input_variables['product_columns'], $this->getSection('product'), '$product');
-
-		// $data = str_replace('$product_table_header', $table_header, $this->getSection('product_table'));
-		// $data = str_replace('$product_table_body', $table_body, $data);
-
-		// return $data;
-
-	}
-
-	public function getTaskTable():string 
-	{
-
-		// $table_header = $this->entity->buildTableHeader($this->input_variables['task_columns'], $this->getSection('task'));
-		// $table_body   = $this->entity->buildTableBody($this->input_variables['task_columns'], $this->getSection('task'), '$task');
-		return $this->entity->buildTable($this->input_variables['task_columns'], $this->getSection('task'), '$task');
-
-		// $data = str_replace('$task_table_header', $table_header, $this->getSection('task_table'));
-		// $data = str_replace('$task_table_body', $table_body, $data);
-
-		//$data = str_replace('$task_table', $table, $this->getSection('task_table'));
-
-		//return $data;
-
 	}
 
 	public function getHtml():string 
@@ -190,9 +160,9 @@ class Designer {
 
 		$company = $this->entity->company;
 
-		$this->exported_variables['$client_details']  = $this->processVariables($this->input_variables['client_details'], $this->clientDetails($company));
-		$this->exported_variables['$company_details'] = $this->processVariables($this->input_variables['company_details'], $this->companyDetails($company));
-		$this->exported_variables['$company_address'] = $this->processVariables($this->input_variables['company_address'], $this->companyAddress($company));
+		$this->exported_variables['$client_details']  	= $this->processVariables($this->input_variables['client_details'], $this->clientDetails($company));
+		$this->exported_variables['$company_details'] 	= $this->processVariables($this->input_variables['company_details'], $this->companyDetails($company));
+		$this->exported_variables['$company_address'] 	= $this->processVariables($this->input_variables['company_address'], $this->companyAddress($company));
 
 		if($this->entity_string == 'invoice')
 		{
@@ -201,14 +171,20 @@ class Designer {
 		}
 		elseif($this->entity_string == 'credit')
 		{
-			$this->exported_variables['$entity_labels']   = $this->processLabels($this->input_variables['credit_details'], $this->creditDetails($company));
-			$this->exported_variables['$entity_details']  = $this->processVariables($this->input_variables['credit_details'], $this->creditDetails($company));
+			$this->exported_variables['$entity_labels']  = $this->processLabels($this->input_variables['credit_details'], $this->creditDetails($company));
+			$this->exported_variables['$entity_details'] = $this->processVariables($this->input_variables['credit_details'], $this->creditDetails($company));
 		}
 		elseif($this->entity_string == 'quote')
 		{
-			$this->exported_variables['$entity_labels']    = $this->processLabels($this->input_variables['quote_details'], $this->quoteDetails($company));
-			$this->exported_variables['$entity_details']   = $this->processVariables($this->input_variables['quote_details'], $this->quoteDetails($company));
+			$this->exported_variables['$entity_labels']  = $this->processLabels($this->input_variables['quote_details'], $this->quoteDetails($company));
+			$this->exported_variables['$entity_details'] = $this->processVariables($this->input_variables['quote_details'], $this->quoteDetails($company));
 		}
+
+        $this->exported_variables['$product_table_header']= $this->entity->buildTableHeader($this->input_variables['product_columns']);
+        $this->exported_variables['$product_table_body']  = $this->entity->buildTableBody($this->input_variables['product_columns'], $this->design->product, '$product.');
+        $this->exported_variables['$task_table_header']   = $this->entity->buildTableHeader($this->input_variables['task_columns']);
+        $this->exported_variables['$task_table_body']     = $this->entity->buildTableBody($this->input_variables['task_columns'], $this->design->task, '$task.');
+
 		return $this;
 	}
 

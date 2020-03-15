@@ -184,6 +184,7 @@ trait MakesInvoiceValues
         $settings = $this->client->getMergedSettings();
 
         $data = [];
+        $data['$tax']                    = ['value' => , 'label' => ctrans('texts.tax')];
         $data['$app_url']                = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from']                   = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to']                     = ['value' => '', 'label' => ctrans('texts.to')];
@@ -373,6 +374,10 @@ trait MakesInvoiceValues
         $data['$task.tax_name2']                     = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name3']                     = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.line_total']                    = ['value' => '', 'label' => ctrans('texts.line_total')];
+        $data['$product_table_header']               = ['value' => $this->buildTableHeader(), 'label' => ''];
+        $data['$product_table_body']                 = ['value' => $this->buildTableBody(), 'label' => ''];
+        $data['$task_table_header']                  = ['value' => $this->buildTableHeader(), 'label' => ''];
+        $data['$task_table_body']                    = ['value' => $this->buildTableBody(), 'label' => ''];
 
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
@@ -425,16 +430,12 @@ trait MakesInvoiceValues
      * @param  array $columns The array (or string of column headers)
      * @return string  injectable HTML string
      */
-    public function buildTableHeader($default_columns, $user_columns) :?string
+    public function buildTableHeader($columns) :?string
     {
 
         $data = $this->makeLabels();
 
-        if(strlen($user_columns) > 1) 
-            return str_replace(array_keys($data), array_values($data), $user_columns);
-
         $table_header = '<tr>';
-        
 
         foreach ($default_columns as $key => $column) {
 
@@ -486,10 +487,9 @@ trait MakesInvoiceValues
             
             $table_row .= '</tr>';
 
-\Log::error($table_row);
 
             foreach($items as $key => $item){
-            \Log::error($item);
+
                 $tmp = str_replace(array_keys($data), array_values($data), $table_row);
                 $tmp = str_replace(array_keys($item), array_values($item), $tmp);
 
@@ -498,108 +498,6 @@ trait MakesInvoiceValues
         }
 
         return $output;
-    }
-
-    public function buildTable($default_columns, $user_columns, $table_prefix)
-    {
-        $table_header = $this->buildTableHeader($default_columns, $user_columns, $table_prefix);
-        $table_body = $this->buildTableBody($default_columns, $user_columns, $table_prefix);
-
-        if(!$table_body)
-            return '';
-
-        return 
-        '
-            <table class="w-full table-auto mt-8">
-                <thead class="text-left">
-                    ' . $table_header . '
-                </thead>
-                <tbody>
-                    ' . $table_body . '
-                </tbody>
-            </table>
-        ';
-    }
-
-    /**
-     * Returns a formatted HTML table of invoice line items
-     *
-     * @param array $columns The columns to be displayed
-     *
-     * @return string[HTML string
-     */
-    public function table(array $columns) :?string
-    {
-        $data = '<table class="table table-striped items">';
-        $data .= '<thead><tr class="heading">';
-
-        $column_headers = $this->transformColumnsForHeader($columns);
-
-        foreach ($column_headers as $column) {
-            $data .= '<td>' . ctrans('texts.'.$column.'') . '</td>';
-        }
-
-        $data .= '</tr></thead>';
-
-        $columns = $this->transformColumnsForLineItems($columns);
-
-        $items = $this->transformLineItems($this->line_items);
-
-        foreach ($items as $item) {
-            $data .= '<tr class="item">';
-
-            foreach ($columns as $column) {
-                $data .= '<td>'. $item->{$column} . '</td>';
-            }
-            $data .= '</tr>';
-        }
-
-        $data .= '</table>';
-
-        return $data;
-    }
-
-
-    public function table_header($columns) :?string
-    {
-
-        $table_header = '<tr>';
-        
-        $column_headers = $this->transformColumnsForHeader($columns);
-
-        foreach ($column_headers as $column) 
-            $table_header .= '<td class="table_header_td_class">' . ctrans('texts.'.$column.'') . '</td>';
-        
-        $table_header .= '</tr>';
-
-        return $table_header;
-
-    }
-
-    /**
-     * @todo need to differentiate here between products and tasks - need to filter by invoice_type_id
-     */
-    public function table_body($columns) :?string
-    {
-        $table_body = '';
-
-        /* Table Body */
-        $columns = $this->transformColumnsForLineItems($columns);
-
-        $items = $this->transformLineItems($this->line_items);
-
-        foreach ($items as $item) {
-
-            $table_body .= '<tr class="">';
-
-            foreach ($columns as $column) {
-                $table_body .= '<td class="table_body_td_class">'. $item->{$column} . '</td>';
-            }
-
-            $table_body .= '</tr>';
-        }
-
-        return $table_body;
     }
 
     /**
