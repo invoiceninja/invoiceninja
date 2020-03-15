@@ -55,7 +55,7 @@ class CompanySettings extends BaseSettings {
 
 	public $default_task_rate 			    = 0;
 
-	public $payment_terms  				    = 1;
+	public $payment_terms  				    = -1;
 	public $send_reminders 				    = false;
 
 	public $custom_message_dashboard        = '';

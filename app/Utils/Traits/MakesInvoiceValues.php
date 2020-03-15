@@ -351,6 +351,33 @@ trait MakesInvoiceValues
         $data['$company2']                  = ['value' => $settings->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];
         $data['$company3']                  = ['value' => $settings->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
         $data['$company4']                  = ['value' => $settings->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
+
+        $data['$product.date']                       = ['value' => '', 'label' => ctrans('texts.date')];
+        $data['$product.discount']                   = ['value' => '', 'label' => ctrans('texts.discount')];
+        $data['$product.product_key']                = ['value' => '', 'label' => ctrans('texts.product_key')];
+        $data['$product.notes']                      = ['value' => '', 'label' => ctrans('texts.notes')];
+        $data['$product.cost']                       = ['value' => '', 'label' => ctrans('texts.cost')];
+        $data['$product.quantity']                   = ['value' => '', 'label' => ctrans('texts.quantity')];
+        $data['$product.tax_name1']                  = ['value' => '', 'label' => ctrans('texts.tax')];
+        $data['$product.tax_name2']                  = ['value' => '', 'label' => ctrans('texts.tax')];
+        $data['$product.tax_name3']                  = ['value' => '', 'label' => ctrans('texts.tax')];
+        $data['$product.line_total']                 = ['value' => '', 'label' => ctrans('texts.line_total')];
+
+        $data['$task.date']                          = ['value' => '', 'label' => ctrans('texts.date')];
+        $data['$task.discount']                      = ['value' => '', 'label' => ctrans('texts.discount')];
+        $data['$task.product_key']                   = ['value' => '', 'label' => ctrans('texts.product_key')];
+        $data['$task.notes']                         = ['value' => '', 'label' => ctrans('texts.notes')];
+        $data['$task.cost']                          = ['value' => '', 'label' => ctrans('texts.cost')];
+        $data['$task.quantity']                      = ['value' => '', 'label' => ctrans('texts.quantity')];
+        $data['$task.tax_name1']                     = ['value' => '', 'label' => ctrans('texts.tax')];
+        $data['$task.tax_name2']                     = ['value' => '', 'label' => ctrans('texts.tax')];
+        $data['$task.tax_name3']                     = ['value' => '', 'label' => ctrans('texts.tax')];
+        $data['$task.line_total']                    = ['value' => '', 'label' => ctrans('texts.line_total')];
+
+        // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
+        // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
+        // $data['custom_label3']              = ['value' => '', 'label' => ctrans('texts.')];
+        // $data['custom_label4']              = ['value' => '', 'label' => ctrans('texts.')];
         //$data['$blank'] = ;
         //$data['$surcharge'] = ;
         /*
@@ -394,32 +421,31 @@ trait MakesInvoiceValues
     }
 
     /**
-     * 
-     * We prepend $entity to the labels, we need to 
-     * strip this so we can parse the labels correctly.
-     * 
-     */
-    private function stripEntityFromString($entity_string) :string
-    {
-
-    }
-
-    /**
      * V2 of building a table header for PDFs
      * @param  array $columns The array (or string of column headers)
      * @return string  injectable HTML string
      */
-    public function buildTableHeader($default_columns, $user_columns = null) :?string
+    public function buildTableHeader($default_columns, $user_columns) :?string
     {
 
-        if($user_columns) {
+        $data = $this->makeLabels();
 
+        if(strlen($user_columns) > 1) 
+            return str_replace(array_keys($data), array_values($data), $user_columns);
+
+        $table_header = '<tr>';
+        
+
+        foreach ($default_columns as $key => $column) {
+
+            $table_header .= '<td class="table_header_td_class">' . $key . '_label</td>';
         }
-        else {
+        
+        $table_header .= '</tr>';
 
-        }
+        $table_header = str_replace(array_keys($data), array_values($data), $table_header);
 
-        return '';
+        return $table_header;
 
     }
 
@@ -428,9 +454,71 @@ trait MakesInvoiceValues
      * @param  array $columns The array (or string of column headers)
      * @return string  injectable HTML string
      */
-    public function buildTableBody($columns) :?string
+    public function buildTableBody(array $default_columns, string $user_columns, string $table_prefix) :?string
     {
-        return '';
+        $items = $this->transformLineItems($this->line_items, $table_prefix);
+
+        if(count($items) == 0)
+            return '';
+
+        $data = $this->makeValues();
+
+        $output = '';
+
+        if(strlen($user_columns) > 1) {
+
+            foreach($items as $key => $item){
+                $tmp = str_replace(array_keys($data), array_values($data), $user_columns);
+                $tmp = str_replace(array_keys($item), array_values($item), $tmp);
+
+                $output .= $tmp;
+            }
+            
+        }
+        else {
+
+            $table_row = '<tr>';
+
+            foreach ($default_columns as $key => $column) {
+
+                $table_row .= '<td class="table_header_td_class">' . $key . '</td>';
+            }
+            
+            $table_row .= '</tr>';
+
+\Log::error($table_row);
+
+            foreach($items as $key => $item){
+            \Log::error($item);
+                $tmp = str_replace(array_keys($data), array_values($data), $table_row);
+                $tmp = str_replace(array_keys($item), array_values($item), $tmp);
+
+                $output .= $tmp;
+            }
+        }
+
+        return $output;
+    }
+
+    public function buildTable($default_columns, $user_columns, $table_prefix)
+    {
+        $table_header = $this->buildTableHeader($default_columns, $user_columns, $table_prefix);
+        $table_body = $this->buildTableBody($default_columns, $user_columns, $table_prefix);
+
+        if(!$table_body)
+            return '';
+
+        return 
+        '
+            <table class="w-full table-auto mt-8">
+                <thead class="text-left">
+                    ' . $table_header . '
+                </thead>
+                <tbody>
+                    ' . $table_body . '
+                </tbody>
+            </table>
+        ';
     }
 
     /**
@@ -474,9 +562,6 @@ trait MakesInvoiceValues
 
     public function table_header($columns) :?string
     {
-
-        /* Table Header */
-        //$table_header = '<thead><tr class="'.$css['table_header_thead_class'].'">';
 
         $table_header = '<tr>';
         
@@ -586,46 +671,67 @@ trait MakesInvoiceValues
      * @param  array  $items The array of invoice items
      * @return array        The formatted array of invoice items
      */
-    private function transformLineItems($items) :array
+    private function transformLineItems($items, $table_type = '$product') :array
     {
+        $data = [];
+        
         if(!is_array($items))
-            return [];
+            $data;
 
-        foreach ($items as $item) {
-            $item->cost = Number::formatMoney($item->cost, $this->client);
-            $item->line_total = Number::formatMoney($item->line_total, $this->client);
+        foreach ($items as $key => $item) {
+
+            if($table_type == '$product' && $item->type_id != 1)
+                continue;
+
+            if($table_type == '$task' && $item->type_id != 2)
+                continue;
+
+            $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $this->client);
+            $data[$key][$table_type.'.line_total'] = Number::formatMoney($item->line_total, $this->client);
 
             if (isset($item->discount) && $item->discount > 0) {
                 if ($item->is_amount_discount) {
-                    $item->discount = Number::formatMoney($item->discount, $this->client);
+                    $data[$key][$table_type.'.discount'] = Number::formatMoney($item->discount, $this->client);
                 } else {
-                    $item->discount = $item->discount . '%';
+                    $data[$key][$table_type.'.discount'] = $item->discount . '%';
                 }
             }
             else
-                $item->discount = '';
+                $data[$key][$table_type.'.discount'] = '';
 
-            if(isset($item->tax_rate1) && $item->tax_rate1 > 0)
-                $item->tax_rate1 = $item->tax_rate1."%";
+            if(isset($item->tax_rate1) && $item->tax_rate1 > 0){
+                $data[$key][$table_type.'.tax_rate1'] = round($item->tax_rate1,2) . "%";
+                $data[$key][$table_type.'.tax1'] = &$data[$key][$table_type.'.tax_rate1'];
+            }
         
-            if(isset($item->tax_rate2) && $item->tax_rate2 > 0)
-                $item->tax_rate2 = $item->tax_rate2."%";
+            if(isset($item->tax_rate2) && $item->tax_rate2 > 0){
+                $data[$key][$table_type.'.tax_rate2'] = round($item->tax_rate2,2) . "%";
+                $data[$key][$table_type.'.tax2'] = &$data[$key][$table_type.'.tax_rate2'];
+            }
 
-            if(isset($item->tax_rate2) && $item->tax_rate2 > 0)
-                $item->tax_rate2 = $item->tax_rate2."%";
+            if(isset($item->tax_rate3) && $item->tax_rate3 > 0){
+                $data[$key][$table_type.'.tax_rate3'] = round($item->tax_rate3,2) . "%";
+                $data[$key][$table_type.'.tax3'] = &$data[$key][$table_type.'.tax_rate3'];
+            }
 
-            if(isset($item->tax_rate1) && $item->tax_rate1 == 0)
-                $item->tax_rate1 = '';
+            if(isset($item->tax_rate1) && $item->tax_rate1 == 0){
+                $data[$key][$table_type.'.tax_rate1'] = '';
+                $data[$key][$table_type.'.tax1'] = &$data[$key][$table_type.'.tax_rate1'];
+            }
         
-            if(isset($item->tax_rate2) && $item->tax_rate2 == 0)
-                $item->tax_rate2 = '';
+            if(isset($item->tax_rate2) && $item->tax_rate2 == 0){
+                $data[$key][$table_type.'.tax_rate2'] = '';
+                $data[$key][$table_type.'.tax2'] = &$data[$key][$table_type.'.tax_rate2'];
+            }
 
-            if(isset($item->tax_rate2) && $item->tax_rate2 == 0)
-                $item->tax_rate2 = '';
+            if(isset($item->tax_rate3) && $item->tax_rate3 == 0){
+                $data[$key][$table_type.'.tax_rate3'] = '';
+                $data[$key][$table_type.'.tax3'] = &$data[$key][$table_type.'.tax_rate3'];
+            }
         }
     
 
-        return $items;
+        return $data;
     }
 
     /**

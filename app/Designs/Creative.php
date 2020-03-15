@@ -24,7 +24,6 @@ class Creative extends AbstractDesign
     public function includes()
     {
         return '
-        <!DOCTYPE html>
             <html lang="en">
                 <head>
                     <title>$number</title>

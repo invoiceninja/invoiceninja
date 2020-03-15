@@ -41,7 +41,7 @@ class PdfVariablesTest extends TestCase
 		/* this flattens the multi dimensional array so we can do a single str_replace */
 		$pdf_variables = iterator_to_array(new \RecursiveIteratorIterator(new \RecursiveArrayIterator($this->settings->pdf_variables)));
 
-		\Log::error(print_r($pdf_variables,1));
+		//\Log::error(print_r($pdf_variables,1));
 
 		$sample_header_text = '<tr><td>$client.name</td><td>$product.product_key</td><td>$product.line_total</td></tr>';
 

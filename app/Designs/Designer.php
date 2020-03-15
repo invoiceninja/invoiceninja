@@ -76,7 +76,8 @@ class Designer {
 			->setDesign($this->getSection('includes'))
 		    ->setDesign($this->getSection('header'))
 			->setDesign($this->getSection('body'))
-			->setDesign($this->getProductTable($this->entity))
+			->setDesign($this->getProductTable())
+			->setDesign($this->getTaskTable())
 			->setDesign($this->getSection('footer'));
 
 		return $this;
@@ -125,26 +126,30 @@ class Designer {
 	public function getProductTable():string 
 	{
 
-		$table_header = $this->entity->buildTableHeader($this->input_variables['product_columns']);
-		$table_body   = $this->entity->buildTableBody($this->input_variables['product_columns']);
+		return $this->entity->buildTable($this->input_variables['product_columns'], $this->getSection('product'), '$product');
+		// $table_header = $this->entity->buildTableHeader($this->input_variables['product_columns'], $this->getSection('product'));
+		// $table_body   = $this->entity->buildTableBody($this->input_variables['product_columns'], $this->getSection('product'), '$product');
 
-		$data = str_replace('$product_table_header', $table_header, $this->getSection('product'));
-		$data = str_replace('$product_table_body', $table_body, $data);
+		// $data = str_replace('$product_table_header', $table_header, $this->getSection('product_table'));
+		// $data = str_replace('$product_table_body', $table_body, $data);
 
-		return $data;
+		// return $data;
 
 	}
 
 	public function getTaskTable():string 
 	{
 
-		$table_header = $this->entity->buildTableHeader($this->input_variables['task_columns']);
-		$table_body   = $this->entity->buildTableBody($this->input_variables['task_columns']);
+		// $table_header = $this->entity->buildTableHeader($this->input_variables['task_columns'], $this->getSection('task'));
+		// $table_body   = $this->entity->buildTableBody($this->input_variables['task_columns'], $this->getSection('task'), '$task');
+		return $this->entity->buildTable($this->input_variables['task_columns'], $this->getSection('task'), '$task');
 
-		$data = str_replace('$task_table_header', $table_header, $this->getSection('task'));
-		$data = str_replace('$task_table_body', $table_body, $data);
+		// $data = str_replace('$task_table_header', $table_header, $this->getSection('task_table'));
+		// $data = str_replace('$task_table_body', $table_body, $data);
 
-		return $data;
+		//$data = str_replace('$task_table', $table, $this->getSection('task_table'));
+
+		//return $data;
 
 	}
 
@@ -220,7 +225,7 @@ class Designer {
 
 	private function processLabels($input_variables, $variables):string 
 	{
-		
+
 		$output = '';
 
 		foreach (array_keys($input_variables) as $value) {
