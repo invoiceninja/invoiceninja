@@ -220,12 +220,13 @@ class Designer {
 
 	private function processLabels($input_variables, $variables):string 
 	{
+		
 		$output = '';
 
-		foreach ($input_variables as $value) {
+		foreach (array_keys($input_variables) as $value) {
 
 			$tmp = str_replace("</span>", "_label</span>", $variables[$value]);
-
+			//$output .= $variables[$value];
 			$output .= $tmp;
 		}
 
@@ -283,7 +284,7 @@ class Designer {
 
 		$data = [
 			'$company.address1'          => '<span>$company.address1</span>',
-			'$company.address2'          => '<span>$company.address1</span>',
+			'$company.address2'          => '<span>$company.address2</span>',
 			'$company.city_state_postal' => '<span>$company.city_state_postal</span>',
 			'$company.postal_city_state' => '<span>$company.postal_city_state</span>',
 			'$company.country'           => '<span>$company.country</span>',

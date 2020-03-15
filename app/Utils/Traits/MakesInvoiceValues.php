@@ -150,6 +150,9 @@ trait MakesInvoiceValues
             $data[$key.'_label'] = $value['label'];
         }
 
+\Log::error("log labels");        
+\Log::error(print_r($data,1));
+
         return $data;
     }
 
@@ -170,7 +173,7 @@ trait MakesInvoiceValues
         {
             $data[$key] = $value['value'];
         }
-
+\Log::error(print_r($data,1));
         return $data;
     }
 

@@ -16,7 +16,7 @@ use App\Models\Design;
 use App\Utils\Traits\ChecksEntityStatus;
 use Illuminate\Support\Facades\Log;
 
-class UpdateDesignRequest extends Requests
+class UpdateDesignRequest extends Request
 {
     use ChecksEntityStatus;
     /**
@@ -39,10 +39,10 @@ class UpdateDesignRequest extends Requests
     {
         $input = $this->all();
 
-            if(is_null($input['design']['product']))
+            if(!array_key_exists('product', $input['design']) || is_null($input['design']['product']))
                 $input['design']['product'] = '';
 
-            if(is_null($input['design']['task']))
+            if(!array_key_exists('task', $input['design']) || is_null($input['design']['task']))
                 $input['design']['task'] = '';
 
         $this->replace($input);
