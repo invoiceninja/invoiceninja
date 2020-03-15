@@ -115,10 +115,10 @@ class Bold extends AbstractDesign
                 </div>
                 <div class="w-1/2 flex">
                     <div class="w-1/2 text-right flex flex-col">
-                        $total_tax_labels $line_tax_labels
+                        $total_tax_labels $line_tax_labels $discount_label
                     </div>
                     <div class="w-1/2 text-right flex flex-col">
-                        $total_tax_values $line_tax_values
+                        $total_tax_values $line_tax_values $discount
                     </div>
                 </div>
             </div>
