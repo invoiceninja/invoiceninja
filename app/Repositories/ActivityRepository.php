@@ -70,7 +70,8 @@ class ActivityRepository extends BaseRepository
 
 
         if (get_class($entity) == Invoice::class && ($activity->activity_type_id == Activity::MARK_SENT_INVOICE || $activity->activity_type_id == Activity::PAID_INVOICE)) {
-            $backup->html_backup = $this->generateInvoiceHtml($entity->design(), $entity);
+            //$backup->html_backup = $this->generateInvoiceHtml($entity->design(), $entity);
+            $backup->html_backup = $this->generateEntityHtml($entity->getEntityDesigner(), $entity);
         }
 
 

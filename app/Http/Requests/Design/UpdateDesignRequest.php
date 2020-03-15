@@ -16,7 +16,7 @@ use App\Models\Design;
 use App\Utils\Traits\ChecksEntityStatus;
 use Illuminate\Support\Facades\Log;
 
-class UpdateDesignRequest extends Request
+class UpdateDesignRequest extends Requests
 {
     use ChecksEntityStatus;
     /**

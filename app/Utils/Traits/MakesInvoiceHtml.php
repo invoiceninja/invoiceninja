@@ -28,7 +28,9 @@ trait MakesInvoiceHtml
      *
      * @param  string $design either the path to the design template, OR the full design template string
      * @param  Collection $invoice  The invoice object
-     *
+     * 
+     * @deprecated replaced by generateEntityHtml
+     * 
      * @return string           The invoice string in HTML format
      */
     public function generateInvoiceHtml($design, $invoice, $contact = null) :string
