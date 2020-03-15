@@ -76,8 +76,6 @@ class Designer {
 			->setDesign($this->getSection('includes'))
 		    ->setDesign($this->getSection('header'))
 			->setDesign($this->getSection('body'))
-			->setDesign($this->getProductTable())
-			->setDesign($this->getTaskTable())
 			->setDesign($this->getSection('footer'));
 
 		return $this;
@@ -159,7 +157,8 @@ class Designer {
 	{
 
 		$company = $this->entity->company;
-
+		
+		$this->exported_variables['$app_url']			= $this->entity->generateAppUrl();
 		$this->exported_variables['$client_details']  	= $this->processVariables($this->input_variables['client_details'], $this->clientDetails($company));
 		$this->exported_variables['$company_details'] 	= $this->processVariables($this->input_variables['company_details'], $this->companyDetails($company));
 		$this->exported_variables['$company_address'] 	= $this->processVariables($this->input_variables['company_address'], $this->companyAddress($company));
@@ -181,9 +180,9 @@ class Designer {
 		}
 
         $this->exported_variables['$product_table_header']= $this->entity->buildTableHeader($this->input_variables['product_columns']);
-        $this->exported_variables['$product_table_body']  = $this->entity->buildTableBody($this->input_variables['product_columns'], $this->design->product, '$product.');
+        $this->exported_variables['$product_table_body']  = $this->entity->buildTableBody($this->input_variables['product_columns'], $this->design->product, '$product');
         $this->exported_variables['$task_table_header']   = $this->entity->buildTableHeader($this->input_variables['task_columns']);
-        $this->exported_variables['$task_table_body']     = $this->entity->buildTableBody($this->input_variables['task_columns'], $this->design->task, '$task.');
+        $this->exported_variables['$task_table_body']     = $this->entity->buildTableBody($this->input_variables['task_columns'], $this->design->task, '$task');
 
 		return $this;
 	}

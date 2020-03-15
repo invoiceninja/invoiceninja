@@ -25,7 +25,7 @@ class Bold extends AbstractDesign
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link href="$app_url/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+                    <link href="$app_url/css/tailwind-1.2.0.css" rel="stylesheet">
                     <style>
                         body {font-size:90%}
                         @page: not(:first-of-type) { size: auto; margin-top: 5mm; }

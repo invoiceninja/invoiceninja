@@ -184,7 +184,7 @@ trait MakesInvoiceValues
         $settings = $this->client->getMergedSettings();
 
         $data = [];
-        $data['$tax']                    = ['value' => , 'label' => ctrans('texts.tax')];
+        $data['$tax']                    = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$app_url']                = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from']                   = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to']                     = ['value' => '', 'label' => ctrans('texts.to')];
@@ -193,6 +193,7 @@ trait MakesInvoiceValues
         $data['$line_tax_labels']        = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_values']        = ['value' => $this->lineTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$date']                   = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.date')];
+        $data['$invoice_date']           = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
         $data['$invoice.date']           = &$data['$date'];
         $data['$due_date']               = ['value' => $this->due_date ?: '&nbsp;', 'label' => ctrans('texts.due_date')];
         $data['$invoice.due_date']       = &$data['$due_date'];
@@ -374,10 +375,7 @@ trait MakesInvoiceValues
         $data['$task.tax_name2']                     = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name3']                     = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.line_total']                    = ['value' => '', 'label' => ctrans('texts.line_total')];
-        $data['$product_table_header']               = ['value' => $this->buildTableHeader(), 'label' => ''];
-        $data['$product_table_body']                 = ['value' => $this->buildTableBody(), 'label' => ''];
-        $data['$task_table_header']                  = ['value' => $this->buildTableHeader(), 'label' => ''];
-        $data['$task_table_body']                    = ['value' => $this->buildTableBody(), 'label' => ''];
+
 
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
@@ -419,8 +417,6 @@ trait MakesInvoiceValues
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
-        //     \Log::error('woop');
-        //\Log::error(print_r($data,1));
 
         return $data;
     }
@@ -437,7 +433,7 @@ trait MakesInvoiceValues
 
         $table_header = '<tr>';
 
-        foreach ($default_columns as $key => $column) {
+        foreach ($columns as $key => $column) {
 
             $table_header .= '<td class="table_header_td_class">' . $key . '_label</td>';
         }
@@ -487,11 +483,10 @@ trait MakesInvoiceValues
             
             $table_row .= '</tr>';
 
-
             foreach($items as $key => $item){
 
-                $tmp = str_replace(array_keys($data), array_values($data), $table_row);
-                $tmp = str_replace(array_keys($item), array_values($item), $tmp);
+                $tmp = str_replace(array_keys($item), array_values($item), $table_row);
+                $tmp = str_replace(array_keys($data), array_values($data), $tmp);
 
                 $output .= $tmp;
             }
@@ -583,6 +578,14 @@ trait MakesInvoiceValues
 
             if($table_type == '$task' && $item->type_id != 2)
                 continue;
+
+            $data[$key][$table_type.'.product_key'] = $item->product_key;
+            $data[$key][$table_type.'.notes'] = $item->notes;
+            $data[$key][$table_type.'.custom_value1'] = $item->custom_value1;
+            $data[$key][$table_type.'.custom_value2'] = $item->custom_value2;
+            $data[$key][$table_type.'.custom_value3'] = $item->custom_value3;
+            $data[$key][$table_type.'.custom_value4'] = $item->custom_value4;
+            $data[$key][$table_type.'.quantity'] = $item->quantity;
 
             $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $this->client);
             $data[$key][$table_type.'.line_total'] = Number::formatMoney($item->line_total, $this->client);
@@ -735,7 +738,7 @@ trait MakesInvoiceValues
     /*
     | Ensures the URL doesn't have duplicated trailing slash
     */
-    private function generateAppUrl()
+    public function generateAppUrl()
     {
         return rtrim(config('ninja.app_url'),"/");
     }

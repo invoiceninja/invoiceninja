@@ -33,30 +33,6 @@ trait MakesInvoiceHtml
      * 
      * @return string           The invoice string in HTML format
      */
-    public function generateInvoiceHtml($design, $invoice, $contact = null) :string
-    {
-        //$variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
-        //$design = str_replace(array_keys($variables), array_values($variables), $design);
-        $invoice->load('client');
-
-        $client = $invoice->client;
-
-        App::setLocale($client->preferredLocale());
-
-        $labels = $invoice->makeLabels();
-        $values = $invoice->makeValues($contact);
-
-        $design = str_replace(array_keys($labels), array_values($labels), $design);
-        $design = str_replace(array_keys($values), array_values($values), $design);
-
-        $data['invoice'] = $invoice;
-        $data['lang'] = $client->preferredLocale();
-
-        return $this->renderView($design, $data);
-
-        //return view($design, $data)->render();
-    }
-
     public function generateEntityHtml(Designer $designer, $entity, $contact = null) :string
     {
 
@@ -75,12 +51,13 @@ trait MakesInvoiceHtml
         $data['includes'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getIncludes()->getHtml());
         $data['header'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getHeader()->getHtml());
         $data['body'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getBody()->getHtml());
-        $data['product'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getProductTable());
-        $data['task'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getTaskTable());
         $data['footer'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getFooter()->getHtml());
 
-        return view('pdf.stub', $data)->render();
+        $html = view('pdf.stub', $data)->render();
         
+        \Log::error($html);
+        
+        return $html;
     }
 
     private function parseLabelsAndValues($labels, $values, $section) :string
