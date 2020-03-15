@@ -150,9 +150,6 @@ trait MakesInvoiceValues
             $data[$key.'_label'] = $value['label'];
         }
 
-\Log::error("log labels");        
-\Log::error(print_r($data,1));
-
         return $data;
     }
 
@@ -173,7 +170,7 @@ trait MakesInvoiceValues
         {
             $data[$key] = $value['value'];
         }
-\Log::error(print_r($data,1));
+
         return $data;
     }
 
@@ -188,6 +185,8 @@ trait MakesInvoiceValues
 
         $data = [];
 
+        $data['$from']                   = ['value' => '', 'label' => ctrans('texts.from')];
+        $data['$to']                     = ['value' => '', 'label' => ctrans('texts.to')];
         $data['$total_tax_labels']       = ['value' => $this->totalTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$total_tax_values']       = ['value' => $this->totalTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_labels']        = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
