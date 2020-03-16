@@ -18,11 +18,12 @@
 
             <div class="mx-auto px-4 sm:px-6 md:px-8">
                 <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
-                @yield('content-header')
+                @yield('header')
             </div>
 
             <div class="mx-auto px-4 sm:px-6 md:px-8">
                 <div class="py-4">
+                    @includeWhen(session()->has('success'), 'portal.ninja2020.components.general.messages.success')
                     {{ $slot }}
                 </div>
             </div>

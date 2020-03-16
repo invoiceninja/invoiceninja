@@ -17,7 +17,7 @@ use App\Utils\Traits\MakesHash;
 class UpdateClientRequest extends Request
 {
     use MakesHash;
-    
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -32,7 +32,7 @@ class UpdateClientRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required',
+            'name' => 'sometimes|required',
             'file' => 'sometimes|nullable|max:100000|mimes:png,svg,jpeg,gif,jpg,bmp'
         ];
     }

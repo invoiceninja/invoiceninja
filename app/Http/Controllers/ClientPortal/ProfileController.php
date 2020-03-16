@@ -22,18 +22,6 @@ use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -56,16 +44,17 @@ class ProfileController extends Controller
     {
         $client_contact->fill($request->all());
 
-        // update password if needed
-        if ($request->input('password')) {
-            $client_contact->password = Hash::make($request->input('password'));
+        if ($request->has('password')) {
+            $client_contact->password = encrypt($request->password);
         }
 
         $client_contact->save();
 
         // auth()->user()->fresh();
 
-        return back();
+        return back()->withSuccess(
+            ctrans('texts.profile_updated_successfully')
+        );
     }
 
     public function updateClient(UpdateClientRequest $request, ClientContact $client_contact)
@@ -84,6 +73,8 @@ class ProfileController extends Controller
         $client->fill($request->all());
         $client->save();
 
-        return back();
+        return back()->withSuccess(
+            ctrans('texts.profile_updated_successfully')
+        );
     }
 }
