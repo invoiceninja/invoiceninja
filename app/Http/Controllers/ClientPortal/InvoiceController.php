@@ -16,15 +16,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\ShowInvoiceRequest;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Invoice;
-use App\Repositories\BaseRepository;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\Facades\DataTables;
 use Yajra\DataTables\Html\Builder;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
@@ -38,42 +32,20 @@ class InvoiceController extends Controller
 {
     use MakesHash;
     use MakesDates;
+
     /**
      * Show the list of Invoices
      *
-     * @param      \App\Filters\InvoiceFilters  $filters  The filters
+     * @param \App\Filters\InvoiceFilters $filters The filters
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Exception
      */
     public function index(InvoiceFilters $filters, Builder $builder)
     {
-        $invoices = Invoice::filter($filters)->with('client', 'client.country');
+        $invoices = auth()->user()->client->company->invoices()->paginate(10);
 
-        if (request()->ajax()) {
-            return DataTables::of($invoices)->addColumn('action', function ($invoice) {
-                return $this->buildClientButtons($invoice);
-            })
-                ->addColumn('checkbox', function ($invoice) {
-                    return '<input type="checkbox" name="hashed_ids[]" value="'. $invoice->hashed_id .'"/>';
-                })
-                ->editColumn('status_id', function ($invoice) {
-                    return Invoice::badgeForStatus($invoice->status);
-                })->editColumn('date', function ($invoice) {
-                    return $this->formatDate($invoice->date, $invoice->client->date_format());
-                })->editColumn('due_date', function ($invoice) {
-                    return $this->formatDate($invoice->due_date, $invoice->client->date_format());
-                })->editColumn('balance', function ($invoice) {
-                    return Number::formatMoney($invoice->balance, $invoice->client);
-                })->editColumn('amount', function ($invoice) {
-                    return Number::formatMoney($invoice->amount, $invoice->client);
-                })
-                ->rawColumns(['checkbox', 'action', 'status_id'])
-                ->make(true);
-        }
-
-        $data['html'] = $builder;
-      
-        return view('portal.default.invoices.index', $data);
+        return $this->render('invoices.index', ['invoices' => $invoices]);
     }
 
     private function buildClientButtons($invoice)
@@ -96,21 +68,21 @@ class InvoiceController extends Controller
      *
      * @param      \App\Models\Invoice $invoice  The invoice
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function show(ShowInvoiceRequest $request, Invoice $invoice)
     {
         $data = [
             'invoice' => $invoice,
         ];
-        
-        return view('portal.default.invoices.show', $data);
+
+        return $this->render('invoices.show', $data);
     }
 
     /**
      * Pay one or more invoices
      *
-     * @return View
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
     public function bulk()
     {
@@ -159,7 +131,7 @@ class InvoiceController extends Controller
             'total' =>  $total,
         ];
 
-        return view('portal.default.invoices.payment', $data);
+        return $this->render('invoices.payment', $data);
     }
 
     private function downloadInvoicePDF(array $ids)

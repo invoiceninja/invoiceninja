@@ -114,6 +114,10 @@ class Invoice extends BaseModel
         'status'
     ];
 
+    protected $dates = [
+        'date',
+    ];
+
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
     const STATUS_PARTIAL = 3;
@@ -178,7 +182,7 @@ class Invoice extends BaseModel
         return new InvoiceService($this);
     }
 
-    public function ledger() 
+    public function ledger()
     {
         return new LedgerService($this);
     }
