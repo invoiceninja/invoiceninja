@@ -125,10 +125,12 @@ class Clean extends AbstractDesign
                     </div>
                     <div class="w-1/2 flex">
                         <div class="w-1/2 text-right flex flex-col">
+                            $discount_label
                             $total_tax_labels
                             $line_tax_labels
                         </div>
                         <div class="w-1/2 text-right flex flex-col">
+                            $discount
                             $total_tax_values
                             $line_tax_values
                         </div>

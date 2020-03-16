@@ -140,10 +140,12 @@ class Modern extends AbstractDesign
 			        </div>
 			        <div class="w-1/2 flex" style="page-break-inside: avoid;">
 			            <div class="w-1/2 text-right flex flex-col"  style="page-break-inside: avoid;">
+			            	$discount_label
 			                $total_tax_labels
 			                $line_tax_labels
 			            </div>
 			            <div class="w-1/2 text-right flex flex-col"  style="page-break-inside: avoid;">
+			            	$discount
 			                $total_tax_values
 			                $line_tax_values
 			            </div>

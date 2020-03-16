@@ -288,21 +288,21 @@ class Designer {
 	{
 
 		$data = [
-			'$invoice.invoice_number' => '<span>$invoice_number</span>',
-			'$invoice.po_number'      => '<span>$po_number</span>',
-			'$invoice.invoice_date'   => '<span>$invoice_date</span>',
-			'$invoice.due_date'       => '<span>$due_date</span>',
-			'$invoice.balance_due'    => '<span>$balance_due</span>',
-			'$invoice.invoice_total'  => '<span>$invoice_total</span>',
-			'$invoice.partial_due'    => '<span>$partial_due</span>',
-			'$invoice.invoice1'       => '<span>$invoice1</span>',
-			'$invoice.invoice2'       => '<span>$invoice2</span>',
-			'$invoice.invoice3'       => '<span>$invoice3</span>',
-			'$invoice.invoice4'       => '<span>$invoice4</span>',
-			'$invoice.surcharge1'     => '<span>$surcharge1</span>',
-			'$invoice.surcharge2'     => '<span>$surcharge2</span>',
-			'$invoice.surcharge3'     => '<span>$surcharge3</span>',
-			'$invoice.surcharge4'     => '<span>$surcharge4</span>',
+			'$invoice.invoice_number' => '<span>$invoice_number_label</span><span>$invoice_number</span>',
+			'$invoice.po_number'      => '<span>$po_number_label</span><span>$po_number</span>',
+			'$invoice.invoice_date'   => '<span>$invoice_date_label</span><span>$invoice_date</span>',
+			'$invoice.due_date'       => '<span>$due_date_label</span><span>$due_date</span>',
+			'$invoice.balance_due'    => '<span>$balance_due_label</span><span>$balance_due</span>',
+			'$invoice.invoice_total'  => '<span>$invoice_total_label</span><span>$invoice_total</span>',
+			'$invoice.partial_due'    => '<span>$partial_due_label</span><span>$partial_due</span>',
+			'$invoice.invoice1'       => '<span>$invoice1_label</span><span>$invoice1</span>',
+			'$invoice.invoice2'       => '<span>$invoice2_label</span><span>$invoice2</span>',
+			'$invoice.invoice3'       => '<span>$invoice3_label</span><span>$invoice3</span>',
+			'$invoice.invoice4'       => '<span>$invoice4_label</span><span>$invoice4</span>',
+			'$invoice.surcharge1'     => '<span>$surcharge1_label</span><span>$surcharge1</span>',
+			'$invoice.surcharge2'     => '<span>$surcharge2_label</span><span>$surcharge2</span>',
+			'$invoice.surcharge3'     => '<span>$surcharge3_label</span><span>$surcharge3</span>',
+			'$invoice.surcharge4'     => '<span>$surcharge4_label</span><span>$surcharge4</span>',
 		];
 
 		return $this->processCustomFields($company, $data);

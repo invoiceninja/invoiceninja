@@ -105,7 +105,7 @@ class Business extends AbstractDesign
             </table>
             <table class="w-full table-auto mt-20">
                 <thead class="text-left">
-                        $task_table_header
+                    $task_table_header
                 </thead>
                 <tbody>
                     $task_table_body
@@ -138,10 +138,12 @@ class Business extends AbstractDesign
                 <div class="w-1/3 flex flex-col">
                     <div class="flex px-3 mt-2">
                         <section class="w-1/2 text-right flex flex-col">
+                            $discount_label
                             $total_tax_labels
                             $line_tax_labels
                         </section>
                         <section class="w-1/2 text-right flex flex-col">
+                            $discount
                             $total_tax_values
                             $line_tax_values
                         </section>

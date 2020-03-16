@@ -19,7 +19,7 @@ class DesignUpdate extends Command
      *
      * @var string
      */
-    protected $description = 'Update the default designs when changes are made.';
+    protected $description = 'Update the system designs when changes are made.';
 
     /**
      * Create a new command instance.
