@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
@@ -36,6 +37,9 @@ class ProductTest extends TestCase
 
         Model::reguard();
 
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
     }
 
     public function testProductList()
@@ -52,11 +56,9 @@ class ProductTest extends TestCase
             'terms_of_service' => 1
         ];
 
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
             ])->post('/api/v1/signup?include=account', $data);
-
 
         $response->assertStatus(200);
 

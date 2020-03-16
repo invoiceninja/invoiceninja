@@ -55,7 +55,7 @@ class CompanySettings extends BaseSettings {
 
 	public $default_task_rate 			    = 0;
 
-	public $payment_terms  				    = 1;
+	public $payment_terms  				    = -1;
 	public $send_reminders 				    = false;
 
 	public $custom_message_dashboard        = '';
@@ -431,23 +431,6 @@ class CompanySettings extends BaseSettings {
 		$data->translations      = (object) [];
 		$data->pdf_variables 	 = (object) self::getEntityVariableDefaults();
 
-		// $data->email_subject_invoice = EmailTemplateDefaults::emailInvoiceSubject();
-		// $data->email_template_invoice = EmailTemplateDefaults:: emailInvoiceTemplate();
-		// $data->email_subject_quote = EmailTemplateDefaults::emailQuoteSubject();
-		// $data->email_subject_payment = EmailTemplateDefaults::emailPaymentSubject();
-		// $data->email_subject_statement = EmailTemplateDefaults::emailStatementSubject();
-		// $data->email_template_quote = EmailTemplateDefaults::emailQuoteTemplate();
-		// $data->email_template_payment = EmailTemplateDefaults::emailPaymentTemplate();
-		// $data->email_template_statement = EmailTemplateDefaults::emailStatementTemplate();
-		// $data->email_subject_reminder1 = EmailTemplateDefaults::emailReminder1Subject();
-		// $data->email_subject_reminder2 = EmailTemplateDefaults::emailReminder2Subject();
-		// $data->email_subject_reminder3 = EmailTemplateDefaults::emailReminder3Subject();
-		// $data->email_subject_reminder_endless = EmailTemplateDefaults::emailReminderEndlessSubject();
-		// $data->email_template_reminder1 = EmailTemplateDefaults::emailReminder1Template();
-		// $data->email_template_reminder2 = EmailTemplateDefaults::emailReminder2Template();
-		// $data->email_template_reminder3 = EmailTemplateDefaults::emailReminder3Template();
-		// $data->email_template_reminder_endless = EmailTemplateDefaults::emailReminderEndlessTemplate();
-
 		return self::setCasts($data, self::$casts);
 	}
 
@@ -482,70 +465,70 @@ class CompanySettings extends BaseSettings {
 
 		$variables = [
 			'client_details' => [
-				'name',
-				'id_number',
-				'vat_number',
-				'address1',
-				'address2',
-				'city_state_postal',
-				'country',
-				'email',
+				'$client.name' => ctrans('texts.client_name'),
+				'$client.id_number' => ctrans('texts.id_number'),
+				'$client.vat_number' => ctrans('texts.vat_number'),
+				'$client.address1' => ctrans('texts.address1'),
+				'$client.address2' => ctrans('texts.address2'),
+				'$client.city_state_postal' => ctrans('texts.city_state_postal'),
+				'$client.country' => ctrans('texts.country'),
+				'$client.email' => ctrans('texts.email'),
 			],
 			'company_details' => [
-				'company_name',
-				'id_number',
-				'vat_number',
-				'website',
-				'email',
-				'phone',
+				'$company.company_name' => ctrans('texts.company_name'),
+				'$company.id_number' => ctrans('texts.id_number'),
+				'$company.vat_number' => ctrans('texts.vat_number'),
+				'$company.website' => ctrans('texts.website'),
+				'$company.email' => ctrans('texts.email'),
+				'$company.phone' => ctrans('texts.phone'),
 			],
 			'company_address' => [
-				'address1',
-				'address2',
-				'city_state_postal',
-				'country',
+				'$company.address1' => ctrans('texts.address1'),
+				'$company.address2' => ctrans('texts.address2'),
+				'$company.city_state_postal' => ctrans('texts.city_state_postal'),
+				'$company.country' => ctrans('texts.country'),
 			],
 			'invoice_details' => [
-				'invoice_number',
-				'po_number',
-				'date',
-				'due_date',
-				'balance_due',
-				'invoice_total',
+				'$invoice.invoice_number' => ctrans('texts.invoice_number'),
+				'$invoice.po_number' => ctrans('texts.po_number'),
+				'$invoice.invoice_date' => ctrans('texts.invoice_date'),
+				'$invoice.due_date' => ctrans('texts.due_date'),
+				'$invoice.balance_due' => ctrans('texts.balance_due'),
+				'$invoice.invoice_total' => ctrans('texts.invoice_total'),
 			],
 			'quote_details' => [
-				'quote_number',
-				'po_number',
-				'date',
-				'valid_until',
-				'balance_due',
-				'quote_total',
+				'$quote.quote_number' => ctrans('texts.quote_number'),
+				'$quote.po_number' => ctrans('texts.po_number'),
+				'$quote.quote_date' => ctrans('texts.quote_date'),
+				'$quote.valid_until' => ctrans('texts.valid_until'),
+				'$quote.balance_due' => ctrans('texts.balance_due'),
+				'$quote.quote_total' => ctrans('texts.quote_total'),
 			],
 			'credit_details' => [
-				'credit_number',
-				'po_number',
-				'date',
-				'credit_balance',
-				'credit_amount',
+				'$credit.credit_number' => ctrans('texts.credit_number'),
+				'$credit.po_number' => ctrans('texts.po_number'),
+				'$credit.credit_date' => ctrans('texts.credit_date'),
+				'$credit.credit_balance' => ctrans('texts.credit_balance'),
+				'$credit.credit_amount' => ctrans('texts.credit_amount'),
 			],
 			'product_columns' => [
-				'product_key',
-				'notes',
-				'cost',
-				'quantity',
-				'discount',
-				'tax_name1',
-				'line_total'
+				'$product.product_key' => ctrans('texts.product_key'),
+				'$product.notes' => ctrans('texts.notes'),
+				'$product.cost' => ctrans('texts.cost'),
+				'$product.quantity' => ctrans('texts.quantity'),
+				'$product.discount' => ctrans('texts.discount'),
+				'$product.tax_name1' => ctrans('texts.tax_name1'),
+				'$product.line_total' => ctrans('texts.line_total'),
 			],
 			'task_columns' => [
-				'product_key',
-				'notes',
-				'cost',
-				'quantity',
-				'discount',
-				'tax_name1',
-				'line_total'
-			],
+				'$task.product_key' => ctrans('texts.product_key'),
+				'$task.notes' => ctrans('texts.notes'),
+				'$task.cost' => ctrans('texts.cost'),
+				'$task.quantity' => ctrans('texts.quantity'),
+				'$task.discount' => ctrans('texts.discount'),
+				'$task.tax_name1' => ctrans('texts.tax_name1'),
+				'$task.line_total' => ctrans('texts.line_total'),
+			],  
 		];
 		
 		return json_decode(json_encode($variables));

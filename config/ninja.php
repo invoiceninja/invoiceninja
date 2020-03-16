@@ -8,7 +8,7 @@ return [
     'license'   => env('NINJA_LICENSE', ''),
     'app_name' => env('APP_NAME'),
     'version_url' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v2/VERSION.txt',
-    'site_url' => env('APP_URL', ''),
+    'app_url' => env('APP_URL', ''),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
     'app_version' => '0.0.1',
     'api_version' => '0.0.1',

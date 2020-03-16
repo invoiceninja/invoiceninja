@@ -42,50 +42,6 @@ class Custom extends AbstractDesign
 		$this->task = $design->design->task;
 
 		$this->footer = $design->design->footer;
-			
-	}
-
-	public function name()
-	{
-		return $this->name;
-	}
-
-	public function includes()
-	{
-		return $this->includes;
-	}
-
-	public function header() 
-	{
-
-		return $this->header;
-			
-	}
-
-	public function body() 
-	{
-
-		return $this->body;	
-
-	}
-
-	public function product() 
-	{
-
-		return $this->product;
-
-	}
-
-	public function task()
-	{
-		return $this->task;
-	}
-
-	public function footer() 
-	{
-
-		return $this->footer;
-		
 	}
 
 }

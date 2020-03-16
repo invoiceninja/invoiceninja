@@ -24,5 +24,4 @@ abstract class AbstractDesign
 	abstract public function task();
 	
 	abstract public function footer();
-	
 }

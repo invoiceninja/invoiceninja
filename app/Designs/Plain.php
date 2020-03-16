@@ -26,7 +26,7 @@ class Plain extends AbstractDesign
                 <meta charset="utf-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                 <meta http-equiv="x-ua-compatible" content="ie=edge">
-                <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+                <link href="$app_url/css/tailwind-1.2.0.css" rel="stylesheet">
                 <style>
                 body {font-size:90%}
                 @page {
@@ -45,7 +45,6 @@ class Plain extends AbstractDesign
 	public function header() {
 
 		return '
-
                     <div class="px-12 py-8">
                         <div class="flex justify-between">
                             $company_logo
@@ -54,15 +53,12 @@ class Plain extends AbstractDesign
                             </div>
                             <div class="flex flex-col">
                                 <div class="flex px-3">
-                                    <section class="w-1/2 flex flex-col mr-4">
-                                        $entity_labels
-                                    </section>
                                     <section class="flex align-end flex-col">
                                         $entity_details
                                     </section>
                                 </div>
                                 <section class="flex bg-gray-300 px-3">
-                                    <p class="w-1/2 mr-4">Balance Due</p>
+                                    <p class="w-1/2 mr-4">$balance_due_label</p>
                                     <p>$0.00</p>
                                 </section>
                             </div>
@@ -77,6 +73,22 @@ class Plain extends AbstractDesign
             <div class="flex flex-col mt-8">
                 $client_details
             </div>
+            <table class="w-full table-auto mt-8">
+                <thead class="text-left bg-gray-300">
+                    $product_table_header
+                </thead>
+                <tbody>
+                    $product_table_body
+                </tbody>
+            </table>
+            <table class="w-full table-auto mt-8">
+                <thead class="text-left bg-gray-300">
+                    $task_table_header
+                </thead>
+                <tbody>
+                    $task_table_body
+                </tbody>
+            </table>
         ';
 
 	}
@@ -85,39 +97,10 @@ class Plain extends AbstractDesign
 	    return '';
     }
 
-    public function task_table()
-    {
-        return '
-        <table class="w-full table-auto mt-8">
-            <thead class="text-left bg-gray-300">
-                <tr>
-                    $task_table_header
-                </tr>
-            </thead>
-            <tbody>
-                $task_table_body
-            </tbody>
-        </table>';
-    }
-
     public function product()
     {
         return '';
     }
-
-    public function product_table() {
-        return '
-        <table class="w-full table-auto mt-8">
-            <thead class="text-left bg-gray-300">
-                <tr>
-                    $product_table_header
-                </tr>
-            </thead>
-            <tbody>
-                $product_table_body
-            </tbody>
-        </table>';
-	}
 
 	public function footer() {
 
@@ -135,10 +118,12 @@ class Plain extends AbstractDesign
                 <div class="w-1/3 flex flex-col">
                     <div class="flex px-3 mt-6">
                         <section class="w-1/2 text-right flex flex-col">
+                            $discount_label
                             $total_tax_labels
                             $line_tax_labels
                         </section>
                         <section class="w-1/2 text-right flex flex-col">
+                            $discount
                             $total_tax_values
                             $line_tax_values
                         </section>

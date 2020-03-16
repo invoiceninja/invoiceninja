@@ -35,4 +35,17 @@ class StoreDesignRequest extends Request
             'design' => 'required',
         ];
     }
+
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+            if(!array_key_exists('product', $input['design']) || is_null($input['design']['product']))
+                $input['design']['product'] = '';
+
+            if(!array_key_exists('task', $input['design']) || is_null($input['design']['task']))
+                $input['design']['task'] = '';
+
+        $this->replace($input);
+    }
 }

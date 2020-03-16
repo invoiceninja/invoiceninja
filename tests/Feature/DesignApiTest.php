@@ -50,9 +50,18 @@ class DesignApiTest extends TestCase
 
     public function testDesignPost()
     {
+        $design = [
+            'body' => 'body',
+            'includes' => 'includes',
+            'product' => 'product',
+            'task' => 'task',
+            'footer' => 'footer',
+            'header' => 'header'
+        ];
+
         $data = [
             'name' => $this->faker->firstName,
-            'design' => '<HTML></HTML'
+            'design' => $design
         ];
 
 
@@ -92,7 +101,7 @@ class DesignApiTest extends TestCase
 
         $data = [
             'name' => $this->faker->firstName,
-            'design' => 'changed'
+            'design' => $design
         ];
 
 

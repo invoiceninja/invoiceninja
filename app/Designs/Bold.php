@@ -25,7 +25,7 @@ class Bold extends AbstractDesign
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
                     <meta http-equiv="x-ua-compatible" content="ie=edge">
-                    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+                    <link href="$app_url/css/tailwind-1.2.0.css" rel="stylesheet">
                     <style>
                         body {font-size:90%}
                         @page: not(:first-of-type) { size: auto; margin-top: 5mm; }
@@ -78,16 +78,14 @@ class Bold extends AbstractDesign
                     </div>
                 </div>
             </div>
-        ';
-
-	}
-
-    public function task() {
-        return '';
-    }
-
-    public function task_table() {
-        return '
+            <table class="w-full table-auto mt-8">
+                <thead class="text-left">
+                    $product_table_header
+                </thead>
+                <tbody>
+                    $product_table_body
+                </tbody>
+            </table>
             <table class="w-full table-auto mt-8">
                 <thead class="text-left">
                     $task_table_header
@@ -97,25 +95,16 @@ class Bold extends AbstractDesign
                 </tbody>
             </table>
         ';
+
+	}
+
+    public function task() {
+        return '';
     }
 
 	public function product() {
         return '';
 	}
-
-    public function product_table() {
-
-        return '
-            <table class="w-full table-auto mt-8">
-                <thead class="text-left">
-                    $product_table_header
-                </thead>
-                <tbody>
-                    $product_table_body
-                </tbody>
-            </table>
-        ';
-    }
 
 	public function footer() {
 
@@ -126,10 +115,10 @@ class Bold extends AbstractDesign
                 </div>
                 <div class="w-1/2 flex">
                     <div class="w-1/2 text-right flex flex-col">
-                        $total_tax_labels $line_tax_labels
+                        $subtotal_label $discount_label $total_tax_labels $line_tax_labels 
                     </div>
                     <div class="w-1/2 text-right flex flex-col">
-                        $total_tax_values $line_tax_values
+                        $subtotal $discount $total_tax_values $line_tax_values 
                     </div>
                 </div>
             </div>

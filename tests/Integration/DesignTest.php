@@ -105,6 +105,89 @@ class DesignTest extends TestCase
         CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
     }
 
+
+    public function testCreditDesignExists()
+    {
+
+        $design = Design::find(3);
+
+        $designer = new Designer($this->credit, $design, $this->company->settings->pdf_variables, 'credit');
+
+        $html = $designer->build()->getHtml();
+
+        $this->assertNotNull($html);
+
+        $settings = $this->invoice->client->settings;
+        $settings->quote_design_id = "4";
+
+        $this->credit->client_id = $this->client->id;
+        $this->credit->setRelation('client', $this->client);
+        $this->credit->save();
+
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        CreateCreditPdf::dispatchNow($this->credit, $this->credit->company, $this->credit->client->primary_contact()->first());
+    }
+
+    public function testAllDesigns()
+    {
+
+        for($x=1; $x<=10; $x++)
+        {
+
+        $settings = $this->invoice->client->settings;
+        $settings->quote_design_id = (string)$this->encodePrimaryKey($x);
+
+        $this->quote->client_id = $this->client->id;
+        $this->quote->setRelation('client', $this->client);
+        $this->quote->save();
+
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+
+        $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
+        $this->quote->save();
+
+        }
+
+        $this->assertTrue(true);
+
+    }
+
+
+
+
+
+///////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // public function testQuoteDesignWithRepeatingHeader()
     // {
 
@@ -186,57 +269,6 @@ class DesignTest extends TestCase
 
     //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
     // }
-
-    public function testCreditDesignExists()
-    {
-
-        $design = Design::find(3);
-
-        $designer = new Designer($this->credit, $design, $this->company->settings->pdf_variables, 'credit');
-
-        $html = $designer->build()->getHtml();
-
-        $this->assertNotNull($html);
-
-        $settings = $this->invoice->client->settings;
-        $settings->quote_design_id = "4";
-
-        $this->credit->client_id = $this->client->id;
-        $this->credit->setRelation('client', $this->client);
-        $this->credit->save();
-
-        $this->client->settings = $settings;
-        $this->client->save();
-
-        CreateCreditPdf::dispatchNow($this->credit, $this->credit->company, $this->credit->client->primary_contact()->first());
-    }
-
-    public function testAllDesigns()
-    {
-
-        for($x=1; $x<=10; $x++)
-        {
-
-        $settings = $this->invoice->client->settings;
-        $settings->quote_design_id = (string)$this->encodePrimaryKey($x);
-
-        $this->quote->client_id = $this->client->id;
-        $this->quote->setRelation('client', $this->client);
-        $this->quote->save();
-
-        $this->client->settings = $settings;
-        $this->client->save();
-
-        CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
-
-        $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
-        $this->quote->save();
-
-        }
-
-        $this->assertTrue(true);
-
-    }
-
+    // 
 }
 

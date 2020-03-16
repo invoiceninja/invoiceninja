@@ -58,7 +58,7 @@ class AccountTransformer extends EntityTransformer
     {
         return [
             'id' => (string)$this->encodePrimaryKey($account->id),
-            'default_url' => config('ninja.site_url'),
+            'default_url' => config('ninja.app_url'),
             'plan' => $account->getPlan(),
             'latest_version' => (string)$account->latest_version,
             'current_version' => (string)config('ninja.app_version'),
