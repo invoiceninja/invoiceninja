@@ -54,3 +54,15 @@ function format_date($date, string $format): string
 {
     return (new ClientPortalHelpers())->formatDate($date, $format);
 }
+
+/**
+ * Proxy method/helper to formatDateTimestamp from MakesDate.
+ *
+ * @param $timestamp
+ * @param string $format
+ * @return string
+ */
+function format_date_timestamp($timestamp, string $format): string
+{
+    return (new ClientPortalHelpers())->formatDateTimestamp($timestamp, $format);
+}
