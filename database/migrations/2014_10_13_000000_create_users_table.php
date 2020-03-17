@@ -973,8 +973,6 @@ class CreateUsersTable extends Migration
             $t->foreign('company_gateway_id')->references('id')->on('company_gateways')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             
-            $t->foreign('type_id')->references('id')->on('payment_types');
-
         });
 
         Schema::create('paymentables', function ($table) { //allows multiple invoices to one payment
