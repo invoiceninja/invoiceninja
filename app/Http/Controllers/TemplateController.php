@@ -110,7 +110,7 @@ class TemplateController extends BaseController
         $body = request()->input('body') ?: '';
 
         $converter = new CommonMarkConverter([
-            'html_input' => 'strip',
+            //'html_input' => 'strip',
             'allow_unsafe_links' => false,
         ]);
 

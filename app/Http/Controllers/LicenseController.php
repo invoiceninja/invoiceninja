@@ -83,11 +83,11 @@ class LicenseController extends BaseController
     {
 
         /* Catch claim license requests */
-        if(config('ninja.environment') == 'selfhost' && $request->has('license_key') && $request->has('product_id') )
+        if(config('ninja.environment') == 'selfhost' && $request->has('license_key'))
         {
 
             $license_key = $request->input('license_key');
-            $product_id = $request->input('product_id');
+            $product_id = 3;
 
             $url = config('ninja.license_url') . "/claim_license?license_key={$license_key}&product_id={$product_id}&get_date=true";
             $data = trim(CurlUtils::get($url));
