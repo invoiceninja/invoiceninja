@@ -1,6 +1,10 @@
 @extends('portal.ninja2020.layout.app')
 @section('meta_title', ctrans('texts.view_invoice'))
 
+@section('header')
+    {{ Breadcrumbs::render('invoices.show', $invoice) }}
+@endsection
+
 @section('body')
 
     @if($invoice->isPayable())

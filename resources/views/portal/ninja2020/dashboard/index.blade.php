@@ -1,6 +1,9 @@
 @extends('portal.ninja2020.layout.app')
+@section('meta_title', ctrans('texts.dashboard'))
 
 @section('header')
+    {{ Breadcrumbs::render('dashboard') }}
+
     <div class="bg-white shadow rounded mb-4" translate>
         <div class="px-4 py-5 sm:p-6">
             <div class="sm:flex sm:items-start sm:justify-between">
@@ -18,7 +21,6 @@
         </div>
     </div>
 @endsection
-
 
 @section('body')
     Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet esse magnam nam numquam omnis optio, pariatur

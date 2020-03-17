@@ -1,5 +1,5 @@
 @extends('portal.ninja2020.layout.clean')
-@section('meta_title', ctrans('texts.password_reset'))
+@section('meta_title', ctrans('texts.login'))
 
 @section('body')
     <div class="grid lg:grid-cols-3">

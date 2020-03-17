@@ -33,7 +33,7 @@
         @endif
 
         <!-- Title -->
-        <title>@yield('meta_title', 'Invoice Ninja') | {{ config('app.name') }}</title>
+        <title>@yield('meta_title', 'Invoice Ninja') — {{ config('app.name') }}</title>
 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">

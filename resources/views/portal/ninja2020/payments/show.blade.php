@@ -1,4 +1,9 @@
 @extends('portal.ninja2020.layout.app')
+@section('meta_title', ctrans('texts.payment'))
+
+@section('header')
+    {{ Breadcrumbs::render('payments.show', $payment) }}
+@endsection
 
 @section('body')
     <div class="container mx-auto">

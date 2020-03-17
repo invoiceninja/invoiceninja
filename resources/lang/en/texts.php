@@ -2,6 +2,7 @@
 
 return [
     'continue' => 'Continue',
+    'back' => 'Back',
     'complete' => 'Complete',
     'next' => 'Next',
     'next_step' => 'Next step',
@@ -712,6 +713,7 @@ return [
     'reminder_subject' => 'Reminder: Invoice :invoice from :account',
     'reset' => 'Reset',
     'invoice_not_found' => 'The requested invoice is not available',
+    'request_cancellation' => 'Request cancellation',
     'referral_program' => 'Referral Program',
     'referral_code' => 'Referral URL',
     'last_sent_on' => 'Sent Last: :date',

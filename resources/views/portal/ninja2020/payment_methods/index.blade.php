@@ -1,6 +1,9 @@
 @extends('portal.ninja2020.layout.app')
+@section('meta_title', ctrans('texts.payment_methods'))
 
 @section('header')
+    {{ Breadcrumbs::render('payment_methods') }}
+
     <div class="bg-white shadow rounded mb-4" translate>
         <div class="px-4 py-5 sm:p-6">
             <div class="sm:flex sm:items-start sm:justify-between">
@@ -57,8 +60,7 @@
                     </thead>
                     <tbody>
                     @foreach($payment_methods as $payment_method)
-                        <tr class="cursor-pointer bg-white group hover:bg-gray-100"
-                            @click="window.location = '{{ route('client.payments.show', $payment_method->hashed_id) }}'">
+                        <tr class="bg-white group hover:bg-gray-100">
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {{ format_date_timestamp($payment_method->created_at, auth()->user()->client->date_format()) }}
                             </td>
