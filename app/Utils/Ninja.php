@@ -20,6 +20,9 @@ use Illuminate\Support\Facades\DB;
  */
 class Ninja
 {
+
+    const TEST_USERNAME = 'user@example.com';
+
     public static function isSelfHost()
     {
         return config('ninja.environment') === 'selfhost';
@@ -72,4 +75,33 @@ class Ninja
     {
         return 'Self hosted installation limited to one account';
     }
+
+    public static function registerNinjaUser($user)
+    {
+        if (! $user || $user->email == self::TEST_USERNAME) {
+            return false;
+        }
+
+        $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . '/signup/register';
+        $data = '';
+        $fields = [
+            'first_name' => urlencode($user->first_name),
+            'last_name' => urlencode($user->last_name),
+            'email' => urlencode($user->email),
+        ];
+
+        foreach ($fields as $key => $value) {
+            $data .= $key.'='.$value.'&';
+        }
+        rtrim($data, '&');
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, count($fields));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_exec($ch);
+        curl_close($ch);
+    }
+
 }
