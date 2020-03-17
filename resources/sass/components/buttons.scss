@@ -13,3 +13,19 @@
 .button-block {
     @apply block w-full;
 }
+
+.button-danger {
+    @apply bg-red-500 text-white;
+
+    &:hover {
+        @apply bg-red-600;
+    }
+}
+
+.button-secondary {
+    @apply bg-gray-100;
+
+    &:hover {
+        @apply bg-gray-200;
+    }
+}

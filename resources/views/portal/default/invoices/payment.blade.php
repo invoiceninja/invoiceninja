@@ -164,12 +164,12 @@ $('#terms_accepted').on('click', function(e){
 
 
     //push to payment
-    
+
 
 });
 
 $("#modal_pay_now_button").on('click', function(e){
-    
+
     //disable to prevent firing twice
     $("#modal_pay_now_button").attr("disabled", true);
 
@@ -187,11 +187,11 @@ $("#modal_pay_now_button").on('click', function(e){
 
     function getSignature()
     {
-        //check in signature is required 
+        //check in signature is required
         $("#signature").jSignature({ 'UndoButton': true, }).bind('change', function(e) {
 
             if( $("#signature").jSignature('getData', 'native').length >= 1) {
-                
+
                 $("#modal_pay_now_button").removeAttr("disabled");
 
             } else {
@@ -214,7 +214,7 @@ $("#modal_pay_now_button").on('click', function(e){
             //var data = false;
 
     }
-    
+
 </script>
 @endpush
 @section('footer')
