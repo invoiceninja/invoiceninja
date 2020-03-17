@@ -18,6 +18,43 @@ namespace App\Utils\Traits;
 
 trait MakesTemplateData
 {
+
+    public function makeFakerLabels() :array
+    {
+        $data = [];
+
+        $values = $this->getFakerData();
+
+        foreach($values as $key => $value)
+        {
+            $data[$key.'_label'] = $value['label'];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Transforms all placeholders
+     * to invoice values
+     *
+     * @return array returns an array
+     * of keyed labels (appended with _label)
+     */
+    public function makeFakerValues() :array
+    {
+        $data = [];
+
+        $values = $this->getFakerData();
+
+        foreach($values as $key => $value)
+        {
+            $data[$key] = $value['value'];
+        }
+
+        return $data;
+    }
+
+
     public function getFakerData()
     {
 		$data = [];
@@ -40,7 +77,7 @@ trait MakesTemplateData
     $data['$invoice_number']         = &$data['$invoice.number'];
     $data['$po_number']              = ['value' => '#PO-12322', 'label' => ctrans('texts.po_number')];
     $data['$invoice.po_number']      = &$data['$po_number'];
-    $data['$line_taxes']             = &$data['line_tax_labels'];
+    $data['$line_taxes']             = &$data['$line_tax_labels'];
     $data['$invoice.line_taxes']     = &$data['$line_tax_labels'];
     $data['$total_taxes']            = &$data['$line_tax_labels'];
     $data['$invoice.total_taxes']    = &$data['$total_taxes'];
@@ -70,10 +107,10 @@ trait MakesTemplateData
     $data['$invoice.balance']        = &$data['$balance'];
     $data['$taxes']                  = ['value' => '$10.00', 'label' => ctrans('texts.taxes')];
     $data['$invoice.taxes']          = &$data['$taxes'];
-    $data['$invoice1']               = ['value' => '10', 'label' => $this->makeCustomField('invoice1')];
-    $data['$invoice2']               = ['value' => '10', 'label' => $this->makeCustomField('invoice2')];
-    $data['$invoice3']               = ['value' => '10', 'label' => $this->makeCustomField('invoice3')];
-    $data['$invoice4']               = ['value' => '10', 'label' => $this->makeCustomField('invoice4')];
+    $data['$invoice1']               = ['value' => '10', 'label' => 'invoice1'];
+    $data['$invoice2']               = ['value' => '10', 'label' => 'invoice2'];
+    $data['$invoice3']               = ['value' => '10', 'label' => 'invoice3'];
+    $data['$invoice4']               = ['value' => '10', 'label' => 'invoice4'];
     $data['$invoice.public_notes']   = ['value' => '10', 'label' => ctrans('texts.public_notes')];
     $data['$entity.public_notes']    = &$data['$invoice.public_notes'];
     $data['$quote_date']             = ['value' => '2010-02-03', 'label' => ctrans('texts.quote_date')];
@@ -90,10 +127,10 @@ trait MakesTemplateData
     $data['$credit.credit_no']       = &$data['$number'];
     $data['$invoice_no']                = &$data['$number'];
     $data['$invoice.invoice_no']        = &$data['$number'];
-    $data['$client1']                   = ['value' => 'Client Custom Values', 'label' => $this->makeCustomField('client1')];
-    $data['$client2']                   = ['value' => 'Client Custom Values', 'label' => $this->makeCustomField('client2')];
-    $data['$client3']                   = ['value' => 'Client Custom Values', 'label' => $this->makeCustomField('client3')];
-    $data['$client4']                   = ['value' => 'Client Custom Values', 'label' => $this->makeCustomField('client4')];
+    $data['$client1']                   = ['value' => 'Client Custom Values', 'label' => 'client 1'];
+    $data['$client2']                   = ['value' => 'Client Custom Values', 'label' => 'client 2'];
+    $data['$client3']                   = ['value' => 'Client Custom Values', 'label' => 'client 3'];
+    $data['$client4']                   = ['value' => 'Client Custom Values', 'label' => 'client 4'];
     $data['$address1']                  = ['value' => '5 Jimbuckeroo Way', 'label' => ctrans('texts.address1')];
     $data['$address2']                  = ['value' => 'Kalamazoo', 'label' => ctrans('texts.address2')];
     $data['$id_number']                 = ['value' => 'ID Number', 'label' => ctrans('texts.id_number')];
@@ -120,10 +157,10 @@ trait MakesTemplateData
     $data['$client.email']              = &$data['$email'];
     $data['$contact_name']              = ['value' => 'Jimmy Nadel', 'label' => ctrans('texts.contact_name')];
     $data['$contact.name']              = &$data['$contact_name'];
-    $data['$contact1']                  = ['value' => 'Custom Contact Values', 'label' => $this->makeCustomField('contact1')];
-    $data['$contact2']                  = ['value' => 'Custom Contact Values', 'label' => $this->makeCustomField('contact1')];
-    $data['$contact3']                  = ['value' => 'Custom Contact Values', 'label' => $this->makeCustomField('contact1')];
-    $data['$contact4']                  = ['value' => 'Custom Contact Values', 'label' => $this->makeCustomField('contact1')];
+    $data['$contact1']                  = ['value' => 'Custom Contact Values', 'label' => 'contact 1'];
+    $data['$contact2']                  = ['value' => 'Custom Contact Values', 'label' => 'contact 2'];
+    $data['$contact3']                  = ['value' => 'Custom Contact Values', 'label' => 'contact 3'];
+    $data['$contact4']                  = ['value' => 'Custom Contact Values', 'label' => 'contact 4'];
     $data['$company.city_state_postal'] = ['value' => 'Los Angeles, CA, 90210', 'label' => ctrans('texts.city_state_postal')];
     $data['$company.postal_city_state'] = ['value' => '90210, Los Angeles, CA', 'label' => ctrans('texts.postal_city_state')];
     $data['$company.name']              = ['value' => 'ACME co', 'label' => ctrans('texts.company_name')];
