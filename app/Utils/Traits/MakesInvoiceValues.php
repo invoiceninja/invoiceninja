@@ -73,7 +73,7 @@ trait MakesInvoiceValues
     {
         $custom_fields = $this->company->custom_fields;
 
-        if(property_exists($custom_fields, $field)){
+        if($custom_fields && property_exists($custom_fields, $field)){
 
             $custom_field = $custom_fields->{$field};
             $custom_field_parts = explode("|", $custom_field);
@@ -84,59 +84,6 @@ trait MakesInvoiceValues
 
         return '';
 
-        // //todo we might want to translate like this
-        // //trans('texts.labe', [], null, $this->client->locale());
-        // $data = [];
-
-        // foreach (self::$labels as $label) {
-        //     $data['$'.$label . '_label'] = ctrans('texts.'.$label);
-        // }
-
-        // if($custom_fields)
-        // {
-
-        //     foreach($custom_fields as $key => $value)
-        //     {
-
-        //         if(strpos($value, '|') !== false)
-        //         {
-        //             $value = explode("|", $value);
-        //             $value = $value[0];
-        //         }
-
-        //         $data['$'.$key.'_label'] = $value;
-        //     }
-
-        // }
-         
-
-        /*
-        Don't forget pipe | strings for dropdowns needs to be filtered
-         */
-
-        /*
-        invoice1
-        invoice2
-        invoice3
-        invoice4
-        surcharge1
-        surcharge2
-        surcharge3
-        surcharge4
-        client1
-        client2
-        client3
-        client4
-        contact1
-        contact2
-        contact3
-        contact4
-         */
-        
-        // $arrKeysLength = array_map('strlen', array_keys($data));
-        // array_multisort($arrKeysLength, SORT_DESC, $data);
-
-        // return $data;
     }
 
     public function makeLabels($contact = null) :array
