@@ -9,22 +9,16 @@
                     <thead>
                     <tr>
                         <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            <label>
-                                <input type="checkbox" class="form-check form-check-parent"
-                                       @click="document.querySelectorAll('.form-check-child').checked = true;">
-                            </label>
+                            {{ ctrans('texts.payment_date') }}
                         </th>
                         <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            {{ ctrans('texts.invoice_number') }}
+                            {{ ctrans('texts.payment_type_id') }}
                         </th>
                         <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            {{ ctrans('texts.invoice_date') }}
+                            {{ ctrans('texts.amount') }}
                         </th>
                         <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            {{ ctrans('texts.balance') }}
-                        </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            {{ ctrans('texts.due_date') }}
+                            {{ ctrans('texts.transaction_reference') }}
                         </th>
                         <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                             {{ ctrans('texts.status') }}
@@ -33,36 +27,26 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($invoices as $invoice)
-                        <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
-                                <label>
-                                    <input type="checkbox" class="form-check form-check-child">
-                                </label>
+                    @foreach($payments as $payment)
+                        <tr class="cursor-pointer bg-white group hover:bg-gray-100" @click="window.location = '{{ route('client.payments.show', $payment->hashed_id) }}'">
+                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                                {{ format_date($payment->date, $payment->client->date_format()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ $invoice->number }}
+                                {{ $payment->type->name }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ format_date($invoice->date, $invoice->client->date_format()) }}
+                                {{ \App\Utils\Number::formatMoney($payment->amount, $payment->client) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ App\Utils\Number::formatMoney($invoice->balance, $invoice->client) }}
+                                {{ $payment->transaction_reference }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ format_date($invoice->due_date, $invoice->client->date_format()) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {!! App\Models\Invoice::badgeForStatus($invoice->status) !!}
+                                {!! \App\Models\Payment::badgeForStatus($payment->status_id) !!}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap flex items-center justify-end text-sm leading-5 font-medium">
-                                @if($invoice->isPayable())
-                                    <button class="button button-primary py-1 px-2 text-xs uppercase mr-3">
-                                        @lang('texts.pay_now')
-                                    </button>
-                                @endif
-                                <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}"
-                                   class="button-link">
+                                <a href="{{ route('client.payments.show', $payment->hashed_id) }}"
+                                   class="text-blue-600 hover:text-indigo-900 focus:outline-none focus:underline">
                                     @lang('texts.view')
                                 </a>
                             </td>
@@ -73,18 +57,7 @@
             </div>
         </div>
         <div class="my-6">
-            {{ $invoices->links('portal.ninja2020.vendor.pagination') }}
+            {{ $payments->links('portal.ninja2020.vendor.pagination') }}
         </div>
     </div>
 @endsection
-
-@push('footer')
-    <script>
-        let parentElement = document.querySelector(".form-check-parent");
-        parentElement.addEventListener("click", function () {
-            document.querySelectorAll(".form-check-child").forEach(function (child) {
-                child.checked = parentElement.checked;
-            });
-        });
-    </script>
-@endpush

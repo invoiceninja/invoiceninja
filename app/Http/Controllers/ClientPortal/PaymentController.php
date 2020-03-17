@@ -38,54 +38,35 @@ class PaymentController extends Controller
     /**
      * Show the list of Invoices
      *
-     * @param      \App\Filters\InvoiceFilters  $filters  The filters
+     * @param PaymentFilters $filters The filters
      *
-     * @return \Illuminate\Http\Response
+     * @param Builder $builder
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index(PaymentFilters $filters, Builder $builder)
     {
         //$payments = Payment::filter($filters);
-        $payments = Payment::with('type', 'client');
+        $payments = Payment::with('type', 'client')->paginate(10);
 
-        if (request()->ajax()) {
-            return DataTables::of($payments)->addColumn('action', function ($payment) {
-                return '<a href="/client/payments/'. $payment->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
-            })->editColumn('type_id', function ($payment) {
-                return $payment->type->name;
-            })
-                ->editColumn('status_id', function ($payment) {
-                    return Payment::badgeForStatus($payment->status_id);
-                })
-                ->editColumn('date', function ($payment) {
-                    //return $payment->date;
-                    return $payment->formatDate($payment->date, $payment->client->date_format());
-                })
-                ->editColumn('amount', function ($payment) {
-                    return Number::formatMoney($payment->amount, $payment->client);
-                })
-                ->rawColumns(['action', 'status_id','type_id'])
-                ->make(true);
-        }
-
-        $data['html'] = $builder;
-      
-        return view('portal.default.payments.index', $data);
+        return $this->render('payments.index', [
+            'payments' => $payments,
+        ]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param      \App\Models\Invoice $invoice  The invoice
-     *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Payment $payment
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function show(Request $request, Payment $payment)
     {
         $payment->load('invoices');
 
-        $data['payment'] = $payment;
-
-        return view('portal.default.payments.show', $data);
+        return $this->render('payments.show', [
+            'payment' => $payment,
+        ]);
     }
 
     /**
@@ -111,7 +92,7 @@ class PaymentController extends Controller
         if ($invoices->count() == 0) {
             return back()->with(['warning' => 'No payable invoices selected']);
         }
-        
+
         $invoices->map(function ($invoice) {
             $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
             $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
@@ -127,7 +108,7 @@ class PaymentController extends Controller
 
         //if there is a gateway fee, now is the time to calculate it
         //and add it to the invoice
-        
+
         $data = [
             'invoices' => $invoices,
             'amount' => $amount,
@@ -137,8 +118,8 @@ class PaymentController extends Controller
             'payment_method_id' => $payment_method_id,
             'hashed_ids' => explode(",", request()->input('hashed_ids')),
         ];
-        
-        
+
+
         return $gateway->driver(auth()->user()->client)->processPaymentView($data);
     }
 

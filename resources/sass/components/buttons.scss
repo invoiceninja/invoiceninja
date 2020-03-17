@@ -29,3 +29,15 @@
         @apply bg-gray-200;
     }
 }
+
+.button-link {
+    @apply text-blue-600;
+
+    &:hover {
+        @apply text-blue-700 underline;
+    }
+
+    &:focus {
+        @apply outline-none underline;
+    }
+}
