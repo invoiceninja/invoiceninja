@@ -65,7 +65,17 @@ class ExportReportResults extends Job
         foreach ($totals as $currencyId => $each) {
             foreach ($each as $dimension => $val) {
                 $tmp   = [];
-                $tmp[] = Utils::getFromCache($currencyId, 'currencies')->name . (($dimension) ? ' - ' . $dimension : '');
+
+                $currency = Utils::getFromCache($currencyId, 'currencies');
+                if (!$currency) {
+                    $name = $currencyId;
+                    $account = $this->user->account->first();
+                    $currencyId = $account->currency_id;
+                } else {
+                    $name = $currency->name;
+                }
+
+                $tmp[] = $dimension ? $name . ' - ' . $dimension : $name;
                 foreach ($val as $field => $value) {
                     if ($field == 'duration') {
                         $tmp[] = Utils::formatTime($value);
