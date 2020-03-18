@@ -36,8 +36,7 @@ class SystemHealthTest extends TestCase
 		$this->assertTrue($results['extensions'][2]['curl']);
 		$this->assertTrue($results['extensions'][3]['zip']);
 
-
-//		$this->assertTrue($results['dbs'][0]['db-ninja-01']);
+//		\Log::error(print_r($results,1));
 
 	}
 }

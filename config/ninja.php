@@ -6,14 +6,14 @@ return [
     'license_url' => 'https://app.invoiceninja.com',
     'production' => env('NINJA_PROD', false),
     'license'   => env('NINJA_LICENSE', ''),
-    'app_name' => env('APP_NAME'),
     'version_url' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v2/VERSION.txt',
+    'app_name' => env('APP_NAME'),
+    'app_env' => env('APP_ENV', 'local'),
     'app_url' => env('APP_URL', ''),
-    'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
+    'app_domain' => env('APP_DOMAIN', ''),
     'app_version' => '0.0.1',
     'api_version' => '0.0.1',
     'terms_version' => '1.0.1',
-    'app_env' => env('APP_ENV', 'development'),
     'api_secret' => env('API_SECRET', ''),
     'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
     'key_length' => 64,
@@ -22,6 +22,7 @@ return [
     'daily_email_limit' => 300,
     'error_email' => env('ERROR_EMAIL', ''),
     'company_id' => 0,
+    'hash_salt' => env('HASH_SALT', ''),
 
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 
@@ -51,7 +52,7 @@ return [
         'datetime_format_id' => env('DEFAULT_DATETIME_FORMAT_ID', '1'),
         'locale' => env('DEFAULT_LOCALE', 'en'),
         'map_zoom' => env('DEFAULT_MAP_ZOOM', 10),
-        'payment_terms' => env('DEFAULT_PAYMENT_TERMS', 1),
+        'payment_terms' => env('DEFAULT_PAYMENT_TERMS', -1),
         'military_time' => env('MILITARY_TIME', 0),
         'first_day_of_week' => env('FIRST_DATE_OF_WEEK',0),
         'first_month_of_year' => env('FIRST_MONTH_OF_YEAR', '2000-01-01')

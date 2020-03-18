@@ -12,13 +12,14 @@ Header Title
 
 {!! str_replace('\n', '<br>', $system_info) !!}
 
+@if(@count($laravel_log) > 0)
 <details>
     <summary>{{ ctrans('texts.display_log') }}</summary>
     @foreach($laravel_log as $log_line)
         <small>{{ $log_line }}</small> <br>
     @endforeach
 </details>
-
+@endif
 {{-- Subcopy --}}
 @isset($subcopy)
 @slot('subcopy')

@@ -358,7 +358,10 @@ class Company extends BaseModel
 
     public function domain()
     {
-        return $this->subdomain . config('ninja.app_domain');
+        if(Ninja::isNinja())
+            return $this->subdomain . config('ninja.app_domain');
+
+        return config('ninja.app_url');
     }
 
     public function notification(Notification $notification)
@@ -368,9 +371,7 @@ class Company extends BaseModel
 
     public function routeNotificationForSlack($notification)
     {
-        //todo need to return the company channel here for hosted users
-        //else the env variable for selfhosted
-        //
+        
         return $this->slack_webhook_url;
 
     }

@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
 use App\Utils\Statics;
+use App\Utils\Traits\AppSetup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as Input;
@@ -31,7 +32,7 @@ use League\Fractal\Serializer\JsonApiSerializer;
  */
 class BaseController extends Controller
 {
-
+  use AppSetup;
     /**
      * Passed from the parent when we need to force
      * includes internally rather than externally via
@@ -154,7 +155,7 @@ class BaseController extends Controller
             if ($this->entity_type == Company::class || $this->entity_type == Design::class ) {
                 //no user keys exist on the company table, so we need to skip
             } elseif ($this->entity_type == User::class) {
-                $query->where('id', '=', auth()->user()->id);
+                //$query->where('id', '=', auth()->user()->id); @todo why?
             } else {
                 $query->where('user_id', '=', auth()->user()->id);
             }
@@ -348,6 +349,11 @@ class BaseController extends Controller
     
     public function flutterRoute()
     {
-      return redirect('/index.html');
+      
+      if(!$this->checkAppSetup());
+        return redirect('/setup');
+
+      return view('index.index');
+    
     }
 }
