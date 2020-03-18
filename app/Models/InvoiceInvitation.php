@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 class InvoiceInvitation extends BaseModel {
+	
 	use MakesDates;
 	use SoftDeletes;
 	use Inviteable;

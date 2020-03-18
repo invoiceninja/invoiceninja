@@ -54,6 +54,8 @@ class SystemHealth
             'min_php_version' => self::$php_version,
             'dbs' => self::dbCheck(),
             'mail' => self::testMailServer(),
+            'env_writable' => self::checkEnvWritable(),
+            'env_exists'
         ];
     }
 
@@ -120,5 +122,10 @@ class SystemHealth
             return Mail::failures();
 
         return [];
+    }
+
+    private static function checkEnvWritable()
+    {
+        return @fopen(base_path().'/.env', 'w');
     }
 }

@@ -29,8 +29,6 @@ class VersionCheck implements ShouldQueue
 
         $version_file = file_get_contents(config('ninja.version_url'));
 
-\Log::error($version_file);
-
         if($version_file)
             Account::whereNotNull('id')->update(['latest_version' => $version_file]);
 
