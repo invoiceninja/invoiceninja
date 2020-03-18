@@ -348,6 +348,11 @@ class BaseController extends Controller
     
     public function flutterRoute()
     {
+      
+      if(!$this->checkAppSetup());
+        return redirect('/setup');
+
       return redirect('/index.html');
+    
     }
 }

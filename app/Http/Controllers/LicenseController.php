@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Utils\CurlUtils;
+use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 
@@ -152,5 +153,6 @@ class LicenseController extends BaseController
 
         return response()->json($error, 400);
     }
+
 
 }

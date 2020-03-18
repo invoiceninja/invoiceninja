@@ -3141,4 +3141,5 @@ return [
     'entity_number_placeholder' => ':entity # :entity_number',
     'email_link_not_working' => 'If button above isn\'t working for you, please click on the link',
     'credit_terms' => 'Credit Terms',
+    'display_log' => 'Display Log',
 ];

@@ -144,6 +144,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 Route::group(['middleware' => ['api_db', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
 
 	Route::get('claim_license', 'LicenseController@index')->name('license.index');
+	//Route::post('register_user', 'LicenseController@registerNinjaUser')->name('license.register_ninja_user');
 
 });
 

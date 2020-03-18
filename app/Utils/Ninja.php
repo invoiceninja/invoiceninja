@@ -38,6 +38,11 @@ class Ninja
         return config('ninja.production');
     }
 
+    public static function isNinjaDev()
+    {
+        return config('ninja.app_env') == 'development';
+    }
+
     public static function getDebugInfo()
     {
         $mysql_version = DB::select(DB::raw("select version() as version"))[0]->version;
@@ -78,11 +83,11 @@ class Ninja
 
     public static function registerNinjaUser($user)
     {
-        if (! $user || $user->email == self::TEST_USERNAME) {
+        if (! $user || $user->email == self::TEST_USERNAME || self::isNinjaDev()) {
             return false;
         }
 
-        $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . '/signup/register';
+        $url = config('ninja.license_url') . '/signup/register';
         $data = '';
         $fields = [
             'first_name' => urlencode($user->first_name),
