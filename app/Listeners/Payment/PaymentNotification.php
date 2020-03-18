@@ -46,7 +46,10 @@ class PaymentNotification implements ShouldQueue
         
         foreach($payment->company->company_users as $company_user)
         {
-            $company_user->user->notify(new NewPaymentNotification($payment, $payment->company));
+
+            if($company_user->user)
+                $company_user->user->notify(new NewPaymentNotification($payment, $payment->company));
+            
         }
 
         if(isset($payment->company->slack_webhook_url)){
