@@ -88,11 +88,9 @@
     },
     "scripts": {
         "post-root-package-install": [
-           "ln -sr storage/app/public public/storage",
-           "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "post-create-project-cmd": [
-            "ln -sr storage/app/public public/storage",
             "php -r \"copy('.env.example', '.env');\"",
             "php artisan key:generate"
         ],
