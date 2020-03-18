@@ -85,7 +85,7 @@ class SetupController extends Controller
         if(Account::count() == 0) 
         	$account = CreateAccount::dispatchNow($request->all());
         
-        return redirect('/');
+        return view('index.index');
 
 	}
 

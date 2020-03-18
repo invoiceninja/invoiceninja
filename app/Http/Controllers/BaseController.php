@@ -352,7 +352,7 @@ class BaseController extends Controller
       if(!$this->checkAppSetup());
         return redirect('/setup');
 
-      return redirect('/index.html');
+      return view('index.index');
     
     }
 }

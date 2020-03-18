@@ -70,7 +70,7 @@ class RandomDataSeeder extends Seeder
 
         Eloquent::unguard();
 
-        $faker = Faker\Factory::create();
+        $faker = \Faker\Factory::create();
 
         $account = factory(\App\Models\Account::class)->create();
         $company = factory(\App\Models\Company::class)->create([
