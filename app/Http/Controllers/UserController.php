@@ -508,6 +508,12 @@ class UserController extends BaseController
 
         $users = User::withTrashed()->find($this->transformKeys($ids));
 
+        /* 
+         * In case a user maliciously sends keys which do not belong to them, we push 
+         * each user through the Policy sieve and only return users that they
+         * have access to
+         */
+        
         $return_user_collection = collect();
 
         $users->each(function ($user, $key) use ($action, $return_user_collection) {
@@ -522,9 +528,8 @@ class UserController extends BaseController
 
         });
 
-\Log::error($return_user_collection);
-
         return $this->listResponse(User::withTrashed()->whereIn('id', $return_user_collection));
+        
     }
 
 
