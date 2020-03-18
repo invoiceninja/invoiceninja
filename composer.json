@@ -91,12 +91,14 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "post-create-project-cmd": [
-            "php -r \"copy('.env.example', '.env');\"",
-            "php artisan key:generate"
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan package:discover --ansi",
+            "php artisan key:generate",
             "@php artisan storage:link"
         ]
     },

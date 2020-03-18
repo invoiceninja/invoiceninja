@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
 use App\Utils\Statics;
+use App\Utils\Traits\AppSetup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as Input;
@@ -31,7 +32,7 @@ use League\Fractal\Serializer\JsonApiSerializer;
  */
 class BaseController extends Controller
 {
-
+  use AppSetup;
     /**
      * Passed from the parent when we need to force
      * includes internally rather than externally via
