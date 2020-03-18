@@ -59,6 +59,7 @@ class SetupController extends Controller
 		$_ENV['SELF_UPDATER_MAILTO_ADDRESS'] = $request->input('mail_address');
 		$_ENV['SELF_UPDATER_MAILTO_NAME'] = $request->input('mail_name');
 		$_ENV['DB_CONNECTION'] = 'db-ninja-01';
+		$_ENV['APP_DEBUG'] = false;
 
         $config = '';
 
