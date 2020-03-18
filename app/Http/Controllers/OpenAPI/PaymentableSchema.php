@@ -9,6 +9,6 @@
  *       @OA\Property(property="refunded", type="number", format="float", example="10.00", description="______"),
  *       @OA\Property(property="amount", type="number", format="float", example="10.00", description="______"),
  *       @OA\Property(property="updated_at", type="number", format="integer", example="1434342123", description="Timestamp"),
- *       @OA\Property(property="created_at", type="number", format="integer", example="1434342123", description="Timestamp"),*       
+ *       @OA\Property(property="created_at", type="number", format="integer", example="1434342123", description="Timestamp"),*
  * )
  */

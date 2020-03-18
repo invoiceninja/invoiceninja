@@ -45,7 +45,6 @@ class UploadLogoTest extends TestCase
 
     public function testLogoUploadWorks()
     {
-
         Storage::fake('avatars');
 
         $data = [
@@ -62,7 +61,7 @@ class UploadLogoTest extends TestCase
         
         $acc = $response->json();
 
-        $logo = $acc['data']['settings']['company_logo'];                
+        $logo = $acc['data']['settings']['company_logo'];
 
         $logo_file = Storage::url($logo);
 
@@ -73,7 +72,6 @@ class UploadLogoTest extends TestCase
 
     public function testLogoUploadfailure()
     {
-
         Storage::fake('avatars');
 
         $data = [
@@ -89,14 +87,11 @@ class UploadLogoTest extends TestCase
         //$acc = $response->json();
 
         $response->assertStatus(302);
-        
-
     }
 
 
     public function testLogoUploadNoAttribute()
     {
-
         Storage::fake('avatars');
 
         $data = [
@@ -109,7 +104,5 @@ class UploadLogoTest extends TestCase
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $data);
         
         $response->assertStatus(200);
-
     }
-
 }

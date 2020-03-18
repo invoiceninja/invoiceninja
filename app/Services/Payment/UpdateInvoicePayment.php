@@ -19,14 +19,13 @@ class UpdateInvoicePayment
 
     public function run()
     {
-    $invoices = $this->payment->invoices()->get();
+        $invoices = $this->payment->invoices()->get();
 
         $invoices_total = $invoices->sum('balance');
 
         /* Simplest scenario - All invoices are paid in full*/
         if (strval($invoices_total) === strval($this->payment->amount)) {
             $invoices->each(function ($invoice) {
-                
                 $this->payment
                      ->ledger()
                      ->updatePaymentBalance($invoice->balance*-1);
@@ -63,7 +62,6 @@ class UpdateInvoicePayment
             if ($this->payment->amount == $total) {
                 $invoices->each(function ($invoice) {
                     if ($invoice->hasPartial()) {
-
                         $this->payment
                              ->ledger()
                              ->updatePaymentBalance($invoice->partial*-1);
@@ -82,7 +80,6 @@ class UpdateInvoicePayment
                                 ->setStatus(Invoice::STATUS_PARTIAL)
                                 ->save();
                     } else {
-                        
                         $this->payment
                              ->ledger()
                              ->updatePaymentBalance($invoice->balance*-1);
@@ -124,5 +121,4 @@ class UpdateInvoicePayment
 
         return $this->payment;
     }
-
 }

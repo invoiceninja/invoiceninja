@@ -30,7 +30,7 @@ class QuoteService
 
         $this->quote = $mark_approved->run($this->quote);
 
-        if($this->quote->client->getSetting('auto_convert_quote') === true) {
+        if ($this->quote->client->getSetting('auto_convert_quote') === true) {
             $convert_quote = new ConvertQuote($this->quote->client);
             $this->quote = $convert_quote->run($this->quote);
         }
@@ -85,23 +85,21 @@ class QuoteService
 
     public function approve() :QuoteService
     {
-
         $this->setStatus(Quote::STATUS_APPROVED)->save();
 
         $invoice = null;
 
-        if($this->quote->client->getSetting('auto_convert_quote')){
+        if ($this->quote->client->getSetting('auto_convert_quote')) {
             $invoice = $this->convertToInvoice();
             $this->linkInvoiceToQuote($invoice)->save();
         }
 
-        if($this->quote->client->getSetting('auto_archive_quote')) {
+        if ($this->quote->client->getSetting('auto_archive_quote')) {
             $quote_repo = new QuoteRepository();
             $quote_repo->archive($this->quote);
         }
 
         return $this;
-
     }
 
     /**
@@ -120,16 +118,16 @@ class QuoteService
     {
         Invoice::unguard();
 
-            $invoice = new Invoice((array) $this->quote);
-            $invoice->status_id = Invoice::STATUS_SENT;
-            $invoice->due_date = null;
-            $invoice->invitations = null;
-            $invoice->number = null;
-            $invoice->save();
+        $invoice = new Invoice((array) $this->quote);
+        $invoice->status_id = Invoice::STATUS_SENT;
+        $invoice->due_date = null;
+        $invoice->invitations = null;
+        $invoice->number = null;
+        $invoice->save();
 
         Invoice::reguard();
 
-        $invoice->service()->markSent()->createInvitations()->save();   
+        $invoice->service()->markSent()->createInvitations()->save();
 
         return $invoice;
     }

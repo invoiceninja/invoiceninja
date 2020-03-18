@@ -29,7 +29,7 @@ class StoreSetupRequest extends Request
 
     public function rules()
     {
-        return [ 
+        return [
           /*System*/
           'url' => 'required',
           'debug' => 'required',
@@ -61,7 +61,7 @@ class StoreSetupRequest extends Request
     {
         $input = $this->all();
           
-          $input['user_agent'] = request()->server('HTTP_USER_AGENT');
+        $input['user_agent'] = request()->server('HTTP_USER_AGENT');
 
         $this->replace($input);
     }

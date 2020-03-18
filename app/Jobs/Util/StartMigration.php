@@ -71,20 +71,24 @@ class StartMigration implements ShouldQueue
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);
 
         try {
-            if (!$archive)
+            if (!$archive) {
                 throw new ProcessingMigrationArchiveFailed('Processing migration archive failed. Migration file is possibly corrupted.');
+            }
 
             $zip->extractTo(storage_path("migrations/{$filename}"));
             $zip->close();
 
-            if (app()->environment() == 'testing')
+            if (app()->environment() == 'testing') {
                 return;
+            }
 
             $this->start($filename);
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
             Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
 
-            if (app()->environment() !== 'production') info($e->getMessage());
+            if (app()->environment() !== 'production') {
+                info($e->getMessage());
+            }
         }
 
         \Log::error("stop handle");
@@ -97,13 +101,13 @@ class StartMigration implements ShouldQueue
      */
     public function start(string $filename): void
     {
-
         \Log::error("start start");
 
         $file = storage_path("migrations/$filename/migration.json");
 
-        if (!file_exists($file))
+        if (!file_exists($file)) {
             throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
+        }
 
         $handle = fopen($file, "r");
         $file = fread($handle, filesize($file));

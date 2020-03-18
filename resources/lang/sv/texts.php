@@ -1969,37 +1969,37 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'authorization' => 'Tillstånd',
     'signed' => 'Signerad',
 
-	// BlueVine
-	'bluevine_promo' => 'Få flexibla affärssystem krediter och fakturabelåning hjälp BlueVine.',
-	'bluevine_modal_label' => 'Registrera med BlueVine',
-	'bluevine_modal_text' => '<h3>Snabb finansiering av ditt företag. Inget pappersarbete.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Få flexibla affärssystem krediter och fakturabelåning hjälp BlueVine.',
+    'bluevine_modal_label' => 'Registrera med BlueVine',
+    'bluevine_modal_text' => '<h3>Snabb finansiering av ditt företag. Inget pappersarbete.</h3>
 <ul><li>Flexibel kredit och fakturaköp.</li></ul>',
-	'bluevine_create_account' => 'Skapa konto',
-	'quote_types' => 'Få offertför',
-	'invoice_factoring' => 'Faktura facto',
-	'line_of_credit' => 'Kredit',
-	'fico_score'                         => 'Din FICO poäng',
-	'business_inception'                 => 'Affärs startkod',
-	'average_bank_balance'               => 'Genomsnitt bankkonto balans.',
-	'annual_revenue'                     => 'Årsomsättning',
-	'desired_credit_limit_factoring'     => 'Önskad faktura factogräns',
-	'desired_credit_limit_loc'           => 'Önskad kreditgräns',
-	'desired_credit_limit'               => 'Önskad kreditgräns',
-	'bluevine_credit_line_type_required' => 'Du måste välja minst en',
-	'bluevine_field_required'            => 'Detta fält krävs',
-	'bluevine_unexpected_error'          => 'Ett oförutsett fel uppkom.',
-	'bluevine_no_conditional_offer'      => 'Mer information krävs innan ni får en offert. Vänligen klicka nedan.',
-	'bluevine_invoice_factoring'         => 'Faktura facto',
-	'bluevine_conditional_offer'         => 'Villkorligt erbjudande',
-	'bluevine_credit_line_amount'        => 'Kredit linje',
-	'bluevine_advance_rate'              => 'Matningshastighet',
-	'bluevine_weekly_discount_rate'      => 'Veckorabattsats',
-	'bluevine_minimum_fee_rate'          => 'Minimiavgift',
-	'bluevine_line_of_credit'            => 'Kreditlinje',
-	'bluevine_interest_rate'             => 'Ränta',
-	'bluevine_weekly_draw_rate'          => 'Vecko dratakt',
-	'bluevine_continue'                  => 'Fortsätt till BlueVine',
-	'bluevine_completed'                 => 'BlueVine registrering slutförd',
+    'bluevine_create_account' => 'Skapa konto',
+    'quote_types' => 'Få offertför',
+    'invoice_factoring' => 'Faktura facto',
+    'line_of_credit' => 'Kredit',
+    'fico_score'                         => 'Din FICO poäng',
+    'business_inception'                 => 'Affärs startkod',
+    'average_bank_balance'               => 'Genomsnitt bankkonto balans.',
+    'annual_revenue'                     => 'Årsomsättning',
+    'desired_credit_limit_factoring'     => 'Önskad faktura factogräns',
+    'desired_credit_limit_loc'           => 'Önskad kreditgräns',
+    'desired_credit_limit'               => 'Önskad kreditgräns',
+    'bluevine_credit_line_type_required' => 'Du måste välja minst en',
+    'bluevine_field_required'            => 'Detta fält krävs',
+    'bluevine_unexpected_error'          => 'Ett oförutsett fel uppkom.',
+    'bluevine_no_conditional_offer'      => 'Mer information krävs innan ni får en offert. Vänligen klicka nedan.',
+    'bluevine_invoice_factoring'         => 'Faktura facto',
+    'bluevine_conditional_offer'         => 'Villkorligt erbjudande',
+    'bluevine_credit_line_amount'        => 'Kredit linje',
+    'bluevine_advance_rate'              => 'Matningshastighet',
+    'bluevine_weekly_discount_rate'      => 'Veckorabattsats',
+    'bluevine_minimum_fee_rate'          => 'Minimiavgift',
+    'bluevine_line_of_credit'            => 'Kreditlinje',
+    'bluevine_interest_rate'             => 'Ränta',
+    'bluevine_weekly_draw_rate'          => 'Vecko dratakt',
+    'bluevine_continue'                  => 'Fortsätt till BlueVine',
+    'bluevine_completed'                 => 'BlueVine registrering slutförd',
 
     'vendor_name' => 'Leverantör',
     'entity_state' => 'Tillstånd',
@@ -2134,16 +2134,16 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Detta året',
 
-	// Updated login screen
-	'ninja_tagline' => 'Skapa. Skicka. Få betalt.',
-	'login_or_existing' => 'Eller logga in med ett kopplat konto.',
-	'sign_up_now' => 'Ansök nu',
-	'not_a_member_yet' => 'Inte medlem ännu?',
-	'login_create_an_account' => 'Skapa ett konto!',
-	'client_login' => 'Kund inlogg',
+    // Updated login screen
+    'ninja_tagline' => 'Skapa. Skicka. Få betalt.',
+    'login_or_existing' => 'Eller logga in med ett kopplat konto.',
+    'sign_up_now' => 'Ansök nu',
+    'not_a_member_yet' => 'Inte medlem ännu?',
+    'login_create_an_account' => 'Skapa ett konto!',
+    'client_login' => 'Kund inlogg',
 
-	// New Client Portal styling
-	'invoice_from' => 'Fakturor från:',
+    // New Client Portal styling
+    'invoice_from' => 'Fakturor från:',
     'email_alias_message' => 'Vi kräver att varje företag har en unik epost.<br/>Överväg att använda ett alias. T.ex. email+label@example.com',
     'full_name' => 'Hela namnet',
     'month_year' => 'MÅNAD/ÅR',
@@ -2438,7 +2438,7 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'tax1' => 'Första moms',
     'tax2' => 'Andra moms',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Exporteringsformat',
+    'format_export' => 'Exporteringsformat',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2875,5 +2875,3 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
 );
 
 return $LANG;
-
-?>

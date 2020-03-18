@@ -89,10 +89,10 @@ class AuthServiceProvider extends ServiceProvider
                 Auth::provider('users', function ($app, array $config) {
                     return new MultiDatabaseUserProvider($this->app['hash'], $config['model']);
                 });
-        
+
                 Auth::provider('contacts', function ($app, array $config) {
                     return new MultiDatabaseUserProvider($this->app['hash'], $config['model']);
-        
+
                 });
         */
         Gate::define('view-list', function ($user, $entity) {

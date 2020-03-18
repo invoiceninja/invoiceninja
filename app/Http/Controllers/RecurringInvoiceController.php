@@ -377,8 +377,9 @@ class RecurringInvoiceController extends BaseController
      */
     public function update(UpdateRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
-        if($request->entityIsDeleted($recurring_invoice))
+        if ($request->entityIsDeleted($recurring_invoice)) {
             return $request->disallowUpdate();
+        }
         
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), $recurring_invoice);
 

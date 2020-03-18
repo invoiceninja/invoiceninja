@@ -39,7 +39,6 @@ class UpdateCompanyLedgerTest extends TestCase
      */
     public function testPaymentIsPresentInLedger()
     {
-
         $invoice = $this->invoice->service()->markPaid()->save();
 
         $ledger = CompanyLedger::whereClientId($invoice->client_id)
@@ -49,7 +48,6 @@ class UpdateCompanyLedgerTest extends TestCase
 
         $payment = $ledger->adjustment * - 1;
         $this->assertEquals($invoice->amount, $payment);
-
     }
 
     /**
@@ -67,6 +65,4 @@ class UpdateCompanyLedgerTest extends TestCase
 
         $this->assertGreaterThan(1, count($ledger));
     }
-
-
 }

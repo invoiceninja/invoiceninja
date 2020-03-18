@@ -60,7 +60,4 @@ class Project extends BaseModel
     // {
     //     return $this->hasMany('App\Models\Task');
     // }
-
-
 }
-

@@ -28,14 +28,13 @@ trait MakesInvoiceHtml
      *
      * @param  string $design either the path to the design template, OR the full design template string
      * @param  Collection $invoice  The invoice object
-     * 
+     *
      * @deprecated replaced by generateEntityHtml
-     * 
+     *
      * @return string           The invoice string in HTML format
      */
     public function generateEntityHtml(Designer $designer, $entity, $contact = null) :string
     {
-
         $entity->load('client');
         
         $client = $entity->client;
@@ -55,7 +54,7 @@ trait MakesInvoiceHtml
 
         $html = view('pdf.stub', $data)->render();
         
-       // \Log::error($html);
+        // \Log::error($html);
         
         return $html;
     }
@@ -77,7 +76,6 @@ trait MakesInvoiceHtml
      */
     public function renderView($string, $data = []) :string
     {
-
         $data['__env'] = app(\Illuminate\View\Factory::class);
 
         $php = Blade::compileString($string);

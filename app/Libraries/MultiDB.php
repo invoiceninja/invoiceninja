@@ -59,11 +59,9 @@ class MultiDB
 
         //multi-db active
         foreach (self::$dbs as $db) {
-          
             if (Company::on($db)->whereSubdomain($subdomain)->get()->count() >=1) {
                 return false;
             }
-          
         }
 
         self::setDefaultDatabase();
@@ -215,7 +213,7 @@ class MultiDB
      * @param $database
      */
     public static function setDB(string $database) : void
-    {        
+    {
         /* This will set the database connection for the request */
         config(['database.default' => $database]);
     }

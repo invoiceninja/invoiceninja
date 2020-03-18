@@ -49,7 +49,7 @@ class HeaderComposer
                 $data['current_company'] = $companies->first(function ($company){
                     return $company->id == auth()->user()->company()->id;
                 });
-        
+
                 $data['companies'] = $companies->reject(function ($company){
                     return $company->id == auth()->user()->company()->id;
                 });

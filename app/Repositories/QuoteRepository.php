@@ -27,7 +27,6 @@ use Illuminate\Http\Request;
  */
 class QuoteRepository extends BaseRepository
 {
-
     use MakesHash;
 
     public function getClassName()
@@ -44,5 +43,4 @@ class QuoteRepository extends BaseRepository
     {
         return QuoteInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
     }
-    
 }

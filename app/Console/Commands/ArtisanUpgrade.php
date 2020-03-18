@@ -41,7 +41,7 @@ class ArtisanUpgrade extends Command
     public function handle()
     {
         set_time_limit(0);
-        // Composer\Factory::getHomeDir() method 
+        // Composer\Factory::getHomeDir() method
         // needs COMPOSER_HOME environment variable set
         putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
 
@@ -53,29 +53,20 @@ class ArtisanUpgrade extends Command
 
 
         try {
-        
             Artisan::call('migrate');
-        
-        }catch(Exception $e) {
-
+        } catch (Exception $e) {
             \Log::error("I wasn't able to migrate the data.");
         }
 
         try {
-        
             Artisan::call('optimize');
-        
-        }catch(Exception $e) {
-
+        } catch (Exception $e) {
             \Log::error("I wasn't able to optimize.");
         }
 
         try {
-        
             Artisan::call('queue:restart');
-        
-        }catch(Exception $e) {
-
+        } catch (Exception $e) {
             \Log::error("I wasn't able to restart the queue");
         }
     }

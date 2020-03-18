@@ -279,8 +279,9 @@ class ClientController extends BaseController
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
-        if($request->entityIsDeleted($client))
+        if ($request->entityIsDeleted($client)) {
             return $request->disallowUpdate();
+        }
 
         $client = $this->client_repo->save($request->all(), $client);
 

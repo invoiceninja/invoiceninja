@@ -11,52 +11,40 @@ use Tests\TestCase;
  */
 class CompanySettingsTest extends TestCase
 {
-
     public function setUp() :void
     {
+        parent::setUp();
     
-    parent::setUp();
-	
-    $this->company_settings = CompanySettings::defaults();
+        $this->company_settings = CompanySettings::defaults();
+    }
 
-	}
+    public function testTimezoneId()
+    {
+        $this->assertEquals($this->company_settings->timezone_id, 1);
+    }
 
-	public function testTimezoneId()
-	{
-		
-		$this->assertEquals($this->company_settings->timezone_id, 1);
+    public function testLanguageId()
+    {
+        $this->assertEquals($this->company_settings->language_id, 1);
+    }
 
-	}
+    public function testPropertyIssetOk()
+    {
+        $this->assertTrue(isset($this->company_settings->custom_value1));
+    }
 
-	public function testLanguageId()
-	{
+    public function testPropertyIsSet()
+    {
+        $this->assertTrue(isset($this->company_settings->timezone_id));
+    }
 
-		$this->assertEquals($this->company_settings->language_id, 1);
+    public function testSettingsArrayAgainstCastsArray()
+    {
+        $company_settings = json_decode(json_encode(CompanySettings::defaults()), true);
+        $casts = CompanySettings::$casts;
 
-	}
+        $diff = array_diff_key($company_settings, $casts);
 
-	public function testPropertyIssetOk()
-	{
-
-		$this->assertTrue(isset($this->company_settings->custom_value1));
-
-	}
-
-	public function testPropertyIsSet()
-	{
-
-		$this->assertTrue(isset($this->company_settings->timezone_id));
-
-	}
-
-	public function testSettingsArrayAgainstCastsArray()
-	{
-		$company_settings = json_decode(json_encode(CompanySettings::defaults()),true);
-		$casts = CompanySettings::$casts;
-
-		$diff = array_diff_key($company_settings, $casts);
-
-		$this->assertEquals(1, count($diff));
-	}
-
+        $this->assertEquals(1, count($diff));
+    }
 }

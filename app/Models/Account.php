@@ -58,7 +58,7 @@ class Account extends BaseModel
     const PLAN_ENTERPRISE   = 'enterprise';
     const PLAN_WHITE_LABEL  = 'white_label';
     const PLAN_TERM_MONTHLY = 'month';
-    const PLAN_TERM_YEARLY  = 'year';   
+    const PLAN_TERM_YEARLY  = 'year';
 
     const FEATURE_TASKS                     = 'tasks';
     const FEATURE_EXPENSES                  = 'expenses';
@@ -152,6 +152,7 @@ class Account extends BaseModel
                     return false;
                 }
                 // Fallthrough
+                // no break
             case self::FEATURE_REMOVE_CREATED_BY:
                 return ! empty($plan_details); // A plan is required even for self-hosted users
 
@@ -181,16 +182,18 @@ class Account extends BaseModel
 
     public function isPaidHostedClient()
     {
-        if (! Ninja::isNinja()) 
-            return false;        
+        if (! Ninja::isNinja()) {
+            return false;
+        }
 
         return $this->plan == 'pro' || $this->plan == 'enterprise';
     }
 
     public function isTrial()
     {
-        if (! Ninja::isNinja()) 
+        if (! Ninja::isNinja()) {
             return false;
+        }
 
         $plan_details = $this->getPlanDetails();
 
@@ -199,7 +202,6 @@ class Account extends BaseModel
 
     public function getPlanDetails($include_inactive = false, $include_trial = true)
     {
-        
         $plan = $this->plan;
         $price = $this->plan_price;
         $trial_plan = $this->trial_plan;

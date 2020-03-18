@@ -43,7 +43,6 @@ class CompanyGatewayApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
-
     }
 
 
@@ -105,16 +104,13 @@ class CompanyGatewayApiTest extends TestCase
         $response->assertStatus(200);
       
 
-            $response = $this->withHeaders([
+        $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token
             ])->delete("/api/v1/company_gateways/{$cg_id}", $data);
 
 
         $response->assertStatus(200);
-      
-
-
     }
     
 
@@ -163,8 +159,6 @@ class CompanyGatewayApiTest extends TestCase
         $cg = $response->json();
 
         $response->assertStatus(200);
-
-
     }
 
 
@@ -188,7 +182,6 @@ class CompanyGatewayApiTest extends TestCase
 
 
         $response->assertStatus(200);
-
     }
 
     public function testCompanyGatewayArrayBuilder()
@@ -204,6 +197,5 @@ class CompanyGatewayApiTest extends TestCase
 
         $this->assertEquals($arr['min_limit'], $new_arr['min_limit']);
         $this->assertTrue(array_key_exists('fee_amount', $new_arr));
-
     }
 }

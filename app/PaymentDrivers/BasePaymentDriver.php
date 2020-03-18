@@ -285,6 +285,4 @@ class BasePaymentDriver
 
         return $payment;
     }
-
-
 }

@@ -49,6 +49,4 @@ class UpdateRecurringInvoiceRequest extends Request
         //$input['line_items'] = json_encode($input['line_items']);
         $this->replace($input);
     }
-
-
 }

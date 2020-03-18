@@ -44,7 +44,6 @@ class ProductTest extends TestCase
 
     public function testProductList()
     {
-
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
@@ -64,7 +63,7 @@ class ProductTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
 
         $token = $account->default_company->tokens->first()->token;
 
@@ -79,7 +78,8 @@ class ProductTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $token,
-        ])->post('/api/v1/products/', 
+        ])->post(
+            '/api/v1/products/',
             [
                 'product_key' => 'a-new-product-key',
                 'notes' => 'Product Notes',

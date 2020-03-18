@@ -28,7 +28,7 @@ class DesignTest extends TestCase
 {
     use MakesInvoiceHtml;
     use PdfMaker;
-  	use MockAccountData;
+    use MockAccountData;
     use GeneratesCounter;
     use MakesHash;
 
@@ -51,11 +51,11 @@ class DesignTest extends TestCase
 
         $design = Design::find(3);
 
-    	$designer = new Designer($this->invoice, $design, $this->company->settings->pdf_variables, 'quote');
+        $designer = new Designer($this->invoice, $design, $this->company->settings->pdf_variables, 'quote');
 
-    	$html = $designer->build()->getHtml();
+        $html = $designer->build()->getHtml();
 
-    	$this->assertNotNull($html);
+        $this->assertNotNull($html);
 
 
         $this->invoice = factory(\App\Models\Invoice::class)->create([
@@ -66,13 +66,13 @@ class DesignTest extends TestCase
 
         $this->invoice->uses_inclusive_taxes = false;
 
-    	$settings = $this->invoice->client->settings;
-    	$settings->invoice_design_id = "VolejRejNm";
+        $settings = $this->invoice->client->settings;
+        $settings->invoice_design_id = "VolejRejNm";
 
-    	$this->client->settings = $settings;
-    	$this->client->save();
+        $this->client->settings = $settings;
+        $this->client->save();
 
-    	CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->invoice->client->primary_contact()->first());
+        CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->invoice->client->primary_contact()->first());
     }
 
     public function testQuoteDesignExists()
@@ -108,7 +108,6 @@ class DesignTest extends TestCase
 
     public function testCreditDesignExists()
     {
-
         $design = Design::find(3);
 
         $designer = new Designer($this->credit, $design, $this->company->settings->pdf_variables, 'credit');
@@ -132,36 +131,31 @@ class DesignTest extends TestCase
 
     public function testAllDesigns()
     {
+        for ($x=1; $x<=10; $x++) {
+            $settings = $this->invoice->client->settings;
+            $settings->quote_design_id = (string)$this->encodePrimaryKey($x);
 
-        for($x=1; $x<=10; $x++)
-        {
+            $this->quote->client_id = $this->client->id;
+            $this->quote->setRelation('client', $this->client);
+            $this->quote->save();
 
-        $settings = $this->invoice->client->settings;
-        $settings->quote_design_id = (string)$this->encodePrimaryKey($x);
+            $this->client->settings = $settings;
+            $this->client->save();
 
-        $this->quote->client_id = $this->client->id;
-        $this->quote->setRelation('client', $this->client);
-        $this->quote->save();
+            CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
 
-        $this->client->settings = $settings;
-        $this->client->save();
-
-        CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
-
-        $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
-        $this->quote->save();
-
+            $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
+            $this->quote->save();
         }
 
         $this->assertTrue(true);
-
     }
 
 
 
 
 
-///////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
 
 
 
@@ -269,6 +263,5 @@ class DesignTest extends TestCase
 
     //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
     // }
-    // 
+    //
 }
-

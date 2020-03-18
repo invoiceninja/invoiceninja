@@ -20,7 +20,6 @@ use Illuminate\Http\Request;
 
 class CompanyUserController extends BaseController
 {
-
     protected $entity_type = CompanyUser::class;
 
     protected $entity_transformer = CompanyUserTransformer::class;
@@ -55,7 +54,6 @@ class CompanyUserController extends BaseController
     
     public function store(CreateAccountRequest $request)
     {
-
     }
 
     /**
@@ -127,27 +125,26 @@ class CompanyUserController extends BaseController
      */
     public function update(UpdateCompanyUserRequest $request, User $user)
     {
-            $company = auth()->user()->company();
+        $company = auth()->user()->company();
 
             
-            $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
+        $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
-            if(!$company_user){
-                throw new ModelNotFoundException("Company User record not found");
-                return;
-            }
+        if (!$company_user) {
+            throw new ModelNotFoundException("Company User record not found");
+            return;
+        }
 
-            if(auth()->user()->isAdmin()){
-                $company_user->fill($request->input('company_user'));
-            }
-            else {
-                $company_user->fill($request->input('company_user')['settings']);
-                $company_user->fill($request->input('company_user')['notifications']);
-            }
+        if (auth()->user()->isAdmin()) {
+            $company_user->fill($request->input('company_user'));
+        } else {
+            $company_user->fill($request->input('company_user')['settings']);
+            $company_user->fill($request->input('company_user')['notifications']);
+        }
             
-            $company_user->save();
+        $company_user->save();
 
-            return $this->itemResponse($company_user->fresh());
+        return $this->itemResponse($company_user->fresh());
     }
 
     /**

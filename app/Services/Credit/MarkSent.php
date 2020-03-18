@@ -32,6 +32,5 @@ class MarkSent
         $this->credit->service()->setStatus(Credit::STATUS_SENT)->applyNumber()->save();
 
         return $this->credit;
-
     }
 }

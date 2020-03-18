@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Design extends BaseModel
 {
-
     use Filterable;
     use SoftDeletes;
 
@@ -38,7 +37,4 @@ class Design extends BaseModel
     {
         return $this->belongsTo(Company::class);
     }
-
-
-
 }

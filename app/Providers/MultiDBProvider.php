@@ -32,26 +32,20 @@ class MultiDBProvider extends ServiceProvider
      */
     public function register()
     {
-        if($this->app->runningInConsole()){
+        if ($this->app->runningInConsole()) {
             return;
         }
 
 
-        $this->app['events']->listen(\Illuminate\Queue\Events\JobProcessing::class, function($event) {
+        $this->app['events']->listen(
+            \Illuminate\Queue\Events\JobProcessing::class,
+            function ($event) {
+                if (isset($event->job->payload()['db'])) {
+                    \Log::error("Provider Setting DB = ".$event->job->payload()['db']);
 
-            if (isset($event->job->payload()['db'])) {
-
-            \Log::error("Provider Setting DB = ".$event->job->payload()['db']);
-
-               MultiDB::setDb($event->job->payload()['db']);
+                    MultiDB::setDb($event->job->payload()['db']);
+                }
             }
-
-        }
-
-
         );
-
-
     }
-
 }

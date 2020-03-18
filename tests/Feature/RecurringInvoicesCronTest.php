@@ -25,18 +25,14 @@ use Tests\TestCase;
     
 class RecurringInvoicesCronTest extends TestCase
 {
-
     use DatabaseTransactions;
     use MockAccountData;
 
     public function setUp() :void
     {
-
         parent::setUp();
 
         $this->makeTestData();
-
-
     }
 
     public function testCountCorrectNumberOfRecurringInvoicesDue()
@@ -50,6 +46,4 @@ class RecurringInvoicesCronTest extends TestCase
 
         $this->assertEquals(6, $recurring_all->count());
     }
-
-
 }

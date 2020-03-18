@@ -28,7 +28,6 @@ class FactoryCreationTest extends TestCase
 
     public function setUp() :void
     {
-    
         parent::setUp();
     
         Session::start();
@@ -38,7 +37,6 @@ class FactoryCreationTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
-        
     }
 
     /**
@@ -66,7 +64,7 @@ class FactoryCreationTest extends TestCase
 
         $client->save();
 
-        $invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
         $invoice->client_id = $client->id;
         $invoice->save();
 
@@ -85,7 +83,7 @@ class FactoryCreationTest extends TestCase
 
         $client->save();
 
-        $invoice = InvoiceFactory::create($this->company->id,$this->user->id);//stub the company and user_id
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
         $invoice->client_id = $client->id;
         $invoice->save();
 
@@ -100,8 +98,6 @@ class FactoryCreationTest extends TestCase
         $this->assertNotNull($clone);
 
         $this->assertInternalType("int", $clone->id);
-        
-
     }
 
     /**
@@ -125,7 +121,6 @@ class FactoryCreationTest extends TestCase
      */
     public function testClientContactCreate()
     {
-
         $cliz = ClientFactory::create($this->company->id, $this->user->id);
 
         $cliz->save();
@@ -133,7 +128,6 @@ class FactoryCreationTest extends TestCase
         $this->assertNotNull($cliz->contacts);
         $this->assertEquals(1, $cliz->contacts->count());
         $this->assertInternalType("int", $cliz->contacts->first()->id);
-
     }
 
     /**
@@ -149,8 +143,5 @@ class FactoryCreationTest extends TestCase
         $this->assertNotNull($new_user);
 
         $this->assertInternalType("int", $new_user->id);
-
     }
-
-
 }

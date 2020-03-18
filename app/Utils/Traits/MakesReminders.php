@@ -189,14 +189,20 @@ trait MakesReminders
         $client = $this->client;
 
         //if the invoice
-        if ($client->getSetting('enable_reminder1') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder1'),
-                $client->getSetting('num_days_reminder1'))) {
+        if ($client->getSetting('enable_reminder1') !== false && $this->inReminderWindow(
+            $client->getSetting('schedule_reminder1'),
+            $client->getSetting('num_days_reminder1')
+        )) {
             return 'template1';
-        } elseif ($client->getSetting('enable_reminder2') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder2'),
-                $client->getSetting('num_days_reminder2'))) {
+        } elseif ($client->getSetting('enable_reminder2') !== false && $this->inReminderWindow(
+            $client->getSetting('schedule_reminder2'),
+            $client->getSetting('num_days_reminder2')
+        )) {
             return 'template2';
-        } elseif ($client->getSetting('enable_reminder3') !== false && $this->inReminderWindow($client->getSetting('schedule_reminder3'),
-                $client->getSetting('num_days_reminder3'))) {
+        } elseif ($client->getSetting('enable_reminder3') !== false && $this->inReminderWindow(
+            $client->getSetting('schedule_reminder3'),
+            $client->getSetting('num_days_reminder3')
+        )) {
             return 'template3';
         } else {
             return 'invoice';

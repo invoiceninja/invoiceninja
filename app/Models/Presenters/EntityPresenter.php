@@ -174,5 +174,4 @@ class EntityPresenter extends Presenter
     {
         return $this->company->present()->address();
     }
-
 }

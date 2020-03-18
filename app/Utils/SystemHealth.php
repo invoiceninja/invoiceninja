@@ -94,11 +94,9 @@ class SystemHealth
                     $result[] = [ config('database.connections.' . config('database.default') . '.database') => false ];
                 }
             }
-
         }
 
         return $result;
-
     }
 
     private static function checkDbConnection()
@@ -107,19 +105,17 @@ class SystemHealth
     }
 
     private static function testMailServer()
-    {   
-    
+    {
         try {
             Mail::to(config('mail.from.address'))
             ->send(new TestMailServer('Email Server Works!', config('mail.from.address')));
-        }
-        catch(\Exception $e) {
-
+        } catch (\Exception $e) {
             return $e->getMessage();
         }
 
-        if(count(Mail::failures()) > 0)
+        if (count(Mail::failures()) > 0) {
             return Mail::failures();
+        }
 
         return [];
     }

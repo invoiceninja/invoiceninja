@@ -87,10 +87,5 @@ class AccountTest extends TestCase
             ])->post('/api/v1/signup?include=account', $data);
 
         $response->assertStatus(200);
-          
-    
     }
-
-
-
 }

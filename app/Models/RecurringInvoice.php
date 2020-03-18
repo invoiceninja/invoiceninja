@@ -44,10 +44,10 @@ class RecurringInvoice extends BaseModel
     /* Make sure we support overflow!!!!!!!!!!
     $start = Carbon::today();
     $subscription = Carbon::parse('2017-12-31');
-    
+
     foreach (range(1, 12) as $month) {
         $day = $start->addMonthNoOverflow()->thisDayOrLast($subscription->day);
-    
+
         echo "You will be billed on {$day} in month {$month}\n";
     }
      */

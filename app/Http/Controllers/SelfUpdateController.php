@@ -21,7 +21,6 @@ class SelfUpdateController extends BaseController
 
     public function __construct()
     {
-
     }
 
     /**
@@ -58,18 +57,12 @@ class SelfUpdateController extends BaseController
      */
     public function update(UpdaterManager $updater)
     {
-    	
-    	$res = $updater->update();
+        $res = $updater->update();
 
-    	return response()->json(['message'=>$res], 200);
-        
+        return response()->json(['message'=>$res], 200);
     }
 
     public function checkVersion(UpdaterManager $updater)
     {
-
-
-
     }
-
 }

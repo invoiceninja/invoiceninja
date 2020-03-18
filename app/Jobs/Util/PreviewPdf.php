@@ -31,51 +31,46 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 
-class PreviewPdf implements ShouldQueue {
+class PreviewPdf implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker;
 
-	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker;
+    public $invoice;
 
-	public $invoice;
+    public $company;
 
-	public $company;
+    public $contact;
 
-	public $contact;
+    private $disk;
 
-	private $disk;
+    public $design_string;
 
-	public $design_string;
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct($design_string, Company $company)
+    {
+        $this->company = $company;
 
-	/**
-	 * Create a new job instance.
-	 *
-	 * @return void
-	 */
-	public function __construct($design_string, Company $company) 
-	{
-
-		$this->company = $company;
-
-		$this->design_string = $design_string;
+        $this->design_string = $design_string;
 
         $this->disk = $disk ?? config('filesystems.default');
+    }
 
-	}
+    public function handle()
+    {
+        $path      = $this->company->company_key;
 
-	public function handle() {
+        //Storage::makeDirectory($path, 0755);
 
+        $file_path = $path . '/stream.pdf';
 
-	    $path      = $this->company->company_key;
+        $pdf = $this->makePdf(null, null, $this->design_string);
 
-		//Storage::makeDirectory($path, 0755);
+        $instance = Storage::disk('local')->put($file_path, $pdf);
 
-	    $file_path = $path . '/stream.pdf';
-
-		$pdf = $this->makePdf(null, null, $this->design_string);
-
-    	$instance = Storage::disk('local')->put($file_path, $pdf);
-
-		return storage_path('app') .'/'. $file_path;
-	}
-
-
+        return storage_path('app') .'/'. $file_path;
+    }
 }

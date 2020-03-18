@@ -13,9 +13,9 @@ namespace App\Designs;
 
 class Clean extends AbstractDesign
 {
-
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
 
     public function includes()
@@ -39,9 +39,9 @@ class Clean extends AbstractDesign
     }
 
 
-	public function header() {
-
-		return '<div class="px-12 my-10">
+    public function header()
+    {
+        return '<div class="px-12 my-10">
 <div class="flex items-center">
     <div class="w-1/3">
         <div class="h-14 w-14">$company_logo</div>
@@ -55,10 +55,10 @@ class Clean extends AbstractDesign
         </div>
     </div>
 </div>';
-	}
+    }
 
-	public function body() {
-
+    public function body()
+    {
         return '<h1 class="mt-12 uppercase text-2xl text-blue-500 ml-4">
     $entity_label
 </h1>
@@ -95,8 +95,7 @@ class Clean extends AbstractDesign
         $task_table_body
     </tbody>
 </table>';
-
-	}
+    }
 
     public function task()
     {
@@ -108,8 +107,8 @@ class Clean extends AbstractDesign
         return '';
     }
 
-	public function footer() {
-
+    public function footer()
+    {
         return '<div class="flex px-4 mt-6 w-full">
     <div class="w-1/2">
         $entity.public_notes
@@ -145,7 +144,5 @@ class Clean extends AbstractDesign
 </div>
 </body>
 </html>';
-
-	}
-
+    }
 }

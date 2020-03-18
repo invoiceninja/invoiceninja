@@ -129,7 +129,7 @@ class Import implements ShouldQueue
     public function handle()
     {
         foreach ($this->data as $key => $resource) {
-\Log::error("importing {$key}");
+            \Log::error("importing {$key}");
             if (!in_array($key, $this->available_imports)) {
                 throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
             }
@@ -161,14 +161,14 @@ class Import implements ShouldQueue
             throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
-        if (isset($data['account_id']))
+        if (isset($data['account_id'])) {
             unset($data['account_id']);
+        }
 
         $company_repository = new CompanyRepository();
         $company_repository->save($data, $this->company);
 
         Company::reguard();
-
     }
 
     /**
@@ -192,16 +192,17 @@ class Import implements ShouldQueue
         }
 
         foreach ($data as $resource) {
-
             $modified = $resource;
             $company_id = $this->company->id;
             $user_id = $this->processUserId($resource);
 
-            if (isset($resource['user_id']))
+            if (isset($resource['user_id'])) {
                 unset($resource['user_id']);
+            }
 
-            if (isset($resource['company_id']))
+            if (isset($resource['company_id'])) {
                 unset($resource['company_id']);
+            }
 
             $tax_rate = TaxRateFactory::create($this->company->id, $user_id);
             $tax_rate->fill($resource);
@@ -210,7 +211,6 @@ class Import implements ShouldQueue
         }
 
         TaxRate::reguard();
-
     }
 
     /**
@@ -240,7 +240,6 @@ class Import implements ShouldQueue
         $user_repository = new UserRepository();
 
         foreach ($data as $resource) {
-
             $modified = $resource;
             unset($modified['id']);
 
@@ -259,7 +258,6 @@ class Import implements ShouldQueue
         }
 
         User::reguard();
-
     }
 
     /**
@@ -275,7 +273,6 @@ class Import implements ShouldQueue
         $client_repository = new ClientRepository($contact_repository);
 
         foreach ($data as $key => $resource) {
-
             $modified = $resource;
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
@@ -283,14 +280,18 @@ class Import implements ShouldQueue
             unset($modified['id']);
             unset($modified['contacts']);
 
-            $client = $client_repository->save($modified, ClientFactory::create(
-                $this->company->id, $modified['user_id'])
+            $client = $client_repository->save(
+                $modified,
+                ClientFactory::create(
+                $this->company->id,
+                $modified['user_id']
+            )
             );
 
-            if(array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
+            if (array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
                 $modified_contacts = $resource['contacts'];
 
-                foreach($modified_contacts as $key => $client_contacts) {
+                foreach ($modified_contacts as $key => $client_contacts) {
                     $modified_contacts[$key]['company_id'] = $this->company->id;
                     $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
                     $modified_contacts[$key]['client_id'] = $client->id;
@@ -310,7 +311,6 @@ class Import implements ShouldQueue
         }
 
         Client::reguard();
-
     }
 
     private function processProducts(array $data): void
@@ -333,25 +333,26 @@ class Import implements ShouldQueue
         $product_repository = new ProductRepository();
 
         foreach ($data as $resource) {
-
             $modified = $resource;
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
 
             unset($modified['id']);
 
-            $product_repository->save($modified, ProductFactory::create(
-                $this->company->id, $modified['user_id'])
+            $product_repository->save(
+                $modified,
+                ProductFactory::create(
+                $this->company->id,
+                $modified['user_id']
+            )
             );
         }
 
         Product::reguard();
-
     }
 
     private function processInvoices(array $data): void
     {
-
         Invoice::unguard();
 
         $rules = [
@@ -367,7 +368,6 @@ class Import implements ShouldQueue
         $invoice_repository = new InvoiceRepository();
 
         foreach ($data as $resource) {
-
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
@@ -381,7 +381,8 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $invoice = $invoice_repository->save(
-                $modified, InvoiceFactory::create($this->company->id, $modified['user_id'])
+                $modified,
+                InvoiceFactory::create($this->company->id, $modified['user_id'])
             );
 
             $key = "invoices_{$resource['id']}";
@@ -390,11 +391,9 @@ class Import implements ShouldQueue
                 'old' => $resource['id'],
                 'new' => $invoice->id,
             ];
-
         }
 
         Invoice::reguard();
-
     }
 
     private function processCredits(array $data): void
@@ -414,7 +413,6 @@ class Import implements ShouldQueue
         $credit_repository = new CreditRepository();
 
         foreach ($data as $resource) {
-
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
@@ -428,7 +426,8 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $credit = $credit_repository->save(
-                $modified, CreditFactory::create($this->company->id, $modified['user_id'])
+                $modified,
+                CreditFactory::create($this->company->id, $modified['user_id'])
             );
 
             $key = "credits_{$resource['id']}";
@@ -440,7 +439,6 @@ class Import implements ShouldQueue
         }
 
         Credit::reguard();
-
     }
 
     private function processQuotes(array $data): void
@@ -460,7 +458,6 @@ class Import implements ShouldQueue
         $quote_repository = new QuoteRepository();
 
         foreach ($data as $resource) {
-
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
@@ -475,7 +472,8 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $invoice = $quote_repository->save(
-                $modified, QuoteFactory::create($this->company->id, $modified['user_id'])
+                $modified,
+                QuoteFactory::create($this->company->id, $modified['user_id'])
             );
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
@@ -486,11 +484,9 @@ class Import implements ShouldQueue
                 'old' => $resource['id'],
                 'new' => $invoice->id,
             ];
-
         }
 
         Quote::reguard();
-
     }
 
     private function processPayments(array $data): void
@@ -511,7 +507,6 @@ class Import implements ShouldQueue
         $payment_repository = new PaymentRepository(new CreditRepository());
 
         foreach ($data as $resource) {
-
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
@@ -527,12 +522,14 @@ class Import implements ShouldQueue
             unset($modified['invoice_id']);
 
             if (isset($modified['invoices'])) {
-                foreach ($modified['invoices'] as $invoice)
+                foreach ($modified['invoices'] as $invoice) {
                     $invoice['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
+                }
             }
 
             $payment = $payment_repository->save(
-                $modified, PaymentFactory::create($this->company->id, $modified['user_id'])
+                $modified,
+                PaymentFactory::create($this->company->id, $modified['user_id'])
             );
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
@@ -543,11 +540,9 @@ class Import implements ShouldQueue
                     'new' => $payment->id,
                 ]
             ];
-
         }
 
         Payment::reguard();
-
     }
 
     private function processDocuments(array $data): void
@@ -556,7 +551,6 @@ class Import implements ShouldQueue
         /** No validators since data provided by database is already valid. */
 
         foreach ($data as $resource) {
-
             $modified = $resource;
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && !array_key_exists('invoices', $this->ids)) {
@@ -571,12 +565,12 @@ class Import implements ShouldQueue
             unset($modified['invoice_id']);
             unset($modified['expense_id']);
 
-            if(array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
+            if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
                 $modified['documentable_id'] = $this->transformId('invoices', $resource['invoice_id']);
                 $modified['documentable_type'] = 'App\\Models\\Invoice';
             }
 
-            if(array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
+            if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $modified['documentable_id'] = $this->transformId('expenses', $resource['expense_id']);
                 $modified['documentable_type'] = 'App\\Models\\Expense';
             }
@@ -618,7 +612,6 @@ class Import implements ShouldQueue
         }
 
         foreach ($data as $resource) {
-
             $modified = $resource;
 
             $modified['user_id'] = $this->processUserId($resource);
@@ -647,7 +640,6 @@ class Import implements ShouldQueue
         }
 
         CompanyGateway::reguard();
-
     }
 
     private function processClientGatewayTokens(array $data) :void
@@ -655,7 +647,6 @@ class Import implements ShouldQueue
         ClientGatewayToken::unguard();
 
         foreach ($data as $resource) {
-
             $modified = $resource;
 
             unset($modified['id']);
@@ -675,8 +666,7 @@ class Import implements ShouldQueue
             ];
         }
 
-    ClientGatewayToken::reguard();
-
+        ClientGatewayToken::reguard();
     }
 
     /**
@@ -733,7 +723,6 @@ class Import implements ShouldQueue
      */
     public function processUserId(array $resource)
     {
-
         if (!array_key_exists('user_id', $resource)) {
             return $this->user->id;
         }

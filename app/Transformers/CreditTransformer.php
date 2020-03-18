@@ -41,32 +41,32 @@ class CreditTransformer extends EntityTransformer
         public function includePayments(quote $credit)
         {
             $transformer = new PaymentTransformer($this->account, $this->serializer, $credit);
-    
+
             return $this->includeCollection($credit->payments, $transformer, ENTITY_PAYMENT);
         }
-    
+
         public function includeClient(quote $credit)
         {
             $transformer = new ClientTransformer($this->account, $this->serializer);
-    
+
             return $this->includeItem($credit->client, $transformer, ENTITY_CLIENT);
         }
-    
+
         public function includeExpenses(quote $credit)
         {
             $transformer = new ExpenseTransformer($this->account, $this->serializer);
-    
+
             return $this->includeCollection($credit->expenses, $transformer, ENTITY_EXPENSE);
         }
-    
+
         public function includeDocuments(quote $credit)
         {
             $transformer = new DocumentTransformer($this->account, $this->serializer);
-    
+
             $credit->documents->each(function ($document) use ($credit) {
                 $document->setRelation('quote', $credit);
             });
-    
+
             return $this->includeCollection($credit->documents, $transformer, ENTITY_DOCUMENT);
         }
     */

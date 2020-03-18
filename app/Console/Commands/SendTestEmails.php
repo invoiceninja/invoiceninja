@@ -72,7 +72,6 @@ class SendTestEmails extends Command
 
 
         if (!$user) {
-
             $user = factory(\App\Models\User::class)->create([
                 'confirmation_code' => '123',
                 'email' => $faker->safeEmail,
@@ -97,10 +96,7 @@ class SendTestEmails extends Command
                 //'settings' => DefaultSettings::userSettings(),
                 'settings' => null,
             ]);
-
-        }
-        else
-        {
+        } else {
             $company = $user->company_users->first()->company;
             $account = $company->account;
         }
@@ -111,7 +107,6 @@ class SendTestEmails extends Command
 
 
         if (!$client) {
-
             $client = ClientFactory::create($company->id, $user->id);
             $client->save();
 
@@ -138,10 +133,10 @@ class SendTestEmails extends Command
         $invoice->setRelation('client', $client);
         $invoice->save();
 
-                $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
-                $ii->invoice_id = $invoice->id;
-                $ii->client_contact_id = $client->primary_contact()->first()->id;
-                $ii->save();
+        $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
+        $ii->invoice_id = $invoice->id;
+        $ii->client_contact_id = $client->primary_contact()->first()->id;
+        $ii->save();
 
         $invoice->setRelation('invitations', $ii);
         $invoice->service()->markSent()->save();

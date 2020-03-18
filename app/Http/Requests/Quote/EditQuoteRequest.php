@@ -26,6 +26,4 @@ class EditQuoteRequest extends Request
     {
         return auth()->user()->can('edit', $this->quote);
     }
-
-
 }

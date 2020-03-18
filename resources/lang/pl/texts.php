@@ -1963,37 +1963,37 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'authorization' => 'Autoryzacja',
     'signed' => 'Podpisano',
 
-	// BlueVine
-	'bluevine_promo' => 'Otrzymaj elastyczne biznesowe linie kredytowe oraz obsługę faktur dzięki BlueVine.',
-	'bluevine_modal_label' => 'Zarejestruj się w BlueVine',
-	'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Otrzymaj elastyczne biznesowe linie kredytowe oraz obsługę faktur dzięki BlueVine.',
+    'bluevine_modal_label' => 'Zarejestruj się w BlueVine',
+    'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
 <ul><li>Flexible business lines of credit and invoice factoring.</li></ul>',
-	'bluevine_create_account' => 'Stwórz konto',
-	'quote_types' => 'Otrzymaj ofertę dla',
-	'invoice_factoring' => 'Generowanie faktur',
-	'line_of_credit' => 'Linia kredytowa',
-	'fico_score'                         => 'Twoja ocena FICO',
-	'business_inception'                 => 'Business Inception Date',
-	'average_bank_balance'               => 'Średnie saldo bankowe',
-	'annual_revenue'                     => 'Roczny przychód',
-	'desired_credit_limit_factoring'     => 'Wybrany limit generowania faktur',
-	'desired_credit_limit_loc'           => 'Wybrany limit linii kredytowej',
-	'desired_credit_limit'               => 'Wybrany limit kredytowy',
-	'bluevine_credit_line_type_required' => 'Musisz wybrać przynajmniej jedną opcję',
-	'bluevine_field_required'            => 'To pole jest wymagane',
-	'bluevine_unexpected_error'          => 'Wystąpił nieznany błąd.',
-	'bluevine_no_conditional_offer'      => 'Do otrzymania oferty wymagane jest więcej informacji. Kliknij "kontynuuj" poniżej.',
-	'bluevine_invoice_factoring'         => 'Generowanie faktur',
-	'bluevine_conditional_offer'         => 'Oferta pod określonymi warunkami',
-	'bluevine_credit_line_amount'        => 'Linia kredytowa',
-	'bluevine_advance_rate'              => 'Zaawansowany przelicznik',
-	'bluevine_weekly_discount_rate'      => 'Tygodniowa stopa rabatu',
-	'bluevine_minimum_fee_rate'          => 'Minimalna opłata',
-	'bluevine_line_of_credit'            => 'Linia Kredytu',
-	'bluevine_interest_rate'             => 'Interest Rate',
-	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
-	'bluevine_continue'                  => 'Przejdź do BlueVine',
-	'bluevine_completed'                 => 'Rejestracja w BlueVine ukończona',
+    'bluevine_create_account' => 'Stwórz konto',
+    'quote_types' => 'Otrzymaj ofertę dla',
+    'invoice_factoring' => 'Generowanie faktur',
+    'line_of_credit' => 'Linia kredytowa',
+    'fico_score'                         => 'Twoja ocena FICO',
+    'business_inception'                 => 'Business Inception Date',
+    'average_bank_balance'               => 'Średnie saldo bankowe',
+    'annual_revenue'                     => 'Roczny przychód',
+    'desired_credit_limit_factoring'     => 'Wybrany limit generowania faktur',
+    'desired_credit_limit_loc'           => 'Wybrany limit linii kredytowej',
+    'desired_credit_limit'               => 'Wybrany limit kredytowy',
+    'bluevine_credit_line_type_required' => 'Musisz wybrać przynajmniej jedną opcję',
+    'bluevine_field_required'            => 'To pole jest wymagane',
+    'bluevine_unexpected_error'          => 'Wystąpił nieznany błąd.',
+    'bluevine_no_conditional_offer'      => 'Do otrzymania oferty wymagane jest więcej informacji. Kliknij "kontynuuj" poniżej.',
+    'bluevine_invoice_factoring'         => 'Generowanie faktur',
+    'bluevine_conditional_offer'         => 'Oferta pod określonymi warunkami',
+    'bluevine_credit_line_amount'        => 'Linia kredytowa',
+    'bluevine_advance_rate'              => 'Zaawansowany przelicznik',
+    'bluevine_weekly_discount_rate'      => 'Tygodniowa stopa rabatu',
+    'bluevine_minimum_fee_rate'          => 'Minimalna opłata',
+    'bluevine_line_of_credit'            => 'Linia Kredytu',
+    'bluevine_interest_rate'             => 'Interest Rate',
+    'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
+    'bluevine_continue'                  => 'Przejdź do BlueVine',
+    'bluevine_completed'                 => 'Rejestracja w BlueVine ukończona',
 
     'vendor_name' => 'Dostawca',
     'entity_state' => 'Stan',
@@ -2127,16 +2127,16 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Ten rok',
 
-	// Updated login screen
-	'ninja_tagline' => 'Twórz. Wysyłaj. Zarabiaj.',
-	'login_or_existing' => 'Or login with a connected account.',
-	'sign_up_now' => 'Zarejestruj się teraz.',
-	'not_a_member_yet' => 'Nie masz konta?',
-	'login_create_an_account' => 'Stwórz konto!',
-	'client_login' => 'Logowanie klienta',
+    // Updated login screen
+    'ninja_tagline' => 'Twórz. Wysyłaj. Zarabiaj.',
+    'login_or_existing' => 'Or login with a connected account.',
+    'sign_up_now' => 'Zarejestruj się teraz.',
+    'not_a_member_yet' => 'Nie masz konta?',
+    'login_create_an_account' => 'Stwórz konto!',
+    'client_login' => 'Logowanie klienta',
 
-	// New Client Portal styling
-	'invoice_from' => 'Sprzedawca:',
+    // New Client Portal styling
+    'invoice_from' => 'Sprzedawca:',
     'email_alias_message' => 'We require each company to have a unique email address.<br/>Consider using an alias. ie, email+label@example.com',
     'full_name' => 'Pełna nazwa',
     'month_year' => 'MIESIĄC/ROK',
@@ -2431,7 +2431,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Exporting format',
+    'format_export' => 'Exporting format',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2868,5 +2868,3 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
 );
 
 return $LANG;
-
-?>

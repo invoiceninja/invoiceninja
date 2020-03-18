@@ -30,7 +30,7 @@ class EmailInvoice implements ShouldQueue
 
     public $company;
     /**
-     * 
+     *
      * EmailQuote constructor.
      * @param BuildEmail $email_builder
      * @param QuoteInvitation $quote_invitation
@@ -54,18 +54,18 @@ class EmailInvoice implements ShouldQueue
 
     public function handle()
     {
-
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
-            ->send(new TemplateEmail($this->email_builder,
-                    $this->invoice_invitation->contact->user,
-                    $this->invoice_invitation->contact->client
-                )
+            ->send(
+                new TemplateEmail(
+                $this->email_builder,
+                $this->invoice_invitation->contact->user,
+                $this->invoice_invitation->contact->client
+            )
             );
 
         if (count(Mail::failures()) > 0) {
             return $this->logMailError(Mail::failures());
         }
-
     }
 
     private function logMailError($errors)

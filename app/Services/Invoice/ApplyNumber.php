@@ -23,7 +23,7 @@ use App\Utils\Traits\GeneratesCounter;
 
 class ApplyNumber extends AbstractService
 {
-	use GeneratesCounter;
+    use GeneratesCounter;
 
     private $client;
 
@@ -36,10 +36,11 @@ class ApplyNumber extends AbstractService
         $this->invoice = $invoice;
     }
 
-  	public function run()
+    public function run()
     {
-        if ($this->invoice->number != '')
+        if ($this->invoice->number != '') {
             return $this->invoice;
+        }
 
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':

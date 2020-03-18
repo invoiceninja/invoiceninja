@@ -44,7 +44,6 @@ class SendVerificationNotification implements ShouldQueue
      */
     public function handle($event)
     {
-
         MultiDB::setDB($event->company->db);
 
         $event->user->notify(new VerifyUser($event->user));

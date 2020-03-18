@@ -16,7 +16,6 @@ class VersionCheck implements ShouldQueue
 
     public function __construct()
     {
-
     }
 
     /**
@@ -26,12 +25,10 @@ class VersionCheck implements ShouldQueue
      */
     public function handle()
     {
-
         $version_file = file_get_contents(config('ninja.version_url'));
 
-        if($version_file)
+        if ($version_file) {
             Account::whereNotNull('id')->update(['latest_version' => $version_file]);
-
+        }
     }
-
 }

@@ -44,5 +44,4 @@ class InvoicePresenter extends EntityPresenter
             return '';
         }
     }
-
 }

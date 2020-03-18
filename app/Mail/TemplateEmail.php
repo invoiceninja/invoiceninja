@@ -12,7 +12,7 @@ class TemplateEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    private $build_email; 
+    private $build_email;
 
     private $user; //the user the email will be sent from
     
@@ -22,13 +22,11 @@ class TemplateEmail extends Mailable
 
     public function __construct($build_email, User $user, Client $client)
     {
-    
         $this->build_email = $build_email;
 
         $this->user = $user; //this is inappropriate here, need to refactor 'user' in this context the 'user' could also be the 'system'
         
         $this->client = $client;
-    
     }
 
     /**
@@ -47,10 +45,10 @@ class TemplateEmail extends Mailable
 
         $company = $this->client->company;
 
-        $message = $this->from($this->user->email,$this->user->present()->name())//todo this needs to be fixed to handle the hosted version
+        $message = $this->from($this->user->email, $this->user->present()->name())//todo this needs to be fixed to handle the hosted version
             ->subject($this->build_email->getSubject())
             ->text('email.template.plain', [
-                'body' => $this->build_email->getBody(), 
+                'body' => $this->build_email->getBody(),
                 'footer' => $this->build_email->getFooter()
             ])
             ->view($template_name, [
@@ -63,7 +61,6 @@ class TemplateEmail extends Mailable
 
         //conditionally attach files
         if ($settings->pdf_email_attachment !== false && !empty($this->build_email->getAttachments())) {
-
             foreach ($this->build_email->getAttachments() as $file) {
                 $message->attach($file);
             }

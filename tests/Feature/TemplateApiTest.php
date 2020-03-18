@@ -55,7 +55,6 @@ class TemplateApiTest extends TestCase
 
     public function testShowTemplate()
     {
-
         $data = [
             'body' => $this->faker->firstName,
             'subject' => $this->faker->firstName,
@@ -69,7 +68,5 @@ class TemplateApiTest extends TestCase
 
 
         $response->assertStatus(200);
-    
-
     }
 }

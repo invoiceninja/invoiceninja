@@ -44,6 +44,4 @@ class QuotePresenter extends EntityPresenter
             return '';
         }
     }
-
-
 }

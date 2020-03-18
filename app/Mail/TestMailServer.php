@@ -29,7 +29,6 @@ class TestMailServer extends Mailable
      */
     public function build()
     {
-
         return $this->from($this->from_email) //todo this needs to be fixed to handle the hosted version
             ->subject(ctrans('texts.email'))
             ->markdown('email.support.message', [
@@ -37,6 +36,5 @@ class TestMailServer extends Mailable
                 'system_info' => '',
                 'laravel_log' => []
             ]);
-            
     }
 }

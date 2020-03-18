@@ -68,11 +68,14 @@ class UploadFile implements ShouldQueue
     {
         $path = self::PROPERTIES[$this->type]['path'];
 
-        if ($this->company)
+        if ($this->company) {
             $path = sprintf('%s/%s', $this->company->company_key, self::PROPERTIES[$this->type]['path']);
+        }
 
         $instance = Storage::disk($this->disk)->putFileAs(
-            $path, $this->file, $this->file->hashName()
+            $path,
+            $this->file,
+            $this->file->hashName()
         );
 
         if (in_array($this->file->extension(), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {

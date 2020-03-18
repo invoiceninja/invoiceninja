@@ -5,7 +5,6 @@ use Illuminate\Database\Seeder;
 
 class PaymentTypesSeeder extends Seeder
 {
-
     const BANK_LIBRARY_OFX = 1;
     const GATEWAY_TYPE_CREDIT_CARD = 1;
     const GATEWAY_TYPE_BANK_TRANSFER = 2;

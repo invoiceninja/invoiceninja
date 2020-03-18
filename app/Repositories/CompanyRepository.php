@@ -49,12 +49,13 @@ class CompanyRepository extends BaseRepository
 
         $company->fill($data);
 
-        if(array_key_exists('settings', $data))
+        if (array_key_exists('settings', $data)) {
             $company->saveSettings($data['settings'], $company);
+        }
 
         $company->save();
 
-//\Log::error(print_r($company->settings,1));
+        //\Log::error(print_r($company->settings,1));
 
         return $company;
     }

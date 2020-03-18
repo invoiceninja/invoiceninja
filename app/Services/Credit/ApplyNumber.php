@@ -32,7 +32,6 @@ class ApplyNumber extends AbstractService
 
     public function run()
     {
-
         if ($this->credit->number != '') {
             return $this->credit;
         }

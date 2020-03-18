@@ -73,17 +73,14 @@ trait MakesInvoiceValues
     {
         $custom_fields = $this->company->custom_fields;
 
-        if($custom_fields && property_exists($custom_fields, $field)){
-
+        if ($custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
             $custom_field_parts = explode("|", $custom_field);
 
             return $custom_field_parts[0];
-
         }
 
         return '';
-
     }
 
     public function makeLabels($contact = null) :array
@@ -92,8 +89,7 @@ trait MakesInvoiceValues
 
         $values = $this->makeLabelsAndValues($contact);
 
-        foreach($values as $key => $value)
-        {
+        foreach ($values as $key => $value) {
             $data[$key.'_label'] = $value['label'];
         }
 
@@ -113,8 +109,7 @@ trait MakesInvoiceValues
 
         $values = $this->makeLabelsAndValues($contact);
 
-        foreach($values as $key => $value)
-        {
+        foreach ($values as $key => $value) {
             $data[$key] = $value['value'];
         }
 
@@ -154,21 +149,21 @@ trait MakesInvoiceValues
         $data['$total_taxes']            = ['value' => $this->makeTotalTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
         $data['$invoice.total_taxes']    = &$data['$total_taxes'];
 
-        if($this instanceof Invoice){
+        if ($this instanceof Invoice) {
             $data['$entity_label']       = ['value' => '', 'label' => ctrans('texts.invoice')];
             $data['$number']             = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
             $data['$entity.terms']       = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.invoice_terms')];
             $data['$terms']              = &$data['$entity.terms'];
         }
 
-        if($this instanceof Quote){
+        if ($this instanceof Quote) {
             $data['$entity_label']       = ['value' => '', 'label' => ctrans('texts.quote')];
             $data['$number']             = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
             $data['$entity.terms']       = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.quote_terms')];
             $data['$terms']              = &$data['$entity.terms'];
         }
 
-        if($this instanceof Credit){
+        if ($this instanceof Credit) {
             $data['$entity_label']       = ['value' => '', 'label' => ctrans('texts.credit')];
             $data['$number']             = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
             $data['$entity.terms']       = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.credit_terms')];
@@ -211,7 +206,7 @@ trait MakesInvoiceValues
         // $data['$your_invoice'] = ;
         // $data['$quote'] = ;
         // $data['$your_quote'] = ;
-        // 
+        //
         $data['$quote_date']             = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
         $data['$quote_number']           = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
         $data['$quote.quote_number']     = &$data['$quote_number'];
@@ -220,7 +215,8 @@ trait MakesInvoiceValues
         $data['$valid_until']            = ['value' => $this->due_date, 'label' => ctrans('texts.valid_until')];
         $data['$quote_total']            = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.quote_total')];
         $data['$credit_amount']          = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_amount')];
-        $data['$credit_balance']         = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];;
+        $data['$credit_balance']         = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
+        ;
         $data['$credit_number']          = &$data['$number'];
         $data['$credit_no']              = &$data['$number'];
         $data['$credit.credit_no']       = &$data['$number'];
@@ -265,8 +261,9 @@ trait MakesInvoiceValues
         $data['$client.country']            = &$data['$country'];
         $data['$client.email']              = &$data['$email'];
 
-        if(!$contact)
+        if (!$contact) {
             $contact = $this->client->primary_contact()->first();
+        }
 
         $data['$contact_name']              = ['value' => isset($contact) ? $contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
         $data['$contact.name']              = &$data['$contact_name'];
@@ -344,7 +341,7 @@ trait MakesInvoiceValues
         $data['$credit_to'] = ;
         $data['$your_credit'] = ;
         $data['$phone'] = ;
-        
+
         $data['$outstanding'] = ;
         $data['$invoice_due_date'] = ;
         $data['$quote_due_date'] = ;
@@ -375,13 +372,11 @@ trait MakesInvoiceValues
      */
     public function buildTableHeader($columns) :?string
     {
-
         $data = $this->makeLabels();
 
         $table_header = '<tr>';
 
         foreach ($columns as $key => $column) {
-
             $table_header .= '<td class="table_header_td_class">' . $key . '_label</td>';
         }
         
@@ -390,7 +385,6 @@ trait MakesInvoiceValues
         $table_header = str_replace(array_keys($data), array_values($data), $table_header);
 
         return $table_header;
-
     }
 
     /**
@@ -402,36 +396,31 @@ trait MakesInvoiceValues
     {
         $items = $this->transformLineItems($this->line_items, $table_prefix);
 
-        if(count($items) == 0)
+        if (count($items) == 0) {
             return '';
+        }
 
         $data = $this->makeValues();
 
         $output = '';
 
-        if(strlen($user_columns) > 1) {
-
-            foreach($items as $key => $item){
+        if (strlen($user_columns) > 1) {
+            foreach ($items as $key => $item) {
                 $tmp = str_replace(array_keys($data), array_values($data), $user_columns);
                 $tmp = str_replace(array_keys($item), array_values($item), $tmp);
 
                 $output .= $tmp;
             }
-            
-        }
-        else {
-
+        } else {
             $table_row = '<tr>';
 
             foreach ($default_columns as $key => $column) {
-
                 $table_row .= '<td class="table_header_td_class">' . $key . '</td>';
             }
             
             $table_row .= '</tr>';
 
-            foreach($items as $key => $item){
-
+            foreach ($items as $key => $item) {
                 $tmp = str_replace(array_keys($item), array_values($item), $table_row);
                 $tmp = str_replace(array_keys($data), array_values($data), $tmp);
 
@@ -450,8 +439,9 @@ trait MakesInvoiceValues
      */
     private function transformColumnsForHeader(array $columns) :array
     {
-        if(count($columns) == 0)
+        if (count($columns) == 0) {
             return [];
+        }
 
         $pre_columns = $columns;
         $columns = array_intersect($columns, self::$master_columns);
@@ -515,16 +505,18 @@ trait MakesInvoiceValues
     {
         $data = [];
         
-        if(!is_array($items))
+        if (!is_array($items)) {
             $data;
+        }
 
         foreach ($items as $key => $item) {
-
-            if($table_type == '$product' && $item->type_id != 1)
+            if ($table_type == '$product' && $item->type_id != 1) {
                 continue;
+            }
 
-            if($table_type == '$task' && $item->type_id != 2)
+            if ($table_type == '$task' && $item->type_id != 2) {
                 continue;
+            }
 
             $data[$key][$table_type.'.product_key'] = $item->product_key;
             $data[$key][$table_type.'.notes'] = $item->notes;
@@ -543,36 +535,36 @@ trait MakesInvoiceValues
                 } else {
                     $data[$key][$table_type.'.discount'] = $item->discount . '%';
                 }
-            }
-            else
+            } else {
                 $data[$key][$table_type.'.discount'] = '';
+            }
 
-            if(isset($item->tax_rate1) && $item->tax_rate1 > 0){
-                $data[$key][$table_type.'.tax_rate1'] = round($item->tax_rate1,2) . "%";
+            if (isset($item->tax_rate1) && $item->tax_rate1 > 0) {
+                $data[$key][$table_type.'.tax_rate1'] = round($item->tax_rate1, 2) . "%";
                 $data[$key][$table_type.'.tax1'] = &$data[$key][$table_type.'.tax_rate1'];
             }
         
-            if(isset($item->tax_rate2) && $item->tax_rate2 > 0){
-                $data[$key][$table_type.'.tax_rate2'] = round($item->tax_rate2,2) . "%";
+            if (isset($item->tax_rate2) && $item->tax_rate2 > 0) {
+                $data[$key][$table_type.'.tax_rate2'] = round($item->tax_rate2, 2) . "%";
                 $data[$key][$table_type.'.tax2'] = &$data[$key][$table_type.'.tax_rate2'];
             }
 
-            if(isset($item->tax_rate3) && $item->tax_rate3 > 0){
-                $data[$key][$table_type.'.tax_rate3'] = round($item->tax_rate3,2) . "%";
+            if (isset($item->tax_rate3) && $item->tax_rate3 > 0) {
+                $data[$key][$table_type.'.tax_rate3'] = round($item->tax_rate3, 2) . "%";
                 $data[$key][$table_type.'.tax3'] = &$data[$key][$table_type.'.tax_rate3'];
             }
 
-            if(isset($item->tax_rate1) && $item->tax_rate1 == 0){
+            if (isset($item->tax_rate1) && $item->tax_rate1 == 0) {
                 $data[$key][$table_type.'.tax_rate1'] = '';
                 $data[$key][$table_type.'.tax1'] = &$data[$key][$table_type.'.tax_rate1'];
             }
         
-            if(isset($item->tax_rate2) && $item->tax_rate2 == 0){
+            if (isset($item->tax_rate2) && $item->tax_rate2 == 0) {
                 $data[$key][$table_type.'.tax_rate2'] = '';
                 $data[$key][$table_type.'.tax2'] = &$data[$key][$table_type.'.tax_rate2'];
             }
 
-            if(isset($item->tax_rate3) && $item->tax_rate3 == 0){
+            if (isset($item->tax_rate3) && $item->tax_rate3 == 0) {
                 $data[$key][$table_type.'.tax_rate3'] = '';
                 $data[$key][$table_type.'.tax3'] = &$data[$key][$table_type.'.tax_rate3'];
             }
@@ -664,8 +656,9 @@ trait MakesInvoiceValues
         
         $data = '';
 
-        foreach ($tax_map as $tax) 
+        foreach ($tax_map as $tax) {
             $data .= '<span>'. $tax['name'] .'</span>';
+        }
         
         return $data;
     }
@@ -676,8 +669,9 @@ trait MakesInvoiceValues
         
         $data = '';
 
-        foreach ($tax_map as $tax) 
+        foreach ($tax_map as $tax) {
             $data .= '<span>'. Number::formatMoney($tax['total'], $this->client) .'</span>';
+        }
         
         return $data;
     }
@@ -687,6 +681,6 @@ trait MakesInvoiceValues
     */
     public function generateAppUrl()
     {
-        return rtrim(config('ninja.app_url'),"/");
+        return rtrim(config('ninja.app_url'), "/");
     }
 }

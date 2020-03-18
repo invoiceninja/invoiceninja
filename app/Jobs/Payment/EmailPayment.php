@@ -36,12 +36,12 @@ class EmailPayment implements ShouldQueue
      *
      * @return void
      */
-     public function __construct(Payment $payment, $email_builder, $contact)
-     {
+    public function __construct(Payment $payment, $email_builder, $contact)
+    {
         $this->payment = $payment;
         $this->email_builder = $email_builder;
         $this->contact = $contact;
-     }
+    }
 
 
     /**
@@ -52,7 +52,6 @@ class EmailPayment implements ShouldQueue
      */
     public function handle()
     {
-
         if ($this->contact->email) {
             Mail::to($this->contact->email, $this->contact->present()->name())
                 ->send(new TemplateEmail($this->email_builder, $this->contact->user, $this->contact->customer));
@@ -68,7 +67,6 @@ class EmailPayment implements ShouldQueue
 
             //sleep(5);
         }
-
     }
 
     private function logMailError($errors)

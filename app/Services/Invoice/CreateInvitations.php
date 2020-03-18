@@ -11,7 +11,6 @@
 
 namespace App\Services\Invoice;
 
-
 use App\Factory\InvoiceInvitationFactory;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
@@ -19,7 +18,6 @@ use App\Services\AbstractService;
 
 class CreateInvitations extends AbstractService
 {
-
     private $invoice;
 
     public function __construct(Invoice $invoice)
@@ -27,11 +25,9 @@ class CreateInvitations extends AbstractService
         $this->invoice = $invoice;
     }
 
-  	public function run()
-  	{
-
-        $this->invoice->client->contacts->each(function ($contact){
-
+    public function run()
+    {
+        $this->invoice->client->contacts->each(function ($contact) {
             $invitation = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
                                         ->whereClientContactId($contact->id)
                                         ->whereInvoiceId($this->invoice->id)
@@ -48,5 +44,5 @@ class CreateInvitations extends AbstractService
         });
 
         return $this->invoice;
-  	}
+    }
 }

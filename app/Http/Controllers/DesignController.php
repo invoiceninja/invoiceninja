@@ -255,8 +255,9 @@ class DesignController extends BaseController
      */
     public function update(UpdateDesignRequest $request, Design $design)
     {
-        if($request->entityIsDeleted($design))
+        if ($request->entityIsDeleted($design)) {
             return $request->disallowUpdate();
+        }
 
         $design->fill($request->all());
         $design->save();
@@ -485,6 +486,4 @@ class DesignController extends BaseController
         
         return $this->listResponse(Design::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
-
-
 }

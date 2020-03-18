@@ -11,8 +11,6 @@ use Tests\TestCase;
  */
 class NumberTest extends TestCase
 {
-
-
     public function testRoundingThreeLow()
     {
         $rounded = Number::roundValue(3.144444444444, 3);

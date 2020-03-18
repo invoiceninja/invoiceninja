@@ -32,70 +32,68 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 
-class CreateCreditPdf implements ShouldQueue {
+class CreateCreditPdf implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash;
 
-	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash;
+    public $credit;
 
-	public $credit;
+    public $company;
 
-	public $company;
+    public $contact;
 
-	public $contact;
+    private $disk;
 
-	private $disk;
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct($credit, Company $company, ClientContact $contact = null)
+    {
+        $this->credit = $credit;
 
-	/**
-	 * Create a new job instance.
-	 *
-	 * @return void
-	 */
-	public function __construct($credit, Company $company, ClientContact $contact = null) 
-	{
+        $this->company = $company;
 
-		$this->credit = $credit;
-
-		$this->company = $company;
-
-		$this->contact = $contact;
+        $this->contact = $contact;
 
         $this->disk = $disk ?? config('filesystems.default');
+    }
 
-	}
+    public function handle()
+    {
+        MultiDB::setDB($this->company->db);
 
-	public function handle() {
+        $this->credit->load('client');
 
-		MultiDB::setDB($this->company->db);
+        if (!$this->contact) {
+            $this->contact = $this->credit->client->primary_contact()->first();
+        }
 
-		$this->credit->load('client');
+        App::setLocale($this->contact->preferredLocale());
 
-		if(!$this->contact)
-			$this->contact = $this->credit->client->primary_contact()->first();
+        $path      = $this->credit->client->credit_filepath();
 
-		App::setLocale($this->contact->preferredLocale());
+        $file_path = $path . $this->credit->number . '.pdf';
 
-		$path      = $this->credit->client->credit_filepath();
+        $design = Design::find($this->decodePrimaryKey($this->credit->client->getSetting('credit_design_id')));
+        
+        $designer = new Designer($this->credit, $design, $this->credit->client->getSetting('pdf_variables'), 'credit');
 
-		$file_path = $path . $this->credit->number . '.pdf';
+        //get invoice design
+        //		$html = $this->generateInvoiceHtml($designer->build()->getHtml(), $this->credit, $this->contact);
+        $html = $this->generateEntityHtml($designer, $this->credit, $this->contact);
 
-		$design = Design::find($this->decodePrimaryKey($this->credit->client->getSetting('credit_design_id')));
-		
-		$designer = new Designer($this->credit, $design, $this->credit->client->getSetting('pdf_variables'), 'credit');
+        //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
+        Storage::makeDirectory($path, 0755);
 
-		//get invoice design
-//		$html = $this->generateInvoiceHtml($designer->build()->getHtml(), $this->credit, $this->contact);
-		$html = $this->generateEntityHtml($designer, $this->credit, $this->contact);
+        //\Log::error($html);
+        $pdf = $this->makePdf(null, null, $html);
 
-		//todo - move this to the client creation stage so we don't keep hitting this unnecessarily
-		Storage::makeDirectory($path, 0755);
+        $instance = Storage::disk($this->disk)->put($file_path, $pdf);
 
-		//\Log::error($html);
-		$pdf = $this->makePdf(null, null, $html);
-
-		$instance = Storage::disk($this->disk)->put($file_path, $pdf);
-
-		//$instance= Storage::disk($this->disk)->path($file_path);
-		//
-		return $file_path;	
-	}
-
+        //$instance= Storage::disk($this->disk)->path($file_path);
+        //
+        return $file_path;
+    }
 }

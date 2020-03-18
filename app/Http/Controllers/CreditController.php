@@ -362,8 +362,9 @@ class CreditController extends BaseController
      */
     public function update(UpdateCreditRequest $request, Credit $credit)
     {
-        if($request->entityIsDeleted($credit))
+        if ($request->entityIsDeleted($credit)) {
             return $request->disallowUpdate();
+        }
 
         $credit = $this->credit_repository->save($request->all(), $credit);
 
@@ -572,16 +573,14 @@ class CreditController extends BaseController
         }
     }
 
-    public function downloadPdf($invitation_key) 
+    public function downloadPdf($invitation_key)
     {
-
         $invitation = $this->credit_repository->getInvitationByKey($invitation_key);
         $contact    = $invitation->contact;
         $credit    = $invitation->credit;
 
-        $file_path = $credit->service()->getCreditPdf($contact); 
+        $file_path = $credit->service()->getCreditPdf($contact);
         
         return response()->download($file_path);
-
     }
 }

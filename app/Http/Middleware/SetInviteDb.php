@@ -35,10 +35,11 @@ class SetInviteDb
          **/
         $entity = null;
 
-        if(!$request->route('entity'))
+        if (!$request->route('entity')) {
             $entity = $request->segment(2);
-        else
+        } else {
             $entity = $request->route('entity');
+        }
 
         if ($request->getSchemeAndHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByInvitation($entity, $request->route('invitation_key'))) {
             if (request()->json) {

@@ -27,7 +27,5 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('passw
  * Inbound routes requiring DB Lookup
  */
 Route::group(['middleware' => ['url_db']], function () {
-
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
-
 });

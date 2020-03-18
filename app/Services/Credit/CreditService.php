@@ -7,7 +7,6 @@ use App\Services\Credit\MarkSent;
 
 class CreditService
 {
-    
     protected $credit;
 
     public function __construct($credit)

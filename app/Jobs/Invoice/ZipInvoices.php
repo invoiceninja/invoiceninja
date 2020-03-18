@@ -59,7 +59,6 @@ class ZipInvoices implements ShouldQueue
      */
     public function handle()
     {
-
         $tempStream = fopen('php://memory', 'w+');
 
         $options = new Archive();

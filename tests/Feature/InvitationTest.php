@@ -32,7 +32,7 @@ use Tests\TestCase;
 
 class InvitationTest extends TestCase
 {
-	use MakesHash;
+    use MakesHash;
     use DatabaseTransactions;
 
     public function setUp() :void
@@ -48,10 +48,10 @@ class InvitationTest extends TestCase
 
     public function testInvoiceCreationAfterInvoiceMarkedSent()
     {
-		$account = factory(\App\Models\Account::class)->create();
-		        $company = factory(\App\Models\Company::class)->create([
-		            'account_id' => $account->id,
-		        ]);
+        $account = factory(\App\Models\Account::class)->create();
+        $company = factory(\App\Models\Company::class)->create([
+                    'account_id' => $account->id,
+                ]);
 
         $account->default_company_id = $company->id;
         $account->save();
@@ -83,26 +83,24 @@ class InvitationTest extends TestCase
             'is_locked' => 0,
         ]);
 
-        factory(\App\Models\Client::class)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
-
-            factory(\App\Models\ClientContact::class,1)->create([
+        factory(\App\Models\Client::class)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
                 'is_primary' => 1
             ]);
 
-            factory(\App\Models\ClientContact::class,2)->create([
+            factory(\App\Models\ClientContact::class, 2)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id
             ]);
-
         });
 
         $client = Client::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
-        factory(\App\Models\Invoice::class,5)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\Invoice::class, 5)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $invoice = Invoice::whereUserId($user->id)->whereCompanyId($company->id)->whereClientId($client->id)->first();
 
@@ -117,6 +115,5 @@ class InvitationTest extends TestCase
         $i->save();
 
         $this->assertNotNull($invoice->invitations);
-        
     }
 }

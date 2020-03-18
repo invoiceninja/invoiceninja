@@ -54,7 +54,7 @@ return [
         'map_zoom' => env('DEFAULT_MAP_ZOOM', 10),
         'payment_terms' => env('DEFAULT_PAYMENT_TERMS', -1),
         'military_time' => env('MILITARY_TIME', 0),
-        'first_day_of_week' => env('FIRST_DATE_OF_WEEK',0),
+        'first_day_of_week' => env('FIRST_DATE_OF_WEEK', 0),
         'first_month_of_year' => env('FIRST_MONTH_OF_YEAR', '2000-01-01')
     ],
 
@@ -62,10 +62,10 @@ return [
         'username' => 'user@example.com',
         'clientname' => 'client@example.com',
         'password' => 'password',
-        'stripe' => env('STRIPE_KEYS',''),
+        'stripe' => env('STRIPE_KEYS', ''),
         'paypal' => env('PAYPAL_KEYS', ''),
         'travis' => env('TRAVIS', false),
-        'test_email' => env('TEST_EMAIL','test@example.com'),
+        'test_email' => env('TEST_EMAIL', 'test@example.com'),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),
@@ -91,8 +91,8 @@ return [
         //'fonts' => 'App\Models\Font',
     ],
     'notification' => [
-        'slack' => env('SLACK_WEBHOOK_URL',''),
-        'mail' => env('HOSTED_EMAIL',''),
+        'slack' => env('SLACK_WEBHOOK_URL', ''),
+        'mail' => env('HOSTED_EMAIL', ''),
     ],
     'payment_terms' => [
         [

@@ -35,8 +35,9 @@ class PaymentableTransformer extends EntityTransformer
     {
         $entity_key = 'invoice_id';
 
-        if($paymentable->paymentable_type == Credit::class)
+        if ($paymentable->paymentable_type == Credit::class) {
             $entity_key = 'credit_id';
+        }
         
         return  [
             'id' => $this->encodePrimaryKey($paymentable->id),

@@ -1963,37 +1963,37 @@ $LANG = array(
     'authorization' => 'Овластување',
     'signed' => 'Потпишано',
 
-	// BlueVine
-	'bluevine_promo' => 'Добијте флексибилни бизнис линии на кредит и факторинг на фактури преку BlueVine.',
-	'bluevine_modal_label' => 'Регистрирај се со BlueVine',
-	'bluevine_modal_text' => '<h3> Брзо финансирање на вашиот бизнис. Без документи. </h3> 
+    // BlueVine
+    'bluevine_promo' => 'Добијте флексибилни бизнис линии на кредит и факторинг на фактури преку BlueVine.',
+    'bluevine_modal_label' => 'Регистрирај се со BlueVine',
+    'bluevine_modal_text' => '<h3> Брзо финансирање на вашиот бизнис. Без документи. </h3> 
  <ul> <li> Флексибилни бизнис линии на кредит и факторинг на фактури </li> </ul> ',
-	'bluevine_create_account' => 'Креирај сметка',
-	'quote_types' => 'Добиј понуда за',
-	'invoice_factoring' => 'Факторинг на фактура',
-	'line_of_credit' => 'Линија на кредит',
-	'fico_score'                         => 'Вашиот FICO резултат',
-	'business_inception'                 => 'Датум на започнување бизнис',
-	'average_bank_balance'               => 'Просечна состојба на билансна сметка',
-	'annual_revenue'                     => 'Годишен приход',
-	'desired_credit_limit_factoring'     => 'Посакувано ограничување на факторинг на фактура ',
-	'desired_credit_limit_loc'           => 'Посакувано ограничување на линија на кредит',
-	'desired_credit_limit'               => 'Посакувано ограничување на кредит',
-	'bluevine_credit_line_type_required' => 'Мора да изберете баред едно',
-	'bluevine_field_required'            => 'Ова поле е задолжително',
-	'bluevine_unexpected_error'          => 'Се случи неочекувана грешка.',
-	'bluevine_no_conditional_offer'      => 'Потребни се повеќе информации пред да добиете понуда. Кликнете продолжи подоле.',
-	'bluevine_invoice_factoring'         => 'Факторинг на фактура',
-	'bluevine_conditional_offer'         => 'Доверлива понуда',
-	'bluevine_credit_line_amount'        => 'Кредитна линија',
-	'bluevine_advance_rate'              => 'Стапка на аванс',
-	'bluevine_weekly_discount_rate'      => 'Неделна стапка на попуст',
-	'bluevine_minimum_fee_rate'          => 'Минимална провизија',
-	'bluevine_line_of_credit'            => 'Линија на кредит',
-	'bluevine_interest_rate'             => 'Каматна стапка',
-	'bluevine_weekly_draw_rate'          => 'Неделна стапка на повлекување',
-	'bluevine_continue'                  => 'Продолжи на BlueVine',
-	'bluevine_completed'                 => 'Регистрирањето на BlueVine е завршено',
+    'bluevine_create_account' => 'Креирај сметка',
+    'quote_types' => 'Добиј понуда за',
+    'invoice_factoring' => 'Факторинг на фактура',
+    'line_of_credit' => 'Линија на кредит',
+    'fico_score'                         => 'Вашиот FICO резултат',
+    'business_inception'                 => 'Датум на започнување бизнис',
+    'average_bank_balance'               => 'Просечна состојба на билансна сметка',
+    'annual_revenue'                     => 'Годишен приход',
+    'desired_credit_limit_factoring'     => 'Посакувано ограничување на факторинг на фактура ',
+    'desired_credit_limit_loc'           => 'Посакувано ограничување на линија на кредит',
+    'desired_credit_limit'               => 'Посакувано ограничување на кредит',
+    'bluevine_credit_line_type_required' => 'Мора да изберете баред едно',
+    'bluevine_field_required'            => 'Ова поле е задолжително',
+    'bluevine_unexpected_error'          => 'Се случи неочекувана грешка.',
+    'bluevine_no_conditional_offer'      => 'Потребни се повеќе информации пред да добиете понуда. Кликнете продолжи подоле.',
+    'bluevine_invoice_factoring'         => 'Факторинг на фактура',
+    'bluevine_conditional_offer'         => 'Доверлива понуда',
+    'bluevine_credit_line_amount'        => 'Кредитна линија',
+    'bluevine_advance_rate'              => 'Стапка на аванс',
+    'bluevine_weekly_discount_rate'      => 'Неделна стапка на попуст',
+    'bluevine_minimum_fee_rate'          => 'Минимална провизија',
+    'bluevine_line_of_credit'            => 'Линија на кредит',
+    'bluevine_interest_rate'             => 'Каматна стапка',
+    'bluevine_weekly_draw_rate'          => 'Неделна стапка на повлекување',
+    'bluevine_continue'                  => 'Продолжи на BlueVine',
+    'bluevine_completed'                 => 'Регистрирањето на BlueVine е завршено',
 
     'vendor_name' => 'Продавач',
     'entity_state' => 'Состојба',
@@ -2127,16 +2127,16 @@ $LANG = array(
     'reports_help' => 'Shift + клик за распределување по повеќе колони, Ctrl + клик за чистење на групирањето.',
     'this_year' => 'Оваа година',
 
-	// Updated login screen
-	'ninja_tagline' => 'Креирај. Прати. Биди платен.',
-	'login_or_existing' => 'Или најави се со поврзана сметка.',
-	'sign_up_now' => 'Регистрирај се сега',
-	'not_a_member_yet' => 'Се уште не си член?',
-	'login_create_an_account' => 'Креирај сметка!',
-	'client_login' => 'Најава на клиент',
+    // Updated login screen
+    'ninja_tagline' => 'Креирај. Прати. Биди платен.',
+    'login_or_existing' => 'Или најави се со поврзана сметка.',
+    'sign_up_now' => 'Регистрирај се сега',
+    'not_a_member_yet' => 'Се уште не си член?',
+    'login_create_an_account' => 'Креирај сметка!',
+    'client_login' => 'Најава на клиент',
 
-	// New Client Portal styling
-	'invoice_from' => 'Фактури од:',
+    // New Client Portal styling
+    'invoice_from' => 'Фактури од:',
     'email_alias_message' => 'Бараме од секоја компанијада има уникатна адреса на е-пошта. <br/> Земете го во предвид користењето на псевдоним. На пр. email+label@example.com',
     'full_name' => 'Целосно име',
     'month_year' => 'МЕСЕЦ/ГОДИНА',
@@ -2431,7 +2431,7 @@ $LANG = array(
     'tax1' => 'Прв данок',
     'tax2' => 'Втор Данок',
     'fee_help' => 'Такса за платниот портал е износот кој се наплаќа за пристап до финансиската мрежа која се бави со процесирање на онлан плаќања.',
-	'format_export' => 'Формат за експортирање',
+    'format_export' => 'Формат за експортирање',
     'custom1' => 'Прво прилагодено',
     'custom2' => 'Второ прилагодено',
     'contact_first_name' => 'Контакт Име',
@@ -2868,5 +2868,3 @@ $LANG = array(
 );
 
 return $LANG;
-
-?>

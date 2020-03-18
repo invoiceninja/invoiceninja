@@ -27,9 +27,7 @@ class ValidCompanyQuantity implements Rule
      */
     public function passes($attribute, $value)
     {
-        
         return auth()->user()->company()->account->companies->count() <= 10;
-
     }
 
     /**
@@ -39,6 +37,4 @@ class ValidCompanyQuantity implements Rule
     {
         return "Limit of 10 companies per account.";
     }
-
-
 }

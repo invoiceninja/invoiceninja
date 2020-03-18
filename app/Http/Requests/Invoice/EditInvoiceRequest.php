@@ -26,5 +26,4 @@ class EditInvoiceRequest extends Request
     {
         return auth()->user()->can('edit', $this->invoice);
     }
-
 }

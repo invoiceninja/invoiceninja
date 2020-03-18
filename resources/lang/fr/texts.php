@@ -1957,37 +1957,37 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'authorization' => 'Autorisation',
     'signed' => 'Signé',
 
-	// BlueVine
-	'bluevine_promo' => 'Obtenez des marges de crédit et d\'affacturages d\'affaires flexible en utilisant BlueVine.',
-	'bluevine_modal_label' => 'Inscrivez-vous avec BlueVineInscrivez-vous avec BlueVine',
-	'bluevine_modal_text' => '<h3>Finacement rapide pour votre entreprise. Pas de paperasse.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Obtenez des marges de crédit et d\'affacturages d\'affaires flexible en utilisant BlueVine.',
+    'bluevine_modal_label' => 'Inscrivez-vous avec BlueVineInscrivez-vous avec BlueVine',
+    'bluevine_modal_text' => '<h3>Finacement rapide pour votre entreprise. Pas de paperasse.</h3>
 <ul><li>Marges de crédit et affacturage d\'affaires flexibles.</li></ul>',
-	'bluevine_create_account' => 'Créer un compte',
-	'quote_types' => 'Obtenir une offre pour',
-	'invoice_factoring' => 'Affacturage',
-	'line_of_credit' => 'Ligne de crédit',
-	'fico_score'                         => 'Votre pointage de crédit',
-	'business_inception'                 => 'Date de création de l\'entreprise',
-	'average_bank_balance'               => 'Solde moyen du compte bancaire',
-	'annual_revenue'                     => 'Revenu annuel',
-	'desired_credit_limit_factoring'     => 'Affacturage désiré',
-	'desired_credit_limit_loc'           => 'Ligne de crédit désirée',
-	'desired_credit_limit'               => 'Limite de crédit désirée',
-	'bluevine_credit_line_type_required' => 'Faites au moins un choix',
-	'bluevine_field_required'            => 'Ce champs est requis',
-	'bluevine_unexpected_error'          => 'Une erreur inattendue s\'est produite.',
-	'bluevine_no_conditional_offer'      => 'Vous devez fournir plus d\'information afin d\'obtenir une offre. Veuillez cliquer sur continuer ci-dessous.',
-	'bluevine_invoice_factoring'         => 'Affacturage',
-	'bluevine_conditional_offer'         => 'Offre conditionnelle',
-	'bluevine_credit_line_amount'        => 'Ligne de crédit',
-	'bluevine_advance_rate'              => 'Taux de l\'accompte',
-	'bluevine_weekly_discount_rate'      => 'Taux de remise hebdomadaire',
-	'bluevine_minimum_fee_rate'          => 'Frais minimaux',
-	'bluevine_line_of_credit'            => 'Ligne de crédit',
-	'bluevine_interest_rate'             => 'Taux d\'intérêts',
-	'bluevine_weekly_draw_rate'          => 'Taux hebdomadaire de retrait',
-	'bluevine_continue'                  => 'Continuer vers BlueVine',
-	'bluevine_completed'                 => 'Inscription avec BlueVine complétée',
+    'bluevine_create_account' => 'Créer un compte',
+    'quote_types' => 'Obtenir une offre pour',
+    'invoice_factoring' => 'Affacturage',
+    'line_of_credit' => 'Ligne de crédit',
+    'fico_score'                         => 'Votre pointage de crédit',
+    'business_inception'                 => 'Date de création de l\'entreprise',
+    'average_bank_balance'               => 'Solde moyen du compte bancaire',
+    'annual_revenue'                     => 'Revenu annuel',
+    'desired_credit_limit_factoring'     => 'Affacturage désiré',
+    'desired_credit_limit_loc'           => 'Ligne de crédit désirée',
+    'desired_credit_limit'               => 'Limite de crédit désirée',
+    'bluevine_credit_line_type_required' => 'Faites au moins un choix',
+    'bluevine_field_required'            => 'Ce champs est requis',
+    'bluevine_unexpected_error'          => 'Une erreur inattendue s\'est produite.',
+    'bluevine_no_conditional_offer'      => 'Vous devez fournir plus d\'information afin d\'obtenir une offre. Veuillez cliquer sur continuer ci-dessous.',
+    'bluevine_invoice_factoring'         => 'Affacturage',
+    'bluevine_conditional_offer'         => 'Offre conditionnelle',
+    'bluevine_credit_line_amount'        => 'Ligne de crédit',
+    'bluevine_advance_rate'              => 'Taux de l\'accompte',
+    'bluevine_weekly_discount_rate'      => 'Taux de remise hebdomadaire',
+    'bluevine_minimum_fee_rate'          => 'Frais minimaux',
+    'bluevine_line_of_credit'            => 'Ligne de crédit',
+    'bluevine_interest_rate'             => 'Taux d\'intérêts',
+    'bluevine_weekly_draw_rate'          => 'Taux hebdomadaire de retrait',
+    'bluevine_continue'                  => 'Continuer vers BlueVine',
+    'bluevine_completed'                 => 'Inscription avec BlueVine complétée',
 
     'vendor_name' => 'Fournisseur',
     'entity_state' => 'État',
@@ -2121,16 +2121,16 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Cette année',
 
-	// Updated login screen
-	'ninja_tagline' => 'Créer. Envoyer. Être payé.',
-	'login_or_existing' => 'Ou se connecter avec un compte connecté.',
-	'sign_up_now' => 'Inscrivez-vous maintenant',
-	'not_a_member_yet' => 'Pas encore membre ?',
-	'login_create_an_account' => 'Créez un compte !',
-	'client_login' => 'Connexion client',
+    // Updated login screen
+    'ninja_tagline' => 'Créer. Envoyer. Être payé.',
+    'login_or_existing' => 'Ou se connecter avec un compte connecté.',
+    'sign_up_now' => 'Inscrivez-vous maintenant',
+    'not_a_member_yet' => 'Pas encore membre ?',
+    'login_create_an_account' => 'Créez un compte !',
+    'client_login' => 'Connexion client',
 
-	// New Client Portal styling
-	'invoice_from' => 'Factures de :',
+    // New Client Portal styling
+    'invoice_from' => 'Factures de :',
     'email_alias_message' => 'Chaque société doit avoir une adresse email unique.<br/>Envisagez d\'utiliser un alias. ie, email+label@example.com',
     'full_name' => 'Nom complet',
     'month_year' => 'MOIS/ANNEE',
@@ -2425,7 +2425,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'tax1' => 'Première taxe',
     'tax2' => 'Seconde taxe',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Format d\'exportation',
+    'format_export' => 'Format d\'exportation',
     'custom1' => 'Personnalisé1',
     'custom2' => 'Personnalisé2',
     'contact_first_name' => 'Prénom du contact',
@@ -2862,5 +2862,3 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
 );
 
 return $LANG;
-
-?>

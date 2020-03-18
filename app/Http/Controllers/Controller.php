@@ -33,8 +33,9 @@ class Controller extends BaseController
 
         if (array_key_exists('root', $options)) {
             return view(
-                sprintf('%s.%s.%s', $options['root'], $theme, $path)
-            , $options);
+                sprintf('%s.%s.%s', $options['root'], $theme, $path),
+                $options
+            );
         }
 
         return view("portal.$theme.$path", $options);

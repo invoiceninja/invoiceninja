@@ -14,7 +14,6 @@ use Illuminate\Notifications\Notification;
 
 class VerifyUser extends Notification implements ShouldQueue
 {
-
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
@@ -49,7 +48,6 @@ class VerifyUser extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-
         $data = [
             'title' => ctrans('texts.confirmation_subject'),
             'message' => ctrans('texts.confirmation_message'),
@@ -62,8 +60,6 @@ class VerifyUser extends Notification implements ShouldQueue
         return (new MailMessage)
                     ->subject(ctrans('texts.confirmation_subject'))
                     ->markdown('email.admin.generic', $data);
-
-
     }
 
     /**
@@ -81,6 +77,5 @@ class VerifyUser extends Notification implements ShouldQueue
 
     public function toSlack($notifiable)
     {
-        
     }
 }

@@ -13,9 +13,9 @@ namespace App\Designs;
 
 class Plain extends AbstractDesign
 {
-
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
 
     public function includes()
@@ -38,9 +38,9 @@ body {font-size:90%}
     }
 
 
-	public function header() {
-
-		return ' <div class="px-12 py-8">
+    public function header()
+    {
+        return ' <div class="px-12 py-8">
 <div class="flex justify-between">
     $company_logo
     <div class="flex flex-col">
@@ -58,11 +58,10 @@ body {font-size:90%}
         </section>
     </div>
 </div>';
+    }
 
-	}
-
-	public function body() {
-
+    public function body()
+    {
         return '<div class="flex flex-col mt-8">
     $client_details
 </div>
@@ -82,11 +81,11 @@ body {font-size:90%}
         $task_table_body
     </tbody>
 </table>';
+    }
 
-	}
-
-    public function task() {
-	    return '';
+    public function task()
+    {
+        return '';
     }
 
     public function product()
@@ -94,8 +93,8 @@ body {font-size:90%}
         return '';
     }
 
-	public function footer() {
-
+    public function footer()
+    {
         return '<div class="flex justify-between mt-8">
 <div class="w-1/2">
     <div class="flex flex-col">
@@ -128,7 +127,5 @@ body {font-size:90%}
 </div>
 </body>
 </html>';
-
-	}
-
+    }
 }
