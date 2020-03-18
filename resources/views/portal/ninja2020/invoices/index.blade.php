@@ -66,13 +66,13 @@
                                 {{ $invoice->number }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ format_date($invoice->date, $invoice->client->date_format()) }}
+                                {{ $invoice->formatDate($invoice->date, $invoice->client->date_format()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {{ App\Utils\Number::formatMoney($invoice->balance, $invoice->client) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ format_date($invoice->due_date, $invoice->client->date_format()) }}
+                                {{ $invoice->formatDate($invoice->due_date, $invoice->client->date_format()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {!! App\Models\Invoice::badgeForStatus($invoice->status) !!}

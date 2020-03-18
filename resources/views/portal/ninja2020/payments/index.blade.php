@@ -52,7 +52,7 @@
                     @foreach($payments as $payment)
                         <tr class="cursor-pointer bg-white group hover:bg-gray-100" @click="window.location = '{{ route('client.payments.show', $payment->hashed_id) }}'">
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ format_date($payment->date, $payment->client->date_format()) }}
+                                {{ $payment->formatDate($payment->date, $payment->client->date_format()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {{ $payment->type->name }}

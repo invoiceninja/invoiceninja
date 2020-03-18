@@ -55,10 +55,10 @@
                                 {{ \App\Models\RecurringInvoice::frequencyForKey($invoice->frequency_id) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ format_date($invoice->date, $invoice->client->date_format()) }}
+                                {{ $invoice->formatDate($invoice->date, $invoice->client->date_format()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ format_date($invoice->next_send_date, $invoice->client->date_format()) }}
+                                {{ $invoice->formatDate($invoice->next_send_date, $invoice->client->date_format()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {{ $invoice->remaining_cycles }}
