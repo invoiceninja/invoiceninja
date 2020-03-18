@@ -501,19 +501,30 @@ class UserController extends BaseController
      */
     public function bulk()
     {
+
         $action = request()->input('action');
         
         $ids = request()->input('ids');
 
         $users = User::withTrashed()->find($this->transformKeys($ids));
 
-        $users->each(function ($user, $key) use ($action) {
+        $return_user_collection = collect();
+
+        $users->each(function ($user, $key) use ($action, $return_user_collection) {
+
             if (auth()->user()->can('edit', $user)) {
-                $this->user_repo->{$action}($user);
+            
+                $user = $this->user_repo->{$action}($user);
+                
+                $return_user_collection->push($user->id);
+
             }
+
         });
 
-        return $this->listResponse(User::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+\Log::error($return_user_collection);
+
+        return $this->listResponse(User::withTrashed()->whereIn('id', $return_user_collection));
     }
 
 

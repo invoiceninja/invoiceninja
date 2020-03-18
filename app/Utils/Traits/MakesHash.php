@@ -27,7 +27,9 @@ trait MakesHash
      */
     public function createHash() : string
     {
+
         return \Illuminate\Support\Str::random(config('ninja.key_length'));
+
     }
 
     /**
@@ -38,7 +40,9 @@ trait MakesHash
      */
     public function createDbHash($db) : string
     {
+
         return  $this->getDbCode($db) . '-' . \Illuminate\Support\Str::random(config('ninja.key_length'));
+
     }
 
     /**
@@ -47,28 +51,29 @@ trait MakesHash
      */
     public function getDbCode($db) : string
     {
-        $hashids = new Hashids('', 10);
+
+        $hashids = new Hashids(config('ninja.hash_salt'), 10);
 
         return $hashids->encode(str_replace(MultiDB::DB_PREFIX, "", $db));
+
     }
 
     public function encodePrimaryKey($value) : string
     {
-        $hashids = new Hashids('', 10);
+
+        $hashids = new Hashids(config('ninja.hash_salt'), 10);
 
         return $hashids->encode($value);
+
     }
 
     public function decodePrimaryKey($value) : string
     {
-    //    \Log::error("pre decode = {$value}");
 
         try {
-            $hashids = new Hashids('', 10);
+            $hashids = new Hashids(config('ninja.hash_salt'), 10);
 
             $decoded_array =  $hashids->decode($value);
-
-  //          \Log::error($decoded_array);
 
             if(!is_array($decoded_array))
               throw new ModelNotFoundException("Resource not found", 1);
@@ -77,10 +82,12 @@ trait MakesHash
         } catch (\Exception $e) {
             return response()->json(['error'=>'Invalid primary key'], 400);
         }
+
     }
 
     public function transformKeys($keys)
     {
+
         if (is_array($keys)) {
             foreach ($keys as &$value) {
                 $value = $this->decodePrimaryKey($value);
@@ -90,5 +97,7 @@ trait MakesHash
         } else {
             return $this->decodePrimaryKey($keys);
         }
+
     }
+
 }

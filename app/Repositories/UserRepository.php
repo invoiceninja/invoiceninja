@@ -101,4 +101,27 @@ class UserRepository extends BaseRepository
 
     }
 
+    public function delete($user)
+    {
+
+        $company = auth()->user()->company();
+
+        $cu = CompanyUser::whereUserId($user->id)
+                         ->whereCompanyId($company->id)
+                         ->first();
+
+        if($cu)
+        {
+            $cu->tokens()->delete();
+            $cu->delete();
+        }
+
+        $user->is_deleted=true;
+        $user->save();
+        $user->delete();
+    
+        return $user->fresh();
+
+    }
+
 }

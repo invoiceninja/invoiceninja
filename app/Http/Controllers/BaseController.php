@@ -154,7 +154,7 @@ class BaseController extends Controller
             if ($this->entity_type == Company::class || $this->entity_type == Design::class ) {
                 //no user keys exist on the company table, so we need to skip
             } elseif ($this->entity_type == User::class) {
-                $query->where('id', '=', auth()->user()->id);
+                //$query->where('id', '=', auth()->user()->id); @todo why?
             } else {
                 $query->where('user_id', '=', auth()->user()->id);
             }

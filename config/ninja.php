@@ -22,6 +22,7 @@ return [
     'daily_email_limit' => 300,
     'error_email' => env('ERROR_EMAIL', ''),
     'company_id' => 0,
+    'hash_salt' => env('HASH_SALT', ''),
 
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 
