@@ -392,7 +392,7 @@ trait MakesInvoiceValues
      * @param  array $columns The array (or string of column headers)
      * @return string  injectable HTML string
      */
-    public function buildTableBody(array $default_columns, string $user_columns, string $table_prefix) :?string
+    public function buildTableBody(array $default_columns, $user_columns, string $table_prefix) :?string
     {
         $items = $this->transformLineItems($this->line_items, $table_prefix);
 

@@ -80,22 +80,8 @@ body {font-size:90%}
     <tbody>
         $task_table_body
     </tbody>
-</table>';
-    }
-
-    public function task()
-    {
-        return '';
-    }
-
-    public function product()
-    {
-        return '';
-    }
-
-    public function footer()
-    {
-        return '<div class="flex justify-between mt-8">
+</table>
+<div class="flex justify-between mt-8">
 <div class="w-1/2">
     <div class="flex flex-col">
         <p>$entity.public_notes</p>
@@ -123,9 +109,21 @@ body {font-size:90%}
         <p class="text-right w-1/2">$balance_due</p>
     </section>
 </div>
+</div>';
+    }
 
-</div>
-</body>
-</html>';
+    public function task()
+    {
+        return '';
+    }
+
+    public function product()
+    {
+        return '';
+    }
+
+    public function footer()
+    {
+        return '';
     }
 }
