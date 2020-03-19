@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Utils\Ninja;
 use Codedge\Updater\UpdaterManager;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Storage;
@@ -57,12 +58,13 @@ class SelfUpdateController extends BaseController
      */
     public function update(UpdaterManager $updater)
     {
+        if(Ninja::isNinja())
+            return response()->json(['message' => 'Self update not available on this system.'], 403);
+
         $res = $updater->update();
 
         return response()->json(['message'=>$res], 200);
     }
 
-    public function checkVersion(UpdaterManager $updater)
-    {
-    }
+ 
 }
