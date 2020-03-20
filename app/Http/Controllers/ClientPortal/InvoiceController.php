@@ -14,6 +14,7 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Filters\InvoiceFilters;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\ShowInvoiceRequest;
+use App\Http\Requests\Request;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Invoice;
 use App\Utils\Number;
@@ -22,6 +23,7 @@ use App\Utils\Traits\MakesHash;
 use Yajra\DataTables\Html\Builder;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+use function GuzzleHttp\Promise\all;
 
 /**
  * Class InvoiceController
@@ -84,9 +86,9 @@ class InvoiceController extends Controller
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
-    public function bulk()
+    public function bulk(Request $request)
     {
-        $transformed_ids = $this->transformKeys(explode(",", request()->input('hashed_ids')));
+        $transformed_ids = $this->transformKeys($request->invoices);
 
         if (request()->input('action') == 'payment') {
             return $this->makePayment($transformed_ids);
