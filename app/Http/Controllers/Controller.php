@@ -22,6 +22,8 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     /**
+     * Proxy method for rendering views.
+     *
      * @param string $path
      * @param array $options
      *
@@ -29,14 +31,6 @@ class Controller extends BaseController
      */
     public function render(string $path, array $options = [])
     {
-        $theme = array_key_exists('theme', $options) ? $options['theme'] : 'ninja2020';
-
-        if (array_key_exists('root', $options)) {
-            return view(
-                sprintf('%s.%s.%s', $options['root'], $theme, $path)
-            , $options);
-        }
-
-        return view("portal.$theme.$path", $options);
+        return render($path, $options);
     }
 }

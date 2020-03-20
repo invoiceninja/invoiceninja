@@ -71,7 +71,7 @@ class StripePaymentDriver extends BasePaymentDriver
             GatewayType::CREDIT_CARD,
             //GatewayType::TOKEN,
         ];
-        
+
         if ($this->company_gateway->getSofortEnabled() && $this->invitation && $this->client() && isset($this->client()->country) && in_array($this->client()->country, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
             $types[] = GatewayType::SOFORT;
         }
@@ -83,19 +83,19 @@ class StripePaymentDriver extends BasePaymentDriver
         if ($this->company_gateway->getSepaEnabled()) {
             $types[] = GatewayType::SEPA;
         }
-        
+
         if ($this->company_gateway->getBitcoinEnabled()) {
             $types[] = GatewayType::CRYPTO;
         }
-        
+
         if ($this->company_gateway->getAlipayEnabled()) {
             $types[] = GatewayType::ALIPAY;
         }
-        
+
         if ($this->company_gateway->getApplePayEnabled()) {
             $types[] = GatewayType::APPLE_PAY;
         }
-            
+
 
         return $types;
     }
@@ -104,55 +104,48 @@ class StripePaymentDriver extends BasePaymentDriver
     {
         switch ($gateway_type_id) {
             case GatewayType::CREDIT_CARD:
-                return 'portal.default.gateways.stripe.credit_card';
-                break;
             case GatewayType::TOKEN:
-                return 'portal.default.gateways.stripe.credit_card';
+                return 'gateways.stripe.credit_card';
                 break;
             case GatewayType::SOFORT:
-                return 'portal.default.gateways.stripe.sofort';
+                return 'gateways.stripe.sofort';
                 break;
             case GatewayType::BANK_TRANSFER:
-                return 'portal.default.gateways.stripe.ach';
+                return 'gateways.stripe.ach';
                 break;
             case GatewayType::SEPA:
-                return 'portal.default.gateways.stripe.sepa';
+                return 'gateways.stripe.sepa';
                 break;
             case GatewayType::CRYPTO:
-                return 'portal.default.gateways.stripe.other';
-                break;
             case GatewayType::ALIPAY:
-                return 'portal.default.gateways.stripe.other';
-                break;
             case GatewayType::APPLE_PAY:
-                return 'portal.default.gateways.stripe.other';
+                return 'gateways.stripe.other';
                 break;
 
             default:
-                # code...
                 break;
         }
     }
 
     /**
+     * Authorises a credit card for future use.
      *
-     * Authorises a credit card for future use
      * @param  array  $data Array of variables needed for the view
-     *
-     * @return view       The gateway specific partial to be rendered
-     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function authorizeCreditCardView(array $data)
     {
         $intent['intent'] = $this->getSetupIntent();
 
-        return view('portal.default.gateways.stripe.add_credit_card', array_merge($data, $intent));
+        return render('gateways.stripe.add_credit_card', array_merge($data, $intent));
     }
 
     /**
-     * Processes the gateway response for credti card authorization
-     * @param  Request $request The returning request object
+     * Processes the gateway response for credit card authorization.
+     *
+     * @param Request $request The returning request object
      * @return view          Returns the user to payment methods screen.
+     * @throws \Stripe\Exception\ApiErrorException
      */
     public function authorizeCreditCardResponse($request)
     {
@@ -202,18 +195,11 @@ class StripePaymentDriver extends BasePaymentDriver
     }
 
     /**
-     * Processes the payment with this gateway
+     * Process the payment with gateway.
      *
-     * @var         invoices
-     * @var         amount
-     * @var         fee
-     * @var         amount_with_fee
-     * @var         token
-     * @var         payment_method_id
-     * @var         hashed_ids
-     *
-     * @param  array  $data variables required to build payment page
-     * @return view   Gateway and payment method specific view
+     * @param array $data
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|void
+     * @throws \Exception
      */
     public function processPaymentView(array $data)
     {
@@ -237,7 +223,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         $data['gateway'] = $this;
 
-        return view($this->viewForType($data['payment_method_id']), $data);
+        return render($this->viewForType($data['payment_method_id']), $data);
     }
 
     /**
@@ -292,7 +278,7 @@ class StripePaymentDriver extends BasePaymentDriver
          * requires_payment_method
          *
          */
-        
+
         if ($this->getContact()) {
             $client_contact = $this->getContact();
         } else {
@@ -322,7 +308,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
             if ($save_card == 'true') {
                 $stripe_payment_method->attach(['customer' => $customer]);
-                
+
                 $cgt = new ClientGatewayToken;
                 $cgt->company_id = $this->client->company->id;
                 $cgt->client_id = $this->client->id;
@@ -340,7 +326,7 @@ class StripePaymentDriver extends BasePaymentDriver
                     $cgt->save();
                 }
             }
-        
+
             //todo need to fix this to support payment types other than credit card.... sepa etc etc
             if (!$payment_type) {
                 $payment_type = PaymentType::CREDIT_CARD_OTHER;
@@ -363,7 +349,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
             $payment->service()->UpdateInvoicePayment();
             //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
-        
+
             SystemLogger::dispatch(
                 [
                 'server_response' => $payment_intent,

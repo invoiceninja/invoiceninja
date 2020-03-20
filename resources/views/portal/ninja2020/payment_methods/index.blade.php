@@ -62,7 +62,7 @@
                     @foreach($payment_methods as $payment_method)
                         <tr class="bg-white group hover:bg-gray-100">
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ $payment->formatDate($payment_method->created_at, auth()->user()->client->date_format()) }}
+                                {{ $payment_method->formatDateTimestamp($payment_method->created_at, auth()->user()->client->date_format()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {{ ctrans("texts.{$payment_method->gateway_type->alias}") }}
