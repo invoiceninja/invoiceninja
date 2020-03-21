@@ -48,7 +48,7 @@ class ArtisanUpgrade extends Command
         // call `composer install` command programmatically
         $input = new ArrayInput(array('command' => 'install'));
         $application = new Application();
-        $application->setAutoExit(false); // prevent `$application->run` method from exitting the script
+        //$application->setAutoExit(false); // prevent `$application->run` method from exitting the script
         $application->run($input);
 
 
