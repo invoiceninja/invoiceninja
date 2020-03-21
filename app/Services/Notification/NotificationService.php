@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Notification;
 
 class NotificationService extends AbstractService
 {
-
     const ALL = 'all_notifications';
 
     const ALL_USER = 'all_user_notifications';
@@ -47,26 +46,21 @@ class NotificationService extends AbstractService
 
     public function __construct(Company $company, Notifiable $notification)
     {
-
         $this->company = $company;
 
         $this->notification = $notification;
-    
     }
 
     public function run($is_system = false)
     {
-
         $this->company->owner()->notify($this->notification);
     
-        if($is_system)
-        {
+        if ($is_system) {
             $this->notification->is_system = true;
 
             Notification::route('slack', $this->company->slack_webhook_url)
                 ->notify($this->notification);
         }
-
     }
 
     /**
@@ -75,11 +69,8 @@ class NotificationService extends AbstractService
      */
     public function ninja()
     {
-
         Notification::route('slack', config('ninja.notification.slack'))
             ->route('mail', config('ninja.notification.mail'))
             ->notify($this->notification);
-        
     }
-
 }

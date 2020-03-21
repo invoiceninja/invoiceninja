@@ -26,7 +26,6 @@ use Illuminate\Http\Request;
  */
 class PaymentRepository extends BaseRepository
 {
-
     protected $credit_repo;
 
     public function __construct(CreditRepository $credit_repo)
@@ -49,12 +48,11 @@ class PaymentRepository extends BaseRepository
      */
     public function save(array $data, Payment $payment): ?Payment
     {
-
-        if ($payment->amount >= 0)
+        if ($payment->amount >= 0) {
             return $this->applyPayment($data, $payment);
+        }
 
         return $this->refundPayment($data, $payment);
-
     }
 
     /**
@@ -66,8 +64,9 @@ class PaymentRepository extends BaseRepository
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
         //check currencies here and fill the exchange rate data if necessary
-        if(!$payment->id)
+        if (!$payment->id) {
             $this->processExchangeRates($data, $payment);
+        }
 
         $payment->fill($data);
 
@@ -75,8 +74,9 @@ class PaymentRepository extends BaseRepository
 
         $payment->save();
 
-        if (!$payment->number || strlen($payment->number) == 0)
+        if (!$payment->number || strlen($payment->number) == 0) {
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
+        }
 
         $payment->client->service()->updatePaidToDate($payment->amount)->save();
 
@@ -84,7 +84,6 @@ class PaymentRepository extends BaseRepository
         $credit_totals = 0;
 
         if (array_key_exists('invoices', $data) && is_array($data['invoices'])) {
-
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
@@ -104,7 +103,6 @@ class PaymentRepository extends BaseRepository
         }
 
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
-
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
             $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->get();
@@ -114,10 +112,10 @@ class PaymentRepository extends BaseRepository
             foreach ($data['credits'] as $paid_credit) {
                 $credit = Credit::whereId($paid_credit['credit_id'])->first();
 
-                if ($credit)
+                if ($credit) {
                     ApplyCreditPayment::dispatchNow($credit, $payment, $paid_credit['amount'], $credit->company);
+                }
             }
-
         }
 
         event(new PaymentWasCreated($payment, $payment->company));
@@ -126,15 +124,15 @@ class PaymentRepository extends BaseRepository
 
         //$payment->amount = $invoice_totals; //creates problems when setting amount like this.
 
-        if ($invoice_totals == $payment->amount)
+        if ($invoice_totals == $payment->amount) {
             $payment->applied += $payment->amount;
-        elseif ($invoice_totals < $payment->amount)
+        } elseif ($invoice_totals < $payment->amount) {
             $payment->applied += $invoice_totals;
+        }
 
         $payment->save();
 
         return $payment->fresh();
-
     }
 
     /**
@@ -182,12 +180,11 @@ class PaymentRepository extends BaseRepository
 
         // $payment->save();
         // $client->save();
-
     }
 
 
     /**
-     * If the client is paying in a currency other than 
+     * If the client is paying in a currency other than
      * the company currency, we need to set a record
      */
     private function processExchangeRates($data, $payment)
@@ -197,8 +194,7 @@ class PaymentRepository extends BaseRepository
         $client_currency = $client->getSetting('currency_id');
         $company_currency = $client->company->settings->currency_id;
 
-        if($company_currency != $client_currency)
-        {
+        if ($company_currency != $client_currency) {
             $currency = $client->currency();
 
             $payment->exchange_rate = $currency->exchange_rate;
@@ -207,5 +203,4 @@ class PaymentRepository extends BaseRepository
 
         return $payment;
     }
-
 }

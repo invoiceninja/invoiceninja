@@ -20,7 +20,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Support\Facades\Storage;
 
-
 class PreviewController extends BaseController
 {
     use MakesHash;
@@ -88,16 +87,14 @@ class PreviewController extends BaseController
      */
     public function show()
     {
-
-        if (request()->has('entity') && 
-            request()->has('entity_id') && 
-            request()->has('body'))
-        {
-
+        if (request()->has('entity') &&
+            request()->has('entity_id') &&
+            request()->has('body')) {
             $design_object = json_decode(json_encode(request()->input('design')));
 
-            if(!is_object($design_object))
+            if (!is_object($design_object)) {
                 return response()->json(['message' => 'Invalid custom design object'], 400);
+            }
 
             $entity = ucfirst(request()->input('entity'));
 
@@ -107,8 +104,9 @@ class PreviewController extends BaseController
 
             $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
 
-            if(!$entity_obj)
+            if (!$entity_obj) {
                 return $this->blankEntity();
+            }
 
             $entity_obj->load('client');
 
@@ -119,21 +117,19 @@ class PreviewController extends BaseController
             $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
 
             return response()->download($file_path)->deleteFileAfterSend(true);
-
         }
 
         return $this->blankEntity();
-
     }
 
     private function blankEntity()
     {
-            $client = factory(\App\Models\Client::class)->create([
+        $client = factory(\App\Models\Client::class)->create([
                 'user_id' => auth()->user()->id,
                 'company_id' => auth()->user()->company()->id,
             ]);
 
-            $contact = factory(\App\Models\ClientContact::class)->create([
+        $contact = factory(\App\Models\ClientContact::class)->create([
                 'user_id' => auth()->user()->id,
                 'company_id' => auth()->user()->company()->id,
                 'client_id' => $client->id,
@@ -141,35 +137,32 @@ class PreviewController extends BaseController
                 'send_email' => true,
             ]);
 
-            $invoice = factory(\App\Models\Invoice::class)->create([
+        $invoice = factory(\App\Models\Invoice::class)->create([
                     'user_id' => auth()->user()->id,
                     'company_id' => auth()->user()->company()->id,
                     'client_id' => $client->id,
                 ]);
 
-            $invoice->setRelation('client', $client);
-            $invoice->setRelation('company', auth()->user()->company());
-            $invoice->load('client');
+        $invoice->setRelation('client', $client);
+        $invoice->setRelation('company', auth()->user()->company());
+        $invoice->load('client');
 
-            $design_object = json_decode(json_encode(request()->input('design')));
+        $design_object = json_decode(json_encode(request()->input('design')));
 
-            if(!is_object($design_object))
-                return response()->json(['message' => 'Invalid custom design object'], 400);
+        if (!is_object($design_object)) {
+            return response()->json(['message' => 'Invalid custom design object'], 400);
+        }
 
-            $designer = new Designer($invoice, $design_object, $invoice->client->getSetting('pdf_variables'), lcfirst(request()->has('entity')));
+        $designer = new Designer($invoice, $design_object, $invoice->client->getSetting('pdf_variables'), lcfirst(request()->has('entity')));
 
-            $html = $this->generateEntityHtml($designer, $invoice, $contact);
+        $html = $this->generateEntityHtml($designer, $invoice, $contact);
 
-            $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
+        $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
 
-            $invoice->forceDelete();
-            $contact->forceDelete();
-            $client->forceDelete();
+        $invoice->forceDelete();
+        $contact->forceDelete();
+        $client->forceDelete();
 
-            return response()->file($file_path, array('content-type' => 'application/pdf'));
-
+        return response()->file($file_path, array('content-type' => 'application/pdf'));
     }
-
-
-    
 }

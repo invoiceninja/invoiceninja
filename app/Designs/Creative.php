@@ -16,9 +16,9 @@ namespace App\Designs;
  */
 class Creative extends AbstractDesign
 {
-
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
 
     public function includes()
@@ -42,9 +42,9 @@ margin-top: 6mm;
     }
 
 
-	public function header() {
-
-		return '<div class="py-16 mx-16">
+    public function header()
+    {
+        return '<div class="py-16 mx-16">
 <div class="flex justify-between">
     <div class="w-2/3 flex">
         <div class="flex flex-col">
@@ -59,11 +59,10 @@ margin-top: 6mm;
     </div>
     $company_logo
 </div>';
+    }
 
-	}
-
-	public function body() {
-
+    public function body()
+    {
         return '<div class="flex justify-between mt-8">
 <div class="w-2/3 flex flex-col">
     <h1 class="text-5xl uppercase font-semibold">$entity_label</h1>
@@ -94,9 +93,10 @@ margin-top: 6mm;
         $task_table_body
     </tbody>
 </table>';
-	}
+    }
 
-    public function task() {
+    public function task()
+    {
         return '';
     }
 
@@ -106,8 +106,8 @@ margin-top: 6mm;
         return '';
     }
 
-	public function footer() {
-
+    public function footer()
+    {
         return '<div class="border-b-4 border-pink-700">
 <div class="flex items-center justify-between mt-2 px-4 pb-4">
     <div class="w-1/2">
@@ -146,7 +146,5 @@ margin-top: 6mm;
 </div>
 </body>
 </html>';
-
-	}
-
+    }
 }

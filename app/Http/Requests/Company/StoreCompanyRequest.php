@@ -52,19 +52,14 @@ class StoreCompanyRequest extends Request
 
     protected function prepareForValidation()
     {
-
         $input = $this->all();
 
         $company_settings = CompanySettings::defaults();
 
-        if(array_key_exists('settings', $input) && !empty($input['settings']))
-        {
-
-            foreach($input['settings'] as $key => $value)
-            {
+        if (array_key_exists('settings', $input) && !empty($input['settings'])) {
+            foreach ($input['settings'] as $key => $value) {
                 $company_settings->{$key} = $value;
             }
-            
         }
         
         // $company_settings->invoice_design_id = $this->encodePrimaryKey(1);

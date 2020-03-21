@@ -13,41 +13,36 @@ use Tests\TestCase;
  */
 class ClientPresenterTest extends TestCase
 {
-    
-	use MockAccountData;
+    use MockAccountData;
     use DatabaseTransactions;
 
     public function setUp() :void
     {
-    
-	    parent::setUp();
-		
-	    $this->makeTestData();
+        parent::setUp();
+        
+        $this->makeTestData();
+    }
 
-	}
+    public function testCompanyName()
+    {
+        $settings = $this->client->company->settings;
 
-	public function testCompanyName()
-	{
+        $settings->name = 'test';
+        $this->client->company->settings = $settings;
+        $this->client->company->save();
+        
+        $this->client->getSetting('name');
 
-		$settings = $this->client->company->settings;
+        $merged_settings = $this->client->getMergedSettings();
 
-		$settings->name = 'test';
-		$this->client->company->settings = $settings;
-		$this->client->company->save();
-		
-		$this->client->getSetting('name');
+        $name = $this->client->present()->company_name();
 
-		$merged_settings = $this->client->getMergedSettings();
+        $this->assertEquals('test', $merged_settings->name);
+        $this->assertEquals('test', $name);
+    }
 
-		$name = $this->client->present()->company_name();
-
-		$this->assertEquals('test', $merged_settings->name);
-		$this->assertEquals('test', $name);
-	}
-
-	public function testCompanyAddress()
-	{
-		$this->assertNotNull($this->client->present()->company_address());
-	}
-
+    public function testCompanyAddress()
+    {
+        $this->assertNotNull($this->client->present()->company_address());
+    }
 }

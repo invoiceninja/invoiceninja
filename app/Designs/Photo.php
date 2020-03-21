@@ -13,9 +13,9 @@ namespace App\Designs;
 
 class Photo extends AbstractDesign
 {
-
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
 
     public function includes()
@@ -44,9 +44,9 @@ body {font-size:90%}
 
 
 
-	public function header() {
-
-		return '<div class="px-16 py-10">
+    public function header()
+    {
+        return '<div class="px-16 py-10">
 <div class="flex items-center justify-between mt-2s">
     <div ref="logo">
         $company_logo
@@ -61,11 +61,10 @@ body {font-size:90%}
     </div>
 </div>
 </div>';
+    }
 
-	}
-
-	public function body() {
-
+    public function body()
+    {
         return '<div class="flex content-center flex-wrap bg-gray-200 h-auto p-16" id="imageContainer">
 <div class="flex flex-col">
     <div class="flex">
@@ -99,10 +98,10 @@ body {font-size:90%}
     $task_table_body
 </tbody>
 </table>';
+    }
 
-	}
-
-    public function task() {
+    public function task()
+    {
         return '';
     }
 
@@ -111,8 +110,8 @@ body {font-size:90%}
         return '';
     }
 
-	public function footer() {
-
+    public function footer()
+    {
         return '<div class="flex items-center justify-between mt-2 px-4 pb-4">
 <div class="w-1/2">
     <div class="flex flex-col">
@@ -153,7 +152,5 @@ body {font-size:90%}
 </div>
 </body>
 </html>';
-
-	}
-
+    }
 }

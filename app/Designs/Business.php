@@ -13,7 +13,6 @@ namespace App\Designs;
 
 class Business extends AbstractDesign
 {
-
     public function __construct()
     {
     }
@@ -48,7 +47,6 @@ class Business extends AbstractDesign
 
     public function header()
     {
-
         return '<div class="my-16 mx-10">
 <div class="flex justify-between">
     <div class="w-1/2">
@@ -63,12 +61,10 @@ class Business extends AbstractDesign
         </div>
     </div>
 </div>';
-
     }
 
     public function body()
     {
-
         return '<div class="flex items-center justify-between mt-20">
     <div class="w-1/2 flex flex-col">
         <span>$entity_label</span>
@@ -103,7 +99,6 @@ class Business extends AbstractDesign
         $task_table_body
     </tbody>
 </table>';
-
     }
 
     public function task()
@@ -118,7 +113,6 @@ class Business extends AbstractDesign
 
     public function footer()
     {
-
         return '<div class="flex items-center justify-between px-4 pb-4 bg-gray-200 rounded py-2">
 <div class="w-1/2">
     <div class="flex flex-col">
@@ -157,7 +151,5 @@ class Business extends AbstractDesign
 </div>
 </body>
 </html>';
-
     }
-
 }

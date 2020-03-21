@@ -45,17 +45,16 @@ use Illuminate\Support\Facades\Schema;
  */
 trait MockAccountData
 {
+    use MakesHash;
+    use GeneratesCounter;
 
-	use MakesHash;
-	use GeneratesCounter;
+    public $account;
 
-	public $account;
+    public $company;
 
-	public $company;
+    public $user;
 
-	public $user;
-
-	public $client;
+    public $client;
 
     public $token;
 
@@ -63,8 +62,8 @@ trait MockAccountData
 
     public $quote;
 
-	public function makeTestData()
-	{
+    public function makeTestData()
+    {
 
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
@@ -88,7 +87,6 @@ trait MockAccountData
             if ($tableData->count()) {
                 Cache::forever($name, $tableData);
             }
-            
         }
 
         $this->account = factory(\App\Models\Account::class)->create();
@@ -119,7 +117,7 @@ trait MockAccountData
 
         $this->user = User::whereEmail('user@example.com')->first();
 
-        if(!$this->user){
+        if (!$this->user) {
             $this->user = factory(\App\Models\User::class)->create([
                 'password' => Hash::make('ALongAndBriliantPassword'),
                 'confirmation_code' => $this->createDbHash(config('database.default'))
@@ -150,16 +148,16 @@ trait MockAccountData
         //     'settings' => json_encode(DefaultSettings::userSettings()),
         // ]);
 
-         // $this->client = ClientFactory::create($this->company->id, $this->user->id);
-         // $this->client->save();
+        // $this->client = ClientFactory::create($this->company->id, $this->user->id);
+        // $this->client->save();
 
-            $this->client = factory(\App\Models\Client::class)->create([
+        $this->client = factory(\App\Models\Client::class)->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
             ]);
 
 
-            factory(\App\Models\ClientContact::class,1)->create([
+        factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
@@ -167,7 +165,7 @@ trait MockAccountData
                 'send_email' => true,
             ]);
 
-            factory(\App\Models\ClientContact::class,1)->create([
+        factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
@@ -197,15 +195,15 @@ trait MockAccountData
         //     ]);
 
 
-		$this->invoice->line_items = $this->buildLineItems();
-		$this->invoice->uses_inclusive_taxes = false;
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_taxes = false;
 
         $this->invoice->save();
 
-		$this->invoice_calc = new InvoiceSum($this->invoice);
-		$this->invoice_calc->build();
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
 
-		$this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice = $this->invoice_calc->getInvoice();
 
         $this->invoice->setRelation('client', $this->client);
         $this->invoice->setRelation('company', $this->company);
@@ -237,14 +235,14 @@ trait MockAccountData
 
         $this->quote->save();
 
-        $this->credit = CreditFactory::create($this->company->id,$this->user->id);
+        $this->credit = CreditFactory::create($this->company->id, $this->user->id);
         $this->credit->client_id = $this->client->id;
 
-		$this->credit->line_items = $this->buildLineItems();
+        $this->credit->line_items = $this->buildLineItems();
         $this->credit->amount = 10;
         $this->credit->balance = 10;
 
-		$this->credit->uses_inclusive_taxes = false;
+        $this->credit->uses_inclusive_taxes = false;
 
         $this->credit->save();
         
@@ -258,22 +256,19 @@ trait MockAccountData
         $contacts = $this->invoice->client->contacts;
 
         $contacts->each(function ($contact) {
-
             $invitation = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
                                         ->whereClientContactId($contact->id)
                                         ->whereInvoiceId($this->invoice->id)
                                         ->first();
 
-            if(!$invitation && $contact->send_email) {
+            if (!$invitation && $contact->send_email) {
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            }
-            else if($invitation && !$contact->send_email) {
+            } elseif ($invitation && !$contact->send_email) {
                 $invitation->delete();
             }
-
         });
 
         $invitations = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
@@ -354,9 +349,7 @@ trait MockAccountData
         $gs->name = 'Default Client Settings';
         $gs->save();
 
-        if(config('ninja.testvars.stripe'))
-        {
-
+        if (config('ninja.testvars.stripe')) {
             $cg = new CompanyGateway;
             $cg->company_id = $this->company->id;
             $cg->user_id = $this->user->id;
@@ -380,19 +373,18 @@ trait MockAccountData
             $cg->config = encrypt(config('ninja.testvars.stripe'));
             $cg->save();
         }
+    }
 
-	}
 
+    private function buildLineItems()
+    {
+        $line_items = [];
 
-	private function buildLineItems()
-	{
-		$line_items = [];
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost =10;
 
-		$item = InvoiceItemFactory::create();
-		$item->quantity = 1;
-		$item->cost =10;
-
-		$line_items[] = $item;
+        $line_items[] = $item;
 
         // $line_items[] = $item;
         // $line_items[] = $item;
@@ -434,7 +426,6 @@ trait MockAccountData
         // $line_items[] = $item;
         // $line_items[] = $item;
 
-		return $line_items;
-
-	}
+        return $line_items;
+    }
 }

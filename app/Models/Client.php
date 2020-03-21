@@ -227,13 +227,12 @@ class Client extends BaseModel implements HasLocalePreference
      * Adjusts client "balances" when a client
      * makes a payment that goes on file, but does
      * not effect the client.balance record
-     *    
+     *
      * @param  float $amount Adjustment amount
-     * @return Client         
+     * @return Client
      */
     public function processUnappliedPayment($amount) :Client
     {
-
         return $this->service()->updatePaidToDate($amount)
                                 ->adjustCreditBalance($amount)
                                 ->save();
@@ -249,7 +248,6 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function getMergedSettings() :object
     {
-
         if ($this->group_settings !== null) {
             $group_settings = ClientSettings::buildClientSettings($this->group_settings->settings, $this->settings);
 
@@ -272,8 +270,8 @@ class Client extends BaseModel implements HasLocalePreference
     {
 
         /*Client Settings*/
-        if ($this->settings && property_exists($this->settings, $setting) && isset($this->settings->{$setting}) ) {
-            /*need to catch empty string here*/ 
+        if ($this->settings && property_exists($this->settings, $setting) && isset($this->settings->{$setting})) {
+            /*need to catch empty string here*/
             if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >=1)) {
                 return $this->settings->{$setting};
             }
@@ -285,7 +283,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         /*Company Settings*/
-        else if ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
+        elseif ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
             return $this->company->settings->{$setting};
         }
 
@@ -468,20 +466,22 @@ class Client extends BaseModel implements HasLocalePreference
     {
         $defaults = [];
 
-        if(!(array_key_exists('terms', $data) && strlen($data['terms']) > 1))
+        if (!(array_key_exists('terms', $data) && strlen($data['terms']) > 1)) {
             $defaults['terms'] = $this->getSetting($entity_name.'_terms');
-        elseif(array_key_exists('terms', $data))
+        } elseif (array_key_exists('terms', $data)) {
             $defaults['terms'] = $data['terms'];
+        }
 
-        if(!(array_key_exists('footer', $data) && strlen($data['footer']) > 1))
+        if (!(array_key_exists('footer', $data) && strlen($data['footer']) > 1)) {
             $defaults['footer'] = $this->getSetting($entity_name.'_footer');
-        elseif(array_key_exists('footer', $data))
+        } elseif (array_key_exists('footer', $data)) {
             $defaults['footer'] = $data['footer'];
+        }
 
-        if(strlen($this->public_notes) >=1)
+        if (strlen($this->public_notes) >=1) {
             $defaults['public_notes'] = $this->public_notes;
+        }
 
         return $defaults;
     }
-
 }

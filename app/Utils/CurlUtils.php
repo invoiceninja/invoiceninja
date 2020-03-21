@@ -49,5 +49,4 @@ class CurlUtils
 
         return $response;
     }
-
 }

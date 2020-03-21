@@ -1963,37 +1963,37 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'authorization' => 'Genehmigung',
     'signed' => 'unterzeichnet',
 
-	// BlueVine
-	'bluevine_promo' => 'Factoring und Bonitätsauskünfte von BlueVine bestellen.',
-	'bluevine_modal_label' => 'Anmelden mit BlueVine',
-	'bluevine_modal_text' => '<h3>Schnelle Finanzierung ohne Papierkram.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Factoring und Bonitätsauskünfte von BlueVine bestellen.',
+    'bluevine_modal_label' => 'Anmelden mit BlueVine',
+    'bluevine_modal_text' => '<h3>Schnelle Finanzierung ohne Papierkram.</h3>
 <ul><li>Flexible Bonitätsprüfung und Factoring.</li></ul>',
-	'bluevine_create_account' => 'Konto erstellen',
-	'quote_types' => 'Angebot erhalten für',
-	'invoice_factoring' => 'Factoring',
-	'line_of_credit' => 'Bonitätsprüfung',
-	'fico_score'                         => 'Ihre FICO Bewertung',
-	'business_inception'                 => 'Gründungsdatum',
-	'average_bank_balance'               => 'durchschnittlicher Kontostand',
-	'annual_revenue'                     => 'Jahresertrag',
-	'desired_credit_limit_factoring'     => 'Gewünschtes Factoring Limit',
-	'desired_credit_limit_loc'           => 'gewünschter Kreditrahmen',
-	'desired_credit_limit'               => 'gewünschtes Kreditlimit',
-	'bluevine_credit_line_type_required' => 'Sie müssen mindestens eine auswählen',
-	'bluevine_field_required'            => 'Dies ist ein Pflichtfeld',
-	'bluevine_unexpected_error'          => 'Ein unerwarteter Fehler ist aufgetreten.',
-	'bluevine_no_conditional_offer'      => 'Mehr Information ist vonnöten um ein Angebot erstellen zu können. Bitte klicken Sie unten auf Weiter.',
-	'bluevine_invoice_factoring'         => 'Factoring',
-	'bluevine_conditional_offer'         => 'Freibleibendes Angebot',
-	'bluevine_credit_line_amount'        => 'Kreditline',
-	'bluevine_advance_rate'              => 'Finanzierungsanteil',
-	'bluevine_weekly_discount_rate'      => 'Wöchentlicher Rabatt',
-	'bluevine_minimum_fee_rate'          => 'Minimale Gebühr',
-	'bluevine_line_of_credit'            => 'Kreditline',
-	'bluevine_interest_rate'             => 'Zinssatz',
-	'bluevine_weekly_draw_rate'          => 'Wöchtentliche Rückzahlungsquote',
-	'bluevine_continue'                  => 'Weiter zu BlueVine',
-	'bluevine_completed'                 => 'BlueVine Anmeldung abgeschlossen',
+    'bluevine_create_account' => 'Konto erstellen',
+    'quote_types' => 'Angebot erhalten für',
+    'invoice_factoring' => 'Factoring',
+    'line_of_credit' => 'Bonitätsprüfung',
+    'fico_score'                         => 'Ihre FICO Bewertung',
+    'business_inception'                 => 'Gründungsdatum',
+    'average_bank_balance'               => 'durchschnittlicher Kontostand',
+    'annual_revenue'                     => 'Jahresertrag',
+    'desired_credit_limit_factoring'     => 'Gewünschtes Factoring Limit',
+    'desired_credit_limit_loc'           => 'gewünschter Kreditrahmen',
+    'desired_credit_limit'               => 'gewünschtes Kreditlimit',
+    'bluevine_credit_line_type_required' => 'Sie müssen mindestens eine auswählen',
+    'bluevine_field_required'            => 'Dies ist ein Pflichtfeld',
+    'bluevine_unexpected_error'          => 'Ein unerwarteter Fehler ist aufgetreten.',
+    'bluevine_no_conditional_offer'      => 'Mehr Information ist vonnöten um ein Angebot erstellen zu können. Bitte klicken Sie unten auf Weiter.',
+    'bluevine_invoice_factoring'         => 'Factoring',
+    'bluevine_conditional_offer'         => 'Freibleibendes Angebot',
+    'bluevine_credit_line_amount'        => 'Kreditline',
+    'bluevine_advance_rate'              => 'Finanzierungsanteil',
+    'bluevine_weekly_discount_rate'      => 'Wöchentlicher Rabatt',
+    'bluevine_minimum_fee_rate'          => 'Minimale Gebühr',
+    'bluevine_line_of_credit'            => 'Kreditline',
+    'bluevine_interest_rate'             => 'Zinssatz',
+    'bluevine_weekly_draw_rate'          => 'Wöchtentliche Rückzahlungsquote',
+    'bluevine_continue'                  => 'Weiter zu BlueVine',
+    'bluevine_completed'                 => 'BlueVine Anmeldung abgeschlossen',
 
     'vendor_name' => 'Lieferant',
     'entity_state' => 'Status',
@@ -2127,16 +2127,16 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Dieses Jahr',
 
-	// Updated login screen
-	'ninja_tagline' => 'Erstelle. Sende. Werde bezahlt.',
-	'login_or_existing' => 'Oder melde dich mit einem verbundenen Konto an.',
-	'sign_up_now' => 'Jetzt anmelden',
-	'not_a_member_yet' => 'Noch kein Mitglied?',
-	'login_create_an_account' => 'Konto erstellen!',
-	'client_login' => 'Kundenanmeldung',
+    // Updated login screen
+    'ninja_tagline' => 'Erstelle. Sende. Werde bezahlt.',
+    'login_or_existing' => 'Oder melde dich mit einem verbundenen Konto an.',
+    'sign_up_now' => 'Jetzt anmelden',
+    'not_a_member_yet' => 'Noch kein Mitglied?',
+    'login_create_an_account' => 'Konto erstellen!',
+    'client_login' => 'Kundenanmeldung',
 
-	// New Client Portal styling
-	'invoice_from' => 'Rechnungen von:',
+    // New Client Portal styling
+    'invoice_from' => 'Rechnungen von:',
     'email_alias_message' => 'Wir benötigen von jedem Benutzer eine einzigartige E-Mail-Adresse. Verwenden Sie einen Alias, z.B.: email+label@example.com',
     'full_name' => 'Voller Name',
     'month_year' => 'Monat/Jahr',
@@ -2431,7 +2431,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'tax1' => 'Steuern',
     'tax2' => 'Aufschlag',
     'fee_help' => 'Gateway-Gebühren sind die Kosten, die für die Nutzung der Finanznetzwerke anfallen, über die Online-Bezahlungen abgewickelt werden.',
-	'format_export' => 'Export-Format',
+    'format_export' => 'Export-Format',
     'custom1' => 'Benutzerdefiniert 1',
     'custom2' => 'Benutzerdefiniert 2',
     'contact_first_name' => 'Kontakt Vorname',
@@ -2868,5 +2868,3 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
 );
 
 return $LANG;
-
-?>

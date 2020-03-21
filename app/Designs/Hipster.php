@@ -13,9 +13,9 @@ namespace App\Designs;
 
 class Hipster extends AbstractDesign
 {
-
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
 
     public function includes()
@@ -40,9 +40,9 @@ body {font-size:90%}
     }
 
 
-	public function header() {
-
-		return '<div class="px-12 py-16">
+    public function header()
+    {
+        return '<div class="px-12 py-16">
 <div class="flex">
     <div class="w-1/2 border-l pl-4 border-black mr-4">
         <p class="font-semibold uppercase text-yellow-600">From:</p>
@@ -63,11 +63,10 @@ body {font-size:90%}
         $company_logo
     </div>
 </div>';
+    }
 
-	}
-
-	public function body() {
-
+    public function body()
+    {
         return '<div class="flex flex-col mx-6 mt-10">
 <h1 class="font-semibold uppercase text-6xl">$entity_label</h1>
 <div class="flex mt-1">
@@ -102,20 +101,20 @@ body {font-size:90%}
     $task_table_body
 </tbody>
 </table>';
+    }
 
-	}
-
-    public function task() {
-	    return '';
+    public function task()
+    {
+        return '';
     }
 
     public function product()
     {
-	    return '';
+        return '';
     }
 
-	public function footer() {
-
+    public function footer()
+    {
         return '<div class="flex justify-between mt-8">
 <div class="w-1/2">
     <div class="flex flex-col">
@@ -148,7 +147,5 @@ body {font-size:90%}
 </div>
 </body>
 </html>';
-
-	}
-
+    }
 }

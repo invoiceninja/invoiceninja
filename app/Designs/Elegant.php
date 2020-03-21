@@ -13,9 +13,9 @@ namespace App\Designs;
 
 class Elegant extends AbstractDesign
 {
-
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
 
     public function includes()
@@ -39,9 +39,9 @@ class Elegant extends AbstractDesign
     }
 
 
-	public function header() {
-
-		return '<div class="py-16 px-8">
+    public function header()
+    {
+        return '<div class="py-16 px-8">
 <div class="flex flex justify-between border-b-4 border-black">
     <div style="margin-bottom: 15px">
         $company_logo
@@ -56,11 +56,10 @@ class Elegant extends AbstractDesign
     </div>
 </div>
 <div class="p-px border-b border-black mt-1"></div>';
+    }
 
-	}
-
-	public function body() {
-
+    public function body()
+    {
         return '<div class="flex mt-8">
 <div class="w-1/3 mr-6 flex flex-col pr-2 border-r border-dashed border-black">
     $client_details
@@ -88,11 +87,11 @@ class Elegant extends AbstractDesign
         $product_table_body
     </tbody>
 </table>';
+    }
 
-	}
-
-    public function task() {
-	    return '';
+    public function task()
+    {
+        return '';
     }
 
     public function product()
@@ -100,8 +99,8 @@ class Elegant extends AbstractDesign
         return '';
     }
 
-	public function footer() {
-
+    public function footer()
+    {
         return '<div class="flex items-center justify-between mt-2 px-4 pb-4">
     <div class="w-1/2">
         <div class="flex flex-col">
@@ -142,7 +141,5 @@ class Elegant extends AbstractDesign
     </div>
     <div class="p-px border-b border-black mt-1"></div>
 </div>';
-
-	}
-
+    }
 }

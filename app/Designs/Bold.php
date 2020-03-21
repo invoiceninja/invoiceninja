@@ -13,9 +13,9 @@ namespace App\Designs;
 
 class Bold extends AbstractDesign
 {
-
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
     public function includes()
     {
@@ -33,9 +33,9 @@ class Bold extends AbstractDesign
 </style>';
     }
 
-	public function header() {
-
-		return '<div class="flex static bg-gray-800 p-12">
+    public function header()
+    {
+        return '<div class="flex static bg-gray-800 p-12">
 <div class="w-1/2">
     <div class="absolute bg-white pt-10 px-10 pb-4 inline-block align-middle">
         $company_logo
@@ -50,11 +50,10 @@ class Bold extends AbstractDesign
     </div>
 </div>
 </div>';
+    }
 
-	}
-
-	public function body() {
-
+    public function body()
+    {
         return '<div class="flex mt-32 pl-12">
     <div class="w-1/2 mr-40 flex flex-col">
         <h2 class="text-2xl uppercase font-semibold text-teal-600 tracking-tight">$entity_label</h2> $client_details
@@ -86,19 +85,20 @@ class Bold extends AbstractDesign
         $task_table_body
     </tbody>
 </table>';
+    }
 
-	}
-
-    public function task() {
+    public function task()
+    {
         return '';
     }
 
-	public function product() {
+    public function product()
+    {
         return '';
-	}
+    }
 
-	public function footer() {
-
+    public function footer()
+    {
         return '<div class="flex px-4 mt-6 w-full px-12">
     <div class="w-1/2">
         $entity.public_notes
@@ -127,7 +127,5 @@ class Bold extends AbstractDesign
         </div>
     </div>
 </div>';
-
-	}
-
+    }
 }

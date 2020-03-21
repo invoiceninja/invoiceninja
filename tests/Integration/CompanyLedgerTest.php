@@ -70,7 +70,6 @@ class CompanyLedgerTest extends TestCase
             if ($tableData->count()) {
                 Cache::forever($name, $tableData);
             }
-            
         }
 
         $this->account = factory(\App\Models\Account::class)->create();
@@ -101,7 +100,7 @@ class CompanyLedgerTest extends TestCase
 
         $this->user = User::whereEmail('user@example.com')->first();
 
-        if(!$this->user){
+        if (!$this->user) {
             $this->user = factory(\App\Models\User::class)->create([
                 'password' => Hash::make('ALongAndBriliantPassword'),
                 'confirmation_code' => $this->createDbHash(config('database.default'))
@@ -123,21 +122,19 @@ class CompanyLedgerTest extends TestCase
             'token' => $this->token,
         ]);
 
-            $this->client = factory(\App\Models\Client::class)->create([
+        $this->client = factory(\App\Models\Client::class)->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
             ]);
 
 
-            factory(\App\Models\ClientContact::class,1)->create([
+        factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
                 'send_email' => true,
             ]);
-
-            
     }
 
     public function testBaseLine()
@@ -162,14 +159,14 @@ class CompanyLedgerTest extends TestCase
             'line_items' => $line_items
         ];
 
-/* Test adding one invoice */
+        /* Test adding one invoice */
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/invoices/', $data)
         ->assertStatus(200);
 
-        $acc = $response->json();   
+        $acc = $response->json();
 
         $invoice = Invoice::find($this->decodePrimaryKey($acc['data']['id']));
 
@@ -183,14 +180,14 @@ class CompanyLedgerTest extends TestCase
         $this->assertEquals($invoice->client->paid_to_date, 0);
 
 
-/* Test adding another invoice */
+        /* Test adding another invoice */
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/invoices/', $data)
         ->assertStatus(200);
 
-        $acc = $response->json();   
+        $acc = $response->json();
 
         $invoice = Invoice::find($this->decodePrimaryKey($acc['data']['id']));
         $invoice->service()->markSent()->save();
@@ -201,7 +198,7 @@ class CompanyLedgerTest extends TestCase
         $this->assertEquals($invoice_ledger->balance, $invoice->client->balance);
         $this->assertEquals($invoice->client->paid_to_date, 0);
 
-/* Test making a payment */
+        /* Test making a payment */
 
         $data = [
             'client_id' => $this->encodePrimaryKey($invoice->client_id),
@@ -221,7 +218,7 @@ class CompanyLedgerTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments/', $data);
 
-        $acc = $response->json();   
+        $acc = $response->json();
 
         $payment = Payment::find($this->decodePrimaryKey($acc['data']['id']));
 
@@ -235,7 +232,7 @@ class CompanyLedgerTest extends TestCase
 
         $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
 
-/* Test making a refund of a payment */
+        /* Test making a refund of a payment */
         $refund = $invoice->amount;
 
         $data = [
@@ -258,23 +255,9 @@ class CompanyLedgerTest extends TestCase
         ])->post('/api/v1/payments/refund', $data);
 
 
-        $acc = $response->json();   
+        $acc = $response->json();
         $invoice = Invoice::find($invoice->id);
 
         $this->assertEquals($refund, $invoice->balance);
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
-
 }

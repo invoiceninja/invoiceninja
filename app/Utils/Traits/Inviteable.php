@@ -70,7 +70,6 @@ trait Inviteable
 
     public function getAdminLink() :string
     {
-
         return $this->getLink(). '?silent=true';
     }
 }

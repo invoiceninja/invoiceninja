@@ -90,7 +90,7 @@ trait ClientGroupSettingsSaver
         }
 
         foreach ($casts as $key => $value) {
-            if(in_array($key, SettingsSaver::$string_casts)) {
+            if (in_array($key, SettingsSaver::$string_casts)) {
                 $value = "string";
 
                 if (!property_exists($settings, $key)) {

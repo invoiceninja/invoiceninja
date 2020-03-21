@@ -32,7 +32,6 @@ class LoginTest extends TestCase
 
     public function testLoginFormDisplayed()
     {
-
         $response = $this->get('/login', [
             '_token' => csrf_token()
         ]);
@@ -174,12 +173,11 @@ class LoginTest extends TestCase
             'password' => '123456'
         ];
 
-            $response = $this->withHeaders([
+        $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
             ])->post('/api/v1/login', $data);
 
 
         $response->assertStatus(200);
     }
-
 }

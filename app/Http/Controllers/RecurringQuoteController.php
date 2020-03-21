@@ -375,9 +375,9 @@ class RecurringQuoteController extends BaseController
      */
     public function update(UpdateRecurringQuoteRequest $request, RecurringQuote $recurring_quote)
     {
-
-        if($request->entityIsDeleted($recurring_quote))
+        if ($request->entityIsDeleted($recurring_quote)) {
             return $request->disallowUpdate();
+        }
         
         $recurring_quote = $this->recurring_quote_repo->save(request(), $recurring_quote);
 

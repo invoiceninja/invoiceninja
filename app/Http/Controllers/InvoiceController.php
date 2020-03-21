@@ -45,717 +45,715 @@ use Illuminate\Support\Facades\Storage;
  * @package App\Http\Controllers\InvoiceController
  */
 
-class InvoiceController extends BaseController {
+class InvoiceController extends BaseController
+{
+    use MakesHash;
 
-	use MakesHash;
+    protected $entity_type = Invoice::class ;
 
-	protected $entity_type = Invoice::class ;
+    protected $entity_transformer = InvoiceTransformer::class ;
 
-	protected $entity_transformer = InvoiceTransformer::class ;
+    /**
+     * @var InvoiceRepository
+     */
+    protected $invoice_repo;
 
-	/**
-	 * @var InvoiceRepository
-	 */
-	protected $invoice_repo;
-
-	/**
-	 * InvoiceController constructor.
-	 *
-	 * @param      \App\Repositories\InvoiceRepository  $invoice_repo  The invoice repo
-	 */
-	public function __construct(InvoiceRepository $invoice_repo) {
-
-		parent::__construct();
-
-		$this->invoice_repo = $invoice_repo;
-
-	}
-
-	/**
-	 * Show the list of Invoices
-	 *
-	 * @param      \App\Filters\InvoiceFilters  $filters  The filters
-	 *
-	 * @return \Illuminate\Http\Response
-	 *
-	 * @OA\Get(
-	 *      path="/api/v1/invoices",
-	 *      operationId="getInvoices",
-	 *      tags={"invoices"},
-	 *      summary="Gets a list of invoices",
-	 *      description="Lists invoices, search and filters allow fine grained lists to be generated.
-	 *
-	 *		Query parameters can be added to performed more fine grained filtering of the invoices, these are handled by the InvoiceFilters class which defines the methods available",
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(ref="#/components/parameters/include"),
-	 *      @OA\Response(
-	 *          response=200,
-	 *          description="A list of invoices",
-	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-	 *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
-	 *       ),
-	 *       @OA\Response(
-	 *          response=422,
-	 *          description="Validation error",
-	 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
-	 *       ),
-	 *       @OA\Response(
-	 *           response="default",
-	 *           description="Unexpected Error",
-	 *           @OA\JsonContent(ref="#/components/schemas/Error"),
-	 *       ),
-	 *     )
-	 *
-	 */
-	public function index(InvoiceFilters $filters) {
-		$invoices = Invoice::filter($filters);
-
-		return $this->listResponse($invoices);
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @param      \App\Http\Requests\Invoice\CreateInvoiceRequest  $request  The request
-	 *
-	 * @return \Illuminate\Http\Response
-	 *
-	 *
-	 * @OA\Get(
-	 *      path="/api/v1/invoices/create",
-	 *      operationId="getInvoicesCreate",
-	 *      tags={"invoices"},
-	 *      summary="Gets a new blank invoice object",
-	 *      description="Returns a blank object with default values",
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(ref="#/components/parameters/include"),
-	 *      @OA\Response(
-	 *          response=200,
-	 *          description="A blank invoice object",
-	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-	 *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
-	 *       ),
-	 *       @OA\Response(
-	 *          response=422,
-	 *          description="Validation error",
-	 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-	 *
-	 *       ),
-	 *       @OA\Response(
-	 *           response="default",
-	 *           description="Unexpected Error",
-	 *           @OA\JsonContent(ref="#/components/schemas/Error"),
-	 *       ),
-	 *     )
-	 *
-	 */
-	public function create(CreateInvoiceRequest $request) {
-		
-		$invoice = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
-
-		return $this->itemResponse($invoice);
-	}
-
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param      \App\Http\Requests\Invoice\StoreInvoiceRequest  $request  The request
-	 *
-	 * @return \Illuminate\Http\Response
-	 *
-	 *
-	 * @OA\Post(
-	 *      path="/api/v1/invoices",
-	 *      operationId="storeInvoice",
-	 *      tags={"invoices"},
-	 *      summary="Adds a invoice",
-	 *      description="Adds an invoice to the system",
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(ref="#/components/parameters/include"),
-	 *      @OA\Response(
-	 *          response=200,
-	 *          description="Returns the saved invoice object",
-	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-	 *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
-	 *       ),
-	 *       @OA\Response(
-	 *          response=422,
-	 *          description="Validation error",
-	 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-	 *
-	 *       ),
-	 *       @OA\Response(
-	 *           response="default",
-	 *           description="Unexpected Error",
-	 *           @OA\JsonContent(ref="#/components/schemas/Error"),
-	 *       ),
-	 *     )
-	 *
-	 */
-	public function store(StoreInvoiceRequest $request) {
-
-		$client = Client::find($request->input('client_id'));
-
-		$invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
-
-		$invoice = StoreInvoice::dispatchNow($invoice, $request->all(), $invoice->company);//todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
-
-		event(new InvoiceWasCreated($invoice, $invoice->company));
-
-		return $this->itemResponse($invoice);
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param      \App\Http\Requests\Invoice\ShowInvoiceRequest  $request  The request
-	 * @param      \App\Models\Invoice                            $invoice  The invoice
-	 *
-	 * @return \Illuminate\Http\Response
-	 *
-	 *
-	 * @OA\Get(
-	 *      path="/api/v1/invoices/{id}",
-	 *      operationId="showInvoice",
-	 *      tags={"invoices"},
-	 *      summary="Shows an invoice",
-	 *      description="Displays an invoice by id",
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(ref="#/components/parameters/include"),
-	 *      @OA\Parameter(
-	 *          name="id",
-	 *          in="path",
-	 *          description="The Invoice Hashed ID",
-	 *          example="D2J234DFA",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
-	 *      @OA\Response(
-	 *          response=200,
-	 *          description="Returns the invoice object",
-	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-	 *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
-	 *       ),
-	 *       @OA\Response(
-	 *          response=422,
-	 *          description="Validation error",
-	 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-	 *
-	 *       ),
-	 *       @OA\Response(
-	 *           response="default",
-	 *           description="Unexpected Error",
-	 *           @OA\JsonContent(ref="#/components/schemas/Error"),
-	 *       ),
-	 *     )
-	 *
-	 */
-	public function show(ShowInvoiceRequest $request, Invoice $invoice) {
-		return $this->itemResponse($invoice);
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param      \App\Http\Requests\Invoice\EditInvoiceRequest  $request  The request
-	 * @param      \App\Models\Invoice                            $invoice  The invoice
-	 *
-	 * @return \Illuminate\Http\Response
-	 *
-	 * @OA\Get(
-	 *      path="/api/v1/invoices/{id}/edit",
-	 *      operationId="editInvoice",
-	 *      tags={"invoices"},
-	 *      summary="Shows an invoice for editting",
-	 *      description="Displays an invoice by id",
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(ref="#/components/parameters/include"),
-	 *      @OA\Parameter(
-	 *          name="id",
-	 *          in="path",
-	 *          description="The Invoice Hashed ID",
-	 *          example="D2J234DFA",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
-	 *      @OA\Response(
-	 *          response=200,
-	 *          description="Returns the invoice object",
-	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-	 *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
-	 *       ),
-	 *       @OA\Response(
-	 *          response=422,
-	 *          description="Validation error",
-	 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-	 *
-	 *       ),
-	 *       @OA\Response(
-	 *           response="default",
-	 *           description="Unexpected Error",
-	 *           @OA\JsonContent(ref="#/components/schemas/Error"),
-	 *       ),
-	 *     )
-	 *
-	 */
-	public function edit(EditInvoiceRequest $request, Invoice $invoice) {
-		return $this->itemResponse($invoice);
-	}
-
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param      \App\Http\Requests\Invoice\UpdateInvoiceRequest  $request  The request
-	 * @param      \App\Models\Invoice                              $invoice  The invoice
-	 *
-	 * @return \Illuminate\Http\Response
-	 *
-	 *
-	 * @OA\Put(
-	 *      path="/api/v1/invoices/{id}",
-	 *      operationId="updateInvoice",
-	 *      tags={"invoices"},
-	 *      summary="Updates an invoice",
-	 *      description="Handles the updating of an invoice by id",
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(ref="#/components/parameters/include"),
-	 *      @OA\Parameter(
-	 *          name="id",
-	 *          in="path",
-	 *          description="The Invoice Hashed ID",
-	 *          example="D2J234DFA",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
-	 *      @OA\Response(
-	 *          response=200,
-	 *          description="Returns the invoice object",
-	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-	 *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
-	 *       ),
-	 *       @OA\Response(
-	 *          response=422,
-	 *          description="Validation error",
-	 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-	 *
-	 *       ),
-	 *       @OA\Response(
-	 *           response="default",
-	 *           description="Unexpected Error",
-	 *           @OA\JsonContent(ref="#/components/schemas/Error"),
-	 *       ),
-	 *     )
-	 *
-	 */
-	public function update(UpdateInvoiceRequest $request, Invoice $invoice) {
-		if ($request->entityIsDeleted($invoice)) {
-			return $request->disallowUpdate();
-		}
-
-		$invoice = $this->invoice_repo->save($request->all(), $invoice);
-
-		event(new InvoiceWasUpdated($invoice, $invoice->company));
-
-		return $this->itemResponse($invoice);
-	}
-
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param      \App\Http\Requests\Invoice\DestroyInvoiceRequest  $request
-	 * @param      \App\Models\Invoice                               $invoice
-	 *
-	 * @return     \Illuminate\Http\Response
-	 *
-	 * @OA\Delete(
-	 *      path="/api/v1/invoices/{id}",
-	 *      operationId="deleteInvoice",
-	 *      tags={"invoices"},
-	 *      summary="Deletes a invoice",
-	 *      description="Handles the deletion of an invoice by id",
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(ref="#/components/parameters/include"),
-	 *      @OA\Parameter(
-	 *          name="id",
-	 *          in="path",
-	 *          description="The Invoice Hashed ID",
-	 *          example="D2J234DFA",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
-	 *      @OA\Response(
-	 *          response=200,
-	 *          description="Returns a HTTP status",
-	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-	 *       ),
-	 *       @OA\Response(
-	 *          response=422,
-	 *          description="Validation error",
-	 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-	 *
-	 *       ),
-	 *       @OA\Response(
-	 *           response="default",
-	 *           description="Unexpected Error",
-	 *           @OA\JsonContent(ref="#/components/schemas/Error"),
-	 *       ),
-	 *     )
-	 *
-	 */
-	public function destroy(DestroyInvoiceRequest $request, Invoice $invoice) {
-		$invoice->delete();
-
-		return response()->json([], 200);
-	}
-
-	/**
-	 * Perform bulk actions on the list view
-	 *
-	 * @return Collection
-	 *
-	 * @OA\Post(
-	 *      path="/api/v1/invoices/bulk",
-	 *      operationId="bulkInvoices",
-	 *      tags={"invoices"},
-	 *      summary="Performs bulk actions on an array of invoices",
-	 *      description="",
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(ref="#/components/parameters/index"),
-	 *      @OA\RequestBody(
-	 *         description="User credentials",
-	 *         required=true,
-	 *         @OA\MediaType(
-	 *             mediaType="application/json",
-	 *             @OA\Schema(
-	 *                 type="array",
-	 *                 @OA\Items(
-	 *                     type="integer",
-	 *                     description="Array of hashed IDs to be bulk 'actioned",
-	 *                     example="[0,1,2,3]",
-	 *                 ),
-	 *             )
-	 *         )
-	 *     ),
-	 *      @OA\Response(
-	 *          response=200,
-	 *          description="The Bulk Action response",
-	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-	 *       ),
-	 *       @OA\Response(
-	 *          response=422,
-	 *          description="Validation error",
-	 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
-	 *       ),
-	 *       @OA\Response(
-	 *           response="default",
-	 *           description="Unexpected Error",
-	 *           @OA\JsonContent(ref="#/components/schemas/Error"),
-	 *       ),
-	 *     )
-	 *
-	 */
-	public function bulk() {
-
-		/*
-		 * WIP!
-		 */
-		$action = request()->input('action');
-
-		$ids = request()->input('ids');
-
-		$invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
-
-		if (!$invoices) {
-			return response()->json(['message' => 'No Invoices Found']);
-		}
-
-		/*
-		 * Download Invoice/s
-		 */
-
-		if($action == 'download' && $invoices->count() > 1)
-		{
-			
-			$invoices->each(function ($invoice) {
-
-				if(auth()->user()->cannot('view', $invoice)){
-					return response()->json(['message'=>'Insufficient privileges to access invoice '. $invoice->number]);
-				}
-
-			});
-
-			ZipInvoices::dispatch($invoices, $invoices->first()->company, auth()->user()->email);
-
-			return response()->json(['message' => 'Email Sent!'],200);
-		}
-
-		/*
-		 * Send the other actions to the switch
-		 */
-		$invoices->each(function ($invoice, $key) use ($action) {
-
-			if (auth()->user()->can('edit', $invoice)) {
-				$this->performAction($invoice, $action, true);
-			}
-
-		});
-
-		/* Need to understand which permission are required for the given bulk action ie. view / edit */
-
-		return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
-	}
-
-
-	/**
-	 *
-	 * @OA\Get(
-	 *      path="/api/v1/invoices/{id}/{action}",
-	 *      operationId="actionInvoice",
-	 *      tags={"invoices"},
-	 *      summary="Performs a custom action on an invoice",
-	 *      description="Performs a custom action on an invoice.
+    /**
+     * InvoiceController constructor.
      *
-	 *		The current range of actions are as follows
-	 *		- clone_to_invoice
-	 *		- clone_to_quote
-	 *		- history
-	 *		- delivery_note
-	 *		- mark_paid
-	 *		- download
-	 *		- archive
-	 *		- delete
-	 *		- email",
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(ref="#/components/parameters/include"),
-	 *      @OA\Parameter(
-	 *          name="id",
-	 *          in="path",
-	 *          description="The Invoice Hashed ID",
-	 *          example="D2J234DFA",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
-	 *      @OA\Parameter(
-	 *          name="action",
-	 *          in="path",
-	 *          description="The action string to be performed",
-	 *          example="clone_to_quote",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
-	 *      @OA\Response(
-	 *          response=200,
-	 *          description="Returns the invoice object",
-	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-	 *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
-	 *       ),
-	 *       @OA\Response(
-	 *          response=422,
-	 *          description="Validation error",
-	 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-	 *
-	 *       ),
-	 *       @OA\Response(
-	 *           response="default",
-	 *           description="Unexpected Error",
-	 *           @OA\JsonContent(ref="#/components/schemas/Error"),
-	 *       ),
-	 *     )
-	 *
-	 */
-	public function action(ActionInvoiceRequest $request, Invoice $invoice, $action) {
-		return $this->performAction($invoice, $action);
-	}
+     * @param      \App\Repositories\InvoiceRepository  $invoice_repo  The invoice repo
+     */
+    public function __construct(InvoiceRepository $invoice_repo)
+    {
+        parent::__construct();
 
-	private function performAction(Invoice $invoice, $action, $bulk = false) {
-		/*If we are using bulk actions, we don't want to return anything */
-		switch ($action) {
-			case 'clone_to_invoice':
-				$invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
-				return $this->itemResponse($invoice);
-				break;
-			case 'clone_to_quote':
-				$quote = CloneInvoiceToQuoteFactory::create($invoice, auth()->user()->id);
-				// todo build the quote transformer and return response here
-				break;
-			case 'history':
-				# code...
-				break;
-			case 'delivery_note':
-				# code...
-				break;
-			case 'mark_paid':
-				if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
-					return $this->errorResponse(['message' => 'Invoice cannot be marked as paid'], 400);
-				}
+        $this->invoice_repo = $invoice_repo;
+    }
 
-				$invoice = $invoice->service()->markPaid();
+    /**
+     * Show the list of Invoices
+     *
+     * @param      \App\Filters\InvoiceFilters  $filters  The filters
+     *
+     * @return \Illuminate\Http\Response
+     *
+     * @OA\Get(
+     *      path="/api/v1/invoices",
+     *      operationId="getInvoices",
+     *      tags={"invoices"},
+     *      summary="Gets a list of invoices",
+     *      description="Lists invoices, search and filters allow fine grained lists to be generated.
+     *
+     *		Query parameters can be added to performed more fine grained filtering of the invoices, these are handled by the InvoiceFilters class which defines the methods available",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="A list of invoices",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
 
-				if (!$bulk) {
-					return $this->itemResponse($invoice);
-				}
-				break;
-			case 'mark_sent':
-				$invoice->service()->markSent()->save();
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function index(InvoiceFilters $filters)
+    {
+        $invoices = Invoice::filter($filters);
 
-				if (!$bulk) {
-					return $this->itemResponse($invoice);
-				}
-				break;
-			case 'download':
-				return response()->download(public_path($invoice->pdf_file_path()));
-				break;
-			case 'archive':
-				$this->invoice_repo->archive($invoice);
+        return $this->listResponse($invoices);
+    }
 
-				if (!$bulk) {
-					return $this->listResponse($invoice);
-				}
-				break;
-			case 'delete':
-				$this->invoice_repo->delete($invoice);
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @param      \App\Http\Requests\Invoice\CreateInvoiceRequest  $request  The request
+     *
+     * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Get(
+     *      path="/api/v1/invoices/create",
+     *      operationId="getInvoicesCreate",
+     *      tags={"invoices"},
+     *      summary="Gets a new blank invoice object",
+     *      description="Returns a blank object with default values",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="A blank invoice object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function create(CreateInvoiceRequest $request)
+    {
+        $invoice = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
-				if (!$bulk) {
-					return $this->listResponse($invoice);
-				}
-				break;
-			case 'email':
+        return $this->itemResponse($invoice);
+    }
 
-				$this->reminder_template = $invoice->calculateTemplate();
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param      \App\Http\Requests\Invoice\StoreInvoiceRequest  $request  The request
+     *
+     * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/invoices",
+     *      operationId="storeInvoice",
+     *      tags={"invoices"},
+     *      summary="Adds a invoice",
+     *      description="Adds an invoice to the system",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the saved invoice object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function store(StoreInvoiceRequest $request)
+    {
+        $client = Client::find($request->input('client_id'));
 
-				$invoice->invitations->each(function ($invitation) use($invoice){
+        $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-            		$email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
+        $invoice = StoreInvoice::dispatchNow($invoice, $request->all(), $invoice->company);//todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
 
-					EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
+        event(new InvoiceWasCreated($invoice, $invoice->company));
 
-				});
+        return $this->itemResponse($invoice);
+    }
 
-				if($invoice->invitations->count() > 0){
-					\Log::error("more than one invitation to send");
-					event(new InvoiceWasEmailed($invoice->invitations->first()));
-				}
+    /**
+     * Display the specified resource.
+     *
+     * @param      \App\Http\Requests\Invoice\ShowInvoiceRequest  $request  The request
+     * @param      \App\Models\Invoice                            $invoice  The invoice
+     *
+     * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Get(
+     *      path="/api/v1/invoices/{id}",
+     *      operationId="showInvoice",
+     *      tags={"invoices"},
+     *      summary="Shows an invoice",
+     *      description="Displays an invoice by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Invoice Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the invoice object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function show(ShowInvoiceRequest $request, Invoice $invoice)
+    {
+        return $this->itemResponse($invoice);
+    }
 
-				if (!$bulk) {
-					return response()->json(['message' => 'email sent'], 200);
-				}
-				break;
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param      \App\Http\Requests\Invoice\EditInvoiceRequest  $request  The request
+     * @param      \App\Models\Invoice                            $invoice  The invoice
+     *
+     * @return \Illuminate\Http\Response
+     *
+     * @OA\Get(
+     *      path="/api/v1/invoices/{id}/edit",
+     *      operationId="editInvoice",
+     *      tags={"invoices"},
+     *      summary="Shows an invoice for editting",
+     *      description="Displays an invoice by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Invoice Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the invoice object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function edit(EditInvoiceRequest $request, Invoice $invoice)
+    {
+        return $this->itemResponse($invoice);
+    }
 
-			default:
-				return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
-			break;
-		}
-	}
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param      \App\Http\Requests\Invoice\UpdateInvoiceRequest  $request  The request
+     * @param      \App\Models\Invoice                              $invoice  The invoice
+     *
+     * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/invoices/{id}",
+     *      operationId="updateInvoice",
+     *      tags={"invoices"},
+     *      summary="Updates an invoice",
+     *      description="Handles the updating of an invoice by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Invoice Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the invoice object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function update(UpdateInvoiceRequest $request, Invoice $invoice)
+    {
+        if ($request->entityIsDeleted($invoice)) {
+            return $request->disallowUpdate();
+        }
 
-	/**
-	 *
-	 * @OA\Get(
-	 *      path="/api/v1/invoice/{invitation_key}/download",
-	 *      operationId="downloadInvoice",
-	 *      tags={"invoices"},
-	 *      summary="Download a specific invoice by invitation key",
-	 *      description="Downloads a specific invoice",
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-	 *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-	 *      @OA\Parameter(ref="#/components/parameters/include"),
-	 *      @OA\Parameter(
-	 *          name="invitation_key",
-	 *          in="path",
-	 *          description="The Invoice Invitation Key",
-	 *          example="D2J234DFA",
-	 *          required=true,
-	 *          @OA\Schema(
-	 *              type="string",
-	 *              format="string",
-	 *          ),
-	 *      ),
-	 *      @OA\Response(
-	 *          response=200,
-	 *          description="Returns the invoice pdf",
-	 *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-	 *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-	 *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-	 *       ),
-	 *       @OA\Response(
-	 *          response=422,
-	 *          description="Validation error",
-	 *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-	 *
-	 *       ),
-	 *       @OA\Response(
-	 *           response="default",
-	 *           description="Unexpected Error",
-	 *           @OA\JsonContent(ref="#/components/schemas/Error"),
-	 *       ),
-	 *     )
-	 *
-	 */
-	public function downloadPdf($invitation_key) {
+        $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
-		$invitation = $this->invoice_repo->getInvitationByKey($invitation_key);
-		$contact    = $invitation->contact;
-		$invoice    = $invitation->invoice;
+        event(new InvoiceWasUpdated($invoice, $invoice->company));
 
-		$file_path = $invoice->service()->getInvoicePdf($contact); 
+        return $this->itemResponse($invoice);
+    }
 
-		return response()->download($file_path);
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param      \App\Http\Requests\Invoice\DestroyInvoiceRequest  $request
+     * @param      \App\Models\Invoice                               $invoice
+     *
+     * @return     \Illuminate\Http\Response
+     *
+     * @OA\Delete(
+     *      path="/api/v1/invoices/{id}",
+     *      operationId="deleteInvoice",
+     *      tags={"invoices"},
+     *      summary="Deletes a invoice",
+     *      description="Handles the deletion of an invoice by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Invoice Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns a HTTP status",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function destroy(DestroyInvoiceRequest $request, Invoice $invoice)
+    {
+        $invoice->delete();
 
-	}
+        return response()->json([], 200);
+    }
+
+    /**
+     * Perform bulk actions on the list view
+     *
+     * @return Collection
+     *
+     * @OA\Post(
+     *      path="/api/v1/invoices/bulk",
+     *      operationId="bulkInvoices",
+     *      tags={"invoices"},
+     *      summary="Performs bulk actions on an array of invoices",
+     *      description="",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\RequestBody(
+     *         description="User credentials",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="integer",
+     *                     description="Array of hashed IDs to be bulk 'actioned",
+     *                     example="[0,1,2,3]",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The Bulk Action response",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function bulk()
+    {
+
+        /*
+         * WIP!
+         */
+        $action = request()->input('action');
+
+        $ids = request()->input('ids');
+
+        $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+
+        if (!$invoices) {
+            return response()->json(['message' => 'No Invoices Found']);
+        }
+
+        /*
+         * Download Invoice/s
+         */
+
+        if ($action == 'download' && $invoices->count() > 1) {
+            $invoices->each(function ($invoice) {
+                if (auth()->user()->cannot('view', $invoice)) {
+                    return response()->json(['message'=>'Insufficient privileges to access invoice '. $invoice->number]);
+                }
+            });
+
+            ZipInvoices::dispatch($invoices, $invoices->first()->company, auth()->user()->email);
+
+            return response()->json(['message' => 'Email Sent!'], 200);
+        }
+
+        /*
+         * Send the other actions to the switch
+         */
+        $invoices->each(function ($invoice, $key) use ($action) {
+            if (auth()->user()->can('edit', $invoice)) {
+                $this->performAction($invoice, $action, true);
+            }
+        });
+
+        /* Need to understand which permission are required for the given bulk action ie. view / edit */
+
+        return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+    }
+
+
+    /**
+     *
+     * @OA\Get(
+     *      path="/api/v1/invoices/{id}/{action}",
+     *      operationId="actionInvoice",
+     *      tags={"invoices"},
+     *      summary="Performs a custom action on an invoice",
+     *      description="Performs a custom action on an invoice.
+     *
+     *		The current range of actions are as follows
+     *		- clone_to_invoice
+     *		- clone_to_quote
+     *		- history
+     *		- delivery_note
+     *		- mark_paid
+     *		- download
+     *		- archive
+     *		- delete
+     *		- email",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Invoice Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Parameter(
+     *          name="action",
+     *          in="path",
+     *          description="The action string to be performed",
+     *          example="clone_to_quote",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the invoice object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function action(ActionInvoiceRequest $request, Invoice $invoice, $action)
+    {
+        return $this->performAction($invoice, $action);
+    }
+
+    private function performAction(Invoice $invoice, $action, $bulk = false)
+    {
+        /*If we are using bulk actions, we don't want to return anything */
+        switch ($action) {
+            case 'clone_to_invoice':
+                $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
+                return $this->itemResponse($invoice);
+                break;
+            case 'clone_to_quote':
+                $quote = CloneInvoiceToQuoteFactory::create($invoice, auth()->user()->id);
+                // todo build the quote transformer and return response here
+                break;
+            case 'history':
+                # code...
+                break;
+            case 'delivery_note':
+                # code...
+                break;
+            case 'mark_paid':
+                if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
+                    return $this->errorResponse(['message' => 'Invoice cannot be marked as paid'], 400);
+                }
+
+                $invoice = $invoice->service()->markPaid();
+
+                if (!$bulk) {
+                    return $this->itemResponse($invoice);
+                }
+                break;
+            case 'mark_sent':
+                $invoice->service()->markSent()->save();
+
+                if (!$bulk) {
+                    return $this->itemResponse($invoice);
+                }
+                break;
+            case 'download':
+                return response()->download(public_path($invoice->pdf_file_path()));
+                break;
+            case 'archive':
+                $this->invoice_repo->archive($invoice);
+
+                if (!$bulk) {
+                    return $this->listResponse($invoice);
+                }
+                break;
+            case 'delete':
+                $this->invoice_repo->delete($invoice);
+
+                if (!$bulk) {
+                    return $this->listResponse($invoice);
+                }
+                break;
+            case 'email':
+
+                $this->reminder_template = $invoice->calculateTemplate();
+
+                $invoice->invitations->each(function ($invitation) use ($invoice) {
+                    $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
+
+                    EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
+                });
+
+                if ($invoice->invitations->count() > 0) {
+                    \Log::error("more than one invitation to send");
+                    event(new InvoiceWasEmailed($invoice->invitations->first()));
+                }
+
+                if (!$bulk) {
+                    return response()->json(['message' => 'email sent'], 200);
+                }
+                break;
+
+            default:
+                return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
+            break;
+        }
+    }
+
+    /**
+     *
+     * @OA\Get(
+     *      path="/api/v1/invoice/{invitation_key}/download",
+     *      operationId="downloadInvoice",
+     *      tags={"invoices"},
+     *      summary="Download a specific invoice by invitation key",
+     *      description="Downloads a specific invoice",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="invitation_key",
+     *          in="path",
+     *          description="The Invoice Invitation Key",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the invoice pdf",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function downloadPdf($invitation_key)
+    {
+        $invitation = $this->invoice_repo->getInvitationByKey($invitation_key);
+        $contact    = $invitation->contact;
+        $invoice    = $invitation->invoice;
+
+        $file_path = $invoice->service()->getInvoicePdf($contact);
+
+        return response()->download($file_path);
+    }
 }

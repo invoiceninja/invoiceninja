@@ -12,136 +12,128 @@ use Tests\TestCase;
  */
 class PdfGenerationTest extends TestCase
 {
-	
     public function setUp() :void
     {
-    
-    parent::setUp();
-	
-	}
+        parent::setUp();
+    }
 
-	private function makePdf($header, $footer, $html, $pdf)
-	{
-			Browsershot::html($html)
-	        //->showBrowserHeaderAndFooter()
-	        //->headerHtml($header)
-			//->footerHtml($footer)
-		    ->waitUntilNetworkIdle()
-			//->margins(10,10,10,10)
-			->savePdf($pdf);
-	}
+    private function makePdf($header, $footer, $html, $pdf)
+    {
+        Browsershot::html($html)
+            //->showBrowserHeaderAndFooter()
+            //->headerHtml($header)
+            //->footerHtml($footer)
+            ->waitUntilNetworkIdle()
+            //->margins(10,10,10,10)
+            ->savePdf($pdf);
+    }
 
-	public function testPdfGeneration()
-	{
-		$html = file_get_contents(base_path().'/tests/Pdf/invoice.html');
-		$pdf = base_path().'/tests/Pdf/invoice.pdf';
+    public function testPdfGeneration()
+    {
+        $html = file_get_contents(base_path().'/tests/Pdf/invoice.html');
+        $pdf = base_path().'/tests/Pdf/invoice.pdf';
 
 
-		$header = '<div style="font-size:14px;"<header></header>';
+        $header = '<div style="font-size:14px;"<header></header>';
 
-		$footer = ' <div style="font-size:14px;"><footer>
+        $footer = ' <div style="font-size:14px;"><footer>
                 <span class="pageNumber"></span> / <span class="totalPages"></span>
             </footer></div>';
 
-            $this->makePdf($header, $footer, $html, $pdf);
+        $this->makePdf($header, $footer, $html, $pdf);
 
-		$this->assertTrue(file_exists($pdf));
-
-
-		unlink($pdf);
-
-	}
-
-	public function testPdfGeneration2()
-	{
-		$html = file_get_contents(base_path().'/tests/Pdf/invoice2.html');
-		$pdf = base_path().'/tests/Pdf/invoice2.pdf';
+        $this->assertTrue(file_exists($pdf));
 
 
-		$header = '<div style="font-size:14px;"<header></header>';
+        unlink($pdf);
+    }
 
-		$footer = ' <div style="font-size:14px;"><footer>
+    public function testPdfGeneration2()
+    {
+        $html = file_get_contents(base_path().'/tests/Pdf/invoice2.html');
+        $pdf = base_path().'/tests/Pdf/invoice2.pdf';
+
+
+        $header = '<div style="font-size:14px;"<header></header>';
+
+        $footer = ' <div style="font-size:14px;"><footer>
                 <span class="pageNumber"></span> / <span class="totalPages"></span>
             </footer></div>';
 
-            $this->makePdf($header, $footer, $html, $pdf);
+        $this->makePdf($header, $footer, $html, $pdf);
 
 
-		$this->assertTrue(file_exists($pdf));
+        $this->assertTrue(file_exists($pdf));
 
 
-		unlink($pdf);
+        unlink($pdf);
+    }
 
-	}
-
-		public function testPdfGeneration3()
-	{
-		$html = file_get_contents(base_path().'/tests/Pdf/invoice3.html');
-		$pdf = base_path().'/tests/Pdf/invoice3.pdf';
+    public function testPdfGeneration3()
+    {
+        $html = file_get_contents(base_path().'/tests/Pdf/invoice3.html');
+        $pdf = base_path().'/tests/Pdf/invoice3.pdf';
 
 
-		$header = '<div style="font-size:14px;"<header></header>';
+        $header = '<div style="font-size:14px;"<header></header>';
 
-		$footer = ' <div style="font-size:14px;"><footer>
+        $footer = ' <div style="font-size:14px;"><footer>
                 <span class="pageNumber"></span> / <span class="totalPages"></span>
             </footer></div>';
 
-            $this->makePdf($header, $footer, $html, $pdf);
+        $this->makePdf($header, $footer, $html, $pdf);
 
 
-		$this->assertTrue(file_exists($pdf));
+        $this->assertTrue(file_exists($pdf));
 
 
-		unlink($pdf);
+        unlink($pdf);
+    }
 
-	}
-
-	public function testPdfGeneration4()
-	{
-		$html = file_get_contents(base_path().'/tests/Pdf/invoice4.html');
-		$pdf = base_path().'/tests/Pdf/invoice4.pdf';
+    public function testPdfGeneration4()
+    {
+        $html = file_get_contents(base_path().'/tests/Pdf/invoice4.html');
+        $pdf = base_path().'/tests/Pdf/invoice4.pdf';
 
 
-		$header = '<div style="font-size:14px;"<header></header>';
+        $header = '<div style="font-size:14px;"<header></header>';
 
-		$footer = ' <div style="font-size:14px;"><footer>
+        $footer = ' <div style="font-size:14px;"><footer>
                 <span class="pageNumber"></span> / <span class="totalPages"></span>
             </footer></div>';
 
 
-            $this->makePdf($header, $footer, $html, $pdf);
+        $this->makePdf($header, $footer, $html, $pdf);
 
 
 
-		$this->assertTrue(file_exists($pdf));
+        $this->assertTrue(file_exists($pdf));
 
 
-		unlink($pdf);
-
-	}
-
-
-	public function testPdfGeneration5()
-	{
-		$html = file_get_contents(base_path().'/tests/Pdf/invoice5.html');
-		$pdf = base_path().'/tests/Pdf/invoice5.pdf';
+        unlink($pdf);
+    }
 
 
-		$header = '<div style="font-size:14px;"<header></header>';
+    public function testPdfGeneration5()
+    {
+        $html = file_get_contents(base_path().'/tests/Pdf/invoice5.html');
+        $pdf = base_path().'/tests/Pdf/invoice5.pdf';
 
-		$footer = ' <div style="font-size:14px;"><footer>
+
+        $header = '<div style="font-size:14px;"<header></header>';
+
+        $footer = ' <div style="font-size:14px;"><footer>
                 <span class="pageNumber"></span> / <span class="totalPages"></span>
             </footer></div>';
 
 
-            $this->makePdf($header, $footer, $html, $pdf);
+        $this->makePdf($header, $footer, $html, $pdf);
 
 
 
-		$this->assertTrue(file_exists($pdf));
+        $this->assertTrue(file_exists($pdf));
 
 
-		unlink($pdf);
-
-	}
+        unlink($pdf);
+    }
 }

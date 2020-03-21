@@ -106,12 +106,12 @@ class Payment extends BaseModel
 
     public function invoices()
     {
-        return $this->morphedByMany(Invoice::class, 'paymentable')->withPivot('amount','refunded')->withTimestamps();
+        return $this->morphedByMany(Invoice::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps();
     }
 
     public function credits()
     {
-        return $this->morphedByMany(Credit::class, 'paymentable')->withPivot('amount','refunded')->withTimestamps();
+        return $this->morphedByMany(Credit::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps();
     }
 
     public function company_ledger()
@@ -191,9 +191,7 @@ class Payment extends BaseModel
 
     public function refund(array $data) :Payment
     {
-
         return $this->processRefund($data);
-
     }
 
     /**
@@ -257,5 +255,4 @@ class Payment extends BaseModel
 
         event(new PaymentWasVoided($this));
     }
-    
 }

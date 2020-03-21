@@ -49,11 +49,9 @@ class UpdateCompanyUserTest extends TestCase
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id), $user);
-
-        }
-        catch(ValidationException $e) {
-           // \Log::error('in the validator');
-            $message = json_decode($e->validator->getMessageBag(),1);
+        } catch (ValidationException $e) {
+            // \Log::error('in the validator');
+            $message = json_decode($e->validator->getMessageBag(), 1);
             //\Log::error($message);
             $this->assertNotNull($message);
         }
@@ -64,5 +62,4 @@ class UpdateCompanyUserTest extends TestCase
 
         $this->assertEquals('ninja', $arr['data']['settings']['invoice']);
     }
-
 }

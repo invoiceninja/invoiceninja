@@ -64,7 +64,6 @@ class CreditTest extends TestCase
         $this->assertNotNull($company);
 
         factory(Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
-
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
@@ -148,7 +147,7 @@ class CreditTest extends TestCase
 
     public function testDeleteCredit()
     {
-            $response = $this->withHeaders([
+        $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->delete('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id));

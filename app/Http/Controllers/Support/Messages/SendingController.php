@@ -71,8 +71,9 @@ class SendingController extends Controller
 
         $send_logs = false;
 
-        if($request->has('send_logs'))
+        if ($request->has('send_logs')) {
             $send_logs = $request->input('send_logs');
+        }
 
         Mail::to(config('ninja.contact.ninja_official_contact'))
             ->send(new SupportMessageSent($request->message, $send_logs));

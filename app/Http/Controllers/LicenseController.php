@@ -19,7 +19,6 @@ use Illuminate\Http\Request;
 
 class LicenseController extends BaseController
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -84,9 +83,7 @@ class LicenseController extends BaseController
     {
 
         /* Catch claim license requests */
-        if(config('ninja.environment') == 'selfhost' && $request->has('license_key'))
-        {
-
+        if (config('ninja.environment') == 'selfhost' && $request->has('license_key')) {
             $license_key = $request->input('license_key');
             $product_id = 3;
 
@@ -94,29 +91,23 @@ class LicenseController extends BaseController
             $data = trim(CurlUtils::get($url));
 
             if ($data == Account::RESULT_FAILURE) {
-
                 $error = [
                     'message' => trans('texts.invalid_white_label_license'),
                     'errors' => []
                 ];
 
                 return response()->json($error, 400);
-
             } elseif ($data) {
-
                 $date = date_create($data)->modify('+1 year');
 
                 if ($date < date_create()) {
-
                     $error = [
                         'message' => trans('texts.invalid_white_label_license'),
                         'errors' => []
                     ];
 
                     return response()->json($error, 400);
-
                 } else {
-
                     $account = auth()->user()->company()->account;
 
                     $account->plan_term = Account::PLAN_TERM_YEARLY;
@@ -131,19 +122,15 @@ class LicenseController extends BaseController
                     ];
 
                     return response()->json($error, 200);
-
                 }
             } else {
-
-                    $error = [
+                $error = [
                         'message' => trans('texts.white_label_license_error'),
                         'errors' => []
                     ];
 
-                    return response()->json($error, 400);
-
+                return response()->json($error, 400);
             }
-
         }
 
         $error = [
@@ -153,6 +140,4 @@ class LicenseController extends BaseController
 
         return response()->json($error, 400);
     }
-
-
 }

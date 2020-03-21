@@ -8,7 +8,6 @@ use App\Models\Quote;
 
 class SendEmail
 {
-
     public $quote;
 
     public function __construct($quote)
@@ -27,17 +26,12 @@ class SendEmail
             $reminder_template = $this->quote->status_id == Quote::STATUS_DRAFT || Carbon::parse($this->quote->due_date) > now() ? 'invoice' : $this->quote->calculateTemplate();
         }
 
-        $this->quote->invitations->each(function ($invitation){
-
-            if ($invitation->contact->send && $invitation->contact->email) 
-            {
-
+        $this->quote->invitations->each(function ($invitation) {
+            if ($invitation->contact->send && $invitation->contact->email) {
                 $email_builder = (new QuoteEmail())->build($invitation, $reminder_template);
 
                 EmailQuote::dispatchNow($email_builder, $invitation);
             }
         });
-
-
     }
 }

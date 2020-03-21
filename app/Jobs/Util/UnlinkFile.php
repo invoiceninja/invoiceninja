@@ -31,8 +31,6 @@ class UnlinkFile implements ShouldQueue
      */
     public function handle()
     {
-
         Storage::disk($this->disk)->delete($this->file_path);
-
     }
 }

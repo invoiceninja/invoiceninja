@@ -50,6 +50,4 @@ class ProjectTransformer extends EntityTransformer
             'custom_value4' => $project->custom_value4 ?: '',
         ];
     }
-
 }
-

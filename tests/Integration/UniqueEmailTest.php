@@ -26,8 +26,9 @@ class UniqueEmailTest extends TestCase
 
         User::unguard();
 
-        if (! config('ninja.db.multi_db_enabled'))
+        if (! config('ninja.db.multi_db_enabled')) {
             $this->markTestSkipped('Multi DB not enabled - skipping');
+        }
 
         $this->rule = new NewUniqueUserRule();
 
@@ -74,26 +75,21 @@ class UniqueEmailTest extends TestCase
 
         User::on('db-ninja-01')->create($user);
         User::on('db-ninja-02')->create($user2);
-
     }
 
     public function test_unique_emails_detected_on_database()
     {
-
         $this->assertFalse($this->rule->passes('email', 'user@example.com'));
-
     }
 
     public function test_no_unique_emails_detected()
     {
-
         $this->assertTrue($this->rule->passes('email', 'nohit@example.com'));
-
     }
 
     public function tearDown() :void
-    {         
-         DB::connection('db-ninja-01')->table('users')->delete();
-         DB::connection('db-ninja-02')->table('users')->delete();
+    {
+        DB::connection('db-ninja-01')->table('users')->delete();
+        DB::connection('db-ninja-02')->table('users')->delete();
     }
 }

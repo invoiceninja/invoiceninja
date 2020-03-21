@@ -69,7 +69,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder1Template()
     {
-      //  return Parsedown::instance()->line('First Email Reminder Text');
+        //  return Parsedown::instance()->line('First Email Reminder Text');
     }
 
     public static function emailReminder2Subject()
@@ -80,7 +80,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder2Template()
     {
-      //  return Parsedown::instance()->line('Second Email Reminder Text');
+        //  return Parsedown::instance()->line('Second Email Reminder Text');
     }
 
     public static function emailReminder3Subject()
@@ -91,7 +91,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder3Template()
     {
-      //  return Parsedown::instance()->line('Third Email Reminder Text');
+        //  return Parsedown::instance()->line('Third Email Reminder Text');
     }
 
     public static function emailReminderEndlessSubject()

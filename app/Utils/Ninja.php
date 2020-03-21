@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\DB;
  */
 class Ninja
 {
-
     const TEST_USERNAME = 'user@example.com';
 
     public static function isSelfHost()
@@ -65,10 +64,11 @@ class Ninja
         $data = trim(CurlUtils::post('https://license.invoiceninja.com/api/check', $data));
         $data = json_decode($data);
 
-        if($data->message == sha1(config('ninja.license')))
+        if ($data->message == sha1(config('ninja.license'))) {
             return false;
-        else
+        } else {
             return true;
+        }
     }
 
     public static function parse()
@@ -108,5 +108,4 @@ class Ninja
         curl_exec($ch);
         curl_close($ch);
     }
-
 }

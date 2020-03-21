@@ -22,17 +22,17 @@ class EntitySentNotification extends Notification implements ShouldQueue
      * @return void
      */
     
-    protected   $invitation;
+    protected $invitation;
     
-    protected   $entity;
+    protected $entity;
 
-    protected   $entity_name;
+    protected $entity_name;
 
-    protected   $settings; 
+    protected $settings;
 
-    public      $is_system;
+    public $is_system;
 
-    public   $method;
+    public $method;
 
     protected $contact;
 
@@ -69,22 +69,25 @@ class EntitySentNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-
         $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
-        $subject = ctrans("texts.notification_{$this->entity_name}_sent_subject", 
-                [
-                    'client' => $this->contact->present()->name(), 
+        $subject = ctrans(
+            "texts.notification_{$this->entity_name}_sent_subject",
+            [
+                    'client' => $this->contact->present()->name(),
                     'invoice' => $this->entity->number,
-                ]);
+                ]
+        );
 
         $data = [
             'title' => $subject,
-            'message' => ctrans("texts.notification_{$this->entity_name}_sent", 
+            'message' => ctrans(
+                "texts.notification_{$this->entity_name}_sent",
                 [
-                    'amount' => $amount, 
-                    'client' => $this->contact->present()->name(), 
+                    'amount' => $amount,
+                    'client' => $this->contact->present()->name(),
                     'invoice' => $this->entity->number,
-                ]),
+                ]
+            ),
             'url' => $this->invitation->getAdminLink(),
             'button' => ctrans("texts.view_{$this->entity_name}"),
             'signature' => $this->settings->email_signature,
@@ -95,8 +98,6 @@ class EntitySentNotification extends Notification implements ShouldQueue
         return (new MailMessage)
                     ->subject($subject)
                     ->markdown('email.admin.generic', $data);
-
-
     }
 
     /**
@@ -121,10 +122,10 @@ class EntitySentNotification extends Notification implements ShouldQueue
         //         ->success()
         //         ->from(ctrans('texts.notification_bot'))
         //         ->image($logo)
-        //         ->content(ctrans('texts.notification_invoice_sent', 
+        //         ->content(ctrans('texts.notification_invoice_sent',
         //         [
-        //             'amount' => $amount, 
-        //             'client' => $this->contact->present()->name(), 
+        //             'amount' => $amount,
+        //             'client' => $this->contact->present()->name(),
         //             'invoice' => $this->invoice->number
         //         ]));
 
@@ -133,13 +134,15 @@ class EntitySentNotification extends Notification implements ShouldQueue
                     ->from(ctrans('texts.notification_bot'))
                     ->success()
                     ->image('https://app.invoiceninja.com/favicon-v2.png')
-                    ->content(trans("texts.notification_{$this->entity_name}_sent_subject",
-                    [
-                        'amount' => $amount, 
-                        'client' => $this->contact->present()->name(), 
+                    ->content(trans(
+                        "texts.notification_{$this->entity_name}_sent_subject",
+                        [
+                        'amount' => $amount,
+                        'client' => $this->contact->present()->name(),
                         'invoice' => $this->entity->number
-                    ]))
-                    ->attachment(function ($attachment) use($amount){
+                    ]
+                    ))
+                    ->attachment(function ($attachment) use ($amount) {
                         $attachment->title(ctrans('texts.invoice_number_placeholder', ['invoice' => $this->entity->number]), $this->invitation->getAdminLink())
                                    ->fields([
                                         ctrans('texts.client') => $this->contact->present()->name(),
@@ -147,5 +150,4 @@ class EntitySentNotification extends Notification implements ShouldQueue
                                     ]);
                     });
     }
-
 }

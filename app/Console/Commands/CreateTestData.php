@@ -122,7 +122,7 @@ class CreateTestData extends Command
             'settings' => null,
         ]);
 
-            factory(\App\Models\Product::class,50)->create([
+        factory(\App\Models\Product::class, 50)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
@@ -136,32 +136,28 @@ class CreateTestData extends Command
             $this->createClient($company, $user);
         }
 
-        foreach($company->clients as $client) {
-
+        foreach ($company->clients as $client) {
             $this->info('creating invoice for client #'.$client->id);
-                $this->createInvoice($client);
+            $this->createInvoice($client);
 
             $this->info('creating credit for client #'.$client->id);
-                $this->createCredit($client);
+            $this->createCredit($client);
 
             $this->info('creating quote for client #'.$client->id);
-                $this->createQuote($client);
+            $this->createQuote($client);
 
             $this->info('creating expense for client #'.$client->id);
-                $this->createExpense($client);
+            $this->createExpense($client);
 
             $this->info('creating vendor for client #'.$client->id);
-                $this->createVendor($client);    
+            $this->createVendor($client);
 
             $this->info('creating task for client #'.$client->id);
-                $this->createTask($client);    
+            $this->createTask($client);
 
             $this->info('creating project for client #'.$client->id);
-                $this->createProject($client);    
-
-
+            $this->createProject($client);
         }
-
     }
 
     private function createMediumAccount()
@@ -208,7 +204,7 @@ class CreateTestData extends Command
         ]);
 
 
-            factory(\App\Models\Product::class,50)->create([
+        factory(\App\Models\Product::class, 50)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
@@ -224,43 +220,49 @@ class CreateTestData extends Command
             $this->createClient($company, $user);
         }
 
-        foreach($company->clients as $client) {
-
+        foreach ($company->clients as $client) {
             $this->info('creating invoice for client #'.$client->id);
 
-                for($i=0; $i<$this->count; $i++)
-                    $this->createInvoice($client);
+            for ($i=0; $i<$this->count; $i++) {
+                $this->createInvoice($client);
+            }
 
             $this->info('creating credit for client #'.$client->id);
 
-                for($i=0; $i<$this->count; $i++)
-                    $this->createCredit($client);
+            for ($i=0; $i<$this->count; $i++) {
+                $this->createCredit($client);
+            }
 
 
             $this->info('creating quote for client #'.$client->id);
 
-                for($i=0; $i<$this->count; $i++)
-                    $this->createQuote($client);
+            for ($i=0; $i<$this->count; $i++) {
+                $this->createQuote($client);
+            }
 
             $this->info('creating expense for client #'.$client->id);
     
-                for($i=0; $i<$this->count; $i++)
-                    $this->createExpense($client);
+            for ($i=0; $i<$this->count; $i++) {
+                $this->createExpense($client);
+            }
 
             $this->info('creating vendor for client #'.$client->id);
         
-                for($i=0; $i<$this->count; $i++)
-                    $this->createVendor($client);    
+            for ($i=0; $i<$this->count; $i++) {
+                $this->createVendor($client);
+            }
 
             $this->info('creating task for client #'.$client->id);
                 
-                for($i=0; $i<$this->count; $i++)
-                    $this->createTask($client);    
+            for ($i=0; $i<$this->count; $i++) {
+                $this->createTask($client);
+            }
 
             $this->info('creating project for client #'.$client->id);
 
-                for($i=0; $i<$this->count; $i++)
-                    $this->createProject($client);    
+            for ($i=0; $i<$this->count; $i++) {
+                $this->createProject($client);
+            }
         }
     }
 
@@ -308,7 +310,7 @@ class CreateTestData extends Command
         ]);
 
 
-            factory(\App\Models\Product::class,50)->create([
+        factory(\App\Models\Product::class, 50)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
@@ -325,30 +327,28 @@ class CreateTestData extends Command
             $this->createClient($company, $user);
         }
 
-        foreach($company->clients as $client) {
-
+        foreach ($company->clients as $client) {
             $this->info('creating invoice for client #'.$client->id);
-                $this->createInvoice($client);
+            $this->createInvoice($client);
 
             $this->info('creating credit for client #'.$client->id);
-                $this->createCredit($client);
+            $this->createCredit($client);
 
             $this->info('creating quote for client #'.$client->id);
-                $this->createQuote($client);
+            $this->createQuote($client);
 
             $this->info('creating expense for client #'.$client->id);
-                $this->createExpense($client);
+            $this->createExpense($client);
 
             $this->info('creating vendor for client #'.$client->id);
-                $this->createVendor($client);    
+            $this->createVendor($client);
 
             $this->info('creating task for client #'.$client->id);
-                $this->createTask($client);    
+            $this->createTask($client);
 
             $this->info('creating project for client #'.$client->id);
-                $this->createProject($client);    
+            $this->createProject($client);
         }
-
     }
 
     private function createClient($company, $user)
@@ -357,42 +357,36 @@ class CreateTestData extends Command
         // dispatch(function () use ($company, $user) {
    
         // });
-            $client = factory(\App\Models\Client::class)->create([
+        $client = factory(\App\Models\Client::class)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id
             ]);
 
-            factory(\App\Models\ClientContact::class, 1)->create([
+        factory(\App\Models\ClientContact::class, 1)->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
                     'company_id' => $company->id,
                     'is_primary' => 1
                 ]);
 
-            factory(\App\Models\ClientContact::class, rand(1, 5))->create([
+        factory(\App\Models\ClientContact::class, rand(1, 5))->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
                     'company_id' => $company->id
                 ]);
-
-
-
     }
 
     private function createExpense($client)
     {
-
         factory(\App\Models\Expense::class, rand(1, 5))->create([
                 'user_id' => $client->user->id,
                 'client_id' => $client->id,
                 'company_id' => $client->company->id
             ]);
-
     }
 
     private function createVendor($client)
     {
-
         $vendor = factory(\App\Models\Vendor::class)->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id
@@ -412,12 +406,10 @@ class CreateTestData extends Command
                 'company_id' => $client->company->id,
                 'is_primary' => 0
             ]);
-
     }
 
     private function createTask($client)
     {
-
         $vendor = factory(\App\Models\Task::class)->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id
@@ -426,7 +418,6 @@ class CreateTestData extends Command
 
     private function createProject($client)
     {
-
         $vendor = factory(\App\Models\Project::class)->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id
@@ -444,10 +435,10 @@ class CreateTestData extends Command
         $invoice = InvoiceFactory::create($client->company->id, $client->user->id);//stub the company and user_id
         $invoice->client_id = $client->id;
 //        $invoice->date = $faker->date();
-        $dateable = Carbon::now()->subDays(rand(0,90));
+        $dateable = Carbon::now()->subDays(rand(0, 90));
         $invoice->date = $dateable;
 
-        $invoice->line_items = $this->buildLineItems(rand(1,10));
+        $invoice->line_items = $this->buildLineItems(rand(1, 10));
         $invoice->uses_inclusive_taxes = false;
 
         if (rand(0, 1)) {
@@ -517,10 +508,10 @@ class CreateTestData extends Command
 
         $credit = factory(\App\Models\Credit::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
 
-        $dateable = Carbon::now()->subDays(rand(0,90));
+        $dateable = Carbon::now()->subDays(rand(0, 90));
         $credit->date = $dateable;
 
-        $credit->line_items = $this->buildLineItems(rand(1,10));
+        $credit->line_items = $this->buildLineItems(rand(1, 10));
         $credit->uses_inclusive_taxes = false;
 
         if (rand(0, 1)) {
@@ -548,7 +539,6 @@ class CreateTestData extends Command
         $credit->save();
         $credit->service()->markSent()->save();
         $credit->service()->createInvitations();
-
     }
 
     private function createQuote($client)
@@ -566,7 +556,7 @@ class CreateTestData extends Command
         
         $quote->setRelation('client', $client);
 
-        $quote->line_items = $this->buildLineItems(rand(1,10));
+        $quote->line_items = $this->buildLineItems(rand(1, 10));
         $quote->uses_inclusive_taxes = false;
 
         if (rand(0, 1)) {
@@ -595,15 +585,13 @@ class CreateTestData extends Command
 
         $quote->service()->markSent()->save();
         $quote->service()->createInvitations();
-
     }
 
     private function buildLineItems($count = 1)
     {
         $line_items = [];
 
-        for($x=0; $x<$count; $x++)
-        {
+        for ($x=0; $x<$count; $x++) {
             $item = InvoiceItemFactory::create();
             $item->quantity = 1;
             //$item->cost = 10;
@@ -623,15 +611,15 @@ class CreateTestData extends Command
                 $item->tax_rate1 = 5;
             }
 
-                $product = Product::all()->random();
+            $product = Product::all()->random();
 
-                $item->cost = (float)$product->cost;
-                $item->product_key = $product->product_key;
-                $item->notes = $product->notes;
-                $item->custom_value1 = $product->custom_value1;
-                $item->custom_value2 = $product->custom_value2;
-                $item->custom_value3 = $product->custom_value3;
-                $item->custom_value4 = $product->custom_value4;
+            $item->cost = (float)$product->cost;
+            $item->product_key = $product->product_key;
+            $item->notes = $product->notes;
+            $item->custom_value1 = $product->custom_value1;
+            $item->custom_value2 = $product->custom_value2;
+            $item->custom_value3 = $product->custom_value3;
+            $item->custom_value4 = $product->custom_value4;
 
 
 

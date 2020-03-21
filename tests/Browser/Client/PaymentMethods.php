@@ -8,11 +8,9 @@ use Tests\DuskTestCase;
 
 class PaymentMethods extends DuskTestCase
 {
-
     public function testAddPaymentMethodPage(): void
     {
         $this->browse(function (Browser $browser) {
-
             $browser->visit('/client/login')
                 ->type('email', 'user@example.com')
                 ->type('password', config('ninja.testvars.password'))

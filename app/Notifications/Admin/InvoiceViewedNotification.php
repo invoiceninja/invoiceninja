@@ -22,17 +22,17 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
      * @return void
      */
     
-    protected   $invitation;
+    protected $invitation;
     
-    protected   $invoice;
+    protected $invoice;
 
-    protected   $company;
+    protected $company;
 
-    protected   $settings; 
+    protected $settings;
 
-    public      $is_system;
+    public $is_system;
 
-    protected   $contact;
+    protected $contact;
 
     public function __construct($invitation, $company, $is_system = false, $settings = null)
     {
@@ -51,7 +51,6 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-
         return $this->is_system ? ['slack'] : ['mail'];
     }
 
@@ -63,22 +62,25 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-
         $amount = Number::formatMoney($this->invoice->amount, $this->invoice->client);
-        $subject = ctrans('texts.notification_invoice_viewed_subject', 
-                [
-                    'client' => $this->contact->present()->name(), 
+        $subject = ctrans(
+            'texts.notification_invoice_viewed_subject',
+            [
+                    'client' => $this->contact->present()->name(),
                     'invoice' => $this->invoice->number,
-                ]);
+                ]
+        );
 
         $data = [
             'title' => $subject,
-            'message' => ctrans('texts.notification_invoice_viewed', 
+            'message' => ctrans(
+                'texts.notification_invoice_viewed',
                 [
-                    'amount' => $amount, 
-                    'client' => $this->contact->present()->name(), 
+                    'amount' => $amount,
+                    'client' => $this->contact->present()->name(),
                     'invoice' => $this->invoice->number,
-                ]),
+                ]
+            ),
             'url' => config('ninja.app_url') . '/invoices/' . $this->invoice->hashed_id,
             'button' => ctrans('texts.view_invoice'),
             'signature' => $this->settings->email_signature,
@@ -89,8 +91,6 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
         return (new MailMessage)
                     ->subject($subject)
                     ->markdown('email.admin.generic', $data);
-
-
     }
 
     /**
@@ -115,13 +115,13 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image($logo)
-                ->content(ctrans('texts.notification_invoice_viewed', 
-                [
-                    'amount' => $amount, 
-                    'client' => $this->contact->present()->name(), 
+                ->content(ctrans(
+                    'texts.notification_invoice_viewed',
+                    [
+                    'amount' => $amount,
+                    'client' => $this->contact->present()->name(),
                     'invoice' => $this->invoice->number
-                ]));
-
+                ]
+                ));
     }
-
 }

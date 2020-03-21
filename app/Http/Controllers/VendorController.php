@@ -267,8 +267,9 @@ class VendorController extends BaseController
      */
     public function update(UpdateVendorRequest $request, Vendor $vendor)
     {
-        if($request->entityIsDeleted($vendor))
+        if ($request->entityIsDeleted($vendor)) {
             return $request->disallowUpdate();
+        }
 
         $vendor = $this->client_repo->save($request->all(), $vendor);
 

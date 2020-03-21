@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CompanyUser extends Pivot
 {
-
     use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
     use SoftDeletes;
 
@@ -56,12 +55,12 @@ class CompanyUser extends Pivot
 
     public function user_pivot()
     {
-        return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked','slack_webhook_url');
+        return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url');
     }
 
     public function company_pivot()
     {
-        return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked','slack_webhook_url');
+        return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url');
     }
 
     public function user()
@@ -99,7 +98,6 @@ class CompanyUser extends Pivot
         //     'user_id', // Local key on CompanyToken table...
         //     'company_id' // Local key on CompanyUser table...
         // );
-
     }
 
     public function tokens()

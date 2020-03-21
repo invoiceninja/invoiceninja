@@ -19,42 +19,33 @@ use Illuminate\Support\Facades\Storage;
 
 class GetInvoicePdf extends AbstractService
 {
-
     public function __construct(Invoice $invoice, ClientContact $contact = null)
     {
-
         $this->invoice = $invoice;
 
         $this->contact = $contact;
-
     }
 
-  	public function run()
-  	{
+    public function run()
+    {
+        if (!$this->contact) {
+            $this->contact = $this->invoice->client->primary_contact()->first();
+        }
 
-    	if(!$this->contact)
-			$this->contact = $this->invoice->client->primary_contact()->first();
+        $path      = $this->invoice->client->invoice_filepath();
 
-		$path      = $this->invoice->client->invoice_filepath();
+        $file_path = $path . $this->invoice->number . '.pdf';
 
-		$file_path = $path . $this->invoice->number . '.pdf';
+        $disk 	   = config('filesystems.default');
 
-		$disk 	   = config('filesystems.default');
+        $file 	   = Storage::disk($disk)->exists($file_path);
 
-    	$file 	   = Storage::disk($disk)->exists($file_path);
+        if (!$file) {
+            $file_path = CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->contact);
+        }
 
-		if(!$file)
-		{
+        //return $file_path;
 
-			$file_path = CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->contact);
-
-		}
-
-		//return $file_path;
-
-		return Storage::disk($disk)->path($file_path);
-
-  	}
-
+        return Storage::disk($disk)->path($file_path);
+    }
 }
-

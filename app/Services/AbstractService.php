@@ -13,7 +13,5 @@ namespace App\Services;
 
 abstract class AbstractService
 {
-	
-	abstract public function run();
-
+    abstract public function run();
 }

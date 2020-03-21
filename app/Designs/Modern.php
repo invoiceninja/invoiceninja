@@ -13,9 +13,9 @@ namespace App\Designs;
 
 class Modern extends AbstractDesign
 {
-
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
 
     public function includes()
@@ -61,9 +61,9 @@ class Modern extends AbstractDesign
     }
 
 
-	public function header() {
-
-		return '<div class="div_header bg-orange-600 flex justify-between py-12 px-12" style="page-break-inside: avoid;">
+    public function header()
+    {
+        return '<div class="div_header bg-orange-600 flex justify-between py-12 px-12" style="page-break-inside: avoid;">
 <div class="w-1/2">
 	<h1 class="text-white font-bold text-5xl">$company.name</h1>
 </div>
@@ -76,12 +76,11 @@ class Modern extends AbstractDesign
 	</div>
 </div>
 </div>';
+    }
 
-	}
-
-	public function body() {
-
-		return '<section>
+    public function body()
+    {
+        return '<section>
 <div class="flex justify-between px-12 pt-12">
     <div class="w-1/2">
         $company_logo
@@ -112,11 +111,11 @@ class Modern extends AbstractDesign
             $task_table_body
     </tbody>
 </table>';
+    }
 
-	}
-
-    public function task() {
-    	return '';
+    public function task()
+    {
+        return '';
     }
 
     public function product()
@@ -124,9 +123,9 @@ class Modern extends AbstractDesign
         return '';
     }
 
-	public function footer() {
-
-		return '
+    public function footer()
+    {
+        return '
                 <div class="flex px-4 mt-6 w-full" style="page-break-inside: avoid;">
 			        <div class="w-1/2">
 			            $entity.public_notes
@@ -181,7 +180,5 @@ class Modern extends AbstractDesign
 			</footer>
 			</html>
 		';
-
-	}
-
+    }
 }

@@ -37,7 +37,7 @@ class DesignTransformer extends EntityTransformer
 
     /**
      * @param Design $design
-     *      
+     *
      * @return array
      */
     public function transform(Design $design)
@@ -54,5 +54,4 @@ class DesignTransformer extends EntityTransformer
             'is_deleted' => (bool)$design->is_deleted,
         ];
     }
-
 }

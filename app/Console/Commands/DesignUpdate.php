@@ -38,9 +38,7 @@ class DesignUpdate extends Command
      */
     public function handle()
     {
-
-        foreach(Design::whereIsCustom(false)->get() as $design){
-
+        foreach (Design::whereIsCustom(false)->get() as $design) {
             $class = 'App\Designs\\'.$design->name;
             $invoice_design = new $class();
 
@@ -55,7 +53,5 @@ class DesignUpdate extends Command
             $design->design = $design_object;
             $design->save();
         }
-
     }
-    
 }

@@ -378,8 +378,9 @@ class QuoteController extends BaseController
      */
     public function update(UpdateQuoteRequest $request, Quote $quote)
     {
-        if($request->entityIsDeleted($quote))
+        if ($request->entityIsDeleted($quote)) {
             return $request->disallowUpdate();
+        }
         
         $quote = $this->quote_repo->save($request->all(), $quote);
 
@@ -516,31 +517,25 @@ class QuoteController extends BaseController
          * Download Invoice/s
          */
 
-        if($action == 'download' && $quotes->count() > 1)
-        {
-            
+        if ($action == 'download' && $quotes->count() > 1) {
             $quotes->each(function ($quote) {
-
-                if(auth()->user()->cannot('view', $quote)){
+                if (auth()->user()->cannot('view', $quote)) {
                     return response()->json(['message'=>'Insufficient privileges to access quote '. $quote->number]);
                 }
-
             });
 
             ZipInvoices::dispatch($quotes, $quotes->first()->company, auth()->user()->email);
 
-            return response()->json(['message' => 'Email Sent!'],200);
+            return response()->json(['message' => 'Email Sent!'], 200);
         }
 
         /*
          * Send the other actions to the switch
          */
         $quotes->each(function ($quote, $key) use ($action) {
-
             if (auth()->user()->can('edit', $quote)) {
                 $this->performAction($quote, $action, true);
             }
-
         });
 
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
@@ -620,7 +615,8 @@ class QuoteController extends BaseController
      *
      */
     
-    public function action(ActionQuoteRequest $request, Quote $quote, $action) {
+    public function action(ActionQuoteRequest $request, Quote $quote, $action)
+    {
         return $this->performAction($quote, $action);
     }
 
@@ -642,8 +638,9 @@ class QuoteController extends BaseController
                 break;
             case 'approve':
             //make sure it hasn't already been approved!!
-                if($quote->status_id != Quote::STATUS_SENT)
+                if ($quote->status_id != Quote::STATUS_SENT) {
                     return response()->json(['message' => 'Unable to approve this quote as it has expired.'], 400);
+                }
                 
                 return $this->itemResponse($quote->service()->approve()->save());
                 break;
@@ -679,23 +676,21 @@ class QuoteController extends BaseController
                 if (!$bulk) {
                     return $this->itemResponse($quote);
                 }
+                // no break
             default:
                 return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
                 break;
         }
     }
 
-    public function downloadPdf($invitation_key) 
+    public function downloadPdf($invitation_key)
     {
-
         $invitation = $this->quote_repo->getInvitationByKey($invitation_key);
         $contact    = $invitation->contact;
         $quote    = $invitation->quote;
 
-        $file_path = $quote->service()->getQuotePdf($contact); 
+        $file_path = $quote->service()->getQuotePdf($contact);
 
         return response()->download($file_path);
-
     }
-    
 }

@@ -44,14 +44,10 @@ class StoreGroupSettingRequest extends Request
         
         $group_settings = ClientSettings::defaults();
         
-        if(array_key_exists('settings', $input) && !empty($input['settings']))
-        {
-
-            foreach($input['settings'] as $key => $value)
-            {
+        if (array_key_exists('settings', $input) && !empty($input['settings'])) {
+            foreach ($input['settings'] as $key => $value) {
                 $group_settings->{$key} = $value;
             }
-            
         }
         
         $input['settings'] = $group_settings;

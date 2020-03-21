@@ -16,7 +16,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\Payment\UpdateInvoicePayment;
 
-
 class PaymentService
 {
     private $payment;

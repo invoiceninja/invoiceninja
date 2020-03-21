@@ -35,7 +35,11 @@ class CompanyDocumentsTest extends TestCase
         $image = UploadedFile::fake()->image('avatar.jpg');
 
         $document = UploadFile::dispatchNow(
-            $image, UploadFile::IMAGE, $this->user, $this->company, $this->invoice
+            $image,
+            UploadFile::IMAGE,
+            $this->user,
+            $this->company,
+            $this->invoice
         );
 
         $this->assertNotNull($document);

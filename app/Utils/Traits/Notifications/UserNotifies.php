@@ -17,24 +17,22 @@ namespace App\Utils\Traits\Notifications;
  */
 trait UserNotifies
 {
- 
-
     public function findUserNotificationTypes($invitation, $company_user, $entity_name, $required_permissions) :array
     {
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
-        if($invitation->{$entity_name}->user_id == $company_user->_user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id)
+        if ($invitation->{$entity_name}->user_id == $company_user->_user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id) {
             array_push($required_permissions, "all_user_notifications");
+        }
 
-        if(count(array_intersect($required_permissions, $notifications->email)) >=1)
+        if (count(array_intersect($required_permissions, $notifications->email)) >=1) {
             array_push($notifiable_methods, 'mail');
+        }
 
         // if(count(array_intersect($required_permissions, $notifications->slack)) >=1)
         //     array_push($notifiable_methods, 'slack');
             
         return $notifiable_methods;
-
     }
-
 }

@@ -18,7 +18,6 @@ use App\Services\Client\ClientService;
 
 class ApplyPayment extends AbstractService
 {
-
     private $invoice;
 
     private $payment;
@@ -32,8 +31,8 @@ class ApplyPayment extends AbstractService
         $this->payment_amount = $payment_amount;
     }
 
-  	public function run()
-  	{
+    public function run()
+    {
         $this->payment
              ->ledger()
              ->updatePaymentBalance($this->payment_amount*-1);
@@ -41,7 +40,7 @@ class ApplyPayment extends AbstractService
         $this->payment->client->service()->updateBalance($this->payment_amount*-1)->save();
 
         /* Update Pivot Record amount */
-        $this->payment->invoices->each(function ($inv){
+        $this->payment->invoices->each(function ($inv) {
             if ($inv->id == $this->invoice->id) {
                 $inv->pivot->amount = $this->payment_amount;
                 $inv->pivot->save();
@@ -49,7 +48,7 @@ class ApplyPayment extends AbstractService
         });
 
         if ($this->invoice->hasPartial()) {
-        //is partial and amount is exactly the partial amount
+            //is partial and amount is exactly the partial amount
             if ($this->invoice->partial == $this->payment_amount) {
                 $this->invoice->service()->clearPartial()->setDueDate()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($this->payment_amount*-1);
             } elseif ($this->invoice->partial > 0 && $this->invoice->partial > $this->payment_amount) { //partial amount exists, but the amount is less than the partial amount
@@ -59,10 +58,10 @@ class ApplyPayment extends AbstractService
             }
         } elseif ($this->payment_amount == $this->invoice->balance) { //total invoice paid.
             $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PAID)->updateBalance($this->payment_amount*-1);
-        } elseif($this->payment_amount < $this->invoice->balance) { //partial invoice payment made
+        } elseif ($this->payment_amount < $this->invoice->balance) { //partial invoice payment made
             $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($this->payment_amount*-1);
         }
 
         return $this->invoice;
-  	}
+    }
 }

@@ -13,7 +13,6 @@ namespace App\Services\Client;
 
 use App\Models\Client;
 
-
 class ClientService
 {
     private $client;
@@ -46,8 +45,8 @@ class ClientService
 
     public function save() :Client
     {
-    	$this->client->save();
+        $this->client->save();
 
-    	return $this->client;
+        return $this->client;
     }
 }

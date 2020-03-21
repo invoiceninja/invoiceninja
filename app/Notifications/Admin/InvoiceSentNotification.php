@@ -22,17 +22,17 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
      * @return void
      */
     
-    protected   $invitation;
+    protected $invitation;
     
-    protected   $invoice;
+    protected $invoice;
 
-    protected   $company;
+    protected $company;
 
-    protected   $settings; 
+    protected $settings;
 
-    public      $is_system;
+    public $is_system;
 
-    protected   $contact;
+    protected $contact;
 
     public function __construct($invitation, $company, $is_system = false, $settings = null)
     {
@@ -52,7 +52,6 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-
         return $this->is_system ? ['slack'] : ['mail'];
     }
 
@@ -64,22 +63,25 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-
         $amount = Number::formatMoney($this->invoice->amount, $this->invoice->client);
-        $subject = ctrans('texts.notification_invoice_sent_subject', 
-                [
-                    'client' => $this->contact->present()->name(), 
+        $subject = ctrans(
+            'texts.notification_invoice_sent_subject',
+            [
+                    'client' => $this->contact->present()->name(),
                     'invoice' => $this->invoice->number,
-                ]);
+                ]
+        );
 
         $data = [
             'title' => $subject,
-            'message' => ctrans('texts.notification_invoice_sent', 
+            'message' => ctrans(
+                'texts.notification_invoice_sent',
                 [
-                    'amount' => $amount, 
-                    'client' => $this->contact->present()->name(), 
+                    'amount' => $amount,
+                    'client' => $this->contact->present()->name(),
                     'invoice' => $this->invoice->number,
-                ]),
+                ]
+            ),
             'url' => config('ninja.app_url') . '/invoices/' . $this->invoice->hashed_id,
             'button' => ctrans('texts.view_invoice'),
             'signature' => $this->settings->email_signature,
@@ -90,8 +92,6 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
         return (new MailMessage)
                     ->subject($subject)
                     ->markdown('email.admin.generic', $data);
-
-
     }
 
     /**
@@ -116,10 +116,10 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
         //         ->success()
         //         ->from(ctrans('texts.notification_bot'))
         //         ->image($logo)
-        //         ->content(ctrans('texts.notification_invoice_sent', 
+        //         ->content(ctrans('texts.notification_invoice_sent',
         //         [
-        //             'amount' => $amount, 
-        //             'client' => $this->contact->present()->name(), 
+        //             'amount' => $amount,
+        //             'client' => $this->contact->present()->name(),
         //             'invoice' => $this->invoice->number
         //         ]));
 
@@ -128,13 +128,15 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
                     ->from(ctrans('texts.notification_bot'))
                     ->success()
                     ->image('https://app.invoiceninja.com/favicon-v2.png')
-                    ->content(trans('texts.notification_invoice_sent_subject',
-                    [
-                        'amount' => $amount, 
-                        'client' => $this->contact->present()->name(), 
+                    ->content(trans(
+                        'texts.notification_invoice_sent_subject',
+                        [
+                        'amount' => $amount,
+                        'client' => $this->contact->present()->name(),
                         'invoice' => $this->invoice->number
-                    ]))
-                    ->attachment(function ($attachment) use($amount){
+                    ]
+                    ))
+                    ->attachment(function ($attachment) use ($amount) {
                         $attachment->title(ctrans('texts.invoice_number_placeholder', ['invoice' => $this->invoice->number]), $this->invitation->getAdminLink())
                                    ->fields([
                                         ctrans('texts.client') => $this->contact->present()->name(),
@@ -142,5 +144,4 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
                                     ]);
                     });
     }
-
 }

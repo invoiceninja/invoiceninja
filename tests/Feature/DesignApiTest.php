@@ -44,7 +44,6 @@ class DesignApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
-
     }
 
 
@@ -132,10 +131,5 @@ class DesignApiTest extends TestCase
 
         $this->assertTrue((bool)$design->is_deleted);
         $this->assertGreaterThan(0, $design->deleted_at);
-
     }
-
-
-
-
 }

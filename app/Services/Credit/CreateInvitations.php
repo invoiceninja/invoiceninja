@@ -18,10 +18,9 @@ class CreateInvitations extends AbstractService
 
     public function run()
     {
-
         $contacts = $this->credit->client->contacts;
 
-        $contacts->each(function ($contact){
+        $contacts->each(function ($contact) {
             $invitation = CreditInvitation::whereCompanyId($this->credit->company_id)
                 ->whereClientContactId($contact->id)
                 ->whereCreditId($this->credit->id)

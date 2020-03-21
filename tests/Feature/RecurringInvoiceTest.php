@@ -24,13 +24,11 @@ use Tests\TestCase;
     
 class RecurringInvoiceTest extends TestCase
 {
-
     use MakesHash;
     use DatabaseTransactions;
 
     public function setUp() :void
     {
-
         parent::setUp();
 
         Session::start();
@@ -42,8 +40,6 @@ class RecurringInvoiceTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
-
     }
 
     public function testRecurringInvoiceList()
@@ -66,7 +62,7 @@ class RecurringInvoiceTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
 
         $company_token = $account->default_company->tokens()->first();
         $token = $company_token->token;
@@ -80,21 +76,19 @@ class RecurringInvoiceTest extends TestCase
         $this->assertNotNull($company);
         //$this->assertNotNull($user->token->company);
 
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
-
-            factory(\App\Models\ClientContact::class,1)->create([
+        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
                 'is_primary' => 1
             ]);
 
-            factory(\App\Models\ClientContact::class,1)->create([
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id
             ]);
-
         });
         $client = Client::all()->first();
 
@@ -107,7 +101,6 @@ class RecurringInvoiceTest extends TestCase
             ])->get('/api/v1/recurring_invoices');
 
         $response->assertStatus(200);
-
     }
 
     public function testRecurringInvoiceRESTEndPoints()
@@ -129,7 +122,7 @@ class RecurringInvoiceTest extends TestCase
             ])->post('/api/v1/signup?include=account', $data);
 
         $acc = $response->json();
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
 
         $company_token = $account->default_company->tokens()->first();
         $token = $company_token->token;
@@ -143,27 +136,25 @@ class RecurringInvoiceTest extends TestCase
         $this->assertNotNull($company);
         //$this->assertNotNull($user->token->company);
 
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
-
-            factory(\App\Models\ClientContact::class,1)->create([
+        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
                 'is_primary' => 1
             ]);
 
-            factory(\App\Models\ClientContact::class,1)->create([
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id
             ]);
-
         });
         $client = Client::all()->first();
 
         factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        $RecurringInvoice = RecurringInvoice::where('user_id',$user->id)->first();
+        $RecurringInvoice = RecurringInvoice::where('user_id', $user->id)->first();
         $RecurringInvoice->save();
 
         
@@ -200,7 +191,5 @@ class RecurringInvoiceTest extends TestCase
             ])->delete('/api/v1/recurring_invoices/'.$this->encodePrimaryKey($RecurringInvoice->id));
 
         $response->assertStatus(200);
-
     }
-
 }

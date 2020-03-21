@@ -1960,37 +1960,37 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'authorization' => 'Overovitev',
     'signed' => 'Podpisan',
 
-	// BlueVine
-	'bluevine_promo' => 'Pridobi prilagodljiva poslovna področja kreditiranja in odkup računov z uporabo BlueVine.',
-	'bluevine_modal_label' => 'Prijavi se z BlueVine',
-	'bluevine_modal_text' => '<h3>Hitro financiranje za vaše podjetje. Brez papirologije</h3>
+    // BlueVine
+    'bluevine_promo' => 'Pridobi prilagodljiva poslovna področja kreditiranja in odkup računov z uporabo BlueVine.',
+    'bluevine_modal_label' => 'Prijavi se z BlueVine',
+    'bluevine_modal_text' => '<h3>Hitro financiranje za vaše podjetje. Brez papirologije</h3>
 <ul><li>Prožna poslovna področja kreditiranja in odkup računov.</li></ul>',
-	'bluevine_create_account' => 'Ustvari račun',
-	'quote_types' => 'Pridobi predračun za',
-	'invoice_factoring' => 'Odkup računov',
-	'line_of_credit' => 'Kreditna linija',
-	'fico_score'                         => 'Vaša FICO ocena',
-	'business_inception'                 => 'Datum ustanovitve podjetja',
-	'average_bank_balance'               => 'Povprečni saldo bančnega računa',
-	'annual_revenue'                     => 'Letni prihodki',
-	'desired_credit_limit_factoring'     => 'Željena omejitev odkupa računa',
-	'desired_credit_limit_loc'           => 'Željena omejitev kreditne linije',
-	'desired_credit_limit'               => 'Željena omejitev kredita',
-	'bluevine_credit_line_type_required' => 'Izbrati morate vsaj eno',
-	'bluevine_field_required'            => 'To polje je obvezno',
-	'bluevine_unexpected_error'          => 'Zgodila se je nepričakovana napaka.',
-	'bluevine_no_conditional_offer'      => 'Preden pošljemo predračun potrebujemo več informacij. Kliknite spodaj za nadaljevanje.',
-	'bluevine_invoice_factoring'         => 'Odkup računov',
-	'bluevine_conditional_offer'         => 'Pogojno ponudba',
-	'bluevine_credit_line_amount'        => 'Kreditna linija',
-	'bluevine_advance_rate'              => 'Izboljšana stopnja',
-	'bluevine_weekly_discount_rate'      => 'Tedenska stopnja popusta',
-	'bluevine_minimum_fee_rate'          => 'Minimalna provizija',
-	'bluevine_line_of_credit'            => 'Kreditna linija',
-	'bluevine_interest_rate'             => 'Obrestna mera',
-	'bluevine_weekly_draw_rate'          => 'Tedenska mera',
-	'bluevine_continue'                  => 'Nadaljuj v BlueVine',
-	'bluevine_completed'                 => 'BlueVine prijava končana',
+    'bluevine_create_account' => 'Ustvari račun',
+    'quote_types' => 'Pridobi predračun za',
+    'invoice_factoring' => 'Odkup računov',
+    'line_of_credit' => 'Kreditna linija',
+    'fico_score'                         => 'Vaša FICO ocena',
+    'business_inception'                 => 'Datum ustanovitve podjetja',
+    'average_bank_balance'               => 'Povprečni saldo bančnega računa',
+    'annual_revenue'                     => 'Letni prihodki',
+    'desired_credit_limit_factoring'     => 'Željena omejitev odkupa računa',
+    'desired_credit_limit_loc'           => 'Željena omejitev kreditne linije',
+    'desired_credit_limit'               => 'Željena omejitev kredita',
+    'bluevine_credit_line_type_required' => 'Izbrati morate vsaj eno',
+    'bluevine_field_required'            => 'To polje je obvezno',
+    'bluevine_unexpected_error'          => 'Zgodila se je nepričakovana napaka.',
+    'bluevine_no_conditional_offer'      => 'Preden pošljemo predračun potrebujemo več informacij. Kliknite spodaj za nadaljevanje.',
+    'bluevine_invoice_factoring'         => 'Odkup računov',
+    'bluevine_conditional_offer'         => 'Pogojno ponudba',
+    'bluevine_credit_line_amount'        => 'Kreditna linija',
+    'bluevine_advance_rate'              => 'Izboljšana stopnja',
+    'bluevine_weekly_discount_rate'      => 'Tedenska stopnja popusta',
+    'bluevine_minimum_fee_rate'          => 'Minimalna provizija',
+    'bluevine_line_of_credit'            => 'Kreditna linija',
+    'bluevine_interest_rate'             => 'Obrestna mera',
+    'bluevine_weekly_draw_rate'          => 'Tedenska mera',
+    'bluevine_continue'                  => 'Nadaljuj v BlueVine',
+    'bluevine_completed'                 => 'BlueVine prijava končana',
 
     'vendor_name' => 'Prodajalec',
     'entity_state' => 'Stanje',
@@ -2124,16 +2124,16 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'To leto',
 
-	// Updated login screen
-	'ninja_tagline' => 'Ustvari. Pošlji. Prejmi Plačilo.',
-	'login_or_existing' => 'Ali pa se prijavite s povezanim računom',
-	'sign_up_now' => 'Prijavi se',
-	'not_a_member_yet' => 'Še nisi član?',
-	'login_create_an_account' => 'Ustvari račun!',
-	'client_login' => 'Vpis stranke',
+    // Updated login screen
+    'ninja_tagline' => 'Ustvari. Pošlji. Prejmi Plačilo.',
+    'login_or_existing' => 'Ali pa se prijavite s povezanim računom',
+    'sign_up_now' => 'Prijavi se',
+    'not_a_member_yet' => 'Še nisi član?',
+    'login_create_an_account' => 'Ustvari račun!',
+    'client_login' => 'Vpis stranke',
 
-	// New Client Portal styling
-	'invoice_from' => 'Računi za:',
+    // New Client Portal styling
+    'invoice_from' => 'Računi za:',
     'email_alias_message' => 'Vsako podjetje potrebuje unikaten e-poštni naslov. <br/>Razmislite o uporabi vzdevka, kot na primer:  naslov+oznaka@primer.si',
     'full_name' => 'Polno ime',
     'month_year' => 'MESEC/LETO',
@@ -2428,7 +2428,7 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'tax1' => 'Prvi davek',
     'tax2' => 'Drugi davek',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Exporting format',
+    'format_export' => 'Exporting format',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2865,5 +2865,3 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
 );
 
 return $LANG;
-
-?>

@@ -26,7 +26,6 @@ use Illuminate\Support\Facades\Notification;
 
 class InvoiceEmailedNotification implements ShouldQueue
 {
-
     use UserNotifies;
 
     public function __construct()
@@ -43,8 +42,7 @@ class InvoiceEmailedNotification implements ShouldQueue
     {
         $invitation = $event->invitation;
 
-        foreach($invitation->company->company_users as $company_user)
-        {
+        foreach ($invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
             $notification = new EntitySentNotification($invitation, 'invoice');
@@ -52,7 +50,6 @@ class InvoiceEmailedNotification implements ShouldQueue
             $notification->method = $this->findUserNotificationTypes($invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent']);
 
             $user->notify($notification);
-           
         }
 
         // if(isset($invitation->company->slack_webhook_url)){
@@ -62,6 +59,4 @@ class InvoiceEmailedNotification implements ShouldQueue
 
         // }
     }
-
-
 }

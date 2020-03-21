@@ -59,8 +59,9 @@ trait MakesDates
      */
     public function formatDate($date, string $format) :string
     {
-        if(!$date || strlen($date) < 1)
+        if (!$date || strlen($date) < 1) {
             return '';
+        }
         
         if (is_string($date)) {
             $date = $this->convertToDateObject($date);

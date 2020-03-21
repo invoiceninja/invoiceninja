@@ -17,5 +17,4 @@ namespace App\Models\Presenters;
  */
 class CreditPresenter extends EntityPresenter
 {
-
 }

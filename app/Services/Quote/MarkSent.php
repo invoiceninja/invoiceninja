@@ -32,6 +32,5 @@ class MarkSent
         $this->quote->service()->setStatus(Quote::STATUS_SENT)->applyNumber()->save();
 
         return $this->quote;
-
     }
 }

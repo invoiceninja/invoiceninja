@@ -188,16 +188,17 @@ class Credit extends BaseModel
     {
         $storage_path = 'storage/' . $this->client->credit_filepath() . $this->number . '.pdf';
 
-        if (Storage::exists($storage_path)) 
+        if (Storage::exists($storage_path)) {
             return $storage_path;
+        }
 
-        if(!$invitation)
+        if (!$invitation) {
             CreateCreditPdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
-        else
+        } else {
             CreateCreditPdf::dispatchNow($invitation->credit, $invitation->company, $invitation->contact);
+        }
 
         return $storage_path;
-
     }
 
     public function markInvitationsSent()
@@ -209,5 +210,4 @@ class Credit extends BaseModel
             }
         });
     }
-    
 }

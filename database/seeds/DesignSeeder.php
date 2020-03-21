@@ -15,7 +15,7 @@ class DesignSeeder extends Seeder
 
     private function createDesigns()
     {
-    	 $designs = [
+        $designs = [
             ['id' => 1, 'name' => 'Plain', 'user_id' => null, 'company_id' => null, 'is_custom' => false, 'design' => '', 'is_active' => true],
             ['id' => 2, 'name' => 'Clean', 'user_id' => null, 'company_id' => null, 'is_custom' => false, 'design' => '', 'is_active' => true],
             ['id' => 3, 'name' => 'Bold', 'user_id' => null, 'company_id' => null, 'is_custom' => false, 'design' => '', 'is_active' => true],
@@ -28,16 +28,15 @@ class DesignSeeder extends Seeder
             ['id' => 10, 'name' => 'Photo', 'user_id' => null, 'company_id' => null, 'is_custom' => false, 'design' => '', 'is_active' => true],
         ];
 
-        foreach($designs as $design) {
+        foreach ($designs as $design) {
+            $d = Design::find($design['id']);
 
-        	$d = Design::find($design['id']);
-
-        	if(!$d)
-        		Design::create($design);
+            if (!$d) {
+                Design::create($design);
+            }
         }
 
-        foreach(Design::all() as $design){
-
+        foreach (Design::all() as $design) {
             $class = 'App\Designs\\'.$design->name;
             $invoice_design = new $class();
 
@@ -52,6 +51,5 @@ class DesignSeeder extends Seeder
             $design->design = $design_object;
             $design->save();
         }
-        
     }
 }

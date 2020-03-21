@@ -10,28 +10,33 @@ namespace App\Helpers\Email;
 
 use App\Models\Payment;
 
-
 class EmailPayment extends EmailBuilder
 {
-    public function build(Payment $payment, $contact = null) {
+    public function build(Payment $payment, $contact = null)
+    {
         $client = $payment->client;
 
         $body_template = $client->getSetting('email_template_payment');
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
-
-            $body_template = trans('texts.payment_message',
-                ['amount' => $payment->amount, 'company' => $payment->company->present()->name()], null,
-                $this->client->locale());
+            $body_template = trans(
+                'texts.payment_message',
+                ['amount' => $payment->amount, 'company' => $payment->company->present()->name()],
+                null,
+                $this->client->locale()
+            );
         }
 
         $subject_template = $client->getSetting('email_subject_payment');
 
         if (iconv_strlen($subject_template) == 0) {
-            $subject_template = trans('texts.payment_subject',
-                ['number' => $payment->number, 'company' => $payment->company->present()->name()], null,
-                $payment->client->locale());
+            $subject_template = trans(
+                'texts.payment_subject',
+                ['number' => $payment->number, 'company' => $payment->company->present()->name()],
+                null,
+                $payment->client->locale()
+            );
         }
 
         $this->setTemplate($payment->client->getSetting('email_style'))

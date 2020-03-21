@@ -32,7 +32,7 @@ use League\Fractal\Serializer\JsonApiSerializer;
  */
 class BaseController extends Controller
 {
-  use AppSetup;
+    use AppSetup;
     /**
      * Passed from the parent when we need to force
      * includes internally rather than externally via
@@ -58,35 +58,25 @@ class BaseController extends Controller
 
     public function __construct()
     {
-
         $this->manager = new Manager();
 
         $this->forced_includes = [];
 
         $this->forced_index = 'data';
-
     }
 
     private function buildManager()
     {
-
         $include = '';
 
-        if(request()->has('first_load') && request()->input('first_load') == 'true') {
-
-          $include = implode("," , array_merge($this->forced_includes, $this->getRequestIncludes([])));
-
-        }
-        else if (request()->input('include') !== null) {
-
+        if (request()->has('first_load') && request()->input('first_load') == 'true') {
+            $include = implode(",", array_merge($this->forced_includes, $this->getRequestIncludes([])));
+        } elseif (request()->input('include') !== null) {
             $include = array_merge($this->forced_includes, explode(",", request()->input('include')));
 
             $include = implode(",", $include);
-
         } elseif (count($this->forced_includes) >= 1) {
-
             $include = implode(",", $this->forced_includes);
-
         }
 
         $this->manager->parseIncludes($include);
@@ -94,15 +84,10 @@ class BaseController extends Controller
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 
         if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) {
-
             $this->manager->setSerializer(new JsonApiSerializer());
-
         } else {
-
             $this->manager->setSerializer(new ArraySerializer());
-
         }
-
     }
 
     /**
@@ -111,23 +96,18 @@ class BaseController extends Controller
      */
     public function notFound()
     {
-
         return response()->json(['message' => '404 | Nothing to see here!'], 404)
                          ->header('X-API-VERSION', config('ninja.api_version'))
                          ->header('X-APP-VERSION', config('ninja.app_version'));
-
     }
 
     public function notFoundClient()
     {
-
         return abort(404);
-
     }
 
     protected function errorResponse($response, $httpErrorCode = 400)
     {
-
         $error['error'] = $response;
 
         $error = json_encode($error, JSON_PRETTY_PRINT);
@@ -135,12 +115,10 @@ class BaseController extends Controller
         $headers = self::getApiHeaders();
 
         return response()->make($error, $httpErrorCode, $headers);
-
     }
 
     protected function listResponse($query)
     {
-
         $this->buildManager();
 
         $transformer = new $this->entity_transformer(Input::get('serializer'));
@@ -152,7 +130,7 @@ class BaseController extends Controller
         $query->with($includes);
 
         if (auth()->user()->cannot('view_'.$this->entity_type)) {
-            if ($this->entity_type == Company::class || $this->entity_type == Design::class ) {
+            if ($this->entity_type == Company::class || $this->entity_type == Design::class) {
                 //no user keys exist on the company table, so we need to skip
             } elseif ($this->entity_type == User::class) {
                 //$query->where('id', '=', auth()->user()->id); @todo why?
@@ -162,47 +140,40 @@ class BaseController extends Controller
         }
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {
-                $updated_at = intval(request()->input('updated_at'));
-                $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updated_at));
+            $updated_at = intval(request()->input('updated_at'));
+            $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updated_at));
         }
 
         $data = $this->createCollection($query, $transformer, $this->entity_type);
 
         return $this->response($data);
-
     }
 
     protected function createCollection($query, $transformer, $entity_type)
     {
-
         $this->buildManager();
 
-        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) 
+        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
             $entity_type = null;
+        }
         
 
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
-
             $limit = Input::get('per_page', 20);
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-
         } else {
-
             $resource = new Collection($query, $transformer, $entity_type);
-
         }
 
         return $this->manager->createData($resource)->toArray();
-
     }
 
     protected function response($response)
     {
-
         $index = request()->input('index') ?: $this->forced_index;
 
         if ($index == 'none') {
@@ -230,52 +201,46 @@ class BaseController extends Controller
         $headers = self::getApiHeaders();
         
         return response()->make($response, 200, $headers);
-
     }
 
     protected function itemResponse($item)
     {
-
         $this->buildManager();
 
         $transformer = new $this->entity_transformer(Input::get('serializer'));
 
         $data = $this->createItem($item, $transformer, $this->entity_type);
 
-        if (request()->include_static) 
+        if (request()->include_static) {
             $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
+        }
         
         return $this->response($data);
-
     }
 
     protected function createItem($data, $transformer, $entity_type)
     {
-
-        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) 
+        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
             $entity_type = null;
+        }
       
         $resource = new Item($data, $transformer, $entity_type);
 
         return $this->manager->createData($resource)->toArray();
-
     }
 
     public static function getApiHeaders($count = 0)
     {
-
         return [
           'Content-Type' => 'application/json',
           'X-Api-Version' => config('ninja.api_version'),
           'X-App-Version' => config('ninja.app_version'),
         ];
-
     }
 
 
     protected function getRequestIncludes($data)
     {
-
         $first_load = [
           'account',
           'user.company_user',
@@ -311,49 +276,33 @@ class BaseController extends Controller
         /**
          * Thresholds for displaying large account on first load
          */
-        if (request()->has('first_load') && request()->input('first_load') == 'true') 
-        {
+        if (request()->has('first_load') && request()->input('first_load') == 'true') {
+            if (auth()->user()->getCompany()->invoices->count() > 1000) {
+                $data = $mini_load;
+            } else {
+                $data = $first_load;
+            }
+        } else {
+            $included = request()->input('include');
+            $included = explode(',', $included);
 
-          if (auth()->user()->getCompany()->invoices->count() > 1000) 
-          {
-
-            $data = $mini_load;
-
-          }
-          else
-          {
-
-            $data = $first_load;
-
-          }
-        }
-        else
-        {
-
-          $included = request()->input('include');
-          $included = explode(',', $included);
-
-          foreach ($included as $include) {
-              if ($include == 'clients') {
-                  $data[] = 'clients.contacts';
-              } elseif ($include) {
-                  $data[] = $include;
-              }
-          }
-
+            foreach ($included as $include) {
+                if ($include == 'clients') {
+                    $data[] = 'clients.contacts';
+                } elseif ($include) {
+                    $data[] = $include;
+                }
+            }
         }
 
         return $data;
-
     }
     
     public function flutterRoute()
     {
-      
-      if(!$this->checkAppSetup());
+        if (!$this->checkAppSetup());
         return redirect('/setup');
 
-      return view('index.index');
-    
+        return view('index.index');
     }
 }

@@ -56,5 +56,4 @@ class CreditRepository extends BaseRepository
     {
         return CreditInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
     }
-
 }
