@@ -55,7 +55,6 @@ class SystemHealth
             'dbs' => self::dbCheck(),
             'mail' => self::testMailServer(),
             'env_writable' => self::checkEnvWritable(),
-            'env_exists'
         ];
     }
 
@@ -122,6 +121,7 @@ class SystemHealth
 
     private static function checkEnvWritable()
     {
-        return @fopen(base_path().'/.env', 'w');
+        return is_writable(base_path().'/.env');
+        //return @fopen(base_path().'/.env', 'w');
     }
 }

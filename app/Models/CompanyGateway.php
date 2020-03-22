@@ -196,7 +196,7 @@ class CompanyGateway extends BaseModel
      */
     public function getPublishableKey() :string
     {
-        return $this->getConfigField('publishable_key');
+        return $this->getConfigField('publishableKey');
     }
 
     /**
