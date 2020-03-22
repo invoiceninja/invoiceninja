@@ -41,16 +41,6 @@ class ArtisanUpgrade extends Command
     public function handle()
     {
         set_time_limit(0);
-        // Composer\Factory::getHomeDir() method
-        // needs COMPOSER_HOME environment variable set
-        putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
-
-        // call `composer install` command programmatically
-        $input = new ArrayInput(array('command' => 'install'));
-        $application = new Application();
-        //$application->setAutoExit(false); // prevent `$application->run` method from exitting the script
-        $application->run($input);
-
 
         try {
             Artisan::call('migrate');
@@ -69,5 +59,13 @@ class ArtisanUpgrade extends Command
         } catch (Exception $e) {
             \Log::error("I wasn't able to restart the queue");
         }
+    
+
+        putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
+        $input = new ArrayInput(array('command' => 'install'));
+        $application = new Application();
+        //$application->setAutoExit(false); // prevent `$application->run` method from exitting the script
+        $application->run($input);
+
     }
 }

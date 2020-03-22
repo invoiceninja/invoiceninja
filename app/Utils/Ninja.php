@@ -64,7 +64,7 @@ class Ninja
         $data = trim(CurlUtils::post('https://license.invoiceninja.com/api/check', $data));
         $data = json_decode($data);
 
-        if ($data->message == sha1(config('ninja.license'))) {
+        if ($data && property_exists($data, 'message') && $data->message == sha1(config('ninja.license'))) {
             return false;
         } else {
             return true;
