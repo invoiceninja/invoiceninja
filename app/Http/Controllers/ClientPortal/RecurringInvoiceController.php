@@ -35,75 +35,48 @@ class RecurringInvoiceController extends Controller
 {
     use MakesHash;
     use MakesDates;
+
     /**
-     * Show the list of Invoices
+     * Show the list of recurring invoices.
      *
-     * @param      \App\Filters\InvoiceFilters  $filters  The filters
-     *
-     * @return \Illuminate\Http\Response
+     * @param Builder $builder
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index(Builder $builder)
     {
         $invoices = RecurringInvoice::whereClientId(auth()->user()->client->id)
-                                    ->whereIn('status_id', [RecurringInvoice::STATUS_PENDING, RecurringInvoice::STATUS_ACTIVE, RecurringInvoice::STATUS_COMPLETED])
-                                    ->orderBy('status_id', 'asc')
-                                    ->with('client')
-                                    ->get();
+            ->whereIn('status_id', [RecurringInvoice::STATUS_PENDING, RecurringInvoice::STATUS_ACTIVE, RecurringInvoice::STATUS_COMPLETED])
+            ->orderBy('status_id', 'asc')
+            ->with('client')
+            ->paginate(10);
 
-        if (request()->ajax()) {
-            return DataTables::of($invoices)->addColumn('action', function ($invoice) {
-                return '<a href="/client/recurring_invoices/'. $invoice->hashed_id .'" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
-            })->addColumn('frequency_id', function ($invoice) {
-                return RecurringInvoice::frequencyForKey($invoice->frequency_id);
-            })
-                ->editColumn('status_id', function ($invoice) {
-                    return RecurringInvoice::badgeForStatus($invoice->status);
-                })
-                ->editColumn('start_date', function ($invoice) {
-                    return $this->formatDate($invoice->date, $invoice->client->date_format());
-                })
-                ->editColumn('next_send_date', function ($invoice) {
-                    return $this->formatDate($invoice->next_send_date, $invoice->client->date_format());
-                })
-                ->editColumn('amount', function ($invoice) {
-                    return Number::formatMoney($invoice->amount, $invoice->client);
-                })
-                ->rawColumns(['action', 'status_id'])
-                ->make(true);
-        }
-
-        $data['html'] = $builder;
-      
-        return view('portal.default.recurring_invoices.index', $data);
+        return $this->render('recurring_invoices.index', [
+            'invoices' => $invoices,
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Display the recurring invoice.
      *
-     * @param      \App\Models\Invoice $invoice  The invoice
-     *
-     * @return \Illuminate\Http\Response
+     * @param ShowRecurringInvoiceRequest $request
+     * @param RecurringInvoice $recurring_invoice
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function show(ShowRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
-        $data = [
+        return $this->render('recurring_invoices.show', [
             'invoice' => $recurring_invoice->load('invoices'),
-        ];
-        
-        return view('portal.default.recurring_invoices.show', $data);
+        ]);
     }
-
 
     public function requestCancellation(Request $request, RecurringInvoice $recurring_invoice)
     {
-        $data = [
-            'invoice' => $recurring_invoice
-        ];
-
         //todo double check the user is able to request a cancellation
         //can add locale specific by chaining ->locale();
         $recurring_invoice->user->notify(new ClientContactRequestCancellation($recurring_invoice, auth()->user()));
 
-        return view('portal.default.recurring_invoices.request_cancellation', $data);
+        return $this->render('recurring_invoices.cancellation.index', [
+            'invoice' => $recurring_invoice,
+        ]);
     }
 }

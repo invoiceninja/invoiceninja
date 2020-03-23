@@ -22,59 +22,39 @@ use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ClientContact $client_contact
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function edit(ClientContact $client_contact)
     {
-        /* Dropzone configuration */
-        $data = [
-            'params' => [
-                'is_avatar' => true,
-            ],
-            'url' => '/client/document',
-            'multi_upload' => false,
-        ];
-        
-        return view('portal.default.profile.index', $data);
+        return $this->render('profile.index');
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateContactRequest $request
+     * @param ClientContact $client_contact
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(UpdateContactRequest $request, ClientContact $client_contact)
     {
         $client_contact->fill($request->all());
 
-        //update password if needed
-        if ($request->input('password')) {
-            $client_contact->password = Hash::make($request->input('password'));
+        if ($request->has('password')) {
+            $client_contact->password = encrypt($request->password);
         }
 
         $client_contact->save();
 
         // auth()->user()->fresh();
 
-        return back();
+        return back()->withSuccess(
+            ctrans('texts.profile_updated_successfully')
+        );
     }
 
     public function updateClient(UpdateClientRequest $request, ClientContact $client_contact)
@@ -93,6 +73,8 @@ class ProfileController extends Controller
         $client->fill($request->all());
         $client->save();
 
-        return back();
+        return back()->withSuccess(
+            ctrans('texts.profile_updated_successfully')
+        );
     }
 }

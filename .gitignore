@@ -30,3 +30,4 @@ storage/migrations
 # Ignore Tailwind & Javascript build file >2mb without PurgeCSS (development-only)
 public/css/app.css
 public/js/app.js
+public/js/clients/*

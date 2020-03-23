@@ -60,7 +60,7 @@ class ContactResetPasswordController extends Controller
      */
     public function showResetForm(Request $request, $token = null)
     {
-        return view('portal.default.auth.passwords.reset')->with(
+        return $this->render('auth.passwords.reset')->with(
             ['token' => $token, 'email' => $request->email]
         );
     }

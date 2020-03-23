@@ -1,5 +1,5 @@
 .button {
-    @apply rounded py-3 px-4;
+    @apply rounded py-3 px-4 text-sm leading-4 transition duration-150 ease-in-out font-semibold;
 }
 
 .button-primary {
@@ -12,4 +12,32 @@
 
 .button-block {
     @apply block w-full;
+}
+
+.button-danger {
+    @apply bg-red-500 text-white;
+
+    &:hover {
+        @apply bg-red-600;
+    }
+}
+
+.button-secondary {
+    @apply bg-gray-100;
+
+    &:hover {
+        @apply bg-gray-200;
+    }
+}
+
+.button-link {
+    @apply text-blue-600;
+
+    &:hover {
+        @apply text-blue-700 underline;
+    }
+
+    &:focus {
+        @apply outline-none underline;
+    }
 }
