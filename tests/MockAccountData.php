@@ -119,6 +119,7 @@ trait MockAccountData
 
         if (!$this->user) {
             $this->user = factory(\App\Models\User::class)->create([
+                'account_id' => $this->account->id,
                 'password' => Hash::make('ALongAndBriliantPassword'),
                 'confirmation_code' => $this->createDbHash(config('database.default'))
             ]);

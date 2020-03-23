@@ -12,6 +12,7 @@
 namespace App\Repositories;
 
 use App\DataMapper\CompanySettings;
+use App\Events\User\UserWasDeleted;
 use App\Factory\CompanyUserFactory;
 use App\Models\CompanyUser;
 use App\Models\User;
@@ -46,12 +47,16 @@ class UserRepository extends BaseRepository
      */
     public function save(array $data, User $user)
     {
+      
+        $company = auth()->user()->company();
+        $account_id = $company->account->id;
+
         $user->fill($data);
+        $user->account_id = $account_id;
         $user->save();
 
         if (isset($data['company_user'])) {
-            $company = auth()->user()->company();
-            $account_id = $company->account->id;
+
 
             $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->withTrashed()->first();
 
@@ -61,6 +66,7 @@ class UserRepository extends BaseRepository
                 $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
+
                 $cu->fill($data['company_user']);
                 $cu->restore();
                 $cu->tokens()->restore();
@@ -71,7 +77,9 @@ class UserRepository extends BaseRepository
                 $query->whereCompanyId($company->id)
                       ->whereUserId($user->id);
             }])->first();
-            //return $user->with('company_user')->whereCompanyId($company->id)->first();
+
+            $user->restore();
+
         }
 
         return $user;
@@ -80,6 +88,7 @@ class UserRepository extends BaseRepository
     public function destroy(array $data, User $user)
     {
         if (array_key_exists('company_user', $data)) {
+
             $this->forced_includes = 'company_users';
 
             $company = auth()->user()->company();
@@ -94,9 +103,15 @@ class UserRepository extends BaseRepository
 
         $user->delete();
     
+        event(new UserWasDeleted($user, $company));
+
+
         return $user->fresh();
     }
 
+    /*
+     * Soft deletes the user and the company user
+     */
     public function delete($user)
     {
         $company = auth()->user()->company();
@@ -114,6 +129,8 @@ class UserRepository extends BaseRepository
         $user->save();
         $user->delete();
     
+        event(new UserWasDeleted($user, $company));
+
         return $user->fresh();
     }
 }

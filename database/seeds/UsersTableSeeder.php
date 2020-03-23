@@ -35,6 +35,7 @@ class UsersTableSeeder extends Seeder
         $account->save();
 
         $user = factory(\App\Models\User::class)->create([
+            'account_id' => $account->id,
             'confirmation_code' => $this->createDbHash(config('database.default'))
         ]);
 

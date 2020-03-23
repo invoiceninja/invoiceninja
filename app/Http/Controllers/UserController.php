@@ -349,7 +349,7 @@ class UserController extends BaseController
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
+f     *          response=200,
      *          description="Returns the User object",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),

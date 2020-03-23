@@ -82,7 +82,7 @@ class RandomDataSeeder extends Seeder
 
         $user = factory(\App\Models\User::class)->create([
             'email'             => $faker->email,
-           // 'account_id' => $account->id,
+            'account_id' => $account->id,
             'confirmation_code' => $this->createDbHash(config('database.default'))
         ]);
 
