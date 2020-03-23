@@ -22,8 +22,7 @@ class QuoteController extends Controller
      */
     public function index()
     {
-        $company = Company::find(3);
-        $quotes = $company->quotes()->paginate(10);
+        $quotes = auth()->user()->company->quotes()->paginate(10);
 
         return $this->render('quotes.index', [
             'quotes' => $quotes,
@@ -62,9 +61,9 @@ class QuoteController extends Controller
 
     protected function downloadQuotePdf(array $ids)
     {
-        $quotes = Quote::whereIn('id', $ids)->get();
-
-        // restore whereClientId
+        $quotes = Quote::whereIn('id', $ids)
+            ->whereClientId(auth()->user()->client->id)
+            ->get();
 
         if (!$quotes || $quotes->count() == 0) {
             return;
@@ -91,7 +90,9 @@ class QuoteController extends Controller
 
     protected function approve(array $ids, $process = false)
     {
-        $quotes = Quote::whereIn('id', $ids)->get();
+        $quotes = Quote::whereIn('id', $ids)
+            ->whereClientId(auth()->user()->client->id)
+            ->get();
 
         if (!$quotes || $quotes->count() == 0) {
             return redirect()->route('client.quotes.index');
