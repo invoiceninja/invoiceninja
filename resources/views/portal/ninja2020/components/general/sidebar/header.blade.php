@@ -8,7 +8,7 @@
     <div class="flex-1 px-4 flex justify-between">
         <div class="flex-1 flex">
             <div class="w-full flex md:ml-0">
-                <label for="search_field" class="sr-only">Search</label>
+                <label for="search_field" class="sr-only">{{ ctrans('texts.search') }}</label>
                 <div class="relative w-full text-gray-400 focus-within:text-gray-600">
                     <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

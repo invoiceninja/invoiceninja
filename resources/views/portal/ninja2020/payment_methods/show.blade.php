@@ -13,7 +13,8 @@
                     {{ ctrans("texts.{$payment_method->gateway_type->alias}") }}
                 </h3>
                 <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
-                    Details of the payment method.
+                    <!-- Details of the payment method. -->
+                    {{ ctrans('texts.details_of_method') }}
                 </p>
             </div>
             <div>

@@ -55,6 +55,12 @@ Breadcrumbs::for('payment_methods.show', function ($trail, $invoice) {
     $trail->push(sprintf('%s: %s', ctrans('texts.payment_methods'), $invoice->hashed_id), route('client.payment_methods.index', $invoice->hashed_id));
 });
 
+// Payment methods > Create method
+Breadcrumbs::for('payment_methods.add_credit_card', function ($trail) {
+    $trail->parent('payment_methods');
+    $trail->push(ctrans('texts.add_credit_card'));
+});
+
 // Quotes
 Breadcrumbs::for('quotes', function ($trail) {
     $trail->push(ctrans('texts.quotes'), route('client.quotes.index'));

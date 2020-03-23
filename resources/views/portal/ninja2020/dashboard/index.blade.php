@@ -12,8 +12,8 @@
                         {{ ctrans('texts.dashboard') }}
                     </h3>
                     <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
-                        <p>
-                            Quick overview and statistics.
+                        <p translate>
+                            {{ ctrans('texts.quick_overview_statistics') }}
                         </p>
                     </div>
                 </div>

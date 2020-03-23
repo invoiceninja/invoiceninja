@@ -12,8 +12,8 @@
                         {{ ctrans('texts.payments') }}
                     </h3>
                     <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
-                        <p>
-                            List of your payments.
+                        <p translate>
+                            {{ ctrans('texts.List of your payments.') }}
                         </p>
                     </div>
                 </div>

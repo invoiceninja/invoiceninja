@@ -6,7 +6,7 @@
 @endpush
 
 @section('header')
-    insert breadcrumbs
+    {{ Breadcrumbs::render('payment_methods.add_credit_card') }}
 @endsection
 
 @section('body')

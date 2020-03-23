@@ -20,8 +20,8 @@
                         {{ ctrans('texts.quotes') }}
                     </h3>
                     <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
-                        <p>
-                            List of your quotes.
+                        <p translate>
+                            {{ ctrans('texts.list_of_quotes') }}
                         </p>
                     </div>
                 </div>

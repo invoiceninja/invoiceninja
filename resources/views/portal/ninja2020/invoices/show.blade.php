@@ -15,11 +15,12 @@
                     <div class="sm:flex sm:items-start sm:justify-between">
                         <div>
                             <h3 class="text-lg leading-6 font-medium text-gray-900">
-                                Unpaid
+                                {{ ctrans('texts.unpaid') }}
                             </h3>
                             <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
-                                <p>
-                                    This invoice is still not paid. Click the button to complete the payment.
+                                <p translate>
+                                    {{ ctrans('texts.invoice_unpaid') }}
+                                    <!-- This invoice is still not paid. Click the button to complete the payment. -->
                                 </p>
                             </div>
                         </div>

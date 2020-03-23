@@ -13,7 +13,7 @@
                     {{ ctrans('texts.payment') }}
                 </h3>
                 <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
-                    Details of the payment.
+                    {{ ctrans('texts.Details of the payment.') }}
                 </p>
             </div>
             <div>
@@ -67,7 +67,7 @@
                     {{ ctrans('texts.invoices') }}
                 </h3>
                 <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
-                    List of invoices affected by payment.
+                    {{ ctrans('texts.List of invoices affected by payment.') }}
                 </p>
             </div>
             <div>
@@ -79,8 +79,9 @@
                             </dt>
                             <div class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                                 <a class="button-link"
-                                    href="{{ route('client.invoice.show', ['invoice' => $invoice->hashed_id])}}
-                                        ">{{ $invoice->number }}</a>
+                                   href="{{ route('client.invoice.show', ['invoice' => $invoice->hashed_id])}}">
+                                    {{ $invoice->number }}
+                                </a>
                             </div>
                         </div>
                     @endforeach

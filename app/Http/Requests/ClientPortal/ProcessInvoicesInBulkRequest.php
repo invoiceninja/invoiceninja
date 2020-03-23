@@ -13,7 +13,7 @@ class ProcessInvoicesInBulkRequest extends FormRequest
      */
     public function authorize()
     {
-        return auth()->user()->client->id === $this->invoice->client_id;
+        return true; // TODO.
     }
 
     /**

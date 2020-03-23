@@ -3,7 +3,7 @@
 @section('meta_title', ctrans('texts.client_information'))
 
 @section('header')
-    <p class="leading-5 text-gray-500" translate>Update your personal information.</p>
+    <p class="leading-5 text-gray-500" translate>{{ ctrans('texts.Update your personal information.') }}</p>
 @endsection
 
 @section('body')
@@ -13,7 +13,7 @@
         <div class="md:grid md:grid-cols-3 md:gap-6">
             <div class="md:col-span-1">
                 <div class="sm:px-0">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900" translate>Profile</h3>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900" translate>{{ ctrans('texts.profile') }}</h3>
                     <p class="mt-1 text-sm leading-5 text-gray-500">
                         @lang('texts.client_information_text')
                     </p>
@@ -107,9 +107,9 @@
         <div class="md:grid md:grid-cols-3 md:gap-6">
             <div class="md:col-span-1">
                 <div class="sm:px-0">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900">Name, website & logo</h3>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">{{ ctrans('texts.name_website_logo') }}</h3>
                     <p class="mt-1 text-sm leading-5 text-gray-500" translate>
-                        Make sure you use full link to your site.
+                       {{ ctrans('texts. Make sure you use full link to your site.') }}
                     </p>
                 </div>
             </div>
@@ -160,9 +160,9 @@
         <div class="md:grid md:grid-cols-3 md:gap-6">
             <div class="md:col-span-1">
                 <div class="sm:px-0">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900">Address</h3>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">{{ ctrans('texts.personal_address') }}</h3>
                     <p class="mt-1 text-sm leading-5 text-gray-500" translate>
-                        Your personal address.
+                        {{ ctrans('texts.your_personal_address') }}
                     </p>
                 </div>
             </div>
@@ -256,9 +256,9 @@
         <div class="md:grid md:grid-cols-3 md:gap-6">
             <div class="md:col-span-1">
                 <div class="sm:px-0">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900">Shipping address</h3>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">{{ ctrans('texts.shipping_address') }}</h3>
                     <p class="mt-1 text-sm leading-5 text-gray-500" translate>
-                        Your shipping address.
+                        {{ ctrans('texts.your_shipping_address') }}
                     </p>
                 </div>
             </div>
