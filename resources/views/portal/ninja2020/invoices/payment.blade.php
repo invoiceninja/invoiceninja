@@ -3,13 +3,14 @@
 
 @push('head')
     <meta name="show-invoice-terms" content="1">
+    <meta name="require-invoice-signature" content="1">
     <!-- <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? 1 : 0 }}"> -->
-    <meta name="require-invoice-signature" content="{{ $settings->show_accept_invoice_terms ? 1 : 0 }}">
+    <!-- <meta name="require-invoice-signature" content="{{ $settings->show_accept_invoice_terms ? 1 : 0 }}"> -->
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
 @endpush
 
 @section('body')
-    <form action="{{ route('client.payments.process') }}" method="post" id="payment_form">
+    <form action="{{ route('client.payments.process') }}" method="post" id="payment-form">
         @csrf
         <input type="hidden" name="hashed_ids" value="{{ $hashed_ids }}" id="hashed_ids">
         <input type="hidden" name="company_gateway_id" id="company_gateway_id">
@@ -56,9 +57,11 @@
                     <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
                         <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">
-                                {{ ctrans('texts.invoice') }} <a class="button-link"
-                                                                 href="{{ route('client.invoice.show', $invoice->hashed_id) }}">(#{{ $invoice->number }}
-                                    )</a>
+                                {{ ctrans('texts.invoice') }}
+                                <a class="button-link"
+                                   href="{{ route('client.invoice.show', $invoice->hashed_id) }}">
+                                    (#{{ $invoice->number }})
+                                </a>
                             </h3>
                             <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
                             </p>

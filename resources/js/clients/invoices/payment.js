@@ -16,22 +16,49 @@ class Payment {
     }
 
     handleMethodSelect(element) {
-        if (this.shouldDisplaySignature) {
-            this.displaySignature();
-        }
-        if (this.shouldDisplayTerms) {
+
+        if (this.shouldDisplaySignature && !this.shouldDisplayTerms) {
             this.displayTerms();
+
+            document.getElementById('accept-terms-button').addEventListener('click', () => {
+                this.termsAccepted = true;
+                this.submitForm();
+            });
         }
+
+        if (!this.shouldDisplaySignature && this.shouldDisplayTerms) {
+            this.displaySignature();
+
+            document.getElementById('signature-next-step').addEventListener('click', () => {
+                this.submitForm();
+            });
+        }
+
+        if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
+            this.displaySignature();
+
+            document.getElementById('signature-next-step').addEventListener('click', () => {
+                this.displayTerms();
+
+                document.getElementById('accept-terms-button').addEventListener('click', () => {
+                    this.termsAccepted = true;
+                    this.submitForm();
+                });
+            });
+        }
+
+        if (!this.shouldDisplaySignature && !this.shouldDisplayTerms) {
+            this.submitForm();
+        }
+    }
+
+    submitForm() {
+        document.getElementById('payment-form').submit();
     }
 
     displayTerms() {
         let displayTermsModal = document.getElementById('displayTermsModal');
         displayTermsModal.removeAttribute('style');
-
-        document.getElementById('acceptTermsButton')
-            .addEventListener('click', () => {
-                this.termsAccepted = true;
-            });
     }
 
     displaySignature() {
@@ -59,6 +86,6 @@ const terms = document.querySelector(
     'meta[name="show-invoice-terms"]'
 ).content;
 
-new Payment(signature, terms).handle();
+new Payment(Boolean(+signature), Boolean(+terms)).handle();
 
 

@@ -13,6 +13,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Filters\InvoiceFilters;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPortal\ProcessInvoicesInBulk;
 use App\Http\Requests\ClientPortal\ShowInvoiceRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Entity\ActionEntity;
@@ -84,17 +85,20 @@ class InvoiceController extends Controller
     /**
      * Pay one or more invoices
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
+     * @param ProcessInvoicesInBulk $request
+     * @return mixed
      */
-    public function bulk(Request $request)
+    public function bulk(ProcessInvoicesInBulk $request)
     {
         $transformed_ids = $this->transformKeys($request->invoices);
 
         if (request()->input('action') == 'payment') {
-            return $this->makePayment($transformed_ids);
+            return $this->makePayment((array)$transformed_ids);
         } elseif (request()->input('action') == 'download') {
-            return $this->downloadInvoicePDF($transformed_ids);
+            return $this->downloadInvoicePDF((array)$transformed_ids);
         }
+
+        return redirect()->back();
     }
 
 

@@ -33,18 +33,17 @@
             </div>
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-      <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-        <button type="button" id="acceptTermsButton"
-                class="button button-primary">
-          {{ ctrans('texts.agree_to_terms', ['terms' => trans('texts.invoice_terms')]) }}
-        </button>
-      </span>
-            <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
-        <button @click="document.getElementById('displayTermsModal').style.display = 'none';" type="button"
-                class="button button-secondary">
-          {{ ctrans('texts.close') }}
-        </button>
-      </span>
+            <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
+                <button type="button" id="accept-terms-button" class="button button-primary">
+                    {{ ctrans('texts.agree_to_terms', ['terms' => trans('texts.invoice_terms')]) }}
+                </button>
+            </div>
+            <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
+                <button @click="document.getElementById('displayTermsModal').style.display = 'none';" type="button"
+                        class="button button-secondary">
+                    {{ ctrans('texts.close') }}
+                </button>
+            </div>
         </div>
     </div>
 </div>

@@ -4,6 +4,14 @@
 @section('header')
     {{ Breadcrumbs::render('invoices') }}
 
+    @if($errors->any())
+        <div class="alert alert-failure mb-4">
+            @foreach($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+
     <div class="bg-white shadow rounded mb-4" translate>
         <div class="px-4 py-5 sm:p-6">
             <div class="sm:flex sm:items-start sm:justify-between">
@@ -27,8 +35,10 @@
         <span>{{ ctrans('texts.with_selected') }}</span>
         <form action="{{ route('client.invoices.bulk') }}" method="post" id="bulkActions">
             @csrf
-            <button type="submit" class="button button-primary" name="action" value="download">{{ ctrans('texts.download') }}</button>
-            <button type="submit" class="button button-primary" name="action" value="payment">{{ ctrans('texts.pay_now') }}</button>
+            <button type="submit" class="button button-primary" name="action"
+                    value="download">{{ ctrans('texts.download') }}</button>
+            <button type="submit" class="button button-primary" name="action"
+                    value="payment">{{ ctrans('texts.pay_now') }}</button>
         </form>
     </div>
     <div class="flex flex-col mt-4">
@@ -66,7 +76,8 @@
                         <tr class="bg-white group hover:bg-gray-100">
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
                                 <label>
-                                    <input type="checkbox" class="form-check form-check-child" data-value="{{ $invoice->hashed_id }}">
+                                    <input type="checkbox" class="form-check form-check-child"
+                                           data-value="{{ $invoice->hashed_id }}">
                                 </label>
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
@@ -86,7 +97,9 @@
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap flex items-center justify-end text-sm leading-5 font-medium">
                                 @if($invoice->isPayable())
-                                    <button class="button button-primary py-1 px-2 text-xs uppercase mr-3 pay-now-button" data-value="{{ $invoice->hashed_id }}">
+                                    <button
+                                        class="button button-primary py-1 px-2 text-xs uppercase mr-3 pay-now-button"
+                                        data-value="{{ $invoice->hashed_id }}">
                                         @lang('texts.pay_now')
                                     </button>
                                 @endif
