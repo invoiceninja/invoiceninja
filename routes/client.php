@@ -26,7 +26,7 @@ Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', '
 	Route::get('recurring_invoices/{recurring_invoice}', 'ClientPortal\RecurringInvoiceController@show')->name('recurring_invoices.show');
 	Route::get('recurring_invoices/{recurring_invoice}/request_cancellation', 'ClientPortal\RecurringInvoiceController@requestCancellation')->name('recurring_invoices.request_cancellation');
 
-	Route::get('payments', 'ClientPortal\PaymentConprocesstroller@index')->name('payments.index')->middleware('portal_enabled');
+	Route::get('payments', 'ClientPortal\PaymentController@index')->name('payments.index')->middleware('portal_enabled');
 	Route::get('payments/{payment}', 'ClientPortal\PaymentController@show')->name('payments.show');
 	Route::post('payments/process', 'ClientPortal\PaymentController@process')->name('payments.process');
 	Route::post('payments/process/response', 'ClientPortal\PaymentController@response')->name('payments.response');
@@ -41,6 +41,8 @@ Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', '
 
     Route::match(['GET', 'POST'], 'quotes/approve', 'ClientPortal\QuoteController@bulk')->name('quotes.bulk');
     Route::resource('quotes', 'ClientPortal\QuoteController')->only('index', 'show');
+
+    Route::resource('credits', 'ClientPortal\CreditController')->only('index', 'show');
 
 	Route::post('document', 'ClientPortal\DocumentController@store')->name('document.store');
 	Route::delete('document', 'ClientPortal\DocumentController@destroy')->name('document.destroy');
