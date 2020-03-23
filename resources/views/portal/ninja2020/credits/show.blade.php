@@ -2,7 +2,7 @@
 @section('meta_title', ctrans('texts.credit'))
 
 @section('header')
-
+    {{ Breadcrumbs::render('credits.show', $credit) }}
 @endsection
 
 @section('body')

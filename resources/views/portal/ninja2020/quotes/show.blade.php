@@ -2,7 +2,7 @@
 @section('meta_title', ctrans('texts.view_quote'))
 
 @section('header')
-    Insert breadcrumbs..
+    {{ Breadcrumbs::render('quotes.show', $quote) }}
 @endsection
 
 @section('body')

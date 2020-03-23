@@ -6,6 +6,10 @@
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
 @endpush
 
+@section('header')
+    {{ Breadcrumbs::render('quotes.approve') }}
+@endsection
+
 @section('body')
     <form action="{{ route('client.quotes.bulk') }}" method="post" id="approve-form">
         @csrf

@@ -2,7 +2,7 @@
 @section('meta_title', ctrans('texts.credits'))
 
 @section('header')
-    {{ Breadcrumbs::render('invoices') }}
+    {{ Breadcrumbs::render('credits') }}
 
     @if($errors->any())
         <div class="alert alert-failure mb-4">

@@ -5,7 +5,6 @@
     {{ Breadcrumbs::render('payment_methods.show', $payment_method) }}
 @endsection
 
-
 @section('body')
     <div class="container mx-auto">
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">

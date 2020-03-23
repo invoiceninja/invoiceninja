@@ -55,6 +55,34 @@ Breadcrumbs::for('payment_methods.show', function ($trail, $invoice) {
     $trail->push(sprintf('%s: %s', ctrans('texts.payment_methods'), $invoice->hashed_id), route('client.payment_methods.index', $invoice->hashed_id));
 });
 
+// Quotes
+Breadcrumbs::for('quotes', function ($trail) {
+    $trail->push(ctrans('texts.quotes'), route('client.quotes.index'));
+});
+
+// Quotes > Show quote
+Breadcrumbs::for('quotes.show', function ($trail, $quote) {
+    $trail->parent('quotes');
+    $trail->push(sprintf('%s: %s', ctrans('texts.quotes'), $quote->hashed_id), route('client.quotes.index', $quote->hashed_id));
+});
+
+// Quotes > Approve
+Breadcrumbs::for('quotes.approve', function ($trail) {
+    $trail->parent('quotes');
+    $trail->push(ctrans('texts.approve'));
+});
+
+// Quotes
+Breadcrumbs::for('credits', function ($trail) {
+    $trail->push(ctrans('texts.credits'), route('client.credits.index'));
+});
+
+// Quotes > Show quote
+Breadcrumbs::for('credits.show', function ($trail, $credit) {
+    $trail->parent('credits');
+    $trail->push(sprintf('%s: %s', ctrans('texts.credits'), $credit->hashed_id), route('client.credits.index', $credit->hashed_id));
+});
+
 // Dashboard > Client
 Breadcrumbs::for('clients', function ($trail) {
     $trail->parent('dashboard');
