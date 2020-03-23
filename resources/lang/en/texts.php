@@ -2,6 +2,7 @@
 
 return [
     'continue' => 'Continue',
+    'back' => 'Back',
     'complete' => 'Complete',
     'next' => 'Next',
     'next_step' => 'Next step',
@@ -504,6 +505,7 @@ return [
     'api_tokens' => 'API Tokens',
     'users_and_tokens' => 'Users & Tokens',
     'account_login' => 'Account Login',
+    'account_login_text' => 'Welcome back! Glad to see you.',
     'recover_password' => 'Recover your password',
     'forgot_password' => 'Forgot your password?',
     'email_address' => 'Email address',
@@ -711,6 +713,7 @@ return [
     'reminder_subject' => 'Reminder: Invoice :invoice from :account',
     'reset' => 'Reset',
     'invoice_not_found' => 'The requested invoice is not available',
+    'request_cancellation' => 'Request cancellation',
     'referral_program' => 'Referral Program',
     'referral_code' => 'Referral URL',
     'last_sent_on' => 'Sent Last: :date',
@@ -2196,6 +2199,7 @@ return [
     'create_expense_category' => 'Create category',
     'pro_plan_reports' => ':link to enable reports by joining the Pro Plan',
     'mark_ready' => 'Mark Ready',
+    'profile_updated_successfully' => 'The profile has been updated successfully.',
 
     'limits' => 'Limits',
     'fees' => 'Fees',
@@ -2705,6 +2709,7 @@ return [
     'amount_greater_than_balance' => 'The amount is greater than the invoice balance, a credit will be created with the remaining amount.',
     'custom_fields_tip' => 'Use <code>Label|Option1,Option2</code> to show a select box.',
     'client_information' => 'Client Information',
+    'client_information_text' => 'Use a permanent address where you can receive mail.',
     'updated_client_details' => 'Successfully updated client details',
     'auto' => 'Auto',
     'tax_amount' => 'Tax Amount',

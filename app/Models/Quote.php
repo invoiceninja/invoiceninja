@@ -17,6 +17,7 @@ use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Quote\CreateQuotePdf;
 use App\Models\Filterable;
 use App\Services\Quote\QuoteService;
+use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\MakesReminders;
@@ -29,6 +30,7 @@ use Laracasts\Presenter\PresentableTrait;
 class Quote extends BaseModel
 {
     use MakesHash;
+    use MakesDates;
     use Filterable;
     use SoftDeletes;
     use MakesReminders;
@@ -150,7 +152,8 @@ class Quote extends BaseModel
     {
         $storage_path = 'storage/' . $this->client->quote_filepath() . $this->number . '.pdf';
 
-        if (Storage::exists($storage_path)) {
+        if (Storage::exists($storage_path))
+        {
             return $storage_path;
         }
 
@@ -161,5 +164,44 @@ class Quote extends BaseModel
         }
 
         return $storage_path;
+    }
+
+    /**
+     * @param int $status
+     * @return string
+     */
+    public static function badgeForStatus(int $status)
+    {
+        switch ($status) {
+            case Quote::STATUS_DRAFT:
+                return '<h5><span class="badge badge-light">' . ctrans('texts.draft') . '</span></h5>';
+                break;
+            case Quote::STATUS_SENT:
+                return '<h5><span class="badge badge-primary">' . ctrans('texts.sent') . '</span></h5>';
+                break;
+            case Quote::STATUS_APPROVED:
+                return '<h5><span class="badge badge-success">' . ctrans('texts.approved') . '</span></h5>';
+                break;
+            case Quote::STATUS_EXPIRED:
+                return '<h5><span class="badge badge-danger">' . ctrans('texts.expired') . '</span></h5>';
+                break;
+            default:
+                # code...
+                break;
+        }
+    }
+
+    /**
+     * Check if the quote has been approved.
+     *
+     * @return bool
+     */
+    public function isApproved()
+    {
+        if($this->status_id === $this::STATUS_APPROVED)  {
+            return true;
+        }
+
+        return false;
     }
 }

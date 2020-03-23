@@ -28,12 +28,12 @@ class ContactLoginController extends Controller
     {
         $this->middleware('guest:contact', ['except' => ['logout']]);
     }
-    
+
     public function showLoginForm()
     {
-        return view('portal.default.auth.login');
+        return $this->render('auth.login');
     }
-    
+
 
     public function login(Request $request)
     {
@@ -65,10 +65,10 @@ class ContactLoginController extends Controller
         if (session()->get('url.intended')) {
             return redirect(session()->get('url.intended'));
         }
-              
+
         return redirect(route('client.dashboard'));
     }
-    
+
     public function logout()
     {
         Auth::guard('contact')->logout();

@@ -22,7 +22,7 @@ return [
     |
     */
 
-    'view' => 'breadcrumbs::bootstrap4',
+    'view' => 'portal.ninja2020.components.breadcrumbs',
 
     /*
     |--------------------------------------------------------------------------

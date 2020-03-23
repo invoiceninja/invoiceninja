@@ -1,0 +1,87 @@
+@extends('portal.ninja2020.layout.app')
+@section('meta_title', ctrans('texts.recurring_invoice'))
+
+@section('header')
+    {{ Breadcrumbs::render('recurring_invoices.show', $invoice) }}
+@endsection
+
+@section('body')
+    <div class="container mx-auto">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    {{ ctrans('texts.recurring_invoices') }}
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
+                    {{ ctrans('texts.details_of_recurring_invoice') }}.
+                </p>
+            </div>
+            <div>
+                <dl>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm leading-5 font-medium text-gray-500">
+                            {{ ctrans('texts.start_date') }}
+                        </dt>
+                        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ $invoice->formatDate($invoice->start_date, $invoice->client->date_format()) }}
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm leading-5 font-medium text-gray-500">
+                            {{ ctrans('texts.next_send_date') }}
+                        </dt>
+                        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ $invoice->formatDate($invoice->next_send_date, $invoice->client->date_format()) }}
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm leading-5 font-medium text-gray-500">
+                            {{ ctrans('texts.frequency') }}
+                        </dt>
+                        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ \App\Models\RecurringInvoice::frequencyForKey($invoice->frequency_id) }}
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm leading-5 font-medium text-gray-500">
+                            {{ ctrans('texts.cycles_remaining') }}
+                        </dt>
+                        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ $invoice->remaining_cycles }}
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm leading-5 font-medium text-gray-500">
+                            {{ ctrans('texts.amount') }}
+                        </dt>
+                        <div class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ \App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <div class="bg-white shadow sm:rounded-lg mb-4 mt-4" translate>
+            <div class="px-4 py-5 sm:p-6">
+                <div class="sm:flex sm:items-start sm:justify-between">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            {{ ctrans('texts.cancellation') }}
+                        </h3>
+                        <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
+                            <p translate>
+                                {{ ctrans('texts.In case you want to stop the recurring invoice, please click the request the
+                                cancellation.') }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
+                        <div class="inline-flex rounded-md shadow-sm" x-data="{ open: false }">
+                            <button class="button button-danger" translate @click="open = true">Request Cancellation</button>
+                            @include('portal.ninja2020.recurring_invoices.includes.modals.cancellation')
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

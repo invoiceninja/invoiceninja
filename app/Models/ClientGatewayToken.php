@@ -16,9 +16,12 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\User;
+use App\Utils\Traits\MakesDates;
 
 class ClientGatewayToken extends BaseModel
 {
+    use MakesDates;
+
     protected $casts = [
         'meta' => 'object',
         'updated_at' => 'timestamp',
@@ -50,7 +53,7 @@ class ClientGatewayToken extends BaseModel
     {
         return $this->hasOne(User::class)->withTrashed();
     }
- 
+
     /**
      * Retrieve the model for a bound value.
      *
