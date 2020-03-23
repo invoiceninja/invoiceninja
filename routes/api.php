@@ -118,6 +118,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('self-update/check_version', 'SelfUpdateController@checkVersion');
 
+    Route::post('claim_license', 'LicenseController@index')->name('license.index');
+
     /*
     Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
 
@@ -136,9 +138,5 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('support/messages/send', 'Support\Messages\SendingController');
 });
 
-Route::group(['middleware' => ['api_db', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
-    Route::post('claim_license', 'LicenseController@index')->name('license.index');
-    //Route::post('register_user', 'LicenseController@registerNinjaUser')->name('license.register_ninja_user');
-});
 
 Route::fallback('BaseController@notFound');

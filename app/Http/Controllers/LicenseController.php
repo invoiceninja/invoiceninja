@@ -83,8 +83,8 @@ class LicenseController extends BaseController
     {
 
         /* Catch claim license requests */
-        if (config('ninja.environment') == 'selfhost' && $request->has('license_key')) {
-            $license_key = $request->input('license_key');
+        if (config('ninja.environment') == 'selfhost' && request()->has('license_key')) {
+            $license_key = request()->input('license_key');
             $product_id = 3;
 
             $url = config('ninja.license_url') . "/claim_license?license_key={$license_key}&product_id={$product_id}&get_date=true";
@@ -134,7 +134,7 @@ class LicenseController extends BaseController
         }
 
         $error = [
-            'message' => trans('texts.invalid_white_label_license'),
+            'message' => "Invalid license, or invalid environment ".config('ninja.environment')s,
             'errors' => []
         ];
 
