@@ -40,6 +40,10 @@ class Kernel extends ConsoleKernel
 
         //$schedule->job(new RecurringInvoicesCron)->hourly();
         $schedule->job(new VersionCheck)->daily();
+
+        /* Build queue snapshots */
+        $schedule->command('horizon:snapshot')->everyFiveMinutes();
+
     }
 
     /**
