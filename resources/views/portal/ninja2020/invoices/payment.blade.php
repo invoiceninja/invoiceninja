@@ -2,10 +2,8 @@
 @section('meta_title', ctrans('texts.pay_now'))
 
 @push('head')
-    <meta name="show-invoice-terms" content="1">
-    <meta name="require-invoice-signature" content="1">
-    <!-- <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? 1 : 0 }}"> -->
-    <!-- <meta name="require-invoice-signature" content="{{ $settings->show_accept_invoice_terms ? 1 : 0 }}"> -->
+    <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
+    <meta name="require-invoice-signature" content="{{ $settings->require_invoice_signature ? true : false }}">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
 @endpush
 

@@ -4,7 +4,7 @@ namespace App\Http\Requests\ClientPortal;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProcessInvoicesInBulk extends FormRequest
+class ShowQuoteRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,6 +14,8 @@ class ProcessInvoicesInBulk extends FormRequest
     public function authorize()
     {
         return true;
+
+        // return auth()->user()->client->id === $this->quote->client_id;
     }
 
     /**
@@ -24,7 +26,7 @@ class ProcessInvoicesInBulk extends FormRequest
     public function rules()
     {
         return [
-            'invoices' => ['array'],
+            //
         ];
     }
 }

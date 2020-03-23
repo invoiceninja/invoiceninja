@@ -4,7 +4,9 @@ const tailwindcss = require("tailwindcss");
 mix.js("resources/js/app.js", "public/js")
     .js("resources/js/clients/payment_methods/authorize-stripe-card.js", "public/js/clients/payment_methods/authorize-stripe-card.js")
     .js("resources/js/clients/invoices/action-selectors.js", "public/js/clients/invoices/action-selectors.js")
-    .js("resources/js/clients/invoices/payment.js", "public/js/clients/invoices/payment.js");
+    .js("resources/js/clients/invoices/payment.js", "public/js/clients/invoices/payment.js")
+    .js("resources/js/clients/quotes/action-selectors.js", "public/js/clients/quotes/action-selectors.js")
+    .js("resources/js/clients/quotes/approve.js", "public/js/clients/quotes/approve.js");
 
 mix.sass("resources/sass/app.scss", "public/css")
     .options({
