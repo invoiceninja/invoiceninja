@@ -1962,37 +1962,37 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'authorization' => 'Authorization',
     'signed' => 'Signed',
 
-	// BlueVine
-	'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
-	'bluevine_modal_label' => 'Sign up with BlueVine',
-	'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
+    'bluevine_modal_label' => 'Sign up with BlueVine',
+    'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
 <ul><li>Flexible business lines of credit and invoice factoring.</li></ul>',
-	'bluevine_create_account' => 'Hesap oluştur',
-	'quote_types' => 'Fiyat teklifi al',
-	'invoice_factoring' => 'Fatura faktoringi',
-	'line_of_credit' => 'Kredi limiti',
-	'fico_score'                         => 'FICO skorunuz',
-	'business_inception'                 => 'İş Başlangıç Tarihi',
-	'average_bank_balance'               => 'Ortalama banka hesabı bakiyesi',
-	'annual_revenue'                     => 'Yıllık gelir',
-	'desired_credit_limit_factoring'     => 'İstenilen fatura faktoring limiti',
-	'desired_credit_limit_loc'           => 'İstenilen kredi limiti',
-	'desired_credit_limit'               => 'İstenilen kredi limiti',
-	'bluevine_credit_line_type_required' => 'En az birini seçmelisiniz',
-	'bluevine_field_required'            => 'Bu alan gereklidir',
-	'bluevine_unexpected_error'          => 'Beklenmedik bir hata oluştu.',
-	'bluevine_no_conditional_offer'      => 'Teklif almadan önce daha fazla bilgi gereklidir. Aşağıdaki devam linkine tıklayın.',
-	'bluevine_invoice_factoring'         => 'Fatura Faktoringi',
-	'bluevine_conditional_offer'         => 'Koşullu teklif',
-	'bluevine_credit_line_amount'        => 'Kredi Limiti',
-	'bluevine_advance_rate'              => 'Avans Oranı',
-	'bluevine_weekly_discount_rate'      => 'Haftalık İskonto Oranı',
-	'bluevine_minimum_fee_rate'          => 'Minimum Ücret',
-	'bluevine_line_of_credit'            => 'Kredi sınırı',
-	'bluevine_interest_rate'             => 'Faiz oranı',
-	'bluevine_weekly_draw_rate'          => 'Haftalık Çekme Oranı',
-	'bluevine_continue'                  => 'BlueVine\'e devam et',
-	'bluevine_completed'                 => 'BlueVine kayıt tamamlandı',
+    'bluevine_create_account' => 'Hesap oluştur',
+    'quote_types' => 'Fiyat teklifi al',
+    'invoice_factoring' => 'Fatura faktoringi',
+    'line_of_credit' => 'Kredi limiti',
+    'fico_score'                         => 'FICO skorunuz',
+    'business_inception'                 => 'İş Başlangıç Tarihi',
+    'average_bank_balance'               => 'Ortalama banka hesabı bakiyesi',
+    'annual_revenue'                     => 'Yıllık gelir',
+    'desired_credit_limit_factoring'     => 'İstenilen fatura faktoring limiti',
+    'desired_credit_limit_loc'           => 'İstenilen kredi limiti',
+    'desired_credit_limit'               => 'İstenilen kredi limiti',
+    'bluevine_credit_line_type_required' => 'En az birini seçmelisiniz',
+    'bluevine_field_required'            => 'Bu alan gereklidir',
+    'bluevine_unexpected_error'          => 'Beklenmedik bir hata oluştu.',
+    'bluevine_no_conditional_offer'      => 'Teklif almadan önce daha fazla bilgi gereklidir. Aşağıdaki devam linkine tıklayın.',
+    'bluevine_invoice_factoring'         => 'Fatura Faktoringi',
+    'bluevine_conditional_offer'         => 'Koşullu teklif',
+    'bluevine_credit_line_amount'        => 'Kredi Limiti',
+    'bluevine_advance_rate'              => 'Avans Oranı',
+    'bluevine_weekly_discount_rate'      => 'Haftalık İskonto Oranı',
+    'bluevine_minimum_fee_rate'          => 'Minimum Ücret',
+    'bluevine_line_of_credit'            => 'Kredi sınırı',
+    'bluevine_interest_rate'             => 'Faiz oranı',
+    'bluevine_weekly_draw_rate'          => 'Haftalık Çekme Oranı',
+    'bluevine_continue'                  => 'BlueVine\'e devam et',
+    'bluevine_completed'                 => 'BlueVine kayıt tamamlandı',
 
     'vendor_name' => 'Tedarikçi',
     'entity_state' => 'Durum',
@@ -2126,16 +2126,16 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'This Year',
 
-	// Updated login screen
-	'ninja_tagline' => 'Create. Send. Get Paid.',
-	'login_or_existing' => 'Or login with a connected account.',
-	'sign_up_now' => 'Sign Up Now',
-	'not_a_member_yet' => 'Not a member yet?',
-	'login_create_an_account' => 'Create an Account!',
-	'client_login' => 'Client Login',
+    // Updated login screen
+    'ninja_tagline' => 'Create. Send. Get Paid.',
+    'login_or_existing' => 'Or login with a connected account.',
+    'sign_up_now' => 'Sign Up Now',
+    'not_a_member_yet' => 'Not a member yet?',
+    'login_create_an_account' => 'Create an Account!',
+    'client_login' => 'Client Login',
 
-	// New Client Portal styling
-	'invoice_from' => 'Invoices From:',
+    // New Client Portal styling
+    'invoice_from' => 'Invoices From:',
     'email_alias_message' => 'We require each company to have a unique email address.<br/>Consider using an alias. ie, email+label@example.com',
     'full_name' => 'Full Name',
     'month_year' => 'MONTH/YEAR',
@@ -2430,7 +2430,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Dışa aktarma formatı',
+    'format_export' => 'Dışa aktarma formatı',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2867,5 +2867,3 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
 );
 
 return $LANG;
-
-?>

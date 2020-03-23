@@ -60,7 +60,5 @@ class PaymentCreatedActivity implements ShouldQueue
         if (count($invoices) == 0) {
             $this->activityRepo->save($fields, $payment);
         }
-
-        
     }
 }

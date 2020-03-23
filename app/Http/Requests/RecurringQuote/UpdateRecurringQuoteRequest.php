@@ -48,5 +48,4 @@ class UpdateRecurringQuoteRequest extends Request
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         $this->replace($input);
     }
-
 }

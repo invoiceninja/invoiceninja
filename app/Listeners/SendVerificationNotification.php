@@ -13,6 +13,7 @@ namespace App\Listeners;
 
 use App\Libraries\MultiDB;
 use App\Notifications\Ninja\VerifyUser;
+use App\Utils\Ninja;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,10 +44,10 @@ class SendVerificationNotification implements ShouldQueue
      */
     public function handle($event)
     {
-
         MultiDB::setDB($event->company->db);
 
         $event->user->notify(new VerifyUser($event->user));
 
+        Ninja::registerNinjaUser($event->user);
     }
 }

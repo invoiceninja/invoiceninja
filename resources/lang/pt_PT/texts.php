@@ -1955,37 +1955,37 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'authorization' => 'Autorização',
     'signed' => 'Assinado',
 
-	// BlueVine
-	'bluevine_promo' => 'Tenha uma linha de crédito flexível usando BlueVine.',
-	'bluevine_modal_label' => 'Registar com BlueVine',
-	'bluevine_modal_text' => '<h3>Capital rápido para o seu negócio. Sem papelada.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Tenha uma linha de crédito flexível usando BlueVine.',
+    'bluevine_modal_label' => 'Registar com BlueVine',
+    'bluevine_modal_text' => '<h3>Capital rápido para o seu negócio. Sem papelada.</h3>
 <ul><li>Linhas de crédito flexíveis para o seu negócio.</li></ul>',
-	'bluevine_create_account' => 'Criar uma conta',
-	'quote_types' => 'Pedir orçamento para',
-	'invoice_factoring' => 'Faturação de contas',
-	'line_of_credit' => 'Linha de crédito',
-	'fico_score'                         => 'Pontuação FICO',
-	'business_inception'                 => 'Data de Criação do Negócio',
-	'average_bank_balance'               => 'Média do balanço das contas bancárias',
-	'annual_revenue'                     => 'Anual faturado',
-	'desired_credit_limit_factoring'     => 'Limite de crédito desejado',
-	'desired_credit_limit_loc'           => 'Limite da linha de crédito desejado',
-	'desired_credit_limit'               => 'Limite de crédito desejado',
-	'bluevine_credit_line_type_required' => 'Deve escolher pelo menos uma',
-	'bluevine_field_required'            => 'O campo é obrigatório',
-	'bluevine_unexpected_error'          => 'Ocorreu um erro inesperado.',
-	'bluevine_no_conditional_offer'      => 'É necessário mais informação antes de obter um orçamento. Clique abaixo para continuar.',
-	'bluevine_invoice_factoring'         => 'Faturação de Contas',
-	'bluevine_conditional_offer'         => 'Oferta Condicional',
-	'bluevine_credit_line_amount'        => 'Linha de Crédito',
-	'bluevine_advance_rate'              => 'Taxa de Avanço',
-	'bluevine_weekly_discount_rate'      => 'Taxa de Desconto Semanal',
-	'bluevine_minimum_fee_rate'          => 'Taxa Mínima',
-	'bluevine_line_of_credit'            => 'Linha de Crédito',
-	'bluevine_interest_rate'             => 'Taxa de Juro',
-	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
-	'bluevine_continue'                  => 'Continuar para BlueVine',
-	'bluevine_completed'                 => 'Registo com o BlueVine concluído',
+    'bluevine_create_account' => 'Criar uma conta',
+    'quote_types' => 'Pedir orçamento para',
+    'invoice_factoring' => 'Faturação de contas',
+    'line_of_credit' => 'Linha de crédito',
+    'fico_score'                         => 'Pontuação FICO',
+    'business_inception'                 => 'Data de Criação do Negócio',
+    'average_bank_balance'               => 'Média do balanço das contas bancárias',
+    'annual_revenue'                     => 'Anual faturado',
+    'desired_credit_limit_factoring'     => 'Limite de crédito desejado',
+    'desired_credit_limit_loc'           => 'Limite da linha de crédito desejado',
+    'desired_credit_limit'               => 'Limite de crédito desejado',
+    'bluevine_credit_line_type_required' => 'Deve escolher pelo menos uma',
+    'bluevine_field_required'            => 'O campo é obrigatório',
+    'bluevine_unexpected_error'          => 'Ocorreu um erro inesperado.',
+    'bluevine_no_conditional_offer'      => 'É necessário mais informação antes de obter um orçamento. Clique abaixo para continuar.',
+    'bluevine_invoice_factoring'         => 'Faturação de Contas',
+    'bluevine_conditional_offer'         => 'Oferta Condicional',
+    'bluevine_credit_line_amount'        => 'Linha de Crédito',
+    'bluevine_advance_rate'              => 'Taxa de Avanço',
+    'bluevine_weekly_discount_rate'      => 'Taxa de Desconto Semanal',
+    'bluevine_minimum_fee_rate'          => 'Taxa Mínima',
+    'bluevine_line_of_credit'            => 'Linha de Crédito',
+    'bluevine_interest_rate'             => 'Taxa de Juro',
+    'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
+    'bluevine_continue'                  => 'Continuar para BlueVine',
+    'bluevine_completed'                 => 'Registo com o BlueVine concluído',
 
     'vendor_name' => 'Fornecedor',
     'entity_state' => 'Estado',
@@ -2119,16 +2119,16 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Este ano',
 
-	// Updated login screen
-	'ninja_tagline' => 'Criar. Enviar. Ser Pago.',
-	'login_or_existing' => 'Or login with a connected account.',
-	'sign_up_now' => 'Inicie sessão agora',
-	'not_a_member_yet' => 'Ainda não é membro?',
-	'login_create_an_account' => 'Criar uma conta!',
-	'client_login' => 'Iniciar sessão como cliente',
+    // Updated login screen
+    'ninja_tagline' => 'Criar. Enviar. Ser Pago.',
+    'login_or_existing' => 'Or login with a connected account.',
+    'sign_up_now' => 'Inicie sessão agora',
+    'not_a_member_yet' => 'Ainda não é membro?',
+    'login_create_an_account' => 'Criar uma conta!',
+    'client_login' => 'Iniciar sessão como cliente',
 
-	// New Client Portal styling
-	'invoice_from' => 'Notas de pag. From:',
+    // New Client Portal styling
+    'invoice_from' => 'Notas de pag. From:',
     'email_alias_message' => 'Cada empresa deve ter um único email. <br/>Consider utilizar um alias. ex, email+label@example.com',
     'full_name' => 'Nome completo',
     'month_year' => 'MÊS/ANO',
@@ -2423,7 +2423,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Exporting format',
+    'format_export' => 'Exporting format',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2860,5 +2860,3 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
 );
 
 return $LANG;
-
-?>

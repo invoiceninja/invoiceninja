@@ -62,9 +62,6 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
 	Route::get('{entity}/{client_hash}/{invitation_key}','ClientPortal\InvitationController@routerForIframe'); //should never need this
 	Route::get('payment_hook/{company_gateway_id}/{gateway_type_id}','ClientPortal\PaymentHookController@process');
 
-
-
-
 });
 
 Route::fallback('BaseController@notFoundClient');

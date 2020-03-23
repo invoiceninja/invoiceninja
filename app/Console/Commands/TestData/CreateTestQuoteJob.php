@@ -46,7 +46,6 @@ class CreateTestQuoteJob implements ShouldQueue
     public function __construct(Client $client)
     {
         $this->client = $client;
-
     }
 
     /**
@@ -61,7 +60,7 @@ class CreateTestQuoteJob implements ShouldQueue
         $quote =factory(\App\Models\Quote::class)->create(['user_id' => $this->client->user->id, 'company_id' => $this->client->company->id, 'client_id' => $this->client->id]);
         $quote->date = $faker->date();
 
-        $quote->line_items = $this->buildLineItems(rand(1,10));
+        $quote->line_items = $this->buildLineItems(rand(1, 10));
         $quote->uses_inclusive_taxes = false;
 
         if (rand(0, 1)) {
@@ -88,7 +87,6 @@ class CreateTestQuoteJob implements ShouldQueue
         $quote->service()->markSent()->save();
 
         CreateQuoteInvitations::dispatch($quote, $quote->company);
-
     }
 
 
@@ -97,8 +95,7 @@ class CreateTestQuoteJob implements ShouldQueue
     {
         $line_items = [];
 
-        for($x=0; $x<$count; $x++)
-        {
+        for ($x=0; $x<$count; $x++) {
             $item = InvoiceItemFactory::create();
             $item->quantity = 1;
             //$item->cost = 10;
@@ -118,15 +115,15 @@ class CreateTestQuoteJob implements ShouldQueue
                 $item->tax_rate1 = 5;
             }
 
-                $product = Product::all()->random();
+            $product = Product::all()->random();
 
-                $item->cost = (float)$product->cost;
-                $item->product_key = $product->product_key;
-                $item->notes = $product->notes;
-                $item->custom_value1 = $product->custom_value1;
-                $item->custom_value2 = $product->custom_value2;
-                $item->custom_value3 = $product->custom_value3;
-                $item->custom_value4 = $product->custom_value4;
+            $item->cost = (float)$product->cost;
+            $item->product_key = $product->product_key;
+            $item->notes = $product->notes;
+            $item->custom_value1 = $product->custom_value1;
+            $item->custom_value2 = $product->custom_value2;
+            $item->custom_value3 = $product->custom_value3;
+            $item->custom_value4 = $product->custom_value4;
 
 
 
@@ -135,5 +132,4 @@ class CreateTestQuoteJob implements ShouldQueue
 
         return $line_items;
     }
-
 }

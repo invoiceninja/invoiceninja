@@ -14,7 +14,6 @@ use Illuminate\Notifications\Notification;
 
 class EntityViewedNotification extends Notification implements ShouldQueue
 {
-
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
@@ -24,19 +23,19 @@ class EntityViewedNotification extends Notification implements ShouldQueue
      * @
      */
     
-    protected   $invitation;
+    protected $invitation;
     
-    protected   $entity_name;
+    protected $entity_name;
 
-    protected   $entity;
+    protected $entity;
 
-    protected   $company;
+    protected $company;
 
-    protected   $settings; 
+    protected $settings;
 
-    public      $method;
+    public $method;
 
-    protected   $contact;
+    protected $contact;
 
     public function __construct($invitation, $entity_name, $is_system = false, $settings = null)
     {
@@ -58,9 +57,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-
         return $this->method ?: [];
-        
     }
 
     /**
@@ -101,36 +98,38 @@ class EntityViewedNotification extends Notification implements ShouldQueue
             ->from(ctrans('texts.notification_bot'))
             ->success()
             ->image('https://app.invoiceninja.com/favicon-v2.png')
-            ->content(ctrans("texts.notification_{$this->entity_name}_viewed", 
+            ->content(ctrans(
+                "texts.notification_{$this->entity_name}_viewed",
                 [
-                    'amount' => $amount, 
-                    'client' => $this->contact->present()->name(), 
+                    'amount' => $amount,
+                    'client' => $this->contact->present()->name(),
                     $this->entity_name => $this->entity->number
-                ]))
-            ->attachment(function ($attachment) use($amount){
+                ]
+            ))
+            ->attachment(function ($attachment) use ($amount) {
                 $attachment->title(ctrans('texts.entity_number_placeholder', ['entity' => ucfirst($this->entity_name), 'entity_number' => $this->entity->number]), $this->invitation->getAdminLink())
                            ->fields([
                                 ctrans('texts.client') => $this->contact->present()->name(),
                                 ctrans('texts.status_viewed') => $this->invitation->viewed_date,
                             ]);
             });
-
     }
 
 
     private function buildDataArray()
     {
-
         $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
 
         $data = [
             'title' => $this->buildSubject(),
-            'message' => ctrans("texts.notification_{$this->entity_name}_viewed", 
+            'message' => ctrans(
+                "texts.notification_{$this->entity_name}_viewed",
                 [
-                    'amount' => $amount, 
-                    'client' => $this->contact->present()->name(), 
+                    'amount' => $amount,
+                    'client' => $this->contact->present()->name(),
                     $this->entity_name => $this->entity->number,
-                ]),
+                ]
+            ),
             'url' => $this->invitation->getAdminLink(),
             'button' => ctrans("texts.view_{$this->entity_name}"),
             'signature' => $this->settings->email_signature,
@@ -139,18 +138,18 @@ class EntityViewedNotification extends Notification implements ShouldQueue
 
 
         return $data;
-
     }
 
     private function buildSubject()
     {
-        $subject = ctrans("texts.notification_{$this->entity_name}_viewed_subject", 
-        [
-            'client' => $this->contact->present()->name(), 
+        $subject = ctrans(
+            "texts.notification_{$this->entity_name}_viewed_subject",
+            [
+            'client' => $this->contact->present()->name(),
             $this->entity_name => $this->entity->number,
-        ]);
+        ]
+        );
 
         return $subject;
-
     }
 }

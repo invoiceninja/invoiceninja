@@ -19,7 +19,7 @@ use App\Utils\Traits\MakesHash;
 
 class RefundPaymentRequest extends Request
 {
-	use MakesHash;
+    use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -33,35 +33,33 @@ class RefundPaymentRequest extends Request
     
     protected function prepareForValidation()
     {
-        
         $input = $this->all();
         
-        if(!isset($input['gateway_refund']))
-        	$input['gateway_refund'] = false;
+        if (!isset($input['gateway_refund'])) {
+            $input['gateway_refund'] = false;
+        }
 
-        if(!isset($input['send_email']))
+        if (!isset($input['send_email'])) {
             $input['send_email'] = false;
+        }
 
-        if(isset($input['id']))
-        	$input['id'] = $this->decodePrimaryKey($input['id']);
+        if (isset($input['id'])) {
+            $input['id'] = $this->decodePrimaryKey($input['id']);
+        }
 
-        if(isset($input['invoices']))
-        {
-
-            foreach($input['invoices'] as $key => $invoice)
+        if (isset($input['invoices'])) {
+            foreach ($input['invoices'] as $key => $invoice) {
                 $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($invoice['invoice_id']);
-
+            }
         }
 
-        if(isset($input['credits']))
-        {
+        if (isset($input['credits'])) {
             unset($input['credits']);
-           // foreach($input['credits'] as $key => $credit)
+            // foreach($input['credits'] as $key => $credit)
            //     $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($credit['credit_id']);
-            
         }
 
-	    $this->replace($input);
+        $this->replace($input);
     }
 
     public function rules()

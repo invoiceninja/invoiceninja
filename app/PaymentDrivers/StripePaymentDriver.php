@@ -59,7 +59,7 @@ class StripePaymentDriver extends BasePaymentDriver
      */
     public function init() :void
     {
-        Stripe::setApiKey($this->company_gateway->getConfigField('23_apiKey'));
+        Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
     }
 
     /**

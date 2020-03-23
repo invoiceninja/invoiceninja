@@ -9,7 +9,6 @@ use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use Faker\Factory;
 use Illuminate\Console\Command;
 
 class ImportMigrations extends Command
@@ -41,7 +40,7 @@ class ImportMigrations extends Command
      */
     public function __construct()
     {
-        $this->faker = Factory::create();
+        $this->faker = \Faker\Factory::create();
 
         parent::__construct();
     }

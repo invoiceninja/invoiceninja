@@ -1963,37 +1963,37 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'authorization' => 'Εξουσιοδότηση',
     'signed' => 'Υπογεγραμμένο',
 
-	// BlueVine
-	'bluevine_promo' => 'Δεχθείτε ευέλικτες πιστωτικές λύσεις και factoring τιμολογίων με χρήση της BlueVine.',
-	'bluevine_modal_label' => 'Εγγραφείτε στη BlueVine',
-	'bluevine_modal_text' => '<h3>Γρήγορη χρηματοδότηση της εταιρίας σας χωρίς γραφειοκρατία.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Δεχθείτε ευέλικτες πιστωτικές λύσεις και factoring τιμολογίων με χρήση της BlueVine.',
+    'bluevine_modal_label' => 'Εγγραφείτε στη BlueVine',
+    'bluevine_modal_text' => '<h3>Γρήγορη χρηματοδότηση της εταιρίας σας χωρίς γραφειοκρατία.</h3>
 <ul><li>Ευέλικτες πιστωτικές λύσεις και factoring τιμολογίων.</li></ul>',
-	'bluevine_create_account' => 'Δημιουργήστε λογαριασμό',
-	'quote_types' => 'Λάβετε προσφορά για',
-	'invoice_factoring' => 'Factoring τιμολογίων',
-	'line_of_credit' => 'Πιστωτικές λύσεις',
-	'fico_score'                         => 'Το FICO σκορ σας',
-	'business_inception'                 => 'Ημερομηνία Έναρξης Επιχείρησης',
-	'average_bank_balance'               => 'Μέσο υπόλοιπο τραπεζικού λογαριασμού',
-	'annual_revenue'                     => 'Ετήσια έσοδα',
-	'desired_credit_limit_factoring'     => 'Επιθυμητό όριο factoring τιμολογίων',
-	'desired_credit_limit_loc'           => 'Επιθυμητό όριο πιστωτικων λύσεων',
-	'desired_credit_limit'               => 'Επιθυμητό όριο πίστωσης',
-	'bluevine_credit_line_type_required' => 'Πρέπει να επιλέξετε τουλάχιστον ένα',
-	'bluevine_field_required'            => 'Αυτό το πεδίο είναι απαραίτητο',
-	'bluevine_unexpected_error'          => 'Εμφανίστηκε μη αναμενόμενο σφάλμα.',
-	'bluevine_no_conditional_offer'      => 'Απαιτούνται περισσότερες πληροφορίες πριν τη λήψη προσφοράς. Πατήστε συνέχεια παρακάτω.',
-	'bluevine_invoice_factoring'         => 'Factoring Τιμολογίων',
-	'bluevine_conditional_offer'         => 'Προσφορά υπό όρους',
-	'bluevine_credit_line_amount'        => 'Πιστωτική Λύση',
-	'bluevine_advance_rate'              => 'Ποσοστό Επόμενου Βήματος',
-	'bluevine_weekly_discount_rate'      => 'Εβδομαδιαίο Ποσοστό Έκπτωσης',
-	'bluevine_minimum_fee_rate'          => 'Ελάχιστη Χρέωση',
-	'bluevine_line_of_credit'            => 'Πιστωτικές Λύσεις',
-	'bluevine_interest_rate'             => 'Επιτόκιο',
-	'bluevine_weekly_draw_rate'          => 'Εβδομαδιαίο Ποσοστό Εξισορρόπησης',
-	'bluevine_continue'                  => 'Συνεχίστε στη BlueVine',
-	'bluevine_completed'                 => 'Η εγγραφή στη BlueVine ολοκληρώθηκε',
+    'bluevine_create_account' => 'Δημιουργήστε λογαριασμό',
+    'quote_types' => 'Λάβετε προσφορά για',
+    'invoice_factoring' => 'Factoring τιμολογίων',
+    'line_of_credit' => 'Πιστωτικές λύσεις',
+    'fico_score'                         => 'Το FICO σκορ σας',
+    'business_inception'                 => 'Ημερομηνία Έναρξης Επιχείρησης',
+    'average_bank_balance'               => 'Μέσο υπόλοιπο τραπεζικού λογαριασμού',
+    'annual_revenue'                     => 'Ετήσια έσοδα',
+    'desired_credit_limit_factoring'     => 'Επιθυμητό όριο factoring τιμολογίων',
+    'desired_credit_limit_loc'           => 'Επιθυμητό όριο πιστωτικων λύσεων',
+    'desired_credit_limit'               => 'Επιθυμητό όριο πίστωσης',
+    'bluevine_credit_line_type_required' => 'Πρέπει να επιλέξετε τουλάχιστον ένα',
+    'bluevine_field_required'            => 'Αυτό το πεδίο είναι απαραίτητο',
+    'bluevine_unexpected_error'          => 'Εμφανίστηκε μη αναμενόμενο σφάλμα.',
+    'bluevine_no_conditional_offer'      => 'Απαιτούνται περισσότερες πληροφορίες πριν τη λήψη προσφοράς. Πατήστε συνέχεια παρακάτω.',
+    'bluevine_invoice_factoring'         => 'Factoring Τιμολογίων',
+    'bluevine_conditional_offer'         => 'Προσφορά υπό όρους',
+    'bluevine_credit_line_amount'        => 'Πιστωτική Λύση',
+    'bluevine_advance_rate'              => 'Ποσοστό Επόμενου Βήματος',
+    'bluevine_weekly_discount_rate'      => 'Εβδομαδιαίο Ποσοστό Έκπτωσης',
+    'bluevine_minimum_fee_rate'          => 'Ελάχιστη Χρέωση',
+    'bluevine_line_of_credit'            => 'Πιστωτικές Λύσεις',
+    'bluevine_interest_rate'             => 'Επιτόκιο',
+    'bluevine_weekly_draw_rate'          => 'Εβδομαδιαίο Ποσοστό Εξισορρόπησης',
+    'bluevine_continue'                  => 'Συνεχίστε στη BlueVine',
+    'bluevine_completed'                 => 'Η εγγραφή στη BlueVine ολοκληρώθηκε',
 
     'vendor_name' => 'Προμηθευτής',
     'entity_state' => 'Περιοχή',
@@ -2127,16 +2127,16 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'reports_help' => 'Shift + Click για να γίνει ταξινόμηση με βάση πολλές στήλες, Ctrl + Click για εκκαθάριση της ομαδοποίησης.',
     'this_year' => 'Τρέχον Χρόνος',
 
-	// Updated login screen
-	'ninja_tagline' => 'Δημιουργήστε. Αποστείλετε. Εξοφληθείτε.',
-	'login_or_existing' => 'Ή συνδεθείτε με ένα συνδεδεμένο λογαριασμό.',
-	'sign_up_now' => 'Εγγραφή Τώρα',
-	'not_a_member_yet' => 'Δεν είστε ακόμη μέλη;',
-	'login_create_an_account' => 'Δημιουργία Λογαριασμού',
-	'client_login' => 'Εισαγωγή Πελάτη',
+    // Updated login screen
+    'ninja_tagline' => 'Δημιουργήστε. Αποστείλετε. Εξοφληθείτε.',
+    'login_or_existing' => 'Ή συνδεθείτε με ένα συνδεδεμένο λογαριασμό.',
+    'sign_up_now' => 'Εγγραφή Τώρα',
+    'not_a_member_yet' => 'Δεν είστε ακόμη μέλη;',
+    'login_create_an_account' => 'Δημιουργία Λογαριασμού',
+    'client_login' => 'Εισαγωγή Πελάτη',
 
-	// New Client Portal styling
-	'invoice_from' => 'Τιμολόγια Από:',
+    // New Client Portal styling
+    'invoice_from' => 'Τιμολόγια Από:',
     'email_alias_message' => 'Απαιτείται από τον κάθε εταιρία να έχει μία μοναδική διεύθυνση email.<br/>Σκεφτείτε τη χρήση ενός ψευδώνυμου. Πχ, email+label@example.com',
     'full_name' => 'Πλήρες Όνομα',
     'month_year' => 'ΜΗΝΑΣ/ΕΤΟΣ',
@@ -2431,7 +2431,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'tax1' => 'Πρώτο; Φόρος',
     'tax2' => 'Δεύτερος Φόρος',
     'fee_help' => 'Προμήθειες της πύλης πληρωμής (Gateway) είναι τα κόστη για την πρόσβαση στα δίκτυα που αναλαμβάνουν την επεξεργασία των online πληρωμών',
-	'format_export' => 'Μορφή εξαγωγής',
+    'format_export' => 'Μορφή εξαγωγής',
     'custom1' => 'Πρώτη Προσαρμογή',
     'custom2' => 'Δεύτερη Προσαρμογή',
     'contact_first_name' => 'Όνομα Επαφής',
@@ -2868,5 +2868,3 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
 );
 
 return $LANG;
-
-?>

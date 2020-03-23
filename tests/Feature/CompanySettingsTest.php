@@ -41,52 +41,48 @@ class CompanySettingsTest extends TestCase
         Session::start();
 
         $this->faker = \Faker\Factory::create();
-$this->withoutExceptionHandling();
+        $this->withoutExceptionHandling();
         Model::reguard();
-
-
     }
 
     public function testClientNumberCantBeModified()
     {
-         $settings = $this->company->settings;
+        $settings = $this->company->settings;
 
-         $settings->client_number_counter = 200;
+        $settings->client_number_counter = 200;
 
-         $this->company->saveSettings($settings, $this->company);
+        $this->company->saveSettings($settings, $this->company);
 
         //$this->withoutExceptionHandling();
 
-         $response = false;
+        $response = false;
          
         try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-Token' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
-        }
-        catch(ValidationException $e) {
-
-            $message = json_decode($e->validator->getMessageBag(),1);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
             \Log::error($message);
         }
 
-        if($response) {
+        if ($response) {
             $response->assertStatus(200);
 
             $arr = $response->json();
 
-            $this->assertEquals($arr['data']['settings']['timezone_id'],1);
+            $this->assertEquals($arr['data']['settings']['timezone_id'], 1);
         }
     }
 
     public function testNullValuesInSettings()
     {
-         $settings = $this->company->settings;
+        $settings = $this->company->settings;
 
-         $settings->reset_counter_date = null;
+        $settings->reset_counter_date = null;
 
-         $this->company->saveSettings($settings, $this->company);
+        $this->company->saveSettings($settings, $this->company);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -98,7 +94,7 @@ $this->withoutExceptionHandling();
 
         $arr = $response->json();
         
-        $this->assertEquals($arr['data']['settings']['reset_counter_date'],'');
+        $this->assertEquals($arr['data']['settings']['reset_counter_date'], '');
     }
 
     public function testIntegerEdgeCases()
@@ -117,7 +113,7 @@ $this->withoutExceptionHandling();
                 'X-API-Token' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
 
-        $response->assertStatus(200);    
+        $response->assertStatus(200);
 
         $arr = $response->json();
 
@@ -143,16 +139,14 @@ $this->withoutExceptionHandling();
                 'X-API-Token' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
 
-        $response->assertStatus(200);    
+        $response->assertStatus(200);
 
         $arr = $response->json();
 
-        $this->assertEquals($arr['data']['settings']['default_task_rate'],0);
-        $this->assertEquals($arr['data']['settings']['tax_rate1'],10.0);
-        $this->assertEquals($arr['data']['settings']['tax_rate2'],10.0);
-        $this->assertEquals($arr['data']['settings']['tax_rate3'],10.5);
-
-
+        $this->assertEquals($arr['data']['settings']['default_task_rate'], 0);
+        $this->assertEquals($arr['data']['settings']['tax_rate1'], 10.0);
+        $this->assertEquals($arr['data']['settings']['tax_rate2'], 10.0);
+        $this->assertEquals($arr['data']['settings']['tax_rate3'], 10.5);
     }
 
     public function testBoolEdgeCases()
@@ -165,14 +159,14 @@ $this->withoutExceptionHandling();
         $settings->show_accept_invoice_terms = "TRUE";
         $settings->enable_client_portal_tasks = "FALSE";
 
-         $this->company->saveSettings($settings, $this->company);
+        $this->company->saveSettings($settings, $this->company);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-Token' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
 
-        $response->assertStatus(200);    
+        $response->assertStatus(200);
 
         $arr = $response->json();
 
@@ -192,15 +186,15 @@ $this->withoutExceptionHandling();
 
         $this->company->saveSettings($settings, $this->company);
 
-            $response = $this->withHeaders([
+        $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-Token' => $this->token,
-        ])->post('/api/v1/companies?include=company',$this->company->toArray());
+        ])->post('/api/v1/companies?include=company', $this->company->toArray());
 
         $arr = $response->json();
-        $response->assertStatus(200);    
+        $response->assertStatus(200);
 
-        $this->assertEquals($arr['data'][0]['company']['settings']['reset_counter_date'],'');
+        $this->assertEquals($arr['data'][0]['company']['settings']['reset_counter_date'], '');
     }
 
     public function testCompanyWrongValueMatrixPOST()
@@ -210,15 +204,15 @@ $this->withoutExceptionHandling();
 
         $this->company->saveSettings($settings, $this->company);
 
-            $response = $this->withHeaders([
+        $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-Token' => $this->token,
-        ])->post('/api/v1/companies?include=company',$this->company->toArray());
+        ])->post('/api/v1/companies?include=company', $this->company->toArray());
 
         $arr = $response->json();
-        $response->assertStatus(200);    
+        $response->assertStatus(200);
 
-        $this->assertEquals($arr['data'][0]['company']['settings']['reset_counter_date'],'');
+        $this->assertEquals($arr['data'][0]['company']['settings']['reset_counter_date'], '');
     }
 
 
@@ -229,15 +223,15 @@ $this->withoutExceptionHandling();
 
         $this->company->saveSettings($settings, $this->company);
 
-            $response = $this->withHeaders([
+        $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-Token' => $this->token,
-        ])->post('/api/v1/companies?include=company',$this->company->toArray());
+        ])->post('/api/v1/companies?include=company', $this->company->toArray());
 
         $arr = $response->json();
-        $response->assertStatus(200);    
+        $response->assertStatus(200);
 
-        $this->assertEquals($arr['data'][0]['company']['settings']['reset_counter_date'],'1');
+        $this->assertEquals($arr['data'][0]['company']['settings']['reset_counter_date'], '1');
     }
 
     public function testCompanyrightValueMatrixPOST()
@@ -247,14 +241,14 @@ $this->withoutExceptionHandling();
 
         $this->company->saveSettings($settings, $this->company);
 
-            $response = $this->withHeaders([
+        $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-Token' => $this->token,
-        ])->post('/api/v1/companies?include=company',$this->company->toArray());
+        ])->post('/api/v1/companies?include=company', $this->company->toArray());
 
         $arr = $response->json();
-        $response->assertStatus(200);    
+        $response->assertStatus(200);
 
-        $this->assertEquals($arr['data'][0]['company']['settings']['reset_counter_date'],'1/1/2000');
+        $this->assertEquals($arr['data'][0]['company']['settings']['reset_counter_date'], '1/1/2000');
     }
 }

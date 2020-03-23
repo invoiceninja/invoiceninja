@@ -52,18 +52,18 @@ class Company extends BaseModel
     use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
     use \Staudenmeir\EloquentHasManyDeep\HasTableAlias;
 
-        const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
-        const ENTITY_CREDIT = 'credit';
-        const ENTITY_QUOTE = 'quote';
-        const ENTITY_TASK = 'task';
-        const ENTITY_EXPENSE = 'expense';
-        const ENTITY_PROJECT = 'project';
-        const ENTITY_VENDOR = 'vendor';
-        const ENTITY_TICKET = 'ticket';
-        const ENTITY_PROPOSAL = 'proposal';
-        const ENTITY_RECURRING_EXPENSE = 'recurring_expense';
-        const ENTITY_RECURRING_TASK = 'task';
-        const ENTITY_RECURRING_QUOTE = 'recurring_quote';
+    const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
+    const ENTITY_CREDIT = 'credit';
+    const ENTITY_QUOTE = 'quote';
+    const ENTITY_TASK = 'task';
+    const ENTITY_EXPENSE = 'expense';
+    const ENTITY_PROJECT = 'project';
+    const ENTITY_VENDOR = 'vendor';
+    const ENTITY_TICKET = 'ticket';
+    const ENTITY_PROPOSAL = 'proposal';
+    const ENTITY_RECURRING_EXPENSE = 'recurring_expense';
+    const ENTITY_RECURRING_TASK = 'task';
+    const ENTITY_RECURRING_QUOTE = 'recurring_quote';
 
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
 
@@ -271,7 +271,7 @@ class Company extends BaseModel
 
     public function designs()
     {
-        return $this->hasMany(Design::class)->whereCompanyId($this->id)->orWhere('company_id',null);
+        return $this->hasMany(Design::class)->whereCompanyId($this->id)->orWhere('company_id', null);
     }
 
     /**
@@ -358,7 +358,11 @@ class Company extends BaseModel
 
     public function domain()
     {
-        return $this->subdomain . config('ninja.app_domain');
+        if (Ninja::isNinja()) {
+            return $this->subdomain . config('ninja.app_domain');
+        }
+
+        return config('ninja.app_url');
     }
 
     public function notification(Notification $notification)
@@ -368,10 +372,6 @@ class Company extends BaseModel
 
     public function routeNotificationForSlack($notification)
     {
-        //todo need to return the company channel here for hosted users
-        //else the env variable for selfhosted
-        //
         return $this->slack_webhook_url;
-
     }
 }

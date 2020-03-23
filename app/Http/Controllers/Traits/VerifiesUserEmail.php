@@ -29,7 +29,6 @@ trait VerifiesUserEmail
      */
     public function confirm()
     {
-
         if ($user = User::whereRaw("BINARY `confirmation_code`= ?", request()->route('confirmation_code'))->first()) {
             $user->email_verified_at = now();
             $user->confirmation_code = null;

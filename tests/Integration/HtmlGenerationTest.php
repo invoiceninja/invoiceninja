@@ -34,6 +34,4 @@ class HtmlGenerationTest extends TestCase
 
         $this->assertNotNull($html);
     }
-
-
 }

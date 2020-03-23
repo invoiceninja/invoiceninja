@@ -12,11 +12,13 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesTemplateData;
 use League\CommonMark\CommonMarkConverter;
 
 class TemplateController extends BaseController
 {
     use MakesHash;
+    use MakesTemplateData;
 
     public function __construct()
     {
@@ -109,8 +111,14 @@ class TemplateController extends BaseController
         $subject = request()->input('subject') ?: '';
         $body = request()->input('body') ?: '';
 
+        $labels = $this->makeFakerLabels();
+        $values = $this->makeFakerValues();
+
+        $body = str_replace(array_keys($labels), array_values($labels), $body);
+        $body = str_replace(array_keys($values), array_values($values), $body);
+
         $converter = new CommonMarkConverter([
-            'html_input' => 'strip',
+            //'html_input' => 'strip',
             'allow_unsafe_links' => false,
         ]);
 

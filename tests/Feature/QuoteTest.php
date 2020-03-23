@@ -26,14 +26,12 @@ use Tests\TestCase;
     
 class QuoteTest extends TestCase
 {
-
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
 
     public function setUp() :void
     {
-
         parent::setUp();
 
         Session::start();
@@ -47,43 +45,34 @@ class QuoteTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
-
     }
 
     public function testQuoteList()
     {
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/quotes');
 
         $response->assertStatus(200);
-
     }
 
     public function testQuoteRESTEndPoints()
     {
-
-
-
         $response = null;
 
-        try{
+        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/quotes/'.$this->encodePrimaryKey($this->quote->id));
-        }
-        catch(ValidationException $e) {
-
-            $message = json_decode($e->validator->getMessageBag(),1);
-
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
         }
         
-        if($response)
+        if ($response) {
             $response->assertStatus(200);
+        }
 
         $this->assertNotNull($response);
 
@@ -134,7 +123,4 @@ class QuoteTest extends TestCase
 
         $response->assertStatus(200);
     }
-
 }
-
-

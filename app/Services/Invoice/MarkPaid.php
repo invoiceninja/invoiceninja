@@ -35,11 +35,11 @@ class MarkPaid extends AbstractService
         $this->invoice = $invoice;
     }
 
-  	public function run()
-  	{
-
-        if($this->invoice->status_id == Invoice::STATUS_DRAFT)
+    public function run()
+    {
+        if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
             $this->invoice->service()->markSent();
+        }
 
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
@@ -75,7 +75,5 @@ class MarkPaid extends AbstractService
             ->save();
 
         return $this->invoice;
-  	}
-
+    }
 }
-

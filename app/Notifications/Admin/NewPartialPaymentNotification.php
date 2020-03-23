@@ -27,7 +27,7 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
 
     protected $company;
 
-    protected $settings; 
+    protected $settings;
 
     protected $is_system;
 
@@ -47,7 +47,6 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-
         return $this->is_system ? ['slack'] : ['mail'];
     }
 
@@ -63,20 +62,25 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
         
         $invoice_texts = ctrans('texts.invoice_number_short');
 
-        foreach($this->payment->invoices as $invoice)
+        foreach ($this->payment->invoices as $invoice) {
             $invoice_texts .= $invoice->number . ',';
+        }
         
         $invoice_texts = substr($invoice_texts, 0, -1);
 
         $data = [
-            'title' => ctrans('texts.notification_partial_payment_paid_subject', 
-                ['client' => $this->payment->client->present()->name()]),
-            'message' => ctrans('texts.notification_partial_payment_paid', 
-                ['amount' => $amount, 
-                'client' => $this->payment->client->present()->name(), 
+            'title' => ctrans(
+                'texts.notification_partial_payment_paid_subject',
+                ['client' => $this->payment->client->present()->name()]
+            ),
+            'message' => ctrans(
+                'texts.notification_partial_payment_paid',
+                ['amount' => $amount,
+                'client' => $this->payment->client->present()->name(),
                 'invoice' => $invoice_texts,
-            ]),
-            'url' => config('ninja.site_url') . '/payments/' . $this->payment->hashed_id,
+            ]
+            ),
+            'url' => config('ninja.app_url') . '/payments/' . $this->payment->hashed_id,
             'button' => ctrans('texts.view_payment'),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),
@@ -84,11 +88,12 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
 
 
         return (new MailMessage)
-                    ->subject(ctrans('texts.notification_partial_payment_paid_subject', 
-                        ['client' => $this->payment->client->present()->name()])
+                    ->subject(
+                        ctrans(
+                        'texts.notification_partial_payment_paid_subject',
+                        ['client' => $this->payment->client->present()->name()]
+                    )
                     )->markdown('email.admin.generic', $data);
-
-
     }
 
     /**
@@ -110,8 +115,9 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
         $amount = Number::formatMoney($this->payment->amount, $this->payment->client);
         $invoice_texts = ctrans('texts.invoice_number_short');
 
-        foreach($this->payment->invoices as $invoice)
+        foreach ($this->payment->invoices as $invoice) {
             $invoice_texts .= $invoice->number . ',';
+        }
         
         $invoice_texts = substr($invoice_texts, 0, -1);
 
@@ -120,10 +126,11 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
                 //->to("#devv2")
                 ->from("System")
                 ->image($logo)
-                ->content(ctrans('texts.notification_payment_paid', 
-                    ['amount' => $amount, 
-                    'client' => $this->payment->client->present()->name(), 
-                    'invoice' => $invoice_texts]));
+                ->content(ctrans(
+                    'texts.notification_payment_paid',
+                    ['amount' => $amount,
+                    'client' => $this->payment->client->present()->name(),
+                    'invoice' => $invoice_texts]
+                ));
     }
-
 }

@@ -147,8 +147,9 @@ class AccountController extends BaseController
     {
         $account = CreateAccount::dispatchNow($request->all());
     
-        if(!($account instanceof Account))
+        if (!($account instanceof Account)) {
             return $account;
+        }
 
         $ct = CompanyUser::whereUserId(auth()->user()->id);
 

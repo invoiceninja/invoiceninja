@@ -40,14 +40,10 @@ class CompanyTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
-
-
-
     }
 
     public function testCompanyList()
     {
-
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
@@ -69,7 +65,7 @@ class CompanyTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));        
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
 
         $token = $account->default_company->tokens->first()->token;
 
@@ -84,7 +80,8 @@ class CompanyTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $token,
-        ])->post('/api/v1/companies?include=company', 
+        ])->post(
+            '/api/v1/companies?include=company',
             [
                 'name' => 'A New Company',
                 'logo' => UploadedFile::fake()->image('avatar.jpg')
@@ -92,20 +89,21 @@ class CompanyTest extends TestCase
         )
         ->assertStatus(200)->decodeResponseJson();
 
-        $company = Company::find($this->decodePrimaryKey($response['data'][0]['company']['id']));        
+        $company = Company::find($this->decodePrimaryKey($response['data'][0]['company']['id']));
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $token,
-        ])->post('/api/v1/companies/', 
+        ])->post(
+            '/api/v1/companies/',
             [
                 'name' => 'A New Company',
-                'company_logo' => UploadedFile::fake()->create('avatar.pdf',100)
+                'company_logo' => UploadedFile::fake()->create('avatar.pdf', 100)
             ]
         )
         ->assertStatus(302);
 
-      //  Log::error($company);
+        //  Log::error($company);
 
         $token = CompanyToken::whereCompanyId($company->id)->first()->token;
 
@@ -159,7 +157,5 @@ class CompanyTest extends TestCase
             'X-API-TOKEN' => $token,
         ])->delete('/api/v1/companies/'.$this->encodePrimaryKey($company->id))
         ->assertStatus(200);
-
-
-        }
+    }
 }

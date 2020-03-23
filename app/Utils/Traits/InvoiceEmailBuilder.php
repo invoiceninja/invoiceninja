@@ -86,7 +86,6 @@ trait InvoiceEmailBuilder
 
         //process markdown
         if ($is_markdown) {
-
             $converter = new CommonMarkConverter([
                 'html_input' => 'allow',
                 'allow_unsafe_links' => true,

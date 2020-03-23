@@ -1961,37 +1961,37 @@ $LANG = array(
     'authorization' => 'Autorización',
     'signed' => 'Firmado',
 
-	// BlueVine
-	'bluevine_promo' => 'Obtenga líneas de cŕedito flexibles y factoring de facturas usando BlueVine.',
-	'bluevine_modal_label' => 'Inscríbase con BlueVine',
-	'bluevine_modal_text' => '<h3>Rápida financiación para su Negocio. Sin papeleo.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Obtenga líneas de cŕedito flexibles y factoring de facturas usando BlueVine.',
+    'bluevine_modal_label' => 'Inscríbase con BlueVine',
+    'bluevine_modal_text' => '<h3>Rápida financiación para su Negocio. Sin papeleo.</h3>
 <ul><li>Líneas de cŕedito flexibles y factoring.</li></ul>',
-	'bluevine_create_account' => 'Cree una cuenta',
-	'quote_types' => 'Obtenga una cotización para',
-	'invoice_factoring' => 'Factoring de facturas',
-	'line_of_credit' => 'Línea de crédito',
-	'fico_score'                         => 'Su puntuación FICO',
-	'business_inception'                 => 'Fecha de Creación del Negocio',
-	'average_bank_balance'               => 'Promedio del saldo de la cuenta bancaria',
-	'annual_revenue'                     => 'Ingresos anuales',
-	'desired_credit_limit_factoring'     => 'Límite de factoring de facturas deseado',
-	'desired_credit_limit_loc'           => 'Límite de línea de crédito deseado',
-	'desired_credit_limit'               => 'Límite de crédito deseado',
-	'bluevine_credit_line_type_required' => 'Debe seleccionar al menos una',
-	'bluevine_field_required'            => 'Este campo es requerido',
-	'bluevine_unexpected_error'          => 'Un error inesperado ha ocurrido.',
-	'bluevine_no_conditional_offer'      => 'Más información es requerida para obtener una cotización. Haga clic en continuar a continuación.',
-	'bluevine_invoice_factoring'         => 'Factoring de facturas',
-	'bluevine_conditional_offer'         => 'Oferta Condicional',
-	'bluevine_credit_line_amount'        => 'Línea de Crédito',
-	'bluevine_advance_rate'              => 'Tasa Avanzada',
-	'bluevine_weekly_discount_rate'      => 'Tasa de Descuento Semanal',
-	'bluevine_minimum_fee_rate'          => 'Cuota Mínima',
-	'bluevine_line_of_credit'            => 'Línea de Crédito ',
-	'bluevine_interest_rate'             => 'Tasa de Interéz',
-	'bluevine_weekly_draw_rate'          => 'Tasa de Retiro Semanal',
-	'bluevine_continue'                  => 'Continúe a BlueVine',
-	'bluevine_completed'                 => 'Inscripción en BlueVine completa',
+    'bluevine_create_account' => 'Cree una cuenta',
+    'quote_types' => 'Obtenga una cotización para',
+    'invoice_factoring' => 'Factoring de facturas',
+    'line_of_credit' => 'Línea de crédito',
+    'fico_score'                         => 'Su puntuación FICO',
+    'business_inception'                 => 'Fecha de Creación del Negocio',
+    'average_bank_balance'               => 'Promedio del saldo de la cuenta bancaria',
+    'annual_revenue'                     => 'Ingresos anuales',
+    'desired_credit_limit_factoring'     => 'Límite de factoring de facturas deseado',
+    'desired_credit_limit_loc'           => 'Límite de línea de crédito deseado',
+    'desired_credit_limit'               => 'Límite de crédito deseado',
+    'bluevine_credit_line_type_required' => 'Debe seleccionar al menos una',
+    'bluevine_field_required'            => 'Este campo es requerido',
+    'bluevine_unexpected_error'          => 'Un error inesperado ha ocurrido.',
+    'bluevine_no_conditional_offer'      => 'Más información es requerida para obtener una cotización. Haga clic en continuar a continuación.',
+    'bluevine_invoice_factoring'         => 'Factoring de facturas',
+    'bluevine_conditional_offer'         => 'Oferta Condicional',
+    'bluevine_credit_line_amount'        => 'Línea de Crédito',
+    'bluevine_advance_rate'              => 'Tasa Avanzada',
+    'bluevine_weekly_discount_rate'      => 'Tasa de Descuento Semanal',
+    'bluevine_minimum_fee_rate'          => 'Cuota Mínima',
+    'bluevine_line_of_credit'            => 'Línea de Crédito ',
+    'bluevine_interest_rate'             => 'Tasa de Interéz',
+    'bluevine_weekly_draw_rate'          => 'Tasa de Retiro Semanal',
+    'bluevine_continue'                  => 'Continúe a BlueVine',
+    'bluevine_completed'                 => 'Inscripción en BlueVine completa',
 
     'vendor_name' => 'Vendedor',
     'entity_state' => 'Estado',
@@ -2125,16 +2125,16 @@ $LANG = array(
     'reports_help' => 'Shift + Click para ordenar por múltiples columnas, Ctrl + Click para desactivar la agrupación.',
     'this_year' => 'Este Año',
 
-	// Updated login screen
-	'ninja_tagline' => 'Crear. Enviar. Recibir Pago.',
-	'login_or_existing' => 'O ingrese con una cuenta conectada.',
-	'sign_up_now' => 'Cree Una Cuenta Ahora',
-	'not_a_member_yet' => 'Aún no tiene una cuenta?',
-	'login_create_an_account' => 'Crear una Cuenta!',
-	'client_login' => 'Inicio de Sesión del Cliente',
+    // Updated login screen
+    'ninja_tagline' => 'Crear. Enviar. Recibir Pago.',
+    'login_or_existing' => 'O ingrese con una cuenta conectada.',
+    'sign_up_now' => 'Cree Una Cuenta Ahora',
+    'not_a_member_yet' => 'Aún no tiene una cuenta?',
+    'login_create_an_account' => 'Crear una Cuenta!',
+    'client_login' => 'Inicio de Sesión del Cliente',
 
-	// New Client Portal styling
-	'invoice_from' => 'Facturas de:',
+    // New Client Portal styling
+    'invoice_from' => 'Facturas de:',
     'email_alias_message' => 'Requerimos que cada compañía tenga una dirección de correo electrónico única<br/>Considera usar un alias ej, email+label@example.com',
     'full_name' => 'Nombre Completo',
     'month_year' => 'MES/AÑO',
@@ -2429,7 +2429,7 @@ $LANG = array(
     'tax1' => 'Primera Impuesto',
     'tax2' => 'Segundo Impuesto',
     'fee_help' => 'Las tarifas de Pasarela de Pago son los costos que se cobran por el acceso a las redes financieras que manejan el procesamiento de pagos en línea.',
-	'format_export' => 'Exportando formato',
+    'format_export' => 'Exportando formato',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Primer Nombre de Contacto',
@@ -2866,5 +2866,3 @@ $LANG = array(
 );
 
 return $LANG;
-
-?>

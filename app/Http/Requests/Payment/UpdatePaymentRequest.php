@@ -46,23 +46,29 @@ class UpdatePaymentRequest extends Request
     {
         $input = $this->all();
 
-        if(isset($input['client_id']))
+        if (isset($input['client_id'])) {
             unset($input['client_id']);
+        }
         
-        if(isset($input['amount'])) 
+        if (isset($input['amount'])) {
             unset($input['amount']);
+        }
 
-        if(isset($input['type_id'])) 
+        if (isset($input['type_id'])) {
             unset($input['type_id']);
+        }
 
-        if(isset($input['date'])) 
+        if (isset($input['date'])) {
             unset($input['date']);
+        }
 
-        if(isset($input['transaction_reference'])) 
+        if (isset($input['transaction_reference'])) {
             unset($input['transaction_reference']);
+        }
 
-        if(isset($input['number'])) 
+        if (isset($input['number'])) {
             unset($input['number']);
+        }
 
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {

@@ -16,7 +16,6 @@ use App\Services\AbstractService;
 
 class UpdateBalance extends AbstractService
 {
-
     private $invoice;
 
     private $balance_adjustment;
@@ -28,9 +27,8 @@ class UpdateBalance extends AbstractService
     }
 
 
-  	public function run()
-  	{
-
+    public function run()
+    {
         if ($this->invoice->is_deleted) {
             return;
         }
@@ -41,9 +39,8 @@ class UpdateBalance extends AbstractService
             $this->invoice->status_id = Invoice::STATUS_PAID;
             // $this->save();
             // event(new InvoiceWasPaid($this, $this->company));
-
         }
 
         return $this->invoice;
-  	}
+    }
 }

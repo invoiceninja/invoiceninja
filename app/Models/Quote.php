@@ -153,15 +153,17 @@ class Quote extends BaseModel
         $storage_path = 'storage/' . $this->client->quote_filepath() . $this->number . '.pdf';
 
         if (Storage::exists($storage_path))
+        {
             return $storage_path;
+        }
 
-        if(!$invitation)
+        if (!$invitation) {
             CreateQuotePdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
-        else
+        } else {
             CreateQuotePdf::dispatchNow($invitation->quote, $invitation->company, $invitation->contact);
+        }
 
         return $storage_path;
-
     }
 
     /**

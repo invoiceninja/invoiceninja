@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\DB;
  */
 class Ninja
 {
+    const TEST_USERNAME = 'user@example.com';
+
     public static function isSelfHost()
     {
         return config('ninja.environment') === 'selfhost';
@@ -33,6 +35,11 @@ class Ninja
     public static function isNinja()
     {
         return config('ninja.production');
+    }
+
+    public static function isNinjaDev()
+    {
+        return config('ninja.app_env') == 'development';
     }
 
     public static function getDebugInfo()
@@ -57,10 +64,11 @@ class Ninja
         $data = trim(CurlUtils::post('https://license.invoiceninja.com/api/check', $data));
         $data = json_decode($data);
 
-        if($data->message == sha1(config('ninja.license')))
+        if ($data && property_exists($data, 'message') && $data->message == sha1(config('ninja.license'))) {
             return false;
-        else
+        } else {
             return true;
+        }
     }
 
     public static function parse()
@@ -71,5 +79,33 @@ class Ninja
     public static function selfHostedMessage()
     {
         return 'Self hosted installation limited to one account';
+    }
+
+    public static function registerNinjaUser($user)
+    {
+        if (! $user || $user->email == self::TEST_USERNAME || self::isNinjaDev()) {
+            return false;
+        }
+
+        $url = config('ninja.license_url') . '/signup/register';
+        $data = '';
+        $fields = [
+            'first_name' => urlencode($user->first_name),
+            'last_name' => urlencode($user->last_name),
+            'email' => urlencode($user->email),
+        ];
+
+        foreach ($fields as $key => $value) {
+            $data .= $key.'='.$value.'&';
+        }
+        rtrim($data, '&');
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, count($fields));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_exec($ch);
+        curl_close($ch);
     }
 }

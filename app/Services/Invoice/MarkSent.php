@@ -17,7 +17,6 @@ use App\Services\AbstractService;
 
 class MarkSent extends AbstractService
 {
-
     private $client;
 
     private $invoice;
@@ -28,8 +27,8 @@ class MarkSent extends AbstractService
         $this->invoice = $invoice;
     }
 
-  	public function run()
-  	{
+    public function run()
+    {
 
         /* Return immediately if status is not draft */
         if ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
@@ -51,6 +50,5 @@ class MarkSent extends AbstractService
         //UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->balance, $this->invoice->company);
 
         return $this->invoice;
-
-  	}
+    }
 }

@@ -6,15 +6,13 @@ use App\Models\QuoteInvitation;
 
 class CreateInvitations
 {
-
     public function __construct()
     {
     }
 
     public function run($quote)
     {
-
-        $quote->client->contacts->each(function ($contact) use($quote){
+        $quote->client->contacts->each(function ($contact) use ($quote) {
             $invitation = QuoteInvitation::whereCompanyId($quote->company_id)
                 ->whereClientContactId($contact->id)
                 ->whereQuoteId($quote->id)

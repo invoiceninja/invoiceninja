@@ -155,10 +155,11 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getCompany()
     {
-        if($this->company)
+        if ($this->company) {
             return $this->company;
+        }
 
-        return Company::find( config('ninja.company_id') );
+        return Company::find(config('ninja.company_id'));
     }
 
     /**
@@ -304,10 +305,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function routeNotificationForSlack($notification)
     {
-
-        if($this->company_user->slack_webhook_url)
+        if ($this->company_user->slack_webhook_url) {
             return $this->company_user->slack_webhook_url;
-        
+        }
     }
 
 

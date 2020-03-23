@@ -1963,37 +1963,37 @@ $LANG = array(
     'authorization' => 'Autorisasjon',
     'signed' => 'Signert',
 
-	// BlueVine
-	'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
-	'bluevine_modal_label' => 'Sign up with BlueVine',
-	'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
+    'bluevine_modal_label' => 'Sign up with BlueVine',
+    'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
 <ul><li>Flexible business lines of credit and invoice factoring.</li></ul>',
-	'bluevine_create_account' => 'Opprett en konto',
-	'quote_types' => 'Få et tilbud for',
-	'invoice_factoring' => 'Invoice factoring',
-	'line_of_credit' => 'Linje av kreditt',
-	'fico_score'                         => 'Din FICO-poengsum',
-	'business_inception'                 => 'Bedriftens stiftelsesdato',
-	'average_bank_balance'               => 'Average bank account balance',
-	'annual_revenue'                     => 'Årlig omsetning',
-	'desired_credit_limit_factoring'     => 'Desired invoice factoring limit',
-	'desired_credit_limit_loc'           => 'Desired line of credit limit',
-	'desired_credit_limit'               => 'Desired credit limit',
-	'bluevine_credit_line_type_required' => 'You must choose at least one',
-	'bluevine_field_required'            => 'Dette feltet er obligatorisk',
-	'bluevine_unexpected_error'          => 'An unexpected error occurred.',
-	'bluevine_no_conditional_offer'      => 'More information is required before getting a quote. Click continue below.',
-	'bluevine_invoice_factoring'         => 'Invoice Factoring',
-	'bluevine_conditional_offer'         => 'Conditional Offer',
-	'bluevine_credit_line_amount'        => 'Kredittlinje',
-	'bluevine_advance_rate'              => 'Advance Rate',
-	'bluevine_weekly_discount_rate'      => 'Weekly Discount Rate',
-	'bluevine_minimum_fee_rate'          => 'Minimum Fee',
-	'bluevine_line_of_credit'            => 'Linje av Kreditt',
-	'bluevine_interest_rate'             => 'Rente',
-	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
-	'bluevine_continue'                  => 'Continue to BlueVine',
-	'bluevine_completed'                 => 'BlueVine signup completed',
+    'bluevine_create_account' => 'Opprett en konto',
+    'quote_types' => 'Få et tilbud for',
+    'invoice_factoring' => 'Invoice factoring',
+    'line_of_credit' => 'Linje av kreditt',
+    'fico_score'                         => 'Din FICO-poengsum',
+    'business_inception'                 => 'Bedriftens stiftelsesdato',
+    'average_bank_balance'               => 'Average bank account balance',
+    'annual_revenue'                     => 'Årlig omsetning',
+    'desired_credit_limit_factoring'     => 'Desired invoice factoring limit',
+    'desired_credit_limit_loc'           => 'Desired line of credit limit',
+    'desired_credit_limit'               => 'Desired credit limit',
+    'bluevine_credit_line_type_required' => 'You must choose at least one',
+    'bluevine_field_required'            => 'Dette feltet er obligatorisk',
+    'bluevine_unexpected_error'          => 'An unexpected error occurred.',
+    'bluevine_no_conditional_offer'      => 'More information is required before getting a quote. Click continue below.',
+    'bluevine_invoice_factoring'         => 'Invoice Factoring',
+    'bluevine_conditional_offer'         => 'Conditional Offer',
+    'bluevine_credit_line_amount'        => 'Kredittlinje',
+    'bluevine_advance_rate'              => 'Advance Rate',
+    'bluevine_weekly_discount_rate'      => 'Weekly Discount Rate',
+    'bluevine_minimum_fee_rate'          => 'Minimum Fee',
+    'bluevine_line_of_credit'            => 'Linje av Kreditt',
+    'bluevine_interest_rate'             => 'Rente',
+    'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
+    'bluevine_continue'                  => 'Continue to BlueVine',
+    'bluevine_completed'                 => 'BlueVine signup completed',
 
     'vendor_name' => 'Leverandør',
     'entity_state' => 'State',
@@ -2127,16 +2127,16 @@ $LANG = array(
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Dette Året',
 
-	// Updated login screen
-	'ninja_tagline' => 'Opprett. Send. Få Betalt.',
-	'login_or_existing' => 'Or login with a connected account.',
-	'sign_up_now' => 'Registrer Nå',
-	'not_a_member_yet' => 'Not a member yet?',
-	'login_create_an_account' => 'Create an Account!',
-	'client_login' => 'Kundeinnlogging',
+    // Updated login screen
+    'ninja_tagline' => 'Opprett. Send. Få Betalt.',
+    'login_or_existing' => 'Or login with a connected account.',
+    'sign_up_now' => 'Registrer Nå',
+    'not_a_member_yet' => 'Not a member yet?',
+    'login_create_an_account' => 'Create an Account!',
+    'client_login' => 'Kundeinnlogging',
 
-	// New Client Portal styling
-	'invoice_from' => 'Fakturaer Fra:',
+    // New Client Portal styling
+    'invoice_from' => 'Fakturaer Fra:',
     'email_alias_message' => 'We require each company to have a unique email address.<br/>Consider using an alias. ie, email+label@example.com',
     'full_name' => 'Fullt Navn',
     'month_year' => 'MÅNED/ÅR',
@@ -2431,7 +2431,7 @@ $LANG = array(
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Exporting format',
+    'format_export' => 'Exporting format',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2868,5 +2868,3 @@ $LANG = array(
 );
 
 return $LANG;
-
-?>

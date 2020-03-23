@@ -36,7 +36,6 @@ class MarkInvoicePaidTest extends TestCase
 
     public function testMarkInvoicePaidInvoice()
     {
-
         $invoice = Invoice::find($this->invoice->id);
         $invoice_balance = $invoice->balance;
         $client = $invoice->client;
@@ -51,14 +50,13 @@ class MarkInvoicePaidTest extends TestCase
 
         $this->assertEquals(1, count($invoice->payments));
 
-        foreach($invoice->payments as $payment) {
-            $this->assertEquals(round($this->invoice->amount,2), $payment->amount);
+        foreach ($invoice->payments as $payment) {
+            $this->assertEquals(round($this->invoice->amount, 2), $payment->amount);
         }
 
-       //events are not firing which makes this impossible to control.
+        //events are not firing which makes this impossible to control.
 
         $this->assertEquals(0.00, $invoice->balance);
         $this->assertEquals(($client_balance - $invoice_balance), $client->balance);
     }
-
 }

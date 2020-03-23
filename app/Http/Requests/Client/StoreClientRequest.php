@@ -69,72 +69,56 @@ class StoreClientRequest extends Request
 
     protected function prepareForValidation()
     {
-
         $input = $this->all();
 
         //@todo implement feature permissions for > 100 clients
         //
         $settings = ClientSettings::defaults();
         
-        if(array_key_exists('settings', $input) && !empty($input['settings']))
-        {
-
-            foreach($input['settings'] as $key => $value)
-            {
+        if (array_key_exists('settings', $input) && !empty($input['settings'])) {
+            foreach ($input['settings'] as $key => $value) {
                 $settings->{$key} = $value;
             }
-            
-        } 
+        }
 
         //is no settings->currency_id is set then lets dive in and find either a group or company currency all the below may be redundant!!
-        if(!property_exists($settings, 'currency_id') && isset($input['group_settings_id']))
-        {
-
+        if (!property_exists($settings, 'currency_id') && isset($input['group_settings_id'])) {
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
             $group_settings = GroupSetting::find($input['group_settings_id']);
 
-            if($group_settings && property_exists($group_settings->settings, 'currency_id') && isset($group_settings->settings->currency_id))
+            if ($group_settings && property_exists($group_settings->settings, 'currency_id') && isset($group_settings->settings->currency_id)) {
                 $settings->currency_id = (string)$group_settings->settings->currency_id;
-            else
+            } else {
                 $settings->currency_id = (string)auth()->user()->company()->settings->currency_id;
-
-        }
-        elseif(!property_exists($settings, 'currency_id'))
-        {
+            }
+        } elseif (!property_exists($settings, 'currency_id')) {
             $settings->currency_id = (string)auth()->user()->company()->settings->currency_id;
         }
 
 
         $input['settings'] = $settings;
 
-        if(isset($input['contacts']))
-        {
-            foreach($input['contacts'] as $key => $contact)
-            {
-                if(array_key_exists('id', $contact) && is_numeric($contact['id']))
+        if (isset($input['contacts'])) {
+            foreach ($input['contacts'] as $key => $contact) {
+                if (array_key_exists('id', $contact) && is_numeric($contact['id'])) {
                     unset($input['contacts'][$key]['id']);
-                elseif(array_key_exists('id', $contact) && is_string($contact['id']))
+                } elseif (array_key_exists('id', $contact) && is_string($contact['id'])) {
                     $input['contacts'][$key]['id'] = $this->decodePrimaryKey($contact['id']);
+                }
 
 
                 //Filter the client contact password - if it is sent with ***** we should ignore it!
-                if(isset($contact['password']))
-                {
-
-                    if(strlen($contact['password']) == 0){
+                if (isset($contact['password'])) {
+                    if (strlen($contact['password']) == 0) {
                         $input['contacts'][$key]['password'] = '';
-                    }
-                    else {
+                    } else {
                         $contact['password'] = str_replace("*", "", $contact['password']);
 
-                        if(strlen($contact['password']) == 0){
+                        if (strlen($contact['password']) == 0) {
                             unset($input['contacts'][$key]['password']);
                         }
-
                     }
-
                 }
-
             }
         }
 

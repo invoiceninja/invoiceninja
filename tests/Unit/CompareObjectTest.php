@@ -13,52 +13,44 @@ use Tests\TestCase;
  */
 class CompareObjectTest extends TestCase
 {
-
     public function setUp() :void
     {
+        parent::setUp();
     
-    parent::setUp();
-	
-    $this->client_settings = ClientSettings::defaults();
+        $this->client_settings = ClientSettings::defaults();
 
-    $this->company_settings = CompanySettings::defaults();
-
-	}
+        $this->company_settings = CompanySettings::defaults();
+    }
 
 
-	public function buildClientSettings()
-	{
+    public function buildClientSettings()
+    {
+        foreach ($this->company_settings as $key => $value) {
+            if (!isset($this->client_settings->{$key}) && property_exists($this->company_settings, $key)) {
+                $this->client_settings->{$key} = $this->company_settings->{$key};
+            }
+        }
 
-		foreach($this->company_settings as $key => $value)
-		{
-
-			if(!isset($this->client_settings->{$key}) && property_exists($this->company_settings, $key))
-				$this->client_settings->{$key} = $this->company_settings->{$key};
-		}
-
-		return $this->client_settings;
-	}
+        return $this->client_settings;
+    }
 
 
-	public function testProperties()
-	{
+    public function testProperties()
+    {
+        $build_client_settings = $this->buildClientSettings();
 
-		$build_client_settings = $this->buildClientSettings();
+        $this->assertEquals($build_client_settings->timezone_id, 1);
+        $this->assertEquals($build_client_settings->language_id, 1);
+        $this->assertEquals($build_client_settings->payment_terms, -1);
+    }
 
-		$this->assertEquals($build_client_settings->timezone_id, 1);
-		$this->assertEquals($build_client_settings->language_id, 1);
-		$this->assertEquals($build_client_settings->payment_terms, 1);
-	}	
+    public function testDirectClientSettingsBuild()
+    {
+        $settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults());
 
-	public function testDirectClientSettingsBuild()
-	{
-		$settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults());
-
-		$this->assertEquals($settings->timezone_id, 1);
-		$this->assertEquals($settings->language_id, 1);
-		$this->assertEquals($settings->payment_terms, 1);
-		$this->assertFalse($settings->send_portal_password);
-	}
-
-
+        $this->assertEquals($settings->timezone_id, 1);
+        $this->assertEquals($settings->language_id, 1);
+        $this->assertEquals($settings->payment_terms, -1);
+        $this->assertFalse($settings->send_portal_password);
+    }
 }

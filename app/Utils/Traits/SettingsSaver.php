@@ -76,8 +76,7 @@ trait SettingsSaver
         ksort($casts);
 
         foreach ($casts as $key => $value) {
-
-            if(in_array($key, self::$string_casts)){
+            if (in_array($key, self::$string_casts)) {
                 $value = "string";
                 if (!property_exists($settings, $key)) {
                     continue;
@@ -97,8 +96,7 @@ trait SettingsSaver
                 }
 
                 continue;
-            }
-            elseif($key == 'pdf_variables') {
+            } elseif ($key == 'pdf_variables') {
                 continue;
             }
 
@@ -133,14 +131,14 @@ trait SettingsSaver
         $settings = (object)$settings;
 
         /* Because of the object casting we cannot check pdf_variables */
-        if(property_exists($settings, 'pdf_variables'))
+        if (property_exists($settings, 'pdf_variables')) {
             unset($settings->pdf_variables);
+        }
 
         $casts = CompanySettings::$casts;
         
         foreach ($casts as $key => $value) {
-
-          if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
+            if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
                 $value = "integer";
                 
                 if (!property_exists($settings, $key)) {

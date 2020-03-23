@@ -79,8 +79,6 @@ class ClientApiTest extends TestCase
 
     public function testClientGet()
     {
-
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token
@@ -88,7 +86,6 @@ class ClientApiTest extends TestCase
 
 
         $response->assertStatus(200);
-
     }
 
     public function testClientNotArchived()
@@ -153,5 +150,4 @@ class ClientApiTest extends TestCase
 
         $this->assertTrue($arr['data'][0]['is_deleted']);
     }
-
 }

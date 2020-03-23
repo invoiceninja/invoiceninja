@@ -41,19 +41,18 @@ class PaymentNotification implements ShouldQueue
     {
         $payment = $event->payment;
 
-        //todo need to iterate through teh company user and determine if the user 
+        //todo need to iterate through teh company user and determine if the user
         //will receive this notification.
         
-        foreach($payment->company->company_users as $company_user)
-        {
-            $company_user->user->notify(new NewPaymentNotification($payment, $payment->company));
+        foreach ($payment->company->company_users as $company_user) {
+            if ($company_user->user) {
+                $company_user->user->notify(new NewPaymentNotification($payment, $payment->company));
+            }
         }
 
-        if(isset($payment->company->slack_webhook_url)){
-
+        if (isset($payment->company->slack_webhook_url)) {
             Notification::route('slack', $payment->company->slack_webhook_url)
                 ->notify(new NewPaymentNotification($payment, $payment->company, true));
-
         }
     }
 }

@@ -12,7 +12,9 @@
 namespace App\Utils;
 
 use App\Libraries\MultiDB;
+use App\Mail\TestMailServer;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Class SystemHealth.
@@ -51,6 +53,8 @@ class SystemHealth
             'php_version' => phpversion(),
             'min_php_version' => self::$php_version,
             'dbs' => self::dbCheck(),
+            'mail' => self::testMailServer(),
+            'env_writable' => self::checkEnvWritable(),
         ];
     }
 
@@ -89,10 +93,35 @@ class SystemHealth
                     $result[] = [ config('database.connections.' . config('database.default') . '.database') => false ];
                 }
             }
-
         }
 
         return $result;
+    }
 
+    private static function checkDbConnection()
+    {
+        return DB::connection()->getPdo();
+    }
+
+    private static function testMailServer()
+    {
+        try {
+            Mail::to(config('mail.from.address'))
+            ->send(new TestMailServer('Email Server Works!', config('mail.from.address')));
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+
+        if (count(Mail::failures()) > 0) {
+            return Mail::failures();
+        }
+
+        return [];
+    }
+
+    private static function checkEnvWritable()
+    {
+        return is_writable(base_path().'/.env');
+        //return @fopen(base_path().'/.env', 'w');
     }
 }

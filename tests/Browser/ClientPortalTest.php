@@ -15,18 +15,15 @@ use Tests\DuskTestCase;
 
 class ClientPortalTest extends DuskTestCase
 {
-
     use WithFaker;
     use MakesHash;
 
     public function testLoginPageDisplayed()
     {
-
-        $this->browse(function ($browser){
+        $this->browse(function ($browser) {
             $browser->visit('/client/login')
                     ->assertPathIs('/client/login');
         });
-    
     }
 
     /**
@@ -111,22 +108,17 @@ class ClientPortalTest extends DuskTestCase
 
             $browser->visit('client/logout')
                     ->assertPathIs('/client/login');
-
-
         });
-
-
     }
 
     /**
      * Testing sidebar pages availability.
-     * 
-     * @return void 
+     *
+     * @return void
      */
     public function testDashboardElements(): void
     {
         $this->browse(function ($browser) {
-
             $browser->visit('/client/login')
                 ->type('email', 'user@example.com')
                 ->type('password', config('ninja.testvars.password'))
@@ -152,7 +144,6 @@ class ClientPortalTest extends DuskTestCase
     public function testInvoicesElements(): void
     {
         $this->browse(function ($browser) {
-
             $browser->visit('/client/login')
                 ->type('email', 'user@example.com')
                 ->type('password', config('ninja.testvars.password'))
@@ -180,7 +171,6 @@ class ClientPortalTest extends DuskTestCase
     public function testRecurringInvoicesElements(): void
     {
         $this->browse(function ($browser) {
-
             $browser->visit('/client/login')
                 ->assertPathIs('/client/login')
                 ->type('email', 'user@example.com')
@@ -206,7 +196,6 @@ class ClientPortalTest extends DuskTestCase
     public function testPaymentsElements(): void
     {
         $this->browse(function ($browser) {
-
             $browser
                 ->visit('/client/logout')
                 ->visit('/client/login')
@@ -231,7 +220,6 @@ class ClientPortalTest extends DuskTestCase
     public function testPaymentMethodsElements(): void
     {
         $this->browse(function ($browser) {
-
             $browser->visit('/client/logout')
                 ->visit('/client/login')
                 ->type('email', 'user@example.com')
@@ -239,7 +227,7 @@ class ClientPortalTest extends DuskTestCase
                 ->press('Login')
                 ->assertPathIs('/client/dashboard');
 
-             $browser->visit('/client/payment_methods')
+            $browser->visit('/client/payment_methods')
                  ->waitFor('.dataTable')
                  ->assertVisible('#datatable_info')
             //     ->assertVisible('.dataTables_empty');
@@ -252,8 +240,7 @@ class ClientPortalTest extends DuskTestCase
     {
         $faker = \Faker\Factory::create();
 
-        $this->browse(function ($browser)  use ($faker) {
-
+        $this->browse(function ($browser) use ($faker) {
             $browser->visit('/client/login')
                 ->type('email', 'user@example.com')
                 ->type('password', config('ninja.testvars.password'))
@@ -291,7 +278,6 @@ class ClientPortalTest extends DuskTestCase
         $faker = \Faker\Factory::create();
 
         $this->browse(function ($browser) use ($faker) {
-
             $browser->visit('/client/login')
                 ->type('email', 'user@example.com')
                 ->type('password', config('ninja.testvars.password'))
@@ -325,5 +311,4 @@ class ClientPortalTest extends DuskTestCase
             $browser->driver->executeScript('window.scrollTo(0, document.body.scrollHeight)');
         });
     }
-
 }

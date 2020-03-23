@@ -1955,37 +1955,37 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'authorization' => 'Autorisatie',
     'signed' => 'Getekend',
 
-	// BlueVine
-	'bluevine_promo' => 'Krijg flexibele zakelijke kredietlijnen en factuur factoring met BlueVine.',
-	'bluevine_modal_label' => 'Aanmelden met BlueVine',
-	'bluevine_modal_text' => '<h3>Snelle financiering voor uw bedrijf. Geen papierwerk.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Krijg flexibele zakelijke kredietlijnen en factuur factoring met BlueVine.',
+    'bluevine_modal_label' => 'Aanmelden met BlueVine',
+    'bluevine_modal_text' => '<h3>Snelle financiering voor uw bedrijf. Geen papierwerk.</h3>
 <ul><i>Flexibele zakelijke kredietlijnen en factuur factoring.</li></ul>',
-	'bluevine_create_account' => 'Account aanmaken',
-	'quote_types' => 'Ontvang een offerte voor',
-	'invoice_factoring' => 'Factuur factoring',
-	'line_of_credit' => 'Kredietlijn',
-	'fico_score'                         => 'Uw FICO score',
-	'business_inception'                 => 'Zakelijke startdatum',
-	'average_bank_balance'               => 'Gemiddelde balans bankrekening',
-	'annual_revenue'                     => 'Jaarlijkse inkomsten',
-	'desired_credit_limit_factoring'     => 'Gewenste factuur factoring limiet',
-	'desired_credit_limit_loc'           => 'Gewenste kredietlijn limiet',
-	'desired_credit_limit'               => 'Gewenste krediet limiet',
-	'bluevine_credit_line_type_required' => 'Gelieve er minstens één te selecteren',
-	'bluevine_field_required'            => 'Dit veld is vereist',
-	'bluevine_unexpected_error'          => 'Er is een onverwachte fout opgetreden.',
-	'bluevine_no_conditional_offer'      => 'Er is meer informatie nodig om een offerte te verkrijgen. Klik op verdergaan hieronder.',
-	'bluevine_invoice_factoring'         => 'Factuur factoring',
-	'bluevine_conditional_offer'         => 'Voorwaardelijk aanbod',
-	'bluevine_credit_line_amount'        => 'Kredietlijn',
-	'bluevine_advance_rate'              => 'Voorschot tarief',
-	'bluevine_weekly_discount_rate'      => 'Wekelijks kortingspercentage',
-	'bluevine_minimum_fee_rate'          => 'Minimale kosten',
-	'bluevine_line_of_credit'            => 'Kredietlijn',
-	'bluevine_interest_rate'             => 'Rente',
-	'bluevine_weekly_draw_rate'          => 'Wekelijks treksnelheid',
-	'bluevine_continue'                  => 'Ga verder naar BlueVine',
-	'bluevine_completed'                 => 'BlueVine aanmelding voltooid',
+    'bluevine_create_account' => 'Account aanmaken',
+    'quote_types' => 'Ontvang een offerte voor',
+    'invoice_factoring' => 'Factuur factoring',
+    'line_of_credit' => 'Kredietlijn',
+    'fico_score'                         => 'Uw FICO score',
+    'business_inception'                 => 'Zakelijke startdatum',
+    'average_bank_balance'               => 'Gemiddelde balans bankrekening',
+    'annual_revenue'                     => 'Jaarlijkse inkomsten',
+    'desired_credit_limit_factoring'     => 'Gewenste factuur factoring limiet',
+    'desired_credit_limit_loc'           => 'Gewenste kredietlijn limiet',
+    'desired_credit_limit'               => 'Gewenste krediet limiet',
+    'bluevine_credit_line_type_required' => 'Gelieve er minstens één te selecteren',
+    'bluevine_field_required'            => 'Dit veld is vereist',
+    'bluevine_unexpected_error'          => 'Er is een onverwachte fout opgetreden.',
+    'bluevine_no_conditional_offer'      => 'Er is meer informatie nodig om een offerte te verkrijgen. Klik op verdergaan hieronder.',
+    'bluevine_invoice_factoring'         => 'Factuur factoring',
+    'bluevine_conditional_offer'         => 'Voorwaardelijk aanbod',
+    'bluevine_credit_line_amount'        => 'Kredietlijn',
+    'bluevine_advance_rate'              => 'Voorschot tarief',
+    'bluevine_weekly_discount_rate'      => 'Wekelijks kortingspercentage',
+    'bluevine_minimum_fee_rate'          => 'Minimale kosten',
+    'bluevine_line_of_credit'            => 'Kredietlijn',
+    'bluevine_interest_rate'             => 'Rente',
+    'bluevine_weekly_draw_rate'          => 'Wekelijks treksnelheid',
+    'bluevine_continue'                  => 'Ga verder naar BlueVine',
+    'bluevine_completed'                 => 'BlueVine aanmelding voltooid',
 
     'vendor_name' => 'Leverancier',
     'entity_state' => 'Staat',
@@ -2119,16 +2119,16 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'reports_help' => 'Shift + klik om op meerdere kolommen te sorteren, Ctrl + klik om de groepering te wissen.',
     'this_year' => 'Dit jaar',
 
-	// Updated login screen
-	'ninja_tagline' => 'Creëren. Sturen. Betaald worden.',
-	'login_or_existing' => 'Of log in met een verbonden account.',
-	'sign_up_now' => 'Meld nu aan',
-	'not_a_member_yet' => 'Nog geen lid?',
-	'login_create_an_account' => 'Maak een account aan!',
-	'client_login' => 'Klanten login',
+    // Updated login screen
+    'ninja_tagline' => 'Creëren. Sturen. Betaald worden.',
+    'login_or_existing' => 'Of log in met een verbonden account.',
+    'sign_up_now' => 'Meld nu aan',
+    'not_a_member_yet' => 'Nog geen lid?',
+    'login_create_an_account' => 'Maak een account aan!',
+    'client_login' => 'Klanten login',
 
-	// New Client Portal styling
-	'invoice_from' => 'Facturen van:',
+    // New Client Portal styling
+    'invoice_from' => 'Facturen van:',
     'email_alias_message' => 'Let op: het is vereist dat iedere gebruiker een uniek e-mailadres gebruikt.<br/>Overweeg een alias te gebruiken, bv. email+label@example.com',
     'full_name' => 'Volledige naam',
     'month_year' => 'Maand/jaar',
@@ -2423,7 +2423,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'tax1' => 'Eerste belasting',
     'tax2' => 'Tweede belasting',
     'fee_help' => 'Gateway vergoedingen zijn de kosten die gelden voor toegang tot de financiële netwerken die de verwerking van online betalingen behandelen.',
-	'format_export' => 'Uitvoerformaat',
+    'format_export' => 'Uitvoerformaat',
     'custom1' => 'Eerste aangepaste',
     'custom2' => 'Tweede aangepaste',
     'contact_first_name' => 'Contact voornaam',
@@ -2860,5 +2860,3 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
 );
 
 return $LANG;
-
-?>

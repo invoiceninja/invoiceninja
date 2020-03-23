@@ -1965,37 +1965,37 @@ $LANG = array(
     'authorization' => 'การอนุญาต',
     'signed' => 'ลงนาม',
 
-	// BlueVine
-	'bluevine_promo' => 'เพิ่มความคล่องตัวในการทำธุรกิจเครดิตและแฟ็กทีฟแฟคตอริ่งโดยใช้ BlueVine',
-	'bluevine_modal_label' => 'ลงทะเบียนกับ BlueVine',
-	'bluevine_modal_text' => '<h3>การระดมทุนอย่างรวดเร็วสำหรับธุรกิจของคุณ ไม่ต้องมีเอกสาร</h3>
+    // BlueVine
+    'bluevine_promo' => 'เพิ่มความคล่องตัวในการทำธุรกิจเครดิตและแฟ็กทีฟแฟคตอริ่งโดยใช้ BlueVine',
+    'bluevine_modal_label' => 'ลงทะเบียนกับ BlueVine',
+    'bluevine_modal_text' => '<h3>การระดมทุนอย่างรวดเร็วสำหรับธุรกิจของคุณ ไม่ต้องมีเอกสาร</h3>
 <ul><li>สายธุรกิจที่ยืดหยุ่นของสินเชื่อและแฟ็กเรียลแฟกเตอริ่ง</li></ul>',
-	'bluevine_create_account' => 'สร้างบัญชี',
-	'quote_types' => 'รับใบเสนอราคาสำหรับ',
-	'invoice_factoring' => 'Invoice factoring',
-	'line_of_credit' => 'วงเงิน',
-	'fico_score'                         => 'คะแนน FICO ของคุณ',
-	'business_inception'                 => 'วันที่จดทะเบียนกองทุน',
-	'average_bank_balance'               => 'ยอดคงเหลือในบัญชีธนาคารโดยเฉลี่ย',
-	'annual_revenue'                     => 'รายได้ประจำปี',
-	'desired_credit_limit_factoring'     => 'วงเงินแฟคเตอริ่งที่ต้องการ',
-	'desired_credit_limit_loc'           => 'วงเงินเครดิตสูงสุดที่ต้องการ',
-	'desired_credit_limit'               => 'วงเงินเครดิตที่ต้องการ',
-	'bluevine_credit_line_type_required' => 'คุณต้องเลือกอย่างน้อยหนึ่งอย่าง',
-	'bluevine_field_required'            => 'ต้องระบุข้อมูลนี้',
-	'bluevine_unexpected_error'          => 'เกิดความผิดพลาดอย่างไม่ได้คาดคิด.',
-	'bluevine_no_conditional_offer'      => 'ต้องการข้อมูลเพิ่มเติมก่อนรับใบเสนอราคา คลิกดำเนินการต่อด้านล่าง.',
-	'bluevine_invoice_factoring'         => 'Invoice Factoring',
-	'bluevine_conditional_offer'         => 'ข้อเสนอที่มีเงื่อนไข',
-	'bluevine_credit_line_amount'        => 'วงเงิน',
-	'bluevine_advance_rate'              => 'อัตราค่าบริการล่วงหน้า',
-	'bluevine_weekly_discount_rate'      => 'อัตราส่วนลดรายสัปดาห์',
-	'bluevine_minimum_fee_rate'          => 'ค่าธรรมเนียมขั้นต่ำ',
-	'bluevine_line_of_credit'            => 'วงเงินสูงสุด',
-	'bluevine_interest_rate'             => 'อัตราดอกเบี้ย',
-	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
-	'bluevine_continue'                  => 'ไปที่ BlueVine',
-	'bluevine_completed'                 => 'สมัคร BlueVine เรียบร้อยแล้ว',
+    'bluevine_create_account' => 'สร้างบัญชี',
+    'quote_types' => 'รับใบเสนอราคาสำหรับ',
+    'invoice_factoring' => 'Invoice factoring',
+    'line_of_credit' => 'วงเงิน',
+    'fico_score'                         => 'คะแนน FICO ของคุณ',
+    'business_inception'                 => 'วันที่จดทะเบียนกองทุน',
+    'average_bank_balance'               => 'ยอดคงเหลือในบัญชีธนาคารโดยเฉลี่ย',
+    'annual_revenue'                     => 'รายได้ประจำปี',
+    'desired_credit_limit_factoring'     => 'วงเงินแฟคเตอริ่งที่ต้องการ',
+    'desired_credit_limit_loc'           => 'วงเงินเครดิตสูงสุดที่ต้องการ',
+    'desired_credit_limit'               => 'วงเงินเครดิตที่ต้องการ',
+    'bluevine_credit_line_type_required' => 'คุณต้องเลือกอย่างน้อยหนึ่งอย่าง',
+    'bluevine_field_required'            => 'ต้องระบุข้อมูลนี้',
+    'bluevine_unexpected_error'          => 'เกิดความผิดพลาดอย่างไม่ได้คาดคิด.',
+    'bluevine_no_conditional_offer'      => 'ต้องการข้อมูลเพิ่มเติมก่อนรับใบเสนอราคา คลิกดำเนินการต่อด้านล่าง.',
+    'bluevine_invoice_factoring'         => 'Invoice Factoring',
+    'bluevine_conditional_offer'         => 'ข้อเสนอที่มีเงื่อนไข',
+    'bluevine_credit_line_amount'        => 'วงเงิน',
+    'bluevine_advance_rate'              => 'อัตราค่าบริการล่วงหน้า',
+    'bluevine_weekly_discount_rate'      => 'อัตราส่วนลดรายสัปดาห์',
+    'bluevine_minimum_fee_rate'          => 'ค่าธรรมเนียมขั้นต่ำ',
+    'bluevine_line_of_credit'            => 'วงเงินสูงสุด',
+    'bluevine_interest_rate'             => 'อัตราดอกเบี้ย',
+    'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
+    'bluevine_continue'                  => 'ไปที่ BlueVine',
+    'bluevine_completed'                 => 'สมัคร BlueVine เรียบร้อยแล้ว',
 
     'vendor_name' => 'ผู้ขาย',
     'entity_state' => 'สถานะ',
@@ -2129,16 +2129,16 @@ $LANG = array(
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'ปีนี้',
 
-	// Updated login screen
-	'ninja_tagline' => 'สร้าง. ส่ง. รับเงิน',
-	'login_or_existing' => 'Or login with a connected account.',
-	'sign_up_now' => 'สมัครตอนนี้เลย',
-	'not_a_member_yet' => 'ยังไม่เป็นสมาชิก',
-	'login_create_an_account' => 'สร้างบัญชี!',
-	'client_login' => 'เข้าสู่ระบบลูกค้า',
+    // Updated login screen
+    'ninja_tagline' => 'สร้าง. ส่ง. รับเงิน',
+    'login_or_existing' => 'Or login with a connected account.',
+    'sign_up_now' => 'สมัครตอนนี้เลย',
+    'not_a_member_yet' => 'ยังไม่เป็นสมาชิก',
+    'login_create_an_account' => 'สร้างบัญชี!',
+    'client_login' => 'เข้าสู่ระบบลูกค้า',
 
-	// New Client Portal styling
-	'invoice_from' => 'ใบแจ้งหนี้จาก:',
+    // New Client Portal styling
+    'invoice_from' => 'ใบแจ้งหนี้จาก:',
     'email_alias_message' => 'เราต้องการให้ บริษัท แต่ละแห่งมีที่อยู่อีเมลที่ไม่ซ้ำกัน.<br/>พิจารณาใช้นามแฝง เช่น email+label@example.com',
     'full_name' => 'ชื่อเต็ม',
     'month_year' => 'เดือน/ปี',
@@ -2433,7 +2433,7 @@ $LANG = array(
     'tax1' => 'ภาษีส่วนที่หนึ่ง',
     'tax2' => 'ภาษีส่วนที่สอง',
     'fee_help' => 'ค่าใช้จ่ายที่เกิดขึ้นขึ้นอยู่กับสถาบันการเงินที่ใช้ชำระ',
-	'format_export' => 'ไฟล์ที่ส่งออก',
+    'format_export' => 'ไฟล์ที่ส่งออก',
     'custom1' => 'กำหนดเองครั้งแรก',
     'custom2' => 'กำหนดเองครั้งที่สอง',
     'contact_first_name' => 'ชื่อที่ติดต่อ',
@@ -2870,5 +2870,3 @@ $LANG = array(
 );
 
 return $LANG;
-
-?>

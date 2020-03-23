@@ -42,8 +42,7 @@ class ImportTest extends TestCase
         $this->makeTestData();
 
         $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
-        $this->migration_array = json_decode(file_get_contents($migration_file),1);
-
+        $this->migration_array = json_decode(file_get_contents($migration_file), 1);
     }
 
 //     public function testImportClassExists()

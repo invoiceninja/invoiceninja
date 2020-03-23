@@ -14,36 +14,30 @@ use Tests\TestCase;
  */
 class PrimaryKeyTransformationTest extends TestCase
 {
-	use MakesHash;
+    use MakesHash;
 
     public function setUp() :void
     {
-    
-    parent::setUp();
-	
-	}
+        parent::setUp();
+    }
 
-	public function testTransformationArray()
-	{
+    public function testTransformationArray()
+    {
+        $keys = [
+            'gl9avZgaG1', '7LDdwrmb1Y'
+        ];
 
-		$keys = [
-			'gl9avZgaG1', '7LDdwrmb1Y'
-		];
+        $transformed_keys = $this->transformKeys($keys);
 
-		$transformed_keys = $this->transformKeys($keys);
+        $this->assertEquals(310, $transformed_keys[0]);
 
-		$this->assertEquals(310, $transformed_keys[0]);
+        $this->assertEquals(311, $transformed_keys[1]);
+    }
 
-		$this->assertEquals(311, $transformed_keys[1]);
+    public function testTransformation()
+    {
+        $keys = 'gl9avZgaG1';
 
-		
-	}
-
-	public function testTransformation()
-	{
-		$keys = 'gl9avZgaG1';
-
-		$this->assertEquals(310, $this->transformKeys($keys));
-	}
-
+        $this->assertEquals(310, $this->transformKeys($keys));
+    }
 }

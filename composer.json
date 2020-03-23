@@ -20,7 +20,6 @@
     "require": {
         "php": ">=7.3",
         "ext-json": "*",
-        "anahkiasen/former": "^4.2",
         "asgrim/ofxparser": "^1.2",
         "codedge/laravel-selfupdater": "2.5.1",
         "composer/composer": "^1.10",
@@ -35,7 +34,6 @@
         "laravel/slack-notification-channel": "^2.0",
         "laravel/socialite": "^4.0",
         "laravel/tinker": "^1.0",
-        "laravelcollective/html": "^6",
         "league/fractal": "^0.17.0",
         "league/omnipay": "^3.0",
         "maennchen/zipstream-php": "^1.2",
@@ -49,17 +47,18 @@
         "stripe/stripe-php": "^7.0",
         "superbalist/laravel-google-cloud-storage": "^2.2",
         "webpatser/laravel-countries": "dev-master#75992ad",
-        "wildbit/postmark-php": "^2.6",
-        "yajra/laravel-datatables-html": "^4.0",
-        "yajra/laravel-datatables-oracle": "~9.0"
+        "fzaninotto/faker": "^1.4"
     },
     "require-dev": {
-        "ext-json": "*",
+        "laravelcollective/html": "^6",
+        "wildbit/postmark-php": "^2.6",
+        "yajra/laravel-datatables-html": "^4.0",
+        "anahkiasen/former": "^4.2",
+        "yajra/laravel-datatables-oracle": "~9.0",
         "barryvdh/laravel-debugbar": "^3.2",
         "beyondcode/laravel-dump-server": "^1.0",
         "darkaonline/l5-swagger": "^6.0",
         "filp/whoops": "^2.0",
-        "fzaninotto/faker": "^1.4",
         "laravel/dusk": "^5.0",
         "mockery/mockery": "^1.0",
         "nunomaduro/collision": "^2.0",
@@ -92,11 +91,14 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "post-create-project-cmd": [
-            "@php artisan key:generate --ansi"
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan package:discover --ansi",
+            "php artisan key:generate",
             "@php artisan storage:link"
         ]
     },

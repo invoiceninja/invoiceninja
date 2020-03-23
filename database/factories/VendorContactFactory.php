@@ -20,5 +20,4 @@ $factory->define(App\Models\VendorContact::class, function (Faker $faker) {
         'phone' => $faker->phoneNumber,
         'email' => $faker->unique()->safeEmail,
     ];
-
 });

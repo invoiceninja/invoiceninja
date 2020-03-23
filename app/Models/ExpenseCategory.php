@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ExpenseCategory extends BaseModel
 {
-
     use SoftDeletes;
 
     protected $fillable = [

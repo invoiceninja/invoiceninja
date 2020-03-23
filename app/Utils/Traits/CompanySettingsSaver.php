@@ -31,20 +31,21 @@ trait CompanySettingsSaver
      */
     public function saveSettings($settings, $entity)
     {
-        /* No Settings, No Save!*/        
-        if (!$settings) 
+        /* No Settings, No Save!*/
+        if (!$settings) {
             return;
+        }
         
         //Unset Protected Properties.
-        foreach (CompanySettings::$protected_fields as $field) 
+        foreach (CompanySettings::$protected_fields as $field) {
             unset($settings[$field]);
+        }
 
         $settings = $this->checkSettingType($settings);
 
         $company_settings = CompanySettings::defaults();
         //Iterate and set NEW settings
         foreach ($settings as $key => $value) {
-
             if (is_null($settings->{$key})) {
                 $company_settings->{$key} = '';
             } else {
@@ -55,7 +56,6 @@ trait CompanySettingsSaver
         $entity->settings = $company_settings;
 
         $entity->save();
-
     }
 
     /**
@@ -79,8 +79,7 @@ trait CompanySettingsSaver
         ksort($casts);
 
         foreach ($casts as $key => $value) {
-
-            if(in_array($key, SettingsSaver::$string_casts)) {
+            if (in_array($key, SettingsSaver::$string_casts)) {
                 $value = "string";
 
                 if (!property_exists($settings, $key)) {
@@ -102,21 +101,21 @@ trait CompanySettingsSaver
                 }
 
                 continue;
-            }
-            elseif($key == 'pdf_variables') {
+            } elseif ($key == 'pdf_variables') {
                 continue;
             }
 
             /* Handles unset settings or blank strings */
-            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') 
+            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') {
                 continue;
+            }
             
             
 
             /*Catch all filter */
-            if (!$this->checkAttribute($value, $settings->{$key})) 
+            if (!$this->checkAttribute($value, $settings->{$key})) {
                 return [$key, $value, $settings->{$key}];
-            
+            }
         }
 
         return true;
@@ -140,9 +139,7 @@ trait CompanySettingsSaver
         $casts = CompanySettings::$casts;
         
         foreach ($casts as $key => $value) {
-
-            if(in_array($key, SettingsSaver::$string_casts))
-            {
+            if (in_array($key, SettingsSaver::$string_casts)) {
                 $value = "string";
                 
                 if (!property_exists($settings, $key)) {
@@ -157,7 +154,7 @@ trait CompanySettingsSaver
                     unset($settings->{$key});
                 }
 
-                continue;   
+                continue;
             }
             /*Separate loop if it is a _id field which is an integer cast as a string*/
             if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
@@ -176,14 +173,14 @@ trait CompanySettingsSaver
                 }
 
                 continue;
-            }
-            elseif($key == 'pdf_variables') {
+            } elseif ($key == 'pdf_variables') {
                 settype($settings->{$key}, 'object');
             }
 
             /* Handles unset settings or blank strings */
-            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') 
+            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') {
                 continue;
+            }
             
 
             /*Catch all filter */
@@ -199,7 +196,6 @@ trait CompanySettingsSaver
         }
 
         return $settings;
-
     }
 
     /**
@@ -210,7 +206,6 @@ trait CompanySettingsSaver
      */
     private function checkAttribute($key, $value) :bool
     {
-
         switch ($key) {
             case 'int':
             case 'integer':
@@ -234,6 +229,5 @@ trait CompanySettingsSaver
             default:
                 return false;
         }
-        
     }
 }

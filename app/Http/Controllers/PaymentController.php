@@ -381,8 +381,9 @@ class PaymentController extends BaseController
      */
     public function update(UpdatePaymentRequest $request, Payment $payment)
     {
-        if($request->entityIsDeleted($payment))
+        if ($request->entityIsDeleted($payment)) {
             return $request->disallowUpdate();
+        }
 
         $payment = $this->payment_repo->save($request->all(), $payment);
 
@@ -674,12 +675,10 @@ class PaymentController extends BaseController
      */
     public function refund(RefundPaymentRequest $request)
     {
-        
         $payment = $request->payment();
 
         $payment = $payment->refund($request->all());
 
         return $this->itemResponse($payment);
     }
-
 }

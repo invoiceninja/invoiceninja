@@ -37,6 +37,6 @@
  *           	ref="#/components/schemas/CreditPaymentable",
  *          ),
  *       ),
- *       
+ *
  * )
  */

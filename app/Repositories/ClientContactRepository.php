@@ -24,10 +24,11 @@ class ClientContactRepository extends BaseRepository
 {
     public function save(array $data, Client $client) : void
     {
-        if(isset($data['contacts']))
+        if (isset($data['contacts'])) {
             $contacts = collect($data['contacts']);
-        else
+        } else {
             $contacts = collect();
+        }
 
         $client->contacts->pluck('id')->diff($contacts->pluck('id'))->each(function ($contact) {
             ClientContact::destroy($contact);
@@ -56,22 +57,15 @@ class ClientContactRepository extends BaseRepository
 
             $update_contact->fill($contact);
 
-            if(array_key_exists('password', $contact)) {
-
-                if(strlen($contact['password']) == 0){
-
+            if (array_key_exists('password', $contact)) {
+                if (strlen($contact['password']) == 0) {
                     $update_contact->password = '';
-
-                }
-                else{
-
+                } else {
                     $update_contact->password = Hash::make($contact['password']);
                 }
-
             }
 
             $update_contact->save();
-
         });
 
 
@@ -84,8 +78,5 @@ class ClientContactRepository extends BaseRepository
             $new_contact->is_primary = true;
             $new_contact->save();
         }
-
     }
-
-
 }

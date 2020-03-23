@@ -70,7 +70,7 @@ class RandomDataSeeder extends Seeder
 
         Eloquent::unguard();
 
-        $faker = Faker\Factory::create();
+        $faker = \Faker\Factory::create();
 
         $account = factory(\App\Models\Account::class)->create();
         $company = factory(\App\Models\Company::class)->create([
@@ -123,40 +123,38 @@ class RandomDataSeeder extends Seeder
         ]);
 
 
-        factory(\App\Models\Client::class, 10)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
-
-            factory(\App\Models\ClientContact::class,1)->create([
+        factory(\App\Models\Client::class, 10)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
                 'is_primary' => 1
             ]);
 
-            factory(\App\Models\ClientContact::class,5)->create([
+            factory(\App\Models\ClientContact::class, 5)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id
             ]);
-
         });
 
         /** Product Factory */
-        factory(\App\Models\Product::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id]);
+        factory(\App\Models\Product::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id]);
 
         /** Invoice Factory */
-        factory(\App\Models\Invoice::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\Invoice::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $invoices = Invoice::cursor();
         $invoice_repo = new InvoiceRepository();
 
-        $invoices->each(function ($invoice) use($invoice_repo, $user, $company, $client){
-
+        $invoices->each(function ($invoice) use ($invoice_repo, $user, $company, $client) {
             $invoice_calc = null;
 
-            if($invoice->uses_inclusive_taxes)
+            if ($invoice->uses_inclusive_taxes) {
                 $invoice_calc = new InvoiceSumInclusive($invoice);
-            else
+            } else {
                 $invoice_calc = new InvoiceSum($invoice);
+            }
 
             $invoice = $invoice_calc->build()->getInvoice();
 
@@ -170,14 +168,14 @@ class RandomDataSeeder extends Seeder
 
             event(new InvoiceWasMarkedSent($invoice, $company));
 
-            if(rand(0, 1)) {
+            if (rand(0, 1)) {
                 $payment = App\Models\Payment::create([
                     'date' => now(),
                     'user_id' => $user->id,
                     'company_id' => $company->id,
                     'client_id' => $client->id,
                     'amount' => $invoice->balance,
-                    'transaction_reference' => rand(0,500),
+                    'transaction_reference' => rand(0, 500),
                     'type_id' => PaymentType::CREDIT_CARD_OTHER,
                     'status_id' => Payment::STATUS_COMPLETED,
                 ]);
@@ -188,25 +186,24 @@ class RandomDataSeeder extends Seeder
 
                 $payment->service()->updateInvoicePayment();
 
-    //            UpdateInvoicePayment::dispatchNow($payment, $payment->company);
+                //            UpdateInvoicePayment::dispatchNow($payment, $payment->company);
             }
-
         });
 
         /*Credits*/
-        factory(\App\Models\Credit::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\Credit::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $credits = Credit::cursor();
         $credit_repo = new CreditRepository();
 
-        $credits->each(function ($credit) use($credit_repo, $user, $company, $client){
-
+        $credits->each(function ($credit) use ($credit_repo, $user, $company, $client) {
             $credit_calc = null;
 
-            if($credit->uses_inclusive_taxes)
+            if ($credit->uses_inclusive_taxes) {
                 $credit_calc = new InvoiceSumInclusive($credit);
-            else
+            } else {
                 $credit_calc = new InvoiceSum($credit);
+            }
 
             $credit = $credit_calc->build()->getCredit();
 
@@ -215,20 +212,18 @@ class RandomDataSeeder extends Seeder
             event(new CreateCreditInvitation($credit));
 
             //$invoice->markSent()->save();
-
         });
 
         /** Recurring Invoice Factory */
-        factory(\App\Models\RecurringInvoice::class,10)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\RecurringInvoice::class, 10)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-       // factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
+        // factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
 
 
 
         $clients = Client::all();
 
-        foreach($clients as $client)
-        {
+        foreach ($clients as $client) {
             //$client->getNextClientNumber($client);
             $client->id_number = $client->getNextClientNumber($client);
             $client->save();
@@ -243,9 +238,7 @@ class RandomDataSeeder extends Seeder
         ]);
 
 
-        if(config('ninja.testvars.stripe'))
-        {
-
+        if (config('ninja.testvars.stripe')) {
             $cg = new CompanyGateway;
             $cg->company_id = $company->id;
             $cg->user_id = $user->id;
@@ -269,8 +262,7 @@ class RandomDataSeeder extends Seeder
             $cg->save();
         }
 
-        if(config('ninja.testvars.paypal'))
-        {
+        if (config('ninja.testvars.paypal')) {
             $cg = new CompanyGateway;
             $cg->company_id = $company->id;
             $cg->user_id = $user->id;
@@ -282,8 +274,5 @@ class RandomDataSeeder extends Seeder
             $cg->config = encrypt(config('ninja.testvars.paypal'));
             $cg->save();
         }
-
     }
-
-
 }

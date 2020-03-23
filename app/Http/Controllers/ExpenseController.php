@@ -267,8 +267,9 @@ class ExpenseController extends BaseController
      */
     public function update(UpdateExpenseRequest $request, Expense $expense)
     {
-        if($request->entityIsDeleted($expense))
+        if ($request->entityIsDeleted($expense)) {
             return $request->disallowUpdate();
+        }
 
         $expense = $this->client_repo->save($request->all(), $expense);
 

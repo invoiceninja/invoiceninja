@@ -11,10 +11,8 @@ namespace App\Helpers\Email;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
 
-
 class QuoteEmail extends EmailBuilder
 {
-
     public function build(QuoteInvitation $invitation, $reminder_template)
     {
         $client = $invitation->contact->client;
@@ -27,22 +25,31 @@ class QuoteEmail extends EmailBuilder
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
-            $body_template = trans('texts.quote_message',
-                ['amount' => $quote->amount, 'company' => $quote->company->present()->name()], null,
-                $quote->client->locale());
+            $body_template = trans(
+                'texts.quote_message',
+                ['amount' => $quote->amount, 'company' => $quote->company->present()->name()],
+                null,
+                $quote->client->locale()
+            );
         }
 
         $subject_template = $client->getSetting('email_subject_' . $reminder_template);
 
         if (iconv_strlen($subject_template) == 0) {
             if ($reminder_template == 'quote') {
-                $subject_template = trans('texts.quote_subject',
+                $subject_template = trans(
+                    'texts.quote_subject',
                     ['number' => $quote->number, 'company' => $quote->company->present()->name()],
-                    null, $quote->client->locale());
+                    null,
+                    $quote->client->locale()
+                );
             } else {
-                $subject_template = trans('texts.reminder_subject',
+                $subject_template = trans(
+                    'texts.reminder_subject',
                     ['number' => $quote->number, 'company' => $quote->company->present()->name()],
-                    null, $quote->client->locale());
+                    null,
+                    $quote->client->locale()
+                );
             }
         }
 

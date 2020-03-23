@@ -47,41 +47,38 @@ class MigrationTest extends TestCase
 
     public function testCompanyExists()
     {
+        $co = Company::find($this->company->id);
 
-    	$co = Company::find($this->company->id);
-
-    	// $this->assertNull($this->company);
-    	$this->assertNotNull($co);
+        // $this->assertNull($this->company);
+        $this->assertNotNull($co);
     }
 
     public function testThatCompanyDeletesCompletely()
     {
-    	$company_id = $this->company->id;
+        $company_id = $this->company->id;
 
-    	$this->company->delete();
-    	$this->company->fresh();
+        $this->company->delete();
+        $this->company->fresh();
 
-    	$co = Company::find($company_id);
+        $co = Company::find($company_id);
 
-    	// $this->assertNull($this->company);
-    	$this->assertNull($co);
-
+        // $this->assertNull($this->company);
+        $this->assertNull($co);
     }
 
     public function testCompanyChildDeletes()
     {
-
         $this->makeTestData();
 
         $this->assertNotNull($this->company);
 
-    	$co = Client::whereCompanyId($this->company->id)->get();
-    	$inv = Invoice::whereCompanyId($this->company->id)->get();
+        $co = Client::whereCompanyId($this->company->id)->get();
+        $inv = Invoice::whereCompanyId($this->company->id)->get();
 
-    	$this->assertEquals($co->count(),1);
-    	$this->assertEquals($inv->count(),1);
+        $this->assertEquals($co->count(), 1);
+        $this->assertEquals($inv->count(), 1);
 
-		// DB::statement( 'DELETE FROM `clients` WHERE `company_id`=:company_id', array('company_id' => $this->company->id) );
+        // DB::statement( 'DELETE FROM `clients` WHERE `company_id`=:company_id', array('company_id' => $this->company->id) );
 
   //   	$co = Client::whereCompanyId($this->company->id)->get();
   //   	$inv = Invoice::whereCompanyId($this->company->id)->get();
@@ -92,7 +89,6 @@ class MigrationTest extends TestCase
   //   	$this->assertNotNull($this->company);
   //   	$this->assertNotNull($this->company->settings);
   //   	$this->assertNotNull($this->company->settings->timezone_id);
-
     }
 
     // public function testMigrationFileUpload()
@@ -116,6 +112,4 @@ class MigrationTest extends TestCase
     //     $response->assertStatus(200);
     //     $this->assertTrue(file_exists(base_path('storage/migrations/migration/migration.json')));
     // }
-    
-
 }

@@ -13,12 +13,14 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
+use App\Designs\Designer;
 use App\Filters\QueryFilters;
+use App\Models\Design;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Hashids\Hashids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
@@ -154,11 +156,21 @@ class BaseModel extends Model
      */
     public function resolveRouteBinding($value)
     {
-        if(is_numeric($value))
+        if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");
+        }
 
         return $this
             ->withTrashed()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
+
+    public function getEntityDesigner()
+    {
+        $design = Design::find($this->decodePrimaryKey($this->client->getSetting('invoice_design_id')));
+
+        $entity = strtolower(class_basename($this));
+
+        return new Designer($this, $design, $this->client->getSetting('pdf_variables'), $entity);
     }
 }

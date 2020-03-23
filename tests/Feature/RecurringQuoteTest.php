@@ -24,13 +24,11 @@ use Tests\TestCase;
     
 class RecurringQuoteTest extends TestCase
 {
-
     use MakesHash;
     use DatabaseTransactions;
 
     public function setUp() :void
     {
-
         parent::setUp();
 
         Session::start();
@@ -42,7 +40,6 @@ class RecurringQuoteTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
     }
 
     public function testRecurringQuoteList()
@@ -65,7 +62,7 @@ class RecurringQuoteTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
 
         $company_token = $account->default_company->tokens()->first();
         $token = $company_token->token;
@@ -79,21 +76,19 @@ class RecurringQuoteTest extends TestCase
         $this->assertNotNull($company);
         //$this->assertNotNull($user->token->company);
 
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
-
-            factory(\App\Models\ClientContact::class,1)->create([
+        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
                 'is_primary' => 1
             ]);
 
-            factory(\App\Models\ClientContact::class,1)->create([
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id
             ]);
-
         });
         $client = Client::all()->first();
 
@@ -106,7 +101,6 @@ class RecurringQuoteTest extends TestCase
             ])->get('/api/v1/recurring_quotes');
 
         $response->assertStatus(200);
-
     }
 
     public function testRecurringQuoteRESTEndPoints()
@@ -129,7 +123,7 @@ class RecurringQuoteTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
 
         $company_token = $account->default_company->tokens()->first();
         $token = $company_token->token;
@@ -143,27 +137,25 @@ class RecurringQuoteTest extends TestCase
         $this->assertNotNull($company);
         //$this->assertNotNull($user->token->company);
 
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
-
-            factory(\App\Models\ClientContact::class,1)->create([
+        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
                 'is_primary' => 1
             ]);
 
-            factory(\App\Models\ClientContact::class,1)->create([
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id
             ]);
-
         });
         $client = Client::all()->first();
 
         factory(\App\Models\RecurringQuote::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        $RecurringQuote = RecurringQuote::where('user_id',$user->id)->first();
+        $RecurringQuote = RecurringQuote::where('user_id', $user->id)->first();
         $RecurringQuote->save();
 
         
@@ -201,7 +193,5 @@ class RecurringQuoteTest extends TestCase
             ])->delete('/api/v1/recurring_quotes/'.$this->encodePrimaryKey($RecurringQuote->id));
 
         $response->assertStatus(200);
-
     }
-
 }

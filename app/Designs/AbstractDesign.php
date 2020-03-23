@@ -13,16 +13,15 @@ namespace App\Designs;
 
 abstract class AbstractDesign
 {
-	abstract public function includes();
-	
-	abstract public function header();
-	
-	abstract public function body();
-	
-	abstract public function product();
+    abstract public function includes();
+    
+    abstract public function header();
+    
+    abstract public function body();
+    
+    abstract public function product();
 
-	abstract public function task();
-	
-	abstract public function footer();
-	
+    abstract public function task();
+    
+    abstract public function footer();
 }

@@ -1953,37 +1953,37 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'authorization' => 'Autorización',
     'signed' => 'Frimado',
 
-	// BlueVine
-	'bluevine_promo' => 'Obtenga líneas de crédito comerciales flexibles y factoraje de facturas usando BlueVine.',
-	'bluevine_modal_label' => 'Registrarse con BlueVine',
-	'bluevine_modal_text' => '<h3>Financiamiento rápido para su negocio. Sin papeleo</h3>
+    // BlueVine
+    'bluevine_promo' => 'Obtenga líneas de crédito comerciales flexibles y factoraje de facturas usando BlueVine.',
+    'bluevine_modal_label' => 'Registrarse con BlueVine',
+    'bluevine_modal_text' => '<h3>Financiamiento rápido para su negocio. Sin papeleo</h3>
 <ul><li>Líneas de crédito flexibles y factoraje de facturas.</li></ul>',
-	'bluevine_create_account' => 'Crea una cuenta',
-	'quote_types' => 'Obtenga un presupuesto para',
-	'invoice_factoring' => 'Factorización de facturas',
-	'line_of_credit' => 'Línea de crédito',
-	'fico_score'                         => 'Su puntuación FICO',
-	'business_inception'                 => 'Fecha de inicio del negocio',
-	'average_bank_balance'               => 'Saldo promedio de la cuenta bancaria',
-	'annual_revenue'                     => 'Ingresos anuales',
-	'desired_credit_limit_factoring'     => 'Límite deseado de factorización de factura',
-	'desired_credit_limit_loc'           => 'Límite deseado de línea de crédito ',
-	'desired_credit_limit'               => 'Límite deseado de crédito ',
-	'bluevine_credit_line_type_required' => 'Debe elegir al menos uno',
-	'bluevine_field_required'            => 'Este campo es obligatorio',
-	'bluevine_unexpected_error'          => 'Ocurrió un error inesperado.',
-	'bluevine_no_conditional_offer'      => 'Se requiere más información antes de obtener un presupuesto . Haga clic en continuar',
-	'bluevine_invoice_factoring'         => 'Factorización de Facturas',
-	'bluevine_conditional_offer'         => 'Oferta Condicional',
-	'bluevine_credit_line_amount'        => 'Línea de Crédito',
-	'bluevine_advance_rate'              => 'Tasa de avance',
-	'bluevine_weekly_discount_rate'      => 'Tasa de descuento semanal',
-	'bluevine_minimum_fee_rate'          => 'Tarifa mínima',
-	'bluevine_line_of_credit'            => 'Línea de crédito',
-	'bluevine_interest_rate'             => 'Tasa de interés',
-	'bluevine_weekly_draw_rate'          => 'Tasa de Sorteo semanal',
-	'bluevine_continue'                  => 'Ir a BlueVine',
-	'bluevine_completed'                 => 'Registro en BlueVine completado',
+    'bluevine_create_account' => 'Crea una cuenta',
+    'quote_types' => 'Obtenga un presupuesto para',
+    'invoice_factoring' => 'Factorización de facturas',
+    'line_of_credit' => 'Línea de crédito',
+    'fico_score'                         => 'Su puntuación FICO',
+    'business_inception'                 => 'Fecha de inicio del negocio',
+    'average_bank_balance'               => 'Saldo promedio de la cuenta bancaria',
+    'annual_revenue'                     => 'Ingresos anuales',
+    'desired_credit_limit_factoring'     => 'Límite deseado de factorización de factura',
+    'desired_credit_limit_loc'           => 'Límite deseado de línea de crédito ',
+    'desired_credit_limit'               => 'Límite deseado de crédito ',
+    'bluevine_credit_line_type_required' => 'Debe elegir al menos uno',
+    'bluevine_field_required'            => 'Este campo es obligatorio',
+    'bluevine_unexpected_error'          => 'Ocurrió un error inesperado.',
+    'bluevine_no_conditional_offer'      => 'Se requiere más información antes de obtener un presupuesto . Haga clic en continuar',
+    'bluevine_invoice_factoring'         => 'Factorización de Facturas',
+    'bluevine_conditional_offer'         => 'Oferta Condicional',
+    'bluevine_credit_line_amount'        => 'Línea de Crédito',
+    'bluevine_advance_rate'              => 'Tasa de avance',
+    'bluevine_weekly_discount_rate'      => 'Tasa de descuento semanal',
+    'bluevine_minimum_fee_rate'          => 'Tarifa mínima',
+    'bluevine_line_of_credit'            => 'Línea de crédito',
+    'bluevine_interest_rate'             => 'Tasa de interés',
+    'bluevine_weekly_draw_rate'          => 'Tasa de Sorteo semanal',
+    'bluevine_continue'                  => 'Ir a BlueVine',
+    'bluevine_completed'                 => 'Registro en BlueVine completado',
 
     'vendor_name' => 'Proveedor',
     'entity_state' => 'Estado',
@@ -2117,16 +2117,16 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'reports_help' => 'May + Click para ordenar por múltiples columnas, Ctrl + click para quitar agrupamiento.',
     'this_year' => 'Este Año',
 
-	// Updated login screen
-	'ninja_tagline' => 'Crea. Envia. Recibe tus Pagos.',
-	'login_or_existing' => 'O inicie sesión con una cuenta existente.',
-	'sign_up_now' => 'Registrarse Ahora',
-	'not_a_member_yet' => '¿No eres miembro todavía?',
-	'login_create_an_account' => 'Crea una Cuenta!',
-	'client_login' => 'Acceso de Clientes',
+    // Updated login screen
+    'ninja_tagline' => 'Crea. Envia. Recibe tus Pagos.',
+    'login_or_existing' => 'O inicie sesión con una cuenta existente.',
+    'sign_up_now' => 'Registrarse Ahora',
+    'not_a_member_yet' => '¿No eres miembro todavía?',
+    'login_create_an_account' => 'Crea una Cuenta!',
+    'client_login' => 'Acceso de Clientes',
 
-	// New Client Portal styling
-	'invoice_from' => 'Facturas desde:',
+    // New Client Portal styling
+    'invoice_from' => 'Facturas desde:',
     'email_alias_message' => 'Requerimos que cada compañía tenga una dirección de correo electrónico única. <br/>Considere el uso de un alias. es decir, email+label@example.com',
     'full_name' => 'Nombre completo',
     'month_year' => 'MES/AÑO',
@@ -2421,7 +2421,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'tax1' => 'Primer impuesto',
     'tax2' => 'Segundo impuesto',
     'fee_help' => 'Las tarifas de Gateway son los costos que se cobran por el acceso a las redes financieras que manejan el procesamiento de pagos en línea.',
-	'format_export' => 'Formato de exportación',
+    'format_export' => 'Formato de exportación',
     'custom1' => 'Primera personalización',
     'custom2' => 'Segunda personalización',
     'contact_first_name' => 'Nombre del Contacto',
@@ -2858,5 +2858,3 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
 );
 
 return $LANG;
-
-?>

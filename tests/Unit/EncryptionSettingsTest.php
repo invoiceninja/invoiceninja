@@ -12,26 +12,22 @@ use Tests\TestCase;
  */
 class EncryptionSettingsTest extends TestCase
 {
-	
     public function setUp() :void
     {
-    
-	    parent::setUp();
-		
-    	$this->settings = '{"publishable_key":"publish","23_apiKey":"client","enable_ach":"1","enable_sofort":"1","enable_apple_pay":"1","enable_alipay":"1"}';
+        parent::setUp();
+        
+        $this->settings = '{"publishable_key":"publish","23_apiKey":"client","enable_ach":"1","enable_sofort":"1","enable_apple_pay":"1","enable_alipay":"1"}';
+    }
 
-	}
+    public function testDecryption()
+    {
+        $this->settings = encrypt($this->settings);
 
-	public function testDecryption()
-	{
-
-		$this->settings = encrypt($this->settings);
-
-		$this->assertEquals('publish', $this->getConfigField('publishable_key'));
-		$this->assertEquals('client', $this->getConfigField('23_apiKey'));
-		$this->assertEquals(1, $this->getConfigField('enable_ach'));
-		$this->assertEquals(1, $this->getConfigField('enable_sofort'));
-	}
+        $this->assertEquals('publish', $this->getConfigField('publishable_key'));
+        $this->assertEquals('client', $this->getConfigField('23_apiKey'));
+        $this->assertEquals(1, $this->getConfigField('enable_ach'));
+        $this->assertEquals(1, $this->getConfigField('enable_sofort'));
+    }
 
 
 
@@ -54,5 +50,3 @@ class EncryptionSettingsTest extends TestCase
         return object_get($this->getConfig(), $field, false);
     }
 }
-
-

@@ -9,8 +9,6 @@ class ConstantsSeeder extends Seeder
 {
     public function run()
     {
-
-        
         Size::create(['name' => '1 - 3']);
         Size::create(['name' => '4 - 10']);
         Size::create(['name' => '11 - 50']);
@@ -154,6 +152,4 @@ class ConstantsSeeder extends Seeder
             $x++;
         }
     }
-
-
 }

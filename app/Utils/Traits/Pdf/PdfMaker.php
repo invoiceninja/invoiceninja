@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Utils\Traits\Pdf;
 
@@ -17,22 +25,23 @@ trait PdfMaker
      *
      * @return string        The PDF string
      */
-    public function makePdf($header, $footer, $html) {
+    public function makePdf($header, $footer, $html)
+    {
         
 
 
         // if($header && $footer){
         //    $browser = Browsershot::html($html)
-        //         ->headerHtml($header)           
-        //         ->footerHtml($footer);     
+        //         ->headerHtml($header)
+        //         ->footerHtml($footer);
         // }
         // elseif($header){
         //     $browser = Browsershot::html($html)
-        //         ->headerHtml($header);         
+        //         ->headerHtml($header);
         // }
         // else if($footer){
         //     $browser = Browsershot::html($html)
-        //         ->footerHtml($footer);        
+        //         ->footerHtml($footer);
         // }
         // else {
         //     $browser = Browsershot::html($html);
@@ -57,5 +66,4 @@ trait PdfMaker
         // //->margins(10,10,10,10)
         // //->savePdf('test.pdf');
     }
-
 }

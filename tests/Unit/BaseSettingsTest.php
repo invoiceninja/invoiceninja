@@ -13,43 +13,39 @@ use Tests\TestCase;
  */
 class BaseSettingsTest extends TestCase
 {
-	
     public function setUp() :void
     {
-    
-	    parent::setUp();
-		
-    	$this->settings = ClientSettings::defaults();
+        parent::setUp();
+        
+        $this->settings = ClientSettings::defaults();
+    }
 
-	}
+    public function testPropertyNamesExist()
+    {
+        $blank_object = new \stdClass;
 
-	public function testPropertyNamesExist()
-	{
-		$blank_object = new \stdClass;
+        $updated_object = $this->migrate($blank_object);
 
-		$updated_object = $this->migrate($blank_object);
+        $this->assertTrue(property_exists($updated_object, 'size_id'));
+    }
 
-		$this->assertTrue(property_exists($updated_object, 'size_id'));
-	}
+    public function testPropertyNamesNotExist()
+    {
+        $blank_object = new \stdClass;
 
-	public function testPropertyNamesNotExist()
-	{
-		$blank_object = new \stdClass;
+        $updated_object = $this->migrate($blank_object);
 
-		$updated_object = $this->migrate($blank_object);
+        $this->assertFalse(property_exists($updated_object, 'non_existent_prop'));
+    }
 
-		$this->assertFalse(property_exists($updated_object, 'non_existent_prop'));
-	}	
+    public function migrate(\stdClass $object) : \stdClass
+    {
+        foreach ($this->settings as $property => $value) {
+            if (!property_exists($object, $property)) {
+                $object->{$property} = null;
+            }
+        }
 
-	public function migrate(\stdClass $object) : \stdClass
-	{
-
-		foreach($this->settings as $property => $value)
-		{
-			if(!property_exists($object, $property))
-				$object->{$property} = NULL;
-		}
-
-		return $object;
-	}
+        return $object;
+    }
 }

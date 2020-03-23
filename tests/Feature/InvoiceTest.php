@@ -25,14 +25,12 @@ use Tests\TestCase;
     
 class InvoiceTest extends TestCase
 {
-
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
 
     public function setUp() :void
     {
-
         parent::setUp();
 
         Session::start();
@@ -42,7 +40,6 @@ class InvoiceTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
-
     }
 
     public function testInvoiceList()
@@ -65,7 +62,7 @@ class InvoiceTest extends TestCase
 
         $acc = $response->json();
 
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));                
+        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
 
         $company_token = $account->default_company->tokens()->first();
         $token = $company_token->token;
@@ -79,21 +76,19 @@ class InvoiceTest extends TestCase
         $this->assertNotNull($company);
         //$this->assertNotNull($user->token->company);
 
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company){
-
-            factory(\App\Models\ClientContact::class,1)->create([
+        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
                 'is_primary' => 1
             ]);
 
-            factory(\App\Models\ClientContact::class,1)->create([
+            factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id
             ]);
-
         });
         $client = Client::all()->first();
 
@@ -106,12 +101,10 @@ class InvoiceTest extends TestCase
             ])->get('/api/v1/invoices');
 
         $response->assertStatus(200);
-
     }
 
     public function testInvoiceRESTEndPoints()
     {
-        
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
@@ -137,14 +130,13 @@ class InvoiceTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $invoice_update)
             ->assertStatus(200);
-
     }
 
     public function testPostNewInvoice()
     {
         $invoice = [
             'status_id' => 1,
-            'number' => 'dfdfd', 
+            'number' => 'dfdfd',
             'discount' => 0,
             'is_amount_discount' => 1,
             'po_number' => '3434343',
@@ -158,7 +150,7 @@ class InvoiceTest extends TestCase
             'client_id' => $this->encodePrimaryKey($this->client->id),
         ];
 
-            $response = $this->withHeaders([
+        $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/invoices/', $invoice)
@@ -167,12 +159,11 @@ class InvoiceTest extends TestCase
 
     public function testDeleteInvoice()
     {
-            $response = $this->withHeaders([
+        $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->delete('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id));
 
         $response->assertStatus(200);
     }
-
 }

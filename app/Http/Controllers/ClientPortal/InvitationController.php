@@ -38,26 +38,22 @@ class InvitationController extends Controller
         $invitation = $entity_obj::whereRaw("BINARY `key`= ?", [$invitation_key])->first();
 
         if ($invitation) {
-
             if ((bool)$invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
                 $this->middleware('auth:contact');
             } else {
                 auth()->guard('contact')->login($invitation->contact, false);
             }
             
-            if(!request()->has('silent')){
-    
+            if (!request()->has('silent')) {
                 $invitation->markViewed();
 
                 event(new InvitationWasViewed($entity, $invitation));
-
             }
 
             return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
-
-        } else 
+        } else {
             abort(404);
-        
+        }
     }
 
     public function routerForDownload(string $entity, string $invitation_key)

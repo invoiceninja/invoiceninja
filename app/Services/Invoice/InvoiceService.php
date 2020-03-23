@@ -34,7 +34,6 @@ class InvoiceService
         $this->invoice = $invoice;
 
         $this->client_service = new ClientService($invoice->client);
-
     }
 
     /**
@@ -105,7 +104,7 @@ class InvoiceService
     }
 
     public function markSent()
-    {        
+    {
         $mark_sent = new MarkSent($this->invoice->client, $this->invoice);
 
         $this->invoice = $mark_sent->run();

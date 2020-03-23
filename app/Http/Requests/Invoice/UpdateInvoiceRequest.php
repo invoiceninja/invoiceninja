@@ -49,30 +49,28 @@ class UpdateInvoiceRequest extends Request
     {
         $input = $this->all();
 
-        if(array_key_exists('design_id', $input) && is_string($input['design_id']))
-          $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
+        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
+            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
+        }
         
         if (isset($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 
-        if(isset($input['invitations']))
-        {
+        if (isset($input['invitations'])) {
+            foreach ($input['invitations'] as $key => $value) {
+                if (is_numeric($input['invitations'][$key]['id'])) {
+                    unset($input['invitations'][$key]['id']);
+                }
 
-          foreach($input['invitations'] as $key => $value)
-          {
+                if (is_string($input['invitations'][$key]['id'])) {
+                    $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
+                }
 
-            if(is_numeric($input['invitations'][$key]['id']))
-              unset($input['invitations'][$key]['id']);
-
-            if(is_string($input['invitations'][$key]['id']))
-              $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
-
-            if(is_string($input['invitations'][$key]['client_contact_id']))
-              $input['invitations'][$key]['client_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['client_contact_id']);
-
-          }
-
+                if (is_string($input['invitations'][$key]['client_contact_id'])) {
+                    $input['invitations'][$key]['client_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['client_contact_id']);
+                }
+            }
         }
         
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];

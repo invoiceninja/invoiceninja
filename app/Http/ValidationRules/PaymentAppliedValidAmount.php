@@ -23,7 +23,7 @@ use Illuminate\Contracts\Validation\Rule;
  */
 class PaymentAppliedValidAmount implements Rule
 {
-	use MakesHash;
+    use MakesHash;
 
     /**
      * @param string $attribute
@@ -32,7 +32,7 @@ class PaymentAppliedValidAmount implements Rule
      */
     public function passes($attribute, $value)
     {
-        return $this->calculateAmounts(); 
+        return $this->calculateAmounts();
     }
 
     /**
@@ -45,34 +45,29 @@ class PaymentAppliedValidAmount implements Rule
 
     private function calculateAmounts() :bool
     {
+        $payment = Payment::whereId($this->decodePrimaryKey(request()->segment(4)))->company()->first();
 
-    	$payment = Payment::whereId($this->decodePrimaryKey(request()->segment(4)))->company()->first();
-
-        if(!$payment)
+        if (!$payment) {
             return false;
+        }
         
         $payment_amounts = 0;
         $invoice_amounts = 0;
 
         $payment_amounts = $payment->amount - $payment->applied;
 
-        if(request()->input('credits') && is_array(request()->input('credits')))
-        {
-            foreach(request()->input('credits') as $credit)
-            {
+        if (request()->input('credits') && is_array(request()->input('credits'))) {
+            foreach (request()->input('credits') as $credit) {
                 $payment_amounts += $credit['amount'];
             }
         }
 
-        if(request()->input('invoices') && is_array(request()->input('invoices')))
-        {
-            foreach(request()->input('invoices') as $invoice)
-            {
+        if (request()->input('invoices') && is_array(request()->input('invoices'))) {
+            foreach (request()->input('invoices') as $invoice) {
                 $invoice_amounts += $invoice['amount'];
             }
         }
 
         return  $payment_amounts >= $invoice_amounts;
-
     }
 }

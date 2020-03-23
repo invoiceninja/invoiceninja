@@ -1961,37 +1961,37 @@ $LANG = array(
     'authorization' => '許可',
     'signed' => '已簽署',
 
-	// BlueVine
-	'bluevine_promo' => '使用BlueVine，以彈性的商營運方式進行貸款與發票結帳。',
-	'bluevine_modal_label' => '透過BlueVine登入',
-	'bluevine_modal_text' => '<h3>快速建立您的企業。無紙化。</h3>
+    // BlueVine
+    'bluevine_promo' => '使用BlueVine，以彈性的商營運方式進行貸款與發票結帳。',
+    'bluevine_modal_label' => '透過BlueVine登入',
+    'bluevine_modal_text' => '<h3>快速建立您的企業。無紙化。</h3>
 <ul><li>以彈性的商營運方式進行貸款與發票結帳。</li></ul>',
-	'bluevine_create_account' => '建立一個帳號',
-	'quote_types' => '取得報價單',
-	'invoice_factoring' => '開立應收帳款承購的發票',
-	'line_of_credit' => '貸款額度',
-	'fico_score'                         => '您的FICO分數',
-	'business_inception'                 => '營運起始日',
-	'average_bank_balance'               => '平均銀行帳戶餘額',
-	'annual_revenue'                     => '年收入',
-	'desired_credit_limit_factoring'     => '希望設定的發票貼現限額',
-	'desired_credit_limit_loc'           => '希望的貸款限額基準線',
-	'desired_credit_limit'               => '希望的貸款額度。',
-	'bluevine_credit_line_type_required' => '您必須至少選擇一項',
-	'bluevine_field_required'            => '此欄位為必填',
-	'bluevine_unexpected_error'          => '發生為預期的錯誤。',
-	'bluevine_no_conditional_offer'      => '取得報價單之前，需提供更多資訊。點擊以下繼續。',
-	'bluevine_invoice_factoring'         => '開立應收帳款承購的發票',
-	'bluevine_conditional_offer'         => '附條件報價',
-	'bluevine_credit_line_amount'        => '貸款額度',
-	'bluevine_advance_rate'              => '預付率',
-	'bluevine_weekly_discount_rate'      => '每週折扣率',
-	'bluevine_minimum_fee_rate'          => '最低費用',
-	'bluevine_line_of_credit'            => '信用額度',
-	'bluevine_interest_rate'             => '利率',
-	'bluevine_weekly_draw_rate'          => '每週支取率',
-	'bluevine_continue'                  => '前往BlueVine',
-	'bluevine_completed'                 => '已完成註冊BlueVine',
+    'bluevine_create_account' => '建立一個帳號',
+    'quote_types' => '取得報價單',
+    'invoice_factoring' => '開立應收帳款承購的發票',
+    'line_of_credit' => '貸款額度',
+    'fico_score'                         => '您的FICO分數',
+    'business_inception'                 => '營運起始日',
+    'average_bank_balance'               => '平均銀行帳戶餘額',
+    'annual_revenue'                     => '年收入',
+    'desired_credit_limit_factoring'     => '希望設定的發票貼現限額',
+    'desired_credit_limit_loc'           => '希望的貸款限額基準線',
+    'desired_credit_limit'               => '希望的貸款額度。',
+    'bluevine_credit_line_type_required' => '您必須至少選擇一項',
+    'bluevine_field_required'            => '此欄位為必填',
+    'bluevine_unexpected_error'          => '發生為預期的錯誤。',
+    'bluevine_no_conditional_offer'      => '取得報價單之前，需提供更多資訊。點擊以下繼續。',
+    'bluevine_invoice_factoring'         => '開立應收帳款承購的發票',
+    'bluevine_conditional_offer'         => '附條件報價',
+    'bluevine_credit_line_amount'        => '貸款額度',
+    'bluevine_advance_rate'              => '預付率',
+    'bluevine_weekly_discount_rate'      => '每週折扣率',
+    'bluevine_minimum_fee_rate'          => '最低費用',
+    'bluevine_line_of_credit'            => '信用額度',
+    'bluevine_interest_rate'             => '利率',
+    'bluevine_weekly_draw_rate'          => '每週支取率',
+    'bluevine_continue'                  => '前往BlueVine',
+    'bluevine_completed'                 => '已完成註冊BlueVine',
 
     'vendor_name' => '供應商',
     'entity_state' => '狀態',
@@ -2125,16 +2125,16 @@ $LANG = array(
     'reports_help' => 'Shift + Click 可多欄排序，Ctrl + Click 以取消組合。',
     'this_year' => '今年',
 
-	// Updated login screen
-	'ninja_tagline' => '建立。寄送。接受付款。',
-	'login_or_existing' => '或使用已連結的帳號登入',
-	'sign_up_now' => '現在就註冊',
-	'not_a_member_yet' => '尚未成為會員？',
-	'login_create_an_account' => '建立一個帳號',
-	'client_login' => '客戶登入',
+    // Updated login screen
+    'ninja_tagline' => '建立。寄送。接受付款。',
+    'login_or_existing' => '或使用已連結的帳號登入',
+    'sign_up_now' => '現在就註冊',
+    'not_a_member_yet' => '尚未成為會員？',
+    'login_create_an_account' => '建立一個帳號',
+    'client_login' => '客戶登入',
 
-	// New Client Portal styling
-	'invoice_from' => '發票來自：',
+    // New Client Portal styling
+    'invoice_from' => '發票來自：',
     'email_alias_message' => '我們要求每個公司擁有專屬的電子郵件地址。<br/>建議使用代稱。例如， email+label@example.com',
     'full_name' => '全名',
     'month_year' => '月/年',
@@ -2429,7 +2429,7 @@ $LANG = array(
     'tax1' => '首項稅負',
     'tax2' => '次項稅負',
     'fee_help' => '閘道費是使用處理線上支付的金融網路收取的費用。',
-	'format_export' => '輸出格式',
+    'format_export' => '輸出格式',
     'custom1' => '首位顧客',
     'custom2' => '第二名顧客',
     'contact_first_name' => '通訊資料：名',
@@ -2867,5 +2867,3 @@ $LANG = array(
 );
 
 return $LANG;
-
-?>

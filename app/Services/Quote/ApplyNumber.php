@@ -17,9 +17,9 @@ class ApplyNumber
 
     public function run($quote)
     {
-
-        if ($quote->number != '')
+        if ($quote->number != '') {
             return $quote;
+        }
 
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':

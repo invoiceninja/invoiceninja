@@ -38,5 +38,4 @@ class UpdateCompanyUserRequest extends Request
     {
         return [];
     }
-
 }

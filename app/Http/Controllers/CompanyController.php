@@ -461,41 +461,30 @@ class CompanyController extends BaseController
     {
         $company_count = $company->account->companies->count();
 
-        if($company_count == 1){
-
+        if ($company_count == 1) {
             $company->company_users->each(function ($company_user) {
-
                 $company_user->user->forceDelete();
-
             });
 
             $company->account->delete();
-
-        }
-        else {
-            
+        } else {
             $account = $company->account;
             $company_id = $company->id;
             $company->delete();
 
             //If we are deleting the default companies, we'll need to make a new company the default.
-            if($account->default_company_id == $company_id){
-
+            if ($account->default_company_id == $company_id) {
                 $new_default_company = Company::whereAccountId($account->id)->first();
                 $account->default_company_id = $new_default_company->id;
                 $account->save();
-            
             }
-
-            
         }
 
         //@todo delete documents also!!
 
         //@todo in the hosted version deleting the last
-        //account will trigger an account refund. 
+        //account will trigger an account refund.
            
         return response()->json(['message' => 'success'], 200);
-        
     }
 }

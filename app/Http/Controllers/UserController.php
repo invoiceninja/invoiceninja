@@ -507,13 +507,23 @@ class UserController extends BaseController
 
         $users = User::withTrashed()->find($this->transformKeys($ids));
 
-        $users->each(function ($user, $key) use ($action) {
+        /*
+         * In case a user maliciously sends keys which do not belong to them, we push
+         * each user through the Policy sieve and only return users that they
+         * have access to
+         */
+        
+        $return_user_collection = collect();
+
+        $users->each(function ($user, $key) use ($action, $return_user_collection) {
             if (auth()->user()->can('edit', $user)) {
-                $this->user_repo->{$action}($user);
+                $user = $this->user_repo->{$action}($user);
+                
+                $return_user_collection->push($user->id);
             }
         });
 
-        return $this->listResponse(User::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(User::withTrashed()->whereIn('id', $return_user_collection));
     }
 
 
@@ -573,13 +583,16 @@ class UserController extends BaseController
     {
         $company = auth()->user()->company();
 
-        $user->companies()->attach($company->id, 
-            array_merge($request->all(), 
+        $user->companies()->attach(
+            $company->id,
+            array_merge(
+                $request->all(),
                 [
                     'account_id' => $company->account->id,
                     'notifications' => CompanySettings::notificationDefaults(),
             ]
-            ));
+            )
+        );
 
         $ct = CreateCompanyToken::dispatchNow($company, $user, 'User token created by'.auth()->user()->present()->name());
 

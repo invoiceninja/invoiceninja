@@ -16,7 +16,6 @@ use App\Models\CompanyLedger;
 
 class LedgerService
 {
-
     private $entity;
 
     public function __construct($entity)
@@ -63,26 +62,21 @@ class LedgerService
         $company_ledger->balance = $balance + $adjustment;
         $company_ledger->save();
 
-        $this->entity->company_ledger()->save($company_ledger); 
+        $this->entity->company_ledger()->save($company_ledger);
     }
 
     private function ledger() :?CompanyLedger
     {
-
         return CompanyLedger::whereClientId($this->entity->client_id)
                         ->whereCompanyId($this->entity->company_id)
                         ->orderBy('id', 'DESC')
                         ->first();
-
     }
 
     public function save()
     {
-
         $this->entity->save();
 
         return $this->entity;
-
     }
-
 }

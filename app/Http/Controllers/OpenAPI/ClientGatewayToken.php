@@ -10,6 +10,6 @@
  *       @OA\Property(property="routing_number", type="string", example="2", description="______"),
  *       @OA\Property(property="company_gateway_id", type="string", example="2", description="______"),
  *       @OA\Property(property="is_default", type="boolean", example="true", description="______"),
- *       
+ *
  * )
  */

@@ -24,13 +24,13 @@ use Tests\TestCase;
 
 class MultiDBUserTest extends TestCase
 {
-
     public function setUp() :void
     {
         parent::setUp();
 
-        if (! config('ninja.db.multi_db_enabled'))
+        if (! config('ninja.db.multi_db_enabled')) {
             $this->markTestSkipped('Multi DB not enabled - skipping');
+        }
 
         User::unguard();
 
@@ -103,7 +103,6 @@ class MultiDBUserTest extends TestCase
         ]);
 
         User::unguard(false);
-
     }
 
     public function test_oauth_user_db2_exists()
@@ -111,7 +110,6 @@ class MultiDBUserTest extends TestCase
         $user = MultiDB::hasUser(['email' => 'db2@example.com', 'oauth_user_id' => 'abc']);
 
         $this->assertEquals($user->email, 'db2@example.com');
-
     }
 
     public function test_oauth_user_db1_exists()
@@ -119,7 +117,6 @@ class MultiDBUserTest extends TestCase
         $user = MultiDB::hasUser(['email' => 'db1@example.com', 'oauth_user_id' => '123']);
 
         $this->assertEquals($user->email, 'db1@example.com');
-
     }
 
     public function test_check_user_exists()
@@ -171,25 +168,22 @@ class MultiDBUserTest extends TestCase
                 ],
         ];
 
-         try{
+        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
                 'X-API-PASSWORD' => 'ALongAndBriliantPassword',
             ])->post('/api/v1/users?include=company_user', $data);
+        } catch (ValidationException $e) {
+            \Log::error('in the validator');
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            \Log::error($message);
+            $this->assertNotNull($message);
+        }
 
-         }
-         catch(ValidationException $e) {
-             \Log::error('in the validator');
-             $message = json_decode($e->validator->getMessageBag(),1);
-             \Log::error($message);
-             $this->assertNotNull($message);
-
-         }
-
-        if($response)
+        if ($response) {
             $response->assertStatus(302);
-
+        }
     }
 
 
@@ -209,31 +203,26 @@ class MultiDBUserTest extends TestCase
                 ],
         ];
 
-         try{
+        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/users?include=company_user', $data);
+        } catch (ValidationException $e) {
+            \Log::error('in the validator');
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            \Log::error($message);
+            $this->assertNotNull($message);
+        }
 
-
-         }
-         catch(ValidationException $e) {
-             \Log::error('in the validator');
-             $message = json_decode($e->validator->getMessageBag(),1);
-             \Log::error($message);
-             $this->assertNotNull($message);
-
-         }
-
-        if($response)
+        if ($response) {
             $response->assertStatus(200);
-
+        }
     }
 
     public function tearDown() :void
     {
-         DB::connection('db-ninja-01')->table('users')->delete();
-         DB::connection('db-ninja-02')->table('users')->delete();
-         
+        DB::connection('db-ninja-01')->table('users')->delete();
+        DB::connection('db-ninja-02')->table('users')->delete();
     }
 }

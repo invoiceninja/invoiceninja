@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Storage;
 
 class GetCreditPdf extends AbstractService
 {
-
     private $credit;
 
     private $contact;
@@ -42,5 +41,4 @@ class GetCreditPdf extends AbstractService
 
         return Storage::disk($disk)->path($file_path);
     }
-
 }

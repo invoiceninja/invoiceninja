@@ -1,8 +1,4 @@
 <?php
-
-use App\Models\Document;
-use Illuminate\Support\Facades\Storage;
-
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -13,7 +9,10 @@ use Illuminate\Support\Facades\Storage;
  * @license https://opensource.org/licenses/AAL
  */
 
- /**
+use App\Models\Document;
+use Illuminate\Support\Facades\Storage;
+
+/**
   * Generate url for the asset.
   *
   * @param Document $document
@@ -24,9 +23,13 @@ function generateUrl(Document $document, $absolute = false)
 {
     $url = Storage::disk($document->disk)->url($document->path);
 
-    if($url && $absolute) return url($url);
+    if ($url && $absolute) {
+        return url($url);
+    }
 
-    if ($url) return $url;
+    if ($url) {
+        return $url;
+    }
 
     return null;
 }

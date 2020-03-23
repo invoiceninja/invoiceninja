@@ -67,7 +67,7 @@ class UserRepository extends BaseRepository
                 $cu->save();
             }
 
-            $user->with(['company_users' => function ($query) use($company, $user){
+            $user->with(['company_users' => function ($query) use ($company, $user) {
                 $query->whereCompanyId($company->id)
                       ->whereUserId($user->id);
             }])->first();
@@ -75,14 +75,11 @@ class UserRepository extends BaseRepository
         }
 
         return $user;
-        
     }
 
     public function destroy(array $data, User $user)
     {
-
-        if(array_key_exists('company_user', $data))
-        {
+        if (array_key_exists('company_user', $data)) {
             $this->forced_includes = 'company_users';
 
             $company = auth()->user()->company();
@@ -98,7 +95,25 @@ class UserRepository extends BaseRepository
         $user->delete();
     
         return $user->fresh();
-
     }
 
+    public function delete($user)
+    {
+        $company = auth()->user()->company();
+
+        $cu = CompanyUser::whereUserId($user->id)
+                         ->whereCompanyId($company->id)
+                         ->first();
+
+        if ($cu) {
+            $cu->tokens()->delete();
+            $cu->delete();
+        }
+
+        $user->is_deleted=true;
+        $user->save();
+        $user->delete();
+    
+        return $user->fresh();
+    }
 }

@@ -70,7 +70,7 @@ class ApplyCreditPayment implements ShouldQueue
         if ($this->amount == $credit_balance) { //total credit applied.
             $this->credit->setStatus(Credit::STATUS_APPLIED);
             $this->credit->updateBalance($this->amount*-1);
-        } elseif($this->amount < $credit_balance) { //compare number appropriately
+        } elseif ($this->amount < $credit_balance) { //compare number appropriately
             $this->credit->setStatus(Credit::PARTIAL);
             $this->credit->updateBalance($this->amount*-1);
         }
@@ -78,6 +78,4 @@ class ApplyCreditPayment implements ShouldQueue
         /* Update Payment Applied Amount*/
         $this->payment->save();
     }
-
-    
 }

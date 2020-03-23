@@ -1956,37 +1956,37 @@ $LANG = array(
     'authorization' => 'Autorizzazione',
     'signed' => 'Firmato',
 
-	// BlueVine
-	'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
-	'bluevine_modal_label' => 'Sign up with BlueVine',
-	'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
+    // BlueVine
+    'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
+    'bluevine_modal_label' => 'Sign up with BlueVine',
+    'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
 <ul><li>Flexible business lines of credit and invoice factoring.</li></ul>',
-	'bluevine_create_account' => 'Crea un account',
-	'quote_types' => 'Ricevi un preventivo per',
-	'invoice_factoring' => 'Invoice factoring',
-	'line_of_credit' => 'Line of credit',
-	'fico_score'                         => 'Your FICO score',
-	'business_inception'                 => 'Business Inception Date',
-	'average_bank_balance'               => 'Average bank account balance',
-	'annual_revenue'                     => 'Guadagno Annuale',
-	'desired_credit_limit_factoring'     => 'Desired invoice factoring limit',
-	'desired_credit_limit_loc'           => 'Desired line of credit limit',
-	'desired_credit_limit'               => 'Desired credit limit',
-	'bluevine_credit_line_type_required' => 'Devi sceglierne almeno uno',
-	'bluevine_field_required'            => 'Questo campo è obbligatorio',
-	'bluevine_unexpected_error'          => 'Errore inaspettato!',
-	'bluevine_no_conditional_offer'      => 'More information is required before getting a quote. Click continue below.',
-	'bluevine_invoice_factoring'         => 'Invoice Factoring',
-	'bluevine_conditional_offer'         => 'Conditional Offer',
-	'bluevine_credit_line_amount'        => 'Credit Line',
-	'bluevine_advance_rate'              => 'Advance Rate',
-	'bluevine_weekly_discount_rate'      => 'Weekly Discount Rate',
-	'bluevine_minimum_fee_rate'          => 'Commissione Minima',
-	'bluevine_line_of_credit'            => 'Line of Credit',
-	'bluevine_interest_rate'             => 'Interest Rate',
-	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
-	'bluevine_continue'                  => 'Continue to BlueVine',
-	'bluevine_completed'                 => 'BlueVine signup completed',
+    'bluevine_create_account' => 'Crea un account',
+    'quote_types' => 'Ricevi un preventivo per',
+    'invoice_factoring' => 'Invoice factoring',
+    'line_of_credit' => 'Line of credit',
+    'fico_score'                         => 'Your FICO score',
+    'business_inception'                 => 'Business Inception Date',
+    'average_bank_balance'               => 'Average bank account balance',
+    'annual_revenue'                     => 'Guadagno Annuale',
+    'desired_credit_limit_factoring'     => 'Desired invoice factoring limit',
+    'desired_credit_limit_loc'           => 'Desired line of credit limit',
+    'desired_credit_limit'               => 'Desired credit limit',
+    'bluevine_credit_line_type_required' => 'Devi sceglierne almeno uno',
+    'bluevine_field_required'            => 'Questo campo è obbligatorio',
+    'bluevine_unexpected_error'          => 'Errore inaspettato!',
+    'bluevine_no_conditional_offer'      => 'More information is required before getting a quote. Click continue below.',
+    'bluevine_invoice_factoring'         => 'Invoice Factoring',
+    'bluevine_conditional_offer'         => 'Conditional Offer',
+    'bluevine_credit_line_amount'        => 'Credit Line',
+    'bluevine_advance_rate'              => 'Advance Rate',
+    'bluevine_weekly_discount_rate'      => 'Weekly Discount Rate',
+    'bluevine_minimum_fee_rate'          => 'Commissione Minima',
+    'bluevine_line_of_credit'            => 'Line of Credit',
+    'bluevine_interest_rate'             => 'Interest Rate',
+    'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
+    'bluevine_continue'                  => 'Continue to BlueVine',
+    'bluevine_completed'                 => 'BlueVine signup completed',
 
     'vendor_name' => 'Fornitore',
     'entity_state' => 'State',
@@ -2120,16 +2120,16 @@ $LANG = array(
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Quest\'anno',
 
-	// Updated login screen
-	'ninja_tagline' => 'Create. Send. Get Paid.',
-	'login_or_existing' => 'Or login with a connected account.',
-	'sign_up_now' => 'Iscriviti ora',
-	'not_a_member_yet' => 'Not a member yet?',
-	'login_create_an_account' => 'Crea un account!',
-	'client_login' => 'Client Login',
+    // Updated login screen
+    'ninja_tagline' => 'Create. Send. Get Paid.',
+    'login_or_existing' => 'Or login with a connected account.',
+    'sign_up_now' => 'Iscriviti ora',
+    'not_a_member_yet' => 'Not a member yet?',
+    'login_create_an_account' => 'Crea un account!',
+    'client_login' => 'Client Login',
 
-	// New Client Portal styling
-	'invoice_from' => 'Invoices From:',
+    // New Client Portal styling
+    'invoice_from' => 'Invoices From:',
     'email_alias_message' => 'We require each company to have a unique email address.<br/>Consider using an alias. ie, email+label@example.com',
     'full_name' => 'Nome Completo',
     'month_year' => 'MESE/ANNO',
@@ -2424,7 +2424,7 @@ $LANG = array(
     'tax1' => 'Prima Tassa',
     'tax2' => 'Seconda Tassa',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'format_export' => 'Exporting format',
+    'format_export' => 'Exporting format',
     'custom1' => 'First Custom',
     'custom2' => 'Second Custom',
     'contact_first_name' => 'Contact First Name',
@@ -2861,5 +2861,3 @@ $LANG = array(
 );
 
 return $LANG;
-
-?>

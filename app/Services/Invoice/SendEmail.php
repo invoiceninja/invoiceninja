@@ -20,7 +20,6 @@ use Illuminate\Support\Carbon;
 
 class SendEmail extends AbstractService
 {
-
     protected $invoice;
 
     public function __construct(Invoice $invoice, $reminder_template = null, ClientContact $contact = null)
@@ -40,13 +39,11 @@ class SendEmail extends AbstractService
      */
     public function run()
     {
-
         if (!$this->reminder_template) {
             $this->reminder_template = $this->invoice->calculateTemplate();
         }
 
-        $this->invoice->invitations->each(function ($invitation){
-
+        $this->invoice->invitations->each(function ($invitation) {
             $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
 
             if ($invitation->contact->send && $invitation->contact->email) {

@@ -13,30 +13,29 @@ use Tests\TestCase;
  */
 class CollectionMergingTest extends TestCase
 {
-
     use UserSessionAttributes;
 
     public function setUp() :void
     {
-	    parent::setUp();
+        parent::setUp();
 
-	    Session::start();
+        Session::start();
 
-	    $this->setCurrentCompanyId(1);
+        $this->setCurrentCompanyId(1);
 
-		$this->terms = PaymentTerm::all();
+        $this->terms = PaymentTerm::all();
     }
 
     public function testBlankCollectionReturned()
     {
-    	$this->assertEquals($this->terms->count(), 0);
+        $this->assertEquals($this->terms->count(), 0);
     }
 
     public function testMergingCollection()
     {
         $payment_terms = collect(config('ninja.payment_terms'));
 
-    	$new_terms = $this->terms->map(function($term) {
+        $new_terms = $this->terms->map(function ($term) {
             return $term['num_days'];
         });
 
@@ -49,7 +48,7 @@ class CollectionMergingTest extends TestCase
     {
         $payment_terms = collect(config('ninja.payment_terms'));
 
-        $new_terms = $this->terms->map(function($term) {
+        $new_terms = $this->terms->map(function ($term) {
             return $term['num_days'];
         });
 
@@ -67,7 +66,7 @@ class CollectionMergingTest extends TestCase
     {
         $payment_terms = collect(config('ninja.payment_terms'));
 
-        $new_terms = $this->terms->map(function($term) {
+        $new_terms = $this->terms->map(function ($term) {
             return $term['num_days'];
         });
 
@@ -102,9 +101,9 @@ class CollectionMergingTest extends TestCase
 
         $collection = collect($array);
 
-        $intersect = $collection->intersectByKeys( $collection->flatten(1)->unique() );
+        $intersect = $collection->intersectByKeys($collection->flatten(1)->unique());
 
-        $this->assertEquals(10,$intersect->count());
+        $this->assertEquals(10, $intersect->count());
 
         $third_methods[] = [3 => 1];
         $third_methods[] = [2 => 11];
@@ -112,11 +111,7 @@ class CollectionMergingTest extends TestCase
         $array = array_merge($array, $third_methods);
 
         $collection = collect($array);
-        $intersect = $collection->intersectByKeys( $collection->flatten(1)->unique() );
-        $this->assertEquals(11,$intersect->count());
-
+        $intersect = $collection->intersectByKeys($collection->flatten(1)->unique());
+        $this->assertEquals(11, $intersect->count());
     }
-
-
 }
-

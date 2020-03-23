@@ -43,15 +43,14 @@ class ValidRefundableInvoices implements Rule
 
     public function passes($attribute, $value)
     {
-
         $payment = Payment::whereId($this->input['id'])->first();
 
-        if(!$payment){
+        if (!$payment) {
             $this->error_msg = "Payment couldn't be retrieved cannot be refunded ";
-                return false;
+            return false;
         }
 
-        if(request()->has('amount') && (request()->input('amount') > ($payment->amount - $payment->refunded))){
+        if (request()->has('amount') && (request()->input('amount') > ($payment->amount - $payment->refunded))) {
             $this->error_msg = "Attempting to refunded more than payment amount, enter a value equal to or lower than the payment amount of ". $payment->amount;
             return false;
         }
@@ -61,9 +60,9 @@ class ValidRefundableInvoices implements Rule
 
         if (is_array($value)) {
             $invoices = Invoice::whereIn('id', array_column($this->input['invoices'], 'invoice_id'))->company()->get();
-        }
-        else
+        } else {
             return true;
+        }
 
         foreach ($invoices as $invoice) {
             if (! $invoice->isRefundable()) {
@@ -73,18 +72,17 @@ class ValidRefundableInvoices implements Rule
 
 
             foreach ($this->input['invoices'] as $val) {
-               if ($val['invoice_id'] == $invoice->id) {
+                if ($val['invoice_id'] == $invoice->id) {
 
                     //$pivot_record = $invoice->payments->where('id', $invoice->id)->first();
                     $pivot_record = $payment->paymentables->where('paymentable_id', $invoice->id)->first();
 
-                    if($val['amount'] > ($pivot_record->amount - $pivot_record->refunded)) {
+                    if ($val['amount'] > ($pivot_record->amount - $pivot_record->refunded)) {
                         $this->error_msg = "Attempting to refund ". $val['amount'] ." only ".($pivot_record->amount - $pivot_record->refunded)." available for refund";
                         return false;
                     }
-               }
+                }
             }
-
         }
 
         return true;

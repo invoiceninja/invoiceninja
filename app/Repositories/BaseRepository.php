@@ -169,39 +169,41 @@ class BaseRepository
     }
 
     public function getInvitation($invitation, $resource)
-	{
-
-        if(!array_key_exists('key', $invitation))
+    {
+        if (!array_key_exists('key', $invitation)) {
             return false;
+        }
 
         $invitation_class = sprintf("App\\Models\\%sInvitation", $resource);
 
-		$invitation = $invitation_class::whereRaw("BINARY `key`= ?", [$invitation['key']])->first();
+        $invitation = $invitation_class::whereRaw("BINARY `key`= ?", [$invitation['key']])->first();
 
         return $invitation;
-	}
+    }
 
     /**
      * Alternative save used for Invoices, Quotes & Credits.
      */
     protected function alternativeSave($data, $model)
     {
-        $class = new ReflectionClass($model);        
+        $class = new ReflectionClass($model);
 
-        if(array_key_exists('client_id', $data))
+        if (array_key_exists('client_id', $data)) {
             $client = Client::find($data['client_id']);
-        else
+        } else {
             $client = Client::find($model->client_id);
+        }
 
         $state = [];
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
         $lcfirst_resource_id = lcfirst($resource) . '_id';
 
-        if ($class->name == Invoice::class || $class->name == Quote::class) 
+        if ($class->name == Invoice::class || $class->name == Quote::class) {
             $state['starting_amount'] = $model->amount;
+        }
 
         if (!$model->id) {
-            $company_defaults = $client->setCompanyDefaults($data,lcfirst($resource));
+            $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
 
             $data = array_merge($company_defaults, $data);
@@ -233,8 +235,7 @@ class BaseRepository
             foreach ($data['invitations'] as $invitation) {
 
                 //if no invitations are present - create one.
-                if (! $this->getInvitation($invitation, $resource) ) {
-
+                if (! $this->getInvitation($invitation, $resource)) {
                     if (isset($invitation['id'])) {
                         unset($invitation['id']);
                     }
@@ -242,41 +243,38 @@ class BaseRepository
                     //make sure we are creating an invite for a contact who belongs to the client only!
                     $contact = ClientContact::find($invitation['client_contact_id']);
                     
-                    if($model->client_id == $contact->client_id);
+                    if ($model->client_id == $contact->client_id);
                     {
                         $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
                         $new_invitation->{$lcfirst_resource_id} = $model->id;
                         $new_invitation->client_contact_id = $invitation['client_contact_id'];
                         $new_invitation->save();
                     }
-
                 }
             }
         }
 
         $model->load('invitations');
 
-		/* If no invitations have been created, this is our fail safe to maintain state*/
-		if ($model->invitations->count() == 0) {
-			$model->service()->createInvitations();
-		}
+        /* If no invitations have been created, this is our fail safe to maintain state*/
+        if ($model->invitations->count() == 0) {
+            $model->service()->createInvitations();
+        }
 
-		$state['finished_amount'] = $model->amount;
+        $state['finished_amount'] = $model->amount;
 
-		$model = $model->service()->applyNumber()->save();
+        $model = $model->service()->applyNumber()->save();
         
         if ($model->company->update_products !== false) {
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
         }
 
         if ($class->name == Invoice::class) {
-            
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
             }
 
             $model = $model->calc()->getInvoice();
-
         }
 
         if ($class->name == Credit::class) {
@@ -289,6 +287,6 @@ class BaseRepository
 
         $model->save();
 
-		return $model->fresh();
+        return $model->fresh();
     }
 }
