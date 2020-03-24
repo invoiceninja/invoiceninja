@@ -26,7 +26,10 @@ class SystemHealth
         'gd',
         'curl',
         'zip',
-        'gmp'
+        'gmp',
+        'openssl',
+        'mbstring',
+        'xml'
     ];
 
     private static $php_version = 7.3;

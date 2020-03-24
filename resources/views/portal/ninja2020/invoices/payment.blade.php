@@ -10,7 +10,7 @@
 @section('body')
     <form action="{{ route('client.payments.process') }}" method="post" id="payment-form">
         @csrf
-        <input type="hidden" name="hashed_ids" value="{{ $hashed_ids }}" id="hashed_ids">
+        <input type="hidden" name="hashed_ids" value="{!! $hashed_ids !!}" id="hashed_ids">
         <input type="hidden" name="company_gateway_id" id="company_gateway_id">
         <input type="hidden" name="payment_method_id" id="payment_method_id">
     </form>

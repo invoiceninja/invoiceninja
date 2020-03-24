@@ -27,7 +27,11 @@ class SetupController extends Controller
         
         $system_health = SystemHealth::check();
 
+        if($system_health)
+            return redirect('/');
+
         return view();
+
     }
 
     public function doSetup(StoreSetupRequest $request)
