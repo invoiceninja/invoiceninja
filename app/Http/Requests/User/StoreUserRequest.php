@@ -80,7 +80,7 @@ class StoreUserRequest extends Request
         $user = MultiDB::hasUser(['email' => $this->input('email')]);
 
         if (!$user) {
-            $user = UserFactory::create();
+            $user = UserFactory::create(auth()->user()->account->id);
         }
 
         return $user;
