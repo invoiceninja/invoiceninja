@@ -13,11 +13,16 @@ namespace App\Listeners\User;
 
 use App\Models\Activity;
 use App\Repositories\ActivityRepository;
+use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
-class DeletedUserActivity
+class DeletedUserActivity implements ShouldQueue
 {
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
     protected $activityRepo;
     /**
      * Create the event listener.
