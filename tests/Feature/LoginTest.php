@@ -133,7 +133,7 @@ class LoginTest extends TestCase
     {
         $account = factory(Account::class)->create();
         $user = factory(User::class)->create([
-         //   'account_id' => $account->id,
+            'account_id' => $account->id,
             'email' => 'test@example.com',
             'password' => \Hash::make('123456')
         ]);

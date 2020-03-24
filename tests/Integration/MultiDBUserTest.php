@@ -72,7 +72,7 @@ class MultiDBUserTest extends TestCase
 
 
         $user2 = [
-            'account_id' => $account->id,
+            'account_id' => $account2->id,
             'first_name'        => 'user_db_2',
             'last_name'         => 'user_db_2-s',
             'phone'             => '55555',
