@@ -91,7 +91,7 @@ class UserTest extends TestCase
 
     public function testUserAttachAndDetach()
     {
-        $user = UserFactory::create();
+        $user = UserFactory::create($this->account->id);
         $user->first_name = 'Test';
         $user->last_name = 'Palloni';
         $user->save();
@@ -149,7 +149,7 @@ class UserTest extends TestCase
         $cu->save();
 
         /*Create New Blank User and Attach to Company 2*/
-        $new_user = UserFactory::create();
+        $new_user = UserFactory::create($this->account->id);
         $new_user->first_name = 'Test';
         $new_user->last_name = 'Palloni';
         $new_user->save();

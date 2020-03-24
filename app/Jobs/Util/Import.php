@@ -689,7 +689,7 @@ class Import implements ShouldQueue
         $user = MultiDB::hasUser(['email' => $data]);
 
         if (!$user) {
-            $user = UserFactory::create();
+            $user = UserFactory::create($this->company->account->id);
         }
 
         return $user;

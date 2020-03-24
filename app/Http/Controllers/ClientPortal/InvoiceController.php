@@ -92,11 +92,12 @@ class InvoiceController extends Controller
      */
     public function bulk(ProcessInvoicesInBulkRequest $request)
     {
+        \Log::error($request->all());
         $transformed_ids = $this->transformKeys($request->invoices);
 
-        if (request()->input('action') == 'payment') {
+        if ($request->input('action') == 'payment') {
             return $this->makePayment((array)$transformed_ids);
-        } elseif (request()->input('action') == 'download') {
+        } elseif ($request->input('action') == 'download') {
             return $this->downloadInvoicePDF((array)$transformed_ids);
         }
 
