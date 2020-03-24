@@ -135,15 +135,11 @@ trait MakesInvoiceValues
         $data['$line_tax_labels']        = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_values']        = ['value' => $this->lineTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$date']                   = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.date')];
-        $data['$invoice_date']           = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
+        //$data['$invoice_date']           = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
         $data['$invoice.date']           = &$data['$date'];
-        $data['$due_date']               = ['value' => $this->due_date ?: '&nbsp;', 'label' => ctrans('texts.due_date')];
-        $data['$invoice.due_date']       = &$data['$due_date'];
+        $data['$invoice.due_date']       = ['value' => $this->due_date ?: '&nbsp;', 'label' => ctrans('texts.due_date')];
         $data['$invoice.number']         = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
-        $data['$invoice.invoice_number'] = &$data['$invoice.number'];
-        $data['$invoice_number']         = &$data['$invoice.number'];
-        $data['$po_number']              = ['value' => $this->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
-        $data['$invoice.po_number']      = &$data['$po_number'];
+        $data['$invoice.po_number']      = ['value' => $this->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
         $data['$line_taxes']             = ['value' => $this->makeLineTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
         $data['$invoice.line_taxes']     = &$data['$line_taxes'];
         $data['$total_taxes']            = ['value' => $this->makeTotalTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
@@ -173,21 +169,15 @@ trait MakesInvoiceValues
         $data['$entity_number']          = &$data['$number'];
 
         //$data['$paid_to_date'] = ;
-        $data['$discount']               = ['value' => Number::formatMoney($this->calc()->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
-        $data['$invoice.discount']       = &$data['$discount'];
+        $data['$invoice.discount']       = ['value' => Number::formatMoney($this->calc()->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
         $data['$subtotal']               = ['value' => Number::formatMoney($this->calc()->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
         $data['$invoice.subtotal']       = &$data['$subtotal'];
-        $data['$balance_due']            = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
-        $data['$invoice.balance_due']    = &$data['$balance_due'];
-        $data['$partial_due']            = ['value' => Number::formatMoney($this->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
-        $data['$invoice.partial_due']    = &$data['$partial_due'];
+        $data['$invoice.balance_due']    = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+        $data['$invoice.partial_due']    = ['value' => Number::formatMoney($this->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         $data['$total']                  = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.total')];
         $data['$invoice.total']          = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.invoice_total')];
-        $data['$amount']                 = &$data['$total'];
-        $data['$invoice_total']          = &$data['$total'];
         $data['$invoice.amount']         = &$data['$total'];
-        $data['$quote_total']            = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.quote_total')];
-        $data['$quote.amount']           = &$data['$quote_total'];
+        $data['$quote.amount']           = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.quote_total')];
         $data['$credit_total']           = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_total')];
         $data['$credit.amount']          = &$data['$credit_total'];
 
@@ -213,7 +203,6 @@ trait MakesInvoiceValues
         $data['$quote_no']               = &$data['$quote_number'];
         $data['$quote.quote_no']         = &$data['$quote_number'];
         $data['$valid_until']            = ['value' => $this->due_date, 'label' => ctrans('texts.valid_until')];
-        $data['$quote_total']            = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.quote_total')];
         $data['$credit_amount']          = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_amount')];
         $data['$credit_balance']         = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
         ;

@@ -517,7 +517,7 @@ f     *          response=200,
 
         $users->each(function ($user, $key) use ($action, $return_user_collection) {
             if (auth()->user()->can('edit', $user)) {
-                $user = $this->user_repo->{$action}($user);
+                $this->user_repo->{$action}($user);
                 
                 $return_user_collection->push($user->id);
             }
