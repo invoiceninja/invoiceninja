@@ -196,10 +196,10 @@ trait MakesInvoiceValues
         $data['$taxes']                  = ['value' => Number::formatMoney($this->calc()->getItemTotalTaxes(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes']          = &$data['$taxes'];
         
-        $data['$invoice1']               = ['value' => $this->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice1')];
-        $data['$invoice2']               = ['value' => $this->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
-        $data['$invoice3']               = ['value' => $this->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
-        $data['$invoice4']               = ['value' => $this->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
+        $data['$invoice.custom1']               = ['value' => $this->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice1')];
+        $data['$invoice.custom2']               = ['value' => $this->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
+        $data['$invoice.custom3']               = ['value' => $this->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
+        $data['$invoice.custom4']               = ['value' => $this->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
         $data['$invoice.public_notes']   = ['value' => $this->public_notes ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes']    = &$data['$invoice.public_notes'];
         
