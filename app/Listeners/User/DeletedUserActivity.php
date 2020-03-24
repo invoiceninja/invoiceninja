@@ -45,7 +45,7 @@ class DeletedUserActivity
             $fields->user_id = $event->user->id;
         }
         
-        $fields->company_id = $event->user->company_id;
+        $fields->company_id = $event->company->id;
         $fields->activity_type_id = Activity::DELETE_USER;
 
         $this->activityRepo->save($fields, $event->user);
