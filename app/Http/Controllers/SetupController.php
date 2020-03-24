@@ -24,8 +24,7 @@ class SetupController extends Controller
 {
     public function index()
     {
-        //
-
+        
         $system_health = SystemHealth::check();
 
         return view();
