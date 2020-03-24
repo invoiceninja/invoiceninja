@@ -51,6 +51,7 @@
                         </div>
                     </div>
                 </div>
+    
                 @foreach($invoices as $invoice)
                     <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
                         <div class="px-4 py-5 border-b border-gray-200 sm:px-6">

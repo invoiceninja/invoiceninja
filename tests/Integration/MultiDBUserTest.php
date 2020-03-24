@@ -58,6 +58,7 @@ class MultiDBUserTest extends TestCase
         Company::on('db-ninja-02')->create($company2->toArray());
 
         $user = [
+            'account_id' => $account->id,
             'first_name' => 'user_db_1',
             'last_name' => 'user_db_1-s',
             'phone' => '55555',
@@ -71,6 +72,7 @@ class MultiDBUserTest extends TestCase
 
 
         $user2 = [
+            'account_id' => $account->id,
             'first_name'        => 'user_db_2',
             'last_name'         => 'user_db_2-s',
             'phone'             => '55555',

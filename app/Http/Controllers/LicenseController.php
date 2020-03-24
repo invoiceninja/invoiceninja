@@ -134,7 +134,7 @@ class LicenseController extends BaseController
         }
 
         $error = [
-            'message' => "Invalid license, or invalid environment ".config('ninja.environment')s,
+            'message' => "Invalid license, or invalid environment ".config('ninja.environment'),
             'errors' => []
         ];
 

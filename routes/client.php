@@ -26,9 +26,9 @@ Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', '
 	Route::get('recurring_invoices/{recurring_invoice}', 'ClientPortal\RecurringInvoiceController@show')->name('recurring_invoices.show');
 	Route::get('recurring_invoices/{recurring_invoice}/request_cancellation', 'ClientPortal\RecurringInvoiceController@requestCancellation')->name('recurring_invoices.request_cancellation');
 
+	Route::post('payments/process', 'ClientPortal\PaymentController@process')->name('payments.process');
 	Route::get('payments', 'ClientPortal\PaymentController@index')->name('payments.index')->middleware('portal_enabled');
 	Route::get('payments/{payment}', 'ClientPortal\PaymentController@show')->name('payments.show');
-	Route::post('payments/process', 'ClientPortal\PaymentController@process')->name('payments.process');
 	Route::post('payments/process/response', 'ClientPortal\PaymentController@response')->name('payments.response');
 	Route::get('payments/process/response', 'ClientPortal\PaymentController@response')->name('payments.response.get');
 
