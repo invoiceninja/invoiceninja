@@ -10,7 +10,9 @@
 @section('body')
     <form action="{{ route('client.payments.process') }}" method="post" id="payment-form">
         @csrf
-        <input type="hidden" name="hashed_ids" value="{!! $hashed_ids !!}" id="hashed_ids">
+        @foreach($invoices as $invoice)
+            <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
+        @endforeach
         <input type="hidden" name="company_gateway_id" id="company_gateway_id">
         <input type="hidden" name="payment_method_id" id="payment_method_id">
     </form>
@@ -51,7 +53,7 @@
                         </div>
                     </div>
                 </div>
-    
+
                 @foreach($invoices as $invoice)
                     <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
                         <div class="px-4 py-5 border-b border-gray-200 sm:px-6">

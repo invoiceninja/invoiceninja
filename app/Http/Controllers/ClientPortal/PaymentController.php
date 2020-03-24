@@ -75,11 +75,11 @@ class PaymentController extends Controller
      * The request will also contain the amount
      * and invoice ids for reference.
      *
-     * @return void
+     * @return \Illuminate\Http\RedirectResponse|mixed
      */
     public function process()
     {
-        $invoices = Invoice::whereIn('id', $this->transformKeys(explode(",", request()->input('hashed_ids'))))
+        $invoices = Invoice::whereIn('id', $this->transformKeys(request()->invoices))
                                 ->whereClientId(auth()->user()->client->id)
                                 ->get();
 
@@ -98,6 +98,7 @@ class PaymentController extends Controller
             $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             return $invoice;
         });
+
 
         $payment_methods = auth()->user()->client->getPaymentMethods($amount);
 
