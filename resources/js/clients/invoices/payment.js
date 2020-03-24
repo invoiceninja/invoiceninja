@@ -16,6 +16,8 @@ class Payment {
     }
 
     handleMethodSelect(element) {
+        document.getElementById('company_gateway_id').value = element.dataset.companyGatewayId;
+        document.getElementById('payment_method_id').value = element.dataset.gatewayTypeId;
 
         if (this.shouldDisplaySignature && !this.shouldDisplayTerms) {
             this.displayTerms();
