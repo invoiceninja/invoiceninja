@@ -123,13 +123,13 @@ class MultiDB
     public static function hasUser(array $data) : ?User
     {
         if (! config('ninja.db.multi_db_enabled')) {
-            return User::where($data)->first();
+            return User::where($data)->withTrashed()->first();
         }
 
         foreach (self::$dbs as $db) {
             self::setDB($db);
 
-            $user = User::where($data)->first();
+            $user = User::where($data)->withTrashed()->first();
 
             if ($user) {
                 return $user;
@@ -137,6 +137,7 @@ class MultiDB
         }
 
         self::setDefaultDatabase();
+        
         return null;
     }
 

@@ -78,9 +78,8 @@ class UserRepository extends BaseRepository
                       ->whereUserId($user->id);
             }])->first();
 
-            $user->restore();
-
         }
+        $user->restore();
 
         return $user;
     }
