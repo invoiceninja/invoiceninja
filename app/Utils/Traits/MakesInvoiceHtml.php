@@ -47,11 +47,6 @@ trait MakesInvoiceHtml
         $data = [];
         $data['entity'] = $entity;
         $data['lang'] = $client->preferredLocale();
-        // $data['includes'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getIncludes()->getHtml());
-        // $data['header'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getHeader()->getHtml());
-        // $data['body'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getBody()->getHtml());
-        // $data['footer'] = $this->parseLabelsAndValues($labels, $values, $designer->init()->getFooter()->getHtml());
-
         $data['includes'] = $designer->init()->getIncludes()->getHtml();
         $data['header'] = $designer->init()->getHeader()->getHtml();
         $data['body'] = $designer->init()->getBody()->getHtml();
@@ -59,11 +54,7 @@ trait MakesInvoiceHtml
 
         $html = view('pdf.stub', $data)->render();
         
-        $start =microtime(true);
         $html = $this->parseLabelsAndValues($labels, $values, $html);
-
-        \Log::error("str replacing values took ".(microtime(true) - $start));
-        //\Log::error($html);
         
         return $html;
     }
