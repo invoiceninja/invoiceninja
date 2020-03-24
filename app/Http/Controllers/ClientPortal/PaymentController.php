@@ -90,7 +90,9 @@ class PaymentController extends Controller
         });
 
         if ($invoices->count() == 0) {
-            return back()->with(['warning' => 'No payable invoices selected']);
+            return redirect()
+                ->route('client.invoices.index')
+                ->with(['warning' => 'No payable invoices selected.']);
         }
 
         $invoices->map(function ($invoice) {
