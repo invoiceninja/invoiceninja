@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Reports;
 
+use App\Libraries\MoneyUtils;
+use App\Models\Currency;
 use Utils;
 use Auth;
 use Carbon;
@@ -15,17 +17,19 @@ class AbstractReport
     public $startDate;
     public $endDate;
     public $isExport;
+    private $account;
     public $options;
 
     public $totals = [];
     public $data = [];
     public $chartData = [];
 
-    public function __construct($startDate, $endDate, $isExport, $options = false)
+    public function __construct($startDate, $endDate, $isExport, $account, $options = false)
     {
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->isExport = $isExport;
+        $this->account = $account;
         $this->options = $options;
     }
 
@@ -41,6 +45,8 @@ class AbstractReport
 
     public function results()
     {
+        asort($this->totals);
+
         return [
             'columns' => $this->getColumns(),
             'displayData' => $this->data,
@@ -53,14 +59,26 @@ class AbstractReport
         $currencyId = $currencyId ?: Auth::user()->account->getCurrencyId();
 
         if (! isset($this->totals[$currencyId][$dimension])) {
-            $this->totals[$currencyId][$dimension] = [];
-        }
+        $this->totals[$currencyId][$dimension] = [];
+    }
 
         if (! isset($this->totals[$currencyId][$dimension][$field])) {
             $this->totals[$currencyId][$dimension][$field] = 0;
         }
 
         $this->totals[$currencyId][$dimension][$field] += $value;
+
+        if($currencyId !== 'Total') $this->addTotalToTotals($currencyId, $field, $value, $dimension);
+    }
+
+    protected function addTotalToTotals($currencyId, $field, $value, $dimension = false)
+    {
+        if ($currencyId != $this->account->getCurrencyId()) {
+            $currency = Currency::where('id', $currencyId)->first();
+            $value = MoneyUtils::convert($value, $currency->code, $this->account->currency->code);
+        }
+
+        $this->addToTotals('Total', $field, $value, $dimension);
     }
 
     public function tableHeaderArray() {
