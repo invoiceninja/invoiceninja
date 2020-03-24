@@ -88,6 +88,11 @@ class Account extends BaseModel
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
 
+    public function users()
+    {
+        return $this->hasMany(User::class)->withTrashed();
+    }
+
     public function default_company()
     {
         return $this->hasOne(Company::class, 'id', 'default_company_id');

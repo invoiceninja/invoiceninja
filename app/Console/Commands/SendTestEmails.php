@@ -72,14 +72,17 @@ class SendTestEmails extends Command
 
 
         if (!$user) {
+
+            $account = factory(\App\Models\Account::class)->create();
+
             $user = factory(\App\Models\User::class)->create([
+                'account_id' => $account->id,
                 'confirmation_code' => '123',
                 'email' => $faker->safeEmail,
                 'first_name' => 'John',
                 'last_name' => 'Doe',
             ]);
 
-            $account = factory(\App\Models\Account::class)->create();
 
 
             $company = factory(\App\Models\Company::class)->create([

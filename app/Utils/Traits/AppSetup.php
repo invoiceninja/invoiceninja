@@ -22,6 +22,8 @@ trait AppSetup
             return true;
         }
 
+\Log::error(SystemHealth::check());
+
         return SystemHealth::check()['system_health']; // Do the system tests pass?
     }
 }

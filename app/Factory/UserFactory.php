@@ -15,10 +15,11 @@ use App\Models\User;
 
 class UserFactory
 {
-    public static function create() :User
+    public static function create(int $account_id) :User
     {
         $user = new User;
 
+        $user->account_id = $account_id;
         $user->first_name = '';
         $user->last_name = '';
         $user->phone = '';

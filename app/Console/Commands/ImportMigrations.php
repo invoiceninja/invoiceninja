@@ -66,13 +66,14 @@ class ImportMigrations extends Command
 
     public function getUser(): User
     {
+        $account = $this->getAccount();
+        $company = $this->getCompany($account);
+
         $user = factory(\App\Models\User::class)->create([
+            'account_id' => $account->id,
             'email' => $this->faker->email,
             'confirmation_code' => $this->createDbHash(config('database.default'))
         ]);
-
-        $account = $this->getAccount();
-        $company = $this->getCompany($account);
 
         $company_token = CompanyToken::create([
             'user_id' => $user->id,

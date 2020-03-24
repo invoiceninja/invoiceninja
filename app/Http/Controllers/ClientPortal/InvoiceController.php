@@ -75,6 +75,8 @@ class InvoiceController extends Controller
      */
     public function show(ShowInvoiceRequest $request, Invoice $invoice)
     {
+        set_time_limit(0);
+
         $data = [
             'invoice' => $invoice,
         ];
@@ -133,7 +135,7 @@ class InvoiceController extends Controller
             'invoices' => $invoices,
             'formatted_total' => $formatted_total,
             'payment_methods' => $payment_methods,
-            'hashed_ids' => $invoices->pluck('hashed_ids'),
+            'hashed_ids' => $invoices->pluck('hashed_id'),
             'total' =>  $total,
         ];
 

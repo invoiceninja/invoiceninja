@@ -244,6 +244,7 @@ class CreateUsersTable extends Migration
          
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('account_id')->index();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('phone')->nullable();
@@ -280,7 +281,7 @@ class CreateUsersTable extends Migration
 
             $table->unique(['oauth_user_id', 'oauth_provider_id']);
 
-            // $table->foreign('user_id')->references('user_id')->on('company_users')->onDelete('cascade');
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade')->onUpdate('cascade');
         });
 
 

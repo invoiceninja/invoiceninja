@@ -63,14 +63,14 @@ class UniqueEmailTest extends TestCase
             'first_name' => 'user_db_1',
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
-           // 'account_id' => $account->id,
+            'account_id' => $account->id,
         ];
 
         $user2 = [
             'first_name' => 'user_db_2',
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
-          //  'account_id' => $account2->id,
+            'account_id' => $account2->id,
         ];
 
         User::on('db-ninja-01')->create($user);

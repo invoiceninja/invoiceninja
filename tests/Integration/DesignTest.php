@@ -49,14 +49,13 @@ class DesignTest extends TestCase
     {
         $this->contact = $this->invoice->client->primary_contact()->first();
 
-        $design = Design::find(3);
+        $design = json_decode(Design::find(3));
 
         $designer = new Designer($this->invoice, $design, $this->company->settings->pdf_variables, 'quote');
 
         $html = $designer->build()->getHtml();
 
         $this->assertNotNull($html);
-
 
         $this->invoice = factory(\App\Models\Invoice::class)->create([
                 'user_id' => $this->user->id,
@@ -79,7 +78,7 @@ class DesignTest extends TestCase
     {
         $this->contact = $this->quote->client->primary_contact()->first();
 
-        $design = Design::find(3);
+        $design = json_decode(Design::find(3));
 
         $designer = new Designer($this->quote, $design, $this->company->settings->pdf_variables, 'quote');
 
@@ -108,7 +107,7 @@ class DesignTest extends TestCase
 
     public function testCreditDesignExists()
     {
-        $design = Design::find(3);
+        $design = json_decode(Design::find(3));
 
         $designer = new Designer($this->credit, $design, $this->company->settings->pdf_variables, 'credit');
 

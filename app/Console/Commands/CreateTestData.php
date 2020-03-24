@@ -96,7 +96,7 @@ class CreateTestData extends Command
 
         if (!$user) {
             $user = factory(\App\Models\User::class)->create([
-            //    'account_id' => $account->id,
+                'account_id' => $account->id,
                 'email' => 'small@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default'))
             ]);
@@ -177,7 +177,7 @@ class CreateTestData extends Command
 
         if (!$user) {
             $user = factory(\App\Models\User::class)->create([
-            //    'account_id' => $account->id,
+                'account_id' => $account->id,
                 'email' => 'medium@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default'))
             ]);
@@ -283,7 +283,7 @@ class CreateTestData extends Command
 
         if (!$user) {
             $user = factory(\App\Models\User::class)->create([
-            //    'account_id' => $account->id,
+                'account_id' => $account->id,
                 'email' => 'large@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default'))
             ]);

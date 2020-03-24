@@ -27,6 +27,7 @@ use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasVoided;
 use App\Events\User\UserLoggedIn;
 use App\Events\User\UserWasCreated;
+use App\Events\User\UserWasDeleted;
 use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
 use App\Listeners\Activity\PaymentDeletedActivity;
@@ -47,6 +48,7 @@ use App\Listeners\Misc\InvitationViewedListener;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\SendVerificationNotification;
 use App\Listeners\SetDBListener;
+use App\Listeners\User\DeletedUserActivity;
 use App\Listeners\User\UpdateUserLastLogin;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -66,6 +68,9 @@ class EventServiceProvider extends ServiceProvider
             ],
         UserWasCreated::class => [
             SendVerificationNotification::class,
+        ],
+        UserWasDeleted::class => [
+            DeletedUserActivity::class,
         ],
         UserLoggedIn::class => [
             UpdateUserLastLogin::class,

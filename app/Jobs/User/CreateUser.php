@@ -56,6 +56,7 @@ class CreateUser
     public function handle() : ?User
     {
         $user = new User();
+        $user->account_id = $this->account->id;
         $user->password = bcrypt($this->request['password']);
         $user->accepted_terms_version = config('ninja.terms_version');
         $user->confirmation_code = $this->createDbHash(config('database.default'));

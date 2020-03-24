@@ -24,9 +24,14 @@ class SetupController extends Controller
 {
     public function index()
     {
+        
         $system_health = SystemHealth::check();
 
+        if($system_health)
+            return redirect('/');
+
         return view();
+
     }
 
     public function doSetup(StoreSetupRequest $request)
@@ -76,6 +81,7 @@ class SetupController extends Controller
         Artisan::call('optimize');
         Artisan::call('migrate');
         Artisan::call('db:seed');
+        Artisan::call('horizon');
 
         if (Account::count() == 0) {
             $account = CreateAccount::dispatchNow($request->all());
