@@ -19,6 +19,10 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
         
     steps:
+    - name: Start mysql service
+      run: |
+        sudo /etc/init.d/mysql start
+          
     - uses: actions/checkout@v1
       with:
         ref: v2
