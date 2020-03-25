@@ -7,7 +7,15 @@ name: phpunit
 jobs:
   phpunit:
     runs-on: ubuntu-latest
-
+    env:
+      DB_DATABASE1: ninja
+      DB_USERNAME1: root
+      DB_PASSWORD1: ninja
+      BROADCAST_DRIVER: log
+      CACHE_DRIVER: file
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: file
+  
     services:
       mysql:
         image: mysql:5.7
