@@ -44,7 +44,7 @@ use Omnipay\Omnipay;
 class BasePaymentDriver
 {
     use SystemLogTrait;
-    
+
     /* The company gateway instance*/
     protected $company_gateway;
 
@@ -56,7 +56,7 @@ class BasePaymentDriver
 
     /* Gateway capabilities */
     protected $refundable = false;
-    
+
     /* Token billing */
     protected $token_billing = false;
 
@@ -194,7 +194,7 @@ class BasePaymentDriver
     public function processPaymentView(array $data)
     {
     }
-    
+
     public function processPaymentResponse($request)
     {
     }
@@ -251,7 +251,7 @@ class BasePaymentDriver
         /*
         $this->purchaseResponse = (array)$response->getData();*/
     }
-    
+
     public function completePurchase($data)
     {
         $this->gateway();
@@ -269,14 +269,14 @@ class BasePaymentDriver
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->currency_id = $this->client->getSetting('currency_id');
         $payment->date = Carbon::now();
-        
+
         return $payment;
     }
 
-     
+
     public function attachInvoices(Payment $payment, $hashed_ids) : Payment
     {
-        $invoices = Invoice::whereIn('id', $this->transformKeys(explode(",", $hashed_ids)))
+        $invoices = Invoice::whereIn('id', $this->transformKeys($hashed_ids))
                         ->whereClientId($this->client->id)
                         ->get();
 
