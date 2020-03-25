@@ -30,9 +30,9 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
         
     steps:
- #   - name: Start mysql service
- #     run: |
- #       sudo /etc/init.d/mysql start
+    - name: Start mysql service
+      run: |
+        sudo /etc/init.d/mysql start
     
     - name: Verify MariaDB connection
       env:
