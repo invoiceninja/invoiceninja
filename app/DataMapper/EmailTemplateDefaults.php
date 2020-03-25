@@ -11,10 +11,60 @@
 
 namespace App\DataMapper;
 
+use Illuminate\Support\Facades\App;
 use League\CommonMark\CommonMarkConverter;
 
 class EmailTemplateDefaults
 {
+
+    public static function getDefaultTemplate($template, $locale)
+    {
+        App::setLocale($locale);
+
+        switch ($template) {
+            case 'email_template_invoice':
+                return self::emailInvoiceTemplate();
+                break;
+            case 'email_template_quote':
+                return self::emailQuoteTemplate();
+                break;
+            case 'email_template_payment':
+                return self::emailPaymentTemplate();
+                break;
+            case 'email_template_payment_partial':
+                return self::emailPaymentTemplate();
+                break;
+            case 'email_template_statement':
+                return self::emailStatementTemplate();
+                break;
+            case 'email_template_reminder1':
+                return self::emailReminder1Template();
+                break;
+            case 'email_template_reminder2':
+                return self::emailReminder2Template();
+                break;
+            case 'email_template_reminder3':
+                return self::emailReminder3Template();
+                break;
+            case 'email_template_reminder_endless':
+                return self::emailReminderEndlessTemplate();
+                break;
+            case 'email_template_custom1':
+                return self::emailInvoiceTemplate();
+                break;
+            case 'email_template_custom2':
+                return self::emailInvoiceTemplate();
+                break;
+            case 'email_template_custom3':
+                return self::emailInvoiceTemplate();
+                break;
+
+            default:
+                return self::emailInvoiceTemplate();
+                break;
+        }
+    }
+
     public static function emailInvoiceSubject()
     {
         return ctrans('texts.invoice_subject', ['number'=>'$number', 'account'=>'$company.name']);

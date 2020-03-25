@@ -1,4 +1,4 @@
-@extends('email.template.master')
+@extends('email.template.master', ['design' => 'dark'])
 @section('title')
 {{ $title }}
 @endsection

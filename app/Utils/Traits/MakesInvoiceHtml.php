@@ -14,6 +14,7 @@ namespace App\Utils\Traits;
 use App\Designs\Designer;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\File;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 /**
@@ -101,5 +102,13 @@ trait MakesInvoiceHtml
         }
 
         return ob_get_clean();
+    }
+
+    /*
+     * Returns the base template we will be using.
+     */
+    public function getTemplate(string $template = 'plain')
+    {
+        return File::get(resource_path('views/email/template/' . $template . '.blade.php'));
     }
 }

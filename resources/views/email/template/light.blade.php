@@ -1,10 +1,16 @@
-@extends('email.template.master')
+@extends('email.template.master', ['design' => 'light'])
 @section('title')
-{{ $title }}
+	@if(isset($title))
+		{{ $title }}
+	@endif
 @endsection
 @section('content')
-{!! $body !!}
+	@if(isset($body))
+		{!! $body !!}
+	@endif
 @endsection
 @section('footer')
-{!! $footer !!}
+	@if(isset($footer))
+		{!! $footer !!}
+	@endif
 @endsection
