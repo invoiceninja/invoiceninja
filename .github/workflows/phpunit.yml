@@ -7,18 +7,6 @@ name: phpunit
 jobs:
   phpunit:
     runs-on: ubuntu-latest
-   # container:
-   #   image: kirschbaumdevelopment/laravel-test-runner:7.3
-
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: ninja
-          MYSQL_DATABASE: ninja
-        ports:
-          - 33306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
     - uses: actions/checkout@v1
@@ -41,7 +29,12 @@ jobs:
       run: |
         npm i
         npm run production
-          
+
+    - name: Create DB and schemas
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+        
     - name: Migrate Database
       run: |
         php artisan migrate:fresh --seed --force && php artisan db:seed --class=RandomDataSeeder --force
