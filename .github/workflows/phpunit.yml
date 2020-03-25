@@ -34,9 +34,9 @@ jobs:
     
     - name: Verify MySQL connection from container 
       run: |
-        apt-get update
-        apt-get install -y mysql-client
-        mysql --host mysql -uroot -pninja -e "SHOW DATABASES"
+        sudo apt-get update
+        sudo apt-get install -y mysql-client
+        sudo mysql --host mysql -uroot -pninja -e "SHOW DATABASES"
     
     - uses: actions/checkout@v1
       with:
