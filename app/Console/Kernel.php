@@ -36,9 +36,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
-
+        
         //$schedule->job(new RecurringInvoicesCron)->hourly();
         $schedule->job(new VersionCheck)->daily();
 
@@ -48,6 +46,7 @@ class Kernel extends ConsoleKernel
         /* Run queue's in shared hosting with this*/
         if(Ninja::isSelfHost())
             $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
+
     }
 
     /**
