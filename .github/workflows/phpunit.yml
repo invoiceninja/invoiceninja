@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DB_DATABASE1: ninja
-      DB_USERNAME1: root
+      DB_USERNAME1: ninja
       DB_PASSWORD1: ninja
       DB_HOST1: 127.0.0.1
       BROADCAST_DRIVER: log
@@ -21,6 +21,7 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
+          MYSQL_USER: ninja
           MYSQL_ROOT_PASSWORD: ninja
           MYSQL_DATABASE: ninja
         ports:
@@ -36,7 +37,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y mysql-client
-        sudo mysql -uroot -pninja -e "SHOW DATABASES"
+        sudo mysql -uninja -pninja -e "SHOW DATABASES"
     
     - uses: actions/checkout@v1
       with:
