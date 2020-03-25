@@ -22,7 +22,7 @@ jobs:
       - name: Install composer dependencies
         run: |
           composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
-          composer install --no-scripts
+          composer install
       
       - name: Prepare Laravel Application
         run: |
