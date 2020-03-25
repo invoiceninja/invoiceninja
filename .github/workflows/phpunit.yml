@@ -36,7 +36,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y mysql-client
-        sudo mysql --host mysql -uroot -pninja -e "SHOW DATABASES"
+        sudo mysql -uroot -pninja -e "SHOW DATABASES"
     
     - uses: actions/checkout@v1
       with:
