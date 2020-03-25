@@ -111,4 +111,9 @@ trait MakesInvoiceHtml
     {
         return File::get(resource_path('views/email/template/' . $template . '.blade.php'));
     }
+
+    public function getTemplatePath(string $template = 'plain')
+    {
+        return 'email.template.' . $template;
+    }
 }

@@ -154,19 +154,27 @@ class TemplateController extends BaseController
         if($include_wrapper){
             
             $email_style = $settings_entity->getSetting('email_style');
+            
+            $email_style = 'light';
 
-$email_style = 'light';
+            $data['title'] = '';
+            $data['body'] = $body;
+            $data['footer'] = '';
 
             if($email_style == 'custom') {
+
                 $wrapper = $settings_entity->getSetting('email_style_custom');
+                $this->renderView($wrapper, $data);
             }
             else {
-                $wrapper = $this->getTemplate($email_style);
+
+                $wrapper = $this->getTemplate();
+                $body = view($this->getTemplatePath($email_style), $data)->render();
+
             }
 
-            $data['body'] = $body;
 
-            $body = $this->renderView($wrapper, $data);
+
         }
 
         $data = [
