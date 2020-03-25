@@ -1,7 +1,11 @@
 on:
-  push:
-    branches:    
-      - v2
+  release:
+    types: [released]
+    
+#on:
+#  push:
+#    branches:    
+#      - v2
 
 name: Upload Release Asset
 
