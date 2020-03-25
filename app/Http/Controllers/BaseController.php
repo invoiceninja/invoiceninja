@@ -11,11 +11,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\Account;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\User;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
+use App\Utils\Ninja;
 use App\Utils\Statics;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Http\Request;
@@ -301,8 +303,17 @@ class BaseController extends Controller
     public function flutterRoute()
     {
         if (!$this->checkAppSetup());
-        return redirect('/setup');
+          return redirect('/setup');
 
-        return view('index.index');
+        $data = [];
+
+        if(Ninja::isSelfHost()){
+          $account = Account::all()->first();
+          $data['report_errors'] = $account->report_errors;
+        }
+        else
+          $data['report_errors'] = true;
+
+        return view('index.index', $data);
     }
 }
