@@ -292,6 +292,22 @@ class Company extends BaseModel
         return $this->settings->company_logo ?: null;
     }
 
+    public function locale()
+    {
+        return $this->getLocale();
+    }
+
+    public function getSetting($setting)
+    {
+
+        if (property_exists($this->settings, $setting) != false) {
+            return $this->settings->{$setting};
+        }
+
+        return null;
+
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

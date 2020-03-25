@@ -15,6 +15,7 @@ use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\User;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Support\Facades\Log;
 
@@ -64,7 +65,11 @@ class ActivityRepository extends BaseRepository
 
         if (get_class($entity) == Client::class) {
             $entity->load('company');
-        } else {
+        } 
+        else if(get_class($entity) == User::class) {
+            
+        }
+        else {
             $entity->load('company', 'client');
         }
 

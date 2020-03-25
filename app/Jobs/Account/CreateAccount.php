@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class CreateAccount
@@ -33,6 +34,9 @@ class CreateAccount
             return response()->json(array('message' => Ninja::parse()), 401);
         }
         $sp794f3f = Account::create($this->request);
+        $sp794f3f->referral_code = Str::random(32);
+        $sp794f3f->save();
+        
         $sp035a66 = CreateCompany::dispatchNow($this->request, $sp794f3f);
         $sp035a66->load('account');
         $sp794f3f->default_company_id = $sp035a66->id;

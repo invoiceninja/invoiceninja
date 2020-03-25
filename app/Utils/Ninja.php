@@ -57,6 +57,9 @@ class Ninja
 
     public static function boot()
     {
+        if(self::isNinjaDev())
+            return true;
+        
         $data = [
             'license' => config('ninja.license'),
         ];
