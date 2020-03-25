@@ -125,6 +125,7 @@ class CreateUsersTable extends Migration
             $table->string('utm_term')->nullable();
             $table->string('utm_content')->nullable();
             $table->string('latest_version')->default('0.0.0');
+            $table->boolean('report_errors')->default(false);
 
             $table->float('discount')->default(0);
             $table->date('discount_expires')->nullable();
