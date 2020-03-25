@@ -46,7 +46,7 @@ jobs:
       
       - name: Get tag name
         id: get_tag_name
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}-release
       
       - name: Create Release
         id: create_release
