@@ -41,15 +41,19 @@ jobs:
       - name: Build project # This would actually build your project, using zip for an example artifact
         run: |
           zip -r ./invoiceninja.zip ./
-          
+      
+      - name: Get tag name
+        id: get_tag_name
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${GITHUB_REF##*/}
-          release_name: Release ${GITHUB_REF##*/}
+          tag_name: ${{ steps.get_tag_name.outputs.VERSION }}
+          release_name: Release ${{ steps.get_tag_name.outputs.VERSION }}
           draft: false
           prerelease: false
       - name: Upload Release Asset
