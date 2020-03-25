@@ -1,0 +1,56 @@
+on: 
+  push:
+    branches:
+      - v2
+      
+name: phpunit
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: ninja
+          MYSQL_DATABASE: ninja
+        ports:
+          - 33306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        ref: v2
+        fetch-depth: 1
+
+    - name: Copy .env
+      run: |
+        cp .env.ci .env
+        
+    - name: Install composer dependencies
+      run: |
+        composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
+        composer install
+
+    - name: Prepare Laravel Application
+      run: |
+        php artisan key:generate
+        php artisan optimize
+        
+    - name: Prepare JS/CSS assets
+      run: |
+        npm i
+        npm run production
+
+    - name: Create DB and schemas
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
+        
+    - name: Migrate Database
+      run: |
+        php artisan migrate:fresh --seed --force && php artisan db:seed --class=RandomDataSeeder --force
+
+    - name: Run Testsuite
+      run: vendor/bin/phpunit --testdox

@@ -1,0 +1,66 @@
+on:
+  release:
+    types: [released]
+    
+#on:
+#  push:
+#    branches:    
+#      - v2
+
+name: Upload Release Asset
+
+jobs:
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+        with:
+          ref: v2
+          
+      - name: Install composer dependencies
+        run: |
+          composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
+          composer install
+      
+      - name: Prepare Laravel Application
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan optimize
+          php artisan storage:link
+        
+      - name: Prepare JS/CSS assets
+        run: |
+          npm i
+          npm run production
+          
+      - name: Build project # This would actually build your project, using zip for an example artifact
+        run: |
+          zip -r ./invoiceninja.zip ./
+      
+      - name: Get tag name
+        id: get_tag_name
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_tag_name.outputs.VERSION }}
+          release_name: Release ${{ steps.get_tag_name.outputs.VERSION }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./invoiceninja.zip
+          asset_name: invoiceninja.zip
+          asset_content_type: application/zip
