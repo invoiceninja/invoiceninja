@@ -302,8 +302,7 @@ class BaseController extends Controller
     
     public function flutterRoute()
     {
-        if (!$this->checkAppSetup());
-          return redirect('/setup');
+      if ((bool)$this->checkAppSetup() !== false){
 
         $data = [];
 
@@ -315,5 +314,10 @@ class BaseController extends Controller
           $data['report_errors'] = true;
 
         return view('index.index', $data);
+    
+      }
+
+        return redirect('/setup');
     }
+
 }

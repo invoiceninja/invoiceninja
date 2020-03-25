@@ -16,14 +16,18 @@ use App\Utils\SystemHealth;
 
 trait AppSetup
 {
+
     public function checkAppSetup()
     {
-        if (Ninja::isNinja()) { // Is this the invoice ninja production system?
-            return true;
-        }
+        if (Ninja::isNinja())  // Is this the invoice ninja production system?
+            return Ninja::isNinja();
+        
+        \Log::error("perform check");
 
-\Log::error(SystemHealth::check());
+        $check = SystemHealth::check();
 
-        return SystemHealth::check()['system_health']; // Do the system tests pass?
+		\Log::error(settype($check['system_health'], "bool"));
+
+        return settype($check['system_health'], "bool"); // Do the system tests pass?
     }
 }
