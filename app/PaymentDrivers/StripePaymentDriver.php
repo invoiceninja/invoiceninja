@@ -264,7 +264,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
         $gateway_type_id = $request->input('payment_method_id');
         $hashed_ids = $request->input('hashed_ids');
-        $invoices = Invoice::whereIn('id', $this->transformKeys(explode(",", $hashed_ids)))
+        $invoices = Invoice::whereIn('id', $this->transformKeys($hashed_ids))
                                 ->whereClientId($this->client->id)
                                 ->get();
         /**

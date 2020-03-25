@@ -23,6 +23,10 @@ mix.js("resources/js/app.js", "public/js")
     .js(
         "resources/js/clients/quotes/approve.js",
         "public/js/clients/quotes/approve.js"
+    )
+    .js(
+        "resources/js/clients/payments/process.js",
+        "public/js/clients/payments/process.js"
     );
 
 mix.sass("resources/sass/app.scss", "public/css")

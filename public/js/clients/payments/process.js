@@ -81,15 +81,15 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./resources/js/clients/payment_methods/authorize-stripe-card.js":
-/*!***********************************************************************!*\
-  !*** ./resources/js/clients/payment_methods/authorize-stripe-card.js ***!
-  \***********************************************************************/
+/***/ "./resources/js/clients/payments/process.js":
+/*!**************************************************!*\
+  !*** ./resources/js/clients/payments/process.js ***!
+  \**************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -108,17 +108,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  *
  * @license https://opensource.org/licenses/AAL
  */
-var AuthorizeStripeCard = /*#__PURE__*/function () {
-  function AuthorizeStripeCard(key) {
-    _classCallCheck(this, AuthorizeStripeCard);
+var ProcessStripePayment = /*#__PURE__*/function () {
+  function ProcessStripePayment(key, usingToken) {
+    _classCallCheck(this, ProcessStripePayment);
 
     this.key = key;
-    this.cardHolderName = document.getElementById("cardholder-name");
-    this.cardButton = document.getElementById("card-button");
-    this.clientSecret = this.cardButton.dataset.secret;
+    this.usingToken = usingToken;
   }
 
-  _createClass(AuthorizeStripeCard, [{
+  _createClass(ProcessStripePayment, [{
     key: "setupStripe",
     value: function setupStripe() {
       this.stripe = Stripe(this.key);
@@ -138,11 +136,29 @@ var AuthorizeStripeCard = /*#__PURE__*/function () {
       return this;
     }
   }, {
-    key: "handleStripe",
-    value: function handleStripe(stripe, cardHolderName) {
+    key: "completePaymentUsingToken",
+    value: function completePaymentUsingToken() {
       var _this = this;
 
-      stripe.handleCardSetup(this.clientSecret, this.cardElement, {
+      var payNowButton = document.getElementById("pay-now-with-token");
+      this.stripe.handleCardPayment(payNowButton.dataset.secret, {
+        payment_method: payNowButton.dataset.token
+      }).then(function (result) {
+        if (result.error) {
+          return _this.handleFailure(result.error.message);
+        }
+
+        return _this.handleSuccess(result);
+      });
+    }
+  }, {
+    key: "completePaymentWithoutToken",
+    value: function completePaymentWithoutToken() {
+      var _this2 = this;
+
+      var payNowButton = document.getElementById("pay-now");
+      var cardHolderName = document.getElementById("cardholder-name");
+      this.stripe.handleCardPayment(payNowButton.dataset.secret, this.cardElement, {
         payment_method_data: {
           billing_details: {
             name: cardHolderName.value
@@ -150,58 +166,71 @@ var AuthorizeStripeCard = /*#__PURE__*/function () {
         }
       }).then(function (result) {
         if (result.error) {
-          return _this.handleFailure(result);
+          return _this2.handleFailure(result.error.message);
         }
 
-        return _this.handleSuccess(result);
+        return _this2.handleSuccess(result);
       });
-    }
-  }, {
-    key: "handleFailure",
-    value: function handleFailure(result) {
-      var errors = document.getElementById("errors");
-      errors.textContent = "";
-      errors.textContent = result.error.message;
-      errors.hidden = false;
     }
   }, {
     key: "handleSuccess",
     value: function handleSuccess(result) {
-      document.getElementById("gateway_response").value = JSON.stringify(result.setupIntent);
-      document.getElementById("is_default").value = document.getElementById("proxy_is_default").checked;
-      document.getElementById("server_response").submit();
+      document.querySelector('input[name="gateway_response"]').value = JSON.stringify(result.paymentIntent);
+      var tokenBillingCheckbox = document.querySelector('input[name="token-billing-checkbox"]');
+
+      if (tokenBillingCheckbox) {
+        document.querySelector('input[name="store_card"]').value = tokenBillingCheckbox.checked;
+      }
+
+      document.getElementById("server-response").submit();
+    }
+  }, {
+    key: "handleFailure",
+    value: function handleFailure(message) {
+      var errors = document.getElementById("errors");
+      errors.textContent = "";
+      errors.textContent = message;
+      errors.hidden = false;
     }
   }, {
     key: "handle",
     value: function handle() {
-      var _this2 = this;
+      var _this3 = this;
 
-      this.setupStripe().createElement();
-      this.cardButton.addEventListener("click", function () {
-        _this2.handleStripe(_this2.stripe, _this2.cardHolderName);
-      });
-      return this;
+      this.setupStripe();
+
+      if (this.usingToken) {
+        document.getElementById("pay-now-with-token").addEventListener("click", function () {
+          return _this3.completePaymentUsingToken();
+        });
+      }
+
+      if (!this.usingToken) {
+        this.createElement().mountCardElement();
+        document.getElementById("pay-now").addEventListener("click", function () {
+          return _this3.completePaymentWithoutToken();
+        });
+      }
     }
   }]);
 
-  return AuthorizeStripeCard;
+  return ProcessStripePayment;
 }();
 
 var publishableKey = document.querySelector('meta[name="stripe-publishable-key"]').content;
-/** @handle */
-
-new AuthorizeStripeCard(publishableKey).handle();
+var usingToken = document.querySelector('meta[name="using-token"]').content;
+new ProcessStripePayment(publishableKey, usingToken).handle();
 
 /***/ }),
 
-/***/ 1:
-/*!*****************************************************************************!*\
-  !*** multi ./resources/js/clients/payment_methods/authorize-stripe-card.js ***!
-  \*****************************************************************************/
+/***/ 6:
+/*!********************************************************!*\
+  !*** multi ./resources/js/clients/payments/process.js ***!
+  \********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /home/benjamin/Code/invoiceninja/resources/js/clients/payment_methods/authorize-stripe-card.js */"./resources/js/clients/payment_methods/authorize-stripe-card.js");
+module.exports = __webpack_require__(/*! /home/benjamin/Code/invoiceninja/resources/js/clients/payments/process.js */"./resources/js/clients/payments/process.js");
 
 
 /***/ })
