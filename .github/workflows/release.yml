@@ -19,6 +19,10 @@ jobs:
         with:
           ref: v2
           
+      - name: Copy .env file
+        run: |
+          cp .env.example .env
+             
       - name: Install composer dependencies
         run: |
           composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
