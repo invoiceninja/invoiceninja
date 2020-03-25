@@ -30,15 +30,17 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
         
     steps:
-    - name: Start mysql service
-      run: |
-        sudo /etc/init.d/mysql start
+ #   - name: Start mysql service
+ #     run: |
+ #       sudo /etc/init.d/mysql start
     
-    - name: Verify MySQL connection from container 
+    - name: Verify MariaDB connection
+      env:
+        PORT: ${{ job.services.mariadb.ports[3306] }}
       run: |
-        sudo apt-get update
-        sudo apt-get install -y mysql-client
-        sudo mysql -uninja -pninja -e "SHOW DATABASES"
+        while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
+          sleep 1
+        done
     
     - uses: actions/checkout@v1
       with:
