@@ -13,6 +13,7 @@ namespace App\Console;
 
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Util\VersionCheck;
+use App\Utils\Ninja;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -44,6 +45,9 @@ class Kernel extends ConsoleKernel
         /* Build queue snapshots */
         $schedule->command('horizon:snapshot')->everyFiveMinutes();
 
+        /* Run queue's in shared hosting with this*/
+        if(Ninja::isSelfHost())
+            $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
     }
 
     /**
