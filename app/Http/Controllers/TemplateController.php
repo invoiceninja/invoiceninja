@@ -155,7 +155,7 @@ class TemplateController extends BaseController
             
             $email_style = $settings_entity->getSetting('email_style');
             
-            $email_style = 'light';
+            $email_style = 'dark';
 
             $data['title'] = '';
             $data['body'] = $body;
