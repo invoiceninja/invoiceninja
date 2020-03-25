@@ -12,9 +12,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Setup\StoreSetupRequest;
+use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
 use App\Utils\SystemHealth;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 
 /**
@@ -24,14 +24,12 @@ class SetupController extends Controller
 {
     public function index()
     {
-        
         $system_health = SystemHealth::check();
 
         if($system_health)
             return redirect('/');
 
-        return view();
-
+        return view('setup.index');
     }
 
     public function doSetup(StoreSetupRequest $request)

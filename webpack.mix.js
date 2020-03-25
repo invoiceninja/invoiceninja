@@ -36,7 +36,6 @@ mix.sass("resources/sass/app.scss", "public/css")
     })
     .purgeCss({
         enabled: mix.inProduction(),
-        folders: ["resources", "views", "portal", "ninja2020"],
         extensions: ["html", "php"]
     });
 
