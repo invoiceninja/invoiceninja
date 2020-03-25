@@ -15,6 +15,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 return $request->user();
 });
  */
+Route::get('/api/v1/ping', 'PingController@index')->name('ping');
 
 Route::group(['middleware' => ['api_secret_check']], function () {
     Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
