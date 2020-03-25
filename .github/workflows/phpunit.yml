@@ -60,11 +60,6 @@ jobs:
       run: |
         php artisan key:generate
         php artisan optimize
-        
-    - name: Prepare JS/CSS assets
-      run: |
-        npm i
-        npm run production
 
     - name: Create DB and schemas
       run: |
@@ -75,5 +70,10 @@ jobs:
       run: |
         php artisan migrate:fresh --seed --force && php artisan db:seed --class=RandomDataSeeder --force
 
+    - name: Prepare JS/CSS assets
+      run: |
+        npm i
+        npm run production
+        
     - name: Run Testsuite
       run: vendor/bin/phpunit --testdox
