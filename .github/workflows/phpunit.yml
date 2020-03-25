@@ -24,6 +24,10 @@ jobs:
         ref: v2
         fetch-depth: 1
 
+    - name: Copy .env
+      run: |
+        cp .env.ci .env
+        
     - name: Install composer dependencies
       run: |
         composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
@@ -31,7 +35,6 @@ jobs:
 
     - name: Prepare Laravel Application
       run: |
-        cp .env.ci .env
         php artisan key:generate
         php artisan optimize
         
