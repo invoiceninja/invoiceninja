@@ -65,9 +65,10 @@ class ArtisanUpgrade extends Command
            //Artisan::call('horizon:terminate');
             
             exec('cd '.base_path().' && /usr/bin/php artisan horizon:terminate');
+            exec('cd '.base_path().' && /usr/bin/php artisan horizon &');
 
-            Artisan::call('horizon');
-            
+            //Artisan::call('horizon');
+
         } catch (Exception $e) {
             \Log::error("I wasn't able to start horizon");
         }
