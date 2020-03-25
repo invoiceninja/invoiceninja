@@ -124,7 +124,6 @@ class TemplateController extends BaseController
         $subject = request()->input('subject') ?: '';
         $body = request()->input('body') ?: '';
         $template = request()->input('template') ?: '';
-        $include_wrapper = request()->input('include_wrapper') ?: false;
 
         if(strlen($template) >1) {
 
@@ -151,12 +150,9 @@ class TemplateController extends BaseController
 
         $body = $converter->convertToHtml($body);
 
-        if($include_wrapper){
-            
+            /* wrapper */
             $email_style = $settings_entity->getSetting('email_style');
             
-            $email_style = 'dark';
-
             $data['title'] = '';
             $data['body'] = $body;
             $data['footer'] = '';
@@ -164,22 +160,21 @@ class TemplateController extends BaseController
             if($email_style == 'custom') {
 
                 $wrapper = $settings_entity->getSetting('email_style_custom');
-                $this->renderView($wrapper, $data);
+                $wrapper = $this->renderView($wrapper, $data);
             }
             else {
 
                 $wrapper = $this->getTemplate();
-                $body = view($this->getTemplatePath($email_style), $data)->render();
+                $wrapper = view($this->getTemplatePath($email_style), $data)->render();
 
             }
 
 
 
-        }
-
         $data = [
             'subject' => $subject,
             'body' => $body,
+            'wrapper' => $wrapper,
         ];
 
         return response()->json($data, 200);
