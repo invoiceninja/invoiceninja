@@ -31,7 +31,13 @@ jobs:
     - name: Start mysql service
       run: |
         sudo /etc/init.d/mysql start
-          
+    
+    - name: Verify MySQL connection from container 
+      run: |
+        apt-get update
+        apt-get install -y mysql-client
+        mysql --host mysql -uroot -pninja -e "SHOW DATABASES"
+    
     - uses: actions/checkout@v1
       with:
         ref: v2
