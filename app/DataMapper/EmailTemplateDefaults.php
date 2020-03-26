@@ -16,7 +16,6 @@ use League\CommonMark\CommonMarkConverter;
 
 class EmailTemplateDefaults
 {
-
     public static function getDefaultTemplate($template, $locale)
     {
         App::setLocale($locale);

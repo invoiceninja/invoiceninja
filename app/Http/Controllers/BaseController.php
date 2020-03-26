@@ -302,22 +302,19 @@ class BaseController extends Controller
     
     public function flutterRoute()
     {
-      if ((bool)$this->checkAppSetup() !== false){
+        if ((bool)$this->checkAppSetup() !== false) {
+            $data = [];
 
-        $data = [];
+            if (Ninja::isSelfHost()) {
+                $account = Account::all()->first();
+                $data['report_errors'] = $account->report_errors;
+            } else {
+                $data['report_errors'] = true;
+            }
 
-        if(Ninja::isSelfHost()){
-          $account = Account::all()->first();
-          $data['report_errors'] = $account->report_errors;
+            return view('index.index', $data);
         }
-        else
-          $data['report_errors'] = true;
-
-        return view('index.index', $data);
-    
-      }
 
         return redirect('/setup');
     }
-
 }

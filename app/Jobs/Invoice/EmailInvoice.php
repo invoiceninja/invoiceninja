@@ -57,10 +57,10 @@ class EmailInvoice implements ShouldQueue
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
             ->send(
                 new TemplateEmail(
-                $this->email_builder,
-                $this->invoice_invitation->contact->user,
-                $this->invoice_invitation->contact->client
-            )
+                    $this->email_builder,
+                    $this->invoice_invitation->contact->user,
+                    $this->invoice_invitation->contact->client
+                )
             );
 
         if (count(Mail::failures()) > 0) {

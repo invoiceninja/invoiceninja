@@ -90,9 +90,9 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
         return (new MailMessage)
                     ->subject(
                         ctrans(
-                        'texts.notification_partial_payment_paid_subject',
-                        ['client' => $this->payment->client->present()->name()]
-                    )
+                            'texts.notification_partial_payment_paid_subject',
+                            ['client' => $this->payment->client->present()->name()]
+                        )
                     )->markdown('email.admin.generic', $data);
     }
 

@@ -25,5 +25,4 @@ class PingController extends BaseController
     {
         return response()->json('success', 200);
     }
-
 }

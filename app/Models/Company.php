@@ -299,13 +299,11 @@ class Company extends BaseModel
 
     public function getSetting($setting)
     {
-
         if (property_exists($this->settings, $setting) != false) {
             return $this->settings->{$setting};
         }
 
         return null;
-
     }
 
     /**

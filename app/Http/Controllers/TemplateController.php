@@ -113,10 +113,9 @@ class TemplateController extends BaseController
             $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
         }
 
-        if($entity_obj){
+        if ($entity_obj) {
             $settings_entity = $entity_obj->client;
-        }
-        else{
+        } else {
             $settings_entity = auth()->user()->company();
         }
 
@@ -125,17 +124,14 @@ class TemplateController extends BaseController
         $body = request()->input('body') ?: '';
         $template = request()->input('template') ?: '';
 
-        if(strlen($template) >1) {
-
+        if (strlen($template) >1) {
             $custom_template = $settings_entity->getSetting($template);
 
-            if(strlen($custom_template) > 1){
+            if (strlen($custom_template) > 1) {
                 $body = $custom_template;
-            }
-            else {
+            } else {
                 $body = EmailTemplateDefaults::getDefaultTemplate($template, $settings_entity->locale());
             }
-
         }
 
         $labels = $this->makeFakerLabels();
@@ -150,24 +146,20 @@ class TemplateController extends BaseController
 
         $body = $converter->convertToHtml($body);
 
-            /* wrapper */
-            $email_style = $settings_entity->getSetting('email_style');
+        /* wrapper */
+        $email_style = $settings_entity->getSetting('email_style');
             
-            $data['title'] = '';
-            $data['body'] = $body;
-            $data['footer'] = '';
+        $data['title'] = '';
+        $data['body'] = $body;
+        $data['footer'] = '';
 
-            if($email_style == 'custom') {
-
-                $wrapper = $settings_entity->getSetting('email_style_custom');
-                $wrapper = $this->renderView($wrapper, $data);
-            }
-            else {
-
-                $wrapper = $this->getTemplate();
-                $wrapper = view($this->getTemplatePath($email_style), $data)->render();
-
-            }
+        if ($email_style == 'custom') {
+            $wrapper = $settings_entity->getSetting('email_style_custom');
+            $wrapper = $this->renderView($wrapper, $data);
+        } else {
+            $wrapper = $this->getTemplate();
+            $wrapper = view($this->getTemplatePath($email_style), $data)->render();
+        }
 
 
 

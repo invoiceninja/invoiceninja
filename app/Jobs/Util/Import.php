@@ -283,9 +283,9 @@ class Import implements ShouldQueue
             $client = $client_repository->save(
                 $modified,
                 ClientFactory::create(
-                $this->company->id,
-                $modified['user_id']
-            )
+                    $this->company->id,
+                    $modified['user_id']
+                )
             );
 
             if (array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
@@ -342,9 +342,9 @@ class Import implements ShouldQueue
             $product_repository->save(
                 $modified,
                 ProductFactory::create(
-                $this->company->id,
-                $modified['user_id']
-            )
+                    $this->company->id,
+                    $modified['user_id']
+                )
             );
         }
 

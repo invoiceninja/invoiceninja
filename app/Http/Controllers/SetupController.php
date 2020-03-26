@@ -26,15 +26,13 @@ class SetupController extends Controller
     {
         $data = SystemHealth::check();
 
-        if ($data['system_health'] !== false){
-
+        if ($data['system_health'] !== false) {
             return view('setup.index', $data);
-
         }
         
-        if($system_health !== true)
+        if ($system_health !== true) {
             return redirect('/');
-
+        }
     }
 
     public function doSetup(StoreSetupRequest $request)
@@ -104,5 +102,4 @@ class SetupController extends Controller
         if (Account::count() == 0) {
         }
     }
-
 }

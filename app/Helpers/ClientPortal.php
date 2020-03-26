@@ -21,11 +21,13 @@ function isActive($page, bool $boolean = false)
 {
     $current_page = Route::currentRouteName();
 
-    if ($page == $current_page && $boolean)
+    if ($page == $current_page && $boolean) {
         return true;
+    }
 
-    if ($page == $current_page)
+    if ($page == $current_page) {
         return 'active-page';
+    }
 
     return false;
 }
@@ -43,8 +45,9 @@ function render(string $path, array $options = [])
 
     if (array_key_exists('root', $options)) {
         return view(
-            sprintf('%s.%s.%s', $options['root'], $theme, $path)
-            , $options);
+            sprintf('%s.%s.%s', $options['root'], $theme, $path),
+            $options
+        );
     }
 
     return view("portal.$theme.$path", $options);
