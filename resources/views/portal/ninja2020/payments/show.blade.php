@@ -13,7 +13,7 @@
                     {{ ctrans('texts.payment') }}
                 </h3>
                 <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
-                    {{ ctrans('texts.Details of the payment.') }}
+                    {{ ctrans('texts.payment_details') }}
                 </p>
             </div>
             <div>
@@ -67,7 +67,7 @@
                     {{ ctrans('texts.invoices') }}
                 </h3>
                 <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
-                    {{ ctrans('texts.List of invoices affected by payment.') }}
+                    {{ ctrans('texts.list_of_payment_invoices') }}
                 </p>
             </div>
             <div>

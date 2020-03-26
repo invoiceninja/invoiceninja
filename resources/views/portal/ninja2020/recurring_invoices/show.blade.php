@@ -69,8 +69,7 @@
                         </h3>
                         <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
                             <p translate>
-                                {{ ctrans('texts.In case you want to stop the recurring invoice, please click the request the
-                                cancellation.') }}
+                                {{ ctrans('texts.about_cancellation') }}
                             </p>
                         </div>
                     </div>
