@@ -37,7 +37,7 @@ class TemplateEngine
 
     private $settings_entity;
 
-    function __construct($body, $subject, $entity, $entity_id, $template)
+    public function __construct($body, $subject, $entity, $entity_id, $template)
     {
         $this->body = $body;
 
@@ -52,7 +52,6 @@ class TemplateEngine
         $this->entity_obj = null;
 
         $this->settings_entity = null;
-
     }
 
     public function build()
@@ -66,8 +65,7 @@ class TemplateEngine
 
     private function setEntity()
     {
-        if(strlen($this->entity) > 1 && strlen($this->entity_id) >1)
-        {
+        if (strlen($this->entity) > 1 && strlen($this->entity_id) >1) {
             $class = 'App\Models\\'.ucfirst($this->entity);
             $this->entity_obj = $class::whereId($this->decodePrimaryKey($this->entity_id))->company()->first();
         }
@@ -89,14 +87,12 @@ class TemplateEngine
     /* If the body / subject are not populated we need to get the defaults */
     private function setTemplates()
     {
-        if(strlen($this->subject) == 0 && strlen($this->template) > 1)
-        {
+        if (strlen($this->subject) == 0 && strlen($this->template) > 1) {
             $subject_template = str_replace("template", "subject", $this->template);
             $this->subject = EmailTemplateDefaults::getDefaultTemplate($subject_template, $this->settings_entity->locale());
         }
 
-        if(strlen($this->body) == 0 && strlen($this->template) > 1)
-        {
+        if (strlen($this->body) == 0 && strlen($this->template) > 1) {
             $this->body = EmailTemplateDefaults::getDefaultTemplate($this->template, $this->settings_entity->locale());
         }
 
@@ -105,18 +101,17 @@ class TemplateEngine
 
     private function replaceValues()
     {
-        if($this->entity_obj)
+        if ($this->entity_obj) {
             $this->entityValues();
-        else
+        } else {
             $this->fakerValues();
+        }
 
         return $this;
-
     }
 
     private function fakerValues()
     {
-
         $labels = $this->makeFakerLabels();
         $values = $this->makeFakerValues();
 
@@ -132,7 +127,6 @@ class TemplateEngine
 
         $this->body = $converter->convertToHtml($this->body);
         $this->subject = $converter->convertToHtml($this->subject);
-
     }
 
     private function entityValues()
@@ -152,7 +146,6 @@ class TemplateEngine
 
         $this->body = $converter->convertToHtml($this->body);
         $this->subject = $converter->convertToHtml($this->subject);
-
     }
 
     private function renderTemplate()

@@ -107,7 +107,6 @@ class TemplateController extends BaseController
      */
     public function show()
     {
-        
         $entity = request()->has('entity') ? request()->input('entity') : '';
         $entity_id = request()->has('entity_id') ? request()->input('entity_id') : '';
         $subject = request()->has('subject') ? request()->input('subject') : '';

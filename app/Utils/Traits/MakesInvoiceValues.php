@@ -138,6 +138,7 @@ trait MakesInvoiceValues
         //$data['$invoice_date']           = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
         $data['$invoice.date']           = &$data['$date'];
         $data['$invoice.due_date']       = ['value' => $this->due_date ?: '&nbsp;', 'label' => ctrans('texts.due_date')];
+        $data['$due_date']               = &$data['$invoice.due_date'];
         $data['$invoice.number']         = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
         $data['$invoice.po_number']      = ['value' => $this->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
         $data['$line_taxes']             = ['value' => $this->makeLineTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
@@ -174,23 +175,27 @@ trait MakesInvoiceValues
         $data['$subtotal']               = ['value' => Number::formatMoney($this->calc()->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
         $data['$invoice.subtotal']       = &$data['$subtotal'];
         $data['$invoice.balance_due']    = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+        $data['$quote.balance_due']      = &$data['$invoice.balance_due'];
+        $data['$balance_due']            = &$data['$invoice.balance_due'];
         $data['$invoice.partial_due']    = ['value' => Number::formatMoney($this->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         $data['$total']                  = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.total')];
+        $data['$quote.total']            = &$data['$total'];
         $data['$invoice.total']          = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.invoice_total')];
         $data['$invoice.amount']         = &$data['$total'];
         $data['$quote.amount']           = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.quote_total')];
-        $data['$credit_total']           = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_total')];
-        $data['$credit.amount']          = &$data['$credit_total'];
+        $data['$credit.total']           = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_total')];
+        $data['$credit.number']          = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
+        $data['$credit.amount']          = &$data['$credit.total'];
 
         $data['$balance']                = ['value' => Number::formatMoney($this->calc()->getBalance(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance')];
         $data['$invoice.balance']        = &$data['$balance'];
         $data['$taxes']                  = ['value' => Number::formatMoney($this->calc()->getItemTotalTaxes(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes']          = &$data['$taxes'];
         
-        $data['$invoice.custom1']               = ['value' => $this->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice1')];
-        $data['$invoice.custom2']               = ['value' => $this->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
-        $data['$invoice.custom3']               = ['value' => $this->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
-        $data['$invoice.custom4']               = ['value' => $this->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
+        $data['$invoice.custom1']        = ['value' => $this->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice1')];
+        $data['$invoice.custom2']        = ['value' => $this->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
+        $data['$invoice.custom3']        = ['value' => $this->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
+        $data['$invoice.custom4']        = ['value' => $this->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
         $data['$invoice.public_notes']   = ['value' => $this->public_notes ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes']    = &$data['$invoice.public_notes'];
         
@@ -256,8 +261,8 @@ trait MakesInvoiceValues
             $contact = $this->client->primary_contact()->first();
         }
 
-        $data['$contact_name']              = ['value' => isset($contact) ? $contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
-        $data['$contact.name']              = &$data['$contact_name'];
+        $data['$contact_name']              =
+        $data['$contact.name']              = ['value' => isset($contact) ? $contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
         $data['$contact1']                  = ['value' => isset($contact) ? $contact->custom_value1 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
         $data['$contact2']                  = ['value' => isset($contact) ? $contact->custom_value2 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
         $data['$contact3']                  = ['value' => isset($contact) ? $contact->custom_value3 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
@@ -282,12 +287,12 @@ trait MakesInvoiceValues
         
         $logo = $this->company->present()->logo($settings);
 
-        $data['$company.logo']              = ['value' => "<img src='{$logo}' class='w-48' alt='logo'>" ?: '&nbsp;', 'label' => ctrans('texts.logo')];
-        $data['$company_logo']              = &$data['$company.logo'];
-        $data['$company1']                  = ['value' => $settings->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('company1')];
-        $data['$company2']                  = ['value' => $settings->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];
-        $data['$company3']                  = ['value' => $settings->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
-        $data['$company4']                  = ['value' => $settings->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
+        $data['$company.logo']                       = ['value' => "<img src='{$logo}' class='w-48' alt='logo'>" ?: '&nbsp;', 'label' => ctrans('texts.logo')];
+        $data['$company_logo']                       = &$data['$company.logo'];
+        $data['$company1']                           = ['value' => $settings->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('company1')];
+        $data['$company2']                           = ['value' => $settings->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];
+        $data['$company3']                           = ['value' => $settings->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
+        $data['$company4']                           = ['value' => $settings->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
 
         $data['$product.date']                       = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$product.discount']                   = ['value' => '', 'label' => ctrans('texts.discount')];

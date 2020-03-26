@@ -92,7 +92,6 @@ class PreviewController extends BaseController
             strlen(request()->input('entity')) > 1 &&
             strlen(request()->input('entity_id')) > 1 &&
             request()->has('body')) {
-            
             $design_object = json_decode(json_encode(request()->input('design')));
 
             if (!is_object($design_object)) {
@@ -151,6 +150,8 @@ class PreviewController extends BaseController
         $invoice->load('client');
 
         $design_object = json_decode(json_encode(request()->input('design')));
+
+        //\Log::error(print_r($design_object,1));
 
         if (!is_object($design_object)) {
             return response()->json(['message' => 'Invalid custom design object'], 400);
