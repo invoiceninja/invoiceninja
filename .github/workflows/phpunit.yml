@@ -83,3 +83,6 @@ jobs:
         
     - name: Run Testsuite
       run: vendor/bin/phpunit --testdox
+      env:
+        DB_PORT: ${{ job.services.mysql.ports[3306] }}
+
