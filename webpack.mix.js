@@ -44,5 +44,4 @@ mix.sass("resources/sass/app.scss", "public/css")
     });
 
 mix.version();
-// mix.disableSuccessNotifications();
 mix.disableNotifications();
