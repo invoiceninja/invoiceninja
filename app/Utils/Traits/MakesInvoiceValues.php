@@ -170,6 +170,7 @@ trait MakesInvoiceValues
 
         //$data['$paid_to_date'] = ;
         $data['$invoice.discount']       = ['value' => Number::formatMoney($this->calc()->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
+        $data['$discount']               = &$data['$invoice.discount'];
         $data['$subtotal']               = ['value' => Number::formatMoney($this->calc()->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
         $data['$invoice.subtotal']       = &$data['$subtotal'];
         $data['$invoice.balance_due']    = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
@@ -197,12 +198,13 @@ trait MakesInvoiceValues
         // $data['$quote'] = ;
         // $data['$your_quote'] = ;
         //
-        $data['$quote_date']             = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
-        $data['$quote_number']           = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
-        $data['$quote.quote_number']     = &$data['$quote_number'];
-        $data['$quote_no']               = &$data['$quote_number'];
-        $data['$quote.quote_no']         = &$data['$quote_number'];
-        $data['$valid_until']            = ['value' => $this->due_date, 'label' => ctrans('texts.valid_until')];
+        $data['$quote.date']             = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
+        $data['$quote.number']           = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
+        $data['$quote.po_number']        = &$data['$invoice.po_number'];
+        $data['$quote.quote_number']     = &$data['$quote.number'];
+        $data['$quote_no']               = &$data['$quote.number'];
+        $data['$quote.quote_no']         = &$data['$quote.number'];
+        $data['$quote.valid_until']      = ['value' => $this->due_date, 'label' => ctrans('texts.valid_until')];
         $data['$credit_amount']          = ['value' => Number::formatMoney($this->calc()->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_amount')];
         $data['$credit_balance']         = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
         ;

@@ -36,7 +36,7 @@ return [
         // single database setup
         'mysql' => [
             'driver'    => 'mysql',
-            'host'      => env('DB_HOST1', 'localhost'),
+            'host'      => env('DB_HOST1', '127.0.0.1'),
             'database'  => env('DB_DATABASE1', 'forge'),
             'username'  => env('DB_USERNAME1', 'forge'),
             'password'  => env('DB_PASSWORD1', ''),
@@ -70,7 +70,7 @@ return [
 
         'sqlsrv' => [
             'driver'         => 'sqlsrv',
-            'host'           => env('DB_HOST', 'localhost'),
+            'host'           => env('DB_HOST', '127.0.0.1'),
             'port'           => env('DB_PORT', '1433'),
             'database'       => env('DB_DATABASE', 'forge'),
             'username'       => env('DB_USERNAME', 'forge'),
@@ -82,7 +82,7 @@ return [
 
         'db-ninja-01' => [
             'driver'         => 'mysql',
-            'host'           => env('DB_HOST1', env('DB_HOST', 'localhost')),
+            'host'           => env('DB_HOST1', env('DB_HOST', '127.0.0.1')),
             'database'       => env('DB_DATABASE1', env('DB_DATABASE', 'forge')),
             'username'       => env('DB_USERNAME1', env('DB_USERNAME', 'forge')),
             'password'       => env('DB_PASSWORD1', env('DB_PASSWORD', '')),
@@ -97,7 +97,7 @@ return [
 
         'db-ninja-02' => [
             'driver'         => 'mysql',
-            'host'           => env('DB_HOST2', env('DB_HOST', 'localhost')),
+            'host'           => env('DB_HOST2', env('DB_HOST', '127.0.0.1')),
             'database'       => env('DB_DATABASE2', env('DB_DATABASE', 'forge')),
             'username'       => env('DB_USERNAME2', env('DB_USERNAME', 'forge')),
             'password'       => env('DB_PASSWORD2', env('DB_PASSWORD', '')),
