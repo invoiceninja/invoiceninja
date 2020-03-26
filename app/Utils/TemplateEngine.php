@@ -126,7 +126,7 @@ class TemplateEngine
         ]);
 
         $this->body = $converter->convertToHtml($this->body);
-        $this->subject = $converter->convertToHtml($this->subject);
+
     }
 
     private function entityValues()
@@ -145,7 +145,7 @@ class TemplateEngine
         ]);
 
         $this->body = $converter->convertToHtml($this->body);
-        $this->subject = $converter->convertToHtml($this->subject);
+
     }
 
     private function renderTemplate()
