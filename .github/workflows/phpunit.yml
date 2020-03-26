@@ -64,6 +64,7 @@ jobs:
       run: |
         php artisan key:generate
         php artisan optimize
+        php artisan config:cache
 
     - name: Create DB and schemas
       run: |
