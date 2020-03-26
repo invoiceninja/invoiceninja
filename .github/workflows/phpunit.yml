@@ -27,6 +27,7 @@ jobs:
         ports:
           - 3306
         env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_USER: ninja
           MYSQL_PASSWORD: ninja
           MYSQL_DATABASE: ninja
