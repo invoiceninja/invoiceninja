@@ -3147,4 +3147,6 @@ return [
     'email_link_not_working' => 'If button above isn\'t working for you, please click on the link',
     'credit_terms' => 'Credit Terms',
     'display_log' => 'Display Log',
+    'send_fail_logs_to_our_server' => 'Send error logs to our servers for analysis',
+    'setup' => 'Setup',
 ];
