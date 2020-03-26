@@ -27,6 +27,10 @@ mix.js("resources/js/app.js", "public/js")
     .js(
         "resources/js/clients/payments/process.js",
         "public/js/clients/payments/process.js"
+    )
+    .js(
+        "resources/js/setup/setup.js", 
+        "public/js/setup/setup.js"
     );
 
 mix.sass("resources/sass/app.scss", "public/css")
@@ -40,4 +44,4 @@ mix.sass("resources/sass/app.scss", "public/css")
     });
 
 mix.version();
-mix.disableSuccessNotifications();
+mix.disableNotifications();

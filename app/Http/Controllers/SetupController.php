@@ -15,6 +15,7 @@ use App\Http\Requests\Setup\StoreSetupRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
 use App\Utils\SystemHealth;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
 
 /**
@@ -91,15 +92,45 @@ class SetupController extends Controller
         return view('index.index');
     }
 
-    public function check_db()
+    /**
+     * Return status based on check of database connection.
+     *
+     * @return Response
+     */
+    public function checkDB(): Response
     {
-        if (Account::count() == 0) {
+        if (Account::count() == 0) {}
+
+        // test db - > /setup/check_db (POST) please send array of DB variables - response 200/success or 400 [message]
+        // test mail -> /setup/check_mail (POST) please send array of MAIL xvariables - response 200/success or 400 [message]
+
+        $randomStatus = rand(0, 1);
+
+        if($randomStatus) {
+            return response([], 200);
         }
+
+        return response([], 400);
     }
 
-    public function check_mail()
+    /**
+     * Return status based on check of SMTP connection.
+     *
+     * @return Response
+     */
+    public function checkMail(): Response
     {
-        if (Account::count() == 0) {
+        if (Account::count() == 0) {}
+
+        // test db - > /setup/check_db (POST) please send array of DB variables - response 200/success or 400 [message]
+        // test mail -> /setup/check_mail (POST) please send array of MAIL variables - response 200/success or 400 [message]
+
+        $randomStatus = rand(0, 1);
+
+        if($randomStatus) {
+            return response([], 200);
         }
+
+        return response([], 400);
     }
 }
