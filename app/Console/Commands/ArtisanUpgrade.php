@@ -62,13 +62,12 @@ class ArtisanUpgrade extends Command
     
         try {
             /* Restart Horizon */
-           //Artisan::call('horizon:terminate');
+            //Artisan::call('horizon:terminate');
             
             exec('cd '.base_path().' && /usr/bin/php artisan horizon:terminate');
             exec('cd '.base_path().' && /usr/bin/php artisan horizon &');
 
             //Artisan::call('horizon');
-
         } catch (Exception $e) {
             \Log::error("I wasn't able to start horizon");
         }
@@ -78,6 +77,5 @@ class ArtisanUpgrade extends Command
         $application = new Application();
         $application->setAutoExit(true); // prevent `$application->run` method from exitting the script
         $application->run($input);
-
     }
 }

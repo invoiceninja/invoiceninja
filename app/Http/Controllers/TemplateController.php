@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\DataMapper\EmailTemplateDefaults;
+use App\Utils\TemplateEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
@@ -106,77 +107,15 @@ class TemplateController extends BaseController
      */
     public function show()
     {
-        $entity_obj = null;
+        
+        $entity = request()->has('entity') ? request()->input('entity') : '';
+        $entity_id = request()->has('entity_id') ? request()->input('entity_id') : '';
+        $subject = request()->has('subject') ? request()->input('subject') : '';
+        $body = request()->has('body') ? request()->input('body') : '';
+        $template = request()->has('template') ? request()->input('template') : '';
 
-        if (request()->has('entity') && request()->has('entity_id')) {
-            $class = 'App\Models\\'.ucfirst(request()->input('entity'));
-            $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
-        }
-
-        if($entity_obj){
-            $settings_entity = $entity_obj->client;
-        }
-        else{
-            $settings_entity = auth()->user()->company();
-        }
-
-
-        $subject = request()->input('subject') ?: '';
-        $body = request()->input('body') ?: '';
-        $template = request()->input('template') ?: '';
-
-        if(strlen($template) >1) {
-
-            $custom_template = $settings_entity->getSetting($template);
-
-            if(strlen($custom_template) > 1){
-                $body = $custom_template;
-            }
-            else {
-                $body = EmailTemplateDefaults::getDefaultTemplate($template, $settings_entity->locale());
-            }
-
-        }
-
-        $labels = $this->makeFakerLabels();
-        $values = $this->makeFakerValues();
-
-        $body = str_replace(array_keys($labels), array_values($labels), $body);
-        $body = str_replace(array_keys($values), array_values($values), $body);
-
-        $converter = new CommonMarkConverter([
-            'allow_unsafe_links' => false,
-        ]);
-
-        $body = $converter->convertToHtml($body);
-
-            /* wrapper */
-            $email_style = $settings_entity->getSetting('email_style');
-            
-            $data['title'] = '';
-            $data['body'] = $body;
-            $data['footer'] = '';
-
-            if($email_style == 'custom') {
-
-                $wrapper = $settings_entity->getSetting('email_style_custom');
-                $wrapper = $this->renderView($wrapper, $data);
-            }
-            else {
-
-                $wrapper = $this->getTemplate();
-                $wrapper = view($this->getTemplatePath($email_style), $data)->render();
-
-            }
-
-
-
-        $data = [
-            'subject' => $subject,
-            'body' => $body,
-            'wrapper' => $wrapper,
-        ];
-
+        $data = (new TemplateEngine($body, $subject, $entity, $entity_id, $template))->build();
+        
         return response()->json($data, 200);
     }
 }

@@ -7,18 +7,48 @@ name: phpunit
 jobs:
   phpunit:
     runs-on: ubuntu-latest
-
+    env:
+      DB_DATABASE1: ninja
+      DB_USERNAME1: root
+      DB_PASSWORD1: ninja
+      DB_HOST1: '127.0.0.1'
+      DB_DATABASE: ninja
+      DB_USERNAME: root
+      DB_PASSWORD: ninja
+      DB_HOST: '127.0.0.1'  
+      BROADCAST_DRIVER: log
+      CACHE_DRIVER: file
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: file
+  
     services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: ninja
-          MYSQL_DATABASE: ninja
+      mariadb:
+        image: mariadb:latest
         ports:
-          - 33306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+          - 3306
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_USER: ninja
+          MYSQL_PASSWORD: ninja
+          MYSQL_DATABASE: ninja
+          MYSQL_ROOT_PASSWORD: ninja
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
         
     steps:
+    - name: Start mysql service
+      run: |
+        sudo /etc/init.d/mysql start
+    
+    - name: Verify MariaDB connection
+      env:
+        DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_PORT1: ${{ job.services.mariadb.ports[3306] }}
+
+      run: |
+        while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
+          sleep 1
+        done
+    
     - uses: actions/checkout@v1
       with:
         ref: v2
@@ -37,11 +67,8 @@ jobs:
       run: |
         php artisan key:generate
         php artisan optimize
-        
-    - name: Prepare JS/CSS assets
-      run: |
-        npm i
-        npm run production
+        php artisan cache:clear
+        php artisan config:cache
 
     - name: Create DB and schemas
       run: |
@@ -52,5 +79,13 @@ jobs:
       run: |
         php artisan migrate:fresh --seed --force && php artisan db:seed --class=RandomDataSeeder --force
 
+    - name: Prepare JS/CSS assets
+      run: |
+        npm i
+        npm run production
+        
     - name: Run Testsuite
       run: vendor/bin/phpunit --testdox
+      env:
+        DB_PORT: ${{ job.services.mysql.ports[3306] }}
+

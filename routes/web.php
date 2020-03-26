@@ -5,6 +5,8 @@
 
 Route::get('/', 'BaseController@flutterRoute')->middleware('guest');
 Route::get('setup', 'SetupController@index')->middleware('guest');
+Route::post('setup/check_db', 'SetupController@check_db')->middleware('guest');
+Route::post('setup/check_mail', 'SetupController@check_mail')->middleware('guest');
 Route::post('setup', 'SetupController@doSetup')->middleware('guest');
 
 /*

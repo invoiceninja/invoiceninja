@@ -99,7 +99,6 @@ class QuoteController extends Controller
         }
 
         if ($process) {
-
             foreach ($quotes as $quote) {
                 $quote->service()->approve()->save();
             }

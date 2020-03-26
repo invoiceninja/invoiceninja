@@ -24,12 +24,15 @@ class SetupController extends Controller
 {
     public function index()
     {
-        $system_health = SystemHealth::check();
+        $data = SystemHealth::check();
 
-        if($system_health)
+        if ($data['system_health'] !== false) {
+            return view('setup.index', $data);
+        }
+        
+        if ($system_health !== true) {
             return redirect('/');
-
-        return view('setup.index');
+        }
     }
 
     public function doSetup(StoreSetupRequest $request)
@@ -86,5 +89,17 @@ class SetupController extends Controller
         }
         
         return view('index.index');
+    }
+
+    public function check_db()
+    {
+        if (Account::count() == 0) {
+        }
+    }
+
+    public function check_mail()
+    {
+        if (Account::count() == 0) {
+        }
     }
 }

@@ -287,7 +287,7 @@ class GeneratesCounterTest extends TestCase
         $this->assertEquals($client_number, date('Y') . '-' . str_pad($this->client->user_id, 2, '0', STR_PAD_LEFT) . '-0002');
     }
     /*
-    
+
         public function testClientNextNumber()
         {
             $this->assertEquals($this->getNextNumber($this->client),1);
@@ -296,7 +296,7 @@ class GeneratesCounterTest extends TestCase
         {
             //$this->assertEquals($this->getNextNumber(RecurringInvoice::class), 'R1');
             $this->assertEquals($this->getCounter($this->client), 1);
-    
+
         }
         public function testClientIncrementer()
         {
@@ -319,7 +319,7 @@ class GeneratesCounterTest extends TestCase
             $this->assertEquals($this->getCounter(RecurringInvoice::class), 3);
             $this->assertEquals($this->getCounter(Credit::class), 2);
         }
-    
+
         public function testClientNumberPattern()
         {
             $settings = $this->client->getSettingsByKey('client_number_pattern');
@@ -329,7 +329,7 @@ class GeneratesCounterTest extends TestCase
             $this->assertEquals($company->settings->client_number_counter,1);
             $this->assertEquals($this->getNextNumber($this->client), date('y').'-1');
             $this->assertEquals($this->getNextNumber($this->client), date('y').'-2');
-    
+
             $company = Company::find($this->client->company_id);
             $this->assertEquals($company->settings->client_number_counter,2);
             $this->assertEquals($this->client->settings->client_number_counter,1);
@@ -340,7 +340,7 @@ class GeneratesCounterTest extends TestCase
             $settings = $this->client->getSettingsByKey('client_number_pattern');
             $settings->client_number_pattern = '{$date:j}-{$counter}';
             $this->client->setSettingsByEntity(Client::class, $settings);
-    
+
             $this->assertEquals($this->getNextNumber($this->client), date('j') . '-1');
         }
         public function testClientNumberPatternWithDate2()
@@ -349,7 +349,7 @@ class GeneratesCounterTest extends TestCase
             $settings = $this->client->getSettingsByKey('client_number_pattern');
             $settings->client_number_pattern = '{$date:d M Y}-{$counter}';
             $this->client->setSettingsByEntity(Client::class, $settings);
-    
+
             $this->assertEquals($this->getNextNumber($this->client), date('d M Y') . '-1');
         }
      */

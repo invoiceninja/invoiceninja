@@ -95,7 +95,7 @@ class InvoiceController extends Controller
 //        \Log::error($request->all());
         $transformed_ids = $this->transformKeys($request->invoices);
 
-//\Log::error($transformed_ids);
+        //\Log::error($transformed_ids);
 
         if ($request->input('action') == 'payment') {
             return $this->makePayment((array)$transformed_ids);
@@ -112,7 +112,7 @@ class InvoiceController extends Controller
         $invoices = Invoice::whereIn('id', $ids)
                             ->whereClientId(auth()->user()->client->id)
                             ->get();
-//\Log::error($invoices);
+        //\Log::error($invoices);
 
         $total = $invoices->sum('balance');
 

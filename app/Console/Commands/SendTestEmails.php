@@ -72,7 +72,6 @@ class SendTestEmails extends Command
 
 
         if (!$user) {
-
             $account = factory(\App\Models\Account::class)->create();
 
             $user = factory(\App\Models\User::class)->create([

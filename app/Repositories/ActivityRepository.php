@@ -65,11 +65,8 @@ class ActivityRepository extends BaseRepository
 
         if (get_class($entity) == Client::class) {
             $entity->load('company');
-        } 
-        else if(get_class($entity) == User::class) {
-            
-        }
-        else {
+        } elseif (get_class($entity) == User::class) {
+        } else {
             $entity->load('company', 'client');
         }
 

@@ -51,12 +51,12 @@ class SystemHealth
         }
 
         return [
-            'system_health' => $system_health,
+            'system_health' => (bool)$system_health,
             'extensions' => self::extensions(),
             'php_version' => phpversion(),
             'min_php_version' => self::$php_version,
-            'dbs' => self::dbCheck(),
-            'mail' => self::testMailServer(),
+            //'dbs' => self::dbCheck(),
+            //'mail' => self::testMailServer(),
             'env_writable' => self::checkEnvWritable(),
         ];
     }

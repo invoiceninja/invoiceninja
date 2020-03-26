@@ -152,8 +152,7 @@ class Quote extends BaseModel
     {
         $storage_path = 'storage/' . $this->client->quote_filepath() . $this->number . '.pdf';
 
-        if (Storage::exists($storage_path))
-        {
+        if (Storage::exists($storage_path)) {
             return $storage_path;
         }
 
@@ -198,7 +197,7 @@ class Quote extends BaseModel
      */
     public function isApproved()
     {
-        if($this->status_id === $this::STATUS_APPROVED)  {
+        if ($this->status_id === $this::STATUS_APPROVED) {
             return true;
         }
 

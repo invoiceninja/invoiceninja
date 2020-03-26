@@ -168,8 +168,9 @@ class ClientContact extends Authenticatable implements HasLocalePreference
      */
     public function avatar()
     {
-        if($this->avatar)
+        if ($this->avatar) {
             return $this->avatar;
+        }
 
         return asset('images/svg/user.svg');
     }

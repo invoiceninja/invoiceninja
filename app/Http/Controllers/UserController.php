@@ -646,19 +646,19 @@ f     *          response=200,
      */
     public function detach(DetachCompanyUserRequest $request, User $user)
     {
-
         $company_user = CompanyUser::whereUserId($user->id)
                                     ->whereCompanyId(auth()->user()->companyId())->first();
                                     
         $token = $company_user->token->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
 
-        if($token)
+        if ($token) {
             $token->delete();
+        }
 
-        if($company_user)
+        if ($company_user) {
             $company_user->delete();
+        }
 
         return response()->json(['message' => 'User detached from company'], 200);
-        
     }
 }

@@ -47,7 +47,6 @@ class UserRepository extends BaseRepository
      */
     public function save(array $data, User $user)
     {
-      
         $company = auth()->user()->company();
         $account_id = $company->account->id;
 
@@ -56,8 +55,6 @@ class UserRepository extends BaseRepository
         $user->save();
 
         if (isset($data['company_user'])) {
-
-
             $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->withTrashed()->first();
 
             /*No company user exists - attach the user*/
@@ -66,7 +63,6 @@ class UserRepository extends BaseRepository
                 $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
-
                 $cu->fill($data['company_user']);
                 $cu->restore();
                 $cu->tokens()->restore();
@@ -77,7 +73,6 @@ class UserRepository extends BaseRepository
                 $query->whereCompanyId($company->id)
                       ->whereUserId($user->id);
             }])->first();
-
         }
         $user->restore();
 
@@ -87,7 +82,6 @@ class UserRepository extends BaseRepository
     public function destroy(array $data, User $user)
     {
         if (array_key_exists('company_user', $data)) {
-
             $this->forced_includes = 'company_users';
 
             $company = auth()->user()->company();

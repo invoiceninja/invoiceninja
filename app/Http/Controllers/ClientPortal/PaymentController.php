@@ -78,7 +78,7 @@ class PaymentController extends Controller
      * @return \Illuminate\Http\RedirectResponse|mixed
      */
     public function process()
-    { 
+    {
         $invoices = Invoice::whereIn('id', $this->transformKeys(request()->invoices))
                                 ->whereClientId(auth()->user()->client->id)
                                 ->get();

@@ -44,9 +44,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('horizon:snapshot')->everyFiveMinutes();
 
         /* Run queue's in shared hosting with this*/
-        if(Ninja::isSelfHost())
+        if (Ninja::isSelfHost()) {
             $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
-
+        }
     }
 
     /**
