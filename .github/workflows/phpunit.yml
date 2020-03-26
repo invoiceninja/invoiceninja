@@ -10,11 +10,11 @@ jobs:
     env:
       DB_DATABASE1: ninja
       DB_USERNAME1: root
-      DB_PASSWORD1: ninja
+      DB_PASSWORD1: ''
       DB_HOST1: '127.0.0.1'
       DB_DATABASE: ninja
       DB_USERNAME: root
-      DB_PASSWORD: ninja
+      DB_PASSWORD: ''
       DB_HOST: '127.0.0.1'  
       BROADCAST_DRIVER: log
       CACHE_DRIVER: file
@@ -31,7 +31,7 @@ jobs:
           MYSQL_USER: ninja
           MYSQL_PASSWORD: ninja
           MYSQL_DATABASE: ninja
-          MYSQL_ROOT_PASSWORD: ninja
+          MYSQL_ROOT_PASSWORD: ''
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
         
     steps:
@@ -65,6 +65,7 @@ jobs:
       run: |
         php artisan key:generate
         php artisan optimize
+        php artisan cache:clear
         php artisan config:cache
 
     - name: Create DB and schemas
