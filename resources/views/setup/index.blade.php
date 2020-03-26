@@ -1,6 +1,11 @@
 @extends('portal.ninja2020.layout.clean')
 @section('meta_title', ctrans('texts.setup'))
 
+@push('head')
+    <meta name="test-db-endpoint" content="{{ url('/setup/check_db') }}">
+    <meta name="test-smtp-endpoint" content="{{ url('/setup/check_mail') }}">
+@endpush
+
 @section('body')
 <div class="container mx-auto mb-10">
     <form action="#" method="post">
@@ -42,3 +47,7 @@
     </form>
 </div>
 @endsection
+
+@push('footer')
+    <script src="{{ asset('js/setup/setup.js') }}"></script>
+@endpush
