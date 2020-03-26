@@ -13,8 +13,7 @@
                     {{ ctrans("texts.{$payment_method->gateway_type->alias}") }}
                 </h3>
                 <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
-                    <!-- Details of the payment method. -->
-                    {{ ctrans('texts.details_of_method') }}
+                    {{ ctrans('texts.payment_method_details') }}
                 </p>
             </div>
             <div>
@@ -77,18 +76,18 @@
                 <div class="sm:flex sm:items-start sm:justify-between">
                     <div>
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
-                            Remove
+                            {{ ctrans('texts.remove')}}
                         </h3>
                         <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
                             <p>
-                                Permanently remove this payment method.
+                                {{ ctrans('texts.permanently_remove_payment_method') }}
                             </p>
                         </div>
                     </div>
                     <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
                         <div class="inline-flex rounded-md shadow-sm" x-data="{ open: false }">
                             <button class="button button-danger" translate @click="open = true">
-                                Remove payment method
+                                {{ ctrans('texts.remove_payment_method') }}
                             </button>
                             @include('portal.ninja2020.payment_methods.includes.modals.removal')
                         </div>
