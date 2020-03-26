@@ -31,7 +31,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.driver') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input border-none" name="database_driver" value="MySQL" readonly>
+                    <input type="text" class="input border-none" name="db_driver" value="MySQL" readonly>
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -39,7 +39,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.host') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="database_host" required>
+                    <input type="text" class="input" name="host" required>
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -47,7 +47,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.database') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="database_db" required>
+                    <input type="text" class="input" name="database" required>
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -55,7 +55,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.username') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="database_username" required>
+                    <input type="text" class="input" name="db_username" required>
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -63,7 +63,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.password') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="password" class="input" name="database_password">
+                    <input type="password" class="input" name="db_password">
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">

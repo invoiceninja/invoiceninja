@@ -14,7 +14,7 @@
                     {{ ctrans('texts.driver') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <select name="smtp_driver" class="input form-select">
+                    <select name="mail_driver" class="input form-select">
                         <option value="1">SMTP</option>
                     </select>
                 </dd>
@@ -24,7 +24,7 @@
                     {{ ctrans('texts.from_name') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="email_from_name">
+                    <input type="text" class="input" name="mail_name">
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -32,7 +32,7 @@
                     {{ ctrans('texts.from_address') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="email" class="input" name="email_from_address">
+                    <input type="email" class="input" name="mail_address">
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -40,7 +40,7 @@
                     {{ ctrans('texts.username') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="smtp_username">
+                    <input type="text" class="input" name="mail_username">
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -48,7 +48,7 @@
                     {{ ctrans('texts.host') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="smtp_host">
+                    <input type="text" class="input" name="mail_host">
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -56,7 +56,7 @@
                     {{ ctrans('texts.port') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="smtp_port">
+                    <input type="text" class="input" name="mail_port">
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -64,7 +64,7 @@
                     {{ ctrans('texts.encryption') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <select name="smpt_encryption" class="input form-select">
+                    <select name="encryption" class="input form-select">
                         <option value="1">TLS</option>
                         <option value="2">SSL</option>
                     </select>
@@ -75,7 +75,7 @@
                     {{ ctrans('texts.password') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="password" class="input" name="smtp_password">
+                    <input type="password" class="input" name="mail_password">
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
