@@ -12,8 +12,6 @@ jobs:
       DB_USERNAME1: root
       DB_PASSWORD1: ninja
       DB_HOST1: '127.0.0.1'
-      DB_PORT1: ${{ job.services.mysql.ports[3306] }}
-      DB_PORT: ${{ job.services.mysql.ports[3306] }}
       DB_DATABASE: ninja
       DB_USERNAME: root
       DB_PASSWORD: ninja
