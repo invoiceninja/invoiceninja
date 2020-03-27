@@ -1,9 +1,14 @@
 @extends('portal.ninja2020.layout.clean')
 @section('meta_title', ctrans('texts.setup'))
 
+@push('head')
+    <meta name="test-db-endpoint" content="{{ url('/setup/check_db') }}">
+    <meta name="test-smtp-endpoint" content="{{ url('/setup/check_mail') }}">
+@endpush
+
 @section('body')
 <div class="container mx-auto mb-10">
-    <form action="#" method="post">
+    <form action="{{ url('/setup') }}" method="post">
         @csrf
 
         <div class="grid grid-cols-12 px-6">
@@ -22,13 +27,13 @@
                 <div class="flex justify-center mt-4">
                     <div class="flex flex-col">
                         <div class="mt-4">
-                            <input type="checkbox" class="form-checkbox" name="terms" required>
+                            <input type="checkbox" class="form-checkbox" name="terms_of_service" required>
                             <span>I agree to
                                 <a class="button-link" href="https://www.invoiceninja.com/self-hosting-terms-service/">{{ ctrans('texts.terms_of_service') }}</a>
                             </span>
                         </div>
                         <div class="mt-2">
-                            <input type="checkbox" class="form-checkbox" name="privacy" required>
+                            <input type="checkbox" class="form-checkbox" name="privacy_policy" required>
                             <span>I agree to
                                 <a class="button-link" href="https://www.invoiceninja.com/self-hosting-privacy-data-control/">{{ ctrans('texts.privacy_policy') }}</a>
                             </span>
@@ -42,3 +47,7 @@
     </form>
 </div>
 @endsection
+
+@push('footer')
+    <script src="{{ asset('js/setup/setup.js') }}"></script>
+@endpush

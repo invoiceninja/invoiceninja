@@ -19,7 +19,7 @@
                             </h3>
                             <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
                                 <p translate>
-                                    {{ ctrans('texts.invoice_unpaid') }}
+                                    {{ ctrans('texts.invoice_still_unpaid') }}
                                     <!-- This invoice is still not paid. Click the button to complete the payment. -->
                                 </p>
                             </div>

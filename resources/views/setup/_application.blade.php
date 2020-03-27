@@ -14,7 +14,7 @@
                     {{ ctrans('texts.url') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="application_url" required>
+                    <input type="text" class="input" name="url" required>
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -22,7 +22,7 @@
                     {{ ctrans('texts.https') }}
                 </dt>
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="checkbox" class="form-checkbox mr-1" name="require_https">
+                    <input type="checkbox" class="form-checkbox mr-1" name="https">
                     <span>{{ ctrans('texts.require') }}</span>
                 </dd>
             </div>
@@ -31,7 +31,7 @@
                     {{ ctrans('texts.debug') }}
                 </dt>
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="checkbox" class="form-checkbox mr-1" name="enable_debug">
+                    <input type="checkbox" class="form-checkbox mr-1" name="debug">
                     <span>{{ ctrans('texts.enable') }}</span>
                 </dd>
             </div>
@@ -40,7 +40,7 @@
                     {{ ctrans('texts.reports') }}
                 </dt>
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="checkbox" class="form-checkbox mr-1" name="enable_debug">
+                    <input type="checkbox" class="form-checkbox mr-1" name="send_logs">
                     <span>{{ ctrans('texts.send_fail_logs_to_our_server') }}</span>
                 </dd>
             </div>

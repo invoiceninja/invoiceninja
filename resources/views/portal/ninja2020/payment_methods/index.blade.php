@@ -14,7 +14,6 @@
                     <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
                         <p translate>
                             {{ ctrans('texts.list_of_payment_methods') }}
-                            <!-- List of methods available for payments. -->
                         </p>
                     </div>
                 </div>

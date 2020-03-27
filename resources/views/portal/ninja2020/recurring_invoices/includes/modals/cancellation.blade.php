@@ -22,12 +22,11 @@
             </div>
             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                 <h3 class="text-lg leading-6 font-medium text-gray-900" translate>
-                    Request Cancellation
+                    {{ ctrans('texts.request_cancellation' )}}
                 </h3>
                 <div class="mt-2">
                     <p class="text-sm leading-5 text-gray-500">
-                        Warning! You are requesting a cancellation of this service.
-                        Your service may be cancelled with no further notification to you.
+                        {{ ctrans('texts.cancellation_warning') }}
                     </p>
                 </div>
             </div>
@@ -36,12 +35,12 @@
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
                 <a href="{{ route('client.recurring_invoices.request_cancellation',['recurring_invoice' => $invoice->hashed_id]) }}"
                    class="button button-danger button-block">
-                    Confirm cancellation
+                    {{ ctrans('texts.confirm') }}
                 </a>
             </div>
             <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
                 <button @click="open = false" type="button" class="button button-secondary button-block">
-                    Cancel
+                    {{ ctrans('texts.cancel') }}
                 </button>
             </div>
         </div>

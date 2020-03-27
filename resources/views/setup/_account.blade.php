@@ -14,7 +14,7 @@
                     {{ ctrans('texts.first_name') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="user_first_name">
+                    <input type="text" class="input" name="first_name">
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -22,7 +22,7 @@
                     {{ ctrans('texts.last_name') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="user_last_name">
+                    <input type="text" class="input" name="last_name">
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -30,7 +30,7 @@
                     {{ ctrans('texts.email') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="email" class="input" name="user_email">
+                    <input type="email" class="input" name="email">
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -38,7 +38,7 @@
                     {{ ctrans('texts.password') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="password" class="input" name="user_password">
+                    <input type="password" class="input" name="password">
                 </dd>
             </div>
         </dl>
