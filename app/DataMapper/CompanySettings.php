@@ -466,7 +466,7 @@ class CompanySettings extends BaseSettings
     private static function getEntityVariableDefaults()
     {
         $variables = [
-            'client_details' => [
+            'client_details' => (object)[
                 '$client.name' => ctrans('texts.client_name'),
                 '$client.id_number' => ctrans('texts.id_number'),
                 '$client.vat_number' => ctrans('texts.vat_number'),
@@ -476,7 +476,7 @@ class CompanySettings extends BaseSettings
                 '$client.country' => ctrans('texts.country'),
                 '$client.email' => ctrans('texts.email'),
             ],
-            'company_details' => [
+            'company_details' => (object)[
                 '$company.company_name' => ctrans('texts.company_name'),
                 '$company.id_number' => ctrans('texts.id_number'),
                 '$company.vat_number' => ctrans('texts.vat_number'),
@@ -484,13 +484,13 @@ class CompanySettings extends BaseSettings
                 '$company.email' => ctrans('texts.email'),
                 '$company.phone' => ctrans('texts.phone'),
             ],
-            'company_address' => [
+            'company_address' => (object)[
                 '$company.address1' => ctrans('texts.address1'),
                 '$company.address2' => ctrans('texts.address2'),
                 '$company.city_state_postal' => ctrans('texts.city_state_postal'),
                 '$company.country' => ctrans('texts.country'),
             ],
-            'invoice_details' => [
+            'invoice_details' => (object)[
                 '$invoice.invoice_number' => ctrans('texts.invoice_number'),
                 '$invoice.po_number' => ctrans('texts.po_number'),
                 '$invoice.invoice_date' => ctrans('texts.invoice_date'),
@@ -498,7 +498,7 @@ class CompanySettings extends BaseSettings
                 '$invoice.balance_due' => ctrans('texts.balance_due'),
                 '$invoice.invoice_total' => ctrans('texts.invoice_total'),
             ],
-            'quote_details' => [
+            'quote_details' => (object)[
                 '$quote.quote_number' => ctrans('texts.quote_number'),
                 '$quote.po_number' => ctrans('texts.po_number'),
                 '$quote.quote_date' => ctrans('texts.quote_date'),
@@ -506,14 +506,14 @@ class CompanySettings extends BaseSettings
                 '$quote.balance_due' => ctrans('texts.balance_due'),
                 '$quote.quote_total' => ctrans('texts.quote_total'),
             ],
-            'credit_details' => [
+            'credit_details' => (object)[
                 '$credit.credit_number' => ctrans('texts.credit_number'),
                 '$credit.po_number' => ctrans('texts.po_number'),
                 '$credit.credit_date' => ctrans('texts.credit_date'),
                 '$credit.credit_balance' => ctrans('texts.credit_balance'),
                 '$credit.credit_amount' => ctrans('texts.credit_amount'),
             ],
-            'product_columns' => [
+            'product_columns' => (object)[
                 '$product.product_key' => ctrans('texts.product_key'),
                 '$product.notes' => ctrans('texts.notes'),
                 '$product.cost' => ctrans('texts.cost'),
@@ -522,7 +522,7 @@ class CompanySettings extends BaseSettings
                 '$product.tax_name1' => ctrans('texts.tax_name1'),
                 '$product.line_total' => ctrans('texts.line_total'),
             ],
-            'task_columns' => [
+            'task_columns' => (object)[
                 '$task.product_key' => ctrans('texts.product_key'),
                 '$task.notes' => ctrans('texts.notes'),
                 '$task.cost' => ctrans('texts.cost'),
