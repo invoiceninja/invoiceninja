@@ -32,8 +32,6 @@ class StoreSetupRequest extends Request
         return [
           /*System*/
           'url' => 'required',
-          'debug' => 'required',
-          'https' => 'required',
           /*Database*/
           'host' => 'required',
           'database' => 'required',

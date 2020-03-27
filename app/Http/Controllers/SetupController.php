@@ -90,7 +90,7 @@ class SetupController extends Controller
             $account = CreateAccount::dispatchNow($request->all());
         }
         
-        return view('index.index');
+        return redirect('/');
     }
 
     /**
