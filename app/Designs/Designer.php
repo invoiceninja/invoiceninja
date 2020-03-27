@@ -89,30 +89,22 @@ class Designer
 
     public function getIncludes()
     {
-        $this->setDesign($this->getSection('includes'));
-
-        return $this;
+        return $this->getSection('includes');
     }
 
     public function getHeader()
     {
-        $this->setDesign($this->getSection('header'));
-
-        return $this;
+        return $this->getSection('header');
     }
 
     public function getFooter()
     {
-        $this->setDesign($this->getSection('footer'));
-
-        return $this;
+        return $this->getSection('footer');
     }
 
     public function getBody()
     {
-        $this->setDesign($this->getSection('body'));
-        
-        return $this;
+        return $this->getSection('body');
     }
 
     public function getHtml():string
@@ -147,7 +139,7 @@ class Designer
     }
 
     private function exportVariables()
-    {
+    {$s = microtime(true);
         $company = $this->entity->company;
         
         $this->exported_variables['$app_url']			= $this->entity->generateAppUrl();
@@ -178,7 +170,7 @@ class Designer
         if (strlen($this->exported_variables['$product_table_body']) == 0) {
             $this->exported_variables['$product_table_header'] = '';
         }
-        
+        \Log::error("Exporting variables took = ".(microtime(true)-$s));
         return $this;
     }
 
@@ -186,8 +178,10 @@ class Designer
     {
         $output = '';
 
-        foreach (array_keys($input_variables) as $value) {
-            $output .= $variables[$value];
+        foreach (array_values($input_variables) as $value) {
+
+            if(array_key_exists($value, $variables))
+                $output .= $variables[$value];
         }
 
         return $output;
@@ -198,9 +192,13 @@ class Designer
         $output = '';
 
         foreach (array_keys($input_variables) as $value) {
-            $tmp = str_replace("</span>", "_label</span>", $variables[$value]);
-            //$output .= $variables[$value];
-            $output .= $tmp;
+
+            if(array_key_exists($value, $variables)){
+                $tmp = str_replace("</span>", "_label</span>", $variables[$value]);
+            
+                $output .= $tmp;
+            }
+            
         }
 
         return $output;
@@ -217,15 +215,15 @@ class Designer
             '$client.city_state_postal' => '<p>$client.city_state_postal</p>',
             '$client.postal_city_state' => '<p>$client.postal_city_state</p>',
             '$client.country'           => '<p>$client.country</p>',
-            '$client.email'             => '<p>$client.email</p>',
-            '$client.client1'           => '<p>$client1</p>',
-            '$client.client2'           => '<p>$client2</p>',
-            '$client.client3'           => '<p>$client3</p>',
-            '$client.client4'           => '<p>$client4</p>',
-            '$client.contact1'          => '<p>$contact1</p>',
-            '$client.contact2'          => '<p>$contact2</p>',
-            '$client.contact3'          => '<p>$contact3</p>',
-            '$client.contact4'          => '<p>$contact4</p>',
+            '$contact.email'             => '<p>$client.email</p>',
+            '$client.custom1'           => '<p>$client.custom1</p>',
+            '$client.custom2'           => '<p>$client.custom2</p>',
+            '$client.custom3'           => '<p>$client.custom3</p>',
+            '$client.custom4'           => '<p>$client.custom4</p>',
+            '$contact.contact1'          => '<p>$contact.custom1</p>',
+            '$contact.contact2'          => '<p>$contact.custom2</p>',
+            '$contact.contact3'          => '<p>$contact.custom3</p>',
+            '$contact.contact4'          => '<p>$contact.custom4</p>',
         ];
 
         return $this->processCustomFields($company, $data);

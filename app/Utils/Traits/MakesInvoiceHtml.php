@@ -45,13 +45,18 @@ trait MakesInvoiceHtml
         $labels = $entity->makeLabels();
         $values = $entity->makeValues($contact);
 
+        $designer->build();
+
+$s = microtime(true);
         $data = [];
         $data['entity'] = $entity;
         $data['lang'] = $client->preferredLocale();
-        $data['includes'] = $designer->init()->getIncludes()->getHtml();
-        $data['header'] = $designer->init()->getHeader()->getHtml();
-        $data['body'] = $designer->init()->getBody()->getHtml();
-        $data['footer'] = $designer->init()->getFooter()->getHtml();
+        $data['includes'] = $designer->getIncludes();
+        $data['header'] = $designer->getHeader();
+        $data['body'] = $designer->getBody();
+        $data['footer'] = $designer->getFooter();
+
+\Log::error("Building Data Blobs took = ".(microtime(true) - $s));
 
         $html = view('pdf.stub', $data)->render();
         
