@@ -139,7 +139,8 @@ class Designer
     }
 
     private function exportVariables()
-    {$s = microtime(true);
+    {
+        $s = microtime(true);
         $company = $this->entity->company;
         
         $this->exported_variables['$app_url']			= $this->entity->generateAppUrl();
@@ -179,9 +180,9 @@ class Designer
         $output = '';
 
         foreach (array_values($input_variables) as $value) {
-
-            if(array_key_exists($value, $variables))
+            if (array_key_exists($value, $variables)) {
                 $output .= $variables[$value];
+            }
         }
 
         return $output;
@@ -192,13 +193,11 @@ class Designer
         $output = '';
 
         foreach (array_keys($input_variables) as $value) {
-
-            if(array_key_exists($value, $variables)){
+            if (array_key_exists($value, $variables)) {
                 $tmp = str_replace("</span>", "_label</span>", $variables[$value]);
             
                 $output .= $tmp;
             }
-            
         }
 
         return $output;

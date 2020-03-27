@@ -88,7 +88,7 @@ class CreateQuotePdf implements ShouldQueue
 
         $quote_number = $this->quote->number;
 
-        $design_body = $designer->build()->getHtml();    
+        $design_body = $designer->build()->getHtml();
 
         $html = $this->generateEntityHtml($designer, $this->quote, $this->contact);
 

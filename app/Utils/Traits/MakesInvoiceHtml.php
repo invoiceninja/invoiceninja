@@ -47,7 +47,6 @@ trait MakesInvoiceHtml
 
         $designer->build();
 
-$s = microtime(true);
         $data = [];
         $data['entity'] = $entity;
         $data['lang'] = $client->preferredLocale();
@@ -55,8 +54,6 @@ $s = microtime(true);
         $data['header'] = $designer->getHeader();
         $data['body'] = $designer->getBody();
         $data['footer'] = $designer->getFooter();
-
-\Log::error("Building Data Blobs took = ".(microtime(true) - $s));
 
         $html = view('pdf.stub', $data)->render();
         
