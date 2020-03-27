@@ -11,6 +11,7 @@
 
 namespace App\Utils;
 
+use App\Http\Requests\Setup\CheckDatabaseRequest;
 use App\Libraries\MultiDB;
 use App\Mail\TestMailServer;
 use Illuminate\Support\Facades\DB;
@@ -72,17 +73,29 @@ class SystemHealth
         return $loaded_extensions;
     }
 
-    private static function dbCheck() :array
+    public static function dbCheck($request = null): array
     {
-        $result = [];
+        $result = ['success' => false];
+
+        if ($request && $request instanceof CheckDatabaseRequest) {
+            config(['database.connections.db-ninja-01.host'=> $request->input('host')]);
+            config(['database.connections.db-ninja-01.database'=> $request->input('database')]);
+            config(['database.connections.db-ninja-01.username'=> $request->input('username')]);
+            config(['database.connections.db-ninja-01.password'=> $request->input('password')]);
+            config(['database.default' => 'db-ninja-01']);
+            
+            DB::purge('db-ninja-01');
+        }
 
         if (! config('ninja.db.multi_db_enabled')) {
             $pdo = DB::connection()->getPdo();
 
             if ($pdo) {
                 $result[] = [ DB::connection()->getDatabaseName() => true ];
+                $result['success'] = true;
             } else {
                 $result[] = [ config('database.connections.' . config('database.default') . '.database') => false ];
+                $result['success'] = false;
             }
         } else {
             foreach (MultiDB::$dbs as $db) {
@@ -92,8 +105,10 @@ class SystemHealth
                             
                 if ($pdo) {
                     $result[] = [ DB::connection()->getDatabaseName() => true ];
+                    $result['success'] = true;
                 } else {
                     $result[] = [ config('database.connections.' . config('database.default') . '.database') => false ];
+                    $result['success'] = false;
                 }
             }
         }
