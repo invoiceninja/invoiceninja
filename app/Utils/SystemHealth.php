@@ -12,6 +12,7 @@
 namespace App\Utils;
 
 use App\Http\Requests\Setup\CheckDatabaseRequest;
+use App\Http\Requests\Setup\CheckMailRequest;
 use App\Libraries\MultiDB;
 use App\Mail\TestMailServer;
 use Illuminate\Support\Facades\DB;
@@ -119,8 +120,19 @@ class SystemHealth
         return DB::connection()->getPdo();
     }
 
-    private static function testMailServer()
+    public static function testMailServer($request = null)
     {
+        if ($request && $request instanceof CheckMailRequest) {
+            config(['mail.driver' => $request->input('driver')]);
+            config(['mail.host' => $request->input('host')]);
+            config(['mail.port' => $request->input('port')]);
+            config(['mail.from.address' => $request->input('from_address')]);
+            config(['mail.from.name' => $request->input('from_name')]);
+            config(['mail.encryption' => $request->input('encryption')]);
+            config(['mail.username' => $request->input('username')]);
+            config(['mail.password' => $request->input('password')]);
+        }
+
         try {
             Mail::to(config('mail.from.address'))
             ->send(new TestMailServer('Email Server Works!', config('mail.from.address')));

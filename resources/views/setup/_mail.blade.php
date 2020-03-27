@@ -15,7 +15,9 @@
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     <select name="mail_driver" class="input form-select">
-                        <option value="1">SMTP</option>
+                        <option value="smtp">SMTP</option>
+                        <option value="mail">Mail</option>
+                        <option value="sendmail">Sendmail</option>
                     </select>
                 </dd>
             </div>
@@ -65,8 +67,8 @@
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     <select name="encryption" class="input form-select">
-                        <option value="1">TLS</option>
-                        <option value="2">SSL</option>
+                        <option value="tls">TLS</option>
+                        <option value="ssl">SSL</option>
                     </select>
                 </dd>
             </div>
@@ -81,7 +83,7 @@
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
                 <dt class="text-sm leading-5 font-medium text-gray-500">
                     <button type="button" class="button button-primary py-2 px-3 text-xs" id="test-smtp-connection">
-                        {{ ctrans('texts.test_connection') }}
+                        {{ ctrans('texts.send_test_email') }}
                     </button>
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
