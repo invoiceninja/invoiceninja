@@ -83,17 +83,16 @@ class SystemHealth
             config(['database.connections.db-ninja-01.username'=> $request->input('username')]);
             config(['database.connections.db-ninja-01.password'=> $request->input('password')]);
             config(['database.default' => 'db-ninja-01']);
-            
+
             DB::purge('db-ninja-01');
         }
 
         if (! config('ninja.db.multi_db_enabled')) {
-            $pdo = DB::connection()->getPdo();
-
-            if ($pdo) {
+            try {
+                $pdo = DB::connection()->getPdo();
                 $result[] = [ DB::connection()->getDatabaseName() => true ];
                 $result['success'] = true;
-            } else {
+            } catch (\Exception $e) {
                 $result[] = [ config('database.connections.' . config('database.default') . '.database') => false ];
                 $result['success'] = false;
             }
@@ -101,12 +100,11 @@ class SystemHealth
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                $pdo = DB::connection()->getPdo();
-                            
-                if ($pdo) {
+                try {
+                    $pdo = DB::connection()->getPdo();
                     $result[] = [ DB::connection()->getDatabaseName() => true ];
                     $result['success'] = true;
-                } else {
+                } catch (\Exception $e) {
                     $result[] = [ config('database.connections.' . config('database.default') . '.database') => false ];
                     $result['success'] = false;
                 }

@@ -106,7 +106,7 @@ class SetupController extends Controller
 
         info($status);
 
-        if (gettype($status) == 'array' && $status['success'] = true) {
+        if (gettype($status) == 'array' && $status['success'] === true) {
             return response([], 200);
         }
 
