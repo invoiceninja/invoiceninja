@@ -140,7 +140,7 @@ class Designer
 
     private function exportVariables()
     {
-        $s = microtime(true);
+        //$s = microtime(true);
         $company = $this->entity->company;
         
         $this->exported_variables['$app_url']			= $this->entity->generateAppUrl();
@@ -171,7 +171,7 @@ class Designer
         if (strlen($this->exported_variables['$product_table_body']) == 0) {
             $this->exported_variables['$product_table_header'] = '';
         }
-        \Log::error("Exporting variables took = ".(microtime(true)-$s));
+        //\Log::error("Exporting variables took = ".(microtime(true)-$s));
         return $this;
     }
 
@@ -266,21 +266,21 @@ class Designer
     private function invoiceDetails(Company $company)
     {
         $data = [
-            '$invoice.invoice_number' => '<span>$invoice.number_label</span><span>$invoice.number</span>',
-            '$invoice.po_number'      => '<span>$invoice.po_number_label</span><span>$invoice.po_number</span>',
-            '$invoice.invoice_date'   => '<span>$invoice.date_label</span><span>$invoice.date</span>',
-            '$invoice.due_date'       => '<span>$invoice.due_date_label</span><span>$invoice.due_date</span>',
-            '$invoice.balance_due'    => '<span>$invoice.balance_due_label</span><span>$invoice.balance_due</span>',
-            '$invoice.invoice_total'  => '<span>$invoice.total_label</span><span>$invoice.total</span>',
-            '$invoice.partial_due'    => '<span>$invoice.partial_due_label</span><span>$invoice.partial_due</span>',
-            '$invoice.invoice1'       => '<span>$invoice1_label</span><span>$invoice1</span>',
-            '$invoice.invoice2'       => '<span>$invoice2_label</span><span>$invoice2</span>',
-            '$invoice.invoice3'       => '<span>$invoice3_label</span><span>$invoice3</span>',
-            '$invoice.invoice4'       => '<span>$invoice4_label</span><span>$invoice4</span>',
-            '$invoice.surcharge1'     => '<span>$surcharge1_label</span><span>$surcharge1</span>',
-            '$invoice.surcharge2'     => '<span>$surcharge2_label</span><span>$surcharge2</span>',
-            '$invoice.surcharge3'     => '<span>$surcharge3_label</span><span>$surcharge3</span>',
-            '$invoice.surcharge4'     => '<span>$surcharge4_label</span><span>$surcharge4</span>',
+            '$invoice.number'           => '<span>$invoice.number_label: $invoice.number</span>',
+            '$invoice.po_number'        => '<span>$invoice.po_number_label: $invoice.po_number</span>',
+            '$invoice.date'             => '<span>$invoice.date_label: $invoice.date</span>',
+            '$invoice.due_date'         => '<span>$invoice.due_date_label: $invoice.due_date</span>',
+            '$invoice.balance_due'      => '<span>$invoice.balance_due_label: $invoice.balance_due</span>',
+            '$invoice.total'            => '<span>$invoice.total_label: $invoice.total</span>',
+            '$invoice.partial_due'      => '<span>$invoice.partial_due_label: $invoice.partial_due</span>',
+            '$invoice.custom1'          => '<span>$invoice1_label: $invoice.custom1</span>',
+            '$invoice.custom2'          => '<span>$invoice2_label: $invoice.custom2</span>',
+            '$invoice.custom3'          => '<span>$invoice3_label: $invoice.custom3</span>',
+            '$invoice.custom4'          => '<span>$invoice4_label: $invoice.custom4</span>',
+            '$surcharge1'               => '<span>$surcharge1_label: $surcharge1</span>',
+            '$surcharge2'               => '<span>$surcharge2_label: $surcharge2</span>',
+            '$surcharge3'               => '<span>$surcharge3_label: $surcharge3</span>',
+            '$surcharge4'               => '<span>$surcharge4_label: $surcharge4</span>',
         ];
 
         return $this->processCustomFields($company, $data);

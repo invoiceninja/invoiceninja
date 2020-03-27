@@ -380,7 +380,7 @@ trait MakesInvoiceValues
         $table_header = '<tr>';
 
         foreach ($columns as $key => $column) {
-            $table_header .= '<td class="table_header_td_class">' . $key . '_label</td>';
+            $table_header .= '<td class="table_header_td_class">' . $column . '_label</td>';
         }
         
         $table_header .= '</tr>';
@@ -418,7 +418,7 @@ trait MakesInvoiceValues
             $table_row = '<tr>';
 
             foreach ($default_columns as $key => $column) {
-                $table_row .= '<td class="table_header_td_class">' . $key . '</td>';
+                $table_row .= '<td class="table_header_td_class">' . $column . '</td>';
             }
             
             $table_row .= '</tr>';
