@@ -45,13 +45,13 @@ class ImportTest extends TestCase
         $this->migration_array = json_decode(file_get_contents($migration_file), 1);
     }
 
-//     public function testImportClassExists()
-//     {
-//         $status = class_exists('App\Jobs\Util\Import');
+    public function testImportClassExists()
+    {
+        $status = class_exists('App\Jobs\Util\Import');
 
-//         $this->assertTrue($status);
+        $this->assertTrue($status);
 
-//     }
+    }
 
 //     public function testExceptionOnUnavailableResource()
 //     {

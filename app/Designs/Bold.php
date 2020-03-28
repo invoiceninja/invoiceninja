@@ -60,10 +60,7 @@ class Bold extends AbstractDesign
     </div>
     <div class="w-1/2">
         <div class="w-full bg-teal-600 px-5 py-3 text-white flex">
-            <div class="w-48 flex flex-col text-white">
-                $entity_labels
-            </div>
-            <div class="w-32 flex flex-col text-white">
+            <div class="w-80 flex flex-col text-white">
                 $entity_details
             </div>
         </div>
