@@ -9,7 +9,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Storage;
 
-class DeleteCompanyDocuments implements ShouldQueue
+class DeleteCompanyDocuments
 {
     /**
      * Create the event listener.
