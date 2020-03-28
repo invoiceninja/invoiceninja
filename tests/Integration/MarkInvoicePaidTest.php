@@ -2,7 +2,6 @@
 
 namespace Tests\Integration;
 
-use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Invoice;
@@ -15,7 +14,6 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Services\Invoice\MarkInvoicePaid
  */
 class MarkInvoicePaidTest extends TestCase
 {

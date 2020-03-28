@@ -89,30 +89,22 @@ class Designer
 
     public function getIncludes()
     {
-        $this->setDesign($this->getSection('includes'));
-
-        return $this;
+        return $this->getSection('includes');
     }
 
     public function getHeader()
     {
-        $this->setDesign($this->getSection('header'));
-
-        return $this;
+        return $this->getSection('header');
     }
 
     public function getFooter()
     {
-        $this->setDesign($this->getSection('footer'));
-
-        return $this;
+        return $this->getSection('footer');
     }
 
     public function getBody()
     {
-        $this->setDesign($this->getSection('body'));
-        
-        return $this;
+        return $this->getSection('body');
     }
 
     public function getHtml():string
@@ -148,6 +140,7 @@ class Designer
 
     private function exportVariables()
     {
+        //$s = microtime(true);
         $company = $this->entity->company;
         
         $this->exported_variables['$app_url']			= $this->entity->generateAppUrl();
@@ -178,7 +171,7 @@ class Designer
         if (strlen($this->exported_variables['$product_table_body']) == 0) {
             $this->exported_variables['$product_table_header'] = '';
         }
-        
+        //\Log::error("Exporting variables took = ".(microtime(true)-$s));
         return $this;
     }
 
@@ -186,8 +179,10 @@ class Designer
     {
         $output = '';
 
-        foreach (array_keys($input_variables) as $value) {
-            $output .= $variables[$value];
+        foreach (array_values($input_variables) as $value) {
+            if (array_key_exists($value, $variables)) {
+                $output .= $variables[$value];
+            }
         }
 
         return $output;
@@ -198,9 +193,11 @@ class Designer
         $output = '';
 
         foreach (array_keys($input_variables) as $value) {
-            $tmp = str_replace("</span>", "_label</span>", $variables[$value]);
-            //$output .= $variables[$value];
-            $output .= $tmp;
+            if (array_key_exists($value, $variables)) {
+                $tmp = str_replace("</span>", "_label</span>", $variables[$value]);
+            
+                $output .= $tmp;
+            }
         }
 
         return $output;
@@ -217,15 +214,15 @@ class Designer
             '$client.city_state_postal' => '<p>$client.city_state_postal</p>',
             '$client.postal_city_state' => '<p>$client.postal_city_state</p>',
             '$client.country'           => '<p>$client.country</p>',
-            '$client.email'             => '<p>$client.email</p>',
-            '$client.client1'           => '<p>$client1</p>',
-            '$client.client2'           => '<p>$client2</p>',
-            '$client.client3'           => '<p>$client3</p>',
-            '$client.client4'           => '<p>$client4</p>',
-            '$client.contact1'          => '<p>$contact1</p>',
-            '$client.contact2'          => '<p>$contact2</p>',
-            '$client.contact3'          => '<p>$contact3</p>',
-            '$client.contact4'          => '<p>$contact4</p>',
+            '$contact.email'             => '<p>$client.email</p>',
+            '$client.custom1'           => '<p>$client.custom1</p>',
+            '$client.custom2'           => '<p>$client.custom2</p>',
+            '$client.custom3'           => '<p>$client.custom3</p>',
+            '$client.custom4'           => '<p>$client.custom4</p>',
+            '$contact.contact1'          => '<p>$contact.custom1</p>',
+            '$contact.contact2'          => '<p>$contact.custom2</p>',
+            '$contact.contact3'          => '<p>$contact.custom3</p>',
+            '$contact.contact4'          => '<p>$contact.custom4</p>',
         ];
 
         return $this->processCustomFields($company, $data);
@@ -269,21 +266,21 @@ class Designer
     private function invoiceDetails(Company $company)
     {
         $data = [
-            '$invoice.invoice_number' => '<span>$invoice.number_label</span><span>$invoice.number</span>',
-            '$invoice.po_number'      => '<span>$invoice.po_number_label</span><span>$invoice.po_number</span>',
-            '$invoice.invoice_date'   => '<span>$invoice.date_label</span><span>$invoice.date</span>',
-            '$invoice.due_date'       => '<span>$invoice.due_date_label</span><span>$invoice.due_date</span>',
-            '$invoice.balance_due'    => '<span>$invoice.balance_due_label</span><span>$invoice.balance_due</span>',
-            '$invoice.invoice_total'  => '<span>$invoice.total_label</span><span>$invoice.total</span>',
-            '$invoice.partial_due'    => '<span>$invoice.partial_due_label</span><span>$invoice.partial_due</span>',
-            '$invoice.invoice1'       => '<span>$invoice1_label</span><span>$invoice1</span>',
-            '$invoice.invoice2'       => '<span>$invoice2_label</span><span>$invoice2</span>',
-            '$invoice.invoice3'       => '<span>$invoice3_label</span><span>$invoice3</span>',
-            '$invoice.invoice4'       => '<span>$invoice4_label</span><span>$invoice4</span>',
-            '$invoice.surcharge1'     => '<span>$surcharge1_label</span><span>$surcharge1</span>',
-            '$invoice.surcharge2'     => '<span>$surcharge2_label</span><span>$surcharge2</span>',
-            '$invoice.surcharge3'     => '<span>$surcharge3_label</span><span>$surcharge3</span>',
-            '$invoice.surcharge4'     => '<span>$surcharge4_label</span><span>$surcharge4</span>',
+            '$invoice.number'           => '<span>$invoice.number_label: $invoice.number</span>',
+            '$invoice.po_number'        => '<span>$invoice.po_number_label: $invoice.po_number</span>',
+            '$invoice.date'             => '<span>$invoice.date_label: $invoice.date</span>',
+            '$invoice.due_date'         => '<span>$invoice.due_date_label: $invoice.due_date</span>',
+            '$invoice.balance_due'      => '<span>$invoice.balance_due_label: $invoice.balance_due</span>',
+            '$invoice.total'            => '<span>$invoice.total_label: $invoice.total</span>',
+            '$invoice.partial_due'      => '<span>$invoice.partial_due_label: $invoice.partial_due</span>',
+            '$invoice.custom1'          => '<span>$invoice1_label: $invoice.custom1</span>',
+            '$invoice.custom2'          => '<span>$invoice2_label: $invoice.custom2</span>',
+            '$invoice.custom3'          => '<span>$invoice3_label: $invoice.custom3</span>',
+            '$invoice.custom4'          => '<span>$invoice4_label: $invoice.custom4</span>',
+            '$surcharge1'               => '<span>$surcharge1_label: $surcharge1</span>',
+            '$surcharge2'               => '<span>$surcharge2_label: $surcharge2</span>',
+            '$surcharge3'               => '<span>$surcharge3_label: $surcharge3</span>',
+            '$surcharge4'               => '<span>$surcharge4_label: $surcharge4</span>',
         ];
 
         return $this->processCustomFields($company, $data);

@@ -99,14 +99,15 @@ class SetupController extends Controller
      */
     public function checkDB(): Response
     {
-        if (Account::count() == 0) {}
+        if (Account::count() == 0) {
+        }
 
         // test db - > /setup/check_db (POST) please send array of DB variables - response 200/success or 400 [message]
         // test mail -> /setup/check_mail (POST) please send array of MAIL xvariables - response 200/success or 400 [message]
 
         $randomStatus = rand(0, 1);
 
-        if($randomStatus) {
+        if ($randomStatus) {
             return response([], 200);
         }
 
@@ -120,14 +121,15 @@ class SetupController extends Controller
      */
     public function checkMail(): Response
     {
-        if (Account::count() == 0) {}
+        if (Account::count() == 0) {
+        }
 
         // test db - > /setup/check_db (POST) please send array of DB variables - response 200/success or 400 [message]
         // test mail -> /setup/check_mail (POST) please send array of MAIL variables - response 200/success or 400 [message]
 
         $randomStatus = rand(0, 1);
 
-        if($randomStatus) {
+        if ($randomStatus) {
             return response([], 200);
         }
 
