@@ -57,7 +57,7 @@ class SendEmailRequest extends Request
     public function message()
     {
         return [
-            'template' => 'Invalid template',
+            'template' => 'Invalid template.',
         ];
     }
 

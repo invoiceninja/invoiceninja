@@ -158,6 +158,10 @@ class Designer
             //$this->exported_variables['$entity_labels']  = $this->processLabels($this->input_variables['quote_details'], $this->quoteDetails($company));
             $this->exported_variables['$entity_details'] = $this->processVariables($this->input_variables['quote_details'], $this->quoteDetails($company));
         }
+        else {
+            $this->exported_variables['$entity_details'] = $this->processVariables($this->input_variables['invoice_details'], $this->quoteDetails($company));
+        }
+
 
         $this->exported_variables['$product_table_header']= $this->entity->buildTableHeader($this->input_variables['product_columns']);
         $this->exported_variables['$product_table_body']  = $this->entity->buildTableBody($this->input_variables['product_columns'], $this->design->product, '$product');
@@ -265,22 +269,23 @@ class Designer
 
     private function invoiceDetails(Company $company)
     {
+
         $data = [
-            '$invoice.number'           => '<span class="flex content-between flex-wrap">$invoice.number_label: $invoice.number</span>',
-            '$invoice.po_number'        => '<span class="flex content-between flex-wrap">$invoice.po_number_label: $invoice.po_number</span>',
-            '$invoice.date'             => '<span class="flex content-between flex-wrap">$invoice.date_label: $invoice.date</span>',
-            '$invoice.due_date'         => '<span class="flex content-between flex-wrap">$invoice.due_date_label: $invoice.due_date</span>',
-            '$invoice.balance_due'      => '<span class="flex content-between flex-wrap">$invoice.balance_due_label: $invoice.balance_due</span>',
-            '$invoice.total'            => '<span class="flex content-between flex-wrap">$invoice.total_label: $invoice.total</span>',
-            '$invoice.partial_due'      => '<span class="flex content-between flex-wrap">$invoice.partial_due_label: $invoice.partial_due</span>',
-            '$invoice.custom1'          => '<span class="flex content-between flex-wrap">$invoice1_label: $invoice.custom1</span>',
-            '$invoice.custom2'          => '<span class="flex content-between flex-wrap">$invoice2_label: $invoice.custom2</span>',
-            '$invoice.custom3'          => '<span class="flex content-between flex-wrap">$invoice3_label: $invoice.custom3</span>',
-            '$invoice.custom4'          => '<span class="flex content-between flex-wrap">$invoice4_label: $invoice.custom4</span>',
-            '$surcharge1'               => '<span class="flex content-between flex-wrap">$surcharge1_label: $surcharge1</span>',
-            '$surcharge2'               => '<span class="flex content-between flex-wrap">$surcharge2_label: $surcharge2</span>',
-            '$surcharge3'               => '<span class="flex content-between flex-wrap">$surcharge3_label: $surcharge3</span>',
-            '$surcharge4'               => '<span class="flex content-between flex-wrap">$surcharge4_label: $surcharge4</span>',
+            '$invoice.number'           => '<span class="flex justify-between items-center"><span>$invoice.number_label:</span><span> $invoice.number</span></span>',
+            '$invoice.po_number'        => '<span class="flex justify-between items-center"><span>$invoice.po_number_label:</span><span> $invoice.po_number</span></span>',
+            '$invoice.date'             => '<span class="flex justify-between items-center"><span>$invoice.date_label:</span><span> $invoice.date</span></span>',
+            '$invoice.due_date'         => '<span class="flex justify-between items-center"><span>$invoice.due_date_label:</span><span> $invoice.due_date</span></span>',
+            '$invoice.balance_due'      => '<span class="flex justify-between items-center"><span>$invoice.balance_due_label:</span><span> $invoice.balance_due</span></span>',
+            '$invoice.total'            => '<span class="flex justify-between items-center"><span>$invoice.total_label:</span><span> $invoice.total</span></span>',
+            '$invoice.partial_due'      => '<span class="flex justify-between items-center"><span>$invoice.partial_due_label:</span><span> $invoice.partial_due</span></span>',
+            '$invoice.custom1'          => '<span class="flex justify-between items-center"><span>$invoice1_label:</span><span> $invoice.custom1</span></span>',
+            '$invoice.custom2'          => '<span class="flex justify-between items-center"><span>$invoice2_label:</span><span> $invoice.custom2</span></span>',
+            '$invoice.custom3'          => '<span class="flex justify-between items-center"><span>$invoice3_label:</span><span> $invoice.custom3</span></span>',
+            '$invoice.custom4'          => '<span class="flex justify-between items-center"><span>$invoice4_label:</span><span> $invoice.custom4</span></span>',
+            '$surcharge1'               => '<span class="flex justify-between items-center"><span>$surcharge1_label:</span><span> $surcharge1</span></span>',
+            '$surcharge2'               => '<span class="flex justify-between items-center"><span>$surcharge2_label:</span><span> $surcharge2</span></span>',
+            '$surcharge3'               => '<span class="flex justify-between items-center"><span>$surcharge3_label:</span><span> $surcharge3</span></span>',
+            '$surcharge4'               => '<span class="flex justify-between items-center"><span>$surcharge4_label:</span><span> $surcharge4</span></span>',
         ];
 
         return $this->processCustomFields($company, $data);
@@ -289,21 +294,21 @@ class Designer
     private function quoteDetails(Company $company)
     {
         $data = [
-            '$quote.quote_number' 	=> '<span class="flex content-between flex-wrap">$quote.number_label: $quote.number</span>',
-            '$quote.po_number'      => '<span class="flex content-between flex-wrap">$quote.po_number_label: $quote.po_number</span>',
-            '$quote.quote_date'     => '<span class="flex content-between flex-wrap">$quote.date_label: $quote.date</span>',
-            '$quote.valid_until'    => '<span class="flex content-between flex-wrap">$quote.valid_until_label: $quote.valid_until</span>',
-            '$quote.balance_due'    => '<span class="flex content-between flex-wrap">$quote.balance_due_label: $quote.balance_due</span>',
-            '$quote.quote_total'  	=> '<span class="flex content-between flex-wrap">$quote.total_label: $quote.total</span>',
-            '$quote.partial_due'    => '<span class="flex content-between flex-wrap">$quote.partial_due_label: $quote.partial_due</span>',
-            '$quote.custom1'       	=> '<span class="flex content-between flex-wrap">$quote.custom1_label: $quote.custom1</span>',
-            '$quote.custom2'       	=> '<span class="flex content-between flex-wrap">$quote.custom2_label: $quote.custom2</span>',
-            '$quote.custom3'       	=> '<span class="flex content-between flex-wrap">$quote.custom3_label: $quote.custom3</span>',
-            '$quote.custom4'        => '<span class="flex content-between flex-wrap">$quote.custom4_label: $quote.custom4</span>',
-            '$quote.surcharge1'     => '<span class="flex content-between flex-wrap">$surcharge1_label: $surcharge1</span>',
-            '$quote.surcharge2'     => '<span class="flex content-between flex-wrap">$surcharge2_label: $surcharge2</span>',
-            '$quote.surcharge3'     => '<span class="flex content-between flex-wrap">$surcharge3_label: $surcharge3</span>',
-            '$quote.surcharge4'     => '<span class="flex content-between flex-wrap">$surcharge4_label: $surcharge4</span>',
+            '$quote.quote_number' 	=> '<span class="flex justify-between items-center"><span>$quote.number_label:</span><span> $quote.number</span></span>',
+            '$quote.po_number'      => '<span class="flex justify-between items-center"><span>$quote.po_number_label:</span><span> $quote.po_number</span></span>',
+            '$quote.quote_date'     => '<span class="flex justify-between items-center"><span>$quote.date_label:</span><span> $quote.date</span></span>',
+            '$quote.valid_until'    => '<span class="flex justify-between items-center"><span>$quote.valid_until_label:</span><span> $quote.valid_until</span></span>',
+            '$quote.balance_due'    => '<span class="flex justify-between items-center"><span>$quote.balance_due_label:</span><span> $quote.balance_due</span></span>',
+            '$quote.quote_total'  	=> '<span class="flex justify-between items-center"><span>$quote.total_label:</span><span> $quote.total</span></span>',
+            '$quote.partial_due'    => '<span class="flex justify-between items-center"><span>$quote.partial_due_label:</span><span> $quote.partial_due</span></span>',
+            '$quote.custom1'       	=> '<span class="flex justify-between items-center"><span>$quote.custom1_label:</span><span> $quote.custom1</span></span>',
+            '$quote.custom2'       	=> '<span class="flex justify-between items-center"><span>$quote.custom2_label:</span><span> $quote.custom2</span></span>',
+            '$quote.custom3'       	=> '<span class="flex justify-between items-center"><span>$quote.custom3_label:</span><span> $quote.custom3</span></span>',
+            '$quote.custom4'        => '<span class="flex justify-between items-center"><span>$quote.custom4_label:</span><span> $quote.custom4</span></span>',
+            '$quote.surcharge1'     => '<span class="flex justify-between items-center"><span>$surcharge1_label:</span><span> $surcharge1</span></span>',
+            '$quote.surcharge2'     => '<span class="flex justify-between items-center"><span>$surcharge2_label:</span><span> $surcharge2</span></span>',
+            '$quote.surcharge3'     => '<span class="flex justify-between items-center"><span>$surcharge3_label:</span><span> $surcharge3</span></span>',
+            '$quote.surcharge4'     => '<span class="flex justify-between items-center"><span>$surcharge4_label:</span><span> $surcharge4</span></span>',
         ];
 
         return $this->processCustomFields($company, $data);
@@ -312,20 +317,20 @@ class Designer
     private function creditDetails(Company $company)
     {
         $data = [
-            '$credit.credit_number'  => '<span>$credit.number</span>',
-            '$credit.po_number'      => '<span>$credit.po_number</span>',
-            '$credit.credit_date'    => '<span>$credit.date</span>',
-            '$credit.credit_balance' => '<span>$credit.balance</span>',
-            '$credit.credit_amount'  => '<span>$credit.amount</span>',
-            '$credit.partial_due'    => '<span>$credit.partial_due</span>',
-            '$credit.custom1'        => '<span>$credit.custom1</span>',
-            '$credit.custom2'        => '<span>$credit.custom2</span>',
-            '$credit.custom3'        => '<span>$credit.custom3</span>',
-            '$credit.custom4'        => '<span>$credit.custom4</span>',
-            '$credit.surcharge1'     => '<span>$surcharge1_label: $surcharge1</span>',
-            '$credit.surcharge2'     => '<span>$surcharge2_label: $surcharge2</span>',
-            '$credit.surcharge3'     => '<span>$surcharge3_label: $surcharge3</span>',
-            '$credit.surcharge4'     => '<span>$surcharge4_label: $surcharge4</span>',
+            '$credit.credit_number'  => '<span class="flex justify-between items-center">$credit.number_label<span></span><span>$credit.number</span></span>',
+            '$credit.po_number'      => '<span class="flex justify-between items-center">$credit.po_number_label<span></span><span>$credit.po_number</span></span>',
+            '$credit.credit_date'    => '<span class="flex justify-between items-center">$credit.date_label<span></span><span>$credit.date</span></span>',
+            '$credit.credit_balance' => '<span class="flex justify-between items-center">$credit.balance_label<span></span><span>$credit.balance</span></span>',
+            '$credit.credit_amount'  => '<span class="flex justify-between items-center">$credit.amount_label<span></span><span>$credit.amount</span></span>',
+            '$credit.partial_due'    => '<span class="flex justify-between items-center">$credit.partial_due_label<span></span><span>$credit.partial_due</span></span>',
+            '$credit.custom1'        => '<span class="flex justify-between items-center">$credit.custom1_label<span></span><span>$credit.custom1</span></span>',
+            '$credit.custom2'        => '<span class="flex justify-between items-center">$credit.custom2_label<span></span><span>$credit.custom2</span></span>',
+            '$credit.custom3'        => '<span class="flex justify-between items-center">$credit.custom3_label<span></span><span>$credit.custom3</span></span>',
+            '$credit.custom4'        => '<span class="flex justify-between items-center">$credit.custom4_label<span></span><span>$credit.custom4</span></span>',
+            '$credit.surcharge1'     => '<span class="flex justify-between items-center">$surcharge1_label<span></span><span>$surcharge1_label: $surcharge1</span></span>',
+            '$credit.surcharge2'     => '<span class="flex justify-between items-center">$surcharge2_label<span></span><span>$surcharge2_label: $surcharge2</span></span>',
+            '$credit.surcharge3'     => '<span class="flex justify-between items-center">$surcharge3_label<span></span><span>$surcharge3_label: $surcharge3</span></span>',
+            '$credit.surcharge4'     => '<span class="flex justify-between items-center">$surcharge4_label<span></span><span>$surcharge4_label: $surcharge4</span></span>',
         ];
 
         return $this->processCustomFields($company, $data);
