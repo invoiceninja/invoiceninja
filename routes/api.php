@@ -121,6 +121,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('claim_license', 'LicenseController@index')->name('license.index');
 
+    Route::post('emails', 'EmailController@send')->name('email.send');
+
     /*
     Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
 

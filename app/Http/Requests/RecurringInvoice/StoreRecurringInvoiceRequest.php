@@ -36,7 +36,7 @@ class StoreRecurringInvoiceRequest extends Request
     {
         return [
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
-            'client_id' => 'required|exists:clients,id',
+            'client_id' => 'required|exists:clients,id,company_id,'.auth()->user()->company()->id,
         ];
     }
 

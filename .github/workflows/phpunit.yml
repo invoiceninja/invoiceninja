@@ -20,6 +20,8 @@ jobs:
       CACHE_DRIVER: file
       QUEUE_CONNECTION: sync
       SESSION_DRIVER: file
+      NINJA_ENVIRONMENT: development
+      MULTI_DB_ENABLED: false
   
     services:
       mariadb:
@@ -69,7 +71,7 @@ jobs:
         php artisan optimize
         php artisan cache:clear
         php artisan config:cache
-
+        
     - name: Create DB and schemas
       run: |
         mkdir -p database
@@ -85,7 +87,9 @@ jobs:
         npm run production
         
     - name: Run Testsuite
-      run: vendor/bin/phpunit --testdox
+      run: |
+        cat .env
+        vendor/bin/phpunit --testdox
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
 

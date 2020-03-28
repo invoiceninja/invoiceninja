@@ -39,7 +39,7 @@ class Ninja
 
     public static function isNinjaDev()
     {
-        return config('ninja.app_env') == 'development';
+        return config('ninja.environment') == 'development';
     }
 
     public static function getDebugInfo()
@@ -69,9 +69,9 @@ class Ninja
         $data = json_decode($data);
 
         if ($data && property_exists($data, 'message') && $data->message == sha1(config('ninja.license'))) {
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
     }
 

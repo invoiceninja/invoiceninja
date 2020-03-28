@@ -15,9 +15,14 @@ use App\Models\Activity;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
-class UpdateUserLastLogin
+class UpdateUserLastLogin implements ShouldQueue
 {
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
     /**
      * Create the event listener.
      *
@@ -34,7 +39,7 @@ class UpdateUserLastLogin
      * @return void
      */
     public function handle($event)
-    {
+    {   //\Log::error("listener firing");
         $user = $event->user;
 
         $user->last_login = now();

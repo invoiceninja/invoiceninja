@@ -16,7 +16,7 @@ use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class ArchivedUserActivity
+class ArchivedUserActivity implements ShouldQueue
 {
     protected $activityRepo;
     /**

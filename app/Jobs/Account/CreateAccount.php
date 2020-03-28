@@ -30,7 +30,7 @@ class CreateAccount
     {
         if (config('ninja.environment') == 'selfhost' && Account::all()->count() > 1) {
             return response()->json(array('message' => Ninja::selfHostedMessage()), 400);
-        } elseif (Ninja::boot()) {
+        } elseif (!Ninja::boot()) {
             return response()->json(array('message' => Ninja::parse()), 401);
         }
         $sp794f3f = Account::create($this->request);

@@ -40,9 +40,6 @@ class Kernel extends ConsoleKernel
         //$schedule->job(new RecurringInvoicesCron)->hourly();
         $schedule->job(new VersionCheck)->daily();
 
-        /* Build queue snapshots */
-        $schedule->command('horizon:snapshot')->everyFiveMinutes();
-
         /* Run queue's in shared hosting with this*/
         if (Ninja::isSelfHost()) {
             $schedule->command('queue:work')->everyMinute()->withoutOverlapping();

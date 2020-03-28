@@ -32,7 +32,6 @@
         "intervention/image": "^2.4",
         "laracasts/presenter": "^0.2.1",
         "laravel/framework": "^6",
-        "laravel/horizon": "3.7.2",
         "laravel/slack-notification-channel": "^2.0",
         "laravel/socialite": "^4.0",
         "laravel/tinker": "^1.0",
