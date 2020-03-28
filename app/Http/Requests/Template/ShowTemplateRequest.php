@@ -46,6 +46,5 @@ class ShowTemplateRequest extends Request
 
     public function message()
     {
-
     }
 }

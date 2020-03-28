@@ -100,7 +100,9 @@ class SetupController extends Controller
      */
     public function checkDB(CheckDatabaseRequest $request): Response
     {
-        // if (Account::count() == 0) {} /** This may not work, because we don't have 'account's table. */
+
+        if (Account::count() == 0) { /** This may not work, because we don't have 'account's table. */
+        }
 
         $status = SystemHealth::dbCheck($request);
 
@@ -122,9 +124,13 @@ class SetupController extends Controller
     {
         // if (Account::count() == 0) {} /** This may not work, because we don't have 'account's table. */
 
+
         try {
             SystemHealth::testMailServer();
 
+        $randomStatus = rand(0, 1);
+
+        if ($randomStatus) {
             return response([], 200);
         } catch (\Exception $e) {
             info(['action' => 'SetupController::checkMail()', 'message' => $e->getMessage(),]);

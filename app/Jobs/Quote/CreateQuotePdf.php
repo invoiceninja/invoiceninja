@@ -74,47 +74,22 @@ class CreateQuotePdf implements ShouldQueue
 
         App::setLocale($this->contact->preferredLocale());
 
-        $path      = $this->quote->client->quote_filepath();
+        $path       = $this->quote->client->quote_filepath();
 
-        $design = Design::find($this->decodePrimaryKey($this->quote->client->getSetting('quote_design_id')));
+        $design     = Design::find($this->decodePrimaryKey($this->quote->client->getSetting('quote_design_id')));
 
-        $designer = new Designer($this->quote, $design, $this->quote->client->getSetting('pdf_variables'), 'quote');
+        $designer   = new Designer($this->quote, $design, $this->quote->client->getSetting('pdf_variables'), 'quote');
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
-
-        //\Log::error($html);
 
         $all_pages_header = $settings->all_pages_header;
         $all_pages_footer = $settings->all_pages_footer;
 
         $quote_number = $this->quote->number;
 
-
-        // if($all_pages_header && $all_pages_footer){
-        // 	$all_pages_header = $designer->init()->getHeader()->getHtml();
-        // 	$all_pages_footer = $designer->init()->getFooter()->getHtml();
-        // 	$design_body = $designer->init()->getBody()->getHtml();
-        // 	$quote_number = "header_and_footer";
-        // }
-        // elseif($all_pages_header){
-        // 	$all_pages_header = $designer->init()->getHeader()->getHtml();
-        // 	$design_body = $designer->init()->getBody()->getFooter()->getHtml();
-        // 	$quote_number = "header_only";
-        // }
-        // elseif($all_pages_footer){
-        // 	$all_pages_footer = $designer->init()->getFooter()->getHtml();
-        // 	$design_body = $designer->init()->getHeader()->getBody()->getHtml();
-        // 	$quote_number = "footer_only";
-        // }
-        // else{
         $design_body = $designer->build()->getHtml();
-        
 
-        
-
-        //get invoice design
-        //		$html = $this->generateInvoiceHtml($design_body, $this->quote, $this->contact);
         $html = $this->generateEntityHtml($designer, $this->quote, $this->contact);
 
         $pdf = $this->makePdf($all_pages_header, $all_pages_footer, $html);
@@ -122,8 +97,6 @@ class CreateQuotePdf implements ShouldQueue
 
         $instance = Storage::disk($this->disk)->put($file_path, $pdf);
 
-        //$instance= Storage::disk($this->disk)->path($file_path);
-        //
         return $file_path;
     }
 }
