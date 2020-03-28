@@ -286,6 +286,7 @@ class Designer
             '$surcharge2'               => '<span class="flex justify-between items-center"><span>$surcharge2_label:</span><span> $surcharge2</span></span>',
             '$surcharge3'               => '<span class="flex justify-between items-center"><span>$surcharge3_label:</span><span> $surcharge3</span></span>',
             '$surcharge4'               => '<span class="flex justify-between items-center"><span>$surcharge4_label:</span><span> $surcharge4</span></span>',
+
         ];
 
         return $this->processCustomFields($company, $data);
@@ -309,6 +310,7 @@ class Designer
             '$quote.surcharge2'     => '<span class="flex justify-between items-center"><span>$surcharge2_label:</span><span> $surcharge2</span></span>',
             '$quote.surcharge3'     => '<span class="flex justify-between items-center"><span>$surcharge3_label:</span><span> $surcharge3</span></span>',
             '$quote.surcharge4'     => '<span class="flex justify-between items-center"><span>$surcharge4_label:</span><span> $surcharge4</span></span>',
+
         ];
 
         return $this->processCustomFields($company, $data);
@@ -331,6 +333,7 @@ class Designer
             '$credit.surcharge2'     => '<span class="flex justify-between items-center">$surcharge2_label<span></span><span>$surcharge2_label: $surcharge2</span></span>',
             '$credit.surcharge3'     => '<span class="flex justify-between items-center">$surcharge3_label<span></span><span>$surcharge3_label: $surcharge3</span></span>',
             '$credit.surcharge4'     => '<span class="flex justify-between items-center">$surcharge4_label<span></span><span>$surcharge4_label: $surcharge4</span></span>',
+
         ];
 
         return $this->processCustomFields($company, $data);
