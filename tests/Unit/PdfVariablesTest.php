@@ -18,6 +18,11 @@ class PdfVariablesTest extends TestCase
         
         $this->settings = CompanySettings::defaults();
     }
+
+    public function testPdfVariableDefaults()
+    {
+        $this->assertTrue(is_array($this->settings->pdf_variables->client_details));
+    }
 /*
     public function testPdfVariableDefaults()
     {
