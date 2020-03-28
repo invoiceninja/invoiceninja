@@ -53,6 +53,10 @@ jobs:
       with:
         ref: v2
         fetch-depth: 1
+
+    - name: Copy .env
+      run: |
+        cp .env.ci .env
         
     - name: Install composer dependencies
       run: |
@@ -65,10 +69,6 @@ jobs:
         php artisan optimize
         php artisan cache:clear
         php artisan config:cache
-        
-    - name: Copy .env
-      run: |
-        cp .env.ci .env
         
     - name: Create DB and schemas
       run: |
