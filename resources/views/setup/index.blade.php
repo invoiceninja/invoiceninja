@@ -19,6 +19,16 @@
                     or email us at <a href="mailto:contact@invoiceninja.com" class="button-link">contact@invoiceninja.com</a>.
                 </p>
 
+                @if($errors->any())
+                    <div class="alert alert-failure">
+                        <ul>
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 @include('setup._application')
                 @include('setup._database')
                 @include('setup._mail')

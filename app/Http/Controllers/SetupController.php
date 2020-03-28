@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Setup\CheckDatabaseRequest;
 use App\Http\Requests\Setup\StoreSetupRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
@@ -89,7 +90,7 @@ class SetupController extends Controller
             $account = CreateAccount::dispatchNow($request->all());
         }
         
-        return view('index.index');
+        return redirect('/');
     }
 
     /**
@@ -97,17 +98,17 @@ class SetupController extends Controller
      *
      * @return Response
      */
-    public function checkDB(): Response
+    public function checkDB(CheckDatabaseRequest $request): Response
     {
-        if (Account::count() == 0) {
+
+        if (Account::count() == 0) { /** This may not work, because we don't have 'account's table. */
         }
 
-        // test db - > /setup/check_db (POST) please send array of DB variables - response 200/success or 400 [message]
-        // test mail -> /setup/check_mail (POST) please send array of MAIL xvariables - response 200/success or 400 [message]
+        $status = SystemHealth::dbCheck($request);
 
-        $randomStatus = rand(0, 1);
+        info($status);
 
-        if ($randomStatus) {
+        if (gettype($status) == 'array' && $status['success'] === true) {
             return response([], 200);
         }
 
@@ -121,18 +122,20 @@ class SetupController extends Controller
      */
     public function checkMail(): Response
     {
-        if (Account::count() == 0) {
-        }
+        // if (Account::count() == 0) {} /** This may not work, because we don't have 'account's table. */
 
-        // test db - > /setup/check_db (POST) please send array of DB variables - response 200/success or 400 [message]
-        // test mail -> /setup/check_mail (POST) please send array of MAIL variables - response 200/success or 400 [message]
+
+        try {
+            SystemHealth::testMailServer();
 
         $randomStatus = rand(0, 1);
 
         if ($randomStatus) {
             return response([], 200);
-        }
+        } catch (\Exception $e) {
+            info(['action' => 'SetupController::checkMail()', 'message' => $e->getMessage(),]);
 
-        return response([], 400);
+            return response([], 400);
+        }
     }
 }

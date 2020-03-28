@@ -39,7 +39,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.host') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="host" required>
+                    <input type="text" class="input" name="host" required value="{{ old('host') }}">
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -47,15 +47,15 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.database') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="database" required>
+                    <input type="text" class="input" name="database" required value="{{ old('database') }}">
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
-                <dt class="text-sm leading-5 font-medium text-gray-500">
+                <dt class="text-sm leading-5 font-medium text-gray-500" value="{{ old('username') }}">
                     {{ ctrans('texts.username') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="db_username" required>
+                    <input type="text" class="input" name="db_username" required value="{{ old('db_username') }}">
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -63,7 +63,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.password') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="password" class="input" name="db_password">
+                    <input type="password" class="input" name="db_password" value="{{ old('db_password') }}">
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
