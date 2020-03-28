@@ -160,8 +160,19 @@ class EventServiceProvider extends ServiceProvider
      *
      * @return void
      */
+    // public function boot()
+    // {
+    //     parent::boot();
+    // }
+
     public function boot()
-    {
-        parent::boot();
-    }
+     {
+         parent::boot();
+         //$events->subscribe('*');
+        // \Event::listen('event.*', function ($eventName, array $data) {
+        //     \Log::error("Event Service Provider");
+        // });
+
+
+     }
 }

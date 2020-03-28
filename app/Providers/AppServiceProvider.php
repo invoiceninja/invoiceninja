@@ -39,6 +39,10 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Queue\Events\JobProcessing;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -72,6 +76,20 @@ class AppServiceProvider extends ServiceProvider
         Proposal::observe(ProposalObserver::class);
         Quote::observe(QuoteObserver::class);
         Task::observe(TaskObserver::class);
+
+
+        // Queue::before(function (JobProcessing $event) {
+        //     \Log::info('Event Job '.$event->connectionName);
+        //     \Log::info('Event Job '.$event->job);
+        //     \Log::info('Event Job '.$event->job->payload());
+        // });
+        // //! Update Posted AT
+        // Queue::after(function (JobProcessed $event) {
+        //     \Log::info('Event Job '.$event->connectionName);
+        //     \Log::info('Event Job '.$event->job);
+        //     \Log::info('Event Job '.$event->job->payload());
+        // });
+
     }
 
     /**
@@ -82,6 +100,8 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->loadHelpers();
+
+
     }
 
     protected function loadHelpers()

@@ -144,7 +144,7 @@ class CompanySettings extends BaseSettings
     public $pdf_email_attachment = false;
     public $ubl_email_attachment = false;
 
-    public $email_style                     = 'plain'; //plain, light, dark, custom
+    public $email_style                     = 'light'; //plain, light, dark, custom
     public $email_style_custom              = '';      //the template itself
     public $email_subject_invoice           = '';
     public $email_subject_quote             = '';

@@ -16,7 +16,7 @@ use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class RestoredUserActivity
+class RestoredUserActivity implements ShouldQueue
 {
     protected $activityRepo;
     /**
