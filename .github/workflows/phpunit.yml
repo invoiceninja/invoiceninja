@@ -20,6 +20,8 @@ jobs:
       CACHE_DRIVER: file
       QUEUE_CONNECTION: sync
       SESSION_DRIVER: file
+      NINJA_ENVIRONMENT: development
+      MULTI_DB_ENABLED: false
   
     services:
       mariadb:
