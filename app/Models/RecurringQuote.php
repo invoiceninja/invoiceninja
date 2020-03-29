@@ -81,6 +81,10 @@ class RecurringQuote extends BaseModel
     ];
 
     protected $casts = [
+        'date' => 'date:Y-m-d',
+        'due_date' => 'date:Y-m-d',
+        'partial_due_date' => 'date:Y-m-d',
+        'line_items' => 'object',
         'settings' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',

@@ -23,6 +23,8 @@ use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
+use Sentry\State\Scope;
+use function Sentry\configureScope;
 
 class Handler extends ExceptionHandler
 {
@@ -53,8 +55,23 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
+        
         if (app()->bound('sentry') && $this->shouldReport($exception)) {
+
+            app('sentry')->configureScope(function (Scope $scope): void {
+
+                if (auth()->user() && auth()->user()->account->report_errors) {
+                    $scope->setUser([
+                        'id'    => auth()->user()->account->key,
+                        'email' => auth()->user()->email,
+                        'name'  => "Anonymous User",
+                    ]);
+                }
+
+            });
+
             app('sentry')->captureException($exception);
+    
         }
 
         parent::report($exception);

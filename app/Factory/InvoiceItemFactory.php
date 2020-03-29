@@ -34,7 +34,6 @@ class InvoiceItemFactory
         $item->tax_rate3 = 0;
         $item->sort_id = 0;
         $item->line_total = 0;
-        $item->date = Carbon::now();
         $item->custom_value1 = null;
         $item->custom_value2 = null;
         $item->custom_value3 = null;

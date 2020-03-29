@@ -104,6 +104,7 @@ class CreateUsersTable extends Migration
             $table->date('plan_paid')->nullable();
             $table->date('plan_expires')->nullable();
             $table->string('user_agent')->nullable();
+            $table->string('key')->nullable();
             
             $table->unsignedInteger('payment_id')->nullable()->index();
             $table->unsignedInteger('default_company_id');
@@ -517,9 +518,9 @@ class CreateUsersTable extends Migration
 
             $t->string('po_number')->nullable();
             $t->date('date')->nullable();
-            $t->date('last_sent_date')->nullable();
+            $t->datetime('last_sent_date')->nullable();
 
-            $t->datetime('due_date')->nullable();
+            $t->date('due_date')->nullable();
 
             $t->boolean('is_deleted')->default(false);
             $t->mediumText('line_items')->nullable();

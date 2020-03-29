@@ -41,6 +41,7 @@ class Credit extends BaseModel
         'po_number',
         'date',
         'due_date',
+        'partial_due_date',
         'terms',
         'public_notes',
         'private_notes',
@@ -54,7 +55,6 @@ class Credit extends BaseModel
         'is_amount_discount',
         'footer',
         'partial',
-        'partial_due_date',
         'custom_value1',
         'custom_value2',
         'custom_value3',
@@ -77,6 +77,30 @@ class Credit extends BaseModel
     const STATUS_SENT = 2;
     const STATUS_PARTIAL = 3;
     const STATUS_APPLIED = 4;
+
+    public function getDateAttribute($value) {
+        if (!$value) {
+            //$value format 'Y:m:d H:i:s' to 'Y-m-d H:i'
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
+
+    public function getDueDateAttribute($value) {
+        if (!$value) {
+            //$value format 'Y:m:d H:i:s' to 'Y-m-d H:i'
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
+
+    public function getPartialDueDateAttribute($value) {
+        if (!$value) {
+            //$value format 'Y:m:d H:i:s' to 'Y-m-d H:i'
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
 
     public function assigned_user()
     {

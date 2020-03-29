@@ -99,6 +99,9 @@ class RecurringInvoice extends BaseModel
     ];
 
     protected $casts = [
+        'date' => 'date:Y-m-d',
+        'due_date' => 'date:Y-m-d',
+        'partial_due_date' => 'date:Y-m-d',
         'settings' => 'object',
         'line_items' => 'object',
         'updated_at' => 'timestamp',

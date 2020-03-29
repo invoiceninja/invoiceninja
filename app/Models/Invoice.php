@@ -98,6 +98,9 @@ class Invoice extends BaseModel
     ];
 
     protected $casts = [
+        'date' => 'date:Y-m-d',
+        'due_date' => 'date:Y-m-d',
+        'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
@@ -127,6 +130,27 @@ class Invoice extends BaseModel
     const STATUS_OVERDUE = -1;
     const STATUS_UNPAID = -2;
     const STATUS_REVERSED = -3;
+
+    public function getDateAttribute($value) {
+        if (!$value) {
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
+
+    public function getDueDateAttribute($value) {
+        if (!$value) {
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
+
+    public function getPartialDueDateAttribute($value) {
+        if (!$value) {
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
 
     public function company()
     {

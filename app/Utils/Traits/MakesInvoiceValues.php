@@ -271,8 +271,7 @@ trait MakesInvoiceValues
         $data['$contact.email']             = ['value' => $contact->email, 'label' => ctrans('texts.email')];
         $data['$contact.phone']             = ['value' => $contact->phone, 'label' => ctrans('texts.phone')];
 
-        $data['$contact_name']              =
-        $data['$contact.name']              = ['value' => isset($contact) ? $contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
+        $data['$contact.name']                     = ['value' => isset($contact) ? $contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
         $data['$contact.custom1']                  = ['value' => isset($contact) ? $contact->custom_value1 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
         $data['$contact.custom2']                  = ['value' => isset($contact) ? $contact->custom_value2 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
         $data['$contact.custom3']                  = ['value' => isset($contact) ? $contact->custom_value3 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
@@ -281,7 +280,6 @@ trait MakesInvoiceValues
         $data['$company.city_state_postal'] = ['value' => $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
         $data['$company.postal_city_state'] = ['value' => $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
         $data['$company.name']              = ['value' => $this->company->present()->name() ?: '&nbsp;', 'label' => ctrans('texts.company_name')];
-        $data['$company.company_name']      = &$data['$company.name'];
         $data['$company.address1']          = ['value' => $settings->address1 ?: '&nbsp;', 'label' => ctrans('texts.address1')];
         $data['$company.address2']          = ['value' => $settings->address2 ?: '&nbsp;', 'label' => ctrans('texts.address2')];
         $data['$company.city']              = ['value' => $settings->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
