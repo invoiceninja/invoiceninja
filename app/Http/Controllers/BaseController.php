@@ -11,7 +11,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\Account;
+use App\Models\Account;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\User;
