@@ -68,7 +68,7 @@ class Authenticate
                 Session::put('contact_key', $contact->contact_key);
             }
             if (! $contact) {
-                return \Redirect::to('client/session_expired');
+                return \Redirect::to('client/login');
             }
 
             $account = $contact->account;
