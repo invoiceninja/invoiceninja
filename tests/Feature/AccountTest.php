@@ -34,6 +34,10 @@ class AccountTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+
+        if (config('ninja.testvars.travis') !== false) {
+            $this->markTestSkipped('Skip test for CI Testing');
+        }
     }
 
     // public function testAccountCreation()
@@ -71,6 +75,7 @@ class AccountTest extends TestCase
 
     public function testApiAccountCreation()
     {
+
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
@@ -88,4 +93,5 @@ class AccountTest extends TestCase
 
         $response->assertStatus(200);
     }
+
 }
