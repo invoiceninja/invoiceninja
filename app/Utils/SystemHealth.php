@@ -137,13 +137,15 @@ class SystemHealth
             Mail::to(config('mail.from.address'))
             ->send(new TestMailServer('Email Server Works!', config('mail.from.address')));
         } catch (\Exception $e) {
+            \Log::error($e->getMessage());
             return $e->getMessage();
         }
 
         if (count(Mail::failures()) > 0) {
+            \Log::error(print_r(Mail::failures(),1));
             return Mail::failures();
         }
-
+\Log::error("blank array");
         return [];
     }
 
