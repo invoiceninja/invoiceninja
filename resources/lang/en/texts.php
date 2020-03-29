@@ -3477,6 +3477,7 @@ $LANG = array(
     'credit_terms' => 'Credit Terms',
     'untitled_company' => 'Untitled Company',
     'added_company' => 'Successfully added company',
+    'supported_events' => 'Supported Events',
 );
 
 return $LANG;
