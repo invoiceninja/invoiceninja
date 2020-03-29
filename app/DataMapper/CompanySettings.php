@@ -477,7 +477,7 @@ class CompanySettings extends BaseSettings
                 '$contact.email',
             ],
             'company_details' => [
-                '$company.company_name',
+                '$company.name',
                 '$company.id_number',
                 '$company.vat_number',
                 '$company.website',
@@ -519,7 +519,7 @@ class CompanySettings extends BaseSettings
                 '$product.cost',
                 '$product.quantity',
                 '$product.discount',
-                '$product.tax_name1',
+                '$product.tax',
                 '$product.line_total',
             ],
             'task_columns' =>[
@@ -528,7 +528,7 @@ class CompanySettings extends BaseSettings
                 '$task.cost',
                 '$task.quantity',
                 '$task.discount',
-                '$task.tax_name1',
+                '$task.tax',
                 '$task.line_total',
             ],
         ];

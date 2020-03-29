@@ -185,6 +185,7 @@ trait MakesInvoiceValues
         $data['$balance_due']            = &$data['$invoice.balance_due'];
         $data['$invoice.partial_due']    = ['value' => Number::formatMoney($this->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         $data['$total']                  = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.total')];
+        $data['$amount']                 = &$data['$total'];
         $data['$quote.total']            = &$data['$total'];
         $data['$invoice.total']          = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.invoice_total')];
         $data['$invoice.amount']         = &$data['$total'];
