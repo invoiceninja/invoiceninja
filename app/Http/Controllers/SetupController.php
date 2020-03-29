@@ -128,10 +128,11 @@ class SetupController extends Controller
         try {
             SystemHealth::testMailServer();
 
-        $randomStatus = rand(0, 1);
+            $randomStatus = rand(0, 1);
 
-        if ($randomStatus) {
-            return response([], 200);
+            if ($randomStatus) 
+                return response([], 200);
+        
         } catch (\Exception $e) {
             info(['action' => 'SetupController::checkMail()', 'message' => $e->getMessage(),]);
 

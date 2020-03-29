@@ -11,7 +11,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Email\InvoiceEmail;
 use App\Http\Requests\Email\SendEmailRequest;
+use App\Jobs\Invoice\EmailInvoice;
+use App\Notifications\SendGenericNotification;
 use App\Utils\Traits\MakesHash;
 
 class EmailController extends BaseController
@@ -94,6 +97,24 @@ class EmailController extends BaseController
      */
     public function send(SendEmailRequest $request)
     {
+        $entity = $request->input('entity');
+        $entity_obj = $entity::find($request->input('entity_id'));
+        $subject = $request->input('subject');
+        $body = $request->input('body');
+        $entity_string = strtolower(class_basename($entity_obj));
+
+        $entity_obj->invitations->each(function ($invitation) use($subject, $body, $entity_string, $entity_obj) {
+
+            if ($invitation->contact->send_email && $invitation->contact->email) {
+
+                $when = now()->addSeconds(1);
+
+                $invitation->contact->notify((new SendGenericNotification($invitation, $entity_string, $subject, $body))->delay($when));
+
+            }
+
+        });
+
         $data = [];
         
         return response()->json($data, 200);

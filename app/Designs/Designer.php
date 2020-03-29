@@ -235,7 +235,7 @@ class Designer
     private function companyDetails(Company $company)
     {
         $data = [
-            '$company.company_name' => '<span>$company.company_name</span>',
+            '$company.name'         => '<span>$company.name</span>',
             '$company.id_number'    => '<span>$company.id_number</span>',
             '$company.vat_number'   => '<span>$company.vat_number</span>',
             '$company.website'      => '<span>$company.website</span>',

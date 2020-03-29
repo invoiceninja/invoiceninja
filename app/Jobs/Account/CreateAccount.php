@@ -35,6 +35,10 @@ class CreateAccount
         }
         $sp794f3f = Account::create($this->request);
         $sp794f3f->referral_code = Str::random(32);
+        
+        if(!$sp794f3f->key)
+            $sp794f3f->key = Str::random(32);
+        
         $sp794f3f->save();
         
         $sp035a66 = CreateCompany::dispatchNow($this->request, $sp794f3f);

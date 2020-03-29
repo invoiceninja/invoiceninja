@@ -15,6 +15,7 @@ use App\Models\Quote;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class QuoteInvitation extends BaseModel
 {
@@ -26,6 +27,34 @@ class QuoteInvitation extends BaseModel
         'client_contact_id',
     ];
 
+    public function getSignatureDateAttribute($value) {
+        if (!$value) {
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
+
+    public function getSentDateAttribute($value) {
+        if (!$value) {
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
+
+    public function getViewedDateAttribute($value) {
+        if (!$value) {
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
+
+    public function getOpenedDateAttribute($value) {
+        if (!$value) {
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
+    
     public function entityType()
     {
         return Quote::class;

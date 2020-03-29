@@ -87,6 +87,14 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
             'logo' => $this->company->present()->logo(),
         ];
 
+        // if($this->settings->email_style == 'custom'){
+
+        //     $subject = 
+
+        //     return (new MailMessage)
+        //             ->subject($subject)
+        //             ->view('email.template.custom', ['body' => ]);
+        // }
 
         return (new MailMessage)
                     ->subject($subject)

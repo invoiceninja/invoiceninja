@@ -22,7 +22,8 @@ jobs:
       SESSION_DRIVER: file
       NINJA_ENVIRONMENT: development
       MULTI_DB_ENABLED: false
-  
+      TRAVIS: true
+
     services:
       mariadb:
         image: mariadb:latest

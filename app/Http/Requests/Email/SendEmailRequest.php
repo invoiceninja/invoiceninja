@@ -12,9 +12,11 @@
 namespace App\Http\Requests\Email;
 
 use App\Http\Requests\Request;
+use App\Utils\Traits\MakesHash;
 
 class SendEmailRequest extends Request
 {
+    use MakesHash;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -48,8 +50,14 @@ class SendEmailRequest extends Request
 
         $settings = auth()->user()->company()->settings;
 
-        if(!property_exists($settings, $template))
+        if(empty($input['template']))
+            $input['template'] = '';
+
+        if(!property_exists($settings, $input['template']))
             unset($input['template']);
+
+        $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
+        $input['entity'] = "App\Models\\". ucfirst($input['entity']);
 
         $this->replace($input);
     }
@@ -66,16 +74,14 @@ class SendEmailRequest extends Request
         $input = $this->all();
 
         /*Make sure we have all the require ingredients to send a template*/
-        if(array_key_exists('entity', $input) && array_key_exists('entity_id', $input) && is_string($input['entity']) && is_string($input['entity_id'])) {
+        if(array_key_exists('entity', $input) && array_key_exists('entity_id', $input) && is_string($input['entity']) && $input['entity_id']) {
 
             $company = auth()->user()->company();
 
-            $entity = ucfirst($input['entity']);
-
-            $class = "App\Models\\$entity";
+            $entity = $input['entity'];
 
             /* Harvest the entity*/
-            $entity_obj = $class::whereId($this->decodePrimaryKey($input['entity_id']))->company()->first();
+            $entity_obj = $entity::whereId($input['entity_id'])->company()->first();
 
             /* Check object, check user and company id is same as users, and check user can edit the object */
             if($entity_obj && ($company->id == $entity_obj->company_id) && auth()->user()->can('edit', $entity_obj))
