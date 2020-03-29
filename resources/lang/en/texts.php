@@ -2468,6 +2468,7 @@ $LANG = array(
     'currency_moldovan_leu' => 'Moldovan Leu',
     'currency_kazakhstani_tenge' => 'Kazakhstani Tenge',
     'currency_gibraltar_pound' => 'Gibraltar Pound',
+    'currency_ethiopian_birr' => 'Ethiopian Birr',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
