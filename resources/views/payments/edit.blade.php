@@ -263,12 +263,24 @@
 		$('#saveButton').attr('disabled', false);
         canSubmitPayment = true;
 
-		var error = '';
+		var error = '{{ trans('texts.error_refresh_page') }}';
 		if (data) {
-			var error = firstJSONError(data.responseJSON) || data.statusText;
+		    error = firstPaymentError(data.responseJSON);
 		}
-		swal({!! json_encode(trans('texts.error_refresh_page')) !!}, error);
+
+		swal({title: '{{ trans('texts.an_error_occurred') }}', text: error});
 	}
+
+    function firstPaymentError(json) {
+        json = json['errors'];
+        for (var key in json) {
+            if ( ! json.hasOwnProperty(key)) {
+                continue;
+            }
+            return json[key] + '';
+        }
+        return '';
+    }
 
     function submitAction(action) {
         $('#action').val(action);
