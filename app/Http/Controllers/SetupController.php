@@ -120,7 +120,7 @@ class SetupController extends Controller
      *
      * @return Response
      */
-    public function checkMail(): Response
+    public function checkMail()
     {
 
         try {
