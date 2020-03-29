@@ -15,6 +15,7 @@ use App\Models\Quote;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class QuoteInvitation extends BaseModel
 {

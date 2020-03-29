@@ -59,7 +59,7 @@ class SendGenericNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {\Log::error("via");
-        return ['mail'];
+        return ['slack','mail'];
     }
 
     /**
@@ -114,7 +114,7 @@ class SendGenericNotification extends Notification implements ShouldQueue
 
     public function toSlack($notifiable)
     {
-
+\Log::error("slack");
         return '';
         // $logo = $this->company->present()->logo();
         // $amount = Number::formatMoney($this->invoice->amount, $this->invoice->client);
