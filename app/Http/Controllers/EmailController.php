@@ -14,12 +14,22 @@ namespace App\Http\Controllers;
 use App\Helpers\Email\InvoiceEmail;
 use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\Invoice\EmailInvoice;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Models\Quote;
 use App\Notifications\SendGenericNotification;
+use App\Transformers\CreditTransformer;
+use App\Transformers\InvoiceTransformer;
+use App\Transformers\QuoteTransformer;
 use App\Utils\Traits\MakesHash;
 
 class EmailController extends BaseController
 {
     use MakesHash;
+
+    protected $entity_type = Invoice::class ;
+
+    protected $entity_transformer = InvoiceTransformer::class ;
 
     public function __construct()
     {
@@ -115,9 +125,24 @@ class EmailController extends BaseController
 
         });
         
-        $entity->service()->markSent()->save();
+        if ($this instanceof Invoice) {
+            $this->entity_type = Invoice::class ;
+            $this->entity_transformer = InvoiceTransformer::class ;
+        }
 
-        return $this->itemResponse($entity);
+        if ($this instanceof Quote) {
+            $this->entity_type = Quote::class ;
+            $this->entity_transformer = QuoteTransformer::class ;
+        }
+
+        if ($this instanceof Credit) {
+            $this->entity_type = Credit::class ;
+            $this->entity_transformer = CreditTransformer::class ;
+        }
+
+        $entity_obj->service()->markSent()->save();
+
+        return $this->itemResponse($entity_obj);
 
     }
 }
