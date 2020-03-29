@@ -3147,7 +3147,7 @@ return [
     'email_link_not_working' => 'If button above isn\'t working for you, please click on the link',
     'credit_terms' => 'Credit Terms',
     'display_log' => 'Display Log',
-    'send_fail_logs_to_our_server' => 'Send error logs to our servers for analysis',
+    'send_fail_logs_to_our_server' => 'Report errors in realtime',
     'setup' => 'Setup',
 
     'quick_overview_statistics' => 'Quick overview & statistics',
@@ -3179,8 +3179,8 @@ return [
     'remove_payment_method' => 'Remove payment method',
     'warning_action_cannot_be_reversed' => 'Warning! This action can\'t be reversed!',
     'confirmation' => 'Confirmation',
-    'list_of_quotes' => 'List of quotes',
+    'list_of_quotes' => 'Quotes',
     'waiting_for_approval' => 'Waiting for approval',
     'quote_still_not_approved' => 'This quote is still not approved',
-    'list_of_credits' => 'List of credits',
+    'list_of_credits' => 'Credits',
 ];

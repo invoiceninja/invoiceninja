@@ -4,7 +4,6 @@
             {{ ctrans('texts.database_connection') }}
         </h3>
         <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">
-            To store data, we need database. Here's how you can create one.
         </p>
     </div>
     <div>

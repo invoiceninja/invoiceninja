@@ -15,6 +15,7 @@ use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Class for Recurring Invoices.
@@ -81,9 +82,6 @@ class RecurringQuote extends BaseModel
     ];
 
     protected $casts = [
-        'date' => 'date:Y-m-d',
-        'due_date' => 'date:Y-m-d',
-        'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
         'settings' => 'object',
         'updated_at' => 'timestamp',
@@ -96,6 +94,27 @@ class RecurringQuote extends BaseModel
    //     'company',
     ];
 
+    public function getDateAttribute($value) {
+        if (!$value) {
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
+
+    public function getDueDateAttribute($value) {
+        if (!$value) {
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
+
+    public function getPartialDueDateAttribute($value) {
+        if (!$value) {
+           return (new Carbon($value))->format('Y-m-d');
+        }
+        return $value;
+    }
+    
     public function company()
     {
         return $this->belongsTo(Company::class);
