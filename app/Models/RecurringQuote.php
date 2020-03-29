@@ -95,21 +95,21 @@ class RecurringQuote extends BaseModel
     ];
 
     public function getDateAttribute($value) {
-        if (!$value) {
+        if (!empty($value)) {
            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }
 
     public function getDueDateAttribute($value) {
-        if (!$value) {
+        if (!empty($value)) {
            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }
 
     public function getPartialDueDateAttribute($value) {
-        if (!$value) {
+        if (!empty($value)) {
            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
