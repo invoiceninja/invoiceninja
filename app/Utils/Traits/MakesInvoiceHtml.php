@@ -62,6 +62,21 @@ trait MakesInvoiceHtml
         return $html;
     }
 
+    public function generateEmailEntityHtml($entity, $content, $contact = null) :string
+    {
+        $entity->load('client');
+        
+        $client = $entity->client;
+
+        App::setLocale($client->preferredLocale());
+
+        $labels = $entity->makeLabels();
+        $values = $entity->makeValues($contact);
+
+        return $this->parseLabelsAndValues($labels, $values, $content);
+
+    }
+
     private function parseLabelsAndValues($labels, $values, $section) :string
     {
         $section = str_replace(array_keys($labels), array_values($labels), $section);

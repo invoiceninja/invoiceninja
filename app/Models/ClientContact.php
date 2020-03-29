@@ -149,6 +149,10 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         //return $lang->locale;
     }
 
+    public function routeNotificationForMail($notification)
+    {
+        return $this->email;
+    }
 
     /**
      * Retrieve the model for a bound value.

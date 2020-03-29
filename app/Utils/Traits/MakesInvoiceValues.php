@@ -309,6 +309,7 @@ trait MakesInvoiceValues
         $data['$product.cost']                       = ['value' => '', 'label' => ctrans('texts.cost')];
         $data['$product.quantity']                   = ['value' => '', 'label' => ctrans('texts.quantity')];
         $data['$product.tax_name1']                  = ['value' => '', 'label' => ctrans('texts.tax')];
+        $data['$product.tax']                        = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.tax_name2']                  = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.tax_name3']                  = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.line_total']                 = ['value' => '', 'label' => ctrans('texts.line_total')];
@@ -319,6 +320,7 @@ trait MakesInvoiceValues
         $data['$task.notes']                         = ['value' => '', 'label' => ctrans('texts.notes')];
         $data['$task.cost']                          = ['value' => '', 'label' => ctrans('texts.cost')];
         $data['$task.quantity']                      = ['value' => '', 'label' => ctrans('texts.quantity')];
+        $data['$task.tax']                           = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name1']                     = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name2']                     = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name3']                     = ['value' => '', 'label' => ctrans('texts.tax')];
