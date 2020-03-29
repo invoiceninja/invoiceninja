@@ -265,22 +265,11 @@
 
 		var error = '{{ trans('texts.error_refresh_page') }}';
 		if (data) {
-		    error = firstPaymentError(data.responseJSON);
+		    error = firstJSONError(data.responseJSON);
 		}
 
 		swal({title: '{{ trans('texts.an_error_occurred') }}', text: error});
 	}
-
-    function firstPaymentError(json) {
-        json = json['errors'];
-        for (var key in json) {
-            if ( ! json.hasOwnProperty(key)) {
-                continue;
-            }
-            return json[key] + '';
-        }
-        return '';
-    }
 
     function submitAction(action) {
         $('#action').val(action);
