@@ -41,7 +41,7 @@
     "jt.timepicker": "jquery-timepicker-jt#^1.11.12",
     "qrcode.js": "qrcode-js#*",
     "money.js": "^0.1.3",
-    "grapesjs": "^0.13.8"
+    "grapesjs": "^0.16.3"
   },
   "resolutions": {
     "jquery": "~1.11"
