@@ -114,9 +114,10 @@ class EmailController extends BaseController
             }
 
         });
-
-        $data = [];
         
-        return response()->json($data, 200);
+        $entity->service()->markSent()->save();
+
+        return $this->itemResponse($entity);
+
     }
 }
