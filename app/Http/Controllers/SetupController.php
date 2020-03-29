@@ -122,8 +122,6 @@ class SetupController extends Controller
      */
     public function checkMail(): Response
     {
-        // if (Account::count() == 0) {} /** This may not work, because we don't have 'account's table. */
-
 
         try {
             SystemHealth::testMailServer();
@@ -134,9 +132,9 @@ class SetupController extends Controller
                 return response([], 200);
         
         } catch (\Exception $e) {
-            info(['action' => 'SetupController::checkMail()', 'message' => $e->getMessage(),]);
+           // info(['action' => 'SetupController::checkMail()', ,]);
 
-            return response([], 400);
+            return response()->json(['message' => $e->getMessage()], 400);
         }
     }
 }
