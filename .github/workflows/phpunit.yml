@@ -23,6 +23,7 @@ jobs:
       NINJA_ENVIRONMENT: development
       MULTI_DB_ENABLED: false
       TRAVIS: true
+      MAIL_DRIVER: log
 
     services:
       mariadb:
