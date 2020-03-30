@@ -145,7 +145,14 @@ class SystemHealth
             return $e->getMessage();
         }
 
-        if (count(Mail::failures()) > 0) {
+        /*
+         * 'message' => 'count(): Parameter must be an array or an object that implements Countable',
+         * 'action' => 'SetupController::checkMail()',
+         *
+         * count(Mail::failures())
+         */
+
+        if (Mail::failures() > 0) {
             \Log::error(print_r(Mail::failures(), 1));
 
             return Mail::failures();
