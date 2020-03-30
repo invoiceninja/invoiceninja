@@ -79,6 +79,7 @@ class SystemHealth
         $result = ['success' => false];
 
         if ($request && $request instanceof CheckDatabaseRequest) {
+            \Log::error('in the request');
             config(['database.connections.db-ninja-01.host'=> $request->input('host')]);
             config(['database.connections.db-ninja-01.database'=> $request->input('database')]);
             config(['database.connections.db-ninja-01.username'=> $request->input('username')]);

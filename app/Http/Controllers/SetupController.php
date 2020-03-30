@@ -104,14 +104,11 @@ class SetupController extends Controller
     public function checkDB(CheckDatabaseRequest $request): Response
     {
 
-        if (Account::count() == 0) { /** This may not work, because we don't have 'account's table. */
-        }
-
         $status = SystemHealth::dbCheck($request);
 
         info($status);
 
-        if (gettype($status) == 'array' && $status['success'] === true) {
+        if (is_array($status) && $status['success'] === true) {
             return response([], 200);
         }
 
@@ -136,8 +133,6 @@ class SetupController extends Controller
 
 
         } catch (\Exception $e) {
-           // info(['action' => 'SetupController::checkMail()', ,]);
-
             return response()->json(['message' => $e->getMessage()], 400);
         }
     }
