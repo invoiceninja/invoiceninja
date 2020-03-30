@@ -40,7 +40,7 @@ class SetupController extends Controller
 
     public function doSetup(StoreSetupRequest $request)
     {
-        $_ENV['APP_KEY'] = env('APP_KEY');
+
         $_ENV['APP_URL'] = $request->input('url');
         $_ENV['APP_DEBUG'] = $request->input('debug') ? 'true' : 'false';
         $_ENV['REQUIRE_HTTPS'] = $request->input('https') ? 'true' : 'false';
@@ -84,8 +84,8 @@ class SetupController extends Controller
         fclose($fp);
 
         Artisan::call('optimize');
-        Artisan::call('migrate');
-        Artisan::call('db:seed');
+        Artisan::call('migrate', ['--force' => true]);
+        Artisan::call('db:seed', ['--force' => true]);
 
         if (Account::count() == 0) {
             $account = CreateAccount::dispatchNow($request->all());
