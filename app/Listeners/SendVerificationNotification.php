@@ -46,8 +46,15 @@ class SendVerificationNotification implements ShouldQueue
     {
         MultiDB::setDB($event->company->db);
 
-        $event->user->notify(new VerifyUser($event->user));
+        try {
 
-        Ninja::registerNinjaUser($event->user);
+            $event->user->notify(new VerifyUser($event->user));
+
+            Ninja::registerNinjaUser($event->user);
+
+        }
+        catch(\Exception $e){
+
+        }
     }
 }
