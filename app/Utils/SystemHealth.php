@@ -122,9 +122,7 @@ class SystemHealth
 
     public static function testMailServer($request = null)
     {
-        \Log::error($request->all());
         if ($request && $request instanceof CheckMailRequest) {
-            \Log::error("in config");
             config(['mail.driver' => $request->input('driver')]);
             config(['mail.host' => $request->input('host')]);
             config(['mail.port' => $request->input('port')]);
@@ -147,13 +145,12 @@ class SystemHealth
             \Log::error(print_r(Mail::failures(),1));
             return Mail::failures();
         }
-\Log::error("blank array");
-        return [];
+
+        return response()->json(['message'=>'Success'],200);
     }
 
     private static function checkEnvWritable()
     {
         return is_writable(base_path().'/.env');
-        //return @fopen(base_path().'/.env', 'w');
     }
 }
