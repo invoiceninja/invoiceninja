@@ -305,8 +305,7 @@ class BaseController extends Controller
         if ((bool)$this->checkAppSetup() !== false) {
             $data = [];
 
-            if (Ninja::isSelfHost()) {
-                $account = Account::all()->first();
+            if (Ninja::isSelfHost() && $account = Account::all()->first()) {
                 $data['report_errors'] = $account->report_errors;
             } else {
                 $data['report_errors'] = true;

@@ -92,7 +92,6 @@ class SetupController extends Controller
 
         \DB::purge('db-ninja-01');
 
-\Log::error(Account::count());
         if (Account::count() == 0) {
             $account = CreateAccount::dispatchNow($request->all());
         }
