@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Setup\CheckDatabaseRequest;
+use App\Http\Requests\Setup\CheckMailRequest;
 use App\Http\Requests\Setup\StoreSetupRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
