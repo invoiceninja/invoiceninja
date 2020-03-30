@@ -77,21 +77,24 @@ class SetupController extends Controller
             $config .= "{$key}={$val}\n";
         }
 
+        /* Write the .env file */
         $filePath = base_path().'/.env';
         $fp = fopen($filePath, 'w');
         fwrite($fp, $config);
         fclose($fp);
         
+        /* We need this in some environments that do not have STDIN defined */
         define('STDIN',fopen("php://stdin","r"));
 
+        /* Make sure no stale connections are cached */
         \DB::purge('db-ninja-01');
 
+        /* Run migrations */
         Artisan::call('optimize');
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('db:seed', ['--force' => true]);
 
-        \DB::purge('db-ninja-01');
-
+        /* Create the first account. */
         if (Account::count() == 0) {
             $account = CreateAccount::dispatchNow($request->all());
         }
