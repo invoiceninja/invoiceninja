@@ -120,11 +120,11 @@ class SetupController extends Controller
      *
      * @return Response
      */
-    public function checkMail()
+    public function checkMail(CheckMailRequest $request)
     {
 
         try {
-            $response_array = SystemHealth::testMailServer();
+            $response_array = SystemHealth::testMailServer($request);
 
             if(count($response_array) == 0) 
                 return response([], 200);

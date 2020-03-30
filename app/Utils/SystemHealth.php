@@ -120,9 +120,11 @@ class SystemHealth
         return DB::connection()->getPdo();
     }
 
-    public static function testMailServer(CheckMailRequest $request = null)
+    public static function testMailServer($request = null)
     {
+        \Log::error($request->all());
         if ($request && $request instanceof CheckMailRequest) {
+            \Log::error("in config");
             config(['mail.driver' => $request->input('driver')]);
             config(['mail.host' => $request->input('host')]);
             config(['mail.port' => $request->input('port')]);
