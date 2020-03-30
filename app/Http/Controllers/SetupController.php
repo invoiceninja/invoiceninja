@@ -82,6 +82,7 @@ class SetupController extends Controller
         fwrite($fp, $config);
         fclose($fp);
 
+        Artisan::call('key:generate');
         Artisan::call('optimize');
         Artisan::call('migrate');
         Artisan::call('db:seed');
