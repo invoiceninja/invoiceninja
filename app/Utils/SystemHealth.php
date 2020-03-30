@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,6 +15,7 @@ use App\Http\Requests\Setup\CheckDatabaseRequest;
 use App\Http\Requests\Setup\CheckMailRequest;
 use App\Libraries\MultiDB;
 use App\Mail\TestMailServer;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
@@ -31,14 +32,13 @@ class SystemHealth
         'gmp',
         'openssl',
         'mbstring',
-        'xml'
+        'xml',
     ];
 
     private static $php_version = 7.3;
 
-
     /**
-     * Check loaded extensions / PHP version / DB Connections
+     * Check loaded extensions / PHP version / DB Connections.
      *
      * @return     array  Result set of checks
      */
@@ -46,20 +46,23 @@ class SystemHealth
     {
         $system_health = true;
 
-        if (in_array(false, self::extensions())) {
+        if (in_array(false, Arr::dot(self::extensions()))) {
             $system_health = false;
         } elseif (phpversion() < self::$php_version) {
             $system_health = false;
         }
 
         return [
-            'system_health' => (bool)$system_health,
+            'system_health' => (bool) $system_health,
             'extensions' => self::extensions(),
-            'php_version' => phpversion(),
-            'min_php_version' => self::$php_version,
+            'php_version' => [
+                'minimum_php_version' => self::$php_version,
+                'current_php_version' => phpversion(),
+                'is_okay' => version_compare(phpversion(), self::$php_version, '>='),
+            ],
+            'env_writable' => self::checkEnvWritable(),
             //'dbs' => self::dbCheck(),
             //'mail' => self::testMailServer(),
-            'env_writable' => self::checkEnvWritable(),
         ];
     }
 
@@ -91,10 +94,10 @@ class SystemHealth
         if (! config('ninja.db.multi_db_enabled')) {
             try {
                 $pdo = DB::connection()->getPdo();
-                $result[] = [ DB::connection()->getDatabaseName() => true ];
+                $result[] = [DB::connection()->getDatabaseName() => true];
                 $result['success'] = true;
             } catch (\Exception $e) {
-                $result[] = [ config('database.connections.' . config('database.default') . '.database') => false ];
+                $result[] = [config('database.connections.'.config('database.default').'.database') => false];
                 $result['success'] = false;
             }
         } else {
@@ -103,10 +106,10 @@ class SystemHealth
 
                 try {
                     $pdo = DB::connection()->getPdo();
-                    $result[] = [ DB::connection()->getDatabaseName() => true ];
+                    $result[] = [DB::connection()->getDatabaseName() => true];
                     $result['success'] = true;
                 } catch (\Exception $e) {
-                    $result[] = [ config('database.connections.' . config('database.default') . '.database') => false ];
+                    $result[] = [config('database.connections.'.config('database.default').'.database') => false];
                     $result['success'] = false;
                 }
             }
@@ -138,15 +141,17 @@ class SystemHealth
             ->send(new TestMailServer('Email Server Works!', config('mail.from.address')));
         } catch (\Exception $e) {
             \Log::error($e->getMessage());
+
             return $e->getMessage();
         }
 
         if (count(Mail::failures()) > 0) {
-            \Log::error(print_r(Mail::failures(),1));
+            \Log::error(print_r(Mail::failures(), 1));
+
             return Mail::failures();
         }
 
-        return response()->json(['message'=>'Success'],200);
+        return response()->json(['message'=>'Success'], 200);
     }
 
     private static function checkEnvWritable()
