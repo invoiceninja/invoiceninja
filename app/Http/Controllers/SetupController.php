@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Setup\CheckDatabaseRequest;
+use App\Http\Requests\Setup\CheckMailRequest;
 use App\Http\Requests\Setup\StoreSetupRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
@@ -39,16 +40,17 @@ class SetupController extends Controller
 
     public function doSetup(StoreSetupRequest $request)
     {
+        $_ENV['APP_KEY'] = config('app.key');
         $_ENV['APP_URL'] = $request->input('url');
         $_ENV['APP_DEBUG'] = $request->input('debug') ? 'true' : 'false';
         $_ENV['REQUIRE_HTTPS'] = $request->input('https') ? 'true' : 'false';
         $_ENV['DB_TYPE'] = 'mysql';
         $_ENV['DB_HOST1'] = $request->input('host');
-        $_ENV['DB_DATABASE1'] = $request->input('db_username');
-        $_ENV['DB_USERNAME1'] = $request->input('db_password');
+        $_ENV['DB_DATABASE1'] = $request->input('database');
+        $_ENV['DB_USERNAME1'] = $request->input('db_username');
         $_ENV['DB_PASSWORD1'] = $request->input('db_password');
         $_ENV['MAIL_DRIVER'] = $request->input('mail_driver');
-        $_ENV['MAIL_PORT'] = $request->input('port');
+        $_ENV['MAIL_PORT'] = $request->input('mail_port');
         $_ENV['MAIL_ENCRYPTION'] = $request->input('encryption');
         $_ENV['MAIL_HOST'] = $request->input('mail_host');
         $_ENV['MAIL_USERNAME'] = $request->input('mail_username');
@@ -62,7 +64,6 @@ class SetupController extends Controller
         $_ENV['SELF_UPDATER_MAILTO_ADDRESS'] = $request->input('mail_address');
         $_ENV['SELF_UPDATER_MAILTO_NAME'] = $request->input('mail_name');
         $_ENV['DB_CONNECTION'] = 'db-ninja-01';
-        $_ENV['APP_DEBUG'] = false;
 
         $config = '';
 
@@ -76,16 +77,24 @@ class SetupController extends Controller
             $config .= "{$key}={$val}\n";
         }
 
+        /* Write the .env file */
         $filePath = base_path().'/.env';
         $fp = fopen($filePath, 'w');
         fwrite($fp, $config);
         fclose($fp);
+        
+        /* We need this in some environments that do not have STDIN defined */
+        define('STDIN',fopen("php://stdin","r"));
 
+        /* Make sure no stale connections are cached */
+        \DB::purge('db-ninja-01');
+
+        /* Run migrations */
         Artisan::call('optimize');
-        Artisan::call('migrate');
-        Artisan::call('db:seed');
-        Artisan::call('horizon');
+        Artisan::call('migrate', ['--force' => true]);
+        Artisan::call('db:seed', ['--force' => true]);
 
+        /* Create the first account. */
         if (Account::count() == 0) {
             $account = CreateAccount::dispatchNow($request->all());
         }
@@ -101,14 +110,11 @@ class SetupController extends Controller
     public function checkDB(CheckDatabaseRequest $request): Response
     {
 
-        if (Account::count() == 0) { /** This may not work, because we don't have 'account's table. */
-        }
-
         $status = SystemHealth::dbCheck($request);
 
         info($status);
 
-        if (gettype($status) == 'array' && $status['success'] === true) {
+        if (is_array($status) && $status['success'] === true) {
             return response([], 200);
         }
 
@@ -120,23 +126,20 @@ class SetupController extends Controller
      *
      * @return Response
      */
-    public function checkMail(): Response
+    public function checkMail(CheckMailRequest $request)
     {
-        // if (Account::count() == 0) {} /** This may not work, because we don't have 'account's table. */
-
 
         try {
-            SystemHealth::testMailServer();
+            $response_array = SystemHealth::testMailServer($request);
 
-            $randomStatus = rand(0, 1);
-
-            if ($randomStatus) 
+            if(count($response_array) == 0) 
                 return response([], 200);
-        
-        } catch (\Exception $e) {
-            info(['action' => 'SetupController::checkMail()', 'message' => $e->getMessage(),]);
+            else
+                return response()->json($response_array, 200);
 
-            return response([], 400);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
         }
     }
 }

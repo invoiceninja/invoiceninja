@@ -11,7 +11,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\Account;
+use App\Models\Account;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\User;
@@ -305,8 +305,7 @@ class BaseController extends Controller
         if ((bool)$this->checkAppSetup() !== false) {
             $data = [];
 
-            if (Ninja::isSelfHost()) {
-                $account = Account::all()->first();
+            if (Ninja::isSelfHost() && $account = Account::all()->first()) {
                 $data['report_errors'] = $account->report_errors;
             } else {
                 $data['report_errors'] = true;

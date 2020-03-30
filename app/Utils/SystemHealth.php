@@ -137,19 +137,20 @@ class SystemHealth
             Mail::to(config('mail.from.address'))
             ->send(new TestMailServer('Email Server Works!', config('mail.from.address')));
         } catch (\Exception $e) {
+            \Log::error($e->getMessage());
             return $e->getMessage();
         }
 
         if (count(Mail::failures()) > 0) {
+            \Log::error(print_r(Mail::failures(),1));
             return Mail::failures();
         }
 
-        return [];
+        return response()->json(['message'=>'Success'],200);
     }
 
     private static function checkEnvWritable()
     {
         return is_writable(base_path().'/.env');
-        //return @fopen(base_path().'/.env', 'w');
     }
 }
