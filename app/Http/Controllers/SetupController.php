@@ -46,8 +46,8 @@ class SetupController extends Controller
         $_ENV['REQUIRE_HTTPS'] = $request->input('https') ? 'true' : 'false';
         $_ENV['DB_TYPE'] = 'mysql';
         $_ENV['DB_HOST1'] = $request->input('host');
-        $_ENV['DB_DATABASE1'] = $request->input('db_username');
-        $_ENV['DB_USERNAME1'] = $request->input('db_password');
+        $_ENV['DB_DATABASE1'] = $request->input('database');
+        $_ENV['DB_USERNAME1'] = $request->input('db_username');
         $_ENV['DB_PASSWORD1'] = $request->input('db_password');
         $_ENV['MAIL_DRIVER'] = $request->input('mail_driver');
         $_ENV['MAIL_PORT'] = $request->input('mail_port');
