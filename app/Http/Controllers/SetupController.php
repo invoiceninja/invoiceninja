@@ -90,6 +90,8 @@ class SetupController extends Controller
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('db:seed', ['--force' => true]);
 
+        \DB::purge('db-ninja-01');
+
         if (Account::count() == 0) {
             $account = CreateAccount::dispatchNow($request->all());
         }
