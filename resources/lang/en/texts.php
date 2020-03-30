@@ -3189,4 +3189,6 @@ return [
     'writable_env_file' => 'Writable .env file',
     'env_not_writable' => '.env file is not writable by the current user.',
     'minumum_php_version' => 'Minimum PHP version',
+    'satisfy_requirements' => 'Make sure all requirements are satisfied.',
+    'oops_issues' => 'Oops, something doesn\'t look right!',
 ];

@@ -1,10 +1,10 @@
 <div class="bg-white shadow overflow-hidden rounded-lg mt-8">
     <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900">
-            Oops, something doesn't look right!
+            {{ ctrans('texts.oops_issues') }}
         </h3>
         <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">
-            Make sure all requirements are satisfied.
+            {{ ctrans('texts.satisfy_requirements') }}
         </p>
     </div>
     <div>
