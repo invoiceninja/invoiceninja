@@ -3183,4 +3183,10 @@ return [
     'waiting_for_approval' => 'Waiting for approval',
     'quote_still_not_approved' => 'This quote is still not approved',
     'list_of_credits' => 'Credits',
+
+    'required_extensions' => 'Required extensions',
+    'php_version' => 'PHP version',
+    'writable_env_file' => 'Writable .env file',
+    'env_not_writable' => '.env file is not writable by the current user.',
+    'minumum_php_version' => 'Minimum PHP version',
 ];

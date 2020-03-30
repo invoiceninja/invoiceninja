@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,25 +21,30 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
 
 /**
- * Class SetupController
+ * Class SetupController.
  */
 class SetupController extends Controller
 {
+    /**
+     * Main setup view.
+     *
+     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
+     */
     public function index()
     {
-        $data = SystemHealth::check();
+        $check = SystemHealth::check();
 
-        if ($data['system_health'] !== false) {
-            return view('setup.index', $data);
-        }
-        
-        if ($system_health !== true) {
-            return redirect('/');
-        }
+        return view('setup.index', ['check' => $check]);
     }
 
     public function doSetup(StoreSetupRequest $request)
     {
+        $check = SystemHealth::check();
+
+        if ($check['system_status'] === false) {
+            return; /* This should never be reached. */
+        }
+
         $_ENV['APP_KEY'] = config('app.key');
         $_ENV['APP_URL'] = $request->input('url');
         $_ENV['APP_DEBUG'] = $request->input('debug') ? 'true' : 'false';
@@ -82,9 +87,9 @@ class SetupController extends Controller
         $fp = fopen($filePath, 'w');
         fwrite($fp, $config);
         fclose($fp);
-        
+
         /* We need this in some environments that do not have STDIN defined */
-        define('STDIN',fopen("php://stdin","r"));
+        define('STDIN', fopen('php://stdin', 'r'));
 
         /* Make sure no stale connections are cached */
         \DB::purge('db-ninja-01');
@@ -98,7 +103,7 @@ class SetupController extends Controller
         if (Account::count() == 0) {
             $account = CreateAccount::dispatchNow($request->all());
         }
-        
+
         return redirect('/');
     }
 
@@ -109,7 +114,6 @@ class SetupController extends Controller
      */
     public function checkDB(CheckDatabaseRequest $request): Response
     {
-
         $status = SystemHealth::dbCheck($request);
 
         info($status);
@@ -128,17 +132,15 @@ class SetupController extends Controller
      */
     public function checkMail(CheckMailRequest $request)
     {
-
         try {
             $response_array = SystemHealth::testMailServer($request);
 
-            if(count($response_array) == 0) 
+            if (count($response_array) == 0) {
                 return response([], 200);
-            else
+            } else {
                 return response()->json($response_array, 200);
-
-
-        } catch (\Exception $e) {
+            }
+`        } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
         }
     }

@@ -29,29 +29,34 @@
                     </div>
                 @endif
 
-                @include('setup._application')
-                @include('setup._database')
-                @include('setup._mail')
-                @include('setup._account')
+                @if($check['system_health'] === false)
+                    @include('setup._issues')
+                @else
 
-                <div class="flex justify-center mt-4">
-                    <div class="flex flex-col">
-                        <div class="mt-4">
-                            <input type="checkbox" class="form-checkbox" name="terms_of_service" required>
-                            <span>I agree to
-                                <a class="button-link" href="https://www.invoiceninja.com/self-hosting-terms-service/">{{ ctrans('texts.terms_of_service') }}</a>
-                            </span>
+                    @include('setup._application')
+                    @include('setup._database')
+                    @include('setup._mail')
+                    @include('setup._account')
+
+                    <div class="flex justify-center mt-4">
+                        <div class="flex flex-col">
+                            <div class="mt-4">
+                                <input type="checkbox" class="form-checkbox" name="terms_of_service" required>
+                                <span>I agree to
+                                    <a class="button-link" href="https://www.invoiceninja.com/self-hosting-terms-service/">{{ ctrans('texts.terms_of_service') }}</a>
+                                </span>
+                            </div>
+                            <div class="mt-2">
+                                <input type="checkbox" class="form-checkbox" name="privacy_policy" required>
+                                <span>I agree to
+                                    <a class="button-link" href="https://www.invoiceninja.com/self-hosting-privacy-data-control/">{{ ctrans('texts.privacy_policy') }}</a>
+                                </span>
+                            </div>
+
+                            <button type="submit" class="button button-primary w-1/2 my-4">{{ ctrans('texts.submit') }}</button>
                         </div>
-                        <div class="mt-2">
-                            <input type="checkbox" class="form-checkbox" name="privacy_policy" required>
-                            <span>I agree to
-                                <a class="button-link" href="https://www.invoiceninja.com/self-hosting-privacy-data-control/">{{ ctrans('texts.privacy_policy') }}</a>
-                            </span>
-                        </div>
-                        <button type="submit" class="button button-primary w-1/2 my-4">{{ ctrans('texts.submit') }}</button>
                     </div>
-                </div>
-
+                @endif
             </div>
         </div>
     </form>
