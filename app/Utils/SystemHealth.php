@@ -120,7 +120,7 @@ class SystemHealth
         return DB::connection()->getPdo();
     }
 
-    public static function testMailServer($request = null)
+    public static function testMailServer(CheckMailRequest $request = null)
     {
         if ($request && $request instanceof CheckMailRequest) {
             config(['mail.driver' => $request->input('driver')]);
