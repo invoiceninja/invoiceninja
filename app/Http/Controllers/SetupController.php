@@ -65,7 +65,6 @@ class SetupController extends Controller
         $_ENV['SELF_UPDATER_MAILTO_NAME'] = $request->input('mail_name');
         $_ENV['DB_CONNECTION'] = 'db-ninja-01';
 
-
         $config = '';
 
         foreach ($_ENV as $key => $val) {
@@ -84,6 +83,8 @@ class SetupController extends Controller
         fclose($fp);
         
         define('STDIN',fopen("php://stdin","r"));
+
+        \DB::purge('db-ninja-01');
 
         Artisan::call('optimize');
         Artisan::call('migrate', ['--force' => true]);
