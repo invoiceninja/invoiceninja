@@ -40,6 +40,7 @@ class SetupController extends Controller
 
     public function doSetup(StoreSetupRequest $request)
     {
+        $_ENV['APP_KEY'] = '';
         $_ENV['APP_URL'] = $request->input('url');
         $_ENV['APP_DEBUG'] = $request->input('debug') ? 'true' : 'false';
         $_ENV['REQUIRE_HTTPS'] = $request->input('https') ? 'true' : 'false';
