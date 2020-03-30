@@ -20,26 +20,31 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CreateAccount
 {
+
     use Dispatchable;
-
+    
     protected $request;
-
+    
     public function __construct(array $sp660339)
     {
         $this->request = $sp660339;
     }
+
     public function handle()
     {
-        \Log::error("in the handler");
-        if (config('ninja.environment') == 'selfhost' && Account::all()->count() > 1) {
-            \Log::error("ninja env acc > 1");
+
+        if(config('ninja.environment') == 'selfhost' && Account::all()->count() == 0) {
+            $this->create();
+        }elseif (config('ninja.environment') == 'selfhost' && Account::all()->count() > 1) {
             return response()->json(array('message' => Ninja::selfHostedMessage()), 400);
         } elseif (!Ninja::boot()) {
-            \Log::error("cant create more than 1 acc");
             return response()->json(array('message' => Ninja::parse()), 401);
         }
 
-\Log::error("creating account");
+    }
+
+    private function create()
+    {
 
         $sp794f3f = Account::create($this->request);
         $sp794f3f->referral_code = Str::random(32);
@@ -48,7 +53,6 @@ class CreateAccount
             $sp794f3f->key = Str::random(32);
         
         $sp794f3f->save();
-\Log::error("company save");
         
         $sp035a66 = CreateCompany::dispatchNow($this->request, $sp794f3f);
         $sp035a66->load('account');
@@ -67,5 +71,7 @@ class CreateAccount
         $spaa9f78->fresh();
         $sp035a66->notification(new NewAccountCreated($spaa9f78, $sp035a66))->ninja();
         return $sp794f3f;
+
     }
+
 }
