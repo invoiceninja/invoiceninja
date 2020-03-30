@@ -21,7 +21,6 @@ local_version.txt
 
 .env.dusk.local
 /public/vendors/*
-public/mix-manifest.json
 *.log
 
 # Ignore local migrations
