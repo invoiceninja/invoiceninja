@@ -40,7 +40,7 @@ class SetupController extends Controller
 
     public function doSetup(StoreSetupRequest $request)
     {
-
+        $_ENV['APP_KEY'] = config('app.key');
         $_ENV['APP_URL'] = $request->input('url');
         $_ENV['APP_DEBUG'] = $request->input('debug') ? 'true' : 'false';
         $_ENV['REQUIRE_HTTPS'] = $request->input('https') ? 'true' : 'false';
@@ -64,7 +64,7 @@ class SetupController extends Controller
         $_ENV['SELF_UPDATER_MAILTO_ADDRESS'] = $request->input('mail_address');
         $_ENV['SELF_UPDATER_MAILTO_NAME'] = $request->input('mail_name');
         $_ENV['DB_CONNECTION'] = 'db-ninja-01';
-        $_ENV['APP_DEBUG'] = false;
+
 
         $config = '';
 
