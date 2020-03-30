@@ -50,7 +50,7 @@ class SetupController extends Controller
         $_ENV['DB_USERNAME1'] = $request->input('db_password');
         $_ENV['DB_PASSWORD1'] = $request->input('db_password');
         $_ENV['MAIL_DRIVER'] = $request->input('mail_driver');
-        $_ENV['MAIL_PORT'] = $request->input('port');
+        $_ENV['MAIL_PORT'] = $request->input('mail_port');
         $_ENV['MAIL_ENCRYPTION'] = $request->input('encryption');
         $_ENV['MAIL_HOST'] = $request->input('mail_host');
         $_ENV['MAIL_USERNAME'] = $request->input('mail_username');
@@ -82,6 +82,8 @@ class SetupController extends Controller
         $fp = fopen($filePath, 'w');
         fwrite($fp, $config);
         fclose($fp);
+        
+        define('STDIN',fopen("php://stdin","r"));
 
         Artisan::call('optimize');
         Artisan::call('migrate', ['--force' => true]);
