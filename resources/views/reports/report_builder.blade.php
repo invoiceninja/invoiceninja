@@ -286,7 +286,12 @@
             @foreach ($reportTotals as $currencyId => $each)
 				@foreach ($each as $dimension => $val)
 	                <tr>
-	                    <td>{!! Utils::getFromCache($currencyId, 'currencies')->name !!}
+	                    <td>
+							@if ($currencyId == 'Total')
+							Total
+							@else
+							{!! Utils::getFromCache($currencyId, 'currencies')->name !!}
+							@endif
 						@if ($dimension)
 							- {{ $dimension }}
 						@endif
@@ -295,8 +300,10 @@
 							<td>
 								@if ($field == 'duration')
 									{{ Utils::formatTime($value) }}
+								@elseif ($currencyId == 'Total')
+									{{ Utils::formatMoney($value, $account->getCurrencyId()) }}
 								@else
-		                        	{{ Utils::formatMoney($value, $currencyId) }}
+									{{ Utils::formatMoney($value, $currencyId) }}
 								@endif
 							</td>
 	                    @endforeach
