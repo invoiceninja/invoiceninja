@@ -55,28 +55,6 @@ class UpdateCompanyRequest extends Request
 
     protected function prepareForValidation()
     {
-
-        $input = $this->all();
-
-        $company_settings = CompanySettings::defaults();
-
-        if (array_key_exists('settings', $input) && !empty($input['settings'])) {
-            
-            foreach ($input['settings'] as $key => $value) {
-
-                if($value == 'invoice_design_id')
-                {
-                    $value = $this->encodePrimaryKey($value);    
-                }
-
-                $company_settings->{$key} = $value;
-
-            }
-
-        }
-        
-        $this->replace($input);
-
-
     }
+    
 }
