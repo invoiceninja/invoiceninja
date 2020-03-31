@@ -33,8 +33,8 @@ body {font-size:90%}
     margin-top: 5mm;
 }
 .table_header_thead_class { text-align: left; background-color: #319795; border-radius: .5rem; }
-.table_header_td_class { padding: .75rem 1rem; font-weight: 600; }
-.table_body_td_class { padding: 1rem; border-bottom-width: 4px; border-style: dashed; border-color: #319795 }
+.table_header_td_class { padding: .75rem 1rem; font-weight: 600; color: white; }
+.table_body_td_class { padding: 1rem; border-bottom-width: 4px; border-style: dashed; border-color: #319795; color: black }
 </style>';
     }
 
@@ -42,18 +42,13 @@ body {font-size:90%}
     public function header()
     {
         return '<div class="my-12 mx-16">
-<div class="flex items-center justify-between">
-    <div class="w-1/2">
+<div class="grid grid-cols-12 items-center justify-between">
+    <div class="col-span-7">
         $company_logo
     </div>
-    <div class="bg-teal-600 p-5">
-        <div class="flex">
-            <div class="flex justify-between text-white flex-col mr-8">
-                $entity_labels
-            </div>
-            <div class="flex flex-col text-right text-white">
-                $entity_details
-            </div>
+    <div class="col-span-5 bg-teal-600 p-5 text-white">
+        <div class="flex flex-col">
+            $entity_details
         </div>
     </div>
 </div>';
@@ -64,7 +59,7 @@ body {font-size:90%}
         return '<div class="flex mt-16">
 <div class="w-1/2">
     <div class="flex flex-col">
-        <p class="font-semibold text-teal-600 pl-4">$entity_label</p>
+        <p class="font-semibold text-teal-600 pl-4">$to_label:</p>
         <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
             <section class="flex flex-col">
                 $client_details
@@ -98,40 +93,7 @@ body {font-size:90%}
 <tbody>
     $task_table_body
 </tbody>
-</table>
-<div class="flex items-center justify-between mt-2 px-4 pb-4">
-<div class="w-1/2">
-    <div class="flex flex-col">
-        <p>$entity.public_notes</p>
-    </div>
-</div>
-<div class="w-1/3 flex flex-col">
-    <div class="flex px-3 mt-2">
-        <section class="w-1/2 text-right flex flex-col">
-            $discount_label
-            $total_tax_labels
-            $line_tax_labels
-        </section>
-        <section class="w-1/2 text-right flex flex-col">
-            $discount
-            $total_tax_values
-            $line_tax_values
-        </section>
-    </div>
-</div>
-<div class="flex items-center justify-between mt-4 pb-4 px-4">
-<div class="w-1/2">
-    <div class="flex flex-col">
-        <p class="font-semibold">$terms_label</p>
-        <p>$terms</p>
-    </div>
-</div>
-<div class="flex w-2/5 flex-col">
-    <section class="flex bg-teal-600 py-3 px-4 text-white">
-        <p class="w-1/2">$balance_due_label</p>
-        <p class="text-right w-1/2">$balance_due</p>
-    </section>
-</div>';
+</table>';
     }
 
     public function task()
@@ -146,6 +108,32 @@ body {font-size:90%}
 
     public function footer()
     {
-        return '';
+        return '<div class="grid grid-cols-12 gap-4">
+    <div class="col-span-7 flex flex-col">
+        $entity.public_notes
+    </div>   
+    <div class="col-span-5 flex">
+        <section class="w-1/2 text-right flex flex-col">
+            $discount_label
+            $total_tax_labels
+            $line_tax_labels
+        </section>
+        <section class="w-1/2 text-right flex flex-col">
+            $discount
+            $total_tax_values
+            $line_tax_values
+        </section>
+    </div>
+    <div class="col-span-7">
+        <p class="font-semibold">$terms_label</p>
+        <p>$terms</p>
+    </div>   
+    <div class="col-span-5">
+        <div class="flex bg-teal-600 py-3 px-4 text-white">
+            <p class="w-1/2">$balance_due_label</p>
+            <p class="text-right w-1/2">$balance_due</p>
+        </div>
+    </div>
+<div>';
     }
 }

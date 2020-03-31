@@ -36,7 +36,7 @@ size: auto;
 margin-top: 6mm;
 }
 .table_header_thead_class { text-align: left; border-radius: .5rem; }
-.table_header_td_class { text-transform: uppercase; font-size: 1.25rem; color: #b83280; padding: 1.25rem 1rem; font-weight: 500 }
+.table_header_td_class { text-transform: uppercase; font-size: 1.25rem; color: #b83280; font-weight: 500 }
 .table_body_td_class { padding: 1rem;}
 </style>';
     }
@@ -44,55 +44,41 @@ margin-top: 6mm;
 
     public function header()
     {
-        return '<div class="py-16 mx-16">
-<div class="flex justify-between">
-    <div class="w-2/3 flex">
-        <div class="flex flex-col">
-            $client_details
-        </div>
-        <div class="ml-6 flex flex-col">
-            $company_details
-        </div>
-        <div class="ml-6 flex flex-col mr-4">
-            $company_address
-        </div>
-    </div>
-    $company_logo
+        return '<div class="m-12">
+<div class="grid grid-cols-12 gap-4">
+    <div class="col-span-3 flex flex-col flex-wrap break-all">$client_details</div>
+    <div class="col-span-3 flex flex-col flex-wrap break-all">$company_details</div>
+    <div class="col-span-3 flex flex-col flex-wrap break-all">$company_address</div>
+    <div class="col-span-3 flex flex-wrap">$company_logo</div>
 </div>';
     }
 
     public function body()
     {
-        return '<div class="flex justify-between mt-8">
-<div class="w-2/3 flex flex-col">
-    <h1 class="text-5xl uppercase font-semibold">$entity_label</h1>
-    <i class="ml-4 text-5xl text-pink-700">$entity_number</i>
-</div>
-<div class="flex">
-    <div class="flex justify-between flex-col">
-        $entity_labels
+        return '<div class="grid grid-cols-12 mt-8">
+    <div class="col-span-7">
+        <p class="text-4xl text-pink-700">#$entity_number</p>
     </div>
-    <div class="flex flex-col text-right">
-        $entity_details
-    </div>
+    <div class="col-span-5 flex flex-col">$entity_details</div>
 </div>
-</div>
-<table class="w-full table-auto mt-12 border-t-4 border-pink-700 bg-white">
-<thead class="text-left rounded-lg">
-    $product_table_header
-</thead>
-<tbody>
-    $product_table_body
-</tbody>
+
+<table class="w-full table-auto border-t-4 border-pink-700 bg-white mt-8">
+    <thead class="text-left rounded-lg">
+        $product_table_header
+    </thead>
+    <tbody>
+        $product_table_body
+    </tbody>
 </table>
-<table class="w-full table-auto mt-12 border-t-4 border-pink-700 bg-white">
+<table class="w-full table-auto border-t-4 border-pink-700 bg-white">
     <thead class="text-left rounded-lg">
         $task_table_header
     </thead>
     <tbody>
         $task_table_body
     </tbody>
-</table>';
+</table>
+';
     }
 
     public function task()
@@ -108,25 +94,17 @@ margin-top: 6mm;
 
     public function footer()
     {
-        return '<div class="border-b-4 border-pink-700">
-<div class="flex items-center justify-between mt-2 px-4 pb-4">
-    <div class="w-1/2">
-        <div class="flex flex-col">
-            <p>$entity.public_notes</p>
-        </div>
+        return '<div class="border-b-4 border-pink-700 mt-8">
+<div class="grid grid-cols-12 mt-2 px-4 pb-4">
+    <div class="col-span-7 flex flex-col">
+        <p>$entity.public_notes</p>
     </div>
-    <div class="w-1/3 flex flex-col">
-        <div class="flex px-3 mt-2">
-            <section class="w-1/2 text-right flex flex-col">
-                <span>$subtotal_label</span>
-                <span>$discount_label</span>
-                <span>$paid_to_date_label</span>
-            </section>
-            <section class="w-1/2 text-right flex flex-col">
-                <span>$subtotal</span>
-                <span>$discount</span>
-                <span>$paid_to_date</span>
-            </section>
+    <div class="col-span-5 flex px-3 mt-2">
+        <div class="w-1/2 text-right flex flex-col">
+            $subtotal_label $discount_label $total_tax_labels $line_tax_labels 
+        </div>
+        <div class="w-1/2 text-right flex flex-col">
+            $subtotal $discount $total_tax_values $line_tax_values 
         </div>
     </div>
 </div>
