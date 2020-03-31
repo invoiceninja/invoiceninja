@@ -87,13 +87,10 @@ class CreateCreditPdf implements ShouldQueue
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
 
-        //\Log::error($html);
         $pdf = $this->makePdf(null, null, $html);
 
         $instance = Storage::disk($this->disk)->put($file_path, $pdf);
 
-        //$instance= Storage::disk($this->disk)->path($file_path);
-        //
         return $file_path;
     }
 }

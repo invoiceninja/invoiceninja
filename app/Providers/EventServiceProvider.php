@@ -168,11 +168,5 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
      {
          parent::boot();
-         //$events->subscribe('*');
-        // \Event::listen('event.*', function ($eventName, array $data) {
-        //     \Log::error("Event Service Provider");
-        // });
-
-
      }
 }

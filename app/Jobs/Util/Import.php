@@ -129,7 +129,7 @@ class Import implements ShouldQueue
     public function handle()
     {
         foreach ($this->data as $key => $resource) {
-            \Log::error("importing {$key}");
+
             if (!in_array($key, $this->available_imports)) {
                 throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
             }
@@ -138,7 +138,6 @@ class Import implements ShouldQueue
 
             $this->{$method}($resource);
 
-            info("$key done!!");
         }
 
         info('Completed🚀🚀🚀🚀🚀 at ' . now());
@@ -157,7 +156,7 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            // \Log::error($validator->errors());
+
             throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
