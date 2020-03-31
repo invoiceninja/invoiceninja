@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Util;
 
+use App\DataMapper\CompanySettings;
 use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
@@ -41,6 +42,7 @@ use App\Repositories\ProductRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -54,6 +56,7 @@ class Import implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use CompanyGatewayFeesAndLimitsSaver;
+    use MakesHash;
 
     /**
      * @var array
@@ -129,7 +132,7 @@ class Import implements ShouldQueue
     public function handle()
     {
         foreach ($this->data as $key => $resource) {
-            \Log::error("importing {$key}");
+
             if (!in_array($key, $this->available_imports)) {
                 throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
             }
@@ -138,7 +141,6 @@ class Import implements ShouldQueue
 
             $this->{$method}($resource);
 
-            info("$key done!!");
         }
 
         info('Completed🚀🚀🚀🚀🚀 at ' . now());
@@ -152,12 +154,14 @@ class Import implements ShouldQueue
     {
         Company::unguard();
 
+        $data = $this->transformCompanyData($data);
+
         $rules = (new UpdateCompanyRequest())->rules();
 
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-            // \Log::error($validator->errors());
+
             throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
@@ -169,6 +173,32 @@ class Import implements ShouldQueue
         $company_repository->save($data, $this->company);
 
         Company::reguard();
+    }
+
+    private function transformCompanyData(array $data): array
+    {
+
+        $company_settings = CompanySettings::defaults();
+
+        if (array_key_exists('settings', $data) ) {
+            
+            foreach ($data['settings'] as $key => $value) {
+
+                if($key == 'invoice_design_id' || $key == 'quote_design_id' || $key == 'credit_design_id')
+                {
+                    $value = $this->encodePrimaryKey($value);    
+                                }
+
+                $company_settings->{$key} = $value;
+
+            }
+
+            $data['settings'] = $company_settings;
+
+        }
+        
+        return $data;
+
     }
 
     /**

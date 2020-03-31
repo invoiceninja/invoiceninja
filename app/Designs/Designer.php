@@ -175,7 +175,6 @@ class Designer
         if (strlen($this->exported_variables['$product_table_body']) == 0) {
             $this->exported_variables['$product_table_header'] = '';
         }
-        //\Log::error("Exporting variables took = ".(microtime(true)-$s));
         return $this;
     }
 

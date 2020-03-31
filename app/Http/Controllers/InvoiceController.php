@@ -687,7 +687,7 @@ class InvoiceController extends BaseController
                 });
 
                 if ($invoice->invitations->count() > 0) {
-                    \Log::error("more than one invitation to send");
+
                     event(new InvoiceWasEmailed($invoice->invitations->first()));
                 }
 

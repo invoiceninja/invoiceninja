@@ -74,8 +74,7 @@ class ClientTest extends TestCase
         $response->assertStatus(200);
 
         $acc = $response->json();
-
-
+        
         $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
 
         $token = $account->default_company->tokens->first()->token;

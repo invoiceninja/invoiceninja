@@ -151,8 +151,6 @@ class PreviewController extends BaseController
 
         $design_object = json_decode(json_encode(request()->input('design')));
 
-        //\Log::error(print_r($design_object,1));
-
         if (!is_object($design_object)) {
             return response()->json(['message' => 'Invalid custom design object'], 400);
         }

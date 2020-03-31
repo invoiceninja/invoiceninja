@@ -11,13 +11,16 @@
 
 namespace App\Http\Requests\Company;
 
+use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidSettingsRule;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class UpdateCompanyRequest extends Request
 {
+    use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -53,4 +56,5 @@ class UpdateCompanyRequest extends Request
     protected function prepareForValidation()
     {
     }
+    
 }
