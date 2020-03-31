@@ -41,8 +41,8 @@ class SetupController extends Controller
     {
         $check = SystemHealth::check();
 
-        if ($check['system_status'] === false) {
-            return; /* This should never be reached. */
+        if ($check['system_health'] === false) {
+            return back(); // This should never be reached.
         }
 
         $_ENV['APP_KEY'] = config('app.key');
@@ -72,39 +72,47 @@ class SetupController extends Controller
 
         $config = '';
 
-        foreach ($_ENV as $key => $val) {
-            if (is_array($val)) {
-                continue;
+        try {
+            foreach ($_ENV as $key => $val) {
+                if (is_array($val)) {
+                    continue;
+                }
+                if (preg_match('/\s/', $val)) {
+                    $val = "'{$val}'";
+                }
+                $config .= "{$key}={$val}\n";
             }
-            if (preg_match('/\s/', $val)) {
-                $val = "'{$val}'";
+
+            /* Write the .env file */
+            $filePath = base_path().'/.env';
+            $fp = fopen($filePath, 'w');
+            fwrite($fp, $config);
+            fclose($fp);
+
+            /* We need this in some environments that do not have STDIN defined */
+            define('STDIN', fopen('php://stdin', 'r'));
+
+            /* Make sure no stale connections are cached */
+            \DB::purge('db-ninja-01');
+
+            /* Run migrations */
+            Artisan::call('optimize');
+            Artisan::call('migrate', ['--force' => true]);
+            Artisan::call('db:seed', ['--force' => true]);
+
+            /* Create the first account. */
+            if (Account::count() == 0) {
+                $account = CreateAccount::dispatchNow($request->all());
             }
-            $config .= "{$key}={$val}\n";
+
+            return redirect('/');
+        } catch (\Exception $e) {
+            info($e->getMessage());
+
+            return redirect()
+                ->back()
+                ->with('setup_error', $e->getMessage());
         }
-
-        /* Write the .env file */
-        $filePath = base_path().'/.env';
-        $fp = fopen($filePath, 'w');
-        fwrite($fp, $config);
-        fclose($fp);
-
-        /* We need this in some environments that do not have STDIN defined */
-        define('STDIN', fopen('php://stdin', 'r'));
-
-        /* Make sure no stale connections are cached */
-        \DB::purge('db-ninja-01');
-
-        /* Run migrations */
-        Artisan::call('optimize');
-        Artisan::call('migrate', ['--force' => true]);
-        Artisan::call('db:seed', ['--force' => true]);
-
-        /* Create the first account. */
-        if (Account::count() == 0) {
-            $account = CreateAccount::dispatchNow($request->all());
-        }
-
-        return redirect('/');
     }
 
     /**
@@ -140,7 +148,9 @@ class SetupController extends Controller
             } else {
                 return response()->json($response_array, 200);
             }
-`        } catch (\Exception $e) {
+        } catch (\Exception $e) {
+            info(['message' => $e->getMessage(), 'action' => 'SetupController::checkMail()']);
+
             return response()->json(['message' => $e->getMessage()], 400);
         }
     }

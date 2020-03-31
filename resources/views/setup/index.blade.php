@@ -29,6 +29,13 @@
                     </div>
                 @endif
 
+                @if(session()->has('setup_error'))
+                    <div class="alert alert-failure mt-4">
+                        <span class="font-bold">Oops, something wen't wrong:</span>
+                        <pre class="bg-white p-3 mt-2 rounded overflow-y-scroll">{{ session('setup_error') }}</pre>
+                    </div>
+                @endif
+
                 @if($check['system_health'] === false)
                     @include('setup._issues')
                 @else
