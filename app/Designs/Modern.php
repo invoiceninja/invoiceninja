@@ -64,36 +64,33 @@ class Modern extends AbstractDesign
     public function header()
     {
         return '<div class="div_header bg-orange-600 flex justify-between py-12 px-12" style="page-break-inside: avoid;">
-<div class="w-1/2">
-	<h1 class="text-white font-bold text-5xl">$company.name</h1>
+<div class="grid grid-cols-6 gap-1">
+    <div class="col-span-2 p-3">
+		<h1 class="text-white font-bold text-3xl">$company.name</h1>
+    </div>
+    <div class="col-span-2 p-3 flex flex-col text-white">
+        $company_details
+    </div>
+    <div class="col-span-2 p-3 flex flex-col text-white">
+        $entity_details
+    </div>
 </div>
-<div class="w-1/2 flex justify-end">
-	<div class="w-56 flex flex-col text-white">
-		$entity_labels
-	</div>
-	<div class="w-32 flex flex-col text-left text-white">
-		$entity_details
-	</div>
-</div>
+
 </div>';
     }
 
     public function body()
     {
-        return '<section>
-<div class="flex justify-between px-12 pt-12">
-    <div class="w-1/2">
-        $company_logo
-    </div>
-    <div class="w-1/2 flex justify-end">
-        <div class="w-56 flex flex-col">
-            $client_details
-        </div>
-        <div class="w-32">
-            <!-- -->
-        </div>
+        return '
+<div class="grid grid-cols-5 gap-1 px-12 pt-12">
+    <div class="col-span-2 p-3">
+		$company_logo
+	</div>
+    <div class="col-span-3 p-3 flex flex-col">
+		$client_details
     </div>
 </div>
+
 <div class="px-12 pt-5 pb-20">
 <table class="w-full table-auto mt-8">
     <thead class="text-left text-white bg-gray-900 display: table-header-group;">
@@ -165,17 +162,14 @@ class Modern extends AbstractDesign
 			</section>
 			<footer>
 			<div class="div_footer bg-orange-600 flex justify-between py-8 px-12" style="page-break-inside: avoid;">
-			    <div class="w-1/2">
-			        <!-- // -->
-			    </div>
-			    <div class="w-1/2 flex justify-end">
-			        <div class="w-56 flex flex-col text-white">
-			            $company_details
-			        </div>
-			        <div class="w-32 flex flex-col text-left text-white">
-			            $company_address
-			        </div>
-			    </div>
+				<div class="grid grid-cols-12 gap-4">
+					<div class="col-start-4 col-span-4 p-3 flex flex-col text-white text-right">
+						$company_details
+					</div>
+					<div class="col-span-4 p-3 flex flex-col text-white text-right">
+						$company_address
+					</div>
+				</div>
 			</div>
 			</footer>
 			</html>

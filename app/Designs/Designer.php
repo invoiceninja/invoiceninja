@@ -295,21 +295,21 @@ class Designer
     private function quoteDetails(Company $company)
     {
         $data = [
-            '$quote.quote_number' 	=> '<span class="flex justify-between items-center"><span>$quote.number_label:</span><span> $quote.number</span></span>',
-            '$quote.po_number'      => '<span class="flex justify-between items-center"><span>$quote.po_number_label:</span><span> $quote.po_number</span></span>',
-            '$quote.quote_date'     => '<span class="flex justify-between items-center"><span>$quote.date_label:</span><span> $quote.date</span></span>',
-            '$quote.valid_until'    => '<span class="flex justify-between items-center"><span>$quote.valid_until_label:</span><span> $quote.valid_until</span></span>',
-            '$quote.balance_due'    => '<span class="flex justify-between items-center"><span>$quote.balance_due_label:</span><span> $quote.balance_due</span></span>',
-            '$quote.quote_total'  	=> '<span class="flex justify-between items-center"><span>$quote.total_label:</span><span> $quote.total</span></span>',
-            '$quote.partial_due'    => '<span class="flex justify-between items-center"><span>$quote.partial_due_label:</span><span> $quote.partial_due</span></span>',
-            '$quote.custom1'       	=> '<span class="flex justify-between items-center"><span>$quote.custom1_label:</span><span> $quote.custom1</span></span>',
-            '$quote.custom2'       	=> '<span class="flex justify-between items-center"><span>$quote.custom2_label:</span><span> $quote.custom2</span></span>',
-            '$quote.custom3'       	=> '<span class="flex justify-between items-center"><span>$quote.custom3_label:</span><span> $quote.custom3</span></span>',
-            '$quote.custom4'        => '<span class="flex justify-between items-center"><span>$quote.custom4_label:</span><span> $quote.custom4</span></span>',
-            '$quote.surcharge1'     => '<span class="flex justify-between items-center"><span>$surcharge1_label:</span><span> $surcharge1</span></span>',
-            '$quote.surcharge2'     => '<span class="flex justify-between items-center"><span>$surcharge2_label:</span><span> $surcharge2</span></span>',
-            '$quote.surcharge3'     => '<span class="flex justify-between items-center"><span>$surcharge3_label:</span><span> $surcharge3</span></span>',
-            '$quote.surcharge4'     => '<span class="flex justify-between items-center"><span>$surcharge4_label:</span><span> $surcharge4</span></span>',
+            '$quote.quote_number' 	=> '<span class="flex flex-wrap justify-between items-center"><span>$quote.number_label:</span><span> $quote.number</span></span>',
+            '$quote.po_number'      => '<span class="flex flex-wrap justify-between items-center"><span>$quote.po_number_label:</span><span> $quote.po_number</span></span>',
+            '$quote.quote_date'     => '<span class="flex flex-wrap justify-between items-center"><span>$quote.date_label:</span><span> $quote.date</span></span>',
+            '$quote.valid_until'    => '<span class="flex flex-wrap justify-between items-center"><span>$quote.valid_until_label:</span><span> $quote.valid_until</span></span>',
+            '$quote.balance_due'    => '<span class="flex flex-wrap justify-between items-center"><span>$quote.balance_due_label:</span><span> $quote.balance_due</span></span>',
+            '$quote.quote_total'  	=> '<span class="flex flex-wrap justify-between items-center"><span>$quote.total_label:</span><span> $quote.total</span></span>',
+            '$quote.partial_due'    => '<span class="flex flex-wrap justify-between items-center"><span>$quote.partial_due_label:</span><span> $quote.partial_due</span></span>',
+            '$quote.custom1'       	=> '<span class="flex flex-wrap justify-between items-center"><span>$quote.custom1_label:</span><span> $quote.custom1</span></span>',
+            '$quote.custom2'       	=> '<span class="flex flex-wrap justify-between items-center"><span>$quote.custom2_label:</span><span> $quote.custom2</span></span>',
+            '$quote.custom3'       	=> '<span class="flex flex-wrap justify-between items-center"><span>$quote.custom3_label:</span><span> $quote.custom3</span></span>',
+            '$quote.custom4'        => '<span class="flex flex-wrap justify-between items-center"><span>$quote.custom4_label:</span><span> $quote.custom4</span></span>',
+            '$quote.surcharge1'     => '<span class="flex flex-wrap justify-between items-center"><span>$surcharge1_label:</span><span> $surcharge1</span></span>',
+            '$quote.surcharge2'     => '<span class="flex flex-wrap justify-between items-center"><span>$surcharge2_label:</span><span> $surcharge2</span></span>',
+            '$quote.surcharge3'     => '<span class="flex flex-wrap justify-between items-center"><span>$surcharge3_label:</span><span> $surcharge3</span></span>',
+            '$quote.surcharge4'     => '<span class="flex flex-wrap justify-between items-center"><span>$surcharge4_label:</span><span> $surcharge4</span></span>',
 
         ];
 

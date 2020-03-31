@@ -47,7 +47,7 @@ body {font-size:90%}
     <div class="col-span-2 p-3 flex flex-col bg-green-100">
         $company_details
     </div>
-    <div class="col-span-2 p-3 bg-blue-100">
+    <div class="col-span-2 p-3 flex flex-col bg-blue-100">
         $entity_details
     </div>
 </div>';
