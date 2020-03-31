@@ -296,7 +296,7 @@ trait MakesInvoiceValues
         
         $logo = $this->company->present()->logo($settings);
 
-        $data['$company.logo']                       = ['value' => "<img src='{$logo}' class='w-48' alt='logo'>" ?: '&nbsp;', 'label' => ctrans('texts.logo')];
+        $data['$company.logo']                       = ['value' => "<img src='{$logo}' class='h-32' alt='logo'>" ?: '&nbsp;', 'label' => ctrans('texts.logo')];
         $data['$company_logo']                       = &$data['$company.logo'];
         $data['$company1']                           = ['value' => $settings->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('company1')];
         $data['$company2']                           = ['value' => $settings->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];

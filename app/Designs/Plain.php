@@ -37,25 +37,18 @@ body {font-size:90%}
 </style>';
     }
 
-
     public function header()
     {
-        return ' <div class="px-12 py-8">
-<div class="flex justify-between">
-    $company_logo
-    <div class="flex flex-col">
+        return '<div class="px-12 py-8">
+<div class="grid grid-cols-6 gap-1">
+    <div class="col-span-2 p-3 bg-red-100">
+        $company_logo
+    </div>
+    <div class="col-span-2 p-3 flex flex-col bg-green-100">
         $company_details
     </div>
-    <div class="flex flex-col">
-        <div class="flex px-3">
-            <section class="flex align-end flex-col">
-                $entity_details
-            </section>
-        </div>
-        <section class="flex bg-gray-300 px-3">
-            <p class="w-1/2 mr-4">$balance_due_label</p>
-            <p>$0.00</p>
-        </section>
+    <div class="col-span-2 p-3 bg-blue-100">
+        $entity_details
     </div>
 </div>';
     }
@@ -81,35 +74,40 @@ body {font-size:90%}
         $task_table_body
     </tbody>
 </table>
-<div class="flex justify-between mt-8">
-<div class="w-1/2">
-    <div class="flex flex-col">
-        <p>$entity.public_notes</p>
-        <div class="pt-4">
-            <p class="font-bold">$terms_label</p>
-            <p>$terms</p>
+
+<div class="grid grid-cols-12 gap-1">
+    <div class="col-span-6 p-3 bg-red-100">
+        <div class="flex flex-col">
+            <p>$entity.public_notes</p>
+            <div class="pt-4">
+                <p class="font-bold">$terms_label</p>
+                <p>$terms</p>
+            </div>
         </div>
     </div>
-</div>
-<div class="w-1/3 flex flex-col">
-    <div class="flex px-3 mt-6">
-        <section class="w-1/2 text-right flex flex-col">
-            $discount_label
-            $total_tax_labels
-            $line_tax_labels
-        </section>
-        <section class="w-1/2 text-right flex flex-col">
-            $discount
-            $total_tax_values
-            $line_tax_values
-        </section>
+    <div class="col-span-6 p-3 bg-green-100">
+        <div class="grid grid-cols-2 gap-1">
+            <div class="col-span-1 bg-red-200 text-right flex flex-col">
+                $discount_label
+                $total_tax_labels
+                $line_tax_labels
+            </div>
+            <div class="col-span-1 bg-red-300 text-right flex flex-col">
+                $discount
+                $total_tax_values
+                $line_tax_values
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-1 bg-gray-300">
+            <div class="col-span-1 text-right flex flex-col">
+                $balance_due_label
+            </div>
+            <div class="col-span-1 text-right flex flex-col">
+                $balance_due
+            </div>
+        </div>
     </div>
-    <section class="flex bg-gray-300 px-3 mt-1">
-        <p class="w-1/2 text-right">$balance_due_label</p>
-        <p class="text-right w-1/2">$balance_due</p>
-    </section>
-</div>
-</div>';
+</div';
     }
 
     public function task()
