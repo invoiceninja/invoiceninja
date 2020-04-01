@@ -64,7 +64,6 @@ class CompanySettingsTest extends TestCase
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            \Log::error($message);
         }
 
         if ($response) {

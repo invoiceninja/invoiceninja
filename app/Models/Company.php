@@ -388,4 +388,13 @@ class Company extends BaseModel
     {
         return $this->slack_webhook_url;
     }
+
+    public function setMigration($status)
+    {
+        $this->company_users->each(function ($cu) use($status){
+            $cu->is_migrating=$status;
+            $cu->save();
+        });
+    }
+
 }

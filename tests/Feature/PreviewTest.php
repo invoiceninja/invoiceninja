@@ -49,8 +49,6 @@ class PreviewTest extends TestCase
     {
         $design = Design::find(3);
 
-//        $designer = new Designer($this->invoice, $design, $this->company->settings->pdf_variables, 'invoice');
-
         $data = [
             'entity' => 'invoice',
             'entity_id' => $this->invoice->hashed_id,
@@ -67,9 +65,6 @@ class PreviewTest extends TestCase
 
         $response->assertStatus(200);
 
-        // $arr = $response->json();
-
-        // \Log::error($arr);
     }
 
 
@@ -90,8 +85,5 @@ class PreviewTest extends TestCase
 
         $response->assertStatus(200);
 
-        // $arr = $response->json();
-
-        // \Log::error($arr);
     }
 }

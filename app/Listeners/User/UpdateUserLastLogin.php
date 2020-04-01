@@ -39,7 +39,7 @@ class UpdateUserLastLogin implements ShouldQueue
      * @return void
      */
     public function handle($event)
-    {   //\Log::error("listener firing");
+    {   
         $user = $event->user;
 
         $user->last_login = now();

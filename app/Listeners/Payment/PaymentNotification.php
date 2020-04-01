@@ -16,12 +16,14 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Notifications\Admin\NewPaymentNotification;
 use App\Repositories\ActivityRepository;
+use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Notification;
 
 class PaymentNotification implements ShouldQueue
 {
+    use UserNotifies;
     /**
      * Create the event listener.
      *
@@ -41,13 +43,16 @@ class PaymentNotification implements ShouldQueue
     {
         $payment = $event->payment;
 
-        //todo need to iterate through teh company user and determine if the user
-        //will receive this notification.
-        
         foreach ($payment->company->company_users as $company_user) {
-            if ($company_user->user) {
-                $company_user->user->notify(new NewPaymentNotification($payment, $payment->company));
-            }
+
+            $user = $company_user->user;
+
+            $notification = new NewPaymentNotification($payment, $payment->company);
+            $notification->method = $this->findUserEntityNotificationType($payment, $company_user, ['all_notifications']);
+
+            if($user)
+                $user->notify($notification);
+
         }
 
         if (isset($payment->company->slack_webhook_url)) {

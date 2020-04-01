@@ -177,9 +177,7 @@ class MultiDBUserTest extends TestCase
                 'X-API-PASSWORD' => 'ALongAndBriliantPassword',
             ])->post('/api/v1/users?include=company_user', $data);
         } catch (ValidationException $e) {
-            \Log::error('in the validator');
             $message = json_decode($e->validator->getMessageBag(), 1);
-            \Log::error($message);
             $this->assertNotNull($message);
         }
 
@@ -191,8 +189,6 @@ class MultiDBUserTest extends TestCase
 
     public function test_cross_db_user_linking_succeeds_appropriately()
     {
-
-    //$this->withoutExceptionHandling();
 
         $data = [
             'first_name' => 'hey',

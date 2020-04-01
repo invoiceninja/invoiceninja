@@ -201,6 +201,7 @@ class CreateUsersTable extends Migration
             $table->string('slack_webhook_url');
             $table->boolean('is_owner')->default(false);
             $table->boolean('is_admin')->default(false);
+            $table->boolean('is_migrating')->default(false);
             $table->boolean('is_locked')->default(false); // locks user out of account
 
             $table->softDeletes('deleted_at', 6);

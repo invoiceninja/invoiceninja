@@ -120,7 +120,6 @@ class RefundTest extends TestCase
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
 
-            \Log::error($message);
         }
 
         $arr = $response->json();
@@ -602,7 +601,6 @@ class RefundTest extends TestCase
 
         $payment = Payment::find($this->decodePrimaryKey($arr['data']['id']));
 
-//            \Log::error(print_r($payment->paymentables->toArray(),1));
     }
 
     /*Additional scenarios*/

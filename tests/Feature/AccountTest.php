@@ -40,39 +40,6 @@ class AccountTest extends TestCase
         }
     }
 
-    // public function testAccountCreation()
-    // {
-    //     $data = [
-    //         'first_name' => $this->faker->firstName,
-    //         'last_name' => $this->faker->lastName,
-    //         'name' => $this->faker->company,
-    //         'email' => $this->faker->unique()->safeEmail,
-    //         'password' => 'ALongAndBrilliantPassword123',
-    //         '_token' => csrf_token(),
-    //         'privacy_policy' => 1,
-    //         'terms_of_service' => 1
-    //     ];
-
-    //     try {
-
-    //     $response = $this->post('/signup', $data, ['X-API-SECRET' => 'password']);
-
-    //     }
-    //     catch(ValidationException $e) {
-
-    //         $message = json_decode($e->validator->getMessageBag(),1);
-
-    //         \Log::error($message);
-    //     }
-    //     finally                 {
-    //         $response->assertStatus(200);
-    //     }
-
-    //     $response->assertStatus(200);
-        
-
-    // }
-
     public function testApiAccountCreation()
     {
 

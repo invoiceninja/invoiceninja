@@ -229,7 +229,7 @@ class MigrationController extends BaseController
         if (app()->environment() == 'testing') {
             return;
         }
-
+        
         StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $company);
 
         return response()->json([

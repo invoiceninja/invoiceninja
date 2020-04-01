@@ -211,13 +211,12 @@ class BaseRepository
         
         $tmp_data = $data;
 
+        /* We need to unset some variable as we sometimes unguard the model */
         if(isset($tmp_data['invitations']))
             unset($tmp_data['invitations']);
 
         if(isset($tmp_data['client_contacts']))
             unset($tmp_data['client_contacts']);
-
-\Log::error(print_r($tmp_data,1));
 
         $model->fill($tmp_data);
         $model->save();
@@ -244,8 +243,6 @@ class BaseRepository
 
             foreach ($data['invitations'] as $invitation) {
 
-\Log::error(print_r($invitation,1));
-
                 //if no invitations are present - create one.
                 if (! $this->getInvitation($invitation, $resource)) {
                     if (isset($invitation['id'])) {
@@ -254,8 +251,6 @@ class BaseRepository
 
                     //make sure we are creating an invite for a contact who belongs to the client only!
                     $contact = ClientContact::find($invitation['client_contact_id']);
-
-\Log::error(print_r($contact,1));
 
                     if ($model->client_id == $contact->client_id);
                     {

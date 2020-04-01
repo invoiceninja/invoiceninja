@@ -79,15 +79,15 @@ class AppServiceProvider extends ServiceProvider
 
 
         // Queue::before(function (JobProcessing $event) {
-        //     \Log::info('Event Job '.$event->connectionName);
-        //     \Log::info('Event Job '.$event->job);
-        //     \Log::info('Event Job '.$event->job->payload());
+        //     // \Log::info('Event Job '.$event->connectionName);
+        //     \Log::error('Event Job '.$event->job->getJobId);
+        //     // \Log::info('Event Job '.$event->job->payload());
         // });
-        // //! Update Posted AT
+        //! Update Posted AT
         // Queue::after(function (JobProcessed $event) {
-        //     \Log::info('Event Job '.$event->connectionName);
-        //     \Log::info('Event Job '.$event->job);
-        //     \Log::info('Event Job '.$event->job->payload());
+        //     // \Log::info('Event Job '.$event->connectionName);
+        //     \Log::error('Event Job '.$event->job->getJobId);
+        //     // \Log::info('Event Job '.$event->job->payload());
         // });
 
     }

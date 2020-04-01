@@ -358,7 +358,6 @@ class ClientTest extends TestCase
                 ])->post('/api/v1/clients/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            //\Log::error($message);
             $this->assertNotNull($message);
         }
 
@@ -381,8 +380,6 @@ class ClientTest extends TestCase
                 ])->post('/api/v1/clients/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            ////\Log::error($message);
-                //$this->assertNotNull($message);
         }
 
         $response->assertStatus(200);
@@ -410,7 +407,6 @@ class ClientTest extends TestCase
                 ])->post('/api/v1/clients/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            //\Log::error($message);
             $this->assertNotNull($message);
         }
 
@@ -428,7 +424,6 @@ class ClientTest extends TestCase
 
         $arr = $response->json();
 
-        //\Log::error($arr);
         $safe_email = $this->faker->unique()->safeEmail;
 
         $data = [
@@ -450,7 +445,6 @@ class ClientTest extends TestCase
                 ])->post('/api/v1/clients/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            //\Log::error($message);
             $this->assertNotNull($message);
         }
 
@@ -485,7 +479,6 @@ class ClientTest extends TestCase
                 ])->post('/api/v1/clients/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            //\Log::error($message);
             $this->assertNotNull($message);
         }
 

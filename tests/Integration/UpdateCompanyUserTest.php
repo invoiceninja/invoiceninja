@@ -50,9 +50,7 @@ class UpdateCompanyUserTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id), $user);
         } catch (ValidationException $e) {
-            // \Log::error('in the validator');
             $message = json_decode($e->validator->getMessageBag(), 1);
-            //\Log::error($message);
             $this->assertNotNull($message);
         }
 
