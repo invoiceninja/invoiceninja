@@ -92,7 +92,7 @@ class StartMigration implements ShouldQueue
                 return;
             }
 
-            $this->company->setMigration(false);
+            $this->company->setMigration(true);
 
             $file = storage_path("migrations/$filename/migration.json");
 
