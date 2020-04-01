@@ -33,6 +33,5 @@ class SystemHealthTest extends TestCase
         $this->assertTrue($results['extensions'][2]['curl']);
         $this->assertTrue($results['extensions'][3]['zip']);
 
-        //		\Log::error(print_r($results,1));
     }
 }

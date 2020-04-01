@@ -246,8 +246,6 @@ trait GeneratesCounter
      */
     public function hasSharedCounter(Client $client) : bool
     {
-        // \Log::error((bool) $client->getSetting('shared_invoice_quote_counter'));
-        // \Log::error($client->getSetting('shared_invoice_quote_counter'));
         return (bool) $client->getSetting('shared_invoice_quote_counter');
     }
 

@@ -19,6 +19,10 @@ trait UserNotifies
 {
     public function findUserNotificationTypes($invitation, $company_user, $entity_name, $required_permissions) :array
     {
+
+        if($this->migrationRunning($company_user))
+            return [];
+
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
@@ -32,7 +36,37 @@ trait UserNotifies
 
         // if(count(array_intersect($required_permissions, $notifications->slack)) >=1)
         //     array_push($notifiable_methods, 'slack');
-            
+
         return $notifiable_methods;
+    }
+
+
+    public function findUserEntityNotificationType($entity, $company_user, $required_permissions) :array
+    {
+
+        if($this->migrationRunning($company_user))
+            return [];
+
+        $notifiable_methods = [];
+        $notifications = $company_user->notifications;
+
+        if ($entity->user_id == $company_user->_user_id || $entity->assigned_user_id == $company_user->user_id) {
+            array_push($required_permissions, "all_user_notifications");
+        }
+
+        if (count(array_intersect($required_permissions, $notifications->email)) >=1) {
+            array_push($notifiable_methods, 'mail');
+        }
+
+        // if(count(array_intersect($required_permissions, $notifications->slack)) >=1)
+        //     array_push($notifiable_methods, 'slack');
+
+        return $notifiable_methods;
+
+    }
+
+    private function migrationRunning($company_user)
+    {
+        return $company_user->is_migrating;
     }
 }

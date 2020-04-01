@@ -31,12 +31,17 @@ class NewPaymentNotification extends Notification implements ShouldQueue
 
     protected $is_system;
 
+    public $method;
+
     public function __construct($payment, $company, $is_system = false, $settings = null)
     {
+
         $this->payment = $payment;
         $this->company = $company;
         $this->settings = $payment->client->getMergedSettings();
         $this->is_system = $is_system;
+        $this->method = null;
+
     }
 
     /**
@@ -45,11 +50,15 @@ class NewPaymentNotification extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return array
      */
+    // public function via($notifiable)
+    // {
+    //     return $this->is_system ? ['slack'] : ['mail'];
+    //}
+
     public function via($notifiable)
     {
-        return $this->is_system ? ['slack'] : ['mail'];
+        return $this->method ?: [];
     }
-
     /**
      * Get the mail representation of the notification.
      *

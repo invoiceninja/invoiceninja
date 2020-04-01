@@ -55,8 +55,6 @@ class CompanyRepository extends BaseRepository
 
         $company->save();
 
-        //\Log::error(print_r($company->settings,1));
-
         return $company;
     }
 

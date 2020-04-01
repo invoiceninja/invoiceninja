@@ -82,7 +82,7 @@ class Import implements ShouldQueue
         'payments',
         'credits',
         'company_gateways',
-        'documents',
+        //'documents',
         'client_gateway_tokens',
     ];
 
@@ -106,6 +106,10 @@ class Import implements ShouldQueue
     private $ids = [];
 
     public $tries = 1;
+
+    public $timeout = 86400;
+
+    public $retryAfter = 86430;
 
     /**
      * Create a new job instance.
@@ -131,13 +135,18 @@ class Import implements ShouldQueue
      */
     public function handle()
     {
+
         foreach ($this->data as $key => $resource) {
 
             if (!in_array($key, $this->available_imports)) {
-                throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
+                //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
+                \Log::error("cannot migrate {$key} yet....");
+                continue;
             }
 
             $method = sprintf("process%s", Str::ucfirst(Str::camel($key)));
+
+            \Log::error("Importing {$key}");
 
             $this->{$method}($resource);
 
@@ -184,10 +193,14 @@ class Import implements ShouldQueue
             
             foreach ($data['settings'] as $key => $value) {
 
-                if($key == 'invoice_design_id' || $key == 'quote_design_id' || $key == 'credit_design_id')
-                {
+                if($key == 'invoice_design_id' || $key == 'quote_design_id' || $key == 'credit_design_id'){
                     $value = $this->encodePrimaryKey($value);    
-                                }
+                }
+
+                if($key == 'payment_terms' && $key = ''){
+                    $value = -1;
+                }
+
 
                 $company_settings->{$key} = $value;
 
@@ -273,7 +286,7 @@ class Import implements ShouldQueue
             $modified = $resource;
             unset($modified['id']);
 
-            $user = $user_repository->save($modified, $this->fetchUser($resource['email']));
+            $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true);
 
             $user_agent = array_key_exists('token_name', $resource) ?: request()->server('HTTP_USER_AGENT');
 
@@ -410,6 +423,9 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
+            if(array_key_exists('invitations', $modified))
+                unset($modified['invitations']);
+
             $invoice = $invoice_repository->save(
                 $modified,
                 InvoiceFactory::create($this->company->id, $modified['user_id'])
@@ -454,6 +470,9 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
 
             unset($modified['id']);
+
+            if(array_key_exists('invitations', $modified))
+                unset($modified['invitations']);
 
             $credit = $credit_repository->save(
                 $modified,
@@ -500,6 +519,9 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
 
             unset($modified['id']);
+
+            if(array_key_exists('invitations', $modified))
+                unset($modified['invitations']);
 
             $invoice = $quote_repository->save(
                 $modified,
@@ -762,5 +784,12 @@ class Import implements ShouldQueue
         }
 
         return $this->transformId('users', $resource['user_id']);
+    }
+
+
+    public function failed($exception = null)
+    {
+        \Log::error("the job failed");
+        \Log::error(print_r($exception->getMessage(),1));
     }
 }

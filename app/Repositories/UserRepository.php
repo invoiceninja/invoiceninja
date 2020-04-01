@@ -45,7 +45,7 @@ class UserRepository extends BaseRepository
      *
      * @return     user|\App\Models\user|null  user Object
      */
-    public function save(array $data, User $user)
+    public function save(array $data, User $user, $is_migrating = false)
     {
         $company = auth()->user()->company();
         $account_id = $company->account->id;
@@ -61,11 +61,13 @@ class UserRepository extends BaseRepository
             if (!$cu) {
                 $data['company_user']['account_id'] = $account_id;
                 $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
+                $data['company_user']['is_migrating'] = $is_migrating;
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
                 $cu->fill($data['company_user']);
                 $cu->restore();
                 $cu->tokens()->restore();
+                $cu->is_migrating = true;
                 $cu->save();
             }
 

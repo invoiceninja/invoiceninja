@@ -42,6 +42,13 @@ class StartMigration implements ShouldQueue
      * @param User $user
      * @param Company $company
      */
+    
+    public $tries = 1;
+
+    public $timeout = 86400;
+
+    public $retryAfter = 86430;
+    
     public function __construct($filepath, User $user, Company $company)
     {
         $this->filepath = $filepath;
@@ -65,12 +72,15 @@ class StartMigration implements ShouldQueue
 
         auth()->user()->setCompany($this->company);
 
+        $this->company->setMigration(true);
+
         $zip = new \ZipArchive();
         $archive = $zip->open($this->filepath);
 
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);
 
         try {
+
             if (!$archive) {
                 throw new ProcessingMigrationArchiveFailed('Processing migration archive failed. Migration file is possibly corrupted.');
             }
@@ -82,8 +92,23 @@ class StartMigration implements ShouldQueue
                 return;
             }
 
-            $this->start($filename);
+            $this->company->setMigration(false);
+
+            $file = storage_path("migrations/$filename/migration.json");
+
+            if (!file_exists($file)) {
+                throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
+            }
+
+            $data = json_decode(file_get_contents($file), 1);
+
+            Import::dispatchNow($data, $this->company, $this->user);
+
+
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
+            
+            $this->company->setMigration(false);
+
             Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
 
             if (app()->environment() !== 'production') {
@@ -93,26 +118,8 @@ class StartMigration implements ShouldQueue
 
     }
 
-
-    /**
-     * Main method to start the migration.
-     * @throws NonExistingMigrationFile
-     */
-    public function start(string $filename): void
+    public function failed($exception = null)
     {
-
-        $file = storage_path("migrations/$filename/migration.json");
-
-        if (!file_exists($file)) {
-            throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
-        }
-
-        $handle = fopen($file, "r");
-        $file = fread($handle, filesize($file));
-        fclose($handle);
-
-        $data = json_decode($file, 1);
-        Import::dispatchNow($data, $this->company, $this->user);
-
     }
+
 }

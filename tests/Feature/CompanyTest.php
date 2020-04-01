@@ -148,10 +148,6 @@ class CompanyTest extends TestCase
         ])->get('/api/v1/companies/'.$this->encodePrimaryKey($company->id))
         ->assertStatus(200)->decodeResponseJson();
 
-        //\Log::error($response);
-        //$this->assertEquals(1, $response['data']['size_id']);
-
-
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $token,
