@@ -41,6 +41,7 @@ use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
+use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
@@ -57,6 +58,7 @@ class Import implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use CompanyGatewayFeesAndLimitsSaver;
     use MakesHash;
+    use CleanLineItems;
 
     /**
      * @var array
@@ -420,6 +422,7 @@ class Import implements ShouldQueue
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
             $modified['user_id'] = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
+            $modified['line_items'] = $this->cleanItems($modified['line_items']);
 
             unset($modified['id']);
 
