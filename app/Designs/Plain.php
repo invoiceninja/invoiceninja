@@ -41,13 +41,13 @@ body {font-size:90%}
     {
         return '<div class="px-12 py-8">
 <div class="grid grid-cols-6 gap-1">
-    <div class="col-span-2 p-3 bg-red-100">
+    <div class="col-span-2 p-3">
         $company_logo
     </div>
-    <div class="col-span-2 p-3 flex flex-col bg-green-100">
+    <div class="col-span-2 p-3 flex flex-col">
         $company_details
     </div>
-    <div class="col-span-2 p-3 flex flex-col bg-blue-100">
+    <div class="col-span-2 p-3 flex flex-col">
         $entity_details
     </div>
 </div>';
@@ -76,7 +76,7 @@ body {font-size:90%}
 </table>
 
 <div class="grid grid-cols-12 gap-1">
-    <div class="col-span-6 p-3 bg-red-100">
+    <div class="col-span-6 p-3">
         <div class="flex flex-col">
             <p>$entity.public_notes</p>
             <div class="pt-4">
@@ -85,14 +85,14 @@ body {font-size:90%}
             </div>
         </div>
     </div>
-    <div class="col-span-6 p-3 bg-green-100">
+    <div class="col-span-6 p-3">
         <div class="grid grid-cols-2 gap-1">
-            <div class="col-span-1 bg-red-200 text-right flex flex-col">
+            <div class="col-span-1 text-right flex flex-col">
                 $discount_label
                 $total_tax_labels
                 $line_tax_labels
             </div>
-            <div class="col-span-1 bg-red-300 text-right flex flex-col">
+            <div class="col-span-1 text-right flex flex-col">
                 $discount
                 $total_tax_values
                 $line_tax_values
