@@ -19,6 +19,7 @@ use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
+use App\Mail\MigrationCompleted;
 use App\Mail\MigrationFailed;
 use App\Models\Client;
 use App\Models\ClientGatewayToken;
@@ -135,24 +136,24 @@ class Import implements ShouldQueue
      */
     public function handle()
     {
-
         foreach ($this->data as $key => $resource) {
-
-            if (!in_array($key, $this->available_imports)) {
+            if (! in_array($key, $this->available_imports)) {
                 //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
-                \Log::error("cannot migrate {$key} yet....");
+                info("Resource {$key} is not available for migration.");
+
                 continue;
             }
 
-            $method = sprintf("process%s", Str::ucfirst(Str::camel($key)));
+            $method = sprintf('process%s', Str::ucfirst(Str::camel($key)));
 
-            \Log::error("Importing {$key}");
+            info("Importing {$key}");
 
             $this->{$method}($resource);
-
         }
 
-        info('Completed🚀🚀🚀🚀🚀 at ' . now());
+        Mail::to($this->user)->send(new MigrationCompleted());
+
+        info('Completed🚀🚀🚀🚀🚀 at '.now());
     }
 
     /**
@@ -170,7 +171,6 @@ class Import implements ShouldQueue
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
-
             throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
@@ -186,32 +186,25 @@ class Import implements ShouldQueue
 
     private function transformCompanyData(array $data): array
     {
-
         $company_settings = CompanySettings::defaults();
 
-        if (array_key_exists('settings', $data) ) {
-            
+        if (array_key_exists('settings', $data)) {
             foreach ($data['settings'] as $key => $value) {
-
-                if($key == 'invoice_design_id' || $key == 'quote_design_id' || $key == 'credit_design_id'){
-                    $value = $this->encodePrimaryKey($value);    
+                if ($key == 'invoice_design_id' || $key == 'quote_design_id' || $key == 'credit_design_id') {
+                    $value = $this->encodePrimaryKey($value);
                 }
 
-                if($key == 'payment_terms' && $key = ''){
+                if ($key == 'payment_terms' && $key = '') {
                     $value = -1;
                 }
 
-
                 $company_settings->{$key} = $value;
-
             }
 
             $data['settings'] = $company_settings;
-
         }
-        
-        return $data;
 
+        return $data;
     }
 
     /**
@@ -312,7 +305,7 @@ class Import implements ShouldQueue
     {
         Client::unguard();
 
-        $contact_repository  = new ClientContactRepository();
+        $contact_repository = new ClientContactRepository();
         $client_repository = new ClientRepository($contact_repository);
 
         foreach ($data as $key => $resource) {
@@ -413,7 +406,7 @@ class Import implements ShouldQueue
         foreach ($data as $resource) {
             $modified = $resource;
 
-            if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
+            if (array_key_exists('client_id', $resource) && ! array_key_exists('clients', $this->ids)) {
                 throw new ResourceDependencyMissing('Processing invoices failed, because of missing dependency - clients.');
             }
 
@@ -423,8 +416,9 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
-            if(array_key_exists('invitations', $modified))
+            if (array_key_exists('invitations', $modified)) {
                 unset($modified['invitations']);
+            }
 
             $invoice = $invoice_repository->save(
                 $modified,
@@ -461,7 +455,7 @@ class Import implements ShouldQueue
         foreach ($data as $resource) {
             $modified = $resource;
 
-            if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
+            if (array_key_exists('client_id', $resource) && ! array_key_exists('clients', $this->ids)) {
                 throw new ResourceDependencyMissing('Processing credits failed, because of missing dependency - clients.');
             }
 
@@ -471,8 +465,9 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
-            if(array_key_exists('invitations', $modified))
+            if (array_key_exists('invitations', $modified)) {
                 unset($modified['invitations']);
+            }
 
             $credit = $credit_repository->save(
                 $modified,
@@ -509,7 +504,7 @@ class Import implements ShouldQueue
         foreach ($data as $resource) {
             $modified = $resource;
 
-            if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
+            if (array_key_exists('client_id', $resource) && ! array_key_exists('clients', $this->ids)) {
                 throw new ResourceDependencyMissing('Processing quotes failed, because of missing dependency - clients.');
             }
 
@@ -520,8 +515,9 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
-            if(array_key_exists('invitations', $modified))
+            if (array_key_exists('invitations', $modified)) {
                 unset($modified['invitations']);
+            }
 
             $invoice = $quote_repository->save(
                 $modified,
@@ -561,7 +557,7 @@ class Import implements ShouldQueue
         foreach ($data as $resource) {
             $modified = $resource;
 
-            if (array_key_exists('client_id', $resource) && !array_key_exists('clients', $this->ids)) {
+            if (array_key_exists('client_id', $resource) && ! array_key_exists('clients', $this->ids)) {
                 throw new ResourceDependencyMissing('Processing payments failed, because of missing dependency - clients.');
             }
 
@@ -590,7 +586,7 @@ class Import implements ShouldQueue
                 "payments_{$old_user_key}" => [
                     'old' => $old_user_key,
                     'new' => $payment->id,
-                ]
+                ],
             ];
         }
 
@@ -600,20 +596,20 @@ class Import implements ShouldQueue
     private function processDocuments(array $data): void
     {
         Document::unguard();
-        /** No validators since data provided by database is already valid. */
+        /* No validators since data provided by database is already valid. */
 
         foreach ($data as $resource) {
             $modified = $resource;
 
-            if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && !array_key_exists('invoices', $this->ids)) {
+            if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && ! array_key_exists('invoices', $this->ids)) {
                 throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - invoices.');
             }
 
-            if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && !array_key_exists('expenses', $this->ids)) {
+            if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && ! array_key_exists('expenses', $this->ids)) {
                 throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - expenses.');
             }
 
-            /** Remove because of polymorphic joins. */
+            /* Remove because of polymorphic joins. */
             unset($modified['invoice_id']);
             unset($modified['expense_id']);
 
@@ -641,7 +637,7 @@ class Import implements ShouldQueue
                 "documents_{$old_user_key}" => [
                     'old' => $resource['id'],
                     'new' => $document->id,
-                ]
+                ],
             ];
         }
 
@@ -687,7 +683,7 @@ class Import implements ShouldQueue
                 "company_gateways_{$old_user_key}" => [
                     'old' => $resource['id'],
                     'new' => $company_gateway->id,
-                ]
+                ],
             ];
         }
 
@@ -714,7 +710,7 @@ class Import implements ShouldQueue
                 "client_gateway_tokens_{$old_user_key}" => [
                     'old' => $resource['id'],
                     'new' => $cgt->id,
-                ]
+                ],
             ];
         }
 
@@ -740,7 +736,7 @@ class Import implements ShouldQueue
     {
         $user = MultiDB::hasUser(['email' => $data]);
 
-        if (!$user) {
+        if (! $user) {
             $user = UserFactory::create($this->company->account->id);
         }
 
@@ -755,11 +751,11 @@ class Import implements ShouldQueue
      */
     public function transformId(string $resource, string $old): int
     {
-        if (!array_key_exists($resource, $this->ids)) {
+        if (! array_key_exists($resource, $this->ids)) {
             throw new \Exception("Resource {$resource} not available.");
         }
 
-        if (!array_key_exists("{$resource}_{$old}", $this->ids[$resource])) {
+        if (! array_key_exists("{$resource}_{$old}", $this->ids[$resource])) {
             throw new \Exception("Missing resource key: {$resource}_{$old}");
         }
 
@@ -767,7 +763,7 @@ class Import implements ShouldQueue
     }
 
     /**
-     * Process & handle user_id
+     * Process & handle user_id.
      *
      * @param array $resource
      * @return int|mixed
@@ -775,21 +771,20 @@ class Import implements ShouldQueue
      */
     public function processUserId(array $resource)
     {
-        if (!array_key_exists('user_id', $resource)) {
+        if (! array_key_exists('user_id', $resource)) {
             return $this->user->id;
         }
 
-        if (array_key_exists('user_id', $resource) && !array_key_exists('users', $this->ids)) {
+        if (array_key_exists('user_id', $resource) && ! array_key_exists('users', $this->ids)) {
             return $this->user->id;
         }
 
         return $this->transformId('users', $resource['user_id']);
     }
 
-
     public function failed($exception = null)
     {
-        \Log::error("the job failed");
-        \Log::error(print_r($exception->getMessage(),1));
+        info('the job failed');
+        info(print_r($exception->getMessage(), 1));
     }
 }
