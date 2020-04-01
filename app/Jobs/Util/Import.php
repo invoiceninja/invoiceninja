@@ -201,6 +201,7 @@ class Import implements ShouldQueue
                     $value = -1;
                 }
 
+
                 $company_settings->{$key} = $value;
 
             }

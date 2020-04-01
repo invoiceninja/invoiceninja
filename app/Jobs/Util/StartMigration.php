@@ -119,8 +119,7 @@ class StartMigration implements ShouldQueue
     }
 
     public function failed($exception = null)
-    {   \Log::error("I failed");
-        \Log::error(print_r($exception->getMessage(),1));
+    {
     }
 
 }

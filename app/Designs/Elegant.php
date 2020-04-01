@@ -41,18 +41,13 @@ class Elegant extends AbstractDesign
 
     public function header()
     {
-        return '<div class="py-16 px-8">
-<div class="flex flex justify-between border-b-4 border-black">
-    <div style="margin-bottom: 15px">
+        return '<div class="m-10">
+<div class="grid grid-cols-12 border-b-4 border-black pb-6">
+    <div class="col-span-8">
         $company_logo
     </div>
-    <div class="flex">
-        <div class="flex flex-col mr-5">
-            $entity_labels
-        </div>
-        <div class="flex flex-col text-right">
-            $entity_details
-        </div>
+    <div class="col-span-4 flex flex-col">
+        $entity_details
     </div>
 </div>
 <div class="p-px border-b border-black mt-1"></div>';
@@ -60,14 +55,14 @@ class Elegant extends AbstractDesign
 
     public function body()
     {
-        return '<div class="flex mt-8">
-<div class="w-1/3 mr-6 flex flex-col pr-2 border-r border-dashed border-black">
+        return '<div class="grid grid-cols-12 gap-4 mt-8">
+<div class="col-span-4 mr-6 flex flex-col pr-2 border-r border-dashed border-black">
     $client_details
 </div>
-<div class="flex flex-col mr-6">
+<div class="col-span-4 flex flex-col mr-6">
     $company_details
 </div>
-<div class="flex flex-col">
+<div class="col-span-4 flex flex-col">
     $company_address
 </div>
 </div>
@@ -81,10 +76,10 @@ class Elegant extends AbstractDesign
 </table>
 <table class="w-full table-auto mb-6 mt-16">
     <thead class="text-left border-dashed border-b border-black">
-        $product_table_header
+        $task_table_header
     </thead>
     <tbody>
-        $product_table_body
+        $task_table_body
     </tbody>
 </table>';
     }

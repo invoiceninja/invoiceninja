@@ -47,15 +47,12 @@ body {font-size:90%}
     public function header()
     {
         return '<div class="px-16 py-10">
-<div class="flex items-center justify-between mt-2s">
-    <div ref="logo">
+<div class="grid grid-cols-12 mt-2">
+    <div class="col-span-7">
         $company_logo
     </div>
-    <div class="flex">
-        <div class="flex flex-col mr-5">
-            $entity_labels
-        </div>
-        <div class="flex flex-col text-right">
+    <div class="col-span-5">
+        <div class="flex flex-col">
             $entity_details
         </div>
     </div>
