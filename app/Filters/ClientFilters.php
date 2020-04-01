@@ -174,6 +174,7 @@ class ClientFilters extends QueryFilters
          * limit the user to only the invoices they have created
          */
         if (Gate::denies('view-list', Client::class)) {
+            info("the gate!");
             $query->where('clients.user_id', '=', $user->id);
         }
 
@@ -189,7 +190,6 @@ class ClientFilters extends QueryFilters
      */
     public function entityFilter()
     {
-        
         //return $this->builder->whereCompanyId(auth()->user()->company()->id);
         return $this->builder->company();
     }
