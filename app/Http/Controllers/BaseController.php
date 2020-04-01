@@ -131,14 +131,16 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        if (auth()->user()->cannot('view_'.$this->entity_type)) {
-            if ($this->entity_type == Company::class || $this->entity_type == Design::class) {
-                //no user keys exist on the company table, so we need to skip
-            } elseif ($this->entity_type == User::class) {
-                //$query->where('id', '=', auth()->user()->id); @todo why?
-            } else {
+        if (!auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
+          
+            // if ($this->entity_type == Company::class || $this->entity_type == Design::class) {
+            //     //no user keys exist on the company table, so we need to skip
+            // } elseif ($this->entity_type == User::class) {
+            //     //$query->where('id', '=', auth()->user()->id); @todo why?
+            // } else {
                 $query->where('user_id', '=', auth()->user()->id);
-            }
+           // }
+
         }
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {

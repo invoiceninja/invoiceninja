@@ -286,7 +286,16 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function hasPermission($permission) : bool
     {
-        return (stripos($this->company_user->permissions, $permission) !== false);
+        $parts = explode("_", $permission);
+        $all_permission = '';
+
+        if(count($parts) > 1)
+            $all_permission = $parts[0] . '_all';
+
+        return  $this->isOwner() ||
+                $this->isAdmin() ||
+                (stripos($this->company_user->permissions, $all_permission) !== false) ||
+                (stripos($this->company_user->permissions, $permission) !== false);
     }
 
     public function documents()
