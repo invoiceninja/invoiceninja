@@ -35,6 +35,9 @@ jobs:
         run: |
           npm i
           npm run production
+
+      - name: Cleanup Builds
+        run: |
           sudo rm -rf nodule_modules/
           sudo rm -rf bootstrap/cache/*
 
