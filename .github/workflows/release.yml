@@ -29,14 +29,14 @@ jobs:
           php artisan key:generate
           php artisan optimize
           php artisan storage:link
-          php artisan cache:clear
-          
+          sudo php artisan cache:clear
+
       - name: Prepare JS/CSS assets
         run: |
           npm i
           npm run production
-          rm -rf nodule_modules/
-          rm -rf bootstrap/cache/*
+          sudo rm -rf nodule_modules/
+          sudo rm -rf bootstrap/cache/*
 
       - name: Build project # This would actually build your project, using zip for an example artifact
         run: |
