@@ -84,7 +84,7 @@
                                 {{ $invoice->number }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ $invoice->formatDate($invoice->date, $invoice->client->date_format()) }}
+                                {{ $invoice->due_date  }} <!-- $invoice->formatDate($invoice->date, $invoice->client->date_format())-->
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {{ App\Utils\Number::formatMoney($invoice->balance, $invoice->client) }}
