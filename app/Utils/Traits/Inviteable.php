@@ -49,7 +49,7 @@ trait Inviteable
         $entity_type = strtolower(class_basename($this->entityType()));
 
         //$this->with('company','contact',$this->entity_type);
-        $this->with('company');
+        //$this->with('company');
 
         $domain = isset($this->company->portal_domain) ?: $this->company->domain();
 

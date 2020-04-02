@@ -81,6 +81,8 @@ class BaseController extends Controller
             $include = implode(",", $this->forced_includes);
         }
 
+\Log::error(print_r($include,1));
+
         $this->manager->parseIncludes($include);
         
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
@@ -256,10 +258,10 @@ class BaseController extends Controller
           'company.company_gateways.gateway',
           'company.clients.contacts',
           'company.products',
-          'company.invoices',
+          'company.invoices.invitations.company',
           'company.payments.paymentables',
-          'company.quotes',
-          'company.credits',
+          'company.quotes.invitations.company',
+          'company.credits.invitations.company',
           'company.vendors.contacts',
           'company.expenses',
           'company.tasks',

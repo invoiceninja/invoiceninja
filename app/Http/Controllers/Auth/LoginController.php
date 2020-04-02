@@ -172,9 +172,11 @@ class LoginController extends BaseController
             
             $user->setCompany($user->company_user->account->default_company);
 
-            $ct = CompanyUser::whereUserId($user->id)->with('company');
+//            $ct = CompanyUser::whereUserId($user->id)->with('company');
+            $ct = CompanyUser::whereUserId($user->id);
 
             return $this->listResponse($ct);
+            
         } else {
             $this->incrementLoginAttempts($request);
 
