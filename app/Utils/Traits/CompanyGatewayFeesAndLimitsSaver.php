@@ -84,48 +84,20 @@ trait CompanyGatewayFeesAndLimitsSaver
     {
         $new_arr = [];
 
-        if(!is_array($fees_and_limits))
-            return $new_arr;
-
-        $fal = new FeesAndLimits;
 
         foreach ($fees_and_limits as $key => $value) {
+            $fal = new FeesAndLimits;
 
-            $key = $this->transformFeesAndLimitsKeys($key);
+            foreach ($value as $k => $v) {
+                $fal->{$k} = $v;
+                $fal->{$k} = BaseSettings::castAttribute(FeesAndLimits::$casts[$k], $v);
+            }
 
-            $fal->{$key} = BaseSettings::castAttribute(FeesAndLimits::$casts[$key], $value);
-
+            $new_arr[$key] = (array)$fal;
         }
 
-        return $fal;
+        return $new_arr;
     }
 
-    private function transformFeesAndLimitsKeys($key)
-    {
-        switch ($key) {
-            case 'tax_name1':
-                return 'fee_tax_name1';
-                break;
-            case 'tax_name2':
-                return 'fee_tax_name2';
-                break;
-           case 'tax_name3':
-                return 'fee_tax_name3';
-                break;
-           case 'tax_rate1':
-                return 'fee_tax_rate1';
-                break;
-           case 'tax_rate2':
-                return 'fee_tax_rate2';
-                break;
-           case 'tax_rate3':
-                return 'fee_tax_rate3';
-                break;
 
-            default:
-                return $key;
-                break;
-        }
-
-    }
 }
