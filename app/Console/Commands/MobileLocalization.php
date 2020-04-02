@@ -95,7 +95,7 @@ class MobileLocalization extends Command
         $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-mobile/develop/lib/utils/i18n.dart';
         $data = CurlUtils::get($url);
 
-        $start = strpos($data, '\'en\': {') + 8;
+        $start = strpos($data, 'do not remove comment') + 25;
         $end = strpos($data, '},', $start);
         $data = substr($data, $start, $end - $start - 5);
 
