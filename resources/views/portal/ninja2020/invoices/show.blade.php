@@ -1,6 +1,11 @@
 @extends('portal.ninja2020.layout.app')
 @section('meta_title', ctrans('texts.view_invoice'))
 
+@push('head')
+    <meta name="pdf-url" content="{{ asset($invoice->pdf_url()) }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.4.456/pdf.min.js" integrity="sha256-O6polm3ZRTZEOAneYbvsKty3c3KRcDf20McwtlCga5s=" crossorigin="anonymous"></script>
+@endpush
+
 @section('header')
     {{ Breadcrumbs::render('invoices.show', $invoice) }}
 @endsection
@@ -37,7 +42,65 @@
         </form>
     @endif
 
-    <embed src="{{ asset($invoice->pdf_url()) }}#toolbar=1&navpanes=1&scrollbar=1" type="application/pdf" width="100%"
-           height="1180px"/>
+    <div class="flex items-center justify-between">
+        <button class="input-label" id="previous-page-button">Previous page</button>
+        <button class="input-label" id="next-page-button">Next page</button>
+    </div> 
 
+    <canvas id="pdf-placeholder" class="shadow rounded bg-white mt-4"></canvas>
+
+    <!-- <embed src="{{ asset($invoice->pdf_url()) }}#toolbar=1&navpanes=1&scrollbar=1" type="application/pdf" width="100%"
+           height="1180px"/> -->
+
+@endsection
+
+@section('footer')
+    <script src="{{ asset('js/clients/shared/pdf.js') }}"></script>
+
+    <script>
+        // let url = document.querySelector("meta[name='pdf-url'").content;
+        // let canvas = document.getElementById("pdf-placeholder");
+
+        // function renderInvoicePDF(selected_page) {
+        //     const pdf = pdfjsLib.getDocument(url).promise.then((pdf) => {
+
+        //         const context = canvas.getContext("2d");
+
+        //         let page = pdf.getPage(selected_page).then((p) => {
+
+        //             const viewport = p.getViewport({ scale: 1 });
+        //             canvas.height = viewport.height;
+        //             canvas.width = viewport.width;      
+                    
+        //             p.render({
+        //                 canvasContext: context,
+        //                 viewport,
+        //             })
+        //         });
+        //     });
+        // }
+
+        // renderInvoicePDF(1);
+
+        // (async () => {
+        //     const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+
+        //     const page = await pdf.getPage(1);
+
+        //     const context = canvas.getContext("2d");
+
+        //     const viewport = page.getViewport({ scale: 1 });
+
+        //     canvas.height = viewport.height;
+        //     canvas.width = viewport.width;
+
+        //     console.log(viewport);
+
+        //     page.render({
+        //         canvasContext: context,
+        //         viewport: viewport 
+        //     });
+
+        // })();
+    </script>
 @endsection

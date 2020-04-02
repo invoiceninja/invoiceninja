@@ -31,6 +31,10 @@ mix.js("resources/js/app.js", "public/js")
     .js(
         "resources/js/setup/setup.js", 
         "public/js/setup/setup.js"
+    )
+    .js(
+        "resources/js/clients/shared/pdf.js",
+        "public/js/clients/shared/pdf.js"
     );
 
 mix.sass("resources/sass/app.scss", "public/css")
