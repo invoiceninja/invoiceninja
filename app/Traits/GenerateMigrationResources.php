@@ -196,7 +196,7 @@ trait GenerateMigrationResources
     private function getClientSettings($client)
     {
         $settings = new \stdClass;
-        $settings->currency_id = $client->currency_id ?: $client->account->currency_id;
+        $settings->currency_id = $client->currency_id ? (string) $client->currency_id : (string) $client->account->currency_id;
 
         if($client->language_id)
             $settings->language_id = $client->language_id;
@@ -439,13 +439,13 @@ trait GenerateMigrationResources
         foreach ($items as $item) {
             $transformed[] = [
                 'id' => $item->id,
-                'quantity' => $item->qty,
-                'cost' => $item->cost,
+                'quantity' => (float)$item->qty,
+                'cost' => (float)$item->cost,
                 'product_key' => $item->product_key,
                 'notes' => $item->notes,
-                'discount' => $item->discount,
+                'discount' => (float)$item->discount,
                 'tax_name1' => $item->tax_name1,
-                'tax_rate1' => $item->tax_rate1,
+                'tax_rate1' => (float)$item->tax_rate1,
                 'date' => $item->created_at,
                 'custom_value1' => $item->custom_value1,
                 'custom_value2' => $item->custom_value2,
