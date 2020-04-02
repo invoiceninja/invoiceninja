@@ -1,16 +1,6 @@
-#on:
-#  release:
-#    types: [released]
-
 on:
-  push:
-    tags:
-       - '*'
-
-#on:
-#  push:
-#    branches:    
-#      - v2
+  release:
+    types: [released]
 
 name: Upload Release Asset
 
