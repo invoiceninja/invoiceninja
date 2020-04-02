@@ -1,7 +1,12 @@
+#on:
+#  release:
+#    types: [released]
+
 on:
-  release:
-    types: [released]
-    
+  push:
+    tags:
+       - '*'
+
 #on:
 #  push:
 #    branches:    
@@ -40,7 +45,7 @@ jobs:
           npm i
           npm run production
           rm -rf nodule_modules
-          
+
       - name: Build project # This would actually build your project, using zip for an example artifact
         run: |
           zip -r ./invoiceninja.zip ./
