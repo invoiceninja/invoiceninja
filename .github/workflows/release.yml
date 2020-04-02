@@ -1,11 +1,6 @@
 on:
   release:
     types: [released]
-    
-#on:
-#  push:
-#    branches:    
-#      - v2
 
 name: Upload Release Asset
 
@@ -34,12 +29,18 @@ jobs:
           php artisan key:generate
           php artisan optimize
           php artisan storage:link
-        
+          sudo php artisan cache:clear
+
       - name: Prepare JS/CSS assets
         run: |
           npm i
           npm run production
-          
+
+      - name: Cleanup Builds
+        run: |
+          sudo rm -rf nodule_modules/
+          sudo rm -rf bootstrap/cache/*
+
       - name: Build project # This would actually build your project, using zip for an example artifact
         run: |
           zip -r ./invoiceninja.zip ./
