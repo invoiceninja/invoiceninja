@@ -60,10 +60,17 @@ class Handler extends ExceptionHandler
 
             app('sentry')->configureScope(function (Scope $scope): void {
 
-                if (auth()->user() && auth()->user()->account->report_errors) {
+                if(auth()->guard('contact')->user() && auth()->guard('contact')->user()->account->report_errors) {
+                    $scope->setUser([
+                        'id'    => auth()->guard('contact')->user()->account->key,
+                        'email' => "anonymous@example.com",
+                        'name'  => "Anonymous User",
+                    ]);
+                } 
+                else if (auth()->user() && auth()->user()->account->report_errors) {
                     $scope->setUser([
                         'id'    => auth()->user()->account->key,
-                        'email' => auth()->user()->email,
+                        'email' => "anonymous@example.com",
                         'name'  => "Anonymous User",
                     ]);
                 }
