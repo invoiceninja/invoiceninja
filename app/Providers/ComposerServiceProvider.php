@@ -23,16 +23,6 @@ class ComposerServiceProvider extends ServiceProvider
     public function boot()
     {
         view()->composer('portal.*', 'App\Http\ViewComposers\PortalComposer');
-        
-        //view()->composer('*', 'App\Http\ViewComposers\HeaderComposer');
-/*
-        view()->composer(
-            [
-                'client.edit',
-            ],
-            'App\Http\ViewComposers\TranslationComposer'
-        );
-  */
     }
 
     /**

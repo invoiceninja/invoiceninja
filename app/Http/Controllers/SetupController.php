@@ -45,6 +45,11 @@ class SetupController extends Controller
             return back(); // This should never be reached.
         }
 
+        $mail_driver = $request->input('mail_driver');
+
+        if(!$this->failsafeMailCheck())
+            $mail_driver = 'log';
+
         $_ENV['APP_KEY'] = config('app.key');
         $_ENV['APP_URL'] = $request->input('url');
         $_ENV['APP_DEBUG'] = $request->input('debug') ? 'true' : 'false';
@@ -54,7 +59,7 @@ class SetupController extends Controller
         $_ENV['DB_DATABASE1'] = $request->input('database');
         $_ENV['DB_USERNAME1'] = $request->input('db_username');
         $_ENV['DB_PASSWORD1'] = $request->input('db_password');
-        $_ENV['MAIL_DRIVER'] = $request->input('mail_driver');
+        $_ENV['MAIL_DRIVER'] = $mail_driver;
         $_ENV['MAIL_PORT'] = $request->input('mail_port');
         $_ENV['MAIL_ENCRYPTION'] = $request->input('encryption');
         $_ENV['MAIL_HOST'] = $request->input('mail_host');
@@ -153,5 +158,18 @@ class SetupController extends Controller
 
             return response()->json(['message' => $e->getMessage()], 400);
         }
+    }
+
+    private function failsafeMailCheck($request)
+    {
+
+        $response_array = SystemHealth::testMailServer($request);
+
+        if($response_array instanceof Response)
+            return true;
+        
+
+        return false;
+
     }
 }
