@@ -47,7 +47,7 @@ class SetupController extends Controller
 
         $mail_driver = $request->input('mail_driver');
 
-        if(!$this->failsafeMailCheck())
+        if(!$this->failsafeMailCheck($request))
             $mail_driver = 'log';
 
         $_ENV['APP_KEY'] = config('app.key');
