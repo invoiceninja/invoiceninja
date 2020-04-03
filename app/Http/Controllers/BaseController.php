@@ -81,8 +81,6 @@ class BaseController extends Controller
             $include = implode(",", $this->forced_includes);
         }
 
-        \Log::error(print_r($include, 1));
-
         $this->manager->parseIncludes($include);
         
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
@@ -105,14 +103,24 @@ class BaseController extends Controller
                          ->header('X-APP-VERSION', config('ninja.app_version'));
     }
 
+    /**
+     * 404 for the client portal
+     * @return Response 404 response
+     */
     public function notFoundClient()
     {
         return abort(404);
     }
 
-    protected function errorResponse($response, $httpErrorCode = 400)
+    /**
+     * API Error response
+     * @param  string  $message       The return error message
+     * @param  integer $httpErrorCode 404/401/403 etc
+     * @return Response               The JSON response
+     */
+    protected function errorResponse($message, $httpErrorCode = 400)
     {
-        $error['error'] = $response;
+        $error['error'] = $message;
 
         $error = json_encode($error, JSON_PRETTY_PRINT);
 
@@ -134,14 +142,7 @@ class BaseController extends Controller
         $query->with($includes);
 
         if (!auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
-          
-            // if ($this->entity_type == Company::class || $this->entity_type == Design::class) {
-            //     //no user keys exist on the company table, so we need to skip
-            // } elseif ($this->entity_type == User::class) {
-            //     //$query->where('id', '=', auth()->user()->id); @todo why?
-            // } else {
             $query->where('user_id', '=', auth()->user()->id);
-            // }
         }
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {
