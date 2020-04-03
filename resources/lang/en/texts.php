@@ -3191,4 +3191,6 @@ return [
     'minumum_php_version' => 'Minimum PHP version',
     'satisfy_requirements' => 'Make sure all requirements are satisfied.',
     'oops_issues' => 'Oops, something doesn\'t look right!',
+
+    'open_in_new_tab' => 'Open in new tab',
 ];
