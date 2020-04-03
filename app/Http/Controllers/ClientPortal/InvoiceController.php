@@ -92,7 +92,6 @@ class InvoiceController extends Controller
      */
     public function bulk(ProcessInvoicesInBulkRequest $request)
     {
-
         $transformed_ids = $this->transformKeys($request->invoices);
 
         if ($request->input('action') == 'payment') {

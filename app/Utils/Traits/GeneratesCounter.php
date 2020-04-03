@@ -45,14 +45,13 @@ trait GeneratesCounter
         $pattern = $client->getSetting('invoice_number_pattern');
         //Determine if we are using client_counters
         if (strpos($pattern, 'clientCounter')) {
-
-            if(property_exists($client->settings, 'invoice_number_counter'))
+            if (property_exists($client->settings, 'invoice_number_counter')) {
                 $counter = $client->settings->invoice_number_counter;
-            else
+            } else {
                 $counter = 1;
+            }
 
             $counter_entity = $client;
-
         } elseif (strpos($pattern, 'groupCounter')) {
             $counter = $client->group_settings->invoice_number_counter;
             $counter_entity = $client->group_settings;
@@ -303,8 +302,9 @@ trait GeneratesCounter
     {
         $settings = $entity->settings;
         
-        if($counter_name == 'invoice_number_counter' && !property_exists($entity->settings, 'invoice_number_counter'))
+        if ($counter_name == 'invoice_number_counter' && !property_exists($entity->settings, 'invoice_number_counter')) {
             $settings->invoice_number_counter = 0;
+        }
 
         $settings->{$counter_name} = $settings->{$counter_name} + 1;
         

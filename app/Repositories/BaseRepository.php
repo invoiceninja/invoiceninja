@@ -213,11 +213,13 @@ class BaseRepository
 
         /* We need to unset some variable as we sometimes unguard the model */
 
-        if(isset($tmp_data['invitations']))
+        if (isset($tmp_data['invitations'])) {
             unset($tmp_data['invitations']);
+        }
 
-        if(isset($tmp_data['client_contacts']))
+        if (isset($tmp_data['client_contacts'])) {
             unset($tmp_data['client_contacts']);
+        }
 
 
         $model->fill($tmp_data);

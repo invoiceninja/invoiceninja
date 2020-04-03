@@ -44,15 +44,14 @@ class PaymentNotification implements ShouldQueue
         $payment = $event->payment;
 
         foreach ($payment->company->company_users as $company_user) {
-
             $user = $company_user->user;
 
             $notification = new NewPaymentNotification($payment, $payment->company);
             $notification->method = $this->findUserEntityNotificationType($payment, $company_user, ['all_notifications']);
 
-            if($user)
+            if ($user) {
                 $user->notify($notification);
-
+            }
         }
 
         if (isset($payment->company->slack_webhook_url)) {

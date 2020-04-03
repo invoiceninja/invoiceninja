@@ -50,7 +50,6 @@ class ImportTest extends TestCase
         $status = class_exists('App\Jobs\Util\Import');
 
         $this->assertTrue($status);
-
     }
 
 //     public function testExceptionOnUnavailableResource()

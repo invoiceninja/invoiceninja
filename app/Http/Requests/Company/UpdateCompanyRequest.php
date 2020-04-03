@@ -56,5 +56,4 @@ class UpdateCompanyRequest extends Request
     protected function prepareForValidation()
     {
     }
-    
 }

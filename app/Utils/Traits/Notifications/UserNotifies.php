@@ -19,9 +19,9 @@ trait UserNotifies
 {
     public function findUserNotificationTypes($invitation, $company_user, $entity_name, $required_permissions) :array
     {
-
-        if($this->migrationRunning($company_user))
+        if ($this->migrationRunning($company_user)) {
             return [];
+        }
 
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
@@ -43,9 +43,9 @@ trait UserNotifies
 
     public function findUserEntityNotificationType($entity, $company_user, $required_permissions) :array
     {
-
-        if($this->migrationRunning($company_user))
+        if ($this->migrationRunning($company_user)) {
             return [];
+        }
 
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
@@ -62,7 +62,6 @@ trait UserNotifies
         //     array_push($notifiable_methods, 'slack');
 
         return $notifiable_methods;
-
     }
 
     private function migrationRunning($company_user)

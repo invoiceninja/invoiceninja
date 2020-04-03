@@ -47,8 +47,9 @@ class SetupController extends Controller
 
         $mail_driver = $request->input('mail_driver');
 
-        if(!$this->failsafeMailCheck($request))
+        if (!$this->failsafeMailCheck($request)) {
             $mail_driver = 'log';
+        }
 
         $_ENV['APP_KEY'] = config('app.key');
         $_ENV['APP_URL'] = $request->input('url');
@@ -162,14 +163,13 @@ class SetupController extends Controller
 
     private function failsafeMailCheck($request)
     {
-
         $response_array = SystemHealth::testMailServer($request);
 
-        if($response_array instanceof Response)
+        if ($response_array instanceof Response) {
             return true;
+        }
         
 
         return false;
-
     }
 }

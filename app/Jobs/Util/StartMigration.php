@@ -65,7 +65,6 @@ class StartMigration implements ShouldQueue
      */
     public function handle()
     {
-
         MultiDB::setDb($this->company->db);
 
         auth()->login($this->user, false);
@@ -80,7 +79,6 @@ class StartMigration implements ShouldQueue
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);
 
         try {
-
             if (!$archive) {
                 throw new ProcessingMigrationArchiveFailed('Processing migration archive failed. Migration file is possibly corrupted.');
             }
@@ -103,10 +101,7 @@ class StartMigration implements ShouldQueue
             $data = json_decode(file_get_contents($file), 1);
 
             Import::dispatchNow($data, $this->company, $this->user);
-
-
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
-            
             $this->company->setMigration(false);
 
             Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
@@ -115,11 +110,9 @@ class StartMigration implements ShouldQueue
                 info($e->getMessage());
             }
         }
-
     }
 
     public function failed($exception = null)
     {
     }
-
 }

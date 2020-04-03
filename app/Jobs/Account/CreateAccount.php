@@ -20,7 +20,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CreateAccount
 {
-
     use Dispatchable;
     
     protected $request;
@@ -32,27 +31,25 @@ class CreateAccount
 
     public function handle()
     {
-
-        if(config('ninja.environment') == 'selfhost' && Account::all()->count() == 0) {
+        if (config('ninja.environment') == 'selfhost' && Account::all()->count() == 0) {
             return $this->create();
-        }elseif (config('ninja.environment') == 'selfhost' && Account::all()->count() > 1) {
-             return response()->json(array('message' => Ninja::selfHostedMessage()), 400);
+        } elseif (config('ninja.environment') == 'selfhost' && Account::all()->count() > 1) {
+            return response()->json(array('message' => Ninja::selfHostedMessage()), 400);
         } elseif (!Ninja::boot()) {
-             return response()->json(array('message' => Ninja::parse()), 401);
+            return response()->json(array('message' => Ninja::parse()), 401);
         }
 
         return $this->create();
-        
     }
 
     private function create()
     {
-
         $sp794f3f = Account::create($this->request);
         $sp794f3f->referral_code = Str::random(32);
 
-        if(!$sp794f3f->key)
+        if (!$sp794f3f->key) {
             $sp794f3f->key = Str::random(32);
+        }
 
         $sp794f3f->save();
 
@@ -80,7 +77,5 @@ class CreateAccount
         $sp035a66->notification(new NewAccountCreated($spaa9f78, $sp035a66))->ninja();
         
         return $sp794f3f;
-
     }
-
 }

@@ -89,7 +89,7 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
 
         // if($this->settings->email_style == 'custom'){
 
-        //     $subject = 
+        //     $subject =
 
         //     return (new MailMessage)
         //             ->subject($subject)

@@ -70,13 +70,12 @@ class SendGenericNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-
         $subject = $this->generateEmailEntityHtml($this->entity, $this->subject, $this->contact);
         $body = $this->generateEmailEntityHtml($this->entity, $this->body, $this->contact);
 
         $design_style = $this->settings->email_style;
 
-        if($design_style == 'custom') {
+        if ($design_style == 'custom') {
             $email_style_custom = $this->settings->email_style_custom;
             $body = str_replace("$body", $body, $email_style_custom);
         }
@@ -96,7 +95,6 @@ class SendGenericNotification extends Notification implements ShouldQueue
         return (new MailMessage)
                     ->subject($subject)
                     ->markdown('email.admin.generic_email', $data);
-
     }
 
     /**
@@ -114,7 +112,6 @@ class SendGenericNotification extends Notification implements ShouldQueue
 
     public function toSlack($notifiable)
     {
-
         return '';
         // $logo = $this->company->present()->logo();
         // $amount = Number::formatMoney($this->invoice->amount, $this->invoice->client);

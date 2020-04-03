@@ -111,23 +111,26 @@ class RecurringInvoice extends BaseModel
         'status'
     ];
 
-    public function getDateAttribute($value) {
+    public function getDateAttribute($value)
+    {
         if (!empty($value)) {
-           return (new Carbon($value))->format('Y-m-d');
+            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }
 
-    public function getDueDateAttribute($value) {
+    public function getDueDateAttribute($value)
+    {
         if (!empty($value)) {
-           return (new Carbon($value))->format('Y-m-d');
+            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }
 
-    public function getPartialDueDateAttribute($value) {
+    public function getPartialDueDateAttribute($value)
+    {
         if (!empty($value)) {
-           return (new Carbon($value))->format('Y-m-d');
+            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }

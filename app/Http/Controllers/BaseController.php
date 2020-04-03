@@ -81,7 +81,7 @@ class BaseController extends Controller
             $include = implode(",", $this->forced_includes);
         }
 
-\Log::error(print_r($include,1));
+        \Log::error(print_r($include, 1));
 
         $this->manager->parseIncludes($include);
         
@@ -140,9 +140,8 @@ class BaseController extends Controller
             // } elseif ($this->entity_type == User::class) {
             //     //$query->where('id', '=', auth()->user()->id); @todo why?
             // } else {
-                $query->where('user_id', '=', auth()->user()->id);
-           // }
-
+            $query->where('user_id', '=', auth()->user()->id);
+            // }
         }
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {

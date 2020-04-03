@@ -289,8 +289,9 @@ class User extends Authenticatable implements MustVerifyEmail
         $parts = explode("_", $permission);
         $all_permission = '';
 
-        if(count($parts) > 1)
+        if (count($parts) > 1) {
             $all_permission = $parts[0] . '_all';
+        }
 
         return  $this->isOwner() ||
                 $this->isAdmin() ||

@@ -35,13 +35,11 @@ class NewPaymentNotification extends Notification implements ShouldQueue
 
     public function __construct($payment, $company, $is_system = false, $settings = null)
     {
-
         $this->payment = $payment;
         $this->company = $company;
         $this->settings = $payment->client->getMergedSettings();
         $this->is_system = $is_system;
         $this->method = null;
-
     }
 
     /**

@@ -43,7 +43,6 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessing;
 
-
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -89,7 +88,6 @@ class AppServiceProvider extends ServiceProvider
         //     \Log::error('Event Job '.$event->job->getJobId);
         //     // \Log::info('Event Job '.$event->job->payload());
         // });
-
     }
 
     /**
@@ -100,8 +98,6 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->loadHelpers();
-
-
     }
 
     protected function loadHelpers()

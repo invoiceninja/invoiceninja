@@ -189,7 +189,6 @@ class MultiDBUserTest extends TestCase
 
     public function test_cross_db_user_linking_succeeds_appropriately()
     {
-
         $data = [
             'first_name' => 'hey',
             'last_name' => 'you',

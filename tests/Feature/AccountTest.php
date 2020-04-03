@@ -42,7 +42,6 @@ class AccountTest extends TestCase
 
     public function testApiAccountCreation()
     {
-
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
@@ -60,5 +59,4 @@ class AccountTest extends TestCase
 
         $response->assertStatus(200);
     }
-
 }
