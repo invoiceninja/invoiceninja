@@ -3,7 +3,7 @@
 
 @push('head')
     <meta name="pdf-url" content="{{ asset($invoice->pdf_url()) }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.4.456/pdf.min.js" integrity="sha256-O6polm3ZRTZEOAneYbvsKty3c3KRcDf20McwtlCga5s=" crossorigin="anonymous"></script>
+    <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
 @endpush
 
 @section('header')
@@ -43,64 +43,42 @@
     @endif
 
     <div class="flex items-center justify-between">
-        <button class="input-label" id="previous-page-button">Previous page</button>
-        <button class="input-label" id="next-page-button">Next page</button>
-    </div> 
+        <section class="flex items-center">
+            <button class="input-label" id="previous-page-button">
+            <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            </button>
+            <button class="input-label" id="next-page-button">
+                <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
+        </section>
+        <div x-data="{ open: false }" @keydown.escape="open = false" @click.away="open = false" class="relative inline-block text-left">
+            <div>
+                <button @click="open = !open" class="flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                </svg>
+                </button>
+            </div>
+            <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg">
+                <div class="rounded-md bg-white shadow-xs">
+                <div class="py-1">
+                    <a target="_blank" href="{{ asset($invoice->pdf_url()) }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ ctrans('texts.open_in_new_tab') }}</a>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <canvas id="pdf-placeholder" class="shadow rounded bg-white mt-4"></canvas>
-
-    <!-- <embed src="{{ asset($invoice->pdf_url()) }}#toolbar=1&navpanes=1&scrollbar=1" type="application/pdf" width="100%"
-           height="1180px"/> -->
+    <div class="flex justify-center">
+        <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white mt-4 p-4"></canvas>
+    </div>
 
 @endsection
 
 @section('footer')
     <script src="{{ asset('js/clients/shared/pdf.js') }}"></script>
-
-    <script>
-        // let url = document.querySelector("meta[name='pdf-url'").content;
-        // let canvas = document.getElementById("pdf-placeholder");
-
-        // function renderInvoicePDF(selected_page) {
-        //     const pdf = pdfjsLib.getDocument(url).promise.then((pdf) => {
-
-        //         const context = canvas.getContext("2d");
-
-        //         let page = pdf.getPage(selected_page).then((p) => {
-
-        //             const viewport = p.getViewport({ scale: 1 });
-        //             canvas.height = viewport.height;
-        //             canvas.width = viewport.width;      
-                    
-        //             p.render({
-        //                 canvasContext: context,
-        //                 viewport,
-        //             })
-        //         });
-        //     });
-        // }
-
-        // renderInvoicePDF(1);
-
-        // (async () => {
-        //     const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
-
-        //     const page = await pdf.getPage(1);
-
-        //     const context = canvas.getContext("2d");
-
-        //     const viewport = page.getViewport({ scale: 1 });
-
-        //     canvas.height = viewport.height;
-        //     canvas.width = viewport.width;
-
-        //     console.log(viewport);
-
-        //     page.render({
-        //         canvasContext: context,
-        //         viewport: viewport 
-        //     });
-
-        // })();
-    </script>
 @endsection

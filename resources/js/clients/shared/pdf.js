@@ -28,7 +28,7 @@ class PDF {
     }
 
     handleNextPage() {
-        if (this.currentPage == 5) {
+        if (this.currentPage == this.maxPages) {
             return;
         }
 
@@ -57,6 +57,8 @@ class PDF {
         let pdf = await pdfjsLib.getDocument(this.url).promise;
 
         let page = await pdf.getPage(this.currentPage);
+
+        this.maxPages = pdf.numPages;
 
         let viewport = await page.getViewport({ scale: 1 });
 
