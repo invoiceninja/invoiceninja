@@ -75,12 +75,12 @@ class EmailController extends BaseController
      *                     property="entity_id",
      *                     description="The entity_id",
      *                     type="string",
-     *                 ), 
+     *                 ),
      *                 @OA\Property(
      *                     property="template",
      *                     description="The template required",
      *                     type="string",
-     *                 ),                                               
+     *                 ),
      *             )
      *         )
      *      ),
@@ -113,16 +113,12 @@ class EmailController extends BaseController
         $body = $request->input('body');
         $entity_string = strtolower(class_basename($entity_obj));
 
-        $entity_obj->invitations->each(function ($invitation) use($subject, $body, $entity_string, $entity_obj) {
-
+        $entity_obj->invitations->each(function ($invitation) use ($subject, $body, $entity_string, $entity_obj) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-
                 $when = now()->addSeconds(1);
 
                 $invitation->contact->notify((new SendGenericNotification($invitation, $entity_string, $subject, $body))->delay($when));
-
             }
-
         });
         
         if ($this instanceof Invoice) {
@@ -143,7 +139,5 @@ class EmailController extends BaseController
         $entity_obj->service()->markSent()->save();
 
         return $this->itemResponse($entity_obj);
-
-
     }
 }

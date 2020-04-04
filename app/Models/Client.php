@@ -332,15 +332,13 @@ class Client extends BaseModel implements HasLocalePreference
     {
         $company_gateways = $this->getSetting('company_gateway_ids');
 
- info($company_gateways);     
-info($this->company->id);
+        info($company_gateways);
+        info($this->company->id);
         if (strlen($company_gateways)>=1) {
             $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
         } else {
             $gateways = $this->company->company_gateways;
         }
-
-\Log::error($gateways);
 
         foreach ($gateways as $gateway) {
             if (in_array(GatewayType::CREDIT_CARD, $gateway->driver($this)->gatewayTypes())) {

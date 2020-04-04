@@ -55,31 +55,24 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
-        
         if (app()->bound('sentry') && $this->shouldReport($exception)) {
-
             app('sentry')->configureScope(function (Scope $scope): void {
-
-                if(auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
+                if (auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
                     $scope->setUser([
                         'id'    => auth()->guard('contact')->user()->company->account->key,
                         'email' => "anonymous@example.com",
                         'name'  => "Anonymous User",
                     ]);
-                }
-                else if (auth()->guard('user')->user() && auth()->user()->company()->account->report_errors) {
+                } elseif (auth()->guard('user')->user() && auth()->user()->company()->account->report_errors) {
                     $scope->setUser([
                         'id'    => auth()->user()->account->key,
                         'email' => "anonymous@example.com",
                         'name'  => "Anonymous User",
                     ]);
                 }
-
-
             });
 
             app('sentry')->captureException($exception);
-    
         }
 
         parent::report($exception);

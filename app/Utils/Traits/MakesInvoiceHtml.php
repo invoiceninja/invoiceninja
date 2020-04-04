@@ -74,7 +74,6 @@ trait MakesInvoiceHtml
         $values = $entity->makeValues($contact);
 
         return $this->parseLabelsAndValues($labels, $values, $content);
-
     }
 
     private function parseLabelsAndValues($labels, $values, $section) :string

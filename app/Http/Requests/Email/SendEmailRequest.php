@@ -50,11 +50,13 @@ class SendEmailRequest extends Request
 
         $settings = auth()->user()->company()->settings;
 
-        if(empty($input['template']))
+        if (empty($input['template'])) {
             $input['template'] = '';
+        }
 
-        if(!property_exists($settings, $input['template']))
+        if (!property_exists($settings, $input['template'])) {
             unset($input['template']);
+        }
 
         $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
         $input['entity'] = "App\Models\\". ucfirst($input['entity']);
@@ -74,8 +76,7 @@ class SendEmailRequest extends Request
         $input = $this->all();
 
         /*Make sure we have all the require ingredients to send a template*/
-        if(array_key_exists('entity', $input) && array_key_exists('entity_id', $input) && is_string($input['entity']) && $input['entity_id']) {
-
+        if (array_key_exists('entity', $input) && array_key_exists('entity_id', $input) && is_string($input['entity']) && $input['entity_id']) {
             $company = auth()->user()->company();
 
             $entity = $input['entity'];
@@ -84,9 +85,9 @@ class SendEmailRequest extends Request
             $entity_obj = $entity::whereId($input['entity_id'])->company()->first();
 
             /* Check object, check user and company id is same as users, and check user can edit the object */
-            if($entity_obj && ($company->id == $entity_obj->company_id) && auth()->user()->can('edit', $entity_obj))
+            if ($entity_obj && ($company->id == $entity_obj->company_id) && auth()->user()->can('edit', $entity_obj)) {
                 return true;
-
+            }
         }
 
         return false;

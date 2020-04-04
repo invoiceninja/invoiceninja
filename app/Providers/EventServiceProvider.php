@@ -16,6 +16,7 @@ use App\Events\Company\CompanyWasDeleted;
 use App\Events\Contact\ContactLoggedIn;
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Events\Invoice\InvoiceWasCreated;
+use App\Events\Invoice\InvoiceWasDeleted;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasPaid;
@@ -39,6 +40,7 @@ use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Listeners\Invoice\CreateInvoicePdf;
+use App\Listeners\Invoice\DeleteInvoiceActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
@@ -136,7 +138,9 @@ class EventServiceProvider extends ServiceProvider
         InvoiceWasEmailedAndFailed::class => [
             InvoiceEmailFailedActivity::class,
         ],
-
+        InvoiceWasDeleted::class => [
+            DeleteInvoiceActivity::class,
+        ],
         InvitationWasViewed::class => [
             InvitationViewedListener::class
         ],
@@ -166,7 +170,7 @@ class EventServiceProvider extends ServiceProvider
     // }
 
     public function boot()
-     {
-         parent::boot();
-     }
+    {
+        parent::boot();
+    }
 }

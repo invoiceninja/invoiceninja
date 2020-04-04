@@ -78,26 +78,29 @@ class Credit extends BaseModel
     const STATUS_PARTIAL = 3;
     const STATUS_APPLIED = 4;
 
-    public function getDateAttribute($value) {
+    public function getDateAttribute($value)
+    {
         if (!empty($value)) {
             //$value format 'Y:m:d H:i:s' to 'Y-m-d H:i'
-           return (new Carbon($value))->format('Y-m-d');
+            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }
 
-    public function getDueDateAttribute($value) {
+    public function getDueDateAttribute($value)
+    {
         if (!empty($value)) {
             //$value format 'Y:m:d H:i:s' to 'Y-m-d H:i'
-           return (new Carbon($value))->format('Y-m-d');
+            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }
 
-    public function getPartialDueDateAttribute($value) {
+    public function getPartialDueDateAttribute($value)
+    {
         if (!empty($value)) {
             //$value format 'Y:m:d H:i:s' to 'Y-m-d H:i'
-           return (new Carbon($value))->format('Y-m-d');
+            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }

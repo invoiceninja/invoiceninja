@@ -27,30 +27,34 @@ class QuoteInvitation extends BaseModel
         'client_contact_id',
     ];
 
-    public function getSignatureDateAttribute($value) {
+    public function getSignatureDateAttribute($value)
+    {
         if (!$value) {
-           return (new Carbon($value))->format('Y-m-d');
+            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }
 
-    public function getSentDateAttribute($value) {
+    public function getSentDateAttribute($value)
+    {
         if (!$value) {
-           return (new Carbon($value))->format('Y-m-d');
+            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }
 
-    public function getViewedDateAttribute($value) {
+    public function getViewedDateAttribute($value)
+    {
         if (!$value) {
-           return (new Carbon($value))->format('Y-m-d');
+            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }
 
-    public function getOpenedDateAttribute($value) {
+    public function getOpenedDateAttribute($value)
+    {
         if (!$value) {
-           return (new Carbon($value))->format('Y-m-d');
+            return (new Carbon($value))->format('Y-m-d');
         }
         return $value;
     }

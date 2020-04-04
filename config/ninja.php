@@ -11,7 +11,7 @@ return [
     'app_env' => env('APP_ENV', 'local'),
     'app_url' => env('APP_URL', ''),
     'app_domain' => env('APP_DOMAIN', ''),
-    'app_version' => '0.0.1',
+    'app_version' => '0.0.2',
     'api_version' => '0.0.1',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),

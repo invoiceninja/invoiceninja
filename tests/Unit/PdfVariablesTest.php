@@ -23,6 +23,4 @@ class PdfVariablesTest extends TestCase
     {
         $this->assertTrue(is_array($this->settings->pdf_variables->client_details));
     }
-
 }
-

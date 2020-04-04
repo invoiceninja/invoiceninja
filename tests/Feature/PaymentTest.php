@@ -510,7 +510,6 @@ class PaymentTest extends TestCase
 
             $this->assertTrue(array_key_exists('amount', $message));
         }
-
     }
 
 
@@ -791,7 +790,6 @@ class PaymentTest extends TestCase
 
             $this->assertTrue(array_key_exists('invoices', $message));
         }
-
     }
 
 

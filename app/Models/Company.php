@@ -391,10 +391,9 @@ class Company extends BaseModel
 
     public function setMigration($status)
     {
-        $this->company_users->each(function ($cu) use($status){
+        $this->company_users->each(function ($cu) use ($status) {
             $cu->is_migrating=$status;
             $cu->save();
         });
     }
-
 }

@@ -514,7 +514,6 @@ class ClientTest extends TestCase
                 ])->put('/api/v1/clients/' . $client->hashed_id, $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            //\Log::error($message);
             $this->assertNotNull($message);
         }
 

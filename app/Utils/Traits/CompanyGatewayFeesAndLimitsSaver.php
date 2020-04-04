@@ -98,6 +98,4 @@ trait CompanyGatewayFeesAndLimitsSaver
 
         return $new_arr;
     }
-
-
 }

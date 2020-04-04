@@ -32,13 +32,10 @@ class MultiDBProvider extends ServiceProvider
      */
     public function register()
     {
-
         $this->app['events']->listen(
             \Illuminate\Queue\Events\JobProcessing::class,
             function ($event) {
-
                 if (isset($event->job->payload()['db'])) {
-
                     MultiDB::setDb($event->job->payload()['db']);
                 }
             }
@@ -48,6 +45,5 @@ class MultiDBProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             return;
         }
-
     }
 }

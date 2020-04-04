@@ -9,12 +9,7 @@
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
-
-
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-return $request->user();
-});
- */
+*/
 Route::get('/api/v1/ping', 'PingController@index')->name('ping');
 
 Route::group(['middleware' => ['api_secret_check']], function () {
@@ -86,13 +81,11 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('designs', 'DesignController');// name = (payments. index / create / show / update / destroy / edit
 
-    //  Route::resource('users', 'UserController')->middleware('password_protected'); // name = (users. index / create / show / update / destroy / edit
     Route::get('users', 'UserController@index');
     Route::put('users/{user}', 'UserController@update')->middleware('password_protected');
     Route::post('users', 'UserController@store')->middleware('password_protected');
     Route::post('users/{user}/attach_to_company', 'UserController@attach')->middleware('password_protected');
     Route::delete('users/{user}/detach_from_company', 'UserController@detach')->middleware('password_protected');
-
     Route::post('users/bulk', 'UserController@bulk')->name('users.bulk')->middleware('password_protected');
 
     Route::post('migration/purge/{company}', 'MigrationController@purgeCompany')->middleware('password_protected');

@@ -182,7 +182,6 @@ class MultiDB
 
     public static function findAndSetDbByDomain($subdomain) :bool
     {
-
         foreach (self::$dbs as $db) {
             if ($company = Company::on($db)->whereSubdomain($subdomain)->first()) {
                 self::setDb($company->db);

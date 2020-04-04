@@ -157,8 +157,7 @@ class Designer
         } elseif ($this->entity_string == 'quote') {
             //$this->exported_variables['$entity_labels']  = $this->processLabels($this->input_variables['quote_details'], $this->quoteDetails($company));
             $this->exported_variables['$entity_details'] = $this->processVariables($this->input_variables['quote_details'], $this->quoteDetails($company));
-        }
-        else {
+        } else {
             $this->exported_variables['$entity_details'] = $this->processVariables($this->input_variables['invoice_details'], $this->quoteDetails($company));
         }
 
@@ -268,7 +267,6 @@ class Designer
 
     private function invoiceDetails(Company $company)
     {
-
         $data = [
             '$invoice.number'           => '<span class="flex justify-between items-center"><span>$invoice.number_label:</span><span> $invoice.number</span></span>',
             '$invoice.po_number'        => '<span class="flex justify-between items-center"><span>$invoice.po_number_label:</span><span> $invoice.po_number</span></span>',

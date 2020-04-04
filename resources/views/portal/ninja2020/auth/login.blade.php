@@ -11,8 +11,7 @@
         <div class="col-span-2 h-screen flex">
             <div class="m-auto md:w-1/2 lg:w-1/4">
                 <div class="flex flex-col">
-                    <h1 class="text-center text-3xl">{{ ctrans('texts.account_login') }}</h1>
-                    <p class="text-center mt-1 text-gray-600">{{ ctrans('texts.account_login_text') }}</p>
+                    <h1 class="text-center text-3xl">{{ ctrans('texts.client_portal') }}</h1>
                     <form action="{{ route('client.login') }}" method="post" class="mt-6">
                         @csrf
                         <div class="flex flex-col">
@@ -48,9 +47,6 @@
                             </button>
                         </div>
                     </form>
-                    <a href="#" class="uppercase text-sm mt-4 text-center text-grey-600 hover:text-blue-600 ease-in duration-100">
-                        {{ trans('texts.login_create_an_account') }}
-                    </a>
                 </div>
             </div>
         </div>

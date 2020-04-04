@@ -11,6 +11,7 @@
 
 namespace App\Repositories;
 
+use App\Events\Invoice\InvoiceWasDeleted;
 use App\Factory\InvoiceInvitationFactory;
 use App\Jobs\Product\UpdateOrCreateProduct;
 use App\Models\Client;
@@ -65,5 +66,21 @@ class InvoiceRepository extends BaseRepository
     public function getInvitationByKey($key) :?InvoiceInvitation
     {
         return InvoiceInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
+    }
+
+    public function delete($invoice)
+    {
+        if ($invoice->is_deleted) {
+            return;
+        }
+
+        $invoice->is_deleted = true;
+        $invoice->save();
+
+        $invoice->delete();
+
+        if (class_exists($className)) {
+            event(new InvoiceWasDeleted($invoice));
+        }
     }
 }

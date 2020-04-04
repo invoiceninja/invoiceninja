@@ -687,7 +687,6 @@ class InvoiceController extends BaseController
                 });
 
                 if ($invoice->invitations->count() > 0) {
-
                     event(new InvoiceWasEmailed($invoice->invitations->first()));
                 }
 
