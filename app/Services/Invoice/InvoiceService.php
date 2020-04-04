@@ -18,6 +18,7 @@ use App\Services\Invoice\ApplyNumber;
 use App\Services\Invoice\ApplyPayment;
 use App\Services\Invoice\CreateInvitations;
 use App\Services\Invoice\GetInvoicePdf;
+use App\Services\Invoice\HandleDeletion;
 use App\Services\Invoice\MarkInvoicePaid;
 use App\Services\Invoice\MarkSent;
 use App\Services\Invoice\UpdateBalance;
@@ -43,9 +44,7 @@ class InvoiceService
      */
     public function markPaid()
     {
-        $mark_invoice_paid = new MarkPaid($this->client_service, $this->invoice);
-
-        $this->invoice = $mark_invoice_paid->run();
+        $this->invoice = (new MarkPaid($this->client_service, $this->invoice))->run();
 
         return $this;
     }
@@ -56,9 +55,7 @@ class InvoiceService
      */
     public function applyNumber()
     {
-        $apply_number = new ApplyNumber($this->invoice->client, $this->invoice);
-
-        $this->invoice = $apply_number->run();
+        $this->invoice = (new ApplyNumber($this->invoice->client, $this->invoice))->run();
 
         return $this;
     }
@@ -71,9 +68,7 @@ class InvoiceService
      */
     public function applyPayment(Payment $payment, float $payment_amount)
     {
-        $apply_payment = new ApplyPayment($this->invoice, $payment, $payment_amount);
-
-        $this->invoice = $apply_payment->run();
+        $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount))->run();
 
         return $this;
     }
@@ -87,29 +82,23 @@ class InvoiceService
      */
     public function updateBalance($balance_adjustment)
     {
-        $update_balance = new UpdateBalance($this->invoice, $balance_adjustment);
-
-        $this->invoice = $update_balance->run();
+        $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment))->run();
 
         return $this;
     }
 
     public function createInvitations()
     {
-        $create_invitation = new CreateInvitations($this->invoice);
-
-        $this->invoice = $create_invitation->run();
+        $this->invoice = (new CreateInvitations($this->invoice))->run();
 
         return $this;
     }
 
     public function markSent()
     {
-        $mark_sent = new MarkSent($this->invoice->client, $this->invoice);
+       $this->invoice = (new MarkSent($this->invoice->client, $this->invoice))->run();
 
-        $this->invoice = $mark_sent->run();
-
-        return $this;
+       return $this;
     }
 
 
@@ -125,6 +114,13 @@ class InvoiceService
         $send_email = new SendEmail($this->invoice, null, $contact);
 
         return $send_email->run();
+    }
+
+    public function handleDeletion()
+    {
+        $this->invoice = (new HandleDeletion($this->invoice))->run();
+
+        return $this;
     }
 
     public function markViewed()
@@ -163,14 +159,6 @@ class InvoiceService
 
         return $this;
     }
-
-
-
-
-
-
-
-
 
 
 
