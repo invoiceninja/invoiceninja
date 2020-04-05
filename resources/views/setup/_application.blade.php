@@ -42,6 +42,7 @@
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     <input type="checkbox" class="form-checkbox mr-1" name="send_logs" {{ old('send_logs' ? 'checked': '') }}>
                     <span>{{ ctrans('texts.send_fail_logs_to_our_server') }}</span>
+                    <a href="https://www.invoiceninja.com/privacy-policy/">Read more about how we use this</a>
                 </dd>
             </div>
         </dl>
