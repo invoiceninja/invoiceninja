@@ -3535,6 +3535,7 @@ $LANG = array(
     'marked_credit_as_sent' => 'Successfully marked credit as sent',
     'email_subject_payment_partial' => 'Email Partial Payment Subject',
     'is_approved' => 'Is Approved',
+    'migration_went_wrong' => 'Oops, something went wrong! Make sure you did proper setup with V2 of Invoice Ninja, before starting migration.',
 );
 
 return $LANG;
