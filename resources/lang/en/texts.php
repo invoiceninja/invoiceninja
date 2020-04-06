@@ -3535,6 +3535,7 @@ $LANG = array(
     'marked_credit_as_sent' => 'Successfully marked credit as sent',
     'email_subject_payment_partial' => 'Email Partial Payment Subject',
     'is_approved' => 'Is Approved',
+    'cross_migration_message' => 'Cross account migration is not allowed. Please read more about it here: <a href="https://invoiceninja.github.io/cross-site-migration.html">https://invoiceninja.github.io/cross-site-migration.html</a>'
 );
 
 return $LANG;
