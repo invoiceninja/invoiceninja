@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\OAuth\Providers;
+<?php 
+
+namespace App\Libraries\OAuth\Providers;
 
 interface ProviderInterface
 {

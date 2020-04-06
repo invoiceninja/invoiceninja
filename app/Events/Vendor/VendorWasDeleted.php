@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Events;
+namespace App\Events\Vendor;
 
 use App\Models\Vendor;
 use Illuminate\Queue\SerializesModels;

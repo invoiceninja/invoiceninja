@@ -33,6 +33,7 @@ class SystemHealth
         'openssl',
         'mbstring',
         'xml',
+        'bcmath'
     ];
 
     private static $php_version = 7.3;

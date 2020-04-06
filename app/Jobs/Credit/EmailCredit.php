@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Jobs\Invoice;
+namespace App\Jobs\Credit;
 
 use App\Events\Credit\CreditWasEmailed;
 use App\Events\Credit\CreditWasEmailedAndFailed;

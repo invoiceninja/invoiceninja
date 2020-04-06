@@ -83,4 +83,14 @@ class InvoiceRepository extends BaseRepository
             event(new InvoiceWasDeleted($invoice));
         }
     }
+
+    public function reverse()
+    {
+
+    }
+
+    public function cancel()
+    {
+        
+    }
 }

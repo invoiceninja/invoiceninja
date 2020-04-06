@@ -10,7 +10,7 @@ namespace App\Helpers\Email;
 
 use App\Models\Payment;
 
-class EmailPayment extends EmailBuilder
+class PaymentEmail extends EmailBuilder
 {
     public function build(Payment $payment, $contact = null)
     {

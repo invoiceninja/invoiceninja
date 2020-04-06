@@ -35,7 +35,7 @@ class HandleDeletion extends AbstractService
 
     public function run()
     {
-        $balance_remainig = $this->invoice->balance;
+        $balance_remaining = $this->invoice->balance;
         $total_paid = $this->invoice->amount - $this->invoice->balance;
 
         //change invoice status
