@@ -41,8 +41,16 @@ class AuthService
         $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
 
         if ($response->code == 200) {
-            $this->isSuccessful = true;
-            $this->token = $response->body->data[0]->token->token;
+            
+            try {
+                $this->isSuccessful = true;
+                $this->token = $response->body->data[0]->token->token;
+            } catch (\Exception $e) {
+                info($e->getMessage());
+
+                $this->isSuccessful = false;
+                $this->errors = [trans('texts.migration_went_wrong')];
+            }
         }
 
         if (in_array($response->code, [401, 422, 500])) {
