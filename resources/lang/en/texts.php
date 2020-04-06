@@ -3536,6 +3536,7 @@ $LANG = array(
     'email_subject_payment_partial' => 'Email Partial Payment Subject',
     'is_approved' => 'Is Approved',
     'migration_went_wrong' => 'Oops, something went wrong! Make sure you did proper setup with V2 of Invoice Ninja, before starting migration.',
+    'cross_migration_message' => 'Cross account migration is not allowed. Please read more about it here: <a href="https://invoiceninja.github.io/cross-site-migration.html">https://invoiceninja.github.io/cross-site-migration.html</a>'
 );
 
 return $LANG;
