@@ -89,6 +89,12 @@ Breadcrumbs::for('credits.show', function ($trail, $credit) {
     $trail->push(sprintf('%s: %s', ctrans('texts.credits'), $credit->hashed_id), route('client.credits.index', $credit->hashed_id));
 });
 
+// Invoices > Payment
+Breadcrumbs::for('invoices.pay_now', function ($trail) {
+    $trail->parent('invoices');
+    $trail->push(ctrans('texts.pay_now'));
+});
+
 // Dashboard > Client
 Breadcrumbs::for('clients', function ($trail) {
     $trail->parent('dashboard');

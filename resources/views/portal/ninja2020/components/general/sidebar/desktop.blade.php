@@ -3,7 +3,7 @@
         <div class="flex items-center h-16 flex-shrink-0 px-4 bg-blue-900">
             <a href="{{ route('client.dashboard') }}">
                 <img class="h-6 w-auto"
-                     src="{!! $settings->company_logo ?: 'https://www.invoiceninja.com/wp-content/themes/invoice-ninja/images/logo.png' !!}"
+                     src="{!! $settings->company_logo ?: asset('images/invoiceninja-white-logo.png') !!}"
                      alt="{{ config('app.name') }}"/>
             </a>
         </div>

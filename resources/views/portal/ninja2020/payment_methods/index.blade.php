@@ -21,7 +21,9 @@
                     <div class="inline-flex rounded-md shadow-sm">
                         <input type="hidden" name="hashed_ids">
                         <input type="hidden" name="action" value="payment">
-                        <a href="{{ route('client.payment_methods.create') }}" class="button button-primary">@lang('texts.add_payment_method')</a>
+                        @if(auth()->user()->client->getCreditCardGateway())
+                            <a href="{{ route('client.payment_methods.create') }}" class="button button-primary">@lang('texts.add_payment_method')</a>
+                        @endif
                     </div>
                 </div>
             </div>

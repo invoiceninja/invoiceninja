@@ -13,6 +13,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Events\Payment\Methods\MethodDeleted;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPortal\CreatePaymentMethodRequest;
 use App\Models\ClientGatewayToken;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Http\Request;
@@ -45,7 +46,7 @@ class PaymentMethodController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(CreatePaymentMethodRequest $request)
     {
         $gateway = auth()->user()->client->getCreditCardGateway();
 
