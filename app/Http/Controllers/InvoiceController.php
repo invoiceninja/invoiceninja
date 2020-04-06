@@ -676,6 +676,10 @@ class InvoiceController extends BaseController
                     return $this->listResponse($invoice);
                 }
                 break;
+            case 'cancel':
+                break;
+            case 'reverse':
+                break;
             case 'email':
 
                 $this->reminder_template = $invoice->calculateTemplate();
