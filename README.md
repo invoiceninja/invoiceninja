@@ -24,20 +24,19 @@ composer update
 npm i
 npm run production
 ```
-Run if you want to load sample data
+Run if you want to load sample data, remember to configure .env
 ```
 php artisan migrate:fresh --seed && php artisan db:seed --class=RandomDataSeeder
-
 ```
-To Run the web server
 
+To Run the web server
 ```
 php artisan serve 
 ```
 
 Navigate to (replace ninja.test as required)
 ```
-http://ninja.test:8000/setup - To setup your configuration
+http://ninja.test:8000/setup - To setup your configuration if you didn't load sample data.
 http://ninja.test:8000/ - For Administrator Logon
 http://ninja.test:8000/client/login - For Client Portal
 
