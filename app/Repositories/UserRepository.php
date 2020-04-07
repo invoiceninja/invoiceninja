@@ -45,12 +45,24 @@ class UserRepository extends BaseRepository
      *
      * @return     user|\App\Models\user|null  user Object
      */
-    public function save(array $data, User $user, $is_migrating = false)
+    public function save(array $data, User $user, $is_migrating = false, $unset_company_user = false)
     {
+        $details = $data;
+
+        /**
+         * Getting: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'company_user'
+         * because of User::unguard().
+         * Solution. Unset company_user per request.
+         */
+
+        if ($unset_company_user) {
+            unset($details['company_user']);
+        }
+
         $company = auth()->user()->company();
         $account_id = $company->account->id;
 
-        $user->fill($data);
+        $user->fill($details);
         $user->account_id = $account_id;
         $user->save();
 
