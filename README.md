@@ -19,15 +19,30 @@ git clone https://github.com/invoiceninja/invoiceninja.git
 git checkout v2
 cp .env.example .env
 cp .env.dusk.example .env.dusk.local
+php artisan key:generate
 composer update
 npm i
 npm run production
+```
+
+Please Note: Your APP_KEY in the .env file is used to encrypt data, if you loose this you will not be able to run the application.
+
+Run if you want to load sample data, remember to configure .env
+```
 php artisan migrate:fresh --seed && php artisan db:seed --class=RandomDataSeeder
 ```
 
-Navigate to
+To Run the web server
 ```
-http://ninja.test:8000/client/login
+php artisan serve 
+```
+
+Navigate to (replace ninja.test as required)
+```
+http://ninja.test:8000/setup - To setup your configuration if you didn't load sample data.
+http://ninja.test:8000/ - For Administrator Logon
+http://ninja.test:8000/client/login - For Client Portal
+
 user: user@example.com
 pass: password
 ```
