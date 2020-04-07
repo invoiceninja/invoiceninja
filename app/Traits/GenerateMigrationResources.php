@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Traits;
-
 
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
@@ -49,64 +47,64 @@ trait GenerateMigrationResources
     public function getCompanySettings()
     {
         return [
-            'timezone_id' => $this->account->timezone_id ? (string)$this->account->timezone_id : '15',
-            'date_format_id' => $this->account->date_format_id ? (string)$this->account->date_format_id : '1',
-            'currency_id' => $this->account->currency_id ? (string)$this->account->currency_id : '1',
+            'timezone_id' => $this->account->timezone_id ? (string) $this->account->timezone_id : '15',
+            'date_format_id' => $this->account->date_format_id ? (string) $this->account->date_format_id : '1',
+            'currency_id' => $this->account->currency_id ? (string) $this->account->currency_id : '1',
             'name' => $this->account->name ?: trans('texts.untitled'),
             'address1' => $this->account->address1 ?: '',
             'address2' => $this->account->address2 ?: '',
             'city' => $this->account->city ?: '',
             'state' => $this->account->state ?: '',
             'postal_code' => $this->account->postal_code ?: '',
-            'country_id' => $this->account->country_id ? (string)$this->account->country_id : '840',
+            'country_id' => $this->account->country_id ? (string) $this->account->country_id : '840',
             'invoice_terms' => $this->account->invoice_terms ?: '',
-            'enabled_item_tax_rates' => $this->account->invoice_item_taxes ? (bool)$this->account->invoice_item_taxes : false,
-            'invoice_design_id' => $this->account->invoice_design_id ?: (string)$this->account->invoice_design_id ?: '1',
+            'enabled_item_tax_rates' => $this->account->invoice_item_taxes ? (bool) $this->account->invoice_item_taxes : false,
+            'invoice_design_id' => $this->account->invoice_design_id ?: (string) $this->account->invoice_design_id ?: '1',
             'phone' => $this->account->work_phone ?: '',
             'email' => $this->account->work_email ?: '',
-            'language_id' => $this->account->language_id ? (string)$this->account->language_id : '1',
-            'custom_value1' => $this->account->custom_value1 ? (string)$this->account->custom_value1 : '',
-            'custom_value2' => $this->account->custom_value2 ? (string)$this->account->custom_value2 : '',
+            'language_id' => $this->account->language_id ? (string) $this->account->language_id : '1',
+            'custom_value1' => $this->account->custom_value1 ? (string) $this->account->custom_value1 : '',
+            'custom_value2' => $this->account->custom_value2 ? (string) $this->account->custom_value2 : '',
             'custom_value3' => '',
             'custom_value4' => '',
-            'hide_paid_to_date' => $this->account->hide_paid_to_date ? (bool)$this->account->hide_paid_to_date : false,
+            'hide_paid_to_date' => $this->account->hide_paid_to_date ? (bool) $this->account->hide_paid_to_date : false,
             'vat_number' => $this->account->vat_number ?: '',
-            'shared_invoice_quote_counter' => $this->account->share_counter ? (bool)$this->account->share_counter : true,
+            'shared_invoice_quote_counter' => $this->account->share_counter ? (bool) $this->account->share_counter : true,
             'id_number' => $this->account->id_number ?: '',
             'invoice_footer' => $this->account->invoice_footer ?: '',
-            'pdf_email_attachment' => $this->account->pdf_email_attachment ? (bool)$this->account->pdf_email_attachment : false,
+            'pdf_email_attachment' => $this->account->pdf_email_attachment ? (bool) $this->account->pdf_email_attachment : false,
             'font_size' => $this->account->font_size ?: 9,
             'invoice_labels' => $this->account->invoice_labels ?: '',
-            'military_time' => $this->account->military_time ? (bool)$this->account->military_time : false,
+            'military_time' => $this->account->military_time ? (bool) $this->account->military_time : false,
             'invoice_number_pattern' => $this->account->invoice_number_pattern ?: '',
             'quote_number_pattern' => $this->account->quote_number_pattern ?: '',
             'quote_terms' => $this->account->quote_terms ?: '',
             'website' => $this->account->website ?: '',
-            'auto_convert_quote' => $this->account->auto_convert_quote ? (bool)$this->account->auto_convert_quote : false,
-            'all_pages_footer' => $this->account->all_pages_footer ? (bool)$this->account->all_pages_footer : true,
-            'all_pages_header' => $this->account->all_pages_header ? (bool)$this->account->all_pages_header : true,
-            'show_currency_code' => $this->account->show_currency_code ?  (bool)$this->account->show_currency_code : false,
-            'enable_client_portal_password' => $this->account->enable_portal_password ? (bool)$this->account->enable_portal_password : true,
-            'send_portal_password' => $this->account->send_portal_password ? (bool)$this->account->send_portal_password : false,
+            'auto_convert_quote' => $this->account->auto_convert_quote ? (bool) $this->account->auto_convert_quote : false,
+            'all_pages_footer' => $this->account->all_pages_footer ? (bool) $this->account->all_pages_footer : true,
+            'all_pages_header' => $this->account->all_pages_header ? (bool) $this->account->all_pages_header : true,
+            'show_currency_code' => $this->account->show_currency_code ? (bool) $this->account->show_currency_code : false,
+            'enable_client_portal_password' => $this->account->enable_portal_password ? (bool) $this->account->enable_portal_password : true,
+            'send_portal_password' => $this->account->send_portal_password ? (bool) $this->account->send_portal_password : false,
             'recurring_number_prefix' => $this->account->recurring_invoice_number_prefix ? $this->account->recurring_invoice_number_prefix : 'R',
-            'enable_client_portal' => $this->account->enable_client_portal ? (bool)$this->account->enable_client_portal : false,
+            'enable_client_portal' => $this->account->enable_client_portal ? (bool) $this->account->enable_client_portal : false,
             'invoice_fields' => $this->account->invoice_fields ?: '',
             'company_logo' => $this->account->logo ?: '',
-            'embed_documents' => $this->account->invoice_embed_documents ? (bool)$this->account->invoice_embed_documents : false,
-            'document_email_attachment' => $this->account->document_email_attachment ? (bool)$this->account->document_email_attachment : false,
-            'enable_client_portal_dashboard' => $this->account->enable_client_portal_dashboard ? (bool)$this->account->enable_client_portal_dashboard : true,
+            'embed_documents' => $this->account->invoice_embed_documents ? (bool) $this->account->invoice_embed_documents : false,
+            'document_email_attachment' => $this->account->document_email_attachment ? (bool) $this->account->document_email_attachment : false,
+            'enable_client_portal_dashboard' => $this->account->enable_client_portal_dashboard ? (bool) $this->account->enable_client_portal_dashboard : true,
             'page_size' => $this->account->page_size ?: 'A4',
-            'show_accept_invoice_terms' => $this->account->show_accept_invoice_terms ? (bool)$this->account->show_accept_invoice_terms : false,
-            'show_accept_quote_terms' => $this->account->show_accept_quote_terms ? (bool)$this->account->show_accept_quote_terms : false,
-            'require_invoice_signature' => $this->account->require_invoice_signature ? (bool)$this->account->require_invoice_signature : false,
-            'require_quote_signature' => $this->account->require_quote_signature ? (bool)$this->account->require_quote_signature : false,
+            'show_accept_invoice_terms' => $this->account->show_accept_invoice_terms ? (bool) $this->account->show_accept_invoice_terms : false,
+            'show_accept_quote_terms' => $this->account->show_accept_quote_terms ? (bool) $this->account->show_accept_quote_terms : false,
+            'require_invoice_signature' => $this->account->require_invoice_signature ? (bool) $this->account->require_invoice_signature : false,
+            'require_quote_signature' => $this->account->require_quote_signature ? (bool) $this->account->require_quote_signature : false,
             'client_number_counter' => $this->account->client_number_counter ?: 0,
             'client_number_pattern' => $this->account->client_number_pattern ?: '',
             'payment_number_pattern' => '',
             'payment_number_counter' => 0,
             'payment_terms' => $this->account->payment_terms ?: '',
-            'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id ? (string)$this->account->reset_counter_frequency_id : '0',
-            'payment_type_id' => $this->account->payment_type_id ? (string)$this->account->payment_type_id : '1',
+            'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id ? (string) $this->account->reset_counter_frequency_id : '0',
+            'payment_type_id' => $this->account->payment_type_id ? (string) $this->account->payment_type_id : '1',
             'reset_counter_date' => $this->account->reset_counter_date ?: '',
             'tax_name1' => $this->account->tax_name1 ?: '',
             'tax_rate1' => $this->account->tax_rate1 ?: 0,
@@ -114,16 +112,16 @@ trait GenerateMigrationResources
             'tax_rate2' => $this->account->tax_rate2 ?: 0,
             'tax_name3' => '',
             'tax_rate3' => 0,
-            'quote_design_id' => $this->account->quote_design_id ? (string)$this->account->quote_design_id : '1',
+            'quote_design_id' => $this->account->quote_design_id ? (string) $this->account->quote_design_id : '1',
             'credit_number_counter' => $this->account->credit_number_counter ?: 0,
             'credit_number_pattern' => $this->account->credit_number_pattern ?: '',
             'default_task_rate' => $this->account->task_rate ?: 0,
-            'inclusive_taxes' => $this->account->inclusive_taxes ? (bool)$this->account->inclusive_taxes : false,
+            'inclusive_taxes' => $this->account->inclusive_taxes ? (bool) $this->account->inclusive_taxes : false,
             'signature_on_pdf' => $this->account->signature_on_pdf ? (bool) $this->account->signature_on_pdf : false,
-            'ubl_email_attachment' => $this->account->ubl_email_attachment ? (bool)$this->account->ubl_email_attachment : false,
-            'auto_archive_invoice' => $this->account->auto_archive_invoice ? (bool)$this->account->auto_archive_invoice : false,
-            'auto_archive_quote' => $this->account->auto_archive_quote ? (bool)$this->account->auto_archive_quote : false,
-            'auto_email_invoice' => $this->account->auto_email_invoice ? (bool)$this->account->auto_email_invoice : false,
+            'ubl_email_attachment' => $this->account->ubl_email_attachment ? (bool) $this->account->ubl_email_attachment : false,
+            'auto_archive_invoice' => $this->account->auto_archive_invoice ? (bool) $this->account->auto_archive_invoice : false,
+            'auto_archive_quote' => $this->account->auto_archive_quote ? (bool) $this->account->auto_archive_quote : false,
+            'auto_email_invoice' => $this->account->auto_email_invoice ? (bool) $this->account->auto_email_invoice : false,
             'counter_padding' => $this->account->invoice_number_padding ?: 4,
         ];
     }
@@ -195,11 +193,12 @@ trait GenerateMigrationResources
 
     private function getClientSettings($client)
     {
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->currency_id = $client->currency_id ? (string) $client->currency_id : (string) $client->account->currency_id;
 
-        if($client->language_id)
+        if ($client->language_id) {
             $settings->language_id = $client->language_id;
+        }
 
         return $settings;
     }
@@ -208,7 +207,7 @@ trait GenerateMigrationResources
     {
         $transformed = [];
 
-        foreach($contacts as $contact) {
+        foreach ($contacts as $contact) {
             $transformed[] = [
                 'id' => $contact->id,
                 'company_id' => $contact->account_id,
@@ -291,6 +290,7 @@ trait GenerateMigrationResources
                 'created_at' => $user->created_at ? $user->created_at->toDateString() : null,
                 'updated_at' => $user->updated_at ? $user->updated_at->toDateString() : null,
                 'deleted_at' => $user->deleted_at ? $user->deleted_at->toDateString() : null,
+                'company_user' => [],
             ];
         }
 
@@ -406,7 +406,7 @@ trait GenerateMigrationResources
     {
         $transformed = [];
 
-        foreach($items as $invitation) {
+        foreach ($items as $invitation) {
             $transformed[] = [
                 'id' => $invitation->id,
                 'company_id' => $invitation->account_id,
@@ -431,7 +431,6 @@ trait GenerateMigrationResources
         return $transformed;
     }
 
-
     public function getInvoiceItems($items)
     {
         $transformed = [];
@@ -439,13 +438,13 @@ trait GenerateMigrationResources
         foreach ($items as $item) {
             $transformed[] = [
                 'id' => $item->id,
-                'quantity' => (float)$item->qty,
-                'cost' => (float)$item->cost,
+                'quantity' => (float) $item->qty,
+                'cost' => (float) $item->cost,
                 'product_key' => $item->product_key,
                 'notes' => $item->notes,
-                'discount' => (float)$item->discount,
+                'discount' => (float) $item->discount,
                 'tax_name1' => $item->tax_name1,
-                'tax_rate1' => (float)$item->tax_rate1,
+                'tax_rate1' => (float) $item->tax_rate1,
                 'date' => $item->created_at,
                 'custom_value1' => $item->custom_value1,
                 'custom_value2' => $item->custom_value2,
@@ -538,7 +537,7 @@ trait GenerateMigrationResources
                 'transaction_reference' => $payment->transaction_reference,
                 'payer_id' => $payment->payer_id,
                 'is_deleted' => $payment->is_deleted,
-                'exchange_rate' => $payment->exchange_rate ? number_format((float)$payment->exchange_rate, 6) : null,
+                'exchange_rate' => $payment->exchange_rate ? number_format((float) $payment->exchange_rate, 6) : null,
                 'exchange_currency_id' => $payment->exchange_currency_id,
                 'currency_id' => isset($payment->client->currency->id) ? $payment->client->currency->id : $this->account->currency_id,
                 'updated_at' => $payment->updated_at ? $payment->updated_at->toDateString() : null,
@@ -614,11 +613,9 @@ trait GenerateMigrationResources
         $transformed = [];
 
         foreach ($account_gateways as $account_gateway) {
-
             $gateway_types = $account_gateway->paymentDriver()->gatewayTypes();
 
-            foreach($gateway_types as $gateway_type_id) {
-
+            foreach ($gateway_types as $gateway_type_id) {
                 $transformed[] = [
                     'id' => $account_gateway->id,
                     'user_id' => $account_gateway->user_id,
@@ -639,7 +636,6 @@ trait GenerateMigrationResources
         }
 
         return $transformed;
-
     }
 
     private function getClientGatewayTokens()
@@ -651,7 +647,6 @@ trait GenerateMigrationResources
         $is_default = true;
 
         foreach ($payment_methods as $payment_method) {
-
             $contact = Contact::find($payment_method->contact_id)->first();
             $agt = AccountGatewayToken::find($payment_method->account_gateway_token_id)->first();
 
@@ -675,22 +670,21 @@ trait GenerateMigrationResources
 
     private function convertMeta($payment_method)
     {
-        $expiry = explode("-", $payment_method->expiration);
+        $expiry = explode('-', $payment_method->expiration);
 
-        if(is_array($expiry)){
+        if (is_array($expiry)) {
             $exp_month = $expiry[1];
             $exp_year = $expiry[0];
-        }
-        else{
+        } else {
             $exp_month = '';
             $exp_year = '';
         }
 
-        $meta = new \stdClass;
+        $meta = new \stdClass();
         $meta->exp_month = $exp_month;
         $meta->exp_year = $exp_year;
         $meta->brand = $payment_method->payment_type->name;
-        $meta->last4 = str_replace(",","", ($payment_method->expiration));
+        $meta->last4 = str_replace(',', '', ($payment_method->expiration));
         $meta->type = $payment_method->payment_type->gateway_type_id;
 
         return $meta;
@@ -702,10 +696,11 @@ trait GenerateMigrationResources
             ->where('gateway_type_id', $gateway_type_id)
             ->first();
 
-        if(!$ags)
-            return new \stdClass;
+        if (! $ags) {
+            return new \stdClass();
+        }
 
-        $fees_and_limits = new \stdClass;
+        $fees_and_limits = new \stdClass();
         $fees_and_limits->min_limit = $ags->min_limit;
         $fees_and_limits->max_limit = $ags->max_limit;
         $fees_and_limits->fee_amount = $ags->fee_amount;
@@ -716,7 +711,6 @@ trait GenerateMigrationResources
         $fees_and_limits->tax_rate2 = $ags->tax_rate2;
         $fees_and_limits->tax_name3 = '';
         $fees_and_limits->tax_rate3 = 0;
-
 
         return $fees_and_limits;
     }
