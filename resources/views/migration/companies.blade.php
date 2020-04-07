@@ -24,6 +24,7 @@
                 </div>
                 <div class="form-group">
                     <input type="checkbox" name="companies[{{ $company->id }}][force]">
+                    <input type="hidden" name="companies[{{ $company->id }}][key]" value="{{ $company->company_key }}">
                     <label for="force">Force migration</label>
                     <small>* All current company data will be wiped.</small>
                 </div>

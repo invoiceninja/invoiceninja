@@ -16,7 +16,7 @@ class CompleteService
     protected $errors = [];
     protected $isSuccessful;
     protected $force = false;
-
+    protected $companyKey;
 
     public function __construct(string $token)
     {
@@ -51,11 +51,19 @@ class CompleteService
         return $this;
     }
 
+    public function companyKey(string $key)
+    {
+        $this->companyKey = $key;
+
+        return $this;
+    }
+
     public function start()
     {
         $body = [
             'migration' => \Unirest\Request\Body::file($this->file, 'application/zip'),
             'force' => $this->force,
+            'company_key' => $this->companyKey,
         ];
 
         $response = Request::post($this->getUrl(), $this->getHeaders(), $body);

@@ -151,12 +151,13 @@ class StepsController extends BaseController
             return redirect($this->access['companies']['redirect']);
 
         foreach ($request->companies as $company) {
-            $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
-            ->file($this->getMigrationFile())
-            ->force(array_key_exists('force', $company))
-            ->company($company['id'])
-            ->endpoint(session('MIGRATION_ENDPOINT'))
-            ->start();
+            (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
+                ->file($this->getMigrationFile())
+                ->force(array_key_exists('force', $company))
+                ->company($company['id'])
+                ->endpoint(session('MIGRATION_ENDPOINT'))
+                ->companyKey($company['key'])
+                ->start();
         }
 
         return view('migration.completed');
@@ -219,7 +220,7 @@ class StepsController extends BaseController
             'client_gateway_tokens' => $this->getClientGatewayTokens(),
         ];
 
-        $file = storage_path("{$fileName}.zip");
+        $file = storage_path("migrations/{$fileName}.zip");
 
         $zip = new \ZipArchive();
         $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
