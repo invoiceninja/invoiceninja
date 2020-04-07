@@ -25,3 +25,5 @@ local_version.txt
 
 # Ignore local migrations
 storage/migrations
+nbproject
+/composer.lock
