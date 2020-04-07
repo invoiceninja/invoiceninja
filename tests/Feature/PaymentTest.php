@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
@@ -34,6 +35,7 @@ class PaymentTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+    use WithoutEvents;
 
     public function setUp() :void
     {
@@ -413,6 +415,22 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
+        factory(\App\Models\ClientContact::class, 1)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_email' => true,
+            ]);
+
+        factory(\App\Models\ClientContact::class, 1)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $client->id,
+                'company_id' => $this->company->id,
+                'send_email' => true
+            ]);
+
+
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
         $this->invoice->client_id = $client->id;
 
@@ -471,6 +489,23 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
+        $contact = factory(\App\Models\ClientContact::class, 1)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_email' => true,
+            ]);
+
+        factory(\App\Models\ClientContact::class, 1)->create([
+                'user_id' => $this->user->id,
+                'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+                'send_email' => true
+            ]);
+
+        $client->setRelation('contact', $contact);
+
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
         $this->invoice->client_id = $client->id;
 
@@ -487,6 +522,7 @@ class PaymentTest extends TestCase
         $this->invoice->save();
         $this->invoice->service()->markSent()->save();
 
+        $this->invoice->setRelation('client', $client);
 
         $data = [
             'amount' => 1.0,

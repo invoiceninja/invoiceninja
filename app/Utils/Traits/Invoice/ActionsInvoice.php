@@ -14,28 +14,28 @@ namespace App\Utils\Traits\Invoice;
 
 trait ActionsInvoice
 {
-    public function invoiceDeletable() :bool
+    public function invoiceDeletable($invoice) :bool
     {
 
-    	if($this->invoice->status_id <= 2 && $this->invoice->is_deleted == false && $this->invoice->deleted_at == NULL)
+    	if($invoice->status_id <= 2 && $invoice->is_deleted == false && $invoice->deleted_at == NULL)
     		return true;
 
     	return false;
     }
 
-    public function invoiceCancellable() :bool
+    public function invoiceCancellable($invoice) :bool
     {
 
-		if($this->invoice->status_id == 3 && $this->invoice->is_deleted == false && $this->invoice->deleted_at == NULL)
+		if($invoice->status_id == 3 && $invoice->is_deleted == false && $invoice->deleted_at == NULL)
 			return true;
 
 		return false;
     }
 
-    public function invoiceReversable() :bool
+    public function invoiceReversable($invoice) :bool
     {
 
-		if(($this->invoice->status_id == 3 || $this->invoice->status_id == 4) && $this->invoice->is_deleted == false && $this->invoice->deleted_at == NULL)
+		if(($invoice->status_id == 3 || $invoice->status_id == 4) && $invoice->is_deleted == false && $invoice->deleted_at == NULL)
 			return true;
 
 		return false;

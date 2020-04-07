@@ -18,7 +18,7 @@ use App\Services\Invoice\ApplyNumber;
 use App\Services\Invoice\ApplyPayment;
 use App\Services\Invoice\CreateInvitations;
 use App\Services\Invoice\GetInvoicePdf;
-use App\Services\Invoice\HandleDeletion;
+use App\Services\Invoice\HandleReversal;
 use App\Services\Invoice\MarkInvoicePaid;
 use App\Services\Invoice\MarkSent;
 use App\Services\Invoice\UpdateBalance;
@@ -116,9 +116,9 @@ class InvoiceService
         return $send_email->run();
     }
 
-    public function handleDeletion()
+    public function HandleReversal()
     {
-        $this->invoice = (new HandleDeletion($this->invoice))->run();
+        $this->invoice = (new HandleReversal($this->invoice))->run();
 
         return $this;
     }
