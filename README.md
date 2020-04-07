@@ -19,15 +19,22 @@ git clone https://github.com/invoiceninja/invoiceninja.git
 git checkout v2
 cp .env.example .env
 cp .env.dusk.example .env.dusk.local
+php artisan key:generate
 composer update
 npm i
 npm run production
 php artisan migrate:fresh --seed && php artisan db:seed --class=RandomDataSeeder
-```
 
-Navigate to
 ```
-http://ninja.test:8000/client/login
+To Run the web server
+
+php artisan serve
+
+Navigate to (replace ninja.test as required)
+```
+http://ninja.test:8000/client/login 
+http://ninja.test:8000/
+http://ninja.test:8000/setup
 user: user@example.com
 pass: password
 ```
