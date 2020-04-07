@@ -50,15 +50,15 @@ class ActionInvoiceRequest extends Request
 		if(!array_key_exists('action', $input) {
         	$this->error_msg = 'Action is a required field';	
         }
-        elseif(!$this->invoiceDeletable()){
+        elseif(!$this->invoiceDeletable($this->invoice)){
         	unset($input['action']);	
         	$this->error_msg = 'This invoice cannot be deleted';
         }
-        elseif(!$this->invoiceCancellable()) {
+        elseif(!$this->invoiceCancellable($this->invoice)) {
         	unset($input['action']);	
         	$this->error_msg = 'This invoice cannot be cancelled';
         }
-        else if(!$this->invoiceReversable()) {
+        else if(!$this->invoiceReversable($this->invoice)) {
         	unset($input['action']);	
         	$this->error_msg = 'This invoice cannot be reversed';
         }
@@ -74,32 +74,7 @@ class ActionInvoiceRequest extends Request
     }
 
 
-    private function invoiceDeletable()
-    {
 
-    	if($this->invoice->status_id <= 2 && $this->invoice->is_deleted == false && $this->invoice->deleted_at == NULL)
-    		return true;
-
-    	return false;
-    }
-
-    private function invoiceCancellable()
-    {
-
-		if($this->invoice->status_id == 3 && $this->invoice->is_deleted == false && $this->invoice->deleted_at == NULL)
-			return true;
-
-		return false;
-    }
-
-    private function invoiceReversable()
-    {
-
-		if(($this->invoice->status_id == 3 || $this->invoice->status_id == 4) && $this->invoice->is_deleted == false && $this->invoice->deleted_at == NULL)
-			return true;
-
-		return false;
-    }
 
 }
 

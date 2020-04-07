@@ -7,7 +7,7 @@
 @endpush
 
 @section('header')
-    Insert breadcrumbs..
+    {{ Breadcrumbs::render('invoices.pay_now') }}
 @endsection
 
 @section('body')

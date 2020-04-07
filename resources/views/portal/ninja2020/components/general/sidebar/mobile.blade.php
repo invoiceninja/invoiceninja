@@ -15,7 +15,7 @@
         </div>
         <div class="flex-shrink-0 flex items-center px-4">
             <img class="h-6 w-auto"
-                 src="{!! $settings->company_logo ?: 'https://www.invoiceninja.com/wp-content/themes/invoice-ninja/images/logo.png' !!}"
+                 src="{!! $settings->company_logo ?: asset('images/invoiceninja-white-logo.png') !!}"
                  alt="{{ config('app.name') }}"/>
         </div>
         <div class="mt-5 flex-1 h-0 overflow-y-auto">

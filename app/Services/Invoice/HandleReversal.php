@@ -21,10 +21,9 @@ use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
 use App\Utils\Traits\GeneratesCounter;
 
-class HandleDeletion extends AbstractService
+class HandleReversal extends AbstractService
 {
     use GeneratesCounter;
-
 
     private $invoice;
 
