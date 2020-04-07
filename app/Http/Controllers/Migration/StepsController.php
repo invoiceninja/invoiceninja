@@ -76,7 +76,7 @@ class StepsController extends BaseController
     {
         session()->put('MIGRATION_TYPE', $request->option);
 
-        if($request->option == 0)
+        if ($request->option == 0)
             return redirect('/migration/auth');
 
         return redirect('/migration/endpoint');
@@ -84,7 +84,7 @@ class StepsController extends BaseController
 
     public function endpoint()
     {
-        if($this->shouldGoBack('endpoint'))
+        if ($this->shouldGoBack('endpoint'))
             return redirect($this->access['endpoint']['redirect']);
 
         return view('migration.endpoint');
@@ -92,7 +92,7 @@ class StepsController extends BaseController
 
     public function handleEndpoint(MigrationEndpointRequest $request)
     {
-        if($this->shouldGoBack('endpoint'))
+        if ($this->shouldGoBack('endpoint'))
             return redirect($this->access['endpoint']['redirect']);
 
         session()->put('MIGRATION_ENDPOINT', $request->endpoint);
@@ -102,23 +102,27 @@ class StepsController extends BaseController
 
     public function auth()
     {
-        if($this->shouldGoBack('auth'))
+        if ($this->shouldGoBack('auth'))
             return redirect($this->access['auth']['redirect']);
 
         return view('migration.auth');
     }
 
     public function handleAuth(MigrationAuthRequest $request)
-    {   
-        if($this->shouldGoBack('auth')) {
+    {
+        if ($this->shouldGoBack('auth')) {
             return redirect($this->access['auth']['redirect']);
+        }
+
+        if (auth()->user()->email !== $request->email) {
+            return back()->with('responseErrors', [trans('texts.cross_migration_message')]);
         }
 
         $authentication = (new AuthService($request->email, $request->password))
             ->endpoint(session('MIGRATION_ENDPOINT'))
             ->start();
 
-        if($authentication->isSuccessful()) {
+        if ($authentication->isSuccessful()) {
             session()->put('MIGRATION_ACCOUNT_TOKEN', $authentication->getAccountToken());
 
             return redirect('/migration/companies');
@@ -129,15 +133,15 @@ class StepsController extends BaseController
 
     public function companies()
     {
-        if($this->shouldGoBack('companies'))
+        if ($this->shouldGoBack('companies'))
             return redirect($this->access['companies']['redirect']);
 
         $companyService = (new CompanyService(session('MIGRATION_ACCOUNT_TOKEN')))
             ->endpoint(session('MIGRATION_ENDPOINT'))
             ->start();
 
-        if($companyService->isSuccessful()) {
-            return view('migration.companies', ['companies' => $companyService->getCompanies()]);    
+        if ($companyService->isSuccessful()) {
+            return view('migration.companies', ['companies' => $companyService->getCompanies()]);
         }
 
         return response()->json([
@@ -147,7 +151,7 @@ class StepsController extends BaseController
 
     public function handleCompanies(MigrationCompaniesRequest $request)
     {
-        if($this->shouldGoBack('companies'))
+        if ($this->shouldGoBack('companies'))
             return redirect($this->access['companies']['redirect']);
 
         foreach ($request->companies as $company) {
@@ -179,9 +183,9 @@ class StepsController extends BaseController
         $redirect = true;
 
         foreach ($this->access[$step]['steps'] as $step) {
-            if(session()->has($step)) {
+            if (session()->has($step)) {
                 $redirect = false;
-            }  else {
+            } else {
                 $redirect = true;
             }
         }
