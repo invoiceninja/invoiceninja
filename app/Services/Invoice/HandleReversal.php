@@ -64,29 +64,33 @@ class HandleReversal extends AbstractService
         });
 
         /* Generate a credit for the $total_paid amount */
-        $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);
-        $credit->client_id = $this->invoice->client_id;
+        $notes = "Credit for reversal of ".$this->invoice->number;
 
-            $item = InvoiceItemFactory::create();
-            $item->quantity = 1;
-            $item->cost = (float)$total_paid;
-            $item->notes = "Credit for reversal of ".$this->invoice->number;
+        if($total_paid > 0)
+        {
+            $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);
+            $credit->client_id = $this->invoice->client_id;
 
-            $line_items[] = $item;
+                $item = InvoiceItemFactory::create();
+                $item->quantity = 1;
+                $item->cost = (float)$total_paid;
+                $item->notes = $notes;
 
-        $credit->line_items = $line_items;
+                $line_items[] = $item;
 
-        $credit->save();
+            $credit->line_items = $line_items;
 
-        $credit_calc = new InvoiceSum($credit);
-        $credit_calc->build();
+            $credit->save();
 
-        $credit = $credit_calc->getCredit();
+            $credit_calc = new InvoiceSum($credit);
+            $credit_calc->build();
 
-        $credit->service()->markSent()->save();
+            $credit = $credit_calc->getCredit();
 
+            $credit->service()->markSent()->save();
+        }
         /* Set invoice balance to 0 */
-        $this->invoice->ledger()->updateInvoiceBalance($balance_remaining, $item->notes)->save();
+        $this->invoice->ledger()->updateInvoiceBalance($balance_remaining, $notes)->save();
 
         $this->invoice->balance= 0; 
 
