@@ -94,14 +94,12 @@ class HandleReversal extends AbstractService
         $this->invoice->service()->setStatus(Invoice::STATUS_REVERSED)->save();
 
         /* Reduce client.paid_to_date by $total_paid amount */
-        $client = $this->invoice->client;
-
-        $client->paid_to_date -= $total_paid;
-
         /* Reduce the client balance by $balance_remaining */
-        $client->balance -= $balance_remaining;
 
-        $client->save();
+        $this->invoice->client->service()
+            ->updateBalance($balance_remaining*-1)
+            ->updatePaidToDate($total_paid*-1)
+            ->save();
 
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
