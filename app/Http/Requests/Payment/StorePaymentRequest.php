@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Credit\ValidCreditsRules;
 use App\Http\ValidationRules\PaymentAmountsBalanceRule;
 use App\Http\ValidationRules\Payment\ValidInvoicesRules;
 use App\Http\ValidationRules\ValidCreditsPresentRule;
@@ -91,6 +92,7 @@ class StorePaymentRequest extends Request
             'invoices.*.invoice_id' => new ValidInvoicesRules($this->all()),
             'invoices.*.amount' => 'required',
             'credits.*.credit_id' => 'required|exists:credits,id',
+            'credits.*.credit_id' => new ValidCreditsRules($this->all()),
             'credits.*.amount' => 'required',
             'invoices' => new ValidPayableInvoicesRule(),
             'number' => 'nullable',

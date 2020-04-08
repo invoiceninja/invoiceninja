@@ -57,7 +57,12 @@ class ReverseInvoiceTest extends TestCase
 
     	$this->invoice->service()->markPaid()->save();
 
-    	$this->assertTrue($this->invoice->invoiceReversable($this->invoice));
+    	$first_payment = $this->invoice->payments->first();
+
+    		$this->assertEquals((float)$first_payment->amount, (float)$this->invoice->amount);
+    		$this->assertEquals((float)$first_payment->applied, (float)$this->invoice->amount);
+
+    		$this->assertTrue($this->invoice->invoiceReversable($this->invoice));
 
         $balance_remaining = $this->invoice->balance;
         $total_paid = $this->invoice->amount - $this->invoice->balance;
@@ -77,10 +82,14 @@ class ReverseInvoiceTest extends TestCase
         	$paymentable->amount = $paymentable->refunded;
         	$paymentable->save();
 
-        	$payment = $paymentable->payment;
+        	//$payment = $paymentable->payment;
 
-        	$payment->applied -= $reversable_amount;
-        	$payment->save();
+        	//$payment->applied -= $reversable_amount;
+        	
+        	//info("reducing payment appled by ".$reversable_amount);
+			//info("setting payment applied to ".$payment->applied);
+
+        	//$payment->save();
         	
 		});
 
@@ -116,13 +125,14 @@ class ReverseInvoiceTest extends TestCase
 		$this->client->paid_to_date -= $total_paid;
 
 		/* Reduce the client balance by $balance_remaining */
-
 		$this->client->balance -= $balance_remaining;
 
 		$this->client->save();
 
-		$this->assertEquals(0, $this->invoice->balance);
-		$this->assertEquals($total_paid, $credit->balance);
+			$this->assertEquals(0, $this->invoice->balance);
+			$this->assertEquals($total_paid, $credit->balance);
+
+		//create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
     }
 
 }

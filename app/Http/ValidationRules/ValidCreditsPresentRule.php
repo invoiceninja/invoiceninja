@@ -51,7 +51,7 @@ class ValidCreditsPresentRule implements Rule
 
             foreach (request()->input('credits') as $credit) {
 
-                $cred = Credit::find($credit['credit_id']);
+                $cred = Credit::find($this->decodePrimaryKey($credit['credit_id']));
 
                 if (!$cred || $cred->balance == 0) {
                     return false;

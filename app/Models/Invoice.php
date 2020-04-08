@@ -125,10 +125,10 @@ class Invoice extends BaseModel
     const STATUS_PARTIAL = 3;
     const STATUS_PAID = 4;
     const STATUS_CANCELLED = 5;
+    const STATUS_REVERSED = 6;
 
     const STATUS_OVERDUE = -1; //status < 4 || < 3 && !is_deleted && !trashed() && due_date < now()
     const STATUS_UNPAID = -2; //status < 4 || < 3 && !is_deleted && !trashed()
-    const STATUS_REVERSED = -3;
 
     public function getDateAttribute($value)
     {
