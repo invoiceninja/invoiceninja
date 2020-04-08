@@ -21,7 +21,6 @@ use App\Models\Invoice;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
-use Yajra\DataTables\Html\Builder;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
 use function GuzzleHttp\Promise\all;
@@ -44,7 +43,7 @@ class InvoiceController extends Controller
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * @throws \Exception
      */
-    public function index(InvoiceFilters $filters, Builder $builder)
+    public function index(InvoiceFilters $filters)
     {
         $invoices = auth()->user()->client->company->invoices()->paginate(10);
 

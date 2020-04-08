@@ -18,7 +18,6 @@ use App\Models\ClientGatewayToken;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Yajra\DataTables\Html\Builder;
 
 class PaymentMethodController extends Controller
 {
@@ -30,7 +29,7 @@ class PaymentMethodController extends Controller
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * @throws \Exception
      */
-    public function index(Builder $builder)
+    public function index()
     {
         $payment_methods = ClientGatewayToken::with('gateway_type')
             ->whereClientId(auth()->user()->client->id)

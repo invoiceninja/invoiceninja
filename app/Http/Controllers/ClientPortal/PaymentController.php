@@ -23,7 +23,6 @@ use Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
-use Yajra\DataTables\Html\Builder;
 
 /**
  * Class PaymentController
@@ -40,10 +39,9 @@ class PaymentController extends Controller
      *
      * @param PaymentFilters $filters The filters
      *
-     * @param Builder $builder
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(PaymentFilters $filters, Builder $builder)
+    public function index(PaymentFilters $filters)
     {
         //$payments = Payment::filter($filters);
         $payments = Payment::with('type', 'client')->paginate(10);
