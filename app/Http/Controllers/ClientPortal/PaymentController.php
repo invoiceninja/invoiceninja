@@ -21,10 +21,6 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Cache;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Yajra\DataTables\Facades\DataTables;
-use Yajra\DataTables\Html\Builder;
-
 /**
  * Class PaymentController
  * @package App\Http\Controllers\ClientPortal\PaymentController
@@ -39,11 +35,9 @@ class PaymentController extends Controller
      * Show the list of Invoices
      *
      * @param PaymentFilters $filters The filters
-     *
-     * @param Builder $builder
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(PaymentFilters $filters, Builder $builder)
+    public function index(PaymentFilters $filters)
     {
         //$payments = Payment::filter($filters);
         $payments = Payment::with('type', 'client')->paginate(10);

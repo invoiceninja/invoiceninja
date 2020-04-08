@@ -20,11 +20,8 @@ use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
-use Yajra\DataTables\Facades\DataTables;
-use Yajra\DataTables\Html\Builder;
 
 /**
  * Class InvoiceController
@@ -42,7 +39,7 @@ class RecurringInvoiceController extends Controller
      * @param Builder $builder
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(Builder $builder)
+    public function index()
     {
         $invoices = RecurringInvoice::whereClientId(auth()->user()->client->id)
             ->whereIn('status_id', [RecurringInvoice::STATUS_PENDING, RecurringInvoice::STATUS_ACTIVE, RecurringInvoice::STATUS_COMPLETED])

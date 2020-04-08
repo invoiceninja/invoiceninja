@@ -52,9 +52,7 @@
     "require-dev": {
         "laravelcollective/html": "^6",
         "wildbit/postmark-php": "^2.6",
-        "yajra/laravel-datatables-html": "^4.0",
         "anahkiasen/former": "^4.2",
-        "yajra/laravel-datatables-oracle": "~9.0",
         "barryvdh/laravel-debugbar": "^3.2",
         "beyondcode/laravel-dump-server": "^1.0",
         "darkaonline/l5-swagger": "^6.0",

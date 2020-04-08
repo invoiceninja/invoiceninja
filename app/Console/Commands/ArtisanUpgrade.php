@@ -54,24 +54,6 @@ class ArtisanUpgrade extends Command
             \Log::error("I wasn't able to optimize.");
         }
 
-        // try {
-        //     Artisan::call('queue:restart');
-        // } catch (Exception $e) {
-        //     \Log::error("I wasn't able to restart the queue");
-        // }
-    
-        try {
-            /* Restart Horizon */
-            //Artisan::call('horizon:terminate');
-            
-            exec('cd '.base_path().' && /usr/bin/php artisan horizon:terminate');
-            exec('cd '.base_path().' && /usr/bin/php artisan horizon &');
-
-            //Artisan::call('horizon');
-        } catch (Exception $e) {
-            \Log::error("I wasn't able to start horizon");
-        }
-
         putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
         $input = new ArrayInput(array('command' => 'install'));
         $application = new Application();
