@@ -30,7 +30,9 @@ jobs:
           php artisan optimize
           php artisan storage:link
           sudo php artisan cache:clear
-
+          sudo find ./ -type f -exec chmod 644 {} \;
+          sudo find ./ -type d -exec chmod 755 {} \;
+          
       - name: Prepare JS/CSS assets
         run: |
           npm i

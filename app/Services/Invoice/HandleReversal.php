@@ -90,7 +90,7 @@ class HandleReversal extends AbstractService
             $credit->service()->markSent()->save();
         }
         /* Set invoice balance to 0 */
-        $this->invoice->ledger()->updateInvoiceBalance($balance_remaining, $notes)->save();
+        $this->invoice->ledger()->updateInvoiceBalance($balance_remaining*-1, $notes)->save();
 
         $this->invoice->balance= 0; 
 
