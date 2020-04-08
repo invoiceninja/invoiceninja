@@ -19,6 +19,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\CreditRepository;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 /**
@@ -26,6 +27,8 @@ use Illuminate\Http\Request;
  */
 class PaymentRepository extends BaseRepository
 {
+    use MakesHash;
+
     protected $credit_repo;
 
     public function __construct(CreditRepository $credit_repo)
@@ -105,12 +108,12 @@ class PaymentRepository extends BaseRepository
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->get();
+            $credits = Credit::whereIn('id', $this->transformKeys(array_column($data['credits'], 'credit_id')))->get();
 
             $payment->credits()->saveMany($credits);
 
             foreach ($data['credits'] as $paid_credit) {
-                $credit = Credit::whereId($paid_credit['credit_id'])->first();
+                $credit = Credit::find($this->decodePrimaryKey($paid_credit['credit_id']));
 
                 if ($credit) {
                     ApplyCreditPayment::dispatchNow($credit, $payment, $paid_credit['amount'], $credit->company);

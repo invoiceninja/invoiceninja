@@ -59,7 +59,7 @@ class ValidCreditsRules implements Rule
         foreach ($this->input['credits'] as $credit) {
             $unique_array[] = $credit['credit_id'];
 
-            $cred = Credit::find($credit['credit_id']);
+            $cred = Credit::find($this->decodePrimaryKey($credit['credit_id']));
 
             if (!$cred) {
                 $this->error_msg = "Credit not found ";
@@ -67,7 +67,7 @@ class ValidCreditsRules implements Rule
             }
 
             if ($cred->client_id != $this->input['client_id']) {
-                $credit->error_msg = "Selected invoices are not from a single client";
+                $this->error_msg = "Selected invoices are not from a single client";
                 return false;
             }
         }
