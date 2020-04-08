@@ -9,6 +9,7 @@
 @import 'components/inputs';
 @import 'components/alerts';
 @import 'components/badge';
+@import 'components/datatables';
 
 .active-page {
     @apply bg-blue-900 #{!important};

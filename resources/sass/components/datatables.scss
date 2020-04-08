@@ -1,0 +1,37 @@
+.dataTables_wrapper.no-footer {
+    @apply bg-gray-50 #{!important};
+}
+
+.dataTables_wrapper select,
+.dataTables_wrapper .dataTables_filter input {
+    @apply text-gray-700 px-4 py-2 #{!important};
+}
+
+.dataTables_length {
+    @apply p-3 #{!important};
+}
+
+.dataTables_filter {
+    @apply p-3 #{!important};
+
+    input {
+        @apply items-center border border-gray-300 rounded px-4 text-sm py-1 #{!important};
+    }
+}
+
+table.dataTable thead th,
+table.dataTable thead td {
+    @apply border-b border-gray-200 #{!important};
+}
+
+.dataTables_info {
+    @apply p-3 text-sm #{!important};
+}
+
+.dataTables_paginate {
+    @apply text-sm #{!important};
+}
+
+.dataTable.no-footer {
+    @apply border-none #{!important};
+}

@@ -1,6 +1,10 @@
 @extends('portal.ninja2020.layout.app')
 @section('meta_title', ctrans('texts.quotes'))
 
+@push('head')
+    <link rel="stylesheet" href="{{ asset('js/vendor/datatables/datatables.min.css') }}">
+@endpush
+
 @section('header')
     {{ Breadcrumbs::render('quotes') }}
 
@@ -114,4 +118,11 @@
 
 @push('footer')
     <script src="{{ asset('js/clients/quotes/action-selectors.js') }}"></script>
+    <script src="{{ asset('js/vendor/datatables/datatables.min.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('table').DataTable();
+        });
+    </script>
 @endpush
