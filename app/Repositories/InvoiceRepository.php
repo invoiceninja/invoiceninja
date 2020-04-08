@@ -68,7 +68,17 @@ class InvoiceRepository extends BaseRepository
         return InvoiceInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
     }
 
-    public function delete($invoice)
+    /**
+     * Method is not protected, assumes that
+     * other protections have been implemented prior
+     * to hitting this method.
+     *
+     * ie. invoice can be deleted from a business logic perspective.
+     * 
+     * @param  Invoice $invoice 
+     * @return Invoice $invoice          
+     */
+    public function delete($invoice) 
     {
         if ($invoice->is_deleted) {
             return;
@@ -82,6 +92,8 @@ class InvoiceRepository extends BaseRepository
         if (class_exists($className)) {
             event(new InvoiceWasDeleted($invoice));
         }
+
+        return $invoice;
     }
 
     public function reverse()

@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Credit\ValidCreditsRules;
 use App\Http\ValidationRules\PaymentAmountsBalanceRule;
 use App\Http\ValidationRules\Payment\ValidInvoicesRules;
 use App\Http\ValidationRules\ValidCreditsPresentRule;
@@ -50,8 +51,6 @@ class StorePaymentRequest extends Request
                 $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
                 $invoices_total += $value['amount'];
             }
-
-            //if(!isset($input['amount']) || )
         }
 
         if (isset($input['invoices']) && is_array($input['invoices']) === false) {
@@ -61,7 +60,7 @@ class StorePaymentRequest extends Request
         if (isset($input['credits']) && is_array($input['credits']) !== false) {
             foreach ($input['credits'] as $key => $value) {
                 if (array_key_exists('credit_id', $input['credits'][$key])) {
-                    $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
+                    $input['credits'][$key]['credit_id'] = $value['credit_id'];
                     $credits_total += $value['amount'];
                 }
             }
@@ -91,6 +90,7 @@ class StorePaymentRequest extends Request
             'invoices.*.invoice_id' => new ValidInvoicesRules($this->all()),
             'invoices.*.amount' => 'required',
             'credits.*.credit_id' => 'required|exists:credits,id',
+            'credits.*.credit_id' => new ValidCreditsRules($this->all()),
             'credits.*.amount' => 'required',
             'invoices' => new ValidPayableInvoicesRule(),
             'number' => 'nullable',

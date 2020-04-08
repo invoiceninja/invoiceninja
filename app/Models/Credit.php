@@ -16,6 +16,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Credit\CreateCreditPdf;
 use App\Models\Filterable;
 use App\Services\Credit\CreditService;
+use App\Services\Ledger\LedgerService;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;
@@ -143,6 +144,10 @@ class Credit extends BaseModel
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
     
+    public function ledger()
+    {
+        return new LedgerService($this);
+    }
     /**
      * The invoice/s which the credit has
      * been applied to.

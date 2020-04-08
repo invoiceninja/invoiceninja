@@ -505,9 +505,9 @@ class RefundTest extends TestCase
 
         $this->invoice->line_items = $this->buildLineItems();
         $this->invoice->uses_inclusive_taxes = false;
+        $this->invoice_client_id = $client->id;
 
         $this->invoice->save();
-
         $this->invoice_calc = new InvoiceSum($this->invoice);
         $this->invoice_calc->build();
 
@@ -515,7 +515,8 @@ class RefundTest extends TestCase
         $this->invoice->save();
 
         $this->credit = CreditFactory::create($this->company->id, $this->user->id);
-        $this->credit->client_id = $this->client->id;
+        $this->credit->client_id = $client->id;
+        $this->credit->status_id=2;
 
         $this->credit->line_items = $this->buildLineItems();
         $this->credit->amount = 10;
@@ -552,9 +553,11 @@ class RefundTest extends TestCase
             ])->post('/api/v1/payments', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
+            \Log::error("this should not hit");
             \Log::error($message);
         }
-        
+
+
         $arr = $response->json();
         $response->assertStatus(200);
 

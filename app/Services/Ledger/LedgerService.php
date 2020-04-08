@@ -23,7 +23,7 @@ class LedgerService
         $this->entity = $entity;
     }
 
-    public function updateInvoiceBalance($adjustment)
+    public function updateInvoiceBalance($adjustment, $notes = '')
     {
         $balance = 0;
 
@@ -36,6 +36,7 @@ class LedgerService
         $company_ledger = CompanyLedgerFactory::create($this->entity->company_id, $this->entity->user_id);
         $company_ledger->client_id = $this->entity->client_id;
         $company_ledger->adjustment = $adjustment;
+        $company_ledger->notes = $notes;
         $company_ledger->balance = $balance + $adjustment;
         $company_ledger->save();
 

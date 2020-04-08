@@ -11,31 +11,33 @@
 
 namespace App\Utils\Traits\Invoice;
 
+use App\Models\Invoice;
+
 
 trait ActionsInvoice
 {
-    public function invoiceDeletable() :bool
+    public function invoiceDeletable($invoice) :bool
     {
 
-    	if($this->invoice->status_id <= 2 && $this->invoice->is_deleted == false && $this->invoice->deleted_at == NULL)
+    	if($invoice->status_id <= Invoice::STATUS_SENT && $invoice->is_deleted == false && $invoice->deleted_at == NULL)
     		return true;
 
     	return false;
     }
 
-    public function invoiceCancellable() :bool
+    public function invoiceCancellable($invoice) :bool
     {
 
-		if($this->invoice->status_id == 3 && $this->invoice->is_deleted == false && $this->invoice->deleted_at == NULL)
+		if($invoice->status_id == Invoice::STATUS_PARTIAL && $invoice->is_deleted == false && $invoice->deleted_at == NULL)
 			return true;
 
 		return false;
     }
 
-    public function invoiceReversable() :bool
+    public function invoiceReversable($invoice) :bool
     {
 
-		if(($this->invoice->status_id == 3 || $this->invoice->status_id == 4) && $this->invoice->is_deleted == false && $this->invoice->deleted_at == NULL)
+		if(($invoice->status_id == Invoice::STATUS_SENT || $invoice->status_id == Invoice::STATUS_PARTIAL || $invoice->status_id == Invoice::STATUS_PAID) && $invoice->is_deleted == false && $invoice->deleted_at == NULL)
 			return true;
 
 		return false;
