@@ -26,14 +26,20 @@ class ArtisanUpgrade extends Command
      */
     protected $description = 'Run basic upgrade commands';
 
+    public $io;
+
+    public $composer;
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(IOInterface $io, Composer $composer)
     {
         parent::__construct();
+
+        $this->io = $io;
+        $this->composer = $composer;
     }
 
     /**
@@ -63,7 +69,7 @@ class ArtisanUpgrade extends Command
         // $application->setAutoExit(true); // prevent `$application->run` method from exitting the script
         // $application->run($input);
 
-        $install = Installer::create(null, new Composer());
+        $install = Installer::create($this->io, $this->composer);
 
         $install
             ->setVerbose(true)
