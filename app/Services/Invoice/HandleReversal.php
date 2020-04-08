@@ -11,6 +11,7 @@
 
 namespace App\Services\Invoice;
 
+use App\Events\Invoice\InvoiceWasReversed;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
@@ -105,6 +106,8 @@ class HandleReversal extends AbstractService
             ->updatePaidToDate($total_paid*-1)
             ->save();
 
+        event(new InvoiceWasReversed($this->invoice));
+        
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
     
