@@ -63,7 +63,7 @@ class ArtisanUpgrade extends Command
         // $application->setAutoExit(true); // prevent `$application->run` method from exitting the script
         // $application->run($input);
 
-        $install = Installer::create(new IOInterface(), new Composer());
+        $install = Installer::create(null, new Composer());
 
         $install
             ->setVerbose(true)
