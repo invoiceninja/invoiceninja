@@ -2,12 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Composer\Composer;
-use Composer\Console\Application;
-use Composer\IO\IOInterface;
-use Composer\Installer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Composer\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class ArtisanUpgrade extends Command
@@ -26,20 +23,14 @@ class ArtisanUpgrade extends Command
      */
     protected $description = 'Run basic upgrade commands';
 
-    public $io;
-
-    public $composer;
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct(IOInterface $io, Composer $composer)
+    public function __construct()
     {
         parent::__construct();
-
-        $this->io = $io;
-        $this->composer = $composer;
     }
 
     /**
@@ -63,18 +54,10 @@ class ArtisanUpgrade extends Command
             \Log::error("I wasn't able to optimize.");
         }
 
-        // putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
-        // $input = new ArrayInput(array('command' => 'install'));
-        // $application = new Application();
-        // $application->setAutoExit(true); // prevent `$application->run` method from exitting the script
-        // $application->run($input);
-
-        $install = Installer::create($this->io, $this->composer);
-
-        $install
-            ->setVerbose(true)
-            ->setUpdate(true);        
-
-        $status = $install->run();
+        putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
+        $input = new ArrayInput(array('command' => 'install'));
+        $application = new Application();
+        $application->setAutoExit(true); // prevent `$application->run` method from exitting the script
+        $application->run($input);
     }
 }
