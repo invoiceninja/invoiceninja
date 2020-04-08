@@ -12,10 +12,14 @@
 namespace App\Services\Invoice;
 
 use App\Events\Payment\PaymentWasCreated;
+use App\Factory\CreditFactory;
+use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
@@ -39,35 +43,70 @@ class HandleReversal extends AbstractService
             return $this->invoice;
 
         $balance_remaining = $this->invoice->balance;
+
         $total_paid = $this->invoice->amount - $this->invoice->balance;
 
-        $this->invoice->payments->each(function ($payment) use($total_paid){
+        /*Adjust payment applied and the paymentables to the correct amount */
 
+        $paymentables = Paymentable::wherePaymentableType(Invoice::class)
+                                    ->wherePaymentableId($this->invoice->id)
+                                    ->get();
 
-            $payment->paymentables->each(function ($paymentable) use($total_paid){
+        $paymentables->each(function ($paymentable) use($total_paid){
 
-            });
+            $reversable_amount = $paymentable->amount - $paymentable->refunded;
 
+            $total_paid -= $reversable_amount;
 
+            $paymentable->amount = $paymentable->refunded;
+            $paymentable->save();
+            
         });
 
-        //change invoice status
-        
-        //set invoice balance to 0
-        
-        //decrease client balance by $total_paid 
-    
-        //remove paymentables from payment
-    
-        //decrement client paid_to_date by $total_paid
+        /* Generate a credit for the $total_paid amount */
+        $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);
+        $credit->client_id = $this->invoice->client_id;
 
-        //generate credit for the $total paid
-           
+            $item = InvoiceItemFactory::create();
+            $item->quantity = 1;
+            $item->cost = (float)$total_paid;
+            $item->notes = "Credit for reversal of ".$this->invoice->number;
+
+            $line_items[] = $item;
+
+        $credit->line_items = $line_items;
+
+        $credit->save();
+
+        $credit_calc = new InvoiceSum($credit);
+        $credit_calc->build();
+
+        $credit = $credit_calc->getCredit();
+
+        $credit->service()->markSent()->save();
+
+        /* Set invoice balance to 0 */
+        $this->invoice->ledger()->updateInvoiceBalance($balance_remaining, $item->notes)->save();
+
+        $this->invoice->balance= 0; 
+
+        /* Set invoice status to reversed... somehow*/
+        $this->invoice->service()->setStatus(Invoice::STATUS_REVERSED)->save();
+
+        /* Reduce client.paid_to_date by $total_paid amount */
+        $client = $this->invoice->client;
+
+        $client->paid_to_date -= $total_paid;
+
+        /* Reduce the client balance by $balance_remaining */
+        $client->balance -= $balance_remaining;
+
+        $client->save();
+
+        return $this->invoice;
+        //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
+    
     }
 }
 
 // The client paid to date amount is reduced by the calculated amount of (invoice balance - invoice amount).
-// A credit is generated for the payments applied to the invoice (invoice balance - invoice amount).
-// The client balance is reduced by the invoice balance.
-// The invoice balance is finally set to 0.
-// The invoice status is set to Reversed.

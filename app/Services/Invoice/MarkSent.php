@@ -47,8 +47,6 @@ class MarkSent extends AbstractService
 
         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance);
 
-        //UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->balance, $this->invoice->company);
-
         return $this->invoice;
     }
 }

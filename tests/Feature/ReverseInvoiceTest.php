@@ -6,6 +6,7 @@ use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Listeners\Credit\CreateCreditInvitation;
+use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -81,15 +82,6 @@ class ReverseInvoiceTest extends TestCase
 
         	$paymentable->amount = $paymentable->refunded;
         	$paymentable->save();
-
-        	//$payment = $paymentable->payment;
-
-        	//$payment->applied -= $reversable_amount;
-        	
-        	//info("reducing payment appled by ".$reversable_amount);
-			//info("setting payment applied to ".$payment->applied);
-
-        	//$payment->save();
         	
 		});
 
@@ -113,13 +105,15 @@ class ReverseInvoiceTest extends TestCase
 
         $credit = $credit_calc->getCredit();
 
-        $credit->service()->markSent()->save();
+        $credit->service()
+        		->setStatus(Credit::STATUS_SENT)
+        		->markSent()->save();
 
-		/* Set invoice balance to 0 */
-		$this->invoice->balance = 0;
-		$this->invoice->save();
+        /* Set invoice balance to 0 */
+        $this->invoice->ledger()->updateInvoiceBalance($balance_remaining*-1, $item->notes)->save();
 
-		/* Set invoice status to reversed... somehow*/
+        /* Set invoice status to reversed... somehow*/
+        $this->invoice->service()->setStatus(Invoice::STATUS_REVERSED)->save();
 
 		/* Reduce client.paid_to_date by $total_paid amount */
 		$this->client->paid_to_date -= $total_paid;
@@ -129,29 +123,53 @@ class ReverseInvoiceTest extends TestCase
 
 		$this->client->save();
 
-			$this->assertEquals(0, $this->invoice->balance);
-			$this->assertEquals($total_paid, $credit->balance);
-
 		//create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
     }
 
+
+    public function testReversalViaAPI()
+    {
+        $this->assertEquals($this->client->balance, $this->invoice->balance);
+
+        $client_paid_to_date = $this->client->paid_to_date;
+        $client_balance = $this->client->balance;
+        $invoice_balance = $this->invoice->balance;
+
+        $this->assertEquals(Invoice::STATUS_SENT, $this->invoice->status_id);
+
+        $this->invoice = $this->invoice->service()->markPaid()->save();
+
+        $this->assertEquals($this->client->balance, ($this->invoice->balance*-1));
+        $this->assertEquals($this->client->paid_to_date, ($client_paid_to_date+$invoice_balance));
+        $this->assertEquals(0, $this->invoice->balance);
+        $this->assertEquals(Invoice::STATUS_PAID, $this->invoice->status_id);
+
+        $this->invoice = $this->invoice->service()->handleReversal()->save();
+
+        $this->assertEquals(Invoice::STATUS_REVERSED, $this->invoice->status_id);
+        $this->assertEquals(0, $this->invoice->balance);
+        $this->assertEquals($this->client->paid_to_date, ($client_paid_to_date));
+
+
+    }
+
+    public function testReversalNoPayment()
+    {
+        $this->assertEquals($this->client->balance, $this->invoice->balance);
+
+        $client_paid_to_date = $this->client->paid_to_date;
+        $client_balance = $this->client->balance;
+        $invoice_balance = $this->invoice->balance;
+
+        $this->assertEquals(Invoice::STATUS_SENT, $this->invoice->status_id);
+
+        $this->invoice = $this->invoice->service()->handleReversal()->save();
+
+        $this->assertEquals(Invoice::STATUS_REVERSED, $this->invoice->status_id);
+        $this->assertEquals(0, $this->invoice->balance);
+        $this->assertEquals($this->client->paid_to_date, ($client_paid_to_date));
+        $this->assertEquals($this->client->balance, ($client_balance-$invoice_balance));
+    }
 }
 
 
-// $this->invoice->payments->each(function ($payment) use($total_paid){
-
-//     $payment->paymentables->each(function ($paymentable) use($total_paid){
-
-//     	$reversable_amount = $paymentable->amount - $paymentable->refunded;
-
-//     	$total_paid -= $reversable_amount;
-
-//     	$paymentable->amount = $paymentable->refunded;
-//     	$paymentable->save();
-
-//     	$payment->applied -= $reversable_amount;
-//     	$payment->save();
-
-//     });
-
-// });

@@ -116,7 +116,7 @@ class InvoiceService
         return $send_email->run();
     }
 
-    public function HandleReversal()
+    public function handleReversal()
     {
         $this->invoice = (new HandleReversal($this->invoice))->run();
 

@@ -679,6 +679,11 @@ class InvoiceController extends BaseController
             case 'cancel':
                 break;
             case 'reverse':
+                $invoice = $invoice->service()->handleReversal()->save();
+
+                    if(!$bulk){
+                        $this->itemResponse($invoice);
+                    }
                 break;
             case 'email':
 
