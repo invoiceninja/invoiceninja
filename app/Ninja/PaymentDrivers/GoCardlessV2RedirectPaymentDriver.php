@@ -86,7 +86,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
     protected function creatingPaymentMethod($paymentMethod)
     {
         $paymentMethod->source_reference = $this->purchaseResponse->getMandateId();
-        $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;
+        $paymentMethod->payment_type_id = PAYMENT_TYPE_GOCARDLESS;
         $paymentMethod->status = PAYMENT_METHOD_STATUS_VERIFIED;
 
         return $paymentMethod;
