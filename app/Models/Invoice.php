@@ -27,6 +27,7 @@ use App\Services\Invoice\InvoiceService;
 use App\Services\Ledger\LedgerService;
 use App\Utils\Number;
 use App\Utils\Traits\InvoiceEmailBuilder;
+use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\MakesReminders;
@@ -48,6 +49,7 @@ class Invoice extends BaseModel
     use MakesInvoiceValues;
     use InvoiceEmailBuilder;
     use MakesReminders;
+    use ActionsInvoice;
 
     protected $presenter = 'App\Models\Presenters\InvoicePresenter';
 
@@ -124,8 +126,8 @@ class Invoice extends BaseModel
     const STATUS_PAID = 4;
     const STATUS_CANCELLED = 5;
 
-    const STATUS_OVERDUE = -1;
-    const STATUS_UNPAID = -2;
+    const STATUS_OVERDUE = -1; //status < 4 || < 3 && !is_deleted && !trashed() && due_date < now()
+    const STATUS_UNPAID = -2; //status < 4 || < 3 && !is_deleted && !trashed()
     const STATUS_REVERSED = -3;
 
     public function getDateAttribute($value)
@@ -193,14 +195,13 @@ class Invoice extends BaseModel
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
-    public function credits()
-    {
-        return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot(
-            'amount',
-            'refunded'
-        )->withTimestamps();
-        ;
-    }
+    // public function credits()
+    // {
+    //     return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot(
+    //         'amount',
+    //         'refunded'
+    //     )->withTimestamps();
+    // }
 
     /**
      * Service entry points

@@ -5,12 +5,14 @@ namespace Tests\Feature;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Factory\ClientFactory;
+use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
@@ -1166,4 +1168,87 @@ class PaymentTest extends TestCase
 
         $this->assertNull($response);
     }
+
+
+    public function testStorePaymentWithCredits()
+    {
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->save();
+
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice->client_id = $client->id;
+        $this->invoice->status_id = Invoice::STATUS_SENT;
+
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->save();
+
+        $credit = CreditFactory::create($this->company->id, $this->user->id);
+        $credit->client_id = $client->id;
+        $credit->status_id = Credit::STATUS_SENT;
+
+        $credit->line_items = $this->buildLineItems();
+        $credit->uses_inclusive_taxes = false;
+
+        $credit->save();
+
+        $credit_calc = new InvoiceSum($credit);
+        $credit_calc->build();
+
+        $credit = $this->credit_calc->getCredit();
+        $credit->save(); //$10 credit
+
+
+        $data = [
+            'amount' => $this->invoice->amount,
+            'client_id' => $client->hashed_id,
+            'invoices' => [
+                [
+                'invoice_id' => $this->invoice->hashed_id,
+                'amount' => 5
+                ],
+            ],
+            'credits' => [
+                [
+                'credit_id' => $credit->hashed_id,
+                'amount' => 5
+                ],
+            ],
+            'date' => '2020/12/12',
+
+        ];
+
+        $response = null;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments?include=invoices', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            $this->assertNotNull($message);
+        }
+        
+        if ($response) {
+            $arr = $response->json();
+            $response->assertStatus(200);
+
+            $payment_id = $arr['data']['id'];
+
+            $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
+
+            $this->assertNotNull($payment);
+            $this->assertNotNull($payment->invoices());
+            $this->assertEquals(1, $payment->invoices()->count());
+        }
+    }
+
 }

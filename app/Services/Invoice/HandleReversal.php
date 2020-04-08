@@ -34,6 +34,10 @@ class HandleReversal extends AbstractService
 
     public function run()
     {
+        /* Check again!! */
+        if(!$this->invoice->invoiceReversable($this->invoice))
+            return $this->invoice;
+
         $balance_remaining = $this->invoice->balance;
         $total_paid = $this->invoice->amount - $this->invoice->balance;
 
@@ -51,3 +55,8 @@ class HandleReversal extends AbstractService
            
     }
 }
+The client paid to date amount is reduced by the calculated amount of (invoice balance - invoice amount).
+A credit is generated for the payments applied to the invoice (invoice balance - invoice amount).
+The client balance is reduced by the invoice balance.
+The invoice balance is finally set to 0.
+The invoice status is set to Reversed.

@@ -552,6 +552,7 @@ class RefundTest extends TestCase
             ])->post('/api/v1/payments', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
+            \Log::error("this should not hit");
             \Log::error($message);
         }
         
