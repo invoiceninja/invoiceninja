@@ -11,6 +11,7 @@
 
 namespace App\Services\Invoice;
 
+use App\Events\Invoice\InvoiceWasCancelled;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
@@ -52,6 +53,8 @@ class HandleCancellation extends AbstractService
         //adjust client balance
         $this->invoice->client->service()->updateBalance($adjustment)->save();
     
+        event(new InvoiceWasCancelled($this->invoice));
+        
         return $this->invoice;
     }
 

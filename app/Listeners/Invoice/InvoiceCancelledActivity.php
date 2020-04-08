@@ -20,7 +20,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
-class DeleteInvoiceActivity implements ShouldQueue
+class InvoiceCancelledActivity implements ShouldQueue
 {
     protected $activity_repo;
     /**
@@ -46,7 +46,7 @@ class DeleteInvoiceActivity implements ShouldQueue
         $fields->invoice_id = $event->invoice->id;
         $fields->user_id = $event->invoice->user_id;
         $fields->company_id = $event->invoice->company_id;
-        $fields->activity_type_id = Activity::DELETE_INVOICE;
+        $fields->activity_type_id = Activity::CANCELLED_INVOICE;
 
         $this->activity_repo->save($fields, $event->invoice);
     }
