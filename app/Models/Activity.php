@@ -69,6 +69,8 @@ class Activity extends StaticModel
     const MARK_SENT_INVOICE=53;
     const PAID_INVOICE=54;
     const EMAIL_INVOICE_FAILED=57;
+    const REVERSED_INVOICE=58;
+    const CANCELLED_INVOICE=59;
     
     protected $casts = [
         'is_system' => 'boolean',

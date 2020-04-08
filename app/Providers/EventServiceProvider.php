@@ -15,11 +15,13 @@ use App\Events\Client\ClientWasCreated;
 use App\Events\Company\CompanyWasDeleted;
 use App\Events\Contact\ContactLoggedIn;
 use App\Events\Credit\CreditWasMarkedSent;
+use App\Events\Invoice\InvoiceWasCancelled;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasDeleted;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasPaid;
+use App\Events\Invoice\InvoiceWasReversed;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Misc\InvitationWasViewed;
 use App\Events\Payment\PaymentWasCreated;
@@ -40,7 +42,7 @@ use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Listeners\Invoice\CreateInvoicePdf;
-use App\Listeners\Invoice\DeleteInvoiceActivity;
+use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
@@ -139,7 +141,11 @@ class EventServiceProvider extends ServiceProvider
             InvoiceEmailFailedActivity::class,
         ],
         InvoiceWasDeleted::class => [
-            DeleteInvoiceActivity::class,
+            InvoiceDeletedActivity::class,
+        ],
+        InvoiceWasReversed::class => [
+        ],
+        InvoiceWasCancelled::class => [
         ],
         InvitationWasViewed::class => [
             InvitationViewedListener::class

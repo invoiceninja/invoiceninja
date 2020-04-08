@@ -818,6 +818,8 @@ return [
     'activity_55' => ':contact replied ticket :ticket',
     'activity_56' => ':user viewed ticket :ticket',
     'activity_57' => ':invoice failed to send to :client',
+    'activity_58' => ':user reversed invoice :invoice',
+    'activity_59' => ':user cancelled invoice :invoice',
 
     'payment' => 'Payment',
     'system' => 'System',
