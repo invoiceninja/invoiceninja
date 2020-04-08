@@ -28,8 +28,8 @@ class InvoiceActionsTest extends TestCase
     public function testInvoiceIsDeletable()
     {
         $this->assertTrue($this->invoiceDeletable($this->invoice));
-        $this->assertFalse($this->invoiceReversable($this->invoice));
-        $this->assertFalse($this->invoiceCancellable($this->invoice));
+        $this->assertTrue($this->invoiceReversable($this->invoice));
+        $this->assertTrue($this->invoiceCancellable($this->invoice));
     }
 
     public function testInvoiceIsReversable()

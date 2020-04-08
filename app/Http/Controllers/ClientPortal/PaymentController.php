@@ -23,7 +23,6 @@ use Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
-
 /**
  * Class PaymentController
  * @package App\Http\Controllers\ClientPortal\PaymentController
@@ -38,7 +37,6 @@ class PaymentController extends Controller
      * Show the list of Invoices
      *
      * @param PaymentFilters $filters The filters
-     *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index(PaymentFilters $filters)
