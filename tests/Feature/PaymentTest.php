@@ -1217,7 +1217,7 @@ class PaymentTest extends TestCase
             ],
             'credits' => [
                 [
-                'credit_id' => $credit->hashed_id,
+                'credit_id' => $credit->id,
                 'amount' => 5
                 ],
             ],

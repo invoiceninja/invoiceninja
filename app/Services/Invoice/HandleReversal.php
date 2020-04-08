@@ -41,6 +41,16 @@ class HandleReversal extends AbstractService
         $balance_remaining = $this->invoice->balance;
         $total_paid = $this->invoice->amount - $this->invoice->balance;
 
+        $this->invoice->payments->each(function ($payment) use($total_paid){
+
+
+            $payment->paymentables->each(function ($paymentable) use($total_paid){
+
+            });
+
+
+        });
+
         //change invoice status
         
         //set invoice balance to 0
@@ -49,14 +59,15 @@ class HandleReversal extends AbstractService
     
         //remove paymentables from payment
     
-        //decreate client paid_to_date by $total_paid
+        //decrement client paid_to_date by $total_paid
 
         //generate credit for the $total paid
            
     }
 }
-The client paid to date amount is reduced by the calculated amount of (invoice balance - invoice amount).
-A credit is generated for the payments applied to the invoice (invoice balance - invoice amount).
-The client balance is reduced by the invoice balance.
-The invoice balance is finally set to 0.
-The invoice status is set to Reversed.
+
+// The client paid to date amount is reduced by the calculated amount of (invoice balance - invoice amount).
+// A credit is generated for the payments applied to the invoice (invoice balance - invoice amount).
+// The client balance is reduced by the invoice balance.
+// The invoice balance is finally set to 0.
+// The invoice status is set to Reversed.

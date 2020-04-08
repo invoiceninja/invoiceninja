@@ -35,4 +35,9 @@ class Paymentable extends Pivot
     {
         return $this->morphTo();
     }
+
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class);
+    }
 }
