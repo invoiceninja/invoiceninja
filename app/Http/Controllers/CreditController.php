@@ -262,7 +262,7 @@ class CreditController extends BaseController
      *
      * @OA\Get(
      *      path="/api/v1/credits/{id}/edit",
-     *      operationId="editInvoice",
+     *      operationId="editCredit",
      *      tags={"credits"},
      *      summary="Shows an credit for editting",
      *      description="Displays an credit by id",

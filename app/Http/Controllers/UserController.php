@@ -322,11 +322,6 @@ class UserController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     *
-     *
      * @OA\Put(
      *      path="/api/v1/users/{id}",
      *      operationId="updateUser",
@@ -349,7 +344,7 @@ class UserController extends BaseController
      *          ),
      *      ),
      *      @OA\Response(
-f     *          response=200,
+     *          response=200,
      *          description="Returns the User object",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
