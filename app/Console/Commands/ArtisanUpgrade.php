@@ -55,7 +55,7 @@ class ArtisanUpgrade extends Command
         }
 
         putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
-        $input = new ArrayInput(array('command' => 'install'));
+        $input = new ArrayInput(array('command' => 'update'));
         $application = new Application();
         $application->setAutoExit(true); // prevent `$application->run` method from exitting the script
         $application->run($input);
