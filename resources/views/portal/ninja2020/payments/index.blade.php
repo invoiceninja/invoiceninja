@@ -1,6 +1,10 @@
 @extends('portal.ninja2020.layout.app')
 @section('meta_title', ctrans('texts.payments'))
 
+@push('head')
+    <link rel="stylesheet" href="{{ asset('js/vendor/datatables/datatables.min.css') }}">
+@endpush
+
 @section('header')
     {{ Breadcrumbs::render('payments') }}
 
@@ -83,3 +87,13 @@
         </div>
     </div>
 @endsection
+
+@push('footer')
+    <script src="{{ asset('js/vendor/datatables/datatables.min.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('table').DataTable();
+        });
+    </script>
+@endpush

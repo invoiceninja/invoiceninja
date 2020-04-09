@@ -22,6 +22,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * Class InvoiceController
@@ -36,7 +37,6 @@ class RecurringInvoiceController extends Controller
     /**
      * Show the list of recurring invoices.
      *
-     * @param Builder $builder
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()

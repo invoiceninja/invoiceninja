@@ -21,6 +21,8 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Cache;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
 /**
  * Class PaymentController
  * @package App\Http\Controllers\ClientPortal\PaymentController

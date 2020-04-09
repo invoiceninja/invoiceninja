@@ -17,6 +17,7 @@ use App\Http\Requests\ClientPortal\CreatePaymentMethodRequest;
 use App\Models\ClientGatewayToken;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PaymentMethodController extends Controller
 {
