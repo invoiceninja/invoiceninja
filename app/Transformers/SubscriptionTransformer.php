@@ -27,11 +27,12 @@ class SubscriptionTransformer extends EntityTransformer
             'id' => (string) $this->encodePrimaryKey($subscription->id),
             'company_id' => (string) $this->encodePrimaryKey($subscription->company_id),
             'user_id' => (string) $this->encodePrimaryKey($subscription->user_id),
+            'archived_at' => (int)$subscription->deleted_at,
             'updated_at' => (int)$subscription->updated_at,
             'created_at' => (int)$subscription->created_at,
             'is_deleted' => (bool)$subscription->is_deleted,
             'target_url' => $subscription->target_url ? (string) $subscription->target_url : '',
-            'entity_id' => (string) $subscription->entity_id,
+            'event_id' => (string) $subscription->event_id,
             'format' => (string) $subscription->format,
         ];
     }

@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\SubscriptionFactory;
 use App\Filters\SubscriptionFilters;
 use App\Http\Requests\Subscription\CreateSubscriptionRequest;
 use App\Http\Requests\Subscription\DestroySubscriptionRequest;
@@ -19,18 +20,26 @@ use App\Http\Requests\Subscription\ShowSubscriptionRequest;
 use App\Http\Requests\Subscription\StoreSubscriptionRequest;
 use App\Http\Requests\Subscription\UpdateSubscriptionRequest;
 use App\Models\Subscription;
+use App\Repositories\BaseRepository;
+use App\Transformers\SubscriptionTransformer;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 class SubscriptionController extends BaseController
 {
- 
+    use MakesHash;
+
     protected $entity_type = Subscription::class;
 
     protected $entity_transformer = SubscriptionTransformer::class;
 
-    public function __construct()
+    public $base_repo;
+
+    public function __construct(BaseRepository $base_repo)
     {
         parent::__construct();
+
+        $this->base_repo = $base_repo;
     }
 
     /**
@@ -244,7 +253,10 @@ class SubscriptionController extends BaseController
             return $request->disallowUpdate();
         }
 
-        return $this->itemResponse($subscription->fresh());
+        $subscription->fill($request->all());
+        $subscription->save();
+
+        return $this->itemResponse($subscription);
     }
 
     /**
@@ -461,7 +473,7 @@ class SubscriptionController extends BaseController
         
         $subscriptions->each(function ($subscription, $key) use ($action) {
             if (auth()->user()->can('edit', $subscription)) {
-                $this->subscription_repo->{$action}($subscription);
+                $this->base_repo->{$action}($subscription);
             }
         });
         

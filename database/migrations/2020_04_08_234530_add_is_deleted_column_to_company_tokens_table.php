@@ -27,8 +27,8 @@ class AddIsDeletedColumnToCompanyTokensTable extends Migration
             $table->boolean('is_deleted')->default(0);
             $table->string('target_url');
             $table->enum('format', ['JSON', 'UBL'])->default('JSON');
-            $table->timestamps();
-            $table->softDeletes();
+            $table->timestamps(6);
+            $table->softDeletes('deleted_at', 6);
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
         });

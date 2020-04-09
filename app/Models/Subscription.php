@@ -51,6 +51,12 @@ class Subscription extends BaseModel
     	self::EVENT_CREATE_TASK,
     ];
 
+    protected $fillable = [
+        'target_url',
+        'format',
+        'event_id'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

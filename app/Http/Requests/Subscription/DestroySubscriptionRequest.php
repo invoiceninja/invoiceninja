@@ -27,11 +27,5 @@ class DestroySubscriptionRequest extends Request
         return auth()->user()->isAdmin();
     }
 
-    public function rules()
-    {
-    }
 
-    protected function prepareForValidation()
-    {
-    }
 }
