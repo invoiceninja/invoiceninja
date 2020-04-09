@@ -17,11 +17,12 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 use Tests\TestCase;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
@@ -295,15 +296,16 @@ class ClientTest extends TestCase
                 'is_locked' => 0,
             ]);
 
-        $ct = CompanyToken::create([
-                'account_id' => $account->id,
-                'company_id' => $company->id,
-                'user_id' => $user->id,
-                'token' => \Illuminate\Support\Str::random(64),
-                'name' => $user->first_name. ' '. $user->last_name,
-                ]);
-            
-        $token = $ct->token;
+        $company_token = new CompanyToken;
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $company->id;
+        $company_token->account_id = $account->id;
+        $company_token->name = $user->first_name. ' '. $user->last_name;
+        $company_token->token = Str::random(64);
+        $company_token->save();
+
+
+        $token = $company_token->token;
 
         $data = [
                 'name' => 'A loyal Client',

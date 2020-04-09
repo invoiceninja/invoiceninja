@@ -11,63 +11,71 @@
 
 namespace App\Http\Controllers;
 
-use App\Factory\ProductFactory;
-use App\Filters\ProductFilters;
-use App\Http\Requests\Product\CreateProductRequest;
-use App\Http\Requests\Product\DestroyProductRequest;
-use App\Http\Requests\Product\EditProductRequest;
-use App\Http\Requests\Product\ShowProductRequest;
-use App\Http\Requests\Product\StoreProductRequest;
-use App\Http\Requests\Product\UpdateProductRequest;
+use App\Factory\CompanyTokenFactory;
+use App\Filters\TokenFilters;
+use App\Http\Requests\Token\CreateTokenRequest;
+use App\Http\Requests\Token\DestroyTokenRequest;
+use App\Http\Requests\Token\EditTokenRequest;
+use App\Http\Requests\Token\ShowTokenRequest;
+use App\Http\Requests\Token\StoreTokenRequest;
+use App\Http\Requests\Token\UpdateTokenRequest;
 use App\Jobs\Entity\ActionEntity;
-use App\Models\Product;
-use App\Repositories\ProductRepository;
-use App\Transformers\ProductTransformer;
+use App\Models\CompanyToken;
+use App\Repositories\BaseRepository;
+use App\Repositories\TokenRepository;
+use App\Transformers\CompanyTokenTransformer;
+use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
-class ProductController extends BaseController
+/**
+ * Class TokenController
+ * @package App\Http\Controllers
+ */
+class TokenController extends BaseController
 {
     use MakesHash;
+    use ChecksEntityStatus;
 
-    protected $entity_type = Product::class;
+    protected $entity_type = CompanyToken::class;
 
-    protected $entity_transformer = ProductTransformer::class;
+    protected $entity_transformer = CompanyTokenTransformer::class;
 
-    protected $product_repo;
+    public $token_repo;
 
     /**
-      * ProductController constructor.
-      */
-    public function __construct(ProductRepository $product_repo)
+     * TokenController constructor.
+     * @param TokenRepository $tokenRepo
+     */
+    public function __construct(TokenRepository $token_repo)
     {
         parent::__construct();
 
-        $this->product_repo = $product_repo;
+        $this->token_repo = $token_repo;
     }
 
     /**
+     *      @OA\Get(
+     *      path="/api/v1/tokens",
+     *      operationId="getTokens",
+     *      tags={"tokens"},
+     *      summary="Gets a list of company tokens",
+     *      description="Lists company tokens.
      *
-      *
-     * @OA\Get(
-     *      path="/api/v1/products",
-     *      operationId="getProducts",
-     *      tags={"products"},
-     *      summary="Gets a list of products",
-     *      description="Lists products, search and filters allow fine grained lists to be generated.
-
-        Query parameters can be added to performed more fine grained filtering of the products, these are handled by the ProductFilters class which defines the methods available",
+     *   Query parameters can be added to performed more fine grained filtering of the tokens, these are handled by the TokenFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\Response(
      *          response=200,
-     *          description="A list of products",
+     *          description="A list of tokens",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Product"),
+     *          @OA\JsonContent(ref="#/components/schemas/CompanyToken"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -83,13 +91,185 @@ class ProductController extends BaseController
      *     )
      *
      */
-    public function index(ProductFilters $filters)
+    public function index(TokenFilters $filters)
     {
-        $products = Product::filter($filters);
-        
-        return $this->listResponse($products);
+        $tokens = CompanyToken::filter($filters);
+
+        return $this->listResponse($tokens);
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Get(
+     *      path="/api/v1/tokens/{id}",
+     *      operationId="showToken",
+     *      tags={"tokens"},
+     *      summary="Shows a token",
+     *      description="Displays a token by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Token Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the token object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/CompanyToken"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function show(ShowTokenRequest $request, CompanyToken $token)
+    {
+        return $this->itemResponse($token);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Get(
+     *      path="/api/v1/tokens/{id}/edit",
+     *      operationId="editToken",
+     *      tags={"tokens"},
+     *      summary="Shows a token for editting",
+     *      description="Displays a token by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Token Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the token object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/CompanyToken"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function edit(EditTokenRequest $request, CompanyToken $token)
+    {
+        return $this->itemResponse($token);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Models\Token $token
+     * @return \Illuminate\Http\Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/tokens/{id}",
+     *      operationId="updateToken",
+     *      tags={"tokens"},
+     *      summary="Updates a token",
+     *      description="Handles the updating of a token by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Token Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the token object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/CompanyToken"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function update(UpdateTokenRequest $request, CompanyToken $token)
+    {
+        if ($request->entityIsDeleted($token)) {
+            return $request->disallowUpdate();
+        }
+
+        $token = $this->token_repo->save($request->all(), $token);
+
+        return $this->itemResponse($token->fresh());
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -99,10 +279,10 @@ class ProductController extends BaseController
      *
      *
      * @OA\Get(
-     *      path="/api/v1/products/create",
-     *      operationId="getProductsCreate",
-     *      tags={"products"},
-     *      summary="Gets a new blank Product object",
+     *      path="/api/v1/tokens/create",
+     *      operationId="getTokensCreate",
+     *      tags={"tokens"},
+     *      summary="Gets a new blank token object",
      *      description="Returns a blank object with default values",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
@@ -110,11 +290,11 @@ class ProductController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
      *          response=200,
-     *          description="A blank Product object",
+     *          description="A blank token object",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Product"),
+     *          @OA\JsonContent(ref="#/components/schemas/CompanyToken"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -130,11 +310,11 @@ class ProductController extends BaseController
      *     )
      *
      */
-    public function create(CreateProductRequest $request)
+    public function create(CreateTokenRequest $request)
     {
-        $product = ProductFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $token = CompanyTokenFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id);
 
-        return $this->itemResponse($product);
+        return $this->itemResponse($token);
     }
 
     /**
@@ -146,22 +326,22 @@ class ProductController extends BaseController
      *
      *
      * @OA\Post(
-     *      path="/api/v1/products",
-     *      operationId="storeProduct",
-     *      tags={"products"},
-     *      summary="Adds a Product",
-     *      description="Adds an Product to the system",
+     *      path="/api/v1/tokens",
+     *      operationId="storeToken",
+     *      tags={"tokens"},
+     *      summary="Adds a token",
+     *      description="Adds an token to a company",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the saved Product object",
+     *          description="Returns the saved token object",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Product"),
+     *          @OA\JsonContent(ref="#/components/schemas/CompanyToken"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -177,197 +357,29 @@ class ProductController extends BaseController
      *     )
      *
      */
-    public function store(StoreProductRequest $request)
+    public function store(StoreTokenRequest $request)
     {
-        $product = $this->product_repo->save($request->all(), ProductFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        return $this->itemResponse($product);
-    }
+        $company_token = CompanyTokenFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  Product $product
-     * @return \Illuminate\Http\Response
-     *
-     *
-     * @OA\Get(
-     *      path="/api/v1/products/{id}",
-     *      operationId="showProduct",
-     *      tags={"products"},
-     *      summary="Shows an Product",
-     *      description="Displays an Product by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The Product Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the Product object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Product"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     *
-     */
-    public function show(ShowProductRequest $request, Product $product)
-    {
-        return $this->itemResponse($product);
-    }
+        $token = $this->token_repo->save($request->all(), $company_token);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  Product $product
-     * @return \Illuminate\Http\Response
-     *
-     * @OA\Get(
-     *      path="/api/v1/products/{id}/edit",
-     *      operationId="editProduct",
-     *      tags={"products"},
-     *      summary="Shows an Product for editting",
-     *      description="Displays an Product by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The Product Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the Product object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Product"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     *
-     */
-    public function edit(EditProductRequest $request, Product $product)
-    {
-        return $this->itemResponse($product);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  Product $product
-     * @return \Illuminate\Http\Response
-     *
-     *
-     * @OA\Put(
-     *      path="/api/v1/products/{id}",
-     *      operationId="updateProduct",
-     *      tags={"products"},
-     *      summary="Updates an Product",
-     *      description="Handles the updating of an Product by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The Product Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the Product object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Product"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     *
-     */
-    public function update(UpdateProductRequest $request, Product $product)
-    {
-        if ($request->entityIsDeleted($product)) {
-            return $request->disallowUpdate();
-        }
-        
-        $product = $this->product_repo->save($request->all(), $product);
-
-        return $this->itemResponse($product);
+        return $this->itemResponse($token);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Product  $product
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      *
      *
      * @OA\Delete(
-     *      path="/api/v1/products/{id}",
-     *      operationId="deleteProduct",
-     *      tags={"products"},
-     *      summary="Deletes a Product",
-     *      description="Handles the deletion of an Product by id",
+     *      path="/api/v1/tokens/{id}",
+     *      operationId="deleteToken",
+     *      tags={"tokens"},
+     *      summary="Deletes a token",
+     *      description="Handles the deletion of a token by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -375,7 +387,7 @@ class ProductController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Product Hashed ID",
+     *          description="The Token Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -404,31 +416,33 @@ class ProductController extends BaseController
      *     )
      *
      */
-    public function destroy(DestroyProductRequest $request, Product $product)
+    public function destroy(DestroyTokenRequest $request, CompanyToken $token)
     {
-        $product->delete();
+        //may not need these destroy routes as we are using actions to 'archive/delete'
+        $token->delete();
 
-        return $this->itemResponse($product);
+        return $this->itemResponse($token);
     }
 
     /**
      * Perform bulk actions on the list view
      *
-     * @return Collection
+     * @param BulkTokenRequest $request
+     * @return \Illuminate\Http\Response
      *
      *
      * @OA\Post(
-     *      path="/api/v1/products/bulk",
-     *      operationId="bulkProducts",
-     *      tags={"products"},
-     *      summary="Performs bulk actions on an array of products",
+     *      path="/api/v1/tokens/bulk",
+     *      operationId="bulkTokens",
+     *      tags={"tokens"},
+     *      summary="Performs bulk actions on an array of tokens",
      *      description="",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
-     *         description="Hashed IDs",
+     *         description="Token ids",
      *         required=true,
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -444,17 +458,16 @@ class ProductController extends BaseController
      *     ),
      *      @OA\Response(
      *          response=200,
-     *          description="The Product response",
+     *          description="The Token response",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Product"),
+     *          @OA\JsonContent(ref="#/components/schemas/CompanyToken"),
      *       ),
      *       @OA\Response(
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -462,22 +475,21 @@ class ProductController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
         $action = request()->input('action');
         
         $ids = request()->input('ids');
-
-        $products = Product::withTrashed()->find($this->transformKeys($ids));
-
-        $products->each(function ($product, $key) use ($action) {
-            if (auth()->user()->can('edit', $product)) {
-                $this->product_repo->{$action}($product);
+        $tokens = CompanyToken::withTrashed()->find($this->transformKeys($ids));
+        
+        $tokens->each(function ($token, $key) use ($action) {
+            if (auth()->user()->can('edit', $token)) {
+                $this->token_repo->{$action}($token);
             }
         });
-
-        return $this->listResponse(Product::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        
+        return $this->listResponse(CompanyToken::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
+
 }

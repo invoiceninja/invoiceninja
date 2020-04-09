@@ -93,6 +93,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('migration/start/{company}', 'MigrationController@startMigration');
 
     Route::resource('companies', 'CompanyController');// name = (companies. index / create / show / update / destroy / edit
+    
+    Route::resource('tokens', 'TokenController');// name = (tokens. index / create / show / update / destroy / edit
 
     Route::resource('company_gateways', 'CompanyGatewayController');
     
@@ -115,6 +117,12 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('claim_license', 'LicenseController@index')->name('license.index');
 
     Route::post('emails', 'EmailController@send')->name('email.send');
+
+    /*Subscription and Webhook routes */
+    Route::post('hooks', 'SubscriptionController@subscribe')->name('hooks.subscribe');
+    Route::delete('hooks/{subscription_id}', 'SubscriptionController@unsubscribe')->name('hooks.unsubscribe');
+    Route::resource('subscriptions', 'SubscriptionController');
+    Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
 
     /*
     Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit

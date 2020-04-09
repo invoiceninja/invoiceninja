@@ -132,15 +132,15 @@ class UserTest extends TestCase
         $company2 = factory(\App\Models\Company::class)->create([
             'account_id' => $this->account->id,
         ]);
+        
+        $company_token = new CompanyToken;
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $company2->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'test token';
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->save();
 
-        /* Create New Company Token*/
-        $user_1_company_token = CompanyToken::create([
-            'user_id' => $this->user->id,
-            'company_id' => $company2->id,
-            'account_id' => $this->account->id,
-            'name' => 'test token',
-            'token' => \Illuminate\Support\Str::random(64),
-        ]);
 
         /*Manually link this user to the company*/
         $cu = CompanyUserFactory::create($this->user->id, $company2->id, $this->account->id);
@@ -156,7 +156,7 @@ class UserTest extends TestCase
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $user_1_company_token->token,
+            'X-API-TOKEN' => $company_token->token,
         ])->post('/api/v1/users/'.$this->encodePrimaryKey($new_user->id).'/attach_to_company?include=company_user');
 
         $response->assertStatus(200);
@@ -179,7 +179,7 @@ class UserTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $user_1_company_token->token,
+                'X-API-TOKEN' => $company_token->token,
             ])->post('/api/v1/users?include=company_user', $data);
 
         $response->assertStatus(200);
@@ -215,7 +215,7 @@ class UserTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $user_1_company_token->token,
+                'X-API-TOKEN' => $company_token->token,
                 'X-API-PASSWORD' => 'ALongAndBriliantPassword',
             ])->put('/api/v1/users/'.$this->encodePrimaryKey($user->id).'?include=company_user', $data);
 

@@ -132,25 +132,14 @@ trait MockAccountData
 
         $this->token = \Illuminate\Support\Str::random(64);
 
-        $company_token = CompanyToken::create([
-            'user_id' => $this->user->id,
-            'company_id' => $this->company->id,
-            'account_id' => $this->account->id,
-            'name' => 'test token',
-            'token' => $this->token,
-        ]);
+        $company_token = new CompanyToken;
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'test token';
+        $company_token->token = $this->token;
+        $company_token->save();
 
-        // $this->user->companies()->attach($this->company->id, [
-        //     'account_id' => $this->account->id,
-        //     'is_owner' => 1,
-        //     'is_admin' => 1,
-        //     'is_locked' => 0,
-        //     'permissions' => '',
-        //     'settings' => json_encode(DefaultSettings::userSettings()),
-        // ]);
-
-        // $this->client = ClientFactory::create($this->company->id, $this->user->id);
-        // $this->client->save();
 
         $this->client = factory(\App\Models\Client::class)->create([
                 'user_id' => $this->user->id,

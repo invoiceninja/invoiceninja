@@ -15,6 +15,7 @@ use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
+use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Expense;
@@ -25,6 +26,7 @@ use App\Models\Product;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\Models\Subscription;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
@@ -32,6 +34,7 @@ use App\Policies\ActivityPolicy;
 use App\Policies\ClientPolicy;
 use App\Policies\CompanyGatewayPolicy;
 use App\Policies\CompanyPolicy;
+use App\Policies\CompanyTokenPolicy;
 use App\Policies\CreditPolicy;
 use App\Policies\DesignPolicy;
 use App\Policies\ExpensePolicy;
@@ -42,6 +45,7 @@ use App\Policies\ProductPolicy;
 use App\Policies\QuotePolicy;
 use App\Policies\RecurringInvoicePolicy;
 use App\Policies\RecurringQuotePolicy;
+use App\Policies\SubscriptionPolicy;
 use App\Policies\TaxRatePolicy;
 use App\Policies\UserPolicy;
 use App\Policies\VendorPolicy;
@@ -60,20 +64,22 @@ class AuthServiceProvider extends ServiceProvider
         Activity::class => ActivityPolicy::class,
         Client::class => ClientPolicy::class,
         Company::class => CompanyPolicy::class,
-        Design::class => DesignPolicy::class,
-        Product::class => ProductPolicy::class,
-        Invoice::class => InvoicePolicy::class,
+        CompanyToken::class => CompanyTokenPolicy::class,
+        CompanyGateway::class => CompanyGatewayPolicy::class,
         Credit::class => CreditPolicy::class,
+        Design::class => DesignPolicy::class,
+        Expense::class => ExpensePolicy::class,
+        GroupSetting::class => GroupSettingPolicy::class,
+        Invoice::class => InvoicePolicy::class,
         Payment::class => PaymentPolicy::class,
+        Product::class => ProductPolicy::class,
+        Quote::class => QuotePolicy::class,
         RecurringInvoice::class => RecurringInvoicePolicy::class,
         RecurringQuote::class => RecurringQuotePolicy::class,
-        Quote::class => QuotePolicy::class,
-        User::class => UserPolicy::class,
-        GroupSetting::class => GroupSettingPolicy::class,
-        CompanyGateway::class => CompanyGatewayPolicy::class,
+        Subscription::class => SubscriptionPolicy::class,
         TaxRate::class => TaxRatePolicy::class,
+        User::class => UserPolicy::class,
         Vendor::class => VendorPolicy::class,
-        Expense::class => ExpensePolicy::class,
     ];
 
     /**

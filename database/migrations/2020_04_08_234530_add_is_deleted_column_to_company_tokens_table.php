@@ -1,0 +1,46 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddIsDeletedColumnToCompanyTokensTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        /* add ability of companytokens to be deleted.*/
+        Schema::table('company_tokens', function (Blueprint $table) {
+            $table->boolean('is_deleted')->default(0);
+        });
+
+        /* add ability of external APIs to be triggered after a model has been created nor updated */
+        Schema::create('subscriptions', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('company_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->unsignedInteger('event_id')->nullable();
+            $table->boolean('is_deleted')->default(0);
+            $table->string('target_url');
+            $table->enum('format', ['JSON', 'UBL'])->default('JSON');
+            $table->timestamps(6);
+            $table->softDeletes('deleted_at', 6);
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+
+    }
+}

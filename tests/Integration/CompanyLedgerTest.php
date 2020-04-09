@@ -115,13 +115,13 @@ class CompanyLedgerTest extends TestCase
 
         $this->token = \Illuminate\Support\Str::random(64);
 
-        $company_token = CompanyToken::create([
-            'user_id' => $this->user->id,
-            'company_id' => $this->company->id,
-            'account_id' => $this->account->id,
-            'name' => 'test token',
-            'token' => $this->token,
-        ]);
+        $company_token = new CompanyToken;
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'test token';
+        $company_token->token = $this->token;
+        $company_token->save();
 
         $this->client = factory(\App\Models\Client::class)->create([
                 'user_id' => $this->user->id,

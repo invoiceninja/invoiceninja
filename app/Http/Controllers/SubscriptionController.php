@@ -11,82 +11,58 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
-use App\Factory\UserFactory;
-use App\Filters\UserFilters;
-use App\Http\Controllers\Traits\VerifiesUserEmail;
-use App\Http\Requests\User\AttachCompanyUserRequest;
-use App\Http\Requests\User\CreateUserRequest;
-use App\Http\Requests\User\DestroyUserRequest;
-use App\Http\Requests\User\DetachCompanyUserRequest;
-use App\Http\Requests\User\EditUserRequest;
-use App\Http\Requests\User\ShowUserRequest;
-use App\Http\Requests\User\StoreUserRequest;
-use App\Http\Requests\User\UpdateUserRequest;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Models\CompanyToken;
-use App\Models\CompanyUser;
-use App\Models\User;
-use App\Repositories\UserRepository;
-use App\Transformers\UserTransformer;
+use App\Factory\SubscriptionFactory;
+use App\Filters\SubscriptionFilters;
+use App\Http\Requests\Subscription\CreateSubscriptionRequest;
+use App\Http\Requests\Subscription\DestroySubscriptionRequest;
+use App\Http\Requests\Subscription\EditSubscriptionRequest;
+use App\Http\Requests\Subscription\ShowSubscriptionRequest;
+use App\Http\Requests\Subscription\StoreSubscriptionRequest;
+use App\Http\Requests\Subscription\UpdateSubscriptionRequest;
+use App\Models\Subscription;
+use App\Repositories\BaseRepository;
+use App\Transformers\SubscriptionTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
-/**
- * Class UserController
- * @package App\Http\Controllers
- */
-class UserController extends BaseController
+class SubscriptionController extends BaseController
 {
-    use VerifiesUserEmail;
-
     use MakesHash;
 
-    protected $entity_type = User::class;
+    protected $entity_type = Subscription::class;
 
-    protected $entity_transformer = UserTransformer::class;
+    protected $entity_transformer = SubscriptionTransformer::class;
 
-    protected $user_repo;
+    public $base_repo;
 
-    /**
-     * Constructor
-     *
-     * @param      \App\Repositories\UserRepository  $user_repo  The user repo
-     */
-    public function __construct(UserRepository $user_repo)
+    public function __construct(BaseRepository $base_repo)
     {
         parent::__construct();
 
-        $this->user_repo = $user_repo;
+        $this->base_repo = $base_repo;
     }
-    
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     *
-     *
-     * @OA\Get(
-     *      path="/api/v1/users",
-     *      operationId="getUsers",
-     *      tags={"users"},
-     *      summary="Gets a list of users",
-     *      description="Lists users, search and filters allow fine grained lists to be generated.
 
-        Query parameters can be added to performed more fine grained filtering of the users, these are handled by the UserFilters class which defines the methods available",
+    /**
+     *      @OA\Get(
+     *      path="/api/v1/subscriptions",
+     *      operationId="getSubscriptions",
+     *      tags={"subscriptions"},
+     *      summary="Gets a list of subscriptions",
+     *      description="Lists subscriptions, search and filters allow fine grained lists to be generated.
+     *
+     *      Query parameters can be added to performed more fine grained filtering of the subscriptions, these are handled by the SubscriptionFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\Response(
      *          response=200,
-     *          description="A list of users",
+     *          description="A list of subscriptions",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -102,12 +78,185 @@ class UserController extends BaseController
      *     )
      *
      */
-
-    public function index(UserFilters $filters)
+    public function index(SubscriptionFilters $filters)
     {
-        $users = User::filter($filters);
-        
-        return $this->listResponse($users);
+        $subscriptions = Subscription::filter($filters);
+
+        return $this->listResponse($subscriptions);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Get(
+     *      path="/api/v1/subscriptions/{id}",
+     *      operationId="showSubscription",
+     *      tags={"subscriptions"},
+     *      summary="Shows a subscription",
+     *      description="Displays a subscription by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Subscription Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the subscription object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function show(ShowSubscriptionRequest $request, Subscription $subscription)
+    {
+        return $this->itemResponse($subscription);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Get(
+     *      path="/api/v1/subscriptions/{id}/edit",
+     *      operationId="editSubscription",
+     *      tags={"subscriptions"},
+     *      summary="Shows a subscription for editting",
+     *      description="Displays a subscription by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Subscription Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the subscription object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function edit(EditSubscriptionRequest $request, Subscription $subscription)
+    {
+        return $this->itemResponse($subscription);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Models\Subscription $subscription
+     * @return \Illuminate\Http\Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/subscriptions/{id}",
+     *      operationId="updateSubscription",
+     *      tags={"subscriptions"},
+     *      summary="Updates a subscription",
+     *      description="Handles the updating of a subscription by id",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Subscription Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the subscription object",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function update(UpdateSubscriptionRequest $request, Subscription $subscription)
+    {
+        if ($request->entityIsDeleted($subscription)) {
+            return $request->disallowUpdate();
+        }
+
+        $subscription->fill($request->all());
+        $subscription->save();
+
+        return $this->itemResponse($subscription);
     }
 
     /**
@@ -118,10 +267,10 @@ class UserController extends BaseController
      *
      *
      * @OA\Get(
-     *      path="/api/v1/users/create",
-     *      operationId="getUsersCreate",
-     *      tags={"users"},
-     *      summary="Gets a new blank User object",
+     *      path="/api/v1/subscriptions/create",
+     *      operationId="getSubscriptionsCreate",
+     *      tags={"subscriptions"},
+     *      summary="Gets a new blank subscription object",
      *      description="Returns a blank object with default values",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
@@ -129,11 +278,11 @@ class UserController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
      *          response=200,
-     *          description="A blank User object",
+     *          description="A blank subscription object",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -149,11 +298,11 @@ class UserController extends BaseController
      *     )
      *
      */
-    public function create(CreateUserRequest $request)
+    public function create(CreateSubscriptionRequest $request)
     {
-        $user = UserFactory::create(auth()->user()->account->id);
+        $subscription = SubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
-        return $this->itemResponse($user);
+        return $this->itemResponse($subscription);
     }
 
     /**
@@ -165,22 +314,22 @@ class UserController extends BaseController
      *
      *
      * @OA\Post(
-     *      path="/api/v1/users",
-     *      operationId="storeUser",
-     *      tags={"users"},
-     *      summary="Adds a User",
-     *      description="Adds an User to the system",
+     *      path="/api/v1/subscriptions",
+     *      operationId="storeSubscription",
+     *      tags={"subscriptions"},
+     *      summary="Adds a subscription",
+     *      description="Adds an subscription to a company",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the saved User object",
+     *          description="Returns the saved subscription object",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -196,180 +345,14 @@ class UserController extends BaseController
      *     )
      *
      */
-    public function store(StoreUserRequest $request)
+    public function store(StoreSubscriptionRequest $request)
     {
-        $company = auth()->user()->company();
 
-        $user = $this->user_repo->save($request->all(), $request->fetchUser());
+        $subscription = SubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $subscription->fill($request->all());
+        $subscription->save();
 
-        $user_agent = request()->input('token_name') ?: request()->server('HTTP_USER_AGENT');
-
-        $ct = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
-
-        return $this->itemResponse($user->fresh());
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     *
-     *
-     * @OA\Get(
-     *      path="/api/v1/users/{id}",
-     *      operationId="showUser",
-     *      tags={"users"},
-     *      summary="Shows an User",
-     *      description="Displays an User by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The User Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the User object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     *
-     */
-    public function show(ShowUserRequest $request, User $user)
-    {
-        return $this->itemResponse($user);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     *
-     *
-     * @OA\Get(
-     *      path="/api/v1/users/{id}/edit",
-     *      operationId="editUser",
-     *      tags={"users"},
-     *      summary="Shows an User for editting",
-     *      description="Displays an User by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The User Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the User object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     *
-     */
-    public function edit(EditUserRequest $request, User $user)
-    {
-        return $this->itemResponse($user);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @OA\Put(
-     *      path="/api/v1/users/{id}",
-     *      operationId="updateUser",
-     *      tags={"users"},
-     *      summary="Updates an User",
-     *      description="Handles the updating of an User by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The User Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the User object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     *
-     */
-    public function update(UpdateUserRequest $request, User $user)
-    {
-        $user = $this->user_repo->save($request->all(), $user);
-
-        return $this->itemResponse($user);
+        return $this->itemResponse($subscription);
     }
 
     /**
@@ -380,30 +363,19 @@ class UserController extends BaseController
      *
      *
      * @OA\Delete(
-     *      path="/api/v1/users/{id}",
-     *      operationId="deleteUser",
-     *      tags={"users"},
-     *      summary="Deletes a User",
-     *      description="Handles the deletion of an User by id",
+     *      path="/api/v1/subscriptions/{id}",
+     *      operationId="deleteSubscription",
+     *      tags={"subscriptions"},
+     *      summary="Deletes a subscription",
+     *      description="Handles the deletion of a subscription by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
-     *          name="token_name",
-     *          in="query",
-     *          required=false,
-     *          description="Customized name for the Users API Token",
-     *          example="iOS Device 11 iPad",
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The User Hashed ID",
+     *          description="The Subscription Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -432,33 +404,33 @@ class UserController extends BaseController
      *     )
      *
      */
-    public function destroy(DestroyUserRequest $request, User $user)
+    public function destroy(DestroySubscriptionRequest $request, Subscription $subscription)
     {
-        /* If the user passes the company user we archive the company user */
-        $user = $this->user_repo->destroy($request->all(), $user);
-        
-        return $this->itemResponse($user->fresh());
+        //may not need these destroy routes as we are using actions to 'archive/delete'
+        $subscription->delete();
+
+        return $this->itemResponse($subscription);
     }
 
     /**
      * Perform bulk actions on the list view
      *
-     * @return Collection
-     *
+     * @param BulkSubscriptionRequest $request
+     * @return \Illuminate\Http\Response
      *
      *
      * @OA\Post(
-     *      path="/api/v1/users/bulk",
-     *      operationId="bulkUsers",
-     *      tags={"users"},
-     *      summary="Performs bulk actions on an array of users",
+     *      path="/api/v1/subscriptions/bulk",
+     *      operationId="bulkSubscriptions",
+     *      tags={"subscriptions"},
+     *      summary="Performs bulk actions on an array of subscriptions",
      *      description="",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
-     *         description="Hashed ids",
+     *         description="User credentials",
      *         required=true,
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -474,17 +446,16 @@ class UserController extends BaseController
      *     ),
      *      @OA\Response(
      *          response=200,
-     *          description="The User response",
+     *          description="The Subscription User response",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/User"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
      *       ),
      *       @OA\Response(
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -492,73 +463,44 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
         $action = request()->input('action');
         
         $ids = request()->input('ids');
-
-        $users = User::withTrashed()->find($this->transformKeys($ids));
-
-        /*
-         * In case a user maliciously sends keys which do not belong to them, we push
-         * each user through the Policy sieve and only return users that they
-         * have access to
-         */
+        $subscriptions = Subscription::withTrashed()->find($this->transformKeys($ids));
         
-        $return_user_collection = collect();
-
-        $users->each(function ($user, $key) use ($action, $return_user_collection) {
-            if (auth()->user()->can('edit', $user)) {
-                $this->user_repo->{$action}($user);
-                
-                $return_user_collection->push($user->id);
+        $subscriptions->each(function ($subscription, $key) use ($action) {
+            if (auth()->user()->can('edit', $subscription)) {
+                $this->base_repo->{$action}($subscription);
             }
         });
-
-        return $this->listResponse(User::withTrashed()->whereIn('id', $return_user_collection));
+        
+        return $this->listResponse(Subscription::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 
 
-
     /**
-     * Attach an existing user to a company.
+     * Store a newly created resource in storage.
      *
      * @OA\Post(
-     *      path="/api/v1/users/{user}/attach_to_company",
-     *      operationId="attachUser",
-     *      tags={"users"},
-     *      summary="Attach an existing user to a company",
-     *      description="Attach an existing user to a company",
+     *      path="/api/v1/hooks",
+     *      operationId="storeHook",
+     *      tags={"hooks"},
+     *      summary="Adds a hook",
+     *      description="Adds a hooks to a company",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="user",
-     *          in="path",
-     *          description="The user hashed_id",
-     *          example="FD767dfd7",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\RequestBody(
-     *         description="The company user object",
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
-     *     ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the saved User object",
+     *          description="Returns the saved hooks object",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -574,44 +516,52 @@ class UserController extends BaseController
      *     )
      *
      */
-    public function attach(AttachCompanyUserRequest $request, User $user)
+    public function subscribe(StoreSubscriptionRequest $request)
     {
-        $company = auth()->user()->company();
+        $event_id = $request->input('event_id');
+        $target_url = $request->input('target_url');
 
-        $user->companies()->attach(
-            $company->id,
-            array_merge(
-                $request->all(),
-                [
-                    'account_id' => $company->account->id,
-                    'notifications' => CompanySettings::notificationDefaults(),
-            ]
-            )
-        );
+        if (! in_array($event_id, Subscription::$valid_events)) {
+            return response()->json("Invalid event",400); 
+        }
 
-        $ct = CreateCompanyToken::dispatchNow($company, $user, 'User token created by'.auth()->user()->present()->name());
+        $subscription = new Subscription;
+        $subscription->company_id = auth()->user()->company()->id;
+        $subscription->user_id = auth()->user()->id;
+        $subscription->event_id = $event_id;
+        $subscription->target_url = $target_url;
+        $subscription->save();
 
-        return $this->itemResponse($user->fresh());
+        if (!$subscription->id) {
+            return response()->json('Failed to create subscription', 400);
+        }
+
+        return $this->itemResponse($subscription);
+        
     }
 
     /**
-     * Detach an existing user to a company.
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     *
      *
      * @OA\Delete(
-     *      path="/api/v1/users/{user}/detach_from_company",
-     *      operationId="detachUser",
-     *      tags={"users"},
-     *      summary="Detach an existing user to a company",
-     *      description="Detach an existing user from a company",
+     *      path="/api/v1/hooks/{subscription_id}",
+     *      operationId="deleteHook",
+     *      tags={"hooks"},
+     *      summary="Deletes a hook",
+     *      description="Handles the deletion of a hook by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
-     *          name="user",
+     *          name="subscription_id",
      *          in="path",
-     *          description="The user hashed_id",
-     *          example="FD767dfd7",
+     *          description="The Subscription Hashed ID",
+     *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
      *              type="string",
@@ -620,7 +570,7 @@ class UserController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Success response",
+     *          description="Returns a HTTP status",
      *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
@@ -639,21 +589,10 @@ class UserController extends BaseController
      *     )
      *
      */
-    public function detach(DetachCompanyUserRequest $request, User $user)
+    public function unsubscribe(DestroySubscriptionRequest $request, Subscription $subscription)
     {
-        $company_user = CompanyUser::whereUserId($user->id)
-                                    ->whereCompanyId(auth()->user()->companyId())->first();
-                                    
-        $token = $company_user->token->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
+        $subscription->delete();
 
-        if ($token) {
-            $token->delete();
-        }
-
-        if ($company_user) {
-            $company_user->delete();
-        }
-
-        return response()->json(['message' => 'User detached from company'], 200);
+        return $this->itemResponse($subscription);
     }
 }

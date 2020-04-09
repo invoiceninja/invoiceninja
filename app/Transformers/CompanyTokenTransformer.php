@@ -47,6 +47,7 @@ class CompanyTokenTransformer extends EntityTransformer
             'updated_at' => (int)$company_token->updated_at,
             'archived_at' => (int)$company_token->deleted_at,
             'created_at' => (int)$company_token->created_at,
+            'is_deleted' => (bool)$company_token->is_deleted,
         ];
     }
 }
