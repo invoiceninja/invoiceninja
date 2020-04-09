@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -467,16 +468,16 @@ class SubscriptionController extends BaseController
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
         $subscriptions = Subscription::withTrashed()->find($this->transformKeys($ids));
-        
+
         $subscriptions->each(function ($subscription, $key) use ($action) {
             if (auth()->user()->can('edit', $subscription)) {
                 $this->base_repo->{$action}($subscription);
             }
         });
-        
+
         return $this->listResponse(Subscription::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 
@@ -521,8 +522,8 @@ class SubscriptionController extends BaseController
         $event_id = $request->input('event_id');
         $target_url = $request->input('target_url');
 
-        if (! in_array($event_id, Subscription::$valid_events)) {
-            return response()->json("Invalid event",400); 
+        if (!in_array($event_id, Subscription::$valid_events)) {
+            return response()->json("Invalid event", 400);
         }
 
         $subscription = new Subscription;
@@ -537,7 +538,6 @@ class SubscriptionController extends BaseController
         }
 
         return $this->itemResponse($subscription);
-        
     }
 
     /**

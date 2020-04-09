@@ -108,8 +108,6 @@ class SubscriptionAPITest extends TestCase
 
         $arr = $response->json();
 
-\Log::error(print_r($arr,1));
-
         $this->assertEquals(0,$arr['data'][0]['archived_at']);
 
 

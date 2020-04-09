@@ -16,6 +16,7 @@ return [
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
     'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
+    'google_analytics_url' => env('GOOGLE_ANALYTICS_URL', 'https://www.google-analytics.com/collect'),
     'key_length' => 64,
     'date_format' => 'Y-m-d',
     'date_time_format' => 'Y-m-d H:i',
