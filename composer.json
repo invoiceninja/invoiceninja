@@ -25,6 +25,7 @@
         "composer/composer": "^1.10",
         "dacastro4/laravel-gmail": "^3.2",
         "davejamesmiller/laravel-breadcrumbs": "5.x",
+        "doctrine/dbal": "^2.10",
         "fideloper/proxy": "^4.0",
         "fzaninotto/faker": "^1.4",
         "google/apiclient": "^2.0",
