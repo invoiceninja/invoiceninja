@@ -14,30 +14,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CompanyToken extends Model
+class CompanyToken extends BaseModel
 {
     use SoftDeletes;
-    
-    /**
-     * @var bool
-     */
-    public $timestamps = false;
 
-    protected $guarded = [
-        'id',
+    protected $fillable = [
+        'name'
     ];
 
     protected $with = [
-    //    'user',
-    //    'company',
     ];
 
-    protected $casts = [
-        'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
-        'deleted_at' => 'timestamp',
-    ];
-    
     public function account()
     {
         return $this->belongsTo(Account::class);
