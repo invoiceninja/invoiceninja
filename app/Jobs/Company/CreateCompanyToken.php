@@ -53,14 +53,15 @@ class CreateCompanyToken implements ShouldQueue
     {
         $this->custom_token_name = $this->custom_token_name ?: $this->user->first_name. ' '. $this->user->last_name;
 
-        $ct = CompanyToken::create([
-            'user_id' => $this->user->id,
-            'account_id' => $this->user->account->id,
-            'token' => Str::random(64),
-            'name' => $this->custom_token_name ?: $this->user->first_name. ' '. $this->user->last_name,
-            'company_id' => $this->company->id,
-        ]);
+        $company_token = new CompanyToken;
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->user->account->id;
+        $company_token->name = $this->custom_token_name ?: $this->user->first_name. ' '. $this->user->last_name;
+        $company_token->token = Str::random(64);
+        $company_token->save();
+
         
-        return $ct;
+        return $company_token;
     }
 }

@@ -359,7 +359,7 @@ class TokenController extends BaseController
      */
     public function store(StoreTokenRequest $request)
     {
-        $token = $this->token_repo->save($request->all(), CompanyTokenFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id));
+        $token = $this->token_repo->save($request->all(), CompanyTokenFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id)->save());
 
         return $this->itemResponse($token);
     }

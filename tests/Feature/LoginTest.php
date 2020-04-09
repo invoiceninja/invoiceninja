@@ -145,14 +145,14 @@ class LoginTest extends TestCase
         $account->default_company_id = $company->id;
         $account->save();
 
+        $company_token = new CompanyToken;
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $company->id;
+        $company_token->account_id = $account->id;
+        $company_token->name = $user->first_name. ' '. $user->last_name;
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->save();
 
-        $ct = CompanyToken::create([
-            'user_id' => $user->id,
-            'account_id' => $account->id,
-            'token' => \Illuminate\Support\Str::random(64),
-            'name' => $user->first_name. ' '. $user->last_name,
-            'company_id' => $company->id,
-        ]);
 
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,

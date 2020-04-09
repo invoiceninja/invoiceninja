@@ -20,8 +20,8 @@ class CompanyToken extends BaseModel
     use SoftDeletes;
     use Filterable;
 
-    protected $guarded = [
-        'id'
+    protected $fillable = [
+        'name'
     ];
 
     protected $with = [
