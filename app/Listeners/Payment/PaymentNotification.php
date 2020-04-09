@@ -83,14 +83,14 @@ class PaymentNotification implements ShouldQueue
         $amount = $payment->amount;
         
         if($invoice){
-
             $items = $invoice->line_items;
             $item = end($items)->product_key;
-
+            $entity_number = $invoice->number;
         }
-        else
+        else{
             $item = $payment->number;
-
+            $entity_number = $item;
+        }
 
         $currency_code = $client->getCurrencyCode();
 
@@ -98,7 +98,7 @@ class PaymentNotification implements ShouldQueue
             $item .= ' [R]';
         }
 
-        $base = "v=1&tid={$analytics_id}&cid={$client->id}&cu={$currency_code}&ti={$invoice->number}";
+        $base = "v=1&tid={$analytics_id}&cid={$client->id}&cu={$currency_code}&ti={$entity_number}";
 
         $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
         $this->sendAnalytics($url);
