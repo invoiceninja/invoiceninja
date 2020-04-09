@@ -212,8 +212,6 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $invoice = StoreInvoice::dispatchNow($invoice, $request->all(), $invoice->company); //todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
-
         event(new InvoiceWasCreated($invoice, $invoice->company));
 
         return $this->itemResponse($invoice);

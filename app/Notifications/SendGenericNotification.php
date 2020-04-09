@@ -36,7 +36,7 @@ class SendGenericNotification extends Notification implements ShouldQueue
 
     protected $settings;
 
-    public $is_system;
+    public    $is_system;
 
     protected $body;
 
@@ -92,9 +92,21 @@ class SendGenericNotification extends Notification implements ShouldQueue
 
         ];
 
-        return (new MailMessage)
+        $mail_message = (new MailMessage)
                     ->subject($subject)
                     ->markdown('email.admin.generic_email', $data);
+
+        if(strlen($this->settings->reply_to_email) > 1)
+            $mail_message->replyTo($this->settings->reply_to_email);
+
+        if(strlen($this->settings->bcc_email) > 1)
+            $mail_message->bcc($this->settings->bcc_email);
+
+        if($this->settings->pdf_email_attachment)
+            $mail_message->attach($this->entity->pdf_file_path());
+
+        return $mail_message;
+
     }
 
     /**

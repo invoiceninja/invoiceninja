@@ -48,10 +48,6 @@ class NewPaymentNotification extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return array
      */
-    // public function via($notifiable)
-    // {
-    //     return $this->is_system ? ['slack'] : ['mail'];
-    //}
 
     public function via($notifiable)
     {

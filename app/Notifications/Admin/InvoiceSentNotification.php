@@ -112,18 +112,6 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
         $logo = $this->company->present()->logo();
         $amount = Number::formatMoney($this->invoice->amount, $this->invoice->client);
 
-        // return (new SlackMessage)
-        //         ->success()
-        //         ->from(ctrans('texts.notification_bot'))
-        //         ->image($logo)
-        //         ->content(ctrans('texts.notification_invoice_sent',
-        //         [
-        //             'amount' => $amount,
-        //             'client' => $this->contact->present()->name(),
-        //             'invoice' => $this->invoice->number
-        //         ]));
-
-
         return (new SlackMessage)
                     ->from(ctrans('texts.notification_bot'))
                     ->success()
