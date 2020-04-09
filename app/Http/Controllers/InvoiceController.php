@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -49,9 +50,9 @@ class InvoiceController extends BaseController
 {
     use MakesHash;
 
-    protected $entity_type = Invoice::class ;
+    protected $entity_type = Invoice::class;
 
-    protected $entity_transformer = InvoiceTransformer::class ;
+    protected $entity_transformer = InvoiceTransformer::class;
 
     /**
      * @var InvoiceRepository
@@ -211,7 +212,7 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $invoice = StoreInvoice::dispatchNow($invoice, $request->all(), $invoice->company);//todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
+        $invoice = StoreInvoice::dispatchNow($invoice, $request->all(), $invoice->company); //todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
 
         event(new InvoiceWasCreated($invoice, $invoice->company));
 
@@ -527,7 +528,7 @@ class InvoiceController extends BaseController
         if ($action == 'download' && $invoices->count() > 1) {
             $invoices->each(function ($invoice) {
                 if (auth()->user()->cannot('view', $invoice)) {
-                    return response()->json(['message'=>'Insufficient privileges to access invoice '. $invoice->number]);
+                    return response()->json(['message' => 'Insufficient privileges to access invoice ' . $invoice->number]);
                 }
             });
 
@@ -679,16 +680,16 @@ class InvoiceController extends BaseController
             case 'cancel':
                 $invoice = $invoice->service()->handleCancellation()->save();
 
-                    if(!$bulk){
-                        $this->itemResponse($invoice);
-                    }
+                if (!$bulk) {
+                    $this->itemResponse($invoice);
+                }
                 break;
             case 'reverse':
                 $invoice = $invoice->service()->handleReversal()->save();
 
-                    if(!$bulk){
-                        $this->itemResponse($invoice);
-                    }
+                if (!$bulk) {
+                    $this->itemResponse($invoice);
+                }
                 break;
             case 'email':
 
@@ -711,7 +712,7 @@ class InvoiceController extends BaseController
 
             default:
                 return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
-            break;
+                break;
         }
     }
 

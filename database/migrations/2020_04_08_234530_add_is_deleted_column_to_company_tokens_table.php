@@ -32,6 +32,10 @@ class AddIsDeletedColumnToCompanyTokensTable extends Migration
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
         });
+
+        Schema::table('companies', function (Blueprint $table) {
+            $table->renameColumn('google_analytics_url', 'google_analytics_key');
+        });
     }
 
     /**

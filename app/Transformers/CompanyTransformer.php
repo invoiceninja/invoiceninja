@@ -110,7 +110,7 @@ class CompanyTransformer extends EntityTransformer
             'archived_at' => (int)$company->deleted_at,
             'created_at' =>(int)$company->created_at,
             'slack_webhook_url' => (string)$company->slack_webhook_url,
-            'google_analytics_url' => (string)$company->google_analytics_url,
+            'google_analytics_key' => (string)$company->google_analytics_key,
         ];
     }
 

@@ -7,7 +7,7 @@
  *       @OA\Property(property="size_id", type="string", example="1", description="The company size ID"),
  *       @OA\Property(property="industry_id", type="string", example="1", description="The company industry ID"),
  *       @OA\Property(property="slack_webhook_url", type="string", example="https://slack.com/sh328sj", description="The slack webhook notification URL"),
- *       @OA\Property(property="google_analytics_url", type="string", example="1", description="The google analytics webhook notification URL"),
+ *       @OA\Property(property="google_analytics_key", type="string", example="1", description="The google analytics key"),
  *       @OA\Property(property="portal_mode", type="string", example="subdomain", description="Determines the client facing urls ie: subdomain,domain,iframe"),
  *       @OA\Property(property="subdomain", type="string", example="aceme", description="Specifies the first part of the company domain ie acme in acme.domain.com"),
  *       @OA\Property(property="portal_domain", type="string", example="https://subdomain.invoicing.co", description="The fully qualified domain for client facing URLS"),
