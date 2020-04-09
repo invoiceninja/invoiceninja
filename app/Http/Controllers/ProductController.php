@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\Factory\ProductFactory;
 use App\Filters\ProductFilters;
 use App\Http\Requests\Product\CreateProductRequest;
+use App\Http\Requests\Product\DestroyProductRequest;
 use App\Http\Requests\Product\EditProductRequest;
 use App\Http\Requests\Product\ShowProductRequest;
 use App\Http\Requests\Product\StoreProductRequest;
@@ -403,11 +404,11 @@ class ProductController extends BaseController
      *     )
      *
      */
-    public function destroy(Product $product)
+    public function destroy(DestroyProductRequest $request, Product $product)
     {
         $product->delete();
 
-        return response()->json([], 200);
+        return $this->itemResponse($product);
     }
 
     /**

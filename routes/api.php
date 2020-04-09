@@ -118,6 +118,11 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('emails', 'EmailController@send')->name('email.send');
 
+    /*Subscription and Webhook routes */
+    Route::post('hooks', 'SubscriptionController@subscribe');
+    Route::delete('hooks/{subscription_id}', 'SubscriptionController@unsubscribe');
+    Route::resource('subscriptions', 'SubscriptionController');
+
     /*
     Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
 
