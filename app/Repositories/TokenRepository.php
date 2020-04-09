@@ -34,7 +34,7 @@ class TokenRepository extends BaseRepository
      * @return     CompanyToken|\App\Models\CompanyToken|null  CompanyToken Object
      *
      */
-    public function save(array $data, CompanyToken $company_token) : ?CompanyToken
+    public function save(array $data, CompanyToken $company_token)
     {
         $company_token->fill($data);
 

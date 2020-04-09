@@ -12,10 +12,12 @@
 namespace App\Http\Requests\Token;
 
 use App\Http\Requests\Request;
+use App\Utils\Traits\ChecksEntityStatus;
 
 
 class UpdateTokenRequest extends Request
 {
+    use ChecksEntityStatus;
 
     /**
      * Determine if the user is authorized to make this request.
