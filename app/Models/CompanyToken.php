@@ -11,15 +11,17 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CompanyToken extends BaseModel
 {
     use SoftDeletes;
+    use Filterable;
 
-    protected $fillable = [
-        'name'
+    protected $guarded = [
+        'id'
     ];
 
     protected $with = [
