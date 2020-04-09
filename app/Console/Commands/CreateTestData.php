@@ -31,6 +31,7 @@ use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class CreateTestData extends Command
 {
@@ -101,16 +102,14 @@ class CreateTestData extends Command
                 'confirmation_code' => $this->createDbHash(config('database.default'))
             ]);
         }
-
-        $token = \Illuminate\Support\Str::random(64);
-
-        $company_token = CompanyToken::create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'account_id' => $account->id,
-            'name' => 'test token',
-            'token' => $token,
-        ]);
+        
+        $company_token = new CompanyToken;
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $company->id;
+        $company_token->account_id = $account->id;
+        $company_token->name = 'test token';
+        $company_token->token = Str::random(64);
+        $company_token->save();
 
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
@@ -183,15 +182,13 @@ class CreateTestData extends Command
             ]);
         }
 
-        $token = \Illuminate\Support\Str::random(64);
-
-        $company_token = CompanyToken::create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'account_id' => $account->id,
-            'name' => 'test token',
-            'token' => $token,
-        ]);
+        $company_token = new CompanyToken;
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $company->id;
+        $company_token->account_id = $account->id;
+        $company_token->name = 'test token';
+        $company_token->token = Str::random(64);
+        $company_token->save();
 
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
@@ -289,15 +286,13 @@ class CreateTestData extends Command
             ]);
         }
 
-        $token = \Illuminate\Support\Str::random(64);
-
-        $company_token = CompanyToken::create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'account_id' => $account->id,
-            'name' => 'test token',
-            'token' => $token,
-        ]);
+        $company_token = new CompanyToken;
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $company->id;
+        $company_token->account_id = $account->id;
+        $company_token->name = 'test token';
+        $company_token->token = Str::random(64);
+        $company_token->save();
 
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
