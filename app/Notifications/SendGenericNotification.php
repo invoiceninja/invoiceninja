@@ -105,8 +105,8 @@ class SendGenericNotification extends Notification implements ShouldQueue
         if($this->settings->pdf_email_attachment)
             $mail_message->attach(public_path($this->entity->pdf_file_path()));
 
-        foreach($entity->documents as $document){
-            $mail_message->attach(public_path($document->path));
+        foreach($this->entity->documents as $document){
+            $mail_message->attach($document->generateUrl());
         }
 
         return $mail_message;
