@@ -36,8 +36,6 @@ class UBLInvoiceTest extends TestCase
     {
         $ubl = CreateUbl::dispatchNow($this->invoice);
 
-        info(print_r($ubl,1));
-
         $this->assertNotNull($ubl);
     }
 
