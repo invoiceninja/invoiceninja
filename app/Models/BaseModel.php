@@ -173,4 +173,12 @@ class BaseModel extends Model
 
         return new Designer($this, $design, $this->client->getSetting('pdf_variables'), $entity);
     }
+
+    /**
+     * @return string
+     */
+    public function getFileName($extension = 'pdf')
+    {
+        return $this->number . '.' . $extension;
+    }
 }

@@ -11,8 +11,10 @@
 
 namespace App\Transformers;
 
+use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Transformers\DocumentTransformer;
 use App\Transformers\InvoiceInvitationTransformer;
 use App\Utils\Traits\MakesHash;
 
@@ -21,7 +23,8 @@ class InvoiceTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
-        'invitations'
+        'invitations',
+        'documents',
     ];
 
     protected $availableIncludes = [
@@ -67,18 +70,18 @@ class InvoiceTransformer extends EntityTransformer
 
             return $this->includeCollection($invoice->expenses, $transformer, ENTITY_EXPENSE);
         }
-
-        public function includeDocuments(Invoice $invoice)
-        {
-            $transformer = new DocumentTransformer($this->account, $this->serializer);
-
-            $invoice->documents->each(function ($document) use ($invoice) {
-                $document->setRelation('invoice', $invoice);
-            });
-
-            return $this->includeCollection($invoice->documents, $transformer, ENTITY_DOCUMENT);
-        }
     */
+    public function includeDocuments(Invoice $invoice)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+
+        // $invoice->documents->each(function ($document) use ($invoice) {
+        //     $document->setRelation('invoice', $invoice);
+        // });
+
+        return $this->includeCollection($invoice->documents, $transformer, Document::class);
+    }
+    
     public function transform(Invoice $invoice)
     {
         return [

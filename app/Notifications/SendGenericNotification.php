@@ -2,6 +2,8 @@
 
 namespace App\Notifications;
 
+use App\Jobs\Invoice\CreateUbl;
+use App\Models\Invoice;
 use App\Utils\Number;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Bus\Queueable;
@@ -36,7 +38,7 @@ class SendGenericNotification extends Notification implements ShouldQueue
 
     protected $settings;
 
-    public $is_system;
+    public    $is_system;
 
     protected $body;
 
@@ -92,9 +94,30 @@ class SendGenericNotification extends Notification implements ShouldQueue
 
         ];
 
-        return (new MailMessage)
+        $mail_message = (new MailMessage)
                     ->subject($subject)
                     ->markdown('email.admin.generic_email', $data);
+
+        if(strlen($this->settings->reply_to_email) > 1)
+            $mail_message->replyTo($this->settings->reply_to_email);
+
+        if(strlen($this->settings->bcc_email) > 1)
+            $mail_message->bcc($this->settings->bcc_email);
+
+        if($this->settings->pdf_email_attachment)
+            $mail_message->attach(public_path($this->entity->pdf_file_path()));
+
+        foreach($this->entity->documents as $document){
+            $mail_message->attach($document->generateUrl(), ['as' => $document->name]);
+        }
+
+        if($this->entity instanceof Invoice && $this->settings->ubl_email_attachment){
+            $ubl_string = CreateUbl::dispatchNow($this->entity);
+            $mail_message->attachData($ubl_string, $this->entity->getFileName('xml'));
+        }
+
+        return $mail_message;
+
     }
 
     /**

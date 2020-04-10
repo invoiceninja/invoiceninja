@@ -74,21 +74,19 @@ class CreateInvoicePdf implements ShouldQueue
 
         $file_path = $path . $this->invoice->number . '.pdf';
         
-        $design = Design::find($this->decodePrimaryKey($this->invoice->client->getSetting('invoice_design_id')));
+        $design    = Design::find($this->decodePrimaryKey($this->invoice->client->getSetting('invoice_design_id')));
 
-        $designer = new Designer($this->invoice, $design, $this->invoice->client->getSetting('pdf_variables'), 'invoice');
+        $designer  = new Designer($this->invoice, $design, $this->invoice->client->getSetting('pdf_variables'), 'invoice');
 
         //get invoice design
-        //$html = $this->generateInvoiceHtml($designer->build()->getHtml(), $this->invoice, $this->contact);
-        $html = $this->generateEntityHtml($designer, $this->invoice, $this->contact);
-
+        $html      = $this->generateEntityHtml($designer, $this->invoice, $this->contact);
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
 
-        $pdf = $this->makePdf(null, null, $html);
+        $pdf       = $this->makePdf(null, null, $html);
 
-        $instance = Storage::disk($this->disk)->put($file_path, $pdf);
+        $instance  = Storage::disk($this->disk)->put($file_path, $pdf);
 
         return $file_path;
     }

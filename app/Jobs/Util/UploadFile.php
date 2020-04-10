@@ -56,7 +56,7 @@ class UploadFile implements ShouldQueue
         $this->entity = $entity;
         $this->disk = $disk ?? config('filesystems.default');
 
-        MultiDB::setDB($this->company->db);
+        //MultiDB::setDB($this->company->db);
     }
 
     /**

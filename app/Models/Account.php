@@ -168,12 +168,12 @@ class Account extends BaseModel
                     $planDetails = $this->getPlanDetails(false, false);
                 }
 
-                return $selfHost || ! empty($planDetails) && ($planDetails['plan'] == self::PLAN_ENTERPRISE);
+                return $self_host || ! empty($planDetails) && ($planDetails['plan'] == self::PLAN_ENTERPRISE);
 
             // Enterprise; No Trial allowed
             case self::FEATURE_DOCUMENTS:
             case self::FEATURE_USER_PERMISSIONS:
-                return $selfHost || ! empty($planDetails) && $planDetails['plan'] == self::PLAN_ENTERPRISE && ! $planDetails['trial'];
+                return $self_host || ! empty($planDetails) && $planDetails['plan'] == self::PLAN_ENTERPRISE && ! $planDetails['trial'];
 
             default:
                 return false;

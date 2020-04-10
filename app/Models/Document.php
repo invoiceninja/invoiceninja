@@ -13,6 +13,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Document extends BaseModel
 {
@@ -92,4 +93,21 @@ class Document extends BaseModel
     {
         return $this->morphTo();
     }
+
+    function generateUrl($absolute = false)
+    {
+        $url = Storage::disk($this->disk)->url($this->path);
+
+        if ($url && $absolute) {
+            return url($url);
+        }
+
+        if ($url) {
+            return $url;
+        }
+
+        return null;
+    }
+
+
 }
