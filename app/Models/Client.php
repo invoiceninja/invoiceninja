@@ -436,10 +436,6 @@ class Client extends BaseModel implements HasLocalePreference
         return $languages->filter(function ($item) {
             return $item->id == $this->getSetting('language_id');
         })->first()->locale;
-
-        //$lang = Language::find($this->client->getSetting('language_id'));
-
-        //return $lang->locale;
     }
 
     public function invoice_filepath()
@@ -460,6 +456,11 @@ class Client extends BaseModel implements HasLocalePreference
     public function company_filepath()
     {
         return $this->company->company_key . '/';
+    }
+
+    public function document_filepath()
+    {
+        return $this->company->company_key . '/documents/'; 
     }
 
     public function setCompanyDefaults($data, $entity_name) :array

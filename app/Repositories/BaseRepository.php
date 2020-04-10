@@ -21,6 +21,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Quote;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use ReflectionClass;
 
 /**
@@ -29,6 +30,8 @@ use ReflectionClass;
 class BaseRepository
 {
     use MakesHash;
+    use SavesDocuments;
+
     /**
      * @return null
      */
@@ -221,9 +224,11 @@ class BaseRepository
             unset($tmp_data['client_contacts']);
         }
 
-
         $model->fill($tmp_data);
         $model->save();
+
+        if(array_key_exists('documents', $data))
+            $this->saveDocuments($data['documents'], $model);
 
         $invitation_factory_class = sprintf("App\\Factory\\%sInvitationFactory", $resource);
 
