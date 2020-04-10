@@ -2,6 +2,8 @@
 
 namespace App\Notifications;
 
+use App\Jobs\Invoice\CreateUbl;
+use App\Models\Invoice;
 use App\Utils\Number;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Bus\Queueable;
@@ -107,6 +109,11 @@ class SendGenericNotification extends Notification implements ShouldQueue
 
         foreach($this->entity->documents as $document){
             $mail_message->attach($document->generateUrl(), ['as' => $document->name]);
+        }
+
+        if($this->entity instanceof Invoice && $this->settings->ubl_email_attachment){
+            $ubl_string = CreateUbl::dispatchNow($this->entity);
+            $mail_message->attachData($ubl_string, $this->entity->getFileName('xml'));
         }
 
         return $mail_message;
