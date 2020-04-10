@@ -4,6 +4,8 @@
 @section('header')
     {{ Breadcrumbs::render('dashboard') }}
 
+    @includeWhen(!empty($client->getSetting('custom_message_dashboard')), 'portal.ninja2020.components.message', ['message' => $client->getSetting('custom_message_dashboard')])
+
     <div class="bg-white shadow rounded mb-4" translate>
         <div class="px-4 py-5 sm:p-6">
             <div class="sm:flex sm:items-start sm:justify-between">
