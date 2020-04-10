@@ -13,7 +13,7 @@
 @section('body')
 
     @includeWhen(($invoice->isPayable() && !empty($client->getSetting('custom_message_unpaid_invoice'))), 'portal.ninja2020.components.message', ['message' => $client->getSetting('custom_message_unpaid_invoice')])
-    @includeWhen((!$invoice->isPayable() && !empty($client->getSetting('custom_message_unpaid_invoice'))), 'portal.ninja2020.components.message', ['message' => $client->getSetting('custom_message_paid_invoice')])
+    @includeWhen((!$invoice->isPayable() && !empty($client->getSetting('custom_message_paid_invoice'))), 'portal.ninja2020.components.message', ['message' => $client->getSetting('custom_message_paid_invoice')])
 
     @if($invoice->isPayable())
         <form action="{{ route('client.invoices.bulk') }}" method="post">
