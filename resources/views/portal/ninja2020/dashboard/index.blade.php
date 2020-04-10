@@ -4,7 +4,13 @@
 @section('header')
     {{ Breadcrumbs::render('dashboard') }}
 
-    @includeWhen(!empty($client->getSetting('custom_message_dashboard')), 'portal.ninja2020.components.message', ['message' => $client->getSetting('custom_message_dashboard')])
+    @if(!empty($client->getSetting('custom_message_dashboard')))
+        @component('portal.ninja2020.components.message')
+            {!! CustomMessage::client($client)
+                ->company($client->company)
+                ->message($client->getSetting('custom_message_dashboard')) !!}
+        @endcomponent
+    @endif
 
     <div class="bg-white shadow rounded mb-4" translate>
         <div class="px-4 py-5 sm:p-6">
