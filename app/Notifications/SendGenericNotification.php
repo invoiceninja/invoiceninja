@@ -15,10 +15,9 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class SendGenericNotification extends Notification implements ShouldQueue
+class SendGenericNotification extends BaseNotification implements ShouldQueue
 {
     use Queueable;
-    use MakesInvoiceHtml;
     use Dispatchable;
     use SerializesModels;
 
@@ -73,49 +72,13 @@ class SendGenericNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         $subject = $this->generateEmailEntityHtml($this->entity, $this->subject, $this->contact);
-        $body = $this->generateEmailEntityHtml($this->entity, $this->body, $this->contact);
-
-        $design_style = $this->settings->email_style;
-
-        if ($design_style == 'custom') {
-            $email_style_custom = $this->settings->email_style_custom;
-            $body = str_replace("$body", $body, $email_style_custom);
-        }
-
-        $data = [
-            'body' => $body,
-            'design' => $design_style,
-            'footer' => '',
-            'title' => '',
-            'settings' => '',
-            'company' => '',
-            'logo' => $this->entity->company->present()->logo(),
-            'signature' => '',
-
-        ];
 
         $mail_message = (new MailMessage)
                     ->subject($subject)
-                    ->markdown('email.admin.generic_email', $data);
+                    ->markdown('email.admin.generic_email', $this->buildMailMessageData());
 
-        if(strlen($this->settings->reply_to_email) > 1)
-            $mail_message->replyTo($this->settings->reply_to_email);
-
-        if(strlen($this->settings->bcc_email) > 1)
-            $mail_message->bcc($this->settings->bcc_email);
-
-        if($this->settings->pdf_email_attachment)
-            $mail_message->attach(public_path($this->entity->pdf_file_path()));
-
-        foreach($this->entity->documents as $document){
-            $mail_message->attach($document->generateUrl(), ['as' => $document->name]);
-        }
-
-        if($this->entity instanceof Invoice && $this->settings->ubl_email_attachment){
-            $ubl_string = CreateUbl::dispatchNow($this->entity);
-            $mail_message->attachData($ubl_string, $this->entity->getFileName('xml'));
-        }
-
+        $mail_message = $this->buildMailMessageSettings($mail_message);
+        
         return $mail_message;
 
     }
