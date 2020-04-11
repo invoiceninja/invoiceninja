@@ -44,7 +44,7 @@ trait MakesInvoiceHtml
 
         $labels = $entity->makeLabels();
         $values = $entity->makeValues($contact);
-
+        
         $designer->build();
 
         $data = [];

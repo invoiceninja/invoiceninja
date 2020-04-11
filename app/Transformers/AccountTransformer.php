@@ -86,6 +86,7 @@ class AccountTransformer extends EntityTransformer
             'current_version' => (string)config('ninja.app_version'),
             'updated_at' => (int)$account->updated_at,
             'archived_at' => (int)$account->deleted_at,
+            'report_errors' => (bool)$account->report_errors,
         ];
     }
 
