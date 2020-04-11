@@ -83,16 +83,18 @@ class CreateQuotePdf implements ShouldQueue
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
 
-        $all_pages_header = $settings->all_pages_header;
-        $all_pages_footer = $settings->all_pages_footer;
-
         $quote_number = $this->quote->number;
 
         $design_body = $designer->build()->getHtml();
 
         $html = $this->generateEntityHtml($designer, $this->quote, $this->contact);
 
-        $pdf = $this->makePdf($all_pages_header, $all_pages_footer, $html);
+//$start = microtime(true);
+
+        $pdf       = $this->makePdf(null, null, $html);
+
+//\Log::error("PDF Build time = ". (microtime(true) - $start));
+
         $file_path = $path . $quote_number . '.pdf';
 
         $instance = Storage::disk($this->disk)->put($file_path, $pdf);

@@ -114,6 +114,11 @@ class Client extends BaseModel implements HasLocalePreference
         'deleted_at' => 'timestamp',
     ];
 
+    public function ledger()
+    {
+        return $this->hasMany(CompanyLedger::class);
+    }
+
     public function gateway_tokens()
     {
         return $this->hasMany(ClientGatewayToken::class);

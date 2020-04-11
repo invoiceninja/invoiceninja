@@ -100,6 +100,8 @@ trait Refundable
 
         $line_items = [];
 
+        $ledger_string = '';
+
         foreach ($data['invoices'] as $invoice) {
             $inv = Invoice::find($invoice['invoice_id']);
 
@@ -110,6 +112,8 @@ trait Refundable
             $credit_line_item->notes = ctrans('texts.refund_body', ['amount' => $data['amount'], 'invoice_number' => $inv->number]);
             $credit_line_item->line_total = $invoice['amount'];
             $credit_line_item->date = $data['date'];
+
+            $ledger_string .= $credit_line_item->notes . ' ';
 
             $line_items[] = $credit_line_item;
         }
@@ -171,7 +175,9 @@ trait Refundable
 
         $this->save();
 
-        $this->adjustInvoices($data);
+        $client_balance_adjustment = $this->adjustInvoices($data);
+
+        $credit_note->ledger()->updateCreditBalance($client_balance_adjustment, $ledger_string);
 
         $this->client->paid_to_date -= $data['amount'];
         $this->client->save();
@@ -216,8 +222,10 @@ trait Refundable
         return $credit_note;
     }
 
-    private function adjustInvoices(array $data) :void
+    private function adjustInvoices(array $data) 
     {
+        $adjustment_amount = 0;
+
         foreach ($data['invoices'] as $refunded_invoice) {
             $invoice = Invoice::find($refunded_invoice['invoice_id']);
 
@@ -231,12 +239,14 @@ trait Refundable
 
             $client = $invoice->client;
 
+            $adjustment_amount += $refunded_invoice['amount'];
             $client->balance += $refunded_invoice['amount'];
-            ///$client->paid_to_date -= $refunded_invoice['amount'];
 
             $client->save();
 
             //todo adjust ledger balance here? or after and reference the credit and its total
         }
+
+        return $adjustment_amount;
     }
 }

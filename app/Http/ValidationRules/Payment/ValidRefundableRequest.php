@@ -44,6 +44,11 @@ class ValidRefundableRequest implements Rule
 
     public function passes($attribute, $value)
     {
+        if(!array_key_exists('id', $this->input)){
+            $this->error_msg = "Payment `id` required.";
+            return false;           
+        }
+
         $payment = Payment::whereId($this->input['id'])->first();
 
         if (!$payment) {

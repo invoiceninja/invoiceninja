@@ -2,9 +2,12 @@
 
 namespace App\Console\Commands;
 
+use Composer\Composer;
+use Composer\Factory;
+use Composer\IO\NullIO;
+use Composer\Installer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use Composer\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class ArtisanUpgrade extends Command
@@ -54,10 +57,21 @@ class ArtisanUpgrade extends Command
             \Log::error("I wasn't able to optimize.");
         }
 
-        putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
-        $input = new ArrayInput(array('command' => 'update'));
-        $application = new Application();
-        $application->setAutoExit(true); // prevent `$application->run` method from exitting the script
-        $application->run($input);
+        $composer = Factory::create(new NullIO(), base_path('composer.json'), false);
+
+        $output = Installer::create(new NullIO, $composer)
+            ->setVerbose()
+            ->setUpdate(true)
+            ->run();
+        
+        \Log::error(print_r($output,1));
+
+
+
+        // putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
+        // $input = new ArrayInput(array('command' => 'update'));
+        // $application = new Application();
+        // $application->setAutoExit(true); // prevent `$application->run` method from exitting the script
+        // $application->run($input);
     }
 }

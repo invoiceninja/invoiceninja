@@ -15,8 +15,10 @@ use App\Models\Activity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
+use App\Models\CompanyLedger;
 use App\Transformers\ActivityTransformer;
 use App\Transformers\ClientGatewayTokenTransformer;
+use App\Transformers\CompanyLedgerTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -36,6 +38,7 @@ class ClientTransformer extends EntityTransformer
     protected $availableIncludes = [
         'gateway_tokens',
         'activities',
+        'ledger',
     ];
 
 
@@ -68,6 +71,13 @@ class ClientTransformer extends EntityTransformer
         $transformer = new ClientGatewayTokenTransformer($this->serializer);
 
         return $this->includeCollection($client->gateway_tokens, $transformer, ClientGatewayToken::class);
+    }
+
+    public function includeLedger(Client $client)
+    {
+        $transformer = new CompanyLedgerTransformer($this->serializer);
+
+        return $this->includeCollection($client->ledger, $transformer, CompanyLedger::class);
     }
     /**
      * @param Client $client
