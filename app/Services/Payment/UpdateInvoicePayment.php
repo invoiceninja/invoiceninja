@@ -10,6 +10,9 @@ use App\Models\SystemLog;
 
 class UpdateInvoicePayment
 {
+    /**
+     * @deprecated This is bad logic, assumes too much.
+     */
     public $payment;
 
     public function __construct($payment)

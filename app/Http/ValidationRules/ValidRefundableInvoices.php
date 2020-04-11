@@ -43,6 +43,12 @@ class ValidRefundableInvoices implements Rule
 
     public function passes($attribute, $value)
     {
+
+        if(!array_key_exists('id', $this->input)){
+            $this->error_msg = "Payment `id` required.";
+            return false;           
+        }
+
         $payment = Payment::whereId($this->input['id'])->first();
 
         if (!$payment) {
@@ -50,10 +56,11 @@ class ValidRefundableInvoices implements Rule
             return false;
         }
 
-        if (request()->has('amount') && (request()->input('amount') > ($payment->amount - $payment->refunded))) {
-            $this->error_msg = "Attempting to refunded more than payment amount, enter a value equal to or lower than the payment amount of ". $payment->amount;
-            return false;
-        }
+        /*We are not sending the Refunded amount in the 'amount field, this is the Payment->amount, need to skip this check. */
+        // if (request()->has('amount') && (request()->input('amount') > ($payment->amount - $payment->refunded))) {
+        //     $this->error_msg = "Attempting to refund more than payment amount, enter a value equal to or lower than the payment amount of ". $payment->amount;
+        //     return false;
+        // }
 
         /*If no invoices has been sent, then we apply the payment to the client account*/
         $invoices = [];
@@ -65,6 +72,7 @@ class ValidRefundableInvoices implements Rule
         }
 
         foreach ($invoices as $invoice) {
+            
             if (! $invoice->isRefundable()) {
                 $this->error_msg = "Invoice id ".$invoice->hashed_id ." cannot be refunded";
                 return false;

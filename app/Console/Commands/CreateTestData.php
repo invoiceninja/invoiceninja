@@ -473,22 +473,24 @@ class CreateTestData extends Command
         $invoice->service()->createInvitations();
 
         if (rand(0, 1)) {
-            $payment = PaymentFactory::create($client->company->id, $client->user->id);
-            $payment->date = $dateable;
-            $payment->client_id = $client->id;
-            $payment->amount = $invoice->balance;
-            $payment->transaction_reference = rand(0, 500);
-            $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->number = $client->getNextPaymentNumber($client);
-            $payment->currency_id = 1;
-            $payment->save();
+            // $payment = PaymentFactory::create($client->company->id, $client->user->id);
+            // $payment->date = $dateable;
+            // $payment->client_id = $client->id;
+            // $payment->amount = $invoice->balance;
+            // $payment->transaction_reference = rand(0, 500);
+            // $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
+            // $payment->status_id = Payment::STATUS_COMPLETED;
+            // $payment->number = $client->getNextPaymentNumber($client);
+            // $payment->currency_id = 1;
+            // $payment->save();
 
-            $payment->invoices()->save($invoice);
+            // $payment->invoices()->save($invoice);
 
-            event(new PaymentWasCreated($payment, $payment->company));
+            $invoice = $invoice->service()->markPaid()->save();
 
-            $payment->service()->updateInvoicePayment();
+            //$payment = $invoice->payments->first();
+
+            //$payment->service()->updateInvoicePayment();
             //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
         }
         //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.

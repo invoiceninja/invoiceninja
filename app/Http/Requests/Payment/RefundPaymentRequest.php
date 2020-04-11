@@ -67,7 +67,7 @@ class RefundPaymentRequest extends Request
         $input = $this->all();
 
         $rules = [
-            'id' => 'required',
+            'id' => 'bail|required',
             'id' => new ValidRefundableRequest($input),
             'amount' => 'numeric',
             'date' => 'required',
