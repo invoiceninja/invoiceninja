@@ -451,6 +451,9 @@ class CreateTestData extends Command
             $invoice->tax_rate3 = 5;
         }
 
+        $invoice->custom_value1 = $faker->date;
+        $invoice->custom_value2 = rand(0,1) ? 'yes' : 'no';
+
         $invoice->save();
 
         $invoice_calc = new InvoiceSum($invoice);

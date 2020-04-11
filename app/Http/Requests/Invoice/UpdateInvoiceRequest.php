@@ -38,8 +38,6 @@ class UpdateInvoiceRequest extends Request
 
     public function rules()
     {
-        \Log::error(print_r($this->all(),1));
-
         $rules = [];
 
         if($this->input('documents') && is_array($this->input('documents'))) {
