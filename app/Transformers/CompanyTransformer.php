@@ -16,6 +16,7 @@ use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
+use App\Models\CompanyLedger;
 use App\Models\CompanyUser;
 use App\Models\Design;
 use App\Models\Expense;
@@ -27,6 +28,7 @@ use App\Models\Quote;
 use App\Models\Task;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Transformers\CompanyLedgerTransformer;
 use App\Transformers\TaskTransformer;
 use App\Utils\Traits\MakesHash;
 
@@ -68,6 +70,7 @@ class CompanyTransformer extends EntityTransformer
         'quotes',
         'projects',
         'tasks',
+        'ledger',
     ];
 
 
@@ -232,5 +235,12 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new DesignTransformer($this->serializer);
 
         return $this->includeCollection($company->designs()->get(), $transformer, Design::class);
+    }
+
+    public function includeLedger(Company $company)
+    {
+        $transformer = new CompanyLedgerTransformer($this->serializer);
+
+        return $this->includeCollection($company->ledger, $transformer, CompanyLedger::class);
     }
 }
