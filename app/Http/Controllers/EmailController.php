@@ -113,17 +113,6 @@ class EmailController extends BaseController
         $body = $request->input('body');
         $entity_string = strtolower(class_basename($entity_obj));
 
-$company = $entity_obj->company;
-$settings = $company->settings;
-
-$settings->reply_to_email = "Reply@example.com";
-$settings->bcc_email = "BCC@example.com";
-$settings->pdf_email_attachment = true;
-$settings->ubl_email_attachment = true;
-
-$company->settings = $settings;
-$company->save();
-
         $entity_obj->invitations->each(function ($invitation) use ($subject, $body, $entity_string, $entity_obj) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 $when = now()->addSeconds(1);
