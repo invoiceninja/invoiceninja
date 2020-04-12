@@ -769,16 +769,6 @@ trait MakesInvoiceValues
   height: 160px;
 }
 
-.footer, .footer-space {
-  height: 160px;
-}
-
-.footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-}
-
 .header {
   position: fixed;
   top: 0mm;
@@ -792,9 +782,6 @@ trait MakesInvoiceValues
 }';   
 
         $footer = '
-.header, .header-space {
-  height: 160px;
-}
 
 .footer, .footer-space {
   height: 160px;
@@ -806,18 +793,15 @@ trait MakesInvoiceValues
   width: 100%;
 }
 
-.header {
-  position: fixed;
-  top: 0mm;
-  width: 100%;
-}
-
 @media print {
    tfoot {display: table-footer-group;}
    button {display: none;}
    body {margin: 0;}
 }';  
         $css = '';
+
+\Log::error($settings->all_pages_header);
+\Log::error($settings->all_pages_footer);
 
         if($settings->all_pages_header && $settings->all_pages_footer)
             $css .= $header_and_footer;
@@ -838,8 +822,8 @@ trait MakesInvoiceValues
 html {
         ';
 
-        $css .= 'font-size:' . $settings->font_size . 'px;';
-//        $css .= 'font-size:14px;';
+//        $css .= 'font-size:' . $settings->font_size . 'px;';
+        $css .= 'font-size:14px;';
 
         $css .= '}';
 
