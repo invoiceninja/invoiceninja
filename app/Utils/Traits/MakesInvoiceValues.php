@@ -737,36 +737,6 @@ trait MakesInvoiceValues
         $settings = $this->client->getMergedSettings();
 
         $header_and_footer = '
-@media print {
-   thead {display: table-header-group;} 
-   tfoot {display: table-footer-group;}
-   button {display: none;}
-   body {margin: 0;}
-}';                
-
-        $header = '
-@media print {
-   thead {display: table-header-group;} 
-   button {display: none;}
-   body {margin: 0;}
-}';   
-
-        $footer = '
-@media print {
-   tfoot {display: table-footer-group;}
-   button {display: none;}
-   body {margin: 0;}
-}';  
-        $css = '';
-
-        if($settings->all_pages_header && $settings->all_pages_footer)
-            $css .= $header_and_footer;
-        elseif($settings->all_pages_header && !$settings->all_pages_footer)
-            $css .= $header;
-        elseif(!$settings->all_pages_header && $settings->all_pages_footer)
-            $css .= $footer;
-
-        $css .= '
 .header, .header-space {
   height: 160px;
 }
@@ -787,6 +757,76 @@ trait MakesInvoiceValues
   width: 100%;
 }
 
+@media print {
+   thead {display: table-header-group;} 
+   tfoot {display: table-footer-group;}
+   button {display: none;}
+   body {margin: 0;}
+}';                
+
+        $header = '
+.header, .header-space {
+  height: 160px;
+}
+
+.footer, .footer-space {
+  height: 160px;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.header {
+  position: fixed;
+  top: 0mm;
+  width: 100%;
+}
+
+@media print {
+   thead {display: table-header-group;} 
+   button {display: none;}
+   body {margin: 0;}
+}';   
+
+        $footer = '
+.header, .header-space {
+  height: 160px;
+}
+
+.footer, .footer-space {
+  height: 160px;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.header {
+  position: fixed;
+  top: 0mm;
+  width: 100%;
+}
+
+@media print {
+   tfoot {display: table-footer-group;}
+   button {display: none;}
+   body {margin: 0;}
+}';  
+        $css = '';
+
+        if($settings->all_pages_header && $settings->all_pages_footer)
+            $css .= $header_and_footer;
+        elseif($settings->all_pages_header && !$settings->all_pages_footer)
+            $css .= $header;
+        elseif(!$settings->all_pages_header && $settings->all_pages_footer)
+            $css .= $footer;
+
+        $css .= '
 .page {
   page-break-after: always;
 }
@@ -798,8 +838,8 @@ trait MakesInvoiceValues
 html {
         ';
 
-//        $css .= 'font-size:' . $settings->font_size . 'px;';
-        $css .= 'font-size:14px;';
+        $css .= 'font-size:' . $settings->font_size . 'px;';
+//        $css .= 'font-size:14px;';
 
         $css .= '}';
 
