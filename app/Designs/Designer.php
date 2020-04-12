@@ -143,6 +143,7 @@ class Designer
         //$s = microtime(true);
         $company = $this->entity->company;
         
+        $this->exported_variables['$custom_css']        = $this->entity->generateCustomCSS();
         $this->exported_variables['$app_url']			= $this->entity->generateAppUrl();
         $this->exported_variables['$client_details']  	= $this->processVariables($this->input_variables['client_details'], $this->clientDetails($company));
         $this->exported_variables['$company_details'] 	= $this->processVariables($this->input_variables['company_details'], $this->companyDetails($company));

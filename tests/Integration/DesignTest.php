@@ -67,6 +67,8 @@ class DesignTest extends TestCase
 
         $settings = $this->invoice->client->settings;
         $settings->invoice_design_id = "VolejRejNm";
+        $settings->all_pages_header = true;
+        $settings->all_pages_footer = true;
 
         $this->client->settings = $settings;
         $this->client->save();
@@ -97,6 +99,8 @@ class DesignTest extends TestCase
 
         $settings = $this->quote->client->settings;
         $settings->invoice_design_id = "VolejRejNm";
+        $settings->all_pages_header = true;
+        $settings->all_pages_footer = true;
 
         $this->client->settings = $settings;
         $this->client->save();
@@ -117,6 +121,8 @@ class DesignTest extends TestCase
 
         $settings = $this->invoice->client->settings;
         $settings->quote_design_id = "4";
+        $settings->all_pages_header = true;
+        $settings->all_pages_footer = true;
 
         $this->credit->client_id = $this->client->id;
         $this->credit->setRelation('client', $this->client);
@@ -133,6 +139,8 @@ class DesignTest extends TestCase
         for ($x=1; $x<=10; $x++) {
             $settings = $this->invoice->client->settings;
             $settings->quote_design_id = (string)$this->encodePrimaryKey($x);
+            $settings->all_pages_header = true;
+            $settings->all_pages_footer = true;
 
             $this->quote->client_id = $this->client->id;
             $this->quote->setRelation('client', $this->client);

@@ -35,6 +35,7 @@ class Elegant extends AbstractDesign
     .table_header_thead_class { text-align: left; border-bottom-width: 1px; border-style: dashed; border-color: black; }
     .table_header_td_class { font-weight: normal; color: #2f855a; padding: .5rem 1rem; }
     .table_body_td_class { padding: 1rem; }
+    $custom_css
 </style>';
     }
 
@@ -81,22 +82,8 @@ class Elegant extends AbstractDesign
     <tbody>
         $task_table_body
     </tbody>
-</table>';
-    }
-
-    public function task()
-    {
-        return '';
-    }
-
-    public function product()
-    {
-        return '';
-    }
-
-    public function footer()
-    {
-        return '<div class="flex items-center justify-between mt-2 px-4 pb-4">
+</table>
+<div class="flex items-center justify-between mt-2 px-4 pb-4">
     <div class="w-1/2">
         <div class="flex flex-col">
             <p>$entity.public_notes</p>
@@ -136,5 +123,26 @@ class Elegant extends AbstractDesign
     </div>
     <div class="p-px border-b border-black mt-1"></div>
 </div>';
+    }
+
+    public function task()
+    {
+        return '';
+    }
+
+    public function product()
+    {
+        return '';
+    }
+
+    public function footer()
+    {
+        return '
+<footer>
+    <div class="div_footer flex justify-between py-8 px-12" style="page-break-inside: avoid;">
+    </div>
+</footer>
+</body>
+</html>';
     }
 }

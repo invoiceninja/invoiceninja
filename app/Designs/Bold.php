@@ -30,6 +30,7 @@ class Bold extends AbstractDesign
     .table_header_thead_class {text-align:left;}
     .table_header_td_class {padding-left:3rem; padding-right:3rem; font-size:1rem; padding-left:1rem;padding-right:1rem; padding-top:.5rem;padding-bottom:.5rem}
     .table_body_td_class {background-color:#edf2f7; adding-top:1.25rem;padding-bottom:1.25rem; padding-left:3rem;}
+    $custom_css
 </style>';
     }
 
@@ -87,22 +88,8 @@ class Bold extends AbstractDesign
             $task_table_body
         </tbody>
     </table>
-</div>';
-    }
-
-    public function task()
-    {
-        return '';
-    }
-
-    public function product()
-    {
-        return '';
-    }
-
-    public function footer()
-    {
-        return '<div class="flex px-4 mt-6 w-full px-12">
+</div>
+<div class="flex px-4 mt-6 w-full px-12">
     <div class="w-1/2">
         $entity.public_notes
     </div>
@@ -129,6 +116,28 @@ class Bold extends AbstractDesign
             <span class="text-xl text-teal-600 font-semibold">$balance_due</span>
         </div>
     </div>
-</div>';
+</div>
+';
+    }
+
+    public function task()
+    {
+        return '';
+    }
+
+    public function product()
+    {
+        return '';
+    }
+
+    public function footer()
+    {
+        return '
+<footer>
+    <div class="div_footer flex justify-between py-8 px-12" style="page-break-inside: avoid;">
+    </div>
+</footer>
+</body>
+</html>';
     }
 }

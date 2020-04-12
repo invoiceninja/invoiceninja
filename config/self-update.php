@@ -88,7 +88,7 @@ return [
     |
      */
 
-    'log_events' => env('SELF_UPDATER_LOG_EVENTS', false),
+    'log_events' => env('SELF_UPDATER_LOG_EVENTS', true),
 
     /*
     |--------------------------------------------------------------------------

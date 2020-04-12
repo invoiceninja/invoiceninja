@@ -38,6 +38,7 @@ margin-top: 6mm;
 .table_header_thead_class { text-align: left; border-radius: .5rem; }
 .table_header_td_class { text-transform: uppercase; font-size: 1.25rem; color: #b83280; font-weight: 500 }
 .table_body_td_class { padding: 1rem;}
+$custom_css
 </style>';
     }
 
@@ -78,23 +79,7 @@ margin-top: 6mm;
         $task_table_body
     </tbody>
 </table>
-';
-    }
-
-    public function task()
-    {
-        return '';
-    }
-
-
-    public function product()
-    {
-        return '';
-    }
-
-    public function footer()
-    {
-        return '<div class="border-b-4 border-pink-700 mt-8">
+<div class="border-b-4 border-pink-700 mt-8">
 <div class="grid grid-cols-12 mt-2 px-4 pb-4">
     <div class="col-span-7 flex flex-col">
         <p>$entity.public_notes</p>
@@ -121,7 +106,27 @@ margin-top: 6mm;
     <p>$balance_due_label</p>
     <p class="ml-8 text-pink-700 font-semibold">$balance</p>
     </div>
-</div>
+</div>';
+    }
+
+    public function task()
+    {
+        return '';
+    }
+
+
+    public function product()
+    {
+        return '';
+    }
+
+    public function footer()
+    {
+        return '
+<footer>
+    <div class="div_footer flex justify-between py-8 px-12" style="page-break-inside: avoid;">
+    </div>
+</footer>
 </body>
 </html>';
     }

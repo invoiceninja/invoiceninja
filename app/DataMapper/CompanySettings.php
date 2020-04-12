@@ -216,7 +216,7 @@ class CompanySettings extends BaseSettings
     public $vat_number = '';
     public $id_number  = '';
 
-    public $page_size         = 'A4';
+    public $page_size         = 'A4';  //Letter, Legal, Tabloid, Ledger, A0, A1, A2, A3, A4, A5, A6
     public $font_size         = 9;
     public $primary_font      = 'Roboto';
     public $secondary_font    = 'Roboto';

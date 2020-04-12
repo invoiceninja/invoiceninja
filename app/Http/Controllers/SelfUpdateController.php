@@ -68,26 +68,6 @@ class SelfUpdateController extends BaseController
 
         $res = $updater->update();
 
-        try {
-            Artisan::call('migrate');
-        } catch (\Exception $e) {
-            \Log::error("I wasn't able to migrate the data.");
-        }
-
-        try {
-            Artisan::call('optimize');
-        } catch (\Exception $e) {
-            \Log::error("I wasn't able to optimize.");
-        }
-
-        $composer = Factory::create(new NullIO(), base_path('composer.json'), false);
-
-        $output = Installer::create(new NullIO, $composer)
-            ->setVerbose()
-            ->setUpdate(true)
-            ->run();
-        
-        \Log::error(print_r($output,1));
 
         return response()->json(['message'=>$res], 200);
     }

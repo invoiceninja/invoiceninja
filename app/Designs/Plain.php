@@ -34,6 +34,7 @@ body {font-size:90%}
 .table_header_thead_class { text-align: left; background-color: #e2e8f0 }
 .table_header_td_class { padding: 1rem .5rem; }
 .table_body_td_class { padding: 1rem; border-bottom-width: 1px; border-top-width: 2px; border-color: #e2e8f0 }
+$custom_css
 </style>';
     }
 
@@ -122,6 +123,12 @@ body {font-size:90%}
 
     public function footer()
     {
-        return '';
+        return '
+<footer>
+    <div class="div_footer flex justify-between py-8 px-12" style="page-break-inside: avoid;">
+    </div>
+</footer>
+</body>
+</html>';
     }
 }
