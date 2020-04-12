@@ -103,14 +103,15 @@ $custom_css
         </div>
     </div>
 </div>
-<div class="flex px-4 mt-4 w-full items-end mt-5" style="page-break-inside: avoid;">
-    <div class="w-1/2" style="page-break-inside: avoid;">
-        <p class="font-semibold">$terms_label</p>
-        $terms
+<div style="page-break-inside: avoid;">
+    <div class="flex px-4 mt-4 w-full items-end mt-5" >
+        <div class="w-1/2" style="page-break-inside: avoid;">
+            <p class="font-semibold">$terms_label</p>
+            $terms
+        </div>
     </div>
-</div>
 
-<div class="mt-8 px-4 py-2 bg-gray-900 text-white" style="page-break-inside: avoid;">
+<div class="mt-8 px-4 py-2 bg-gray-900 text-white" style="">
     <div class="w-1/2"></div>
     <div class="w-auto flex justify-end" style="page-break-inside: avoid;">
         <div class="w-56" style="page-break-inside: avoid;">
@@ -118,6 +119,7 @@ $custom_css
         </div>
         <p>$balance_due</p>
     </div>
+</div>
 </div>
 </div>
 </td></tr></tbody><tfoot><tr><td><div class="footer-space"></div></td></tr></tfoot></table>

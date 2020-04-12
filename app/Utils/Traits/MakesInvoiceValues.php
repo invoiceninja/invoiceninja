@@ -739,11 +739,11 @@ trait MakesInvoiceValues
         $header_and_footer = '
 
 .header, .header-space {
-  height: 150px;
+  height: 160px;
 }
 
 .footer, .footer-space {
-  height: 150px;
+  height: 160px;
 }
 
 .footer {
@@ -787,7 +787,8 @@ trait MakesInvoiceValues
             html {
         ';
 
-        $css .= 'font-size:' . $settings->font_size . 'px;';
+//        $css .= 'font-size:' . $settings->font_size . 'px;';
+        $css .= 'font-size:14px;';
 
         $css .= '}';
 
