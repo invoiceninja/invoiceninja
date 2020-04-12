@@ -39,7 +39,8 @@ $custom_css
 
     public function header()
     {
-        return '<div class="div_header bg-orange-600 flex justify-between py-12 px-12" style="page-break-inside: avoid;">
+        return '
+<div class="header bg-orange-600 flex justify-between py-12 px-12" style="page-break-inside: avoid;">
 <div class="grid grid-cols-6 gap-1">
     <div class="col-span-2 p-3">
 		<h1 class="text-white font-bold text-3xl">$company.name</h1>
@@ -51,13 +52,14 @@ $custom_css
         $entity_details
     </div>
 </div>
-
 </div>';
     }
 
     public function body()
     {
         return '
+<table class="container"><thead><tr><td><div class="header-space"></div></td></tr></thead>
+<tbody><tr><td>
 <div class="grid grid-cols-5 gap-1 px-12 pt-12">
     <div class="col-span-2 p-3">
 		$company_logo
@@ -101,7 +103,6 @@ $custom_css
         </div>
     </div>
 </div>
-
 <div class="flex px-4 mt-4 w-full items-end mt-5" style="page-break-inside: avoid;">
     <div class="w-1/2" style="page-break-inside: avoid;">
         <p class="font-semibold">$terms_label</p>
@@ -118,9 +119,8 @@ $custom_css
         <p>$balance_due</p>
     </div>
 </div>
-
 </div>
-</section>
+</td></tr></tbody><tfoot><tr><td><div class="footer-space"></div></td></tr></tfoot></table>
 ';
     }
 
@@ -137,8 +137,7 @@ $custom_css
     public function footer()
     {
         return '
-<footer>
-<div class="div_footer bg-orange-600 flex justify-between py-8 px-12" style="page-break-inside: avoid;">
+<div class="footer bg-orange-600 flex justify-between py-8 px-12" style="page-break-inside: avoid;">
 	<div class="grid grid-cols-12 gap-4">
 		<div class="col-start-4 col-span-4 p-3 flex flex-col text-white text-right">
 			$company_details
@@ -148,7 +147,6 @@ $custom_css
 		</div>
 	</div>
 </div>
-</footer>
 </html>
 		';
     }

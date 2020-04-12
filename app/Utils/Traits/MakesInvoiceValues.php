@@ -737,47 +737,44 @@ trait MakesInvoiceValues
         $settings = $this->client->getMergedSettings();
 
         $header_and_footer = '
-          div.div_footer {
-            display: flex;
-            position: running(footer);
-            width: 100%;
-          }
-          div.div_header {
-            display: flex;
-            position: running(header);
-            width:100%;
-          }
-        ';
 
-        $header = '
-              div.div_footer {
-                display: flex;
-                position: running(footer);
-                width: 100%;
-              }
-            ';
+.header, .header-space {
+  height: 150px;
+}
 
-        $footer = '
-              div.div_header {
-                display: flex;
-                position: running(header);
-                width:100%;
-              }
-            ';
-                
+.footer, .footer-space {
+  height: 150px;
+}
 
-        $css = '
-            footer, header, hgroup, menu, nav, section {
-                display: block;
-            }
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
 
-            div.div_header {
-                display: flex;
-              }
-              div.div_footer {
-                display: flex;
-              }
-                ';
+.header {
+  position: fixed;
+  top: 0mm;
+  width: 100%;
+}
+
+.page {
+  page-break-after: always;
+}
+
+@page {
+  margin: 0mm
+}
+
+@media print {
+   thead {display: table-header-group;} 
+   tfoot {display: table-footer-group;}
+   button {display: none;}
+   body {margin: 0;}
+}
+        ';                
+
+        $css = '';
 
         if($settings->all_pages_header && $settings->all_pages_footer)
             $css .= $header_and_footer;
