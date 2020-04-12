@@ -731,4 +731,70 @@ trait MakesInvoiceValues
     {
         return rtrim(config('ninja.app_url'), "/");
     }
+
+    public function generateCustomCSS()
+    {
+        $settings = $this->client->getMergedSettings();
+
+        $header_and_footer = '
+          div.div_footer {
+            display: flex;
+            position: running(footer);
+            width: 100%;
+          }
+          div.div_header {
+            display: flex;
+            position: running(header);
+            width:100%;
+          }
+        ';
+
+        $header = '
+              div.div_footer {
+                display: flex;
+                position: running(footer);
+                width: 100%;
+              }
+            ';
+
+        $footer = '
+              div.div_header {
+                display: flex;
+                position: running(header);
+                width:100%;
+              }
+            ';
+                
+
+        $css = '
+            footer, header, hgroup, menu, nav, section {
+                display: block;
+            }
+
+            div.div_header {
+                display: flex;
+              }
+              div.div_footer {
+                display: flex;
+              }
+                ';
+
+        if($settings->all_pages_header && $settings->all_pages_footer)
+            $css .= $header_and_footer;
+        elseif($settings->all_pages_header && !$settings->all_pages_footer)
+            $css .= $header;
+        elseif(!$settings->all_pages_header && $settings->all_pages_footer)
+            $css .= $footer;
+
+        $css .= '
+            html {
+        ';
+
+        $css .= 'font-size:' . $settings->font_size . 'px;';
+
+        $css .= '}';
+
+        return $css;
+
+    }
 }

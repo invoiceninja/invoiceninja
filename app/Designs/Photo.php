@@ -39,6 +39,7 @@ body {font-size:90%}
 .table_header_thead_class { text-align: left; border-bottom-width: 4px; border-color: black; }
 .table_header_td_class { font-weight: 400; text-transform: uppercase; padding: 1rem .5rem; }
 .table_body_td_class { padding: 1rem; }
+$custom_css
 </style>';
     }
 
@@ -94,22 +95,8 @@ body {font-size:90%}
 <tbody>
     $task_table_body
 </tbody>
-</table>';
-    }
-
-    public function task()
-    {
-        return '';
-    }
-
-    public function product()
-    {
-        return '';
-    }
-
-    public function footer()
-    {
-        return '<div class="flex items-center justify-between mt-2 px-4 pb-4">
+</table>
+<div class="flex items-center justify-between mt-2 px-4 pb-4">
 <div class="w-1/2">
     <div class="flex flex-col">
         <p>$entity.public_notes</p>
@@ -146,7 +133,26 @@ body {font-size:90%}
 </div>
 </div>
 
-</div>
+</div>';
+    }
+
+    public function task()
+    {
+        return '';
+    }
+
+    public function product()
+    {
+        return '';
+    }
+
+    public function footer()
+    {
+        return '
+<footer>
+    <div class="div_footer flex justify-between py-8 px-12" style="page-break-inside: avoid;">
+    </div>
+</footer>
 </body>
 </html>';
     }

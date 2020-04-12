@@ -71,14 +71,12 @@ class SendGenericNotification extends BaseNotification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $subject = $this->generateEmailEntityHtml($this->entity, $this->subject, $this->contact);
 
         $mail_message = (new MailMessage)
-                    ->subject($subject)
                     ->markdown('email.admin.generic_email', $this->buildMailMessageData());
 
         $mail_message = $this->buildMailMessageSettings($mail_message);
-        
+
         return $mail_message;
 
     }

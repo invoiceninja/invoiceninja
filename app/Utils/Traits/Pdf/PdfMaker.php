@@ -49,6 +49,8 @@ trait PdfMaker
 
         $browser = Browsershot::html($html);
 
+        // $browser->format('A4');
+        // $browser->landscape();
 
         return $browser->deviceScaleFactor(1)
                 ->showBackground()

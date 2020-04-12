@@ -41,7 +41,7 @@ class Business extends AbstractDesign
 .table_header_thead_class { border-top-left-radius: .5rem; text-align: left }
 .table_header_td_class { color: white; padding: .5rem 1rem; font-weight: 800; background-color: #2a4365; }
 .table_body_td_class { color: #c05621; padding: 1rem; border-width: 4px; border-color: white; background-color: white; }
-
+$custom_css
 </style>';
     }
 
@@ -89,22 +89,8 @@ class Business extends AbstractDesign
     <tbody class="bg-gray-200">
         $task_table_body
     </tbody>
-</table>';
-    }
-
-    public function task()
-    {
-        return '';
-    }
-
-    public function product()
-    {
-        return '';
-    }
-
-    public function footer()
-    {
-        return '<div class="flex items-center justify-between px-4 pb-4 bg-gray-200 rounded py-2">
+</table>
+<div class="flex items-center justify-between px-4 pb-4 bg-gray-200 rounded py-2">
 <div class="w-1/2">
     <div class="flex flex-col">
         <p>$entity.public_notes</p>
@@ -139,7 +125,26 @@ class Business extends AbstractDesign
     </section>
 </div>
 </div>
-</div>
+</div>';
+    }
+
+    public function task()
+    {
+        return '';
+    }
+
+    public function product()
+    {
+        return '';
+    }
+
+    public function footer()
+    {
+        return '
+<footer>
+    <div class="div_footer flex justify-between py-8 px-12" style="page-break-inside: avoid;">
+    </div>
+</footer>
 </body>
 </html>';
     }

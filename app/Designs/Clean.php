@@ -35,6 +35,7 @@ class Clean extends AbstractDesign
     .table_header_thead_class { text-align: left; }
     .table_header_td_class { padding: .5rem 1rem;}
     .table_body_td_class { border-bottom-width: 1px; border-top-width: 1px; border-color: #cbd5e0; padding: 1rem;}
+    $custom_css
 </style>';
     }
 
@@ -94,22 +95,8 @@ class Clean extends AbstractDesign
     <tbody>
         $task_table_body
     </tbody>
-</table>';
-    }
-
-    public function task()
-    {
-        return '';
-    }
-
-    public function product()
-    {
-        return '';
-    }
-
-    public function footer()
-    {
-        return '<div class="flex px-4 mt-6 w-full">
+</table>
+<div class="flex px-4 mt-6 w-full">
     <div class="w-1/2">
         $entity.public_notes
     </div>
@@ -141,7 +128,26 @@ class Clean extends AbstractDesign
             </div>
         </div>
     </div>
-</div>
+</div>';
+    }
+
+    public function task()
+    {
+        return '';
+    }
+
+    public function product()
+    {
+        return '';
+    }
+
+    public function footer()
+    {
+        return '
+<footer>
+    <div class="div_footer flex justify-between py-8 px-12" style="page-break-inside: avoid;">
+    </div>
+</footer>
 </body>
 </html>';
     }
