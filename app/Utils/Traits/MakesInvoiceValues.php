@@ -737,7 +737,36 @@ trait MakesInvoiceValues
         $settings = $this->client->getMergedSettings();
 
         $header_and_footer = '
+@media print {
+   thead {display: table-header-group;} 
+   tfoot {display: table-footer-group;}
+   button {display: none;}
+   body {margin: 0;}
+}';                
 
+        $header = '
+@media print {
+   thead {display: table-header-group;} 
+   button {display: none;}
+   body {margin: 0;}
+}';   
+
+        $footer = '
+@media print {
+   tfoot {display: table-footer-group;}
+   button {display: none;}
+   body {margin: 0;}
+}';  
+        $css = '';
+
+        if($settings->all_pages_header && $settings->all_pages_footer)
+            $css .= $header_and_footer;
+        elseif($settings->all_pages_header && !$settings->all_pages_footer)
+            $css .= $header;
+        elseif(!$settings->all_pages_header && $settings->all_pages_footer)
+            $css .= $footer;
+
+        $css .= '
 .header, .header-space {
   height: 160px;
 }
@@ -766,25 +795,7 @@ trait MakesInvoiceValues
   margin: 0mm
 }
 
-@media print {
-   thead {display: table-header-group;} 
-   tfoot {display: table-footer-group;}
-   button {display: none;}
-   body {margin: 0;}
-}
-        ';                
-
-        $css = '';
-
-        if($settings->all_pages_header && $settings->all_pages_footer)
-            $css .= $header_and_footer;
-        elseif($settings->all_pages_header && !$settings->all_pages_footer)
-            $css .= $header;
-        elseif(!$settings->all_pages_header && $settings->all_pages_footer)
-            $css .= $footer;
-
-        $css .= '
-            html {
+html {
         ';
 
 //        $css .= 'font-size:' . $settings->font_size . 'px;';
