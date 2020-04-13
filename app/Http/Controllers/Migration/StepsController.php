@@ -160,7 +160,7 @@ class StepsController extends BaseController
                 ->force(array_key_exists('force', $company))
                 ->company($company['id'])
                 ->endpoint(session('MIGRATION_ENDPOINT'))
-                ->companyKey($company['key'])
+                ->companyKey($request->account_key)
                 ->start();
         }
 
