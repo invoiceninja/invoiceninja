@@ -95,6 +95,11 @@ class CustomMessage
             '$client.postal_code' => optional(optional($this->client)->present())->postal_code,
             '$client.country' => optional(optional(optional($this->client)->present())->country)->full_name,
 
+            '$client.address' => optional(optional($this->client)->present())->address(),
+            '$client.shipping_address' => optional(optional($this->client)->present())->shipping_address(),
+            '$client.primary_contact_name' => optional(optional($this->client)->present())->primary_contact_name(),
+            '$client.city_state' => optional(optional($this->client)->present())->getCityState(),
+
             '$contact.first_name' => optional($this->contact)->first_name,
             '$contact.last_name' => optional($this->contact)->last_name,
             '$contact.phone' => optional($this->contact)->phone,
