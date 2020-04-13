@@ -178,7 +178,7 @@ trait MakesReminders
                 return Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
                 break;
             default:
-                # code...
+                return null;
                 break;
         }
     }
