@@ -80,8 +80,13 @@ trait MakesInvoiceHtml
 
     private function parseLabelsAndValues($labels, $values, $section) :string
     {
-        $section = str_replace(array_keys($labels), array_values($labels), $section);
-        $section = str_replace(array_keys($values), array_values($values), $section);
+
+         // $section = str_replace(array_keys($labels), array_values($labels), $section);
+         // $section = str_replace(array_keys($values), array_values($values), $section);
+        
+        $section = strtr($section, $labels);
+        $section = strtr($section, $values);
+        
         return $section;
     }
 

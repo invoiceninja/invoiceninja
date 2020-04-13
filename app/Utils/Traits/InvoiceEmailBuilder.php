@@ -82,7 +82,8 @@ trait InvoiceEmailBuilder
         $invoice_variables = $this->makeValues($contact);
 
         //process variables
-        $data = str_replace(array_keys($invoice_variables), array_values($invoice_variables), $template_data);
+//        $data = str_replace(array_keys($invoice_variables), array_values($invoice_variables), $template_data);
+        $data = strtr($template_data, $invoice_variables);
 
         //process markdown
         if ($is_markdown) {

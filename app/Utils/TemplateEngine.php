@@ -115,11 +115,16 @@ class TemplateEngine
         $labels = $this->makeFakerLabels();
         $values = $this->makeFakerValues();
 
-        $this->body = str_replace(array_keys($labels), array_values($labels), $this->body);
-        $this->body = str_replace(array_keys($values), array_values($values), $this->body);
+        // $this->body = str_replace(array_keys($labels), array_values($labels), $this->body);
+        // $this->body = str_replace(array_keys($values), array_values($values), $this->body);
+        // $this->subject = str_replace(array_keys($labels), array_values($labels), $this->subject);
+        // $this->subject = str_replace(array_keys($values), array_values($values), $this->subject);
 
-        $this->subject = str_replace(array_keys($labels), array_values($labels), $this->subject);
-        $this->subject = str_replace(array_keys($values), array_values($values), $this->subject);
+        $this->body = strtr($this->body, $labels);
+        $this->body = strtr($this->body, $values);
+
+        $this->subject = strtr($this->subject, $labels);
+        $this->subject = strtr($this->subject, $values);
 
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,
@@ -133,11 +138,11 @@ class TemplateEngine
         $labels = $this->entity_obj->makeLabels();
         $values = $this->entity_obj->makeValues();
 
-        $this->body = str_replace(array_keys($labels), array_values($labels), $this->body);
-        $this->body = str_replace(array_keys($values), array_values($values), $this->body);
+        $this->body = strtr($this->body, $labels);
+        $this->body = strtr($this->body, $values);
 
-        $this->subject = str_replace(array_keys($labels), array_values($labels), $this->subject);
-        $this->subject = str_replace(array_keys($values), array_values($values), $this->subject);
+        $this->subject = strtr($this->subject, $labels);
+        $this->subject = strtr($this->subject, $values);
         
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,

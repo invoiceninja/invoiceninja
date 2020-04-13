@@ -84,16 +84,16 @@ class CreateQuotePdf implements ShouldQueue
         Storage::makeDirectory($path, 0755);
 
         $quote_number = $this->quote->number;
+        
+$start = microtime(true);
 
         $design_body = $designer->build()->getHtml();
 
         $html = $this->generateEntityHtml($designer, $this->quote, $this->contact);
 
-//$start = microtime(true);
-
         $pdf       = $this->makePdf(null, null, $html);
 
-//\Log::error("PDF Build time = ". (microtime(true) - $start));
+\Log::error("PDF Build time = ". (microtime(true) - $start));
 
         $file_path = $path . $quote_number . '.pdf';
 

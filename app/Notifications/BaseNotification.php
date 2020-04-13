@@ -96,7 +96,8 @@ class BaseNotification extends Notification implements ShouldQueue
 
         if ($design_style == 'custom') {
             $email_style_custom = $this->settings->email_style_custom;
-            $body = str_replace("$body", $body, $email_style_custom);
+            //$body = str_replace("$body", $body, $email_style_custom);
+            $body = strtr($email_style_custom, "$body", $body);
         }
 
         $data = [

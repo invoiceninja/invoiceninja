@@ -454,8 +454,10 @@ trait MakesInvoiceValues
 
         if (strlen($user_columns) > 1) {
             foreach ($items as $key => $item) {
-                $tmp = str_replace(array_keys($data), array_values($data), $user_columns);
-                $tmp = str_replace(array_keys($item), array_values($item), $tmp);
+//                $tmp = str_replace(array_keys($data), array_values($data), $user_columns);
+//                $tmp = str_replace(array_keys($item), array_values($item), $tmp);
+                $tmp = strtr($user_columns, $data);
+                $tmp = strtr($tmp, $item);
 
                 $output .= $tmp;
             }
@@ -469,8 +471,10 @@ trait MakesInvoiceValues
             $table_row .= '</tr>';
 
             foreach ($items as $key => $item) {
-                $tmp = str_replace(array_keys($item), array_values($item), $table_row);
-                $tmp = str_replace(array_keys($data), array_values($data), $tmp);
+                // $tmp = str_replace(array_keys($item), array_values($item), $table_row);
+                // $tmp = str_replace(array_keys($data), array_values($data), $tmp);
+                $tmp = strtr($table_row, $item);
+                $tmp = strtr($tmp, $data);
 
                 $output .= $tmp;
             }

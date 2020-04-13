@@ -135,7 +135,8 @@ class Designer
      */
     public function getSection($section):string
     {
-        return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section});
+        return strtr($this->design->{$section}, $this->exported_variables);
+    //   return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section});
     }
 
     private function exportVariables()
@@ -197,8 +198,8 @@ class Designer
 
         foreach (array_keys($input_variables) as $value) {
             if (array_key_exists($value, $variables)) {
-                $tmp = str_replace("</span>", "_label</span>", $variables[$value]);
-            
+                //$tmp = str_replace("</span>", "_label</span>", $variables[$value]);
+                $tmp = strtr($variables[$value], "</span>", "_label</span>");
                 $output .= $tmp;
             }
         }

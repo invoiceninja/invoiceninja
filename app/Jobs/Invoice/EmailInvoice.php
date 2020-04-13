@@ -32,7 +32,7 @@ class EmailInvoice implements ShouldQueue
     /**
      *
      * EmailInvoice constructor.
-     * @param BuildEmail $email_builder
+     * @param InvoiceEmail $email_builder
      * @param InvoiceInvitation $quote_invitation
      */
 

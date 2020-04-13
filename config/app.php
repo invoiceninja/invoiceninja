@@ -235,7 +235,7 @@ return [
          */
 
         'Countries' => 'Webpatser\Countries\CountriesFacade',
-        'CustomMessage' => App\Utils\ClientPortal\CustomMessage\ClientPortalFacade::class,
+        'CustomMessage' => App\Utils\ClientPortal\CustomMessage\CustomMessageFacade::class,
     ],
 
 ];
