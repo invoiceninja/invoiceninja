@@ -29,7 +29,6 @@ class EmailBuilder
 
         //process markdown
         if ($is_markdown) {
-            //$data = Parsedown::instance()->line($data);
 
             $converter = new CommonMarkConverter([
                 'html_input' => 'allow',
@@ -74,7 +73,13 @@ class EmailBuilder
      */
     public function setSubject($subject)
     {
-        $this->subject = $this->parseTemplate($subject, false, $this->contact);
+        //$this->subject = $this->parseTemplate($subject, false, $this->contact);
+        
+        if (!empty($this->variables)) {
+            $subject = str_replace(array_keys($this->variables), array_values($this->variables), $subject);
+        }
+
+        $this->subject = $subject;        
         return $this;
     }
 
@@ -84,7 +89,14 @@ class EmailBuilder
      */
     public function setBody($body)
     {
-        $this->body = $this->parseTemplate($body, true);
+        //$this->body = $this->parseTemplate($body, true);
+        
+        if (!empty($this->variables)) {
+            $body = str_replace(array_keys($this->variables), array_values($this->variables), $body);
+        }
+
+
+        $this->body = $body;
         return $this;
     }
 
