@@ -12,6 +12,24 @@
 
 @section('body')
 
+    @if($invoice->isPayable() && !empty($client->getSetting('custom_message_unpaid_invoice')))
+        @component('portal.ninja2020.components.message')
+            {!! CustomMessage::client($client)
+                ->company($client->company)
+                ->entity($invoice)
+                ->message($client->getSetting('custom_message_unpaid_invoice')) !!}
+        @endcomponent
+    @endif
+
+    @if(!$invoice->isPayable() && !empty($client->getSetting('custom_message_paid_invoice')))
+        @component('portal.ninja2020.components.message')
+            {!! CustomMessage::client($client)
+                ->company($client->company)
+                ->entity($invoice)
+                ->message($client->getSetting('custom_message_paid_invoice')) !!}
+        @endcomponent
+    @endif
+
     @if($invoice->isPayable())
         <form action="{{ route('client.invoices.bulk') }}" method="post">
             @csrf

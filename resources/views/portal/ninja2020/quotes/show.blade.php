@@ -12,6 +12,15 @@
 
 @section('body')
 
+    @if(!$quote->isApproved() && !empty($client->getSetting('custom_message_unapproved_quote')))
+        @component('portal.ninja2020.components.message')
+            {!! CustomMessage::client($client)
+                ->company($client->company)
+                ->entity($quote)
+                ->message($client->getSetting('custom_message_unapproved_quote')) !!}
+        @endcomponent
+    @endif
+
     @if(!$quote->isApproved())
         <form action="{{ route('client.quotes.bulk') }}" method="post">
             @csrf

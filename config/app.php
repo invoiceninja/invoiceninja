@@ -180,7 +180,7 @@ return [
         App\Providers\ComposerServiceProvider::class,
         Codedge\Updater\UpdaterServiceProvider::class,
         App\Providers\MultiDBProvider::class,
-
+        App\Providers\ClientPortalServiceProvider::class,
     ],
 
     /*
@@ -235,7 +235,7 @@ return [
          */
 
         'Countries' => 'Webpatser\Countries\CountriesFacade',
-
+        'CustomMessage' => App\Utils\ClientPortal\CustomMessage\ClientPortalFacade::class,
     ],
 
 ];
