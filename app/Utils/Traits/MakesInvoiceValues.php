@@ -732,7 +732,12 @@ trait MakesInvoiceValues
         return rtrim(config('ninja.app_url'), "/");
     }
 
-    public function generateCustomCSS()
+    /**
+     * Builds CSS to assist with the generation
+     * of Repeating headers and footers on the PDF
+     * @return string The css string
+     */
+    public function generateCustomCSS() :string
     {
         $settings = $this->client->getMergedSettings();
 
@@ -800,9 +805,6 @@ trait MakesInvoiceValues
 }';  
         $css = '';
 
-\Log::error($settings->all_pages_header);
-\Log::error($settings->all_pages_footer);
-
         if($settings->all_pages_header && $settings->all_pages_footer)
             $css .= $header_and_footer;
         elseif($settings->all_pages_header && !$settings->all_pages_footer)
@@ -822,8 +824,8 @@ trait MakesInvoiceValues
 html {
         ';
 
-//        $css .= 'font-size:' . $settings->font_size . 'px;';
-        $css .= 'font-size:14px;';
+        $css .= 'font-size:' . $settings->font_size . 'px;';
+//        $css .= 'font-size:14px;';
 
         $css .= '}';
 

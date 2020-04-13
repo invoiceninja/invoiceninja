@@ -31,9 +31,9 @@ class EmailInvoice implements ShouldQueue
     public $company;
     /**
      *
-     * EmailQuote constructor.
+     * EmailInvoice constructor.
      * @param BuildEmail $email_builder
-     * @param QuoteInvitation $quote_invitation
+     * @param InvoiceInvitation $quote_invitation
      */
 
     public function __construct(InvoiceEmail $email_builder, InvoiceInvitation $invoice_invitation, Company $company)
