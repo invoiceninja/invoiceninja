@@ -59,7 +59,7 @@ trait MakesInvoiceHtml
         
         $html = $this->parseLabelsAndValues($labels, $values, $html);
         
-        info($html);
+//        info($html);
         
         return $html;
     }
