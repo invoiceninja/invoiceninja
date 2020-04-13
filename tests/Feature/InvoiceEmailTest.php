@@ -49,6 +49,12 @@ class InvoiceEmailTest extends TestCase
         $this->invoice->number = $this->getNextInvoiceNumber($this->client);
 
         $this->invoice->client_id = $this->client->id;
+
+        $client_settings = $this->client->settings;
+        $client_settings->email_style = 'dark';
+        $this->client->settings = $client_settings;
+        $this->client->save();
+        
         $this->invoice->setRelation('client', $this->client);
 
         $this->invoice->save();

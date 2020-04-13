@@ -67,7 +67,7 @@ class InvoiceEmail extends EmailBuilder
             }
         }
         
-        $this->setTemplate($invoice->client->getSetting('email_style'))
+        $this->setTemplate($client->getSetting('email_style'))
             ->setContact($contact)
             ->setVariables($invoice->makeValues($contact))
             ->setSubject($subject_template)
