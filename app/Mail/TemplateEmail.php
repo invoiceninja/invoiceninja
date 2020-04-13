@@ -52,8 +52,11 @@ class TemplateEmail extends Mailable
                 'footer' => $this->build_email->getFooter()
             ])
             ->view($template_name, [
+                'design' => $settings->email_style,
                 'body' => $this->build_email->getBody(),
                 'footer' => $this->build_email->getFooter(),
+                'view_link' => $this->build_email->getViewLink(),
+                'view_text' => $this->build_email->getViewText(),
                 'title' => $this->build_email->getSubject(),
                 'settings' => $settings,
                 'company' => $company

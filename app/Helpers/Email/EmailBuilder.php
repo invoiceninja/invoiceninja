@@ -17,6 +17,8 @@ class EmailBuilder
     protected $template_style;
     protected $variables = [];
     protected $contact = null;
+    protected $view_link;
+    protected $view_text;
 
     private function parseTemplate(string $data, bool $is_markdown = true, $contact = null): string
     {
@@ -99,8 +101,20 @@ class EmailBuilder
     public function setAttachments($attachments)
     {
         $this->attachments[] = $attachments;
+        return $this;
     }
 
+    public function setViewLink($link)
+    {
+        $this->view_link = $link;
+        return $this;
+    }
+
+    public function setViewText($text)
+    {
+        $this->view_text = $text;
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -148,5 +162,15 @@ class EmailBuilder
     public function getTemplate()
     {
         return $this->template_style;
+    }
+
+    public function getViewLink()
+    {
+        return $this->view_link;
+    }
+
+    public function getViewText()
+    {
+        return $this->view_text;
     }
 }

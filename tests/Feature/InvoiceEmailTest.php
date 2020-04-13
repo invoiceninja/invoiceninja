@@ -21,6 +21,7 @@ use Tests\TestCase;
 
 /**
 * @test
+* @covers App\Jobs\Invoice\EmailInvoice
 */
 class InvoiceEmailTest extends TestCase
 {
@@ -56,10 +57,93 @@ class InvoiceEmailTest extends TestCase
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 $email_builder = (new InvoiceEmail())->build($invitation, null);
 
-                EmailInvoice::dispatch($email_builder, $invitation, $invitation->company);
+                EmailInvoice::dispatchNow($email_builder, $invitation, $invitation->company);
 
                 $this->expectsJobs(EmailInvoice::class);
             }
         });
+
+        $this->assertTrue(true);
+    }
+
+    public function testTemplateThemes()
+    {
+        $settings = $this->company->settings;
+        $settings->email_style = 'light';
+
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->invoice->date = now();
+        $this->invoice->due_date = now()->addDays(7);
+        $this->invoice->number = $this->getNextInvoiceNumber($this->client);
+
+        $this->invoice->client_id = $this->client->id;
+        $this->invoice->setRelation('client', $this->client);
+
+        $this->invoice->save();
+
+        $this->invoice->invitations->each(function ($invitation) {
+            if ($invitation->contact->send_email && $invitation->contact->email) {
+                $email_builder = (new InvoiceEmail())->build($invitation, null);
+
+                EmailInvoice::dispatchNow($email_builder, $invitation, $invitation->company);
+
+                $this->expectsJobs(EmailInvoice::class);
+            }
+        });
+
+        $settings = $this->company->settings;
+        $settings->email_style = 'dark';
+
+        $this->company->settings = $settings;
+        $this->company->save();
+        
+        $this->invoice->date = now();
+        $this->invoice->due_date = now()->addDays(7);
+        $this->invoice->number = $this->getNextInvoiceNumber($this->client);
+
+        $this->invoice->client_id = $this->client->id;
+        $this->invoice->setRelation('client', $this->client);
+
+        $this->invoice->save();
+
+        $this->invoice->invitations->each(function ($invitation) {
+            if ($invitation->contact->send_email && $invitation->contact->email) {
+                $email_builder = (new InvoiceEmail())->build($invitation, null);
+
+                EmailInvoice::dispatchNow($email_builder, $invitation, $invitation->company);
+
+                $this->expectsJobs(EmailInvoice::class);
+            }
+        });
+
+        $settings = $this->company->settings;
+        $settings->email_style = 'plain';
+
+        $this->company->settings = $settings;
+        $this->company->save();
+        
+        $this->invoice->date = now();
+        $this->invoice->due_date = now()->addDays(7);
+        $this->invoice->number = $this->getNextInvoiceNumber($this->client);
+
+        $this->invoice->client_id = $this->client->id;
+        $this->invoice->setRelation('client', $this->client);
+
+        $this->invoice->save();
+
+        $this->invoice->invitations->each(function ($invitation) {
+            if ($invitation->contact->send_email && $invitation->contact->email) {
+                $email_builder = (new InvoiceEmail())->build($invitation, null);
+
+                EmailInvoice::dispatchNow($email_builder, $invitation, $invitation->company);
+
+                $this->expectsJobs(EmailInvoice::class);
+            }
+        });
+
+        
+        $this->assertTrue(true);
     }
 }

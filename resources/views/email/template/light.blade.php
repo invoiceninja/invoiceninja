@@ -1,4 +1,4 @@
-@component('email.template.master', ['design' => 'light'])
+@component('email.template.master', ['design' => $design])
 
 @slot('header')
     @component('email.components.header', ['p' => '', 'logo' => 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png'])
@@ -11,15 +11,13 @@
 
 {!! $body !!}
 
-@slot('footer')
+    @if($footer)
+        @component('email.components.button', ['url' => $view_link])
+            {{$view_text}}
+        @endcomponent
+    @endif
 
-	@if(isset($footer))
-		{!! $footer !!}
-	@endif
 
-    @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
-        For any info, please visit InvoiceNinja.
-    @endcomponent
 @endslot
 
 
