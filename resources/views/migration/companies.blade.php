@@ -14,6 +14,7 @@
             <h4>Awesome! Please select the company you would like to apply migration.</h4>
             <form action="/migration/companies" method="post" id="auth-form">
                 {{ csrf_field() }}
+                <input type="hidden" name="account_key" value="{{ auth()->user()->account->account_key }}">
                     
                 @foreach($companies as $company)
                 <div class="form-check">
@@ -24,7 +25,6 @@
                 </div>
                 <div class="form-group">
                     <input type="checkbox" name="companies[{{ $company->id }}][force]">
-                    <input type="hidden" name="companies[{{ $company->id }}][key]" value="{{ $company->company_key }}">
                     <label for="force">Force migration</label>
                     <small>* All current company data will be wiped.</small>
                 </div>
