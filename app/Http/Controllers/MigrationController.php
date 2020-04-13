@@ -22,6 +22,7 @@ use App\Http\Requests\Account\CreateAccountRequest;
 use App\Http\Requests\Migration\UploadMigrationFileRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Jobs\Util\StartMigration;
+use App\Mail\ExistingMigration;
 use App\Mail\MigrationFailed;
 use App\Models\Account;
 use App\Models\Company;
@@ -197,8 +198,45 @@ class MigrationController extends BaseController
     public function startMigration(Request $request, Company $company)
     {
         $user = auth()->user();
+        $existing_company = Company::where('company_key', $request->company_key)->first();
 
-        if ($request->has('force') && !empty($request->force)) {
+        info('Request key: ' . $request->company_key);
+
+        if ($request->company_key !== $company->company_key) {
+            info('Migration type: Fresh migration with new company. MigrationController::203');
+
+            // If there's company with same 'company_key' as from request we would crash it
+            // to avoid duplicate 'company_key' insert error. This should never happen, but just in case to prevent it.
+            if ($existing_company) {
+                Mail::to($user)->send(new ExistingMigration());
+                return;
+            }
+
+            $account = (new ImportMigrations())->getAccount();
+            $company = (new ImportMigrations())->getCompany($account);
+
+            CompanyToken::create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+                'account_id' => $account->id,
+                'name' => $request->token_name ?? Str::random(12),
+                'token' => $request->token ?? \Illuminate\Support\Str::random(64),
+            ]);
+
+            $user->companies()->attach($company->id, [
+                'account_id' => $account->id,
+                'is_owner' => 1,
+                'is_admin' => 1,
+                'is_locked' => 0,
+                'notifications' => CompanySettings::notificationDefaults(),
+                'permissions' => '',
+                'settings' => null,
+            ]);
+        }
+
+        if (($request->company_key == $company->company_key) && ($request->has('force') && !empty($request->force))) {
+            info('Migration type: Completely wipe company and start again. MigrationController::228');
+
             $this->purgeCompany($company);
 
             $account = (new ImportMigrations())->getAccount();
@@ -221,6 +259,18 @@ class MigrationController extends BaseController
                 'permissions' => '',
                 'settings' => null,
             ]);
+        }
+
+        if (($request->company_key == $company->company_key) && !$request->force) {
+            info('Migration type: Nothing, skip this since no "force" is provided.. MigrationController::255');
+
+            Mail::to($user)->send(new ExistingMigration());
+
+            return response()->json([
+                '_id' => Str::uuid(),
+                'method' => config('queue.default'),
+                'started_at' => now(),
+            ], 200);
         }
 
         $migration_file = $request->file('migration')
