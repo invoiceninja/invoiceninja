@@ -30,7 +30,7 @@ FAQ:
 
 Q: My emails are not being delivered.
 
-A: Most likely you have not configured a mail service and have set up the built in Postfix server. We creating a Mailgun account and entering your credentials under Settings -> System Settings -> Email Settings.
+A: Most likely you have not configured a mail service and have set up the built in Postfix server. We suggest creating a Mailgun account and entering your credentials under Settings -> System Settings -> Email Settings.
 
 Q: Do I need to create a database on the server?
 
