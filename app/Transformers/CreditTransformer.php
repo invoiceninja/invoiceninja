@@ -13,7 +13,9 @@ namespace App\Transformers;
 
 use App\Models\Credit;
 use App\Models\CreditInvitation;
+use App\Models\Document;
 use App\Transformers\CreditInvitationTransformer;
+use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 
 class CreditTransformer extends EntityTransformer
@@ -58,18 +60,13 @@ class CreditTransformer extends EntityTransformer
 
             return $this->includeCollection($credit->expenses, $transformer, ENTITY_EXPENSE);
         }
+*/
+    public function includeDocuments(Credit $credit)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+        return $this->includeCollection($credit->documents, $transformer, Document::class);
+    }
 
-        public function includeDocuments(quote $credit)
-        {
-            $transformer = new DocumentTransformer($this->account, $this->serializer);
-
-            $credit->documents->each(function ($document) use ($credit) {
-                $document->setRelation('quote', $credit);
-            });
-
-            return $this->includeCollection($credit->documents, $transformer, ENTITY_DOCUMENT);
-        }
-    */
     public function transform(Credit $credit)
     {
         return [
@@ -79,12 +76,13 @@ class CreditTransformer extends EntityTransformer
             'amount' => (float) $credit->amount,
             'balance' => (float) $credit->balance,
             'client_id' => (string) $this->encodePrimaryKey($credit->client_id),
+            'vendor_id' => (string) $this->encodePrimaryKey($credit->vendor_id),
             'status_id' => (string) ($credit->status_id ?: 1),
             'design_id' => (string) $this->encodePrimaryKey($credit->design_id),
-            'invoice_id' => (string) ($credit->invoice_id ?: 1),
+            'created_at' => (int)$credit->created_at,
             'updated_at' => (int)$credit->updated_at,
             'archived_at' => (int)$credit->deleted_at,
-            'created_at' => (int)$credit->created_at,
+            'is_deleted' => (bool) $credit->is_deleted,
             'number' => $credit->number ?: '',
             'discount' => (float) $credit->discount,
             'po_number' => $credit->po_number ?: '',
@@ -95,7 +93,6 @@ class CreditTransformer extends EntityTransformer
             'terms' => $credit->terms ?: '',
             'public_notes' => $credit->public_notes ?: '',
             'private_notes' => $credit->private_notes ?: '',
-            'is_deleted' => (bool) $credit->is_deleted,
             'uses_inclusive_taxes' => (bool) $credit->uses_inclusive_taxes,
             'tax_name1' => $credit->tax_name1 ? $credit->tax_name1 : '',
             'tax_rate1' => (float) $credit->tax_rate1,
@@ -118,10 +115,12 @@ class CreditTransformer extends EntityTransformer
             'custom_surcharge2' => (float)$credit->custom_surcharge2,
             'custom_surcharge3' => (float)$credit->custom_surcharge3,
             'custom_surcharge4' => (float)$credit->custom_surcharge4,
-            'custom_surcharge_taxes' => (bool) $credit->custom_surcharge_taxes,
+            'custom_surcharge_tax1' => (bool) $credit->custom_surcharge_tax1,
+            'custom_surcharge_tax2' => (bool) $credit->custom_surcharge_tax2,
+            'custom_surcharge_tax3' => (bool) $credit->custom_surcharge_tax3,
+            'custom_surcharge_tax4' => (bool) $credit->custom_surcharge_tax4,
             'line_items' => $credit->line_items ?: (array)[],
             'entity_type' => 'credit',
-
         ];
     }
 }

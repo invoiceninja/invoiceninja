@@ -29,11 +29,22 @@ class StoreCreditRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'client_id' => 'required|exists:clients,id',
-           // 'invoice_type_id' => 'integer',
-      //      'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
-        ];
+        $rules = [];
+
+        if($this->input('documents') && is_array($this->input('documents'))) {
+            $documents = count($this->input('documents'));
+
+            foreach(range(0, $documents) as $index) {
+                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+            }
+        }
+        elseif($this->input('documents')){
+            $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        }
+
+            $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+
+        return $rules;
     }
 
     protected function prepareForValidation()
@@ -44,7 +55,7 @@ class StoreCreditRequest extends FormRequest
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
 
-        if ($input['client_id']) {
+        if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 

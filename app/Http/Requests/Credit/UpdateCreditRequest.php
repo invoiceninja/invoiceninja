@@ -30,11 +30,20 @@ class UpdateCreditRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
-            //'client_id' => 'required|integer',
-            //'invoice_type_id' => 'integer',
-        ];
+        $rules = [];
+
+        if($this->input('documents') && is_array($this->input('documents'))) {
+            $documents = count($this->input('documents'));
+
+            foreach(range(0, $documents) as $index) {
+                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+            }
+        }
+        elseif($this->input('documents')){
+            $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        }
+
+        return $rules;
     }
 
 
@@ -45,7 +54,7 @@ class UpdateCreditRequest extends FormRequest
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
-
+        
         if (isset($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
