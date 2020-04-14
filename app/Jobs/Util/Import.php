@@ -281,7 +281,7 @@ class Import implements ShouldQueue
             $modified = $resource;
             unset($modified['id']);
 
-            $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, false);
+            $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
 
             $user_agent = array_key_exists('token_name', $resource) ?: request()->server('HTTP_USER_AGENT');
 
