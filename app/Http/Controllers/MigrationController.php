@@ -11,33 +11,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Console\Commands\ImportMigrations;
-use App\DataMapper\CompanySettings;
-use App\Exceptions\MigrationValidatorFailed;
-use App\Exceptions\NonExistingMigrationFile;
-use App\Exceptions\ProcessingMigrationArchiveFailed;
-use App\Exceptions\ResourceNotAvailableForMigration;
-use App\Factory\CompanyFactory;
-use App\Http\Requests\Account\CreateAccountRequest;
-use App\Http\Requests\Migration\UploadMigrationFileRequest;
-use App\Jobs\Account\CreateAccount;
-use App\Jobs\Util\StartMigration;
-use App\Mail\ExistingMigration;
-use App\Mail\MigrationFailed;
-use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyToken;
-use App\Models\CompanyUser;
-use App\Transformers\AccountTransformer;
-use App\Transformers\CompanyUserTransformer;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use App\DataMapper\CompanySettings;
+use App\Jobs\Util\StartMigration;
+use App\Mail\ExistingMigration;
 use Illuminate\Support\Str;
-use function GuzzleHttp\Promise\queue;
-use App\Models\User;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Console\Commands\ImportMigrations;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class MigrationController extends BaseController
 {
@@ -200,28 +183,31 @@ class MigrationController extends BaseController
         $user = auth()->user();
         $existing_company = Company::where('company_key', $request->company_key)->first();
 
-        info('Request key: ' . $request->company_key);
-
         if ($request->company_key !== $company->company_key) {
             info('Migration type: Fresh migration with new company. MigrationController::203');
 
-            // If there's company with same 'company_key' as from request we would crash it
-            // to avoid duplicate 'company_key' insert error. This should never happen, but just in case to prevent it.
+            /**
+             * This case is still unresolved.
+             *
+             * Following block will happen in case $request->company_key and $company.company_key
+             * are different in which case the migration might fail due duplicated company_key
+             * record.
+             */
+
             if ($existing_company) {
-                Mail::to($user)->send(new ExistingMigration());
                 return;
             }
 
             $account = (new ImportMigrations())->getAccount();
             $company = (new ImportMigrations())->getCompany($account);
 
-            CompanyToken::create([
-                'user_id' => $user->id,
-                'company_id' => $company->id,
-                'account_id' => $account->id,
-                'name' => $request->token_name ?? Str::random(12),
-                'token' => $request->token ?? \Illuminate\Support\Str::random(64),
-            ]);
+            $company_token = new CompanyToken();
+            $company_token->user_id = $user->id;
+            $company_token->company_id = $company->id;
+            $company_token->account_id = $account->id;
+            $company_token->name = $request->token_name ?? Str::random(12);
+            $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+            $company_token->save();
 
             $user->companies()->attach($company->id, [
                 'account_id' => $account->id,
@@ -242,13 +228,13 @@ class MigrationController extends BaseController
             $account = (new ImportMigrations())->getAccount();
             $company = (new ImportMigrations())->getCompany($account);
 
-            CompanyToken::create([
-                'user_id' => $user->id,
-                'company_id' => $company->id,
-                'account_id' => $account->id,
-                'name' => $request->token_name ?? Str::random(12),
-                'token' => $request->token ?? \Illuminate\Support\Str::random(64),
-            ]);
+            $company_token = new CompanyToken();
+            $company_token->user_id = $user->id;
+            $company_token->company_id = $company->id;
+            $company_token->account_id = $account->id;
+            $company_token->name = $request->token_name ?? Str::random(12);
+            $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+            $company_token->save();
 
             $user->companies()->attach($company->id, [
                 'account_id' => $account->id,
