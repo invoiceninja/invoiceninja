@@ -46,7 +46,6 @@ class PaymentNotification implements ShouldQueue
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
-
             $user = $company_user->user;
 
             $notification = new NewPaymentNotification($payment, $payment->company);
@@ -55,7 +54,6 @@ class PaymentNotification implements ShouldQueue
             if ($user) {
                 $user->notify($notification);
             }
-
         }
 
         /*Company Notifications*/
@@ -66,9 +64,9 @@ class PaymentNotification implements ShouldQueue
 
         /*Google Analytics Track Revenue*/
 
-        if (isset($payment->company->google_analytics_key)) 
+        if (isset($payment->company->google_analytics_key)) {
             $this->trackRevenue($event);
-
+        }
     }
 
     private function trackRevenue($event)
@@ -82,12 +80,11 @@ class PaymentNotification implements ShouldQueue
         $client = $payment->client;
         $amount = $payment->amount;
         
-        if($invoice){
+        if ($invoice) {
             $items = $invoice->line_items;
             $item = end($items)->product_key;
             $entity_number = $invoice->number;
-        }
-        else{
+        } else {
             $item = $payment->number;
             $entity_number = $item;
         }

@@ -52,7 +52,7 @@ class CreateUbl implements ShouldQueue
      * @return void
      */
     
-	public function handle()
+    public function handle()
     {
         $invoice = $this->invoice;
         $company = $invoice->company;
@@ -100,7 +100,7 @@ class CreateUbl implements ShouldQueue
         try {
             return Generator::invoice($ubl_invoice, $invoice->client->getCurrencyCode());
         } catch (\Exception $exception) {
-            info(print_r($exception,1));
+            info(print_r($exception, 1));
             return false;
         }
     }
@@ -140,7 +140,7 @@ class CreateUbl implements ShouldQueue
             ->setItem((new Item())
                 ->setName($item->product_key)
                 ->setDescription($item->notes));
-                //->setSellersItemIdentification("1ABCD"));
+        //->setSellersItemIdentification("1ABCD"));
 
         $taxtotal = new TaxTotal();
         $itemTaxAmount1 = $itemTaxAmount2 = $itemTaxAmount3 = 0;
@@ -151,7 +151,7 @@ class CreateUbl implements ShouldQueue
             $itemTaxAmount2 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate2, $item->tax_name2);
         }
 
-        if($item->tax_name3 || floatval($item->tax_rate3)){
+        if ($item->tax_name3 || floatval($item->tax_rate3)) {
             $itemTaxAmount3 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate3, $item->tax_name3);
         }
 
@@ -267,20 +267,24 @@ class CreateUbl implements ShouldQueue
             }
         }
 
-        if ($this->invoice->custom_surcharge1 && $this->invoice->custom_surcharge_tax1) 
+        if ($this->invoice->custom_surcharge1 && $this->invoice->custom_surcharge_tax1) {
             $total += $this->invoice->custom_surcharge1;
+        }
         
 
-        if ($this->invoice->custom_surcharge2 && $this->invoice->custom_surcharge_tax2) 
+        if ($this->invoice->custom_surcharge2 && $this->invoice->custom_surcharge_tax2) {
             $total += $this->invoice->custom_surcharge2;
+        }
         
 
-        if ($this->invoice->custom_surcharge3 && $this->invoice->custom_surcharge_tax3) 
+        if ($this->invoice->custom_surcharge3 && $this->invoice->custom_surcharge_tax3) {
             $total += $this->invoice->custom_surcharge3;
+        }
         
 
-        if ($this->invoice->custom_surcharge4 && $this->invoice->custom_surcharge_tax4) 
+        if ($this->invoice->custom_surcharge4 && $this->invoice->custom_surcharge_tax4) {
             $total += $this->invoice->custom_surcharge4;
+        }
         
 
         return $total;
@@ -309,10 +313,4 @@ class CreateUbl implements ShouldQueue
             return round($taxable * ($rate / 100), 2);
         }
     }
-
-
-
-
-
-
 }

@@ -85,7 +85,6 @@ class LedgerService
         $this->entity->company_ledger()->save($company_ledger);
 
         return $this;
-
     }
 
     private function ledger() :?CompanyLedger

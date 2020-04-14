@@ -106,20 +106,22 @@ trait MakesInvoiceValues
      * and the second is the field _type_
      *
      * We transform the $value depending the $field type
-     * 
+     *
      * @param  string $field The full field name
      * @param  string $value The custom value
      * @return array         The key value pair
      */
     private function makeCustomFieldKeyValuePair($field, $value)
     {
-        if($this->findCustomType($field) == 'date')
+        if ($this->findCustomType($field) == 'date') {
             $value = $this->formatDate($value, $this->client->date_format());
-        elseif($this->findCustomType($field) == 'switch')
+        } elseif ($this->findCustomType($field) == 'switch') {
             $value = ctrans('texts.'.$value);
+        }
 
-        if(!$value)
+        if (!$value) {
             $value = '';
+        }
 
         return ['value' => $value, 'field' => $this->makeCustomField($field)];
     }
@@ -771,7 +773,7 @@ trait MakesInvoiceValues
    tfoot {display: table-footer-group;}
    button {display: none;}
    body {margin: 0;}
-}';                
+}';
 
         $header = '
 .header, .header-space {
@@ -788,7 +790,7 @@ trait MakesInvoiceValues
    thead {display: table-header-group;} 
    button {display: none;}
    body {margin: 0;}
-}';   
+}';
 
         $footer = '
 
@@ -806,15 +808,16 @@ trait MakesInvoiceValues
    tfoot {display: table-footer-group;}
    button {display: none;}
    body {margin: 0;}
-}';  
+}';
         $css = '';
 
-        if($settings->all_pages_header && $settings->all_pages_footer)
+        if ($settings->all_pages_header && $settings->all_pages_footer) {
             $css .= $header_and_footer;
-        elseif($settings->all_pages_header && !$settings->all_pages_footer)
+        } elseif ($settings->all_pages_header && !$settings->all_pages_footer) {
             $css .= $header;
-        elseif(!$settings->all_pages_header && $settings->all_pages_footer)
+        } elseif (!$settings->all_pages_header && $settings->all_pages_footer) {
             $css .= $footer;
+        }
 
         $css .= '
 .page {
@@ -834,6 +837,5 @@ html {
         $css .= '}';
 
         return $css;
-
     }
 }

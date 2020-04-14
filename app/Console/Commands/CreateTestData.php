@@ -452,7 +452,7 @@ class CreateTestData extends Command
         }
 
         $invoice->custom_value1 = $faker->date;
-        $invoice->custom_value2 = rand(0,1) ? 'yes' : 'no';
+        $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->save();
 

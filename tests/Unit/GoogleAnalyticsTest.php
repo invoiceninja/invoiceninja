@@ -25,13 +25,10 @@ class GoogleAnalyticsTest extends TestCase
         parent::setUp();
         
         $this->makeTestData();
-
     }
 
     public function testGoogleAnalyticsLogic()
     {
-
-
         $analytics_id = "analytics_id";
         $invoice = $this->invoice;
         $client = $this->client;
@@ -42,12 +39,11 @@ class GoogleAnalyticsTest extends TestCase
 
         $amount = $payment->amount;
         
-        if($invoice){
+        if ($invoice) {
             $items = $invoice->line_items;
             $item = end($items)->product_key;
             $entity_number = $invoice->number;
-        }
-        else{
+        } else {
             $item = $payment->number;
             $entity_number = $item;
         }
@@ -67,6 +63,3 @@ class GoogleAnalyticsTest extends TestCase
         $this->assertNotNull($url);
     }
 }
-
-
-

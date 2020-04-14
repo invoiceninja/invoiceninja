@@ -36,58 +36,40 @@ class ReminderJob implements ShouldQueue
         //run from the console so we have no awareness of the DB.
 
         if (! config('ninja.db.multi_db_enabled')) {
-
             $this->processReminders();
-
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
-
                 MultiDB::setDB($db);
 
                 $this->processReminders($db);
-
             }
-        }            
+        }
     }
 
-    private function processReminders($db = config('ninja.db.default'))
+    private function processReminders($db = null)
     {
-
         $invoices = Invoice::where('next_send_date', Carbon::now()->format('Y-m-d'))->get();
 
-        $invoices->each(function ($invoice){
-
-            if($invoice->isPayable()) {
-
+        $invoices->each(function ($invoice) {
+            if ($invoice->isPayable()) {
                 $invoice->invitations->each(function ($invitation) use ($invoice) {
                     $email_builder = (new InvoiceEmail())->build($invitation);
 
                     EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
-
                 });
 
                 if ($invoice->invitations->count() > 0) {
                     event(new InvoiceWasEmailed($invoice->invitations->first()));
                 }
-
-            }
-            else{
-
+            } else {
                 $invoice->next_send_date = null;
                 $invoice->save();
-                
             }
-
-
         });
-
     }
 
     private function sendNotification($invoice)
     {
-
     }
-
-
 }

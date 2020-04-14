@@ -43,7 +43,6 @@ class SubscriptionAPITest extends TestCase
 
     public function testSubscriptionGetRoute()
     {
-
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -108,7 +107,7 @@ class SubscriptionAPITest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertEquals(0,$arr['data'][0]['archived_at']);
+        $this->assertEquals(0, $arr['data'][0]['archived_at']);
 
 
         $response = $this->withHeaders([
@@ -121,5 +120,4 @@ class SubscriptionAPITest extends TestCase
         $this->assertNotNull($arr['data'][0]['archived_at']);
         $this->assertTrue($arr['data'][0]['is_deleted']);
     }
-
 }

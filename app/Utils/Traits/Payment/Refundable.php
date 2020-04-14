@@ -222,7 +222,7 @@ trait Refundable
         return $credit_note;
     }
 
-    private function adjustInvoices(array $data) 
+    private function adjustInvoices(array $data)
     {
         $adjustment_amount = 0;
 

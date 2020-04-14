@@ -54,8 +54,9 @@ class StoreCompanyRequest extends Request
     {
         $input = $this->all();
 
-        if(array_key_exists('google_analytics_url', $input))
+        if (array_key_exists('google_analytics_url', $input)) {
             $input['google_analytics_key'] = $input['google_analytics_url'];
+        }
 
         $company_settings = CompanySettings::defaults();
 

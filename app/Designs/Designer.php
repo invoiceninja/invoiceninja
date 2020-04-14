@@ -136,7 +136,7 @@ class Designer
     public function getSection($section):string
     {
         return strtr($this->design->{$section}, $this->exported_variables);
-    //   return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section});
+        //   return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section});
     }
 
     private function exportVariables()

@@ -52,7 +52,7 @@ class CancelInvoiceTest extends TestCase
 
     public function testCancelInvoice()
     {
-    	$this->assertTrue($this->invoice->invoiceCancellable($this->invoice));
+        $this->assertTrue($this->invoice->invoiceCancellable($this->invoice));
 
         $client_balance = $this->client->balance;
         $invoice_balance = $this->invoice->balance;
@@ -65,8 +65,5 @@ class CancelInvoiceTest extends TestCase
         $this->assertEquals($this->client->balance, ($client_balance - $invoice_balance));
         $this->assertNotEquals($client_balance, $this->client->balance);
         $this->assertEquals(Invoice::STATUS_CANCELLED, $this->invoice->status_id);
-
     }
 }
-
-

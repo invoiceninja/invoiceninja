@@ -41,7 +41,7 @@ class Kernel extends ConsoleKernel
         //$schedule->job(new RecurringInvoicesCron)->hourly();
         $schedule->job(new VersionCheck)->daily();
 
-        $schedule->json(new ReminderJob)->daily();
+        $schedule->job(new ReminderJob)->daily();
         
         /* Run queue's in shared hosting with this*/
         if (Ninja::isSelfHost()) {

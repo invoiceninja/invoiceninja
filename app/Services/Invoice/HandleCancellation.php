@@ -33,15 +33,16 @@ class HandleCancellation extends AbstractService
     private $invoice;
 
     public function __construct(Invoice $invoice)
-    {        
+    {
         $this->invoice = $invoice;
     }
 
     public function run()
     {
         /* Check again!! */
-        if(!$this->invoice->invoiceCancellable($this->invoice))
+        if (!$this->invoice->invoiceCancellable($this->invoice)) {
             return $this->invoice;
+        }
 
         $adjustment = $this->invoice->balance*-1;
         //set invoice balance to 0
@@ -57,6 +58,4 @@ class HandleCancellation extends AbstractService
         
         return $this->invoice;
     }
-
 }
-

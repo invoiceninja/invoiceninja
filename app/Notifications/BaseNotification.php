@@ -65,20 +65,23 @@ class BaseNotification extends Notification implements ShouldQueue
     {
         $mail_message->subject($this->generateEmailEntityHtml($this->entity, $this->subject, $this->contact));
 
-        if(strlen($this->settings->reply_to_email) > 1)
+        if (strlen($this->settings->reply_to_email) > 1) {
             $mail_message->replyTo($this->settings->reply_to_email);
+        }
 
-        if(strlen($this->settings->bcc_email) > 1)
+        if (strlen($this->settings->bcc_email) > 1) {
             $mail_message->bcc($this->settings->bcc_email);
+        }
 
-        if($this->settings->pdf_email_attachment)
+        if ($this->settings->pdf_email_attachment) {
             $mail_message->attach(public_path($this->entity->pdf_file_path()));
+        }
 
-        foreach($this->entity->documents as $document){
+        foreach ($this->entity->documents as $document) {
             $mail_message->attach($document->generateUrl(), ['as' => $document->name]);
         }
 
-        if($this->entity instanceof Invoice && $this->settings->ubl_email_attachment){
+        if ($this->entity instanceof Invoice && $this->settings->ubl_email_attachment) {
             $ubl_string = CreateUbl::dispatchNow($this->entity);
             $mail_message->attachData($ubl_string, $this->entity->getFileName('xml'));
         }
@@ -89,7 +92,6 @@ class BaseNotification extends Notification implements ShouldQueue
 
     public function buildMailMessageData() :array
     {
-
         $body = $this->generateEmailEntityHtml($this->entity, $this->body, $this->contact);
 
         $design_style = $this->settings->email_style;
@@ -113,6 +115,5 @@ class BaseNotification extends Notification implements ShouldQueue
         ];
 
         return $data;
-
     }
 }

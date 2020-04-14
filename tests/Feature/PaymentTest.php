@@ -1250,5 +1250,4 @@ class PaymentTest extends TestCase
             $this->assertEquals(1, $payment->invoices()->count());
         }
     }
-
 }

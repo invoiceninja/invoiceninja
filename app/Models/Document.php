@@ -94,7 +94,7 @@ class Document extends BaseModel
         return $this->morphTo();
     }
 
-    function generateUrl($absolute = false)
+    public function generateUrl($absolute = false)
     {
         $url = Storage::disk($this->disk)->url($this->path);
 
@@ -108,6 +108,4 @@ class Document extends BaseModel
 
         return null;
     }
-
-
 }

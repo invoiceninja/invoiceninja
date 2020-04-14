@@ -465,7 +465,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function document_filepath()
     {
-        return $this->company->company_key . '/documents/'; 
+        return $this->company->company_key . '/documents/';
     }
 
     public function setCompanyDefaults($data, $entity_name) :array

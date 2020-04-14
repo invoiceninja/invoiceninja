@@ -85,7 +85,7 @@ class CreateQuotePdf implements ShouldQueue
 
         $quote_number = $this->quote->number;
         
-//$start = microtime(true);
+        //$start = microtime(true);
 
         $design_body = $designer->build()->getHtml();
 
@@ -93,7 +93,7 @@ class CreateQuotePdf implements ShouldQueue
 
         $pdf       = $this->makePdf(null, null, $html);
 
-//\Log::error("PDF Build time = ". (microtime(true) - $start));
+        //\Log::error("PDF Build time = ". (microtime(true) - $start));
 
         $file_path = $path . $quote_number . '.pdf';
 

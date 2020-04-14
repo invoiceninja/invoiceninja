@@ -29,7 +29,6 @@ class EmailBuilder
 
         //process markdown
         if ($is_markdown) {
-
             $converter = new CommonMarkConverter([
                 'html_input' => 'allow',
                 'allow_unsafe_links' => true,
@@ -79,7 +78,7 @@ class EmailBuilder
             $subject = str_replace(array_keys($this->variables), array_values($this->variables), $subject);
         }
 
-        $this->subject = $subject;        
+        $this->subject = $subject;
         return $this;
     }
 

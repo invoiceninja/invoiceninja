@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subscription extends BaseModel
 {
-	use SoftDeletes;
+    use SoftDeletes;
     use Filterable;
     
     const EVENT_CREATE_CLIENT = 1;
@@ -42,13 +42,13 @@ class Subscription extends BaseModel
     const EVENT_APPROVE_QUOTE = 21;
 
     public static $valid_events = [
-    	self::EVENT_CREATE_CLIENT, 
-    	self::EVENT_CREATE_PAYMENT, 
-    	self::EVENT_CREATE_QUOTE, 
-    	self::EVENT_CREATE_INVOICE, 
-    	self::EVENT_CREATE_VENDOR, 
-    	self::EVENT_CREATE_EXPENSE, 
-    	self::EVENT_CREATE_TASK,
+        self::EVENT_CREATE_CLIENT,
+        self::EVENT_CREATE_PAYMENT,
+        self::EVENT_CREATE_QUOTE,
+        self::EVENT_CREATE_INVOICE,
+        self::EVENT_CREATE_VENDOR,
+        self::EVENT_CREATE_EXPENSE,
+        self::EVENT_CREATE_TASK,
     ];
 
     protected $fillable = [
@@ -64,6 +64,6 @@ class Subscription extends BaseModel
 
     public function company()
     {
-    	return $this->belongsTo(Company::class);
+        return $this->belongsTo(Company::class);
     }
 }

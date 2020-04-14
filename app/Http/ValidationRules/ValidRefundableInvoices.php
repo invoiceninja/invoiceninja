@@ -43,10 +43,9 @@ class ValidRefundableInvoices implements Rule
 
     public function passes($attribute, $value)
     {
-
-        if(!array_key_exists('id', $this->input)){
+        if (!array_key_exists('id', $this->input)) {
             $this->error_msg = "Payment `id` required.";
-            return false;           
+            return false;
         }
 
         $payment = Payment::whereId($this->input['id'])->first();
@@ -72,7 +71,6 @@ class ValidRefundableInvoices implements Rule
         }
 
         foreach ($invoices as $invoice) {
-            
             if (! $invoice->isRefundable()) {
                 $this->error_msg = "Invoice id ".$invoice->hashed_id ." cannot be refunded";
                 return false;

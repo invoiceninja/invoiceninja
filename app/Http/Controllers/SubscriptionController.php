@@ -348,7 +348,6 @@ class SubscriptionController extends BaseController
      */
     public function store(StoreSubscriptionRequest $request)
     {
-
         $subscription = SubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id);
         $subscription->fill($request->all());
         $subscription->save();
