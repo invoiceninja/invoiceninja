@@ -11,6 +11,8 @@
 
 ### We're on Slack, join us at [slack.invoiceninja.com](http://slack.invoiceninja.com)
 
+#### We are currently looking for co-mainteners for the [dockerfiles repository](https://github.com/invoiceninja/dockerfiles), if you're interested please let us know
+
 All Pro and Enterprise features from the hosted app are included in the open-source code. We offer a $30 per year white-label license to remove the Invoice Ninja branding from client facing parts of the app.
 
 The self-host zip includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
