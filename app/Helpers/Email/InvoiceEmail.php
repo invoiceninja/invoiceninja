@@ -14,7 +14,7 @@ use App\Utils\Number;
 
 class InvoiceEmail extends EmailBuilder
 {
-    public function build(InvoiceInvitation $invitation, $reminder_template)
+    public function build(InvoiceInvitation $invitation, $reminder_template = null)
     {
         $client = $invitation->contact->client;
         $invoice = $invitation->invoice;

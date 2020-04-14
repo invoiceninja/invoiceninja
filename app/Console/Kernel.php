@@ -12,6 +12,7 @@
 namespace App\Console;
 
 use App\Jobs\Cron\RecurringInvoicesCron;
+use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\VersionCheck;
 use App\Utils\Ninja;
 use Illuminate\Console\Scheduling\Schedule;
@@ -40,6 +41,8 @@ class Kernel extends ConsoleKernel
         //$schedule->job(new RecurringInvoicesCron)->hourly();
         $schedule->job(new VersionCheck)->daily();
 
+        $schedule->json(new ReminderJob)->daily();
+        
         /* Run queue's in shared hosting with this*/
         if (Ninja::isSelfHost()) {
             $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
