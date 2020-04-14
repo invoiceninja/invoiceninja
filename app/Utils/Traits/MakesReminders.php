@@ -30,7 +30,7 @@ trait MakesReminders
             return; //exit early
         }
 
-        $nsd = null;
+        $nsd = null; //abbreviation for next_send_date
 
         if ($settings->enable_reminder1 !== false &&
             $settings->schedule_reminder1 == 'after_invoice_date' &&

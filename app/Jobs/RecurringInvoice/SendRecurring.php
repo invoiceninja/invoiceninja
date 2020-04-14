@@ -72,7 +72,7 @@ class SendRecurring implements ShouldQueue
         $this->recurring_invoice->last_sent_date = date('Y-m-d');
 
         if ($this->recurring_invoice->remaining_cycles != 0) {
-            $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate();
+            $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate()->format('Y-m-d');
         } else {
             $this->recurring_invoice->setCompleted();
         }
