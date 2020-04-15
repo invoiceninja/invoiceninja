@@ -29,7 +29,6 @@ class UBLInvoiceTest extends TestCase
             ThrottleRequests::class
         );
         $this->makeTestData();
-
     }
 
     public function testUblGenerates()
@@ -38,5 +37,4 @@ class UBLInvoiceTest extends TestCase
 
         $this->assertNotNull($ubl);
     }
-
 }

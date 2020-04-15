@@ -17,33 +17,28 @@ use App\Models\Company;
 
 trait SavesDocuments
 {
-
     public function saveDocuments($document_array, $entity)
     {
+        if ($entity instanceof Company) {
+            $account = $entity->account;
+            $company = $entity;
+        } else {
+            $account = $entity->company->account;
+            $company = $entity->company;
+        }
 
-    	if($entity instanceof Company){
-    		$account = $entity->account;
-    		$company = $entity;
-    	}
-    	else{
-    		$account = $entity->company->account;
-    		$company = $entity->company;
-    	}
+        if (!$account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+            return false;
+        }
 
-    	if(!$account->hasFeature(Account::FEATURE_DOCUMENTS))
-    		return false;
-
-    	foreach($document_array as $document) {
-
-	        $document = UploadFile::dispatchNow(
-	            $document,
-	            UploadFile::DOCUMENT,
-	            $entity->user,
-	            $entity->company,
-	            $entity
-	        );
-	 
-    	}
-
+        foreach ($document_array as $document) {
+            $document = UploadFile::dispatchNow(
+                $document,
+                UploadFile::DOCUMENT,
+                $entity->user,
+                $entity->company,
+                $entity
+            );
+        }
     }
 }

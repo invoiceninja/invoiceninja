@@ -157,5 +157,4 @@ class AccountController extends BaseController
 
         return $this->listResponse($ct);
     }
-
 }

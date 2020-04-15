@@ -14,7 +14,7 @@ use App\Utils\Number;
 
 class InvoiceEmail extends EmailBuilder
 {
-    public function build(InvoiceInvitation $invitation, $reminder_template)
+    public function build(InvoiceInvitation $invitation, $reminder_template = null)
     {
         $client = $invitation->contact->client;
         $invoice = $invitation->invoice;
@@ -67,12 +67,14 @@ class InvoiceEmail extends EmailBuilder
             }
         }
         
-        $this->setTemplate($invoice->client->getSetting('email_style'))
+        $this->setTemplate($client->getSetting('email_style'))
             ->setContact($contact)
             ->setVariables($invoice->makeValues($contact))
             ->setSubject($subject_template)
             ->setBody($body_template)
-            ->setFooter("<a href='{$invitation->getLink()}'>{$invitation->getLink()}</a>");
+            ->setFooter("<a href='{$invitation->getLink()}'>".ctrans('texts.view_invoice')."</a>")
+            ->setViewLink($invitation->getLink())
+            ->setViewText(ctrans('texts.view_invoice'));
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $this->setAttachments($invoice->pdf_file_path());

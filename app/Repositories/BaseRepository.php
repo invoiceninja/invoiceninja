@@ -227,8 +227,9 @@ class BaseRepository
         $model->fill($tmp_data);
         $model->save();
 
-        if(array_key_exists('documents', $data))
+        if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $model);
+        }
 
         $invitation_factory_class = sprintf("App\\Factory\\%sInvitationFactory", $resource);
 

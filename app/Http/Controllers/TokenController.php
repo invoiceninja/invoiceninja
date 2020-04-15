@@ -359,7 +359,6 @@ class TokenController extends BaseController
      */
     public function store(StoreTokenRequest $request)
     {
-
         $company_token = CompanyTokenFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id);
 
         $token = $this->token_repo->save($request->all(), $company_token);
@@ -491,5 +490,4 @@ class TokenController extends BaseController
         
         return $this->listResponse(CompanyToken::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
-
 }

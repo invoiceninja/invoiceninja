@@ -45,12 +45,10 @@ class CompanyTokenApiTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
     }
 
     public function testCompanyTokenList()
     {
-
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token
@@ -94,12 +92,10 @@ class CompanyTokenApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals('newname', $arr['data']['name']);
-
     }
 
     public function testCompanyTokenGet()
     {
-
         $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
 
 
@@ -125,5 +121,4 @@ class CompanyTokenApiTest extends TestCase
 
         $this->assertEquals(0, $arr['data']['archived_at']);
     }
-
 }

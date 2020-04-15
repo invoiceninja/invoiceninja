@@ -64,7 +64,7 @@ class ArtisanUpgrade extends Command
             ->setUpdate(true)
             ->run();
         
-        \Log::error(print_r($output,1));
+        \Log::error(print_r($output, 1));
 
 
 

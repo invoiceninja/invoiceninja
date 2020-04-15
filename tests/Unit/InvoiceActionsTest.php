@@ -67,5 +67,4 @@ class InvoiceActionsTest extends TestCase
         $this->assertFalse($this->invoiceReversable($this->invoice));
         $this->assertFalse($this->invoiceCancellable($this->invoice));
     }
-
 }

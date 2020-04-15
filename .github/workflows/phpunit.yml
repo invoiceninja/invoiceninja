@@ -22,6 +22,7 @@ jobs:
       SESSION_DRIVER: file
       NINJA_ENVIRONMENT: development
       MULTI_DB_ENABLED: false
+      NINJA_LICENSE: 123456
       TRAVIS: true
       MAIL_DRIVER: log
 

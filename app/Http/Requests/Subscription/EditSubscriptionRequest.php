@@ -26,5 +26,4 @@ class EditSubscriptionRequest extends Request
     {
         return auth()->user()->isAdmin();
     }
-
 }

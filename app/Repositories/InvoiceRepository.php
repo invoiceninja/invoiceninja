@@ -74,11 +74,11 @@ class InvoiceRepository extends BaseRepository
      * to hitting this method.
      *
      * ie. invoice can be deleted from a business logic perspective.
-     * 
-     * @param  Invoice $invoice 
-     * @return Invoice $invoice          
+     *
+     * @param  Invoice $invoice
+     * @return Invoice $invoice
      */
-    public function delete($invoice) 
+    public function delete($invoice)
     {
         if ($invoice->is_deleted) {
             return;
@@ -96,11 +96,9 @@ class InvoiceRepository extends BaseRepository
 
     public function reverse()
     {
-
     }
 
     public function cancel()
     {
-        
     }
 }

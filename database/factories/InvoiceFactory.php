@@ -18,7 +18,7 @@ $factory->define(App\Models\Invoice::class, function (Faker $faker) {
         //'tax_name3' => 'THIRDTAX',
         //'tax_rate3' => 5,
         'custom_value1' => $faker->date,
-        'custom_value2' => rand(0,1) ? 'yes' : 'no',
+        'custom_value2' => rand(0, 1) ? 'yes' : 'no',
         // 'custom_value3' => $faker->numberBetween(1,4),
         // 'custom_value4' => $faker->numberBetween(1,4),
         'is_deleted' => false,

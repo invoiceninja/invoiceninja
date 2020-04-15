@@ -17,6 +17,8 @@ class EmailBuilder
     protected $template_style;
     protected $variables = [];
     protected $contact = null;
+    protected $view_link;
+    protected $view_text;
 
     private function parseTemplate(string $data, bool $is_markdown = true, $contact = null): string
     {
@@ -27,8 +29,6 @@ class EmailBuilder
 
         //process markdown
         if ($is_markdown) {
-            //$data = Parsedown::instance()->line($data);
-
             $converter = new CommonMarkConverter([
                 'html_input' => 'allow',
                 'allow_unsafe_links' => true,
@@ -72,7 +72,13 @@ class EmailBuilder
      */
     public function setSubject($subject)
     {
-        $this->subject = $this->parseTemplate($subject, false, $this->contact);
+        //$this->subject = $this->parseTemplate($subject, false, $this->contact);
+        
+        if (!empty($this->variables)) {
+            $subject = str_replace(array_keys($this->variables), array_values($this->variables), $subject);
+        }
+
+        $this->subject = $subject;
         return $this;
     }
 
@@ -82,7 +88,14 @@ class EmailBuilder
      */
     public function setBody($body)
     {
-        $this->body = $this->parseTemplate($body, true);
+        //$this->body = $this->parseTemplate($body, true);
+        
+        if (!empty($this->variables)) {
+            $body = str_replace(array_keys($this->variables), array_values($this->variables), $body);
+        }
+
+
+        $this->body = $body;
         return $this;
     }
 
@@ -99,8 +112,20 @@ class EmailBuilder
     public function setAttachments($attachments)
     {
         $this->attachments[] = $attachments;
+        return $this;
     }
 
+    public function setViewLink($link)
+    {
+        $this->view_link = $link;
+        return $this;
+    }
+
+    public function setViewText($text)
+    {
+        $this->view_text = $text;
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -148,5 +173,15 @@ class EmailBuilder
     public function getTemplate()
     {
         return $this->template_style;
+    }
+
+    public function getViewLink()
+    {
+        return $this->view_link;
+    }
+
+    public function getViewText()
+    {
+        return $this->view_text;
     }
 }

@@ -81,7 +81,8 @@ trait QuoteEmailBuilder
         $quote_variables = $this->makeValues($contact);
 
         //process variables
-        $data = str_replace(array_keys($quote_variables), array_values($quote_variables), $template_data);
+//        $data = str_replace(array_keys($quote_variables), array_values($quote_variables), $template_data);
+        $data = strtr($template_data, $quote_variables);
 
         //process markdown
         if ($is_markdown) {

@@ -50,14 +50,16 @@ Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', '
 });
 
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
-    Route::get('invoice/{invitation_key}/download_pdf', 'InvoiceController@downloadPdf');
-    Route::get('quote/{invitation_key}/download_pdf', 'QuoteController@downloadPdf');
-    Route::get('credit/{invitation_key}/download_pdf', 'CreditController@downloadPdf');
-    Route::get('{entity}/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
-
     /*Invitation catches*/
-    Route::get('{entity}/{invitation_key}', 'ClientPortal\InvitationController@router');
-    Route::get('{entity}/{client_hash}/{invitation_key}', 'ClientPortal\InvitationController@routerForIframe'); //should never need this
+    Route::get('invoice/{invitation_key}', 'ClientPortal\InvitationController@router')->name('invoice.invitation_key');
+    Route::get('quote/{invitation_key}', 'ClientPortal\InvitationController@router')->name('quote.invitation_key');
+    Route::get('credit/{invitation_key}', 'ClientPortal\InvitationController@router')->name('credit.invitation_key');
+    Route::get('invoice/{invitation_key}/download_pdf', 'InvoiceController@downloadPdf')->name('invoice.download_invitation_key');
+    Route::get('quote/{invitation_key}/download_pdf', 'QuoteController@downloadPdf')->name('quote.download_invitation_key');
+    Route::get('credit/{invitation_key}/download_pdf', 'CreditController@downloadPdf')->name('credit.download_invitation_key');
+    Route::get('{entity}/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
+    Route::get('{entity}/{client_hash}/{invitation_key}', 'ClientPortal\InvitationController@routerForIframe')->name('invoice.client_hash_and_invitation_key'); //should never need this
+
     Route::get('payment_hook/{company_gateway_id}/{gateway_type_id}', 'ClientPortal\PaymentHookController@process');
 });
 

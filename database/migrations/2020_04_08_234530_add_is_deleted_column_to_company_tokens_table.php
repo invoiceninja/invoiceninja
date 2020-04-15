@@ -45,6 +45,5 @@ class AddIsDeletedColumnToCompanyTokensTable extends Migration
      */
     public function down()
     {
-
     }
 }

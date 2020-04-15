@@ -33,15 +33,16 @@ class HandleReversal extends AbstractService
     private $invoice;
 
     public function __construct(Invoice $invoice)
-    {        
+    {
         $this->invoice = $invoice;
     }
 
     public function run()
     {
         /* Check again!! */
-        if(!$this->invoice->invoiceReversable($this->invoice))
+        if (!$this->invoice->invoiceReversable($this->invoice)) {
             return $this->invoice;
+        }
 
         $balance_remaining = $this->invoice->balance;
 
@@ -53,31 +54,28 @@ class HandleReversal extends AbstractService
                                     ->wherePaymentableId($this->invoice->id)
                                     ->get();
 
-        $paymentables->each(function ($paymentable) use($total_paid){
-
+        $paymentables->each(function ($paymentable) use ($total_paid) {
             $reversable_amount = $paymentable->amount - $paymentable->refunded;
 
             $total_paid -= $reversable_amount;
 
             $paymentable->amount = $paymentable->refunded;
             $paymentable->save();
-            
         });
 
         /* Generate a credit for the $total_paid amount */
         $notes = "Credit for reversal of ".$this->invoice->number;
 
-        if($total_paid > 0)
-        {
+        if ($total_paid > 0) {
             $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);
             $credit->client_id = $this->invoice->client_id;
 
-                $item = InvoiceItemFactory::create();
-                $item->quantity = 1;
-                $item->cost = (float)$total_paid;
-                $item->notes = $notes;
+            $item = InvoiceItemFactory::create();
+            $item->quantity = 1;
+            $item->cost = (float)$total_paid;
+            $item->notes = $notes;
 
-                $line_items[] = $item;
+            $line_items[] = $item;
 
             $credit->line_items = $line_items;
 
@@ -93,7 +91,7 @@ class HandleReversal extends AbstractService
         /* Set invoice balance to 0 */
         $this->invoice->ledger()->updateInvoiceBalance($balance_remaining*-1, $notes)->save();
 
-        $this->invoice->balance= 0; 
+        $this->invoice->balance= 0;
 
         /* Set invoice status to reversed... somehow*/
         $this->invoice->service()->setStatus(Invoice::STATUS_REVERSED)->save();
@@ -110,7 +108,6 @@ class HandleReversal extends AbstractService
         
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
-    
     }
 }
 

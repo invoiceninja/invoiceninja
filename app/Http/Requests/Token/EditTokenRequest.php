@@ -25,5 +25,4 @@ class EditTokenRequest extends Request
     {
         return auth()->user()->isAdmin();
     }
-
 }

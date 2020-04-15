@@ -19,7 +19,6 @@ use Illuminate\Http\Request;
 
 class CompanyLedgerController extends BaseController
 {
-
     protected $entity_type = CompanyLedger::class;
 
     protected $entity_transformer = CompanyLedgerTransformer::class;
@@ -68,10 +67,8 @@ class CompanyLedgerController extends BaseController
      */
     public function index(ShowCompanyLedgerRequest $request)
     {
-    	$company_ledger = CompanyLedger::whereCompanyId(auth()->user()->company()->id)->orderBy('id', 'ASC');
+        $company_ledger = CompanyLedger::whereCompanyId(auth()->user()->company()->id)->orderBy('id', 'ASC');
 
-    	return $this->listResponse($company_ledger);
+        return $this->listResponse($company_ledger);
     }
-
-
 }

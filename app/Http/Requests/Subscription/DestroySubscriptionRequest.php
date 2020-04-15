@@ -26,6 +26,4 @@ class DestroySubscriptionRequest extends Request
     {
         return auth()->user()->isAdmin();
     }
-
-
 }

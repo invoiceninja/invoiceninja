@@ -37,7 +37,7 @@ class SendGenericNotification extends BaseNotification implements ShouldQueue
 
     protected $settings;
 
-    public    $is_system;
+    public $is_system;
 
     protected $body;
 
@@ -71,14 +71,12 @@ class SendGenericNotification extends BaseNotification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-
         $mail_message = (new MailMessage)
                     ->markdown('email.admin.generic_email', $this->buildMailMessageData());
 
         $mail_message = $this->buildMailMessageSettings($mail_message);
 
         return $mail_message;
-
     }
 
     /**

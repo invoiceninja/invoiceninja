@@ -14,7 +14,6 @@ namespace App\Http\Requests\Token;
 use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
 
-
 class UpdateTokenRequest extends Request
 {
     use ChecksEntityStatus;
@@ -29,6 +28,4 @@ class UpdateTokenRequest extends Request
     {
         return auth()->user()->isAdmin();
     }
-
-
 }

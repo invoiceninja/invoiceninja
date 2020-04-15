@@ -32,7 +32,7 @@ class EmailInvoice implements ShouldQueue
     /**
      *
      * EmailInvoice constructor.
-     * @param BuildEmail $email_builder
+     * @param InvoiceEmail $email_builder
      * @param InvoiceInvitation $quote_invitation
      */
 
@@ -54,6 +54,8 @@ class EmailInvoice implements ShouldQueue
 
     public function handle()
     {
+        MultiDB::setDB($this->company->db);
+
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
             ->send(
                 new TemplateEmail(

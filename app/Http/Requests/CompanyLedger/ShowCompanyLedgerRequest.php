@@ -26,5 +26,4 @@ class ShowCompanyLedgerRequest extends Request
     {
         return auth()->user()->isAdmin();
     }
-
 }

@@ -30,7 +30,7 @@ trait MakesReminders
             return; //exit early
         }
 
-        $nsd = null;
+        $nsd = null; //abbreviation for next_send_date
 
         if ($settings->enable_reminder1 !== false &&
             $settings->schedule_reminder1 == 'after_invoice_date' &&
@@ -38,11 +38,11 @@ trait MakesReminders
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder1);
 
             if (!$nsd) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
 
             if ($reminder_date->lt($nsd)) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
         }
 
@@ -52,11 +52,11 @@ trait MakesReminders
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder1);
 
             if (!$nsd) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
 
             if ($reminder_date->lt($nsd)) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
         }
 
@@ -67,11 +67,11 @@ trait MakesReminders
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder1);
 
             if (!$nsd) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
 
             if ($reminder_date->lt($nsd)) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
         }
 
@@ -81,11 +81,11 @@ trait MakesReminders
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder2);
 
             if (!$nsd) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
 
             if ($reminder_date->lt($nsd)) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
         }
 
@@ -95,11 +95,11 @@ trait MakesReminders
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder2);
 
             if (!$nsd) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
 
             if ($reminder_date->lt($nsd)) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
         }
 
@@ -110,11 +110,11 @@ trait MakesReminders
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder2);
 
             if (!$nsd) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
 
             if ($reminder_date->lt($nsd)) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
         }
 
@@ -124,11 +124,11 @@ trait MakesReminders
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder3);
 
             if (!$nsd) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
 
             if ($reminder_date->lt($nsd)) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
         }
 
@@ -138,11 +138,11 @@ trait MakesReminders
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder3);
 
             if (!$nsd) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
 
             if ($reminder_date->lt($nsd)) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
         }
 
@@ -153,11 +153,11 @@ trait MakesReminders
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder3);
 
             if (!$nsd) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
 
             if ($reminder_date->lt($nsd)) {
-                $nsd = $reminder_date;
+                $nsd = $reminder_date->format('Y-m-d');
             }
         }
 
@@ -178,7 +178,7 @@ trait MakesReminders
                 return Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
                 break;
             default:
-                # code...
+                return null;
                 break;
         }
     }
