@@ -9,7 +9,6 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Http\ViewComposers\TranslationComposer
  */
 class CollectionMergingTest extends TestCase
 {
