@@ -53,16 +53,23 @@
 
     <div class="flex items-center justify-between">
         <section class="flex items-center">
-            <button class="input-label" id="previous-page-button">
-            <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-            </button>
-            <button class="input-label" id="next-page-button">
-                <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </button>
+            <div class="items-center" style="display: none" id="pagination-button-container">
+                <button class="input-label focus:outline-none hover:text-blue-600 transition ease-in-out duration-300" id="previous-page-button" title="Previous page">
+                    <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <button class="input-label focus:outline-none hover:text-blue-600 transition ease-in-out duration-300" id="next-page-button" title="Next page">
+                    <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+            <span class="text-sm text-gray-700 ml-2">{{ ctrans('texts.page') }}: 
+                <span id="current-page-container"></span>
+                <span>{{ strtolower(ctrans('texts.of')) }}</span>
+                <span id="total-page-container"></span>
+            </span>
         </section>
         <div x-data="{ open: false }" @keydown.escape="open = false" @click.away="open = false" class="relative inline-block text-left">
             <div>
@@ -75,7 +82,7 @@
             <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg">
                 <div class="rounded-md bg-white shadow-xs">
                 <div class="py-1">
-                    <a target="_blank" href="{{ asset($invoice->pdf_url()) }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ ctrans('texts.open_in_new_tab') }}</a>
+                    <a target="_blank" href="{{ asset($invoice->pdf_file_path()) }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ ctrans('texts.open_in_new_tab') }}</a>
                 </div>
                 </div>
             </div>
@@ -85,7 +92,6 @@
     <div class="flex justify-center">
         <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white mt-4 p-4"></canvas>
     </div>
-
 @endsection
 
 @section('footer')

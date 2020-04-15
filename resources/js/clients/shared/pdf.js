@@ -53,6 +53,27 @@ class PDF {
         return this;
     }
 
+    setPagesInViewport() {
+        let currentPageContainer = document.getElementById(
+            "current-page-container"
+        );
+
+        let totalPageContainer = document.getElementById(
+            "total-page-container"
+        );
+
+        let paginationButtonContainer = document.getElementById(
+            "pagination-button-container"
+        );
+
+        currentPageContainer.innerText = this.currentPage;
+        totalPageContainer.innerText = this.maxPages;
+
+        if (this.maxPages > 1) {
+            paginationButtonContainer.style.display = "flex";
+        }
+    }
+
     async handle() {
         let pdf = await pdfjsLib.getDocument(this.url).promise;
 
@@ -69,6 +90,8 @@ class PDF {
             canvasContext: this.context,
             viewport
         });
+
+        this.setPagesInViewport();
     }
 }
 
