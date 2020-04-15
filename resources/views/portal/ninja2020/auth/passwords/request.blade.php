@@ -24,7 +24,7 @@
                             <label for="email" class="input-label">{{ ctrans('texts.email_address') }}</label>
                             <input type="email" name="email" id="email"
                                    class="input"
-                                   value="{{ old('email') }}"
+                                   value="{{ request()->query('email') ?? old('email') }}"
                                    autofocus>
                             @error('email')
                             <div class="validation validation-fail">

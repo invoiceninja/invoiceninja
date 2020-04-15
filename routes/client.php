@@ -12,6 +12,10 @@ Route::post('client/password/email', 'Auth\ContactForgotPasswordController@sendR
 Route::get('client/password/reset/{token}', 'Auth\ContactResetPasswordController@showResetForm')->name('client.password.reset')->middleware('locale');
 Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset')->name('client.password.update')->middleware('locale');
 
+Route::get('view/{invoice}', 'ClientPortal\Invoices\ShowController@index')->name('client.show_invoice');
+Route::get('view/{invoice}/password', 'ClientPortal\Invoices\ShowController@password')->name('client.show_invoice.password');
+Route::post('view/{invoice}/password', 'ClientPortal\Invoices\ShowController@handlePassword');
+
 //todo implement domain DB
 Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
