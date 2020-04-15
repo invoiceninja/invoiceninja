@@ -374,28 +374,6 @@ class Invoice extends BaseModel
         return $invoice_calc->build();
     }
 
-    /**
-     * Returns a relative path to the PDF document
-     * @return string Relative path
-     */
-    // public function pdf_url() :string
-    // {
-
-    //     $public_path  = $this->client->invoice_filepath() . $this->number . '.pdf';
-
-    //     $storage_path = 'storage/' . $this->client->invoice_filepath() . $this->number . '.pdf';
-
-
-    //     $disk         = config('filesystems.default');
-
-    //     if (!Storage::disk($disk)->exists($public_path)) {
-    //         event(new InvoiceWasUpdated($this, $this->company));
-    //         CreateInvoicePdf::dispatch($this, $this->company, $this->client->primary_contact()->first());
-    //     }
-
-    //     return $storage_path;
-    // }
-
     public function pdf_file_path()
     {
 
