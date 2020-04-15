@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Utils\TempFile;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -74,11 +75,11 @@ class BaseNotification extends Notification implements ShouldQueue
         }
 
         if ($this->settings->pdf_email_attachment) {
-            $mail_message->attach(public_path($this->entity->pdf_file_path()));
+            $mail_message->attach(TempFile::path($this->entity->pdf_file_path()));
         }
 
         foreach ($this->entity->documents as $document) {
-            $mail_message->attach($document->generateUrl(), ['as' => $document->name]);
+            $mail_message->attach(TempFile::path($document->generateUrl()), ['as' => $document->name]);
         }
 
         if ($this->entity instanceof Invoice && $this->settings->ubl_email_attachment) {

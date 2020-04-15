@@ -82,7 +82,7 @@ class QuoteController extends Controller
         $zip = new ZipStream(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')) . ".zip", $options);
 
         foreach ($quotes as $quote) {
-            $zip->addFileFromPath(basename($quote->pdf_file_path()), public_path($quote->pdf_file_path()));
+            $zip->addFileFromPath(basename($quote->pdf_file_path()), TempFile::path($quote->pdf_file_path()));
         }
 
         # finish the zip stream

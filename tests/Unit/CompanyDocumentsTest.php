@@ -30,6 +30,9 @@ class CompanyDocumentsTest extends TestCase
 
     public function testCompanyDocumentExists()
     {
+        $company_key = $this->company->company_key;
+
+
         $original_count = Document::whereCompanyId($this->company->id)->count();
 
         $image = UploadedFile::fake()->image('avatar.jpg');
@@ -44,16 +47,14 @@ class CompanyDocumentsTest extends TestCase
 
         $this->assertNotNull($document);
 
-        $this->assertGreaterThan($original_count, Document::whereCompanyId($this->company->id)->count());
+        $this->assertTrue(Storage::exists($document->path));
 
-        $company_key = $this->company->company_key;
+        $this->assertGreaterThan($original_count, Document::whereCompanyId($this->company->id)->count());
 
         $this->company->delete();
 
         $this->assertEquals(0, Document::whereCompanyId($this->company->id)->count());
 
-        $path = sprintf('%s/%s', storage_path('app/public'), $company_key);
-
-        $this->assertFalse(file_exists($path));
+        $this->assertFalse(Storage::exists($document->path));
     }
 }
