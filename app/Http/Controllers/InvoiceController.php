@@ -36,6 +36,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
+use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -659,7 +660,7 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'download':
-                return response()->download(public_path($invoice->pdf_file_path()));
+                    return response()->download(TempFile::path($invoice->pdf_file_path()), basename($invoice->pdf_file_path()));
                 break;
             case 'archive':
                 $this->invoice_repo->archive($invoice);

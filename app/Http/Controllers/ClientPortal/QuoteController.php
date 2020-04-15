@@ -7,6 +7,7 @@ use App\Http\Requests\ClientPortal\ProcessQuotesInBulkRequest;
 use App\Http\Requests\ClientPortal\ShowQuoteRequest;
 use App\Models\Company;
 use App\Models\Quote;
+use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
@@ -70,7 +71,7 @@ class QuoteController extends Controller
         }
 
         if ($quotes->count() == 1) {
-            return response()->download(public_path($quotes->first()->pdf_file_path()));
+            return response()->download(TempFile::path($invoices->first()->pdf_file_path()), basename($quotes->first()->pdf_file_path()));
         }
 
         # enable output of HTTP headers

@@ -158,7 +158,6 @@ class InvoiceController extends Controller
             return response()->download(TempFile::path($invoices->first()->pdf_file_path()), basename($invoices->first()->pdf_file_path()));
         }
 
-
         # enable output of HTTP headers
         $options = new Archive();
         $options->setSendHttpHeaders(true);
@@ -168,7 +167,6 @@ class InvoiceController extends Controller
 
         foreach ($invoices as $invoice) {
             $zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
-            //$zip->addFileFromPath(basename($invoice->pdf_file_path()), public_path($invoice->pdf_file_path()));
         }
 
         # finish the zip stream
