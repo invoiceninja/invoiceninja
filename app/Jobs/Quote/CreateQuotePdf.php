@@ -19,6 +19,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
@@ -44,18 +45,20 @@ class CreateQuotePdf implements ShouldQueue
 
     private $disk;
 
+    public $invitation;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($quote, Company $company, ClientContact $contact = null)
+    public function __construct($invitation)
     {
-        $this->quote = $quote;
+        $this->quote = $invitation->quote;
 
-        $this->company = $company;
+        $this->company = $invitation->company;
 
-        $this->contact = $contact;
+        $this->contact = $invitation->contact;
 
         $this->disk = $disk ?? config('filesystems.default');
     }
@@ -64,13 +67,9 @@ class CreateQuotePdf implements ShouldQueue
     {
         MultiDB::setDB($this->company->db);
 
-        $settings = $this->quote->client->getMergedSettings();
-
         $this->quote->load('client');
 
-        if (!$this->contact) {
-            $this->contact = $this->quote->client->primary_contact()->first();
-        }
+        $settings = $this->quote->client->getMergedSettings();
 
         App::setLocale($this->contact->preferredLocale());
 
@@ -85,15 +84,19 @@ class CreateQuotePdf implements ShouldQueue
 
         $quote_number = $this->quote->number;
         
-        //$start = microtime(true);
-
         $design_body = $designer->build()->getHtml();
 
-        $html = $this->generateEntityHtml($designer, $this->quote, $this->contact);
+        $invitation = $this->quote->invitations->first();
+        $invitation->quote = $this->quote;
+        $invitation->setRelation('quote', $this->quote);
+
+        $start = microtime(true);
+
+        $html = (new HtmlEngine($designer, $invitation, 'quote'))->build();
+
+        \Log::error("generate HTML time = ".(microtime(true) - $start));
 
         $pdf       = $this->makePdf(null, null, $html);
-
-        //\Log::error("PDF Build time = ". (microtime(true) - $start));
 
         $file_path = $path . $quote_number . '.pdf';
 

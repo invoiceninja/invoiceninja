@@ -22,7 +22,7 @@ class MarkSent
 
         /* Return immediately if status is not draft */
         if ($this->quote->status_id != Quote::STATUS_DRAFT) {
-            return $quote;
+            return $this->quote;
         }
 
         $this->quote->markInvitationsSent();

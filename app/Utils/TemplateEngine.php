@@ -135,14 +135,17 @@ class TemplateEngine
 
     private function entityValues()
     {
-        $labels = $this->entity_obj->makeLabels();
-        $values = $this->entity_obj->makeValues();
+        // $labels = $this->entity_obj->makeLabels();
+        // $values = $this->entity_obj->makeValues();
 
-        $this->body = strtr($this->body, $labels);
-        $this->body = strtr($this->body, $values);
+        $data = $this->entity_obj->buildLabelsAndValues($contact);
 
-        $this->subject = strtr($this->subject, $labels);
-        $this->subject = strtr($this->subject, $values);
+
+        $this->body = strtr($this->body, $data['labels']);
+        $this->body = strtr($this->body, $data['values']);
+
+        $this->subject = strtr($this->subject, $data['labels']);
+        $this->subject = strtr($this->subject, $data['values']);
         
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,

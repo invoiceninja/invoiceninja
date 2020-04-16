@@ -374,14 +374,16 @@ class Invoice extends BaseModel
         return $invoice_calc->build();
     }
 
-    public function pdf_file_path()
+    public function pdf_file_path($invitation = null)
     {
+        if(!$invitation)
+            $invitation = $this->invitations->first();
 
         $storage_path = Storage::url($this->client->invoice_filepath() . $this->number . '.pdf');
 
         if (!Storage::exists($this->client->invoice_filepath() . $this->number . '.pdf')) {
             event(new InvoiceWasUpdated($this, $this->company));
-            CreateInvoicePdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
+            CreateInvoicePdf::dispatchNow($invitation);
         }
 
         return $storage_path;

@@ -42,8 +42,7 @@ trait MakesInvoiceHtml
 
         App::setLocale($client->preferredLocale());
 
-        $labels = $entity->makeLabels();
-        $values = $entity->makeValues($contact);
+        $values_and_labels = $entity->buildLabelsAndValues($contact);
         
         $designer->build();
 
@@ -57,10 +56,8 @@ trait MakesInvoiceHtml
 
         $html = view('pdf.stub', $data)->render();
         
-        $html = $this->parseLabelsAndValues($labels, $values, $html);
-        
-//        info($html);
-        
+        $html = $this->parseLabelsAndValues($values_and_labels['labels'], $values_and_labels['values'], $html);
+                
         return $html;
     }
 
@@ -72,17 +69,13 @@ trait MakesInvoiceHtml
 
         App::setLocale($client->preferredLocale());
 
-        $labels = $entity->makeLabels();
-        $values = $entity->makeValues($contact);
+        $data = $entity->buildLabelsAndValues($contact);
 
-        return $this->parseLabelsAndValues($labels, $values, $content);
+        return $this->parseLabelsAndValues($data['labels'], $data['values'], $content);
     }
 
     private function parseLabelsAndValues($labels, $values, $section) :string
     {
-
-         // $section = str_replace(array_keys($labels), array_values($labels), $section);
-        // $section = str_replace(array_keys($values), array_values($values), $section);
         
         $section = strtr($section, $labels);
         $section = strtr($section, $values);

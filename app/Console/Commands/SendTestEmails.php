@@ -143,7 +143,7 @@ class SendTestEmails extends Command
         $invoice->setRelation('invitations', $ii);
         $invoice->service()->markSent()->save();
 
-        CreateInvoicePdf::dispatch($invoice, $company, $client->primary_contact()->first());
+        CreateInvoicePdf::dispatch($invoice->invitations()->first());
 
         $cc_emails = [config('ninja.testvars.test_email')];
         $bcc_emails = [config('ninja.testvars.test_email')];

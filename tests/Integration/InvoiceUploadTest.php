@@ -28,7 +28,7 @@ class InvoiceUploadTest extends TestCase
 
     public function testInvoiceUploadWorks()
     {
-        CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->invoice->client->primary_contact()->first());
+        CreateInvoicePdf::dispatchNow($this->invoice->invitations->first());
 
         $this->assertNotNull($this->invoice->service()->getInvoicePdf($this->invoice->client->primary_contact()->first()));
     }
