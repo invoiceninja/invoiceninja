@@ -78,7 +78,6 @@ class DesignTest extends TestCase
         $this->client->save();
 
         CreateInvoicePdf::dispatchNow($this->invoice->invitations->first());
-        //CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->invoice->client->primary_contact()->first());
     }
 
     public function testQuoteDesignExists()
@@ -171,7 +170,7 @@ class DesignTest extends TestCase
             $this->quote->service()->createInvitations()->markSent()->save();
             $this->quote->fresh();
             $this->quote->load('invitations');
-            
+
             $invitation = $this->quote->invitations->first();
             $invitation->setRelation('quote', $this->quote);
 
@@ -184,117 +183,4 @@ class DesignTest extends TestCase
         $this->assertTrue(true);
     }
 
-
-
-
-
-    ///////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // public function testQuoteDesignWithRepeatingHeader()
-    // {
-
-    //     $modern = new Modern();
-
-    //     $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
-
-    //     $html = $designer->build()->getHtml();
-
-    //     $this->assertNotNull($html);
-
-    //     //\Log::error($html);
-
-    //     $settings = $this->invoice->client->settings;
-    //     $settings->quote_design_id = "4";
-    //     $settings->all_pages_header = true;
-
-    //     $this->quote->client_id = $this->client->id;
-    //     $this->quote->setRelation('client', $this->client);
-    //     $this->quote->save();
-
-    //     $this->client->settings = $settings;
-    //     $this->client->save();
-
-    //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
-    // }
-
-    // public function testQuoteDesignWithRepeatingFooter()
-    // {
-
-    //     $modern = new Modern();
-
-    //     $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
-
-    //     $html = $designer->build()->getHtml();
-
-    //     $this->assertNotNull($html);
-
-    //     //\Log::error($html);
-
-    //     $settings = $this->invoice->client->settings;
-    //     $settings->quote_design_id = "4";
-    //     $settings->all_pages_footer = true;
-
-    //     $this->quote->client_id = $this->client->id;
-    //     $this->quote->setRelation('client', $this->client);
-    //     $this->quote->save();
-
-    //     $this->client->settings = $settings;
-    //     $this->client->save();
-
-    //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
-    // }
-
-    // public function testQuoteDesignWithRepeatingHeaderAndFooter()
-    // {
-
-    //     $modern = new Modern();
-
-    //     $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
-
-    //     $html = $designer->build()->getHtml();
-
-    //     $this->assertNotNull($html);
-
-    //     //\Log::error($html);
-
-    //     $settings = $this->invoice->client->settings;
-    //     $settings->quote_design_id = "4";
-    //     $settings->all_pages_header = true;
-    //     $settings->all_pages_footer = true;
-
-    //     $this->quote->client_id = $this->client->id;
-    //     $this->quote->setRelation('client', $this->client);
-    //     $this->quote->save();
-
-    //     $this->client->settings = $settings;
-    //     $this->client->save();
-
-    //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
-    // }
-    //
 }

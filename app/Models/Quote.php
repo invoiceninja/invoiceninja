@@ -178,6 +178,8 @@ class Quote extends BaseModel
 
     public function pdf_file_path($invitation = null)
     {
+        if(!$invitation)
+            $invitation = $this->invitations->where('client_contact_id', $this->client->primary_contact()->first()->id)->first();
 
         $storage_path = Storage::url($this->client->quote_filepath() . $this->number . '.pdf');
 
@@ -185,13 +187,9 @@ class Quote extends BaseModel
             return $storage_path;
         }
 
-        if (!$invitation) {
-           event(new QuoteWasUpdated($this, $this->company)); 
-            CreateQuotePdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
-        } else {
-           event(new QuoteWasUpdated($this, $this->company)); 
-            CreateQuotePdf::dispatchNow($invitation->quote, $invitation->company, $invitation->contact);
-        }
+        event(new QuoteWasUpdated($this, $this->company)); 
+        
+        CreateQuotePdf::dispatchNow($invitation);
 
         return $storage_path;
     }
