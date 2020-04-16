@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Utils\Traits\Invoice\ActionInvoice
+ * @covers  App\Utils\Traits\Invoice\ActionsInvoice
  */
 class InvoiceActionsTest extends TestCase
 {

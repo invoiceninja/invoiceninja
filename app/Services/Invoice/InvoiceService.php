@@ -105,9 +105,7 @@ class InvoiceService
 
     public function getInvoicePdf($contact)
     {
-        $get_invoice_pdf = new GetInvoicePdf($this->invoice, $contact);
-
-        return $get_invoice_pdf->run();
+        return (new GetInvoicePdf($this->invoice, $contact))->run();
     }
 
     public function sendEmail($contact)

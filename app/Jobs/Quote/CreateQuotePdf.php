@@ -19,6 +19,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
@@ -44,33 +45,29 @@ class CreateQuotePdf implements ShouldQueue
 
     private $disk;
 
+    public $invitation;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($quote, Company $company, ClientContact $contact = null)
+    public function __construct($invitation)
     {
-        $this->quote = $quote;
+        $this->invitation = $invitation;
 
-        $this->company = $company;
+        $this->quote = $invitation->quote;
 
-        $this->contact = $contact;
+        $this->company = $invitation->company;
+
+        $this->contact = $invitation->contact;
 
         $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function handle()
     {
-        MultiDB::setDB($this->company->db);
-
-        $settings = $this->quote->client->getMergedSettings();
-
         $this->quote->load('client');
-
-        if (!$this->contact) {
-            $this->contact = $this->quote->client->primary_contact()->first();
-        }
 
         App::setLocale($this->contact->preferredLocale());
 
@@ -82,20 +79,12 @@ class CreateQuotePdf implements ShouldQueue
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
-
-        $quote_number = $this->quote->number;
         
-        //$start = microtime(true);
-
-        $design_body = $designer->build()->getHtml();
-
-        $html = $this->generateEntityHtml($designer, $this->quote, $this->contact);
+        $html = (new HtmlEngine($designer, $this->invitation, 'quote'))->build();
 
         $pdf       = $this->makePdf(null, null, $html);
 
-        //\Log::error("PDF Build time = ". (microtime(true) - $start));
-
-        $file_path = $path . $quote_number . '.pdf';
+        $file_path = $path . $this->quote->number . '.pdf';
 
         $instance = Storage::disk($this->disk)->put($file_path, $pdf);
 

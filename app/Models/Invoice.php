@@ -195,6 +195,16 @@ class Invoice extends BaseModel
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
+
+    public function history()
+    {
+        $this->activities->with('backup');
+    }
+
     // public function credits()
     // {
     //     return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot(
@@ -357,21 +367,6 @@ class Invoice extends BaseModel
     }
 
     /**
-     * Returns the template for the invoice
-     *
-     * @return string Either the template view, OR the template HTML string
-     * @todo  this needs attention, invoice->settings needs clarification
-     */
-    public function design(): string
-    {
-        if ($this->client->getSetting('design')) {
-            return File::exists(resource_path($this->client->getSetting('design'))) ? File::get(resource_path($this->client->getSetting('design'))) : File::get(resource_path('views/pdf/design1.blade.php'));
-        } else {
-            return File::get(resource_path('views/pdf/design1.blade.php'));
-        }
-    }
-
-    /**
      * Access the invoice calculator object
      *
      * @return object The invoice calculator object getters
@@ -389,34 +384,16 @@ class Invoice extends BaseModel
         return $invoice_calc->build();
     }
 
-    /** TODO// DOCUMENT THIS FUNCTIONALITY */
-    public function pdf_url()
+    public function pdf_file_path($invitation = null)
     {
-        // $public_path = 'storage/' . $this->client->invoice_filepath() . $this->number . '.pdf';
+        if(!$invitation)
+            $invitation = $this->invitations->first();
 
-        // $storage_path = 'public/' . $this->client->invoice_filepath() . $this->number . '.pdf';
+        $storage_path = Storage::url($this->client->invoice_filepath() . $this->number . '.pdf');
 
-        $public_path  = $this->client->invoice_filepath() . $this->number . '.pdf';
-
-        $storage_path = 'storage/' . $this->client->invoice_filepath() . $this->number . '.pdf';
-
-        $disk         = config('filesystems.default');
-
-        if (!Storage::disk($disk)->exists($public_path)) {
+        if (!Storage::exists($this->client->invoice_filepath() . $this->number . '.pdf')) {
             event(new InvoiceWasUpdated($this, $this->company));
-            CreateInvoicePdf::dispatch($this, $this->company, $this->client->primary_contact()->first());
-        }
-
-        return $storage_path;
-    }
-
-    public function pdf_file_path()
-    {
-        $storage_path = 'storage/' . $this->client->invoice_filepath() . $this->number . '.pdf';
-
-
-        if (!Storage::exists($storage_path)) {
-            CreateInvoicePdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
+            CreateInvoicePdf::dispatchNow($invitation);
         }
 
         return $storage_path;

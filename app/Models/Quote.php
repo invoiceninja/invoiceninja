@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Events\Quote\QuoteWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Invoice\CreateInvoicePdf;
@@ -177,17 +178,18 @@ class Quote extends BaseModel
 
     public function pdf_file_path($invitation = null)
     {
-        $storage_path = 'storage/' . $this->client->quote_filepath() . $this->number . '.pdf';
+        if(!$invitation)
+            $invitation = $this->invitations->where('client_contact_id', $this->client->primary_contact()->first()->id)->first();
 
-        if (Storage::exists($storage_path)) {
+        $storage_path = Storage::url($this->client->quote_filepath() . $this->number . '.pdf');
+
+        if (Storage::exists($this->client->quote_filepath() . $this->number . '.pdf')) {
             return $storage_path;
         }
 
-        if (!$invitation) {
-            CreateQuotePdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
-        } else {
-            CreateQuotePdf::dispatchNow($invitation->quote, $invitation->company, $invitation->contact);
-        }
+        event(new QuoteWasUpdated($this, $this->company)); 
+        
+        CreateQuotePdf::dispatchNow($invitation);
 
         return $storage_path;
     }

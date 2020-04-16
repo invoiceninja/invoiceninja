@@ -19,6 +19,7 @@ use App\Http\Requests\Request;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Invoice;
 use App\Utils\Number;
+use App\Utils\TempFile;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use ZipStream\Option\Archive;
@@ -45,8 +46,11 @@ class InvoiceController extends Controller
      */
     public function index(InvoiceFilters $filters)
     {
-        $invoices = auth()->user()->client->company->invoices()->paginate(10);
+        $client_id = auth('contact')->user()->client->id;
 
+        $invoices = Invoice::where('client_id', $client_id)->paginate(10);
+
+       // $invoices = Invoice::filter($filters);
         return $this->render('invoices.index', ['invoices' => $invoices]);
     }
 
@@ -154,9 +158,8 @@ class InvoiceController extends Controller
 
         //if only 1 pdf, output to buffer for download
         if ($invoices->count() == 1) {
-            return response()->download(public_path($invoices->first()->pdf_file_path()));
+            return response()->download(TempFile::path($invoices->first()->pdf_file_path()), basename($invoices->first()->pdf_file_path()));
         }
-
 
         # enable output of HTTP headers
         $options = new Archive();
@@ -166,7 +169,7 @@ class InvoiceController extends Controller
         $zip = new ZipStream(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')).".zip", $options);
 
         foreach ($invoices as $invoice) {
-            $zip->addFileFromPath(basename($invoice->pdf_file_path()), public_path($invoice->pdf_file_path()));
+            $zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
         }
 
         # finish the zip stream

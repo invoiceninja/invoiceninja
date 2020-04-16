@@ -11,12 +11,14 @@
 
 namespace App\Models;
 
+use App\Events\Invoice\InvoiceWasUpdated;
+use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\Invoice;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
-
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceInvitation extends BaseModel
 {
@@ -122,4 +124,17 @@ class InvoiceInvitation extends BaseModel
         $this->viewed_date = Carbon::now();
         $this->save();
     }
+
+    public function pdf_file_path()
+    {
+        $storage_path = Storage::url($this->invoice->client->invoice_filepath() . $this->invoice->number . '.pdf');
+
+        if (!Storage::exists($this->invoice->client->invoice_filepath() . $this->invoice->number . '.pdf')) {
+            event(new InvoiceWasUpdated($this->invoice, $this->company));
+            CreateInvoicePdf::dispatchNow($this);
+        }
+
+        return $storage_path;
+    }
+
 }

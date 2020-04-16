@@ -65,6 +65,10 @@ class DesignTest extends TestCase
 
         $this->invoice->uses_inclusive_taxes = false;
 
+        $this->invoice->service()->createInvitations()->markSent()->save();
+        $this->invoice->fresh();
+        $this->invoice->load('invitations');
+
         $settings = $this->invoice->client->settings;
         $settings->invoice_design_id = "VolejRejNm";
         $settings->all_pages_header = true;
@@ -73,7 +77,7 @@ class DesignTest extends TestCase
         $this->client->settings = $settings;
         $this->client->save();
 
-        CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->invoice->client->primary_contact()->first());
+        CreateInvoicePdf::dispatchNow($this->invoice->invitations->first());
     }
 
     public function testQuoteDesignExists()
@@ -97,6 +101,10 @@ class DesignTest extends TestCase
 
         $this->quote->uses_inclusive_taxes = false;
 
+        $this->quote->service()->createInvitations()->markSent()->save();
+
+        $this->quote->fresh();
+        $this->quote->load('invitations');
         $settings = $this->quote->client->settings;
         $settings->invoice_design_id = "VolejRejNm";
         $settings->all_pages_header = true;
@@ -105,7 +113,12 @@ class DesignTest extends TestCase
         $this->client->settings = $settings;
         $this->client->save();
 
-        CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+        $this->quote->setRelation('client', $this->client);
+
+        $invitation = $this->quote->invitations->first();
+        $invitation->setRelation('quote', $this->quote);
+
+        CreateQuotePdf::dispatchNow($invitation);
     }
 
 
@@ -126,12 +139,17 @@ class DesignTest extends TestCase
 
         $this->credit->client_id = $this->client->id;
         $this->credit->setRelation('client', $this->client);
-        $this->credit->save();
+
+        $this->credit->service()->createInvitations()->markSent()->save();
+        $this->credit->fresh();
+        $this->credit->load('invitations');
+        $invitation = $this->credit->invitations->first();
+        $invitation->setRelation('credit', $this->credit);
 
         $this->client->settings = $settings;
         $this->client->save();
 
-        CreateCreditPdf::dispatchNow($this->credit, $this->credit->company, $this->credit->client->primary_contact()->first());
+        CreateCreditPdf::dispatchNow($invitation);
     }
 
     public function testAllDesigns()
@@ -149,7 +167,14 @@ class DesignTest extends TestCase
             $this->client->settings = $settings;
             $this->client->save();
 
-            CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
+            $this->quote->service()->createInvitations()->markSent()->save();
+            $this->quote->fresh();
+            $this->quote->load('invitations');
+
+            $invitation = $this->quote->invitations->first();
+            $invitation->setRelation('quote', $this->quote);
+
+            CreateQuotePdf::dispatchNow($invitation);
 
             $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
             $this->quote->save();
@@ -158,117 +183,4 @@ class DesignTest extends TestCase
         $this->assertTrue(true);
     }
 
-
-
-
-
-    ///////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // public function testQuoteDesignWithRepeatingHeader()
-    // {
-
-    //     $modern = new Modern();
-
-    //     $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
-
-    //     $html = $designer->build()->getHtml();
-
-    //     $this->assertNotNull($html);
-
-    //     //\Log::error($html);
-
-    //     $settings = $this->invoice->client->settings;
-    //     $settings->quote_design_id = "4";
-    //     $settings->all_pages_header = true;
-
-    //     $this->quote->client_id = $this->client->id;
-    //     $this->quote->setRelation('client', $this->client);
-    //     $this->quote->save();
-
-    //     $this->client->settings = $settings;
-    //     $this->client->save();
-
-    //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
-    // }
-
-    // public function testQuoteDesignWithRepeatingFooter()
-    // {
-
-    //     $modern = new Modern();
-
-    //     $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
-
-    //     $html = $designer->build()->getHtml();
-
-    //     $this->assertNotNull($html);
-
-    //     //\Log::error($html);
-
-    //     $settings = $this->invoice->client->settings;
-    //     $settings->quote_design_id = "4";
-    //     $settings->all_pages_footer = true;
-
-    //     $this->quote->client_id = $this->client->id;
-    //     $this->quote->setRelation('client', $this->client);
-    //     $this->quote->save();
-
-    //     $this->client->settings = $settings;
-    //     $this->client->save();
-
-    //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
-    // }
-
-    // public function testQuoteDesignWithRepeatingHeaderAndFooter()
-    // {
-
-    //     $modern = new Modern();
-
-    //     $designer = new Designer($this->quote, $modern, $this->company->settings->pdf_variables, 'quote');
-
-    //     $html = $designer->build()->getHtml();
-
-    //     $this->assertNotNull($html);
-
-    //     //\Log::error($html);
-
-    //     $settings = $this->invoice->client->settings;
-    //     $settings->quote_design_id = "4";
-    //     $settings->all_pages_header = true;
-    //     $settings->all_pages_footer = true;
-
-    //     $this->quote->client_id = $this->client->id;
-    //     $this->quote->setRelation('client', $this->client);
-    //     $this->quote->save();
-
-    //     $this->client->settings = $settings;
-    //     $this->client->save();
-
-    //     CreateQuotePdf::dispatchNow($this->quote, $this->quote->company, $this->quote->client->primary_contact()->first());
-    // }
-    //
 }

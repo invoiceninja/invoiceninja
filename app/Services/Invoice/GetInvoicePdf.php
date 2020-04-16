@@ -32,6 +32,8 @@ class GetInvoicePdf extends AbstractService
             $this->contact = $this->invoice->client->primary_contact()->first();
         }
 
+        $invitation = $this->invoice->invitations->where('client_contact_id', $this->contact->id)->first();
+
         $path      = $this->invoice->client->invoice_filepath();
 
         $file_path = $path . $this->invoice->number . '.pdf';
@@ -41,10 +43,8 @@ class GetInvoicePdf extends AbstractService
         $file 	   = Storage::disk($disk)->exists($file_path);
 
         if (!$file) {
-            $file_path = CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->company, $this->contact);
+            $file_path = CreateInvoicePdf::dispatchNow($invitation);
         }
-
-        //return $file_path;
 
         return Storage::disk($disk)->path($file_path);
     }
