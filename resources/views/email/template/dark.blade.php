@@ -9,12 +9,6 @@
 
     @endcomponent
 
-    @if(isset($view_link))
-    @component('email.components.button', ['url' => $view_link])
-        {{$view_text}}
-    @endcomponent
-    @endif
-
     @if($footer)
         @component('email.components.button', ['url' => $view_link])
             {{$view_text}}
