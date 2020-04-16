@@ -3201,4 +3201,5 @@ return [
     'page' => 'Page',
     'of' => 'Of',
     'view_credit' => 'View Credit',
+    'to_view_entity_password' => 'To view the :entity you need to enter password.',
 ];
