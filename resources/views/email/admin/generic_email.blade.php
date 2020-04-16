@@ -9,9 +9,15 @@
 	@lang($body)
 @endslot
 
-@slot('signature')
+    @if(isset($view_link))
+    @component('email.components.button', ['url' => $view_link])
+        {{$view_text}}
+    @endcomponent
+    @endif
+
+    @if(isset($signature))
     {{ $signature }}
-@endslot
+    @endif
 
 @slot('footer')
     @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])

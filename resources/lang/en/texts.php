@@ -3197,4 +3197,5 @@ return [
     'open_in_new_tab' => 'Open in new tab',
     'complete_your_payment' => 'Complete payment',
     'authorize_for_future_use' => 'Authorize payment method for future use',
+    'view_credit' => 'View Credit',
 ];

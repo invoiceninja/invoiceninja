@@ -99,7 +99,6 @@ class BaseNotification extends Notification implements ShouldQueue
 
         if ($design_style == 'custom') {
             $email_style_custom = $this->settings->email_style_custom;
-            //$body = str_replace("$body", $body, $email_style_custom);
             $body = strtr($email_style_custom, "$body", $body);
         }
 
@@ -110,6 +109,8 @@ class BaseNotification extends Notification implements ShouldQueue
             'title' => '',
             'settings' => '',
             'company' => '',
+            'view_link' => $this->invitation->getLink(),
+            'view_text' => ctrans('texts.view_'.$this->entity_string),
             'logo' => $this->entity->company->present()->logo(),
             'signature' => $this->settings->email_signature,
 
