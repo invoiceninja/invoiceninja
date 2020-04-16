@@ -11,7 +11,7 @@
 
     @if(isset($view_link))
     @component('email.components.button', ['url' => $view_link])
-        {{$view_text}}
+        {{ $view_text }}
     @endcomponent
     @endif
 

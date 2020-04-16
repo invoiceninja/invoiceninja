@@ -46,8 +46,11 @@ class InvoiceController extends Controller
      */
     public function index(InvoiceFilters $filters)
     {
-        $invoices = auth()->user()->client->company->invoices()->paginate(10);
+        $client_id = auth('contact')->user()->client->id;
 
+        $invoices = Invoice::where('client_id', $client_id)->paginate(10);
+
+       // $invoices = Invoice::filter($filters);
         return $this->render('invoices.index', ['invoices' => $invoices]);
     }
 
