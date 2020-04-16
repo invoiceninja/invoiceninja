@@ -9,15 +9,16 @@
                 <form method="post" class="mt-6">
                     @csrf
                     <div class="flex flex-col">
-                        <label for="password" class="input-label">{{ ctrans('texts.password') }}</label>
-                        <input type="password" name="password" id="password"
-                               class="input"
-                               autofocus>
+                        <div class="flex justify-between items-center">
+                            <label for="password" class="input-label">{{ ctrans('texts.password') }}</label>
+                            <a class="text-xs text-gray-600 hover:text-gray-800 ease-in duration-100" href="{{ route('client.password.request') }}">{{ trans('texts.forgot_password') }}</a>
+                        </div>
+                        <input type="password" name="password" id="password" class="input" autofocus>
 
                         @if(session('PASSWORD_FAILED'))
-                        <div class="validation validation-fail">
-                            {{ ctrans('auth.failed') }}
-                        </div>
+                            <div class="validation validation-fail">
+                                {{ ctrans('auth.failed') }}
+                            </div>
                         @endif
                     </div>
                     <div class="mt-5">
