@@ -53,16 +53,23 @@
 
     <div class="flex items-center justify-between">
         <section class="flex items-center">
-            <button class="input-label" id="previous-page-button">
-            <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-            </button>
-            <button class="input-label" id="next-page-button">
-                <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </button>
+            <div class="items-center" style="display: none" id="pagination-button-container">
+                <button class="input-label focus:outline-none hover:text-blue-600 transition ease-in-out duration-300" id="previous-page-button" title="Previous page">
+                    <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <button class="input-label focus:outline-none hover:text-blue-600 transition ease-in-out duration-300" id="next-page-button" title="Next page">
+                    <svg class="w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+            <span class="text-sm text-gray-700 ml-2">{{ ctrans('texts.page') }}: 
+                <span id="current-page-container"></span>
+                <span>{{ strtolower(ctrans('texts.of')) }}</span>
+                <span id="total-page-container"></span>
+            </span>
         </section>
         <div x-data="{ open: false }" @keydown.escape="open = false" @click.away="open = false" class="relative inline-block text-left">
             <div>
@@ -85,7 +92,6 @@
     <div class="flex justify-center">
         <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white mt-4 p-4"></canvas>
     </div>
-
 @endsection
 
 @section('footer')
