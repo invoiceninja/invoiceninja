@@ -3198,4 +3198,5 @@ return [
     'complete_your_payment' => 'Complete payment',
     'authorize_for_future_use' => 'Authorize payment method for future use',
     'view_credit' => 'View Credit',
+    'to_view_entity_password' => 'To view the :entity you need to enter password.',
 ];

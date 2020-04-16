@@ -5,8 +5,8 @@
         <div class="m-auto md:w-1/3 lg:w-1/5">
             <div class="flex flex-col">
                 <h1 class="text-center text-3xl">{{ ctrans('texts.password') }}</h1>
-                <p class="text-sm text-center text-gray-700">To view the invoice, you need to enter your password.</p>
-                <form action="{{ route('client.show_invoice.password', $invoice->hashed_id) }}" method="post" class="mt-6">
+                <p class="text-sm text-center text-gray-700">{{ ctrans('texts.to_view_entity_password', ['entity' => $entity_type]) }}</p>
+                <form method="post" class="mt-6">
                     @csrf
                     <div class="flex flex-col">
                         <label for="password" class="input-label">{{ ctrans('texts.password') }}</label>
@@ -14,9 +14,9 @@
                                class="input"
                                autofocus>
 
-                        @if(session('INVOICE_VIEW_PASSWORD_FAILED'))
+                        @if(session('PASSWORD_FAILED'))
                         <div class="validation validation-fail">
-                            Oops, looks like password you entered isn't correct.
+                            {{ ctrans('auth.failed') }}
                         </div>
                         @endif
                     </div>
