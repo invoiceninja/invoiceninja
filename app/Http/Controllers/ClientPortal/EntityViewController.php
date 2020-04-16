@@ -25,8 +25,9 @@ class EntityViewController extends Controller
      */
     public function index(string $entity_type, string $invitation_key)
     {
-        
-        if (!in_array($entity_type, $this->entity_types)) abort(404);
+        if (!in_array($entity_type, $this->entity_types)) {
+            abort(404);
+        }
 
         $invitation_entity = sprintf('App\\Models\\%sInvitation', ucfirst($entity_type));
 
@@ -43,7 +44,7 @@ class EntityViewController extends Controller
         $entity_class = sprintf('App\\Models\\%s', ucfirst($entity_type));
         $entity = $entity_class::findOrFail($invitation->{$key});
 
-        if ((bool)$invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
+        if ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
             session()->flash("{$entity_type}_VIEW_{$entity->hashed_id}", true);
         }
 
@@ -60,7 +61,9 @@ class EntityViewController extends Controller
     /**
      * Show the form for entering password.
      *
-     * @param \App\Models\Invoice $invoice
+     * @param string $entity_type
+     * @param string $invitation_key
+     *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function password(string $entity_type, string $invitation_key)
@@ -71,15 +74,19 @@ class EntityViewController extends Controller
         ]);
     }
 
-    /**
+    /**`
      * Handle the password check.
      *
-     * @param \App\Models\Invoice $invoice
-`     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     * @param string $entity_type
+     * @param string $invitation_key
+     *
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|mixed
      */
     public function handlePassword(string $entity_type, string $invitation_key)
     {
-        if (!in_array($entity_type, $this->entity_types)) abort(404);
+        if (!in_array($entity_type, $this->entity_types)) {
+            abort(404);
+        }
 
         $invitation_entity = sprintf('App\\Models\\%sInvitation', ucfirst($entity_type));
 
