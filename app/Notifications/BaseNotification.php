@@ -75,7 +75,7 @@ class BaseNotification extends Notification implements ShouldQueue
         }
 
         if ($this->settings->pdf_email_attachment) {
-            $mail_message->attach(TempFile::path($this->entity->pdf_file_path()));
+            $mail_message->attach(TempFile::path($this->invitation->pdf_file_path()), ['as' => basename($this->invitation->pdf_file_path())]);
         }
 
         foreach ($this->entity->documents as $document) {
@@ -111,7 +111,7 @@ class BaseNotification extends Notification implements ShouldQueue
             'settings' => '',
             'company' => '',
             'logo' => $this->entity->company->present()->logo(),
-            'signature' => '',
+            'signature' => $this->settings->email_signature,
 
         ];
 

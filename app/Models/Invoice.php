@@ -195,6 +195,16 @@ class Invoice extends BaseModel
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
+
+    public function history()
+    {
+        $this->activities->with('backup');
+    }
+
     // public function credits()
     // {
     //     return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot(

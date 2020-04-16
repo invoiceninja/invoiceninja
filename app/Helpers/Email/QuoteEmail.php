@@ -61,7 +61,7 @@ class QuoteEmail extends EmailBuilder
             ->setBody($body_template);
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
-            $this->attachments = $quote->pdf_file_path();
+            $this->attachments = $invitation->pdf_file_path();
         }
 
         return $this;

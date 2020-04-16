@@ -54,6 +54,8 @@ class CreateCreditPdf implements ShouldQueue
      */
     public function __construct($invitation)
     {
+        $this->invitation = $invitation;
+
         $this->credit = $invitation->credit;
 
         $this->company = $invitation->company;
@@ -65,13 +67,7 @@ class CreateCreditPdf implements ShouldQueue
 
     public function handle()
     {
-        MultiDB::setDB($this->company->db);
-
         $this->credit->load('client');
-
-        if (!$this->contact) {
-            $this->contact = $this->credit->client->primary_contact()->first();
-        }
 
         App::setLocale($this->contact->preferredLocale());
 
@@ -83,14 +79,8 @@ class CreateCreditPdf implements ShouldQueue
         
         $designer = new Designer($this->credit, $design, $this->credit->client->getSetting('pdf_variables'), 'credit');
 
-        $invitation = $this->credit->invitations->first();
-
-        //get invoice design
-        //		$html = $this->generateInvoiceHtml($designer->build()->getHtml(), $this->credit, $this->contact);
-        //$html = $this->generateEntityHtml($designer, $this->credit, $this->contact);
         $html = (new HtmlEngine($designer, $invitation, 'credit'))->build();
 
-        //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
 
         $pdf       = $this->makePdf(null, null, $html);

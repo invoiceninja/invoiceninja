@@ -54,6 +54,8 @@ class CreateInvoicePdf implements ShouldQueue
      */
     public function __construct($invitation)
     {
+        $this->invitation = $invitation;
+
         $this->invoice = $invitation->invoice;
 
         $this->company = $invitation->company;
@@ -64,9 +66,7 @@ class CreateInvoicePdf implements ShouldQueue
     }
 
     public function handle()
-    {
-        $this->invoice->load('client');
-
+    {info(print_r($this->invitation->contact,1));
         App::setLocale($this->contact->preferredLocale());
 
         $path      = $this->invoice->client->invoice_filepath();
@@ -77,18 +77,7 @@ class CreateInvoicePdf implements ShouldQueue
 
         $designer  = new Designer($this->invoice, $design, $this->invoice->client->getSetting('pdf_variables'), 'invoice');
 
-        //get invoice design
-        $start = microtime(true);
-
-        $invitation = $this->invoice->invitations->first();
-        // $invitation->contact = $this->contact;
-        // $invitation->setRelation('contact', $this->contact);
-        // $invitation->invoice = $this->invoice;
-        // $invitation->setRelation('invoice', $this->invoice);
-
-        $html = (new HtmlEngine($designer, $invitation, 'invoice'))->build();
-
-        \Log::error("generate HTML time the NEW way = ".(microtime(true) - $start));
+        $html = (new HtmlEngine($designer, $this->invitation, 'invoice'))->build();
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
