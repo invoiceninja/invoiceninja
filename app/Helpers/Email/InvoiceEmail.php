@@ -77,7 +77,7 @@ class InvoiceEmail extends EmailBuilder
             ->setViewText(ctrans('texts.view_invoice'));
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
-            $this->setAttachments($invoice->pdf_file_path());
+            $this->setAttachments($invitation->pdf_file_path());
         }
         return $this;
     }

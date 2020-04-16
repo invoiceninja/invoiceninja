@@ -57,6 +57,7 @@ class TemplateEmail extends Mailable
                 'view_link' => $this->build_email->getViewLink(),
                 'view_text' => $this->build_email->getViewText(),
                 'title' => $this->build_email->getSubject(),
+                'signature' => $settings->email_signature,
                 'settings' => $settings,
                 'company' => $company
             ]);

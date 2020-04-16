@@ -11,12 +11,15 @@
 
 namespace App\Models;
 
+use App\Events\Credit\CreditWasUpdated;
+use App\Jobs\Credit\CreateCreditPdf;
 use App\Models\Invoice;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class CreditInvitation extends BaseModel
 {
@@ -111,5 +114,17 @@ class CreditInvitation extends BaseModel
     {
         $this->viewed_date = Carbon::now();
         $this->save();
+    }
+
+    public function pdf_file_path()
+    {
+        $storage_path = Storage::url($this->credit->client->quote_filepath() . $this->credit->number . '.pdf');
+
+        if (!Storage::exists($this->credit->client->credit_filepath() . $this->credit->number . '.pdf')) {
+            event(new CreditWasUpdated($this, $this->company));
+            CreateCreditPdf::dispatchNow($this);
+        }
+
+        return $storage_path;
     }
 }

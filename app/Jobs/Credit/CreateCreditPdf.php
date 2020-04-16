@@ -19,6 +19,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
@@ -44,31 +45,29 @@ class CreateCreditPdf implements ShouldQueue
 
     private $disk;
 
+    public $invitation;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($credit, Company $company, ClientContact $contact = null)
+    public function __construct($invitation)
     {
-        $this->credit = $credit;
+        $this->invitation = $invitation;
 
-        $this->company = $company;
+        $this->credit = $invitation->credit;
 
-        $this->contact = $contact;
+        $this->company = $invitation->company;
+
+        $this->contact = $invitation->contact;
 
         $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function handle()
     {
-        MultiDB::setDB($this->company->db);
-
         $this->credit->load('client');
-
-        if (!$this->contact) {
-            $this->contact = $this->credit->client->primary_contact()->first();
-        }
 
         App::setLocale($this->contact->preferredLocale());
 
@@ -80,11 +79,8 @@ class CreateCreditPdf implements ShouldQueue
         
         $designer = new Designer($this->credit, $design, $this->credit->client->getSetting('pdf_variables'), 'credit');
 
-        //get invoice design
-        //		$html = $this->generateInvoiceHtml($designer->build()->getHtml(), $this->credit, $this->contact);
-        $html = $this->generateEntityHtml($designer, $this->credit, $this->contact);
+        $html = (new HtmlEngine($designer, $invitation, 'credit'))->build();
 
-        //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
 
         $pdf       = $this->makePdf(null, null, $html);

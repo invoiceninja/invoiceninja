@@ -31,6 +31,7 @@ use App\Models\Quote;
 use App\Repositories\QuoteRepository;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;
+use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
@@ -657,7 +658,7 @@ class QuoteController extends BaseController
                 # code...
                 break;
             case 'download':
-                    return response()->download(public_path($quote->pdf_file_path()));
+                    return response()->download(TempFile::path($quote->pdf_file_path()), basename($quote->pdf_file_path()));
                 break;
             case 'archive':
                 $this->invoice_repo->archive($quote);

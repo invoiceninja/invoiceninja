@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Events\Credit\CreditWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Credit\CreateCreditPdf;
@@ -218,15 +219,18 @@ class Credit extends BaseModel
 
     public function pdf_file_path($invitation = null)
     {
-        $storage_path = 'storage/' . $this->client->credit_filepath() . $this->number . '.pdf';
 
-        if (Storage::exists($storage_path)) {
+        $storage_path = Storage::url($this->client->credit_filepath() . $this->number . '.pdf');
+
+        if (Storage::exists($this->client->credit_filepath() . $this->number . '.pdf')) {
             return $storage_path;
         }
 
         if (!$invitation) {
+           event(new CreditWasUpdated($this, $this->company)); 
             CreateCreditPdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
         } else {
+           event(new CreditWasUpdated($this, $this->company)); 
             CreateCreditPdf::dispatchNow($invitation->credit, $invitation->company, $invitation->contact);
         }
 

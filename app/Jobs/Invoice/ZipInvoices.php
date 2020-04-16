@@ -16,6 +16,7 @@ use App\Libraries\MultiDB;
 use App\Mail\DownloadInvoices;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Utils\TempFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -72,7 +73,7 @@ class ZipInvoices implements ShouldQueue
         $zip = new ZipStream($file_name, $options);
 
         foreach ($this->invoices as $invoice) {
-            $zip->addFileFromPath(basename($invoice->pdf_file_path()), public_path($invoice->pdf_file_path()));
+            $zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
         }
 
         $zip->finish();

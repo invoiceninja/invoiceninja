@@ -22,6 +22,7 @@ use App\Models\Client;
 use App\Models\Credit;
 use App\Repositories\CreditRepository;
 use App\Transformers\CreditTransformer;
+use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -526,8 +527,8 @@ class CreditController extends BaseController
                 }
                 break;
             case 'download':
-                    return response()->download(public_path($credit->pdf_file_path()));
-                break;
+                return response()->download(TempFile::path($credit->pdf_file_path()), basename($credit->pdf_file_path()));  
+              break;
             case 'archive':
                 $this->credit_repository->archive($credit);
 

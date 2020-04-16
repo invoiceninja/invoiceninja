@@ -7,6 +7,7 @@ use App\Http\Requests\ClientPortal\ProcessQuotesInBulkRequest;
 use App\Http\Requests\ClientPortal\ShowQuoteRequest;
 use App\Models\Company;
 use App\Models\Quote;
+use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
@@ -70,7 +71,7 @@ class QuoteController extends Controller
         }
 
         if ($quotes->count() == 1) {
-            return response()->download(public_path($quotes->first()->pdf_file_path()));
+            return response()->download(TempFile::path($invoices->first()->pdf_file_path()), basename($quotes->first()->pdf_file_path()));
         }
 
         # enable output of HTTP headers
@@ -81,7 +82,7 @@ class QuoteController extends Controller
         $zip = new ZipStream(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')) . ".zip", $options);
 
         foreach ($quotes as $quote) {
-            $zip->addFileFromPath(basename($quote->pdf_file_path()), public_path($quote->pdf_file_path()));
+            $zip->addFileFromPath(basename($quote->pdf_file_path()), TempFile::path($quote->pdf_file_path()));
         }
 
         # finish the zip stream

@@ -50,6 +50,8 @@ class SendGenericNotification extends BaseNotification implements ShouldQueue
         $this->settings = $this->entity->client->getMergedSettings();
         $this->subject = $subject;
         $this->body = $body;
+        $this->invitation = $invitation;
+        $this->entity_string = $entity_string;
     }
 
     /**

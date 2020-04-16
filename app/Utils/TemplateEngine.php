@@ -102,7 +102,7 @@ class TemplateEngine
     private function replaceValues()
     {
         if ($this->entity_obj) {
-            $this->entityValues();
+            $this->entityValues($this->entity_obj->client->primary_contact()->first());
         } else {
             $this->fakerValues();
         }
@@ -114,11 +114,6 @@ class TemplateEngine
     {
         $labels = $this->makeFakerLabels();
         $values = $this->makeFakerValues();
-
-        // $this->body = str_replace(array_keys($labels), array_values($labels), $this->body);
-        // $this->body = str_replace(array_keys($values), array_values($values), $this->body);
-        // $this->subject = str_replace(array_keys($labels), array_values($labels), $this->subject);
-        // $this->subject = str_replace(array_keys($values), array_values($values), $this->subject);
 
         $this->body = strtr($this->body, $labels);
         $this->body = strtr($this->body, $values);
@@ -133,16 +128,16 @@ class TemplateEngine
         $this->body = $converter->convertToHtml($this->body);
     }
 
-    private function entityValues()
+    private function entityValues($contact)
     {
-        $labels = $this->entity_obj->makeLabels();
-        $values = $this->entity_obj->makeValues();
 
-        $this->body = strtr($this->body, $labels);
-        $this->body = strtr($this->body, $values);
+        $data = $this->entity_obj->buildLabelsAndValues($contact);
 
-        $this->subject = strtr($this->subject, $labels);
-        $this->subject = strtr($this->subject, $values);
+        $this->body = strtr($this->body, $data['labels']);
+        $this->body = strtr($this->body, $data['values']);
+
+        $this->subject = strtr($this->subject, $data['labels']);
+        $this->subject = strtr($this->subject, $data['values']);
         
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,

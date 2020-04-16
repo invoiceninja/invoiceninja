@@ -3200,4 +3200,5 @@ return [
 
     'page' => 'Page',
     'of' => 'Of',
+    'view_credit' => 'View Credit',
 ];

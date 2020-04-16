@@ -159,6 +159,20 @@ trait MakesInvoiceValues
         return $data;
     }
 
+    public function buildLabelsAndValues($contact) 
+    {
+        $data = [];
+
+        $values = $this->makeLabelsAndValues($contact);
+    
+        foreach ($values as $key => $value) {
+            $data['values'][$key] = $value['value'];
+            $data['labels'][$key.'_label'] = $value['label'];
+        }
+
+        return $data;
+    }
+
     private function makeLabelsAndValues($contact = null) :array
     {
         if (!$this->client->currency() || !$this->client) {
@@ -432,7 +446,7 @@ trait MakesInvoiceValues
         
         $table_header .= '</tr>';
 
-        $table_header = str_replace(array_keys($data), array_values($data), $table_header);
+        $table_header = strtr($table_header, $data);// str_replace(array_keys($data), array_values($data), $table_header);
 
         return $table_header;
     }
