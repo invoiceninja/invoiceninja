@@ -226,6 +226,11 @@ class CompanySettings extends BaseSettings
     public $all_pages_footer  = false;
     public $pdf_variables = '';
 
+    public $portal_custom_head = '';
+    public $portal_custom_css = '';
+    public $portal_custom_footer = '';
+    public $portal_custom_js = '';
+
     public static $casts = [
         'portal_design_id'					 => 'string',
         'late_fee_endless_percent'           => 'float',
@@ -385,6 +390,10 @@ class CompanySettings extends BaseSettings
         'design'                             => 'string',
         'website'                            => 'string',
         'pdf_variables'                  	 => 'object',
+        'portal_custom_head'                 => 'string',
+        'portal_custom_css'                  => 'string',
+        'portal_custom_footer'               => 'string',
+        'portal_custom_js'                   => 'string',
     ];
 
     /**
