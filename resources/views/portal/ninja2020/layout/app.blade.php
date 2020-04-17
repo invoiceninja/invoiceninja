@@ -62,11 +62,11 @@
     {{-- Feel free to push anything to header using @push('header') --}}
     @stack('head')
 
-    {!! $client->company->getSetting('portal.custom_head') !!}
+    {!! $client->getSetting('portal.custom_head') !!}
 
     <style>
         /** Any custom defined styles from admin portal go here. */
-        {!! $client->company->getSetting('portal.custom_css') !!}
+        {!! $client->getSetting('portal.custom_css') !!}
     </style>
 </head>
 
@@ -80,12 +80,12 @@
     @yield('footer')
     @stack('footer')
 
-    {!! $client->company->getSetting('portal.custom_footer') !!}
+    {!! $client->getSetting('portal.custom_footer') !!}
 </footer>
 
 <script>
     // .. Any custom definied scripts from admin portal go here.
-    {!! $client->company->getSetting('portal.custom_js') !!}
+    {!! $client->getSetting('portal.custom_js') !!}
 </script>
 
 </html>
