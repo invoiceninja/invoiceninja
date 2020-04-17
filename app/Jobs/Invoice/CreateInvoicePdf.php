@@ -66,7 +66,7 @@ class CreateInvoicePdf implements ShouldQueue
     }
 
     public function handle()
-    {info(print_r($this->invitation->contact,1));
+    {
         App::setLocale($this->contact->preferredLocale());
 
         $path      = $this->invoice->client->invoice_filepath();
