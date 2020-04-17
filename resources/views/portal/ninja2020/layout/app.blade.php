@@ -56,9 +56,14 @@
 
         <link rel="canonical" href="{{ config('ninja.site_url') }}/{{ request()->path() }}"/>
 
+        <style>
+            {!! $client->getSetting('portal_custom_css') !!}
+        </style>
+
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
 
+        {!! $client->getSetting('portal_custom_head') !!}
     </head>
 
     <body class="antialiased">
@@ -70,6 +75,12 @@
     <footer>
         @yield('footer')
         @stack('footer')
+
+        {!! $client->getSetting('portal_custom_footer') !!}
     </footer>
+
+    <script>
+        {!! $client->getSetting('portal_custom_js') !!}
+    </script>
 
 </html>
