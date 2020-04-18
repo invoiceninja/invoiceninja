@@ -84,9 +84,12 @@ trait CompanyGatewayFeesAndLimitsSaver
     {
         $new_arr = [];
 
+\Log::error(print_r($fees_and_limits,1));
 
         foreach ($fees_and_limits as $key => $value) {
             $fal = new FeesAndLimits;
+
+\Log::error(print_r($value,1));
 
             foreach ($value as $k => $v) {
                 $fal->{$k} = $v;
