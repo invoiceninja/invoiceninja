@@ -59,8 +59,7 @@ class HtmlEngine
     }
 
     public function build() :string
-    {
-
+    {        
         App::setLocale($this->client->preferredLocale());
 
         $values_and_labels = $this->generateLabelsAndValues();

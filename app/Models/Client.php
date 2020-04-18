@@ -190,7 +190,13 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function language()
     {
-        return Language::find($this->getSetting('language_id'));
+        //return Language::find($this->getSetting('language_id'));
+
+        $languages = Cache::get('languages');
+        
+        return $languages->filter(function ($item) {
+            return $item->id == $this->getSetting('language_id');
+        })->first();
     }
 
     public function locale()
