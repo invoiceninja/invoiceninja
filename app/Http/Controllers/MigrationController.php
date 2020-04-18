@@ -181,6 +181,7 @@ class MigrationController extends BaseController
     public function startMigration(Request $request, Company $company)
     {
         $user = auth()->user();
+
         $existing_company = Company::where('company_key', $request->company_key)->first();
 
         if ($request->company_key !== $company->company_key) {
@@ -198,7 +199,8 @@ class MigrationController extends BaseController
                 return;
             }
 
-            $account = (new ImportMigrations())->getAccount();
+            $account = auth()->user()->account;
+            //$account = (new ImportMigrations())->getAccount();
             $company = (new ImportMigrations())->getCompany($account);
 
             $company_token = new CompanyToken();
