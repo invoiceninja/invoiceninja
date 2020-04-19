@@ -122,8 +122,11 @@ return [
         'post_update' => [
             'ninja:post-update' => [
                 'class' => \App\Console\Commands\ArtisanUpgrade::class,
-                'params' => [],
-            ],
+                'params' => [
+                    'log' => 1,
+                    'reset' => false,
+                    // etc.
+                ]            ],
         ],
     ],
 
