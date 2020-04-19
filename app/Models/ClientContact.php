@@ -138,15 +138,13 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function preferredLocale()
     {
+        
         $languages = Cache::get('languages');
 
         return $languages->filter(function ($item) {
             return $item->id == $this->client->getSetting('language_id');
         })->first()->locale;
 
-        //$lang = Language::find($this->client->getSetting('language_id'));
-
-        //return $lang->locale;
     }
 
     public function routeNotificationForMail($notification)

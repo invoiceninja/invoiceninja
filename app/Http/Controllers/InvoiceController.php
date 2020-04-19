@@ -694,10 +694,12 @@ class InvoiceController extends BaseController
 
                 $this->reminder_template = $invoice->calculateTemplate();
 
-                $invoice->invitations->each(function ($invitation) use ($invoice) {
+                $invoice->invitations->load('contact.client.country','invoice.client.country','invoice.company')->each(function ($invitation) use ($invoice) {
+
                     $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
 
                     EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
+
                 });
 
                 if ($invoice->invitations->count() > 0) {

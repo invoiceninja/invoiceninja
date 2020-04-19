@@ -48,10 +48,6 @@ class CompanyUserTransformer extends EntityTransformer
     public function transform(CompanyUser $company_user)
     {
         return [
-            // 'id' => $company_user->id,
-            // 'account_id' => $company_user->account_id,
-            // 'user_id' => $company_user->user_id,
-            // 'company_id' => $company_user->company_id,
             'permissions' => $company_user->permissions ?: '',
             'notifications' => (object)$company_user->notifications,
             'settings' => (object)$company_user->settings,
