@@ -66,8 +66,6 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => 'Self update not available on this system.'], 403);
         }
 
-        echo $updater->source()->getVersionInstalled();
-
         // Get the new version available
         $versionAvailable = $updater->source()->getVersionAvailable();
 
@@ -76,7 +74,6 @@ class SelfUpdateController extends BaseController
 
         // Run the update process
         $res = $updater->source()->update($release);
-
 
         return response()->json(['message'=>$res], 200);
     }
