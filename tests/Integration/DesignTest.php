@@ -143,8 +143,10 @@ class DesignTest extends TestCase
         $this->credit->service()->createInvitations()->markSent()->save();
         $this->credit->fresh();
         $this->credit->load('invitations');
+                
         $invitation = $this->credit->invitations->first();
         $invitation->setRelation('credit', $this->credit);
+
 
         $this->client->settings = $settings;
         $this->client->save();

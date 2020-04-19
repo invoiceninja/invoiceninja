@@ -79,7 +79,7 @@ class CreateCreditPdf implements ShouldQueue
         
         $designer = new Designer($this->credit, $design, $this->credit->client->getSetting('pdf_variables'), 'credit');
 
-        $html = (new HtmlEngine($designer, $invitation, 'credit'))->build();
+        $html = (new HtmlEngine($designer, $this->invitation, 'credit'))->build();
 
         Storage::makeDirectory($path, 0755);
 

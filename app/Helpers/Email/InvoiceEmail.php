@@ -26,7 +26,6 @@ class InvoiceEmail extends EmailBuilder
 
         $body_template = $client->getSetting('email_template_' . $reminder_template);
 
-
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
             $body_template = trans(

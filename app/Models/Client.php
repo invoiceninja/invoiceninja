@@ -155,7 +155,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function primary_contact()
     {
-        return $this->hasMany(ClientContact::class)->whereIsPrimary(true);
+        return $this->hasMany(ClientContact::class)->where('is_primary', true);
     }
 
     public function company()
@@ -190,7 +190,13 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function language()
     {
-        return Language::find($this->getSetting('language_id'));
+        //return Language::find($this->getSetting('language_id'));
+
+        $languages = Cache::get('languages');
+        
+        return $languages->filter(function ($item) {
+            return $item->id == $this->getSetting('language_id');
+        })->first();
     }
 
     public function locale()
@@ -292,7 +298,9 @@ class Client extends BaseModel implements HasLocalePreference
             return $this->company->settings->{$setting};
         }
 
-        throw new \Exception("Settings corrupted", 1);
+        return '';
+
+//        throw new \Exception("Settings corrupted", 1);
     }
 
     public function getSettingEntity($setting)

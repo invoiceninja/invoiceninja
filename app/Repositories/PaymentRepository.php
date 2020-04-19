@@ -14,6 +14,7 @@ namespace App\Repositories;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
 use App\Jobs\Credit\ApplyCreditPayment;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
@@ -21,6 +22,7 @@ use App\Models\Payment;
 use App\Repositories\CreditRepository;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 /**
  * PaymentRepository
@@ -192,6 +194,7 @@ class PaymentRepository extends BaseRepository
      */
     private function processExchangeRates($data, $payment)
     {
+
         $client = Client::find($data['client_id']);
 
         $client_currency = $client->getSetting('currency_id');
@@ -200,7 +203,9 @@ class PaymentRepository extends BaseRepository
         if ($company_currency != $client_currency) {
             $currency = $client->currency();
 
-            $payment->exchange_rate = $currency->exchange_rate;
+            $exchange_rate = new CurrencyApi();
+
+            $payment->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, Carbon::parse($payment->date));
             $payment->exchange_currency_id = $client_currency;
         }
 

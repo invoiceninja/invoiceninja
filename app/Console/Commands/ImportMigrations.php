@@ -107,8 +107,10 @@ class ImportMigrations extends Command
             'account_id' => $account->id,
         ]);
 
-        $account->default_company_id = $company->id;
-        $account->save();
+        if(!$account->default_company_id){
+            $account->default_company_id = $company->id;    
+            $account->save();
+        }
 
         return $company;
     }
