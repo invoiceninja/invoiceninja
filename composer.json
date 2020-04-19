@@ -23,7 +23,7 @@
         "asgrim/ofxparser": "^1.2",
         "ashallendesign/laravel-exchange-rates": "^2.1",
         "cleverit/ubl_invoice": "^1.3",
-        "codedge/laravel-selfupdater": "2.5.1",
+        "codedge/laravel-selfupdater": "~3.0",
         "composer/composer": "^1.10",
         "dacastro4/laravel-gmail": "^3.2",
         "davejamesmiller/laravel-breadcrumbs": "5.x",
