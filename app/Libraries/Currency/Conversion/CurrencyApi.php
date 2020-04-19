@@ -34,4 +34,20 @@ class CurrencyApi implements CurrencyConversionInterface
 
 	}
 
+	public function exchangeRate($from_currency_id, $to_currency_id, $date = null)
+	{
+		
+		if(!$date)
+			$date = Carbon::now();
+
+		$from_currency = Currency::find($from_currency_id)->code;
+
+		$to_currency = Currency::find($to_currency_id)->code;
+
+		$exchangeRates = new ExchangeRate();
+
+		return $exchangeRates->exchangeRate($from_currency, $to_currency, $date);
+
+	}
+
 }
