@@ -15,6 +15,13 @@ use App\DataMapper\CompanySettings;
 
 /**
  * Class CompanySettingsSaver
+ *
+ * Whilst it may appear that this CompanySettingsSaver and ClientGroupSettingsSaver
+ * could be duplicates, they are not.
+ *
+ * Each requires their own approach to saving and attempts to 
+ * merge the two code paths should be avoided.
+ * 
  * @package App\Utils\Traits
  */
 trait CompanySettingsSaver
@@ -43,16 +50,26 @@ trait CompanySettingsSaver
         $settings = $this->checkSettingType($settings);
 
         $company_settings = CompanySettings::defaults();
+
+
         //Iterate and set NEW settings
-        
+    
+        //@TODO need to test which casts we will use depending if the user is
+        //a free user or a self hosted user
         $restricted_features_casts = CompanySettings::$free_plan_casts;
         $all_features_casts = CompanySettings::$casts;
 
-        foreach ($settings as $key => $value) {
+        $castable = $all_features_casts;
+
+        foreach ($castable as $key => $value) {
+
+        //foreach ($settings as $key => $value) { @todo working on feature limiting the settings object
+
             if (is_null($settings->{$key})) {
                 $company_settings->{$key} = '';
             } else {
-                $company_settings->{$key} = $value;
+                $company_settings->{$key} = $settings->{$key};
+             //   $company_settings->{$key} = $value;  @todo working on feature limiting the settings object
             }
         }
 
@@ -75,9 +92,6 @@ trait CompanySettingsSaver
         $settings = (object)$settings;
 
         $casts = CompanySettings::$casts;
-
-        // if(property_exists($settings, 'pdf_variables'))
-        //     unset($settings->pdf_variables);
         
         ksort($casts);
 
@@ -112,8 +126,6 @@ trait CompanySettingsSaver
             if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') {
                 continue;
             }
-            
-            
 
             /*Catch all filter */
             if (!$this->checkAttribute($value, $settings->{$key})) {

@@ -15,6 +15,13 @@ use App\DataMapper\CompanySettings;
 
 /**
  * Class ClientGroupSettingsSaver
+ * 
+ * Whilst it may appear that this CompanySettingsSaver and ClientGroupSettingsSaver
+ * could be duplicates, they are not.
+ *
+ * Each requires their own approach to saving and attempts to 
+ * merge the two code paths should be avoided.
+ * 
  * @package App\Utils\Traits
  */
 trait ClientGroupSettingsSaver
@@ -40,7 +47,6 @@ trait ClientGroupSettingsSaver
         foreach (CompanySettings::$protected_fields as $field) {
             unset($settings[$field]);
         }
-
 
         /**
          * for clients and group settings, if a field is not set or is set to a blank value,
