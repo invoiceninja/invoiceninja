@@ -396,6 +396,43 @@ class CompanySettings extends BaseSettings
         'portal_custom_js'                   => 'string',
     ];
 
+
+    public static $free_plan_casts = [
+        'currency_id'                        => 'string',
+        'company_gateway_ids'                => 'string',
+        'address1'                           => 'string',
+        'address2'                           => 'string',
+        'city'                               => 'string',
+        'company_logo'                       => 'string',
+        'country_id'                         => 'string',
+        'custom_value1'                      => 'string',
+        'custom_value2'                      => 'string',
+        'custom_value3'                      => 'string',
+        'custom_value4'                      => 'string',
+        'inclusive_taxes'                    => 'bool',
+        'name'                               => 'string',
+        'payment_terms'                      => 'integer',
+        'payment_type_id'                    => 'string',
+        'phone'                              => 'string',
+        'postal_code'                        => 'string',
+        'state'                              => 'string',
+        'email'                              => 'string',
+        'vat_number'                         => 'string',
+        'id_number'                          => 'string',
+        'tax_name1'                          => 'string',
+        'tax_name2'                          => 'string',
+        'tax_name3'                          => 'string',
+        'tax_rate1'                          => 'float',
+        'tax_rate2'                          => 'float',
+        'tax_rate3'                          => 'float',
+        'timezone_id'                        => 'string',
+        'date_format_id'                     => 'string',
+        'military_time'                      => 'bool',
+        'language_id'                        => 'string',
+        'show_currency_code'                 => 'bool',
+        'website'                            => 'string',
+    ];
+
     /**
      * Array of variables which
      * cannot be modified client side
@@ -430,6 +467,7 @@ class CompanySettings extends BaseSettings
 
         unset($data->casts);
         unset($data->protected_fields);
+        unset($data->free_plan_casts);
 
         $data->timezone_id       = (string) config('ninja.i18n.timezone_id');
         $data->currency_id       = (string) config('ninja.i18n.currency_id');
