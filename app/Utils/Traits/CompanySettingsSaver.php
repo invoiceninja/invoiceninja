@@ -12,7 +12,6 @@
 namespace App\Utils\Traits;
 
 use App\DataMapper\CompanySettings;
-use App\Utils\Traits\SettingsSaver;
 
 /**
  * Class CompanySettingsSaver
@@ -45,6 +44,10 @@ trait CompanySettingsSaver
 
         $company_settings = CompanySettings::defaults();
         //Iterate and set NEW settings
+        
+        $restricted_features_casts = CompanySettings::$free_plan_casts;
+        $all_features_casts = CompanySettings::$casts;
+
         foreach ($settings as $key => $value) {
             if (is_null($settings->{$key})) {
                 $company_settings->{$key} = '';
@@ -79,7 +82,7 @@ trait CompanySettingsSaver
         ksort($casts);
 
         foreach ($casts as $key => $value) {
-            if (in_array($key, SettingsSaver::$string_casts)) {
+            if (in_array($key, CompanySettings::$string_casts)) {
                 $value = "string";
 
                 if (!property_exists($settings, $key)) {
@@ -139,7 +142,7 @@ trait CompanySettingsSaver
         $casts = CompanySettings::$casts;
         
         foreach ($casts as $key => $value) {
-            if (in_array($key, SettingsSaver::$string_casts)) {
+            if (in_array($key, CompanySettings::$string_casts)) {
                 $value = "string";
                 
                 if (!property_exists($settings, $key)) {

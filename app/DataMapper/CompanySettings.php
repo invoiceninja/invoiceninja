@@ -443,6 +443,12 @@ class CompanySettings extends BaseSettings
         //	'quote_number_counter',
     ];
 
+    public static $string_casts = [
+        'invoice_design_id',
+        'quote_design_id',
+        'credit_design_id',
+    ];
+
     /**
      * Cast object values and return entire class
      * prevents missing properties from not being returned
@@ -468,7 +474,8 @@ class CompanySettings extends BaseSettings
         unset($data->casts);
         unset($data->protected_fields);
         unset($data->free_plan_casts);
-
+        unset($data->string_casts);
+        
         $data->timezone_id       = (string) config('ninja.i18n.timezone_id');
         $data->currency_id       = (string) config('ninja.i18n.currency_id');
         $data->language_id       = (string) config('ninja.i18n.language_id');

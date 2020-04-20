@@ -12,7 +12,6 @@
 namespace App\Utils\Traits;
 
 use App\DataMapper\CompanySettings;
-use App\Utils\Traits\SettingsSaver;
 
 /**
  * Class ClientGroupSettingsSaver
@@ -90,7 +89,7 @@ trait ClientGroupSettingsSaver
         }
 
         foreach ($casts as $key => $value) {
-            if (in_array($key, SettingsSaver::$string_casts)) {
+            if (in_array($key, CompanySettings::$string_casts)) {
                 $value = "string";
 
                 if (!property_exists($settings, $key)) {
