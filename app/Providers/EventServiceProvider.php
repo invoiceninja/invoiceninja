@@ -64,12 +64,6 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        \Codedge\Updater\Events\UpdateAvailable::class => [
-        \Codedge\Updater\Listeners\SendUpdateAvailableNotification::class
-            ], // [3]
-            \Codedge\Updater\Events\UpdateSucceeded::class => [
-                \Codedge\Updater\Listeners\SendUpdateSucceededNotification::class
-            ],
         UserWasCreated::class => [
             SendVerificationNotification::class,
         ],
