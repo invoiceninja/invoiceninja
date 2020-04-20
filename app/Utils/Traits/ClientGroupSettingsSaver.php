@@ -12,10 +12,16 @@
 namespace App\Utils\Traits;
 
 use App\DataMapper\CompanySettings;
-use App\Utils\Traits\SettingsSaver;
 
 /**
  * Class ClientGroupSettingsSaver
+ * 
+ * Whilst it may appear that this CompanySettingsSaver and ClientGroupSettingsSaver
+ * could be duplicates, they are not.
+ *
+ * Each requires their own approach to saving and attempts to 
+ * merge the two code paths should be avoided.
+ * 
  * @package App\Utils\Traits
  */
 trait ClientGroupSettingsSaver
@@ -41,7 +47,6 @@ trait ClientGroupSettingsSaver
         foreach (CompanySettings::$protected_fields as $field) {
             unset($settings[$field]);
         }
-
 
         /**
          * for clients and group settings, if a field is not set or is set to a blank value,
@@ -90,7 +95,7 @@ trait ClientGroupSettingsSaver
         }
 
         foreach ($casts as $key => $value) {
-            if (in_array($key, SettingsSaver::$string_casts)) {
+            if (in_array($key, CompanySettings::$string_casts)) {
                 $value = "string";
 
                 if (!property_exists($settings, $key)) {
