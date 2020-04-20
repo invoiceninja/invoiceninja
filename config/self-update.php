@@ -98,12 +98,30 @@ return [
     | Configure if fired events should be logged
     |
      */
+    'notifications' => [
+        'notifications' => [
+            \Codedge\Updater\Notifications\Notifications\UpdateSucceeded::class => ['mail'],
+            \Codedge\Updater\Notifications\Notifications\UpdateFailed::class => ['mail'],
+            \Codedge\Updater\Notifications\Notifications\UpdateAvailable::class => ['mail'],
+        ],
 
-    'mail_to'                   => [
-        'address'                  => env('SELF_UPDATER_MAILTO_ADDRESS', ''),
-        'name'                     => env('SELF_UPDATER_MAILTO_NAME', ''),
-        'subject_update_available' => env('SELF_UPDATER_MAILTO_UPDATE_AVAILABLE_SUBJECT', 'Update available'),
-        'subject_update_succeeded' => env('SELF_UPDATER_MAILTO_UPDATE_SUCCEEDED_SUBJECT', 'Update succeeded'),
+        /*
+         * Here you can specify the notifiable to which the notifications should be sent. The default
+         * notifiable will use the variables specified in this config file.
+         */
+        'notifiable' => \Codedge\Updater\Notifications\Notifiable::class,
+
+        'mail' => [
+            'to' => [
+                'address' => env('SELF_UPDATER_MAILTO_ADDRESS', 'notifications@example.com'),
+                'name' => env('SELF_UPDATER_MAILTO_NAME', ''),
+            ],
+
+            'from' => [
+                'address' => env('SELF_UPDATER_MAIL_FROM_ADDRESS', 'updater@example.com'),
+                'name' => env('SELF_UPDATER_MAIL_FROM_NAME', 'Update'),
+            ],
+        ],
     ],
 
     /*
