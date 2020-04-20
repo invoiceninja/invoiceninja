@@ -45,8 +45,8 @@
     </div>
     <div class="flex flex-col mt-4">
         <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-            <div class="align-middle inline-block min-w-full shadow overflow-hidden rounded border-b border-gray-200">
-                <table class="min-w-full">
+            <div class="align-middle inline-block min-w-full overflow-hidden rounded">
+                <table class="min-w-full shadow rounded border border-gray-200">
                     <thead>
                         <tr>
                             <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
@@ -54,7 +54,7 @@
                                     <input type="checkbox" class="form-check form-check-parent">
                                 </label>
                             </th>
-                            <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                            <th     class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                                 {{ ctrans('texts.invoice_number') }}
                             </th>
                             <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
@@ -77,7 +77,7 @@
                             <tr class="bg-white group hover:bg-gray-100">
                                 <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
                                     <label>
-                                        <input type="checkbox" class="form-check form-check-child ml-2" data-value="{{ $invoice->hashed_id }}">
+                                        <input type="checkbox" class="form-check form-check-child" data-value="{{ $invoice->hashed_id }}">
                                     </label>
                                 </td>
                                 <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
@@ -110,9 +110,6 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-        <div class="my-6">
-            {{ $invoices->links('portal.ninja2020.vendor.pagination') }}
         </div>
     </div>
 @endsection

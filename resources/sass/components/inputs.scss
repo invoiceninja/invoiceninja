@@ -1,5 +1,5 @@
 .input {
-    @apply items-center border border-gray-300 rounded mt-2 w-full py-2 px-4 text-sm;
+    @apply items-center border border-gray-300 rounded mt-2 py-2 px-4 text-sm;
 
     &:focus {
         @apply outline-none border-blue-500;
