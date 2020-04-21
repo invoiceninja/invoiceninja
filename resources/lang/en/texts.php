@@ -3199,6 +3199,7 @@ return [
     'authorize_for_future_use' => 'Authorize payment method for future use',
 
     'page' => 'Page',
+    'per_page' => 'Per page',
     'of' => 'Of',
     'view_credit' => 'View Credit',
     'to_view_entity_password' => 'To view the :entity you need to enter password.',

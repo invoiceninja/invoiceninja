@@ -11,12 +11,9 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Filters\InvoiceFilters;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\ProcessInvoicesInBulkRequest;
 use App\Http\Requests\ClientPortal\ShowInvoiceRequest;
-use App\Http\Requests\Request;
-use App\Jobs\Entity\ActionEntity;
 use App\Models\Invoice;
 use App\Utils\Number;
 use App\Utils\TempFile;
@@ -24,52 +21,26 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
-use function GuzzleHttp\Promise\all;
-
-/**
- * Class InvoiceController
- * @package App\Http\Controllers\ClientPortal\InvoiceController
- */
 
 class InvoiceController extends Controller
 {
-    use MakesHash;
-    use MakesDates;
+    use MakesHash, MakesDates;
 
     /**
-     * Show the list of Invoices
-     *
-     * @param \App\Filters\InvoiceFilters $filters The filters
+     * Display list of invoices.
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     * @throws \Exception
      */
-    public function index(InvoiceFilters $filters)
+    public function index()
     {
-        $invoices = Invoice::filter($filters)->get(); // @for-now
-
-        return $this->render('invoices.index', ['invoices' => $invoices]);
+        return $this->render('invoices.index');
     }
-
-    private function buildClientButtons($invoice)
-    {
-        $buttons = '<div>';
-
-        if ($invoice->isPayable()) {
-            $buttons .= "<button type=\"button\" class=\"btn btn-sm btn-info\" onclick=\"payInvoice('".$invoice->hashed_id."')\"><i class=\"glyphicon glyphicon-edit\"></i>".ctrans('texts.pay_now')."</button>";
-            //    $buttons .= '<a href="/client/invoices/'. $invoice->hashed_id .'" class="btn btn-sm btn-info"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.pay_now').'</a>';
-        }
-
-        $buttons .= '<a href="/client/invoices/'. $invoice->hashed_id .'" class="btn btn-sm btn-primary"><i class="glyphicon glyphicon-edit"></i>'.ctrans('texts.view').'</a>';
-
-        $buttons .="</div>";
-
-        return $buttons;
-    }
+    
     /**
-     * Display the specified resource.
+     * Show specific invoice.
      *
-     * @param      \App\Models\Invoice $invoice  The invoice
+     * @param \App\Http\Requests\ClientPortal\ShowInvoiceRequest $request
+     * @param \App\Models\Invoice $invoice
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
@@ -85,7 +56,7 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Pay one or more invoices
+     * Pay one or more invoices.
      *
      * @param ProcessInvoicesInBulkRequest $request
      * @return mixed
@@ -142,6 +113,13 @@ class InvoiceController extends Controller
         return $this->render('invoices.payment', $data);
     }
 
+    /**
+     * Helper function to download invoice PDFs.
+     *
+     * @param array $ids
+     *
+     * @return void
+     */
     private function downloadInvoicePDF(array $ids)
     {
         $invoices = Invoice::whereIn('id', $ids)

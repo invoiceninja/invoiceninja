@@ -60,6 +60,8 @@
             {!! $client->getSetting('portal_custom_css') !!}
         </style>
 
+        @livewireStyles
+
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
 
@@ -70,6 +72,8 @@
         @component('portal.ninja2020.components.general.sidebar.main')
             @yield('body')
         @endcomponent
+
+        @livewireScripts
     </body>
 
     <footer>
