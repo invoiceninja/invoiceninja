@@ -21,9 +21,8 @@ class CompanySettingsSaveableTest extends TestCase
 
     public function testSettingsSaverWithFreePlan()
     {
-    	$default = CompanySettings::defaults();
-    	
-    	$filtered = $this->filterSaver($default);
+
+    	$filtered = $this->filterSaver(CompanySettings::defaults());
 
     	$this->assertTrue(property_exists($filtered, 'timezone_id'));
 
@@ -46,6 +45,7 @@ class CompanySettingsSaveableTest extends TestCase
                 unset($settings->{$key});
 
         }
+
         return $settings;
 
     }

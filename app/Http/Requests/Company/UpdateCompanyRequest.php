@@ -65,7 +65,16 @@ class UpdateCompanyRequest extends Request
         $this->replace($input);
     }
 
-
+    /**
+     * For the hosted platform, we restrict the feature settings.
+     *
+     * This method will trim the company settings object 
+     * down to the free plan setting properties which 
+     * are saveable
+     * 
+     * @param  object $settings
+     * @return object $settings
+     */
     private function filterSaveableSettings($settings)
     {
         $account = $this->company->account;
@@ -73,16 +82,16 @@ class UpdateCompanyRequest extends Request
         if($account->isPaidHostedClient() || $account->isTrial() || Ninja::isSelfHost() || Ninja::isNinjaDev()){
             return $settings;
 
-        $saveable_cast = CompanySettings::$free_plan_casts;
+        $saveable_casts = CompanySettings::$free_plan_casts;
 
         foreach($settings as $key => $value){
 
-            if(!array_key_exists($key, $saveable_cast))
+            if(!array_key_exists($key, $saveable_casts))
                 unset($settings->{$key});
 
-            return $settings;
-
         }
+        
+        return $settings;
 
     }
 }
