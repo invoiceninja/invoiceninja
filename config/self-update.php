@@ -144,7 +144,8 @@ return [
                     'log' => 1,
                     'reset' => false,
                     // etc.
-                ]            ],
+                ]            
+            ],
         ],
     ],
 

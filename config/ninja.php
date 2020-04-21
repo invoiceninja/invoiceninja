@@ -134,4 +134,16 @@ return [
         'global' => 'ninja2020',
         'portal' => 'ninja2020',
     ],
+    'quotas' => [
+        'free' => [
+            'clients' => 50,
+            'daily_emails' => 50,
+        ],
+        'pro' => [
+            'daily_emails' => 100,
+        ],
+        'enterprise' => [
+            'daily_emails' => 200,
+        ]
+    ]
 ];

@@ -12,10 +12,18 @@
 namespace App\Utils\Traits;
 
 use App\DataMapper\CompanySettings;
-use App\Utils\Traits\SettingsSaver;
+use App\Models\Company;
+use App\Utils\Ninja;
 
 /**
  * Class CompanySettingsSaver
+ *
+ * Whilst it may appear that this CompanySettingsSaver and ClientGroupSettingsSaver
+ * could be duplicates, they are not.
+ *
+ * Each requires their own approach to saving and attempts to 
+ * merge the two code paths should be avoided.
+ * 
  * @package App\Utils\Traits
  */
 trait CompanySettingsSaver
@@ -44,12 +52,13 @@ trait CompanySettingsSaver
         $settings = $this->checkSettingType($settings);
 
         $company_settings = CompanySettings::defaults();
-        //Iterate and set NEW settings
-        foreach ($settings as $key => $value) {
+
+        foreach ($settings as $key => $value) { 
+
             if (is_null($settings->{$key})) {
                 $company_settings->{$key} = '';
             } else {
-                $company_settings->{$key} = $value;
+               $company_settings->{$key} = $value;
             }
         }
 
@@ -72,14 +81,11 @@ trait CompanySettingsSaver
         $settings = (object)$settings;
 
         $casts = CompanySettings::$casts;
-
-        // if(property_exists($settings, 'pdf_variables'))
-        //     unset($settings->pdf_variables);
         
         ksort($casts);
 
         foreach ($casts as $key => $value) {
-            if (in_array($key, SettingsSaver::$string_casts)) {
+            if (in_array($key, CompanySettings::$string_casts)) {
                 $value = "string";
 
                 if (!property_exists($settings, $key)) {
@@ -109,8 +115,6 @@ trait CompanySettingsSaver
             if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') {
                 continue;
             }
-            
-            
 
             /*Catch all filter */
             if (!$this->checkAttribute($value, $settings->{$key})) {
@@ -139,7 +143,7 @@ trait CompanySettingsSaver
         $casts = CompanySettings::$casts;
         
         foreach ($casts as $key => $value) {
-            if (in_array($key, SettingsSaver::$string_casts)) {
+            if (in_array($key, CompanySettings::$string_casts)) {
                 $value = "string";
                 
                 if (!property_exists($settings, $key)) {
@@ -229,5 +233,13 @@ trait CompanySettingsSaver
             default:
                 return false;
         }
+    }
+
+    private function getAccountFromEntity($entity)
+    {
+        if($entity instanceof Company)
+            return $entity->account;
+
+        return $entity->company->account;
     }
 }

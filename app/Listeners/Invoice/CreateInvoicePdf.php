@@ -35,6 +35,6 @@ class CreateInvoicePdf implements ShouldQueue
      */
     public function handle($event)
     {
-        PdfCreator::dispatch($invoice->invitations->first());
+        PdfCreator::dispatch($event->invoice->invitations->first());
     }
 }

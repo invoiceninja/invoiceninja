@@ -11,8 +11,10 @@
 
 namespace App\Http\Requests\GroupSetting;
 
+use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
+use App\Utils\Ninja;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
@@ -40,6 +42,40 @@ class UpdateGroupSettingRequest extends Request
     {
         $input = $this->all();
 
+            if(array_key_exists('settings', $input))
+                $input['settings'] = $this->filterSaveableSettings($input['settings']);
+            
         $this->replace($input);
     }
+
+    /**
+     * For the hosted platform, we restrict the feature settings.
+     *
+     * This method will trim the company settings object 
+     * down to the free plan setting properties which 
+     * are saveable
+     * 
+     * @param  object $settings
+     * @return object $settings
+     */
+    private function filterSaveableSettings($settings)
+    {
+        $account = $this->group_setting->company->account;
+
+        if(!$account->isFreeHostedClient())
+            return $settings;
+
+        $saveable_casts = CompanySettings::$free_plan_casts;
+
+        foreach($settings as $key => $value){
+
+            if(!array_key_exists($key, $saveable_casts))
+                unset($settings->{$key});
+
+        }
+        
+        return $settings;
+
+    }
+
 }
