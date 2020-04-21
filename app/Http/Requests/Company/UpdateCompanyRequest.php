@@ -79,7 +79,7 @@ class UpdateCompanyRequest extends Request
     {
         $account = $this->company->account;
 
-        if($account->isPaidHostedClient() || $account->isTrial() || Ninja::isSelfHost() || Ninja::isNinjaDev()){
+        if($account->isPaidHostedClient() || $account->isTrial() || Ninja::isSelfHost() || Ninja::isNinjaDev())
             return $settings;
 
         $saveable_casts = CompanySettings::$free_plan_casts;
@@ -94,4 +94,5 @@ class UpdateCompanyRequest extends Request
         return $settings;
 
     }
+
 }

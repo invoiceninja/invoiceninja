@@ -53,16 +53,6 @@ class StoreClientRequest extends Request
                                         //'regex:/[@$!%*#?&.]/', // must contain a special character
                                         ];
 
-
-//        $contacts = request('contacts');
-
-        // if (is_array($contacts)) {
-        //     for ($i = 0; $i < count($contacts); $i++) {
-
-        //         //$rules['contacts.' . $i . '.email'] = 'nullable|email|distinct';
-        //     }
-        // }
-
         return $rules;
     }
 
