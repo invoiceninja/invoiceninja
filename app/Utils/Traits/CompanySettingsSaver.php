@@ -12,6 +12,8 @@
 namespace App\Utils\Traits;
 
 use App\DataMapper\CompanySettings;
+use App\Models\Company;
+use App\Utils\Ninja;
 
 /**
  * Class CompanySettingsSaver
@@ -53,19 +55,27 @@ trait CompanySettingsSaver
 
 
         //Iterate and set NEW settings
-    
+        $account = $this->getAccountFromEntity($entity);
+
         //@TODO need to test which casts we will use depending if the user is
         //a free user or a self hosted user
-        $restricted_features_casts = CompanySettings::$free_plan_casts;
-        $all_features_casts = CompanySettings::$casts;
+        
+        if($account->isPaidHostedClient() || $account->isTrial() || Ninja::isSelfHost() || Ninja::isNinjaDev()){
+            \Log::error("casting paid settings");
+            $castable = CompanySettings::$casts;
+        }
+        else{
+            \Log::error("casting free settings");
+            $castable = CompanySettings::$free_plan_casts;
+        }
 
-        $castable = $all_features_casts;
+\Log::error(print_r($settings,1));
 
         foreach ($castable as $key => $value) {
 
         //foreach ($settings as $key => $value) { @todo working on feature limiting the settings object
 
-            if (is_null($settings->{$key})) {
+            if (!property_exists($settings, $key) && is_null($settings->{$key})) {
                 $company_settings->{$key} = '';
             } else {
                 $company_settings->{$key} = $settings->{$key};
@@ -244,5 +254,13 @@ trait CompanySettingsSaver
             default:
                 return false;
         }
+    }
+
+    private function getAccountFromEntity($entity)
+    {
+        if($entity instanceof Company)
+            return $entity->account;
+
+        return $entity->company->account;
     }
 }
