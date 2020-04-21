@@ -53,33 +53,12 @@ trait CompanySettingsSaver
 
         $company_settings = CompanySettings::defaults();
 
+        foreach ($settings as $key => $value) { 
 
-        //Iterate and set NEW settings
-        $account = $this->getAccountFromEntity($entity);
-
-        //@TODO need to test which casts we will use depending if the user is
-        //a free user or a self hosted user
-        
-        if($account->isPaidHostedClient() || $account->isTrial() || Ninja::isSelfHost() || Ninja::isNinjaDev()){
-            \Log::error("casting paid settings");
-            $castable = CompanySettings::$casts;
-        }
-        else{
-            \Log::error("casting free settings");
-            $castable = CompanySettings::$free_plan_casts;
-        }
-
-\Log::error(print_r($settings,1));
-
-        foreach ($castable as $key => $value) {
-
-        //foreach ($settings as $key => $value) { @todo working on feature limiting the settings object
-
-            if (!property_exists($settings, $key) && is_null($settings->{$key})) {
+            if (is_null($settings->{$key})) {
                 $company_settings->{$key} = '';
             } else {
-                $company_settings->{$key} = $settings->{$key};
-             //   $company_settings->{$key} = $value;  @todo working on feature limiting the settings object
+               $company_settings->{$key} = $value;
             }
         }
 

@@ -1,0 +1,52 @@
+<?php
+
+namespace Tests\Unit;
+
+use App\DataMapper\CompanySettings;
+use Tests\TestCase;
+
+/**
+ * @test
+ * @covers  App\Http\Requests\Company\UpdateCompanyRequest
+ */
+class CompanySettingsSaveableTest extends TestCase
+{
+
+   public function setUp() :void
+    {
+
+        parent::setUp();
+    
+    }
+
+    public function testSettingsSaverWithFreePlan()
+    {
+    	$default = CompanySettings::defaults();
+    	
+    	$filtered = $this->filterSaver($default);
+
+    	$this->assertTrue(property_exists($filtered, 'timezone_id'));
+
+    	$this->assertTrue(property_exists(CompanySettings::defaults(), 'timezone_id'));
+
+    	$this->assertTrue(property_exists(CompanySettings::defaults(), 'auto_archive_invoice'));
+
+    	$this->assertFalse(property_exists($filtered, 'auto_archive_invoice'));
+
+    }
+
+    private function filterSaver($settings)
+    {
+
+    	$saveable_cast = CompanySettings::$free_plan_casts;
+
+        foreach($settings as $key => $value){
+
+            if(!array_key_exists($key, $saveable_cast))
+                unset($settings->{$key});
+
+        }
+        return $settings;
+
+    }
+}
