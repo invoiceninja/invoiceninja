@@ -62,7 +62,7 @@ class UpdateGroupSettingRequest extends Request
     {
         $account = $this->group_setting->company->account;
 
-        if($account->isPaidHostedClient() || $account->isTrial() || Ninja::isSelfHost() || Ninja::isNinjaDev())
+        if(!$account->isFreeHostedClient())
             return $settings;
 
         $saveable_casts = CompanySettings::$free_plan_casts;

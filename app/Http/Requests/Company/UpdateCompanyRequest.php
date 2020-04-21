@@ -51,6 +51,9 @@ class UpdateCompanyRequest extends Request
             $rules['portal_domain'] = 'nullable|alpha_num';
         }
 
+        if($this->company->account->isPaidHostedClient())
+            return $settings;
+
         return $rules;
     }
 
@@ -79,7 +82,7 @@ class UpdateCompanyRequest extends Request
     {
         $account = $this->company->account;
 
-        if($account->isPaidHostedClient() || $account->isTrial() || Ninja::isSelfHost() || Ninja::isNinjaDev())
+        if(!$account->isFreeHostedClient())
             return $settings;
 
         $saveable_casts = CompanySettings::$free_plan_casts;

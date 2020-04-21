@@ -194,6 +194,15 @@ class Account extends BaseModel
         return $this->plan == 'pro' || $this->plan == 'enterprise';
     }
 
+    public function isFreeHostedClient()
+    {
+        if (! Ninja::isNinja()) {
+            return false;
+        } 
+
+        return $this->plan == 'free';
+    }
+
     public function isTrial()
     {
         if (! Ninja::isNinja()) {

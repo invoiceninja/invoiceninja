@@ -13,6 +13,7 @@ namespace App\Http\Requests\Client;
 
 use App\DataMapper\ClientSettings;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Ninja\CanStoreClientsRule;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use App\Models\Client;
 use App\Models\GroupSetting;
@@ -52,6 +53,9 @@ class StoreClientRequest extends Request
                                         'regex:/[0-9]/',      // must contain at least one digit
                                         //'regex:/[@$!%*#?&.]/', // must contain a special character
                                         ];
+
+        if(auth()->user()->company()->account->isFreeHostedClient())
+            $rules['hosted_clients'] = new CanStoreClientsRule($this->company_id);
 
         return $rules;
     }
