@@ -11,18 +11,13 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\ShowRecurringInvoiceRequest;
-use App\Models\RecurringInvoice;
-use App\Notifications\ClientContactRequestCancellation;
-use App\Notifications\ClientContactResetPassword;
-use App\Utils\Number;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Notification;
-use Yajra\DataTables\Facades\DataTables;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use App\Models\RecurringInvoice;
+use App\Http\Controllers\Controller;
+use App\Notifications\ClientContactRequestCancellation;
+use App\Http\Requests\ClientPortal\ShowRecurringInvoiceRequest;
 
 /**
  * Class InvoiceController
@@ -41,15 +36,7 @@ class RecurringInvoiceController extends Controller
      */
     public function index()
     {
-        $invoices = RecurringInvoice::whereClientId(auth()->user()->client->id)
-            ->whereIn('status_id', [RecurringInvoice::STATUS_PENDING, RecurringInvoice::STATUS_ACTIVE, RecurringInvoice::STATUS_COMPLETED])
-            ->orderBy('status_id', 'asc')
-            ->with('client')
-            ->paginate(10);
-
-        return $this->render('recurring_invoices.index', [
-            'invoices' => $invoices,
-        ]);
+        return $this->render('recurring_invoices.index');
     }
 
     /**
