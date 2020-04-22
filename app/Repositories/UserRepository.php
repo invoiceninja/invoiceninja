@@ -73,7 +73,7 @@ class UserRepository extends BaseRepository
 
             /*No company user exists - attach the user*/
             if (!$cu) {
-                $data['company_user']['account_id'] = $account_id;
+                $data['company_user']['account_id'] = $account->id;
                 $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
                 $data['company_user']['is_migrating'] = $is_migrating;
                 $user->companies()->attach($company->id, $data['company_user']);
