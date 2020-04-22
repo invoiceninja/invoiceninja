@@ -49,7 +49,7 @@
                             {{ $payment->formatDate($payment->date, $payment->client->date_format()) }}
                         </td>
                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                            {{ $payment->type->name }}
+                            {{ optional($payment->type)->name }}
                         </td>
                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                             {!! \App\Utils\Number::formatMoney($payment->amount, $payment->client) !!}
