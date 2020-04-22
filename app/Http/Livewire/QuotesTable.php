@@ -2,20 +2,17 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Invoice;
+use App\Models\Quote;
 use App\Traits\WithSorting;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-/**
- * @todo: Integrate InvoiceFilters
- */
-class InvoicesTable extends Component
+class QuotesTable extends Component
 {
-    use WithPagination, WithSorting;
+    use WithSorting;
+    use WithPagination;
 
     public $per_page = 10;
-
     public $status = [];
 
     public function statusChange($status)
@@ -29,20 +26,20 @@ class InvoicesTable extends Component
 
     public function render()
     {
-        $query = Invoice::query();
-        $query = $query->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
-
         // So $status_id will come in three way:
-        // paid, unpaid & overdue. Need to transform them to real values.
+        // draft, sent, approved & expired. Need to transform them to real values.
 
+        $query = Quote::query()
+            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
+        
         if (count($this->status)) {
             $query = $query->whereIn('status_id', $this->status);
         }
 
         $query = $query->paginate($this->per_page);
 
-        return render('components.livewire.invoices-table', [
-            'invoices' => $query
+        return render('components.livewire.quotes-table', [
+            'quotes' => $query
         ]);
     }
 }

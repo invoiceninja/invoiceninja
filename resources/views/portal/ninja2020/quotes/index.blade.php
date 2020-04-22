@@ -1,10 +1,6 @@
 @extends('portal.ninja2020.layout.app')
 @section('meta_title', ctrans('texts.quotes'))
 
-@push('head')
-    <link rel="stylesheet" href="{{ asset('js/vendor/datatables/datatables.min.css') }}">
-@endpush
-
 @section('header')
     {{ Breadcrumbs::render('quotes') }}
 
@@ -46,80 +42,6 @@
         </form>
     </div>
     <div class="flex flex-col mt-4">
-        <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-            <div class="align-middle inline-block min-w-full overflow-hidden rounded">
-                <table class="min-w-full shadow rounded border border-gray-200">
-                    <thead>
-                    <tr>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            <label>
-                                <input type="checkbox" class="form-check form-check-parent">
-                            </label>
-                        </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            {{ ctrans('texts.quote_number') }}
-                        </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            {{ ctrans('texts.quote_date') }}
-                        </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            {{ ctrans('texts.balance') }}
-                        </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            {{ ctrans('texts.valid_until') }}
-                        </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            {{ ctrans('texts.status') }}
-                        </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($quotes as $quote)
-                        <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
-                                <label>
-                                    <input type="checkbox" class="form-check form-check-child"
-                                           data-value="{{ $quote->hashed_id }}">
-                                </label>
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ $quote->number }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ $quote->formatDate($quote->date, $quote->client->date_format()) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ App\Utils\Number::formatMoney($quote->balance, $quote->client) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ $quote->formatDate($quote->date, $quote->client->date_format()) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {!! App\Models\Quote::badgeForStatus($quote->status_id) !!}
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap flex items-center justify-end text-sm leading-5 font-medium">
-                                <a href="{{ route('client.quotes.show', $quote->hashed_id) }}"
-                                   class="button-link">
-                                    @lang('texts.view')
-                                </a>
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        @livewire('quotes-table')
     </div>
 @endsection
-
-@push('footer')
-    <script src="{{ asset('js/clients/quotes/action-selectors.js') }}"></script>
-    <script src="{{ asset('js/vendor/datatables/datatables.min.js') }}"></script>
-
-    <script>
-        $(document).ready(function() {
-            $('table').DataTable();
-        });
-    </script>
-@endpush

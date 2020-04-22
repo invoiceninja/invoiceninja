@@ -23,11 +23,7 @@ class QuoteController extends Controller
      */
     public function index()
     {
-        $quotes = auth()->user()->company->quotes()->paginate(10);
-
-        return $this->render('quotes.index', [
-            'quotes' => $quotes,
-        ]);
+        return $this->render('quotes.index');
     }
 
 
