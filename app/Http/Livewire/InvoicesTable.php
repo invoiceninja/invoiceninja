@@ -32,6 +32,9 @@ class InvoicesTable extends Component
         $query = Invoice::query();
         $query = $query->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
+        // So $status_id will come in three way:
+        // paid, unpaid & overdue. Need to transform them to real values.
+
         if ($this->status) {
             $query = $query->whereIn('status_id', $this->status);
         }

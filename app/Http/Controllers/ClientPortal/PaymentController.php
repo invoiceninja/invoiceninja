@@ -35,19 +35,13 @@ class PaymentController extends Controller
     use MakesDates;
 
     /**
-     * Show the list of Invoices
+     * Show the list of payments.
      *
-     * @param PaymentFilters $filters The filters
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(PaymentFilters $filters)
+    public function index()
     {
-        //$payments = Payment::filter($filters);
-        $payments = Payment::with('type', 'client')->paginate(10);
-
-        return $this->render('payments.index', [
-            'payments' => $payments,
-        ]);
+        return $this->render('payments.index');
     }
 
     /**
