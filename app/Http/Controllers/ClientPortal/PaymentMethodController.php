@@ -27,17 +27,10 @@ class PaymentMethodController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     * @throws \Exception
      */
     public function index()
     {
-        $payment_methods = ClientGatewayToken::with('gateway_type')
-            ->whereClientId(auth()->user()->client->id)
-            ->paginate(10);
-
-        return $this->render('payment_methods.index', [
-            'payment_methods' => $payment_methods,
-        ]);
+        return $this->render('payment_methods.index');
     }
 
     /**
