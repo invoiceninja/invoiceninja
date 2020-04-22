@@ -23,10 +23,6 @@ use Illuminate\Http\Request;
  */
 class UserRepository extends BaseRepository
 {
-    public function __construct()
-    {
-    }
-
     /**
      * Gets the class name.
      *
@@ -60,10 +56,16 @@ class UserRepository extends BaseRepository
         }
 
         $company = auth()->user()->company();
-        $account_id = $company->account->id;
+        $account = $company->account;;
+
+        /* If hosted and Enterprise we need to increment the num_users field on the accounts table*/
+        if(!$user->id && $account->isEnterpriseClient()){
+            $account->num_users++;
+            $account->save();
+        }
 
         $user->fill($details);
-        $user->account_id = $account_id;
+        $user->account_id = $account->id;
         $user->save();
 
         if (isset($data['company_user'])) {
@@ -71,7 +73,7 @@ class UserRepository extends BaseRepository
 
             /*No company user exists - attach the user*/
             if (!$cu) {
-                $data['company_user']['account_id'] = $account_id;
+                $data['company_user']['account_id'] = $account->id;
                 $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
                 $data['company_user']['is_migrating'] = $is_migrating;
                 $user->companies()->attach($company->id, $data['company_user']);
@@ -111,7 +113,6 @@ class UserRepository extends BaseRepository
         $user->delete();
     
         event(new UserWasDeleted($user, $company));
-
 
         return $user->fresh();
     }

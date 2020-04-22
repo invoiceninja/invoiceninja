@@ -43,6 +43,9 @@ class StoreUserRequest extends Request
             $rules['email'] = new ValidUserForCompany();
         }
 
+        if(auth()->user()->company()->account->isFreeHostedClient())
+            $rules['hosted_users'] = new CanAddUserRule(auth()->user()->company()->account);
+
         return $rules;
     }
 

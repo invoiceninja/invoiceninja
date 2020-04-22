@@ -203,6 +203,14 @@ class Account extends BaseModel
         return $this->plan == 'free';
     }
 
+    public function isEnterpriseClient()
+    {
+        if(!Ninja::isNinja())
+            return false;
+
+        return $this->plan == 'enterprise';
+    }
+
     public function isTrial()
     {
         if (! Ninja::isNinja()) {
