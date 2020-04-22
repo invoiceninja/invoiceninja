@@ -16,11 +16,7 @@ class CreditController extends Controller
      */
     public function index()
     {
-        $credits = auth()->user()->company->credits()->paginate(10);
-
-        return $this->render('credits.index', [
-            'credits' => $credits,
-        ]);
+        return $this->render('credits.index');
     }
 
     public function show(ShowCreditRequest $request, Credit $credit)
