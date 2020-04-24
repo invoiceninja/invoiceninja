@@ -11,15 +11,15 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:click="statusChange(paid)" type="checkbox" class="form-checkbox">
+                <input wire:click="statusChange('paid')" type="checkbox" class="form-checkbox">
                 <label for="paid" class="text-sm">{{ ctrans('texts.status_paid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange(unpaid)" value="unpaid" type="checkbox" class="form-checkbox">
+                <input wire:click="statusChange('unpaid')" type="checkbox" class="form-checkbox">
                 <label for="unpaid" class="text-sm">{{ ctrans('texts.status_unpaid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange(overdue)" value="overdue" type="checkbox" class="form-checkbox">
+                <input wire:click="statusChange('overdue')" type="checkbox" class="form-checkbox">
                 <label for="overdue" class="text-sm">{{ ctrans('texts.overdue') }}</label>
             </div>
         </div>
