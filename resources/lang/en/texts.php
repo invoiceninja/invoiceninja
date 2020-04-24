@@ -3203,4 +3203,6 @@ return [
     'of' => 'Of',
     'view_credit' => 'View Credit',
     'to_view_entity_password' => 'To view the :entity you need to enter password.',
+    'showing_x_of' => 'Showing :first to :last out of :total results',
+    'no_results' => 'No results found.'
 ];

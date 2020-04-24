@@ -63,7 +63,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($invoices as $invoice)
+                    @forelse($invoices as $invoice)
                         <tr class="bg-white group hover:bg-gray-100">
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
                                 <label>
@@ -96,13 +96,23 @@
                                 </a>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr class="bg-white group hover:bg-gray-100">
+                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500" colspan="100%">
+                                {{ ctrans('texts.no_results') }}
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
     <div class="flex justify-center md:justify-between mt-6 mb-6">
-        <span class="text-gray-700 text-sm hidden md:block">Showing {{ $invoices->firstItem() }} to {{ $invoices->lastItem() }} out of {{ $invoices->total() }}</span>
+        @if($invoices->total() > 0)
+            <span class="text-gray-700 text-sm hidden md:block">
+                {{ ctrans('texts.showing_x_of', ['first' => $invoices->firstItem(), 'last' => $invoices->lastItem(), 'total' => $invoices->total()]) }}
+            </span>
+        @endif
         {{ $invoices->links() }}
     </div>
 </div>
