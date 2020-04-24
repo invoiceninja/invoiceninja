@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Mail\Invoices\InvoiceWasPaid;
 use App\Models\Client;
 use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
@@ -9,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
 
 class InvoiceWorkflowSettings implements ShouldQueue
 {
@@ -40,7 +42,9 @@ class InvoiceWorkflowSettings implements ShouldQueue
         }
 
         if ($this->client->getSetting('auto_email_invoice')) {
-           // .. Send e-mail with invoice.
+            // Todo: Fetch the right client contact.
+            Mail::to($this->client->contacts()->first()->email)
+                ->send(new InvoiceWasPaid());
         }
     }
 }
