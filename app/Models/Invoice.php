@@ -26,6 +26,7 @@ use App\Models\PaymentTerm;
 use App\Services\Invoice\InvoiceService;
 use App\Services\Ledger\LedgerService;
 use App\Utils\Number;
+use App\Utils\Traits\Archivable;
 use App\Utils\Traits\InvoiceEmailBuilder;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Utils\Traits\MakesDates;
@@ -50,6 +51,7 @@ class Invoice extends BaseModel
     use InvoiceEmailBuilder;
     use MakesReminders;
     use ActionsInvoice;
+    use Archivable;
 
     protected $presenter = 'App\Models\Presenters\InvoicePresenter';
 

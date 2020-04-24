@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Activity;
 
+use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -53,6 +54,8 @@ class PaymentCreatedActivity implements ShouldQueue
 
         foreach ($invoices as $invoice) { //todo we may need to add additional logic if in the future we apply payments to other entity Types, not just invoices
             $fields->invoice_id = $invoice->id;
+
+            InvoiceWorkflowSettings::dispatchNow($invoice);
 
             $this->activityRepo->save($fields, $invoice);
         }
