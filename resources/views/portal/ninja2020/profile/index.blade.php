@@ -226,10 +226,13 @@
                                 </div>
                                 <div class="col-span-6 sm:col-span-2">
                                     <label for="country" class="input-label">@lang('texts.country')</label>
-                                    <select id="country" class="input form-select" name="country">
+                                    <select id="country" class="input w-full form-select" name="country">
                                         @foreach($countries as $country)
                                             <option
-                                                {{ $country == auth()->user()->client->country->id ? 'selected' : null }} value="{{ $country->id }}">{{ $country->full_name }}</option>
+                                                {{ $country == auth()->user()->client->country->id ? 'selected' : null }} value="{{ $country->id }}">
+                                                {{ $country->iso_3166_2 }}
+                                                ({{ $country->name }})
+                                            </option>
                                         @endforeach
                                     </select>
                                     @error('country')
@@ -327,10 +330,12 @@
                                 <div class="col-span-4 sm:col-span-2">
                                     <label for="shipping_country"
                                            class="input-label">@lang('texts.shipping_country')</label>
-                                    <select id="shipping_country" class="input form-select" name="shipping_country">
+                                    <select id="shipping_country" class="input w-full form-select" name="shipping_country">
                                         @foreach($countries as $country)
                                             <option
-                                                {{ $country == auth()->user()->client->shipping_country->id ? 'selected' : null }} value="{{ $country->id }}">{{ $country->full_name }}
+                                                {{ $country == auth()->user()->client->shipping_country->id ? 'selected' : null }} value="{{ $country->id }}">
+                                                {{ $country->iso_3166_2 }}
+                                                ({{ $country->name }})
                                             </option>
                                         @endforeach
                                     </select>
