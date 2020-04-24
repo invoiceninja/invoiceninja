@@ -26,14 +26,23 @@ class QuotesTable extends Component
 
     public function render()
     {
-        // So $status_id will come in three way:
-        // draft, sent, approved & expired. Need to transform them to real values.
-
         $query = Quote::query()
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
         
-        if (count($this->status)) {
-            $query = $query->whereIn('status_id', $this->status);
+        if (in_array('draft', $this->status)) {
+            $query = $query->orWhere('status_id', Quote::STATUS_DRAFT);
+        }
+
+        if (in_array('sent', $this->status)) {
+            $query = $query->orWhere('status_id', Quote::STATUS_SENT);
+        }
+
+        if (in_array('approved', $this->status)) {
+            $query = $query->orWhere('status_id', Quote::STATUS_APPROVED);
+        }
+
+        if (in_array('expired', $this->status)) {
+            $query = $query->orWhere('status_id', Quote::STATUS_EXPIRED);
         }
 
         $query = $query->paginate($this->per_page);
