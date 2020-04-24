@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\Invoice;
 use App\Traits\WithSorting;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -32,17 +33,24 @@ class InvoicesTable extends Component
         $query = Invoice::query();
         $query = $query->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
-        // So $status_id will come in three way:
-        // paid, unpaid & overdue. Need to transform them to real values.
+        if (in_array('paid', $this->status)) {
+            $query = $query->orWhere('status_id', Invoice::STATUS_PAID);
+        }
 
-        if (count($this->status)) {
-            $query = $query->whereIn('status_id', $this->status);
+        if (in_array('unpaid', $this->status)) {
+            $query = $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
+        }
+
+        if (in_array('overdue', $this->status)) {
+            $query = $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                ->where('due_date', '<', Carbon::now())
+                ->orWhere('partial_due_date', '<', Carbon::now());
         }
 
         $query = $query->paginate($this->per_page);
 
         return render('components.livewire.invoices-table', [
-            'invoices' => $query
+            'invoices' => $query,
         ]);
     }
 }
