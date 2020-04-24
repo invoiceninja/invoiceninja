@@ -10,23 +10,22 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Jobs\Invoice;
+namespace App\Jobs\Quote;
 
-use App\Mail\Invoices\InvoiceWasPaid;
+use App\Mail\Quote\QuoteWasApproved;
+use App\Models\Quote;
 use App\Models\Client;
-use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 
-class InvoiceWorkflowSettings implements ShouldQueue
+class QuoteWorkflowSettings implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $invoice;
+    public $quote;
     public $client;
 
     /**
@@ -34,10 +33,10 @@ class InvoiceWorkflowSettings implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Invoice $invoice, Client $client = null)
+    public function __construct(Quote $quote, Client $client = null)
     {
-        $this->invoice = $invoice;
-        $this->client = $client ?? $invoice->client;
+        $this->quote = $quote;
+        $this->client = $client ?? $quote->client;
     }
 
     /**
@@ -47,14 +46,14 @@ class InvoiceWorkflowSettings implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->client->getSetting('auto_archive_invoice')) {
-            $this->invoice->archive();
+        if ($this->client->getSetting('auto_archive_quote')) {
+            $this->quote->archive();
         }
 
-        if ($this->client->getSetting('auto_email_invoice')) {
+        if ($this->client->getSetting('auto_email_quote')) {
            // Todo: Fetch the right client contact.
             Mail::to($this->client->contacts()->first()->email)
-                ->send(new InvoiceWasPaid());
+                ->send(new QuoteWasApproved());
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Events\Quote\QuoteWasApproved;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\ProcessQuotesInBulkRequest;
 use App\Http\Requests\ClientPortal\ShowQuoteRequest;
@@ -98,6 +99,7 @@ class QuoteController extends Controller
         if ($process) {
             foreach ($quotes as $quote) {
                 $quote->service()->approve()->save();
+                event(new QuoteWasApproved($quote));
             }
 
             return route('client.quotes.index')->withSuccess('Quote(s) approved successfully.');
