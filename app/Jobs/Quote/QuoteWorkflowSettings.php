@@ -15,6 +15,7 @@ namespace App\Jobs\Quote;
 use App\Mail\Quote\QuoteWasApproved;
 use App\Models\Quote;
 use App\Models\Client;
+use App\Repositories\BaseRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -27,6 +28,7 @@ class QuoteWorkflowSettings implements ShouldQueue
 
     public $quote;
     public $client;
+    public $base_repository;
 
     /**
      * Create a new job instance.
@@ -37,6 +39,7 @@ class QuoteWorkflowSettings implements ShouldQueue
     {
         $this->quote = $quote;
         $this->client = $client ?? $quote->client;
+        $this->base_repository = new BaseRepository();
     }
 
     /**
@@ -47,13 +50,13 @@ class QuoteWorkflowSettings implements ShouldQueue
     public function handle()
     {
         if ($this->client->getSetting('auto_archive_quote')) {
-            $this->quote->archive();
+            $this->base_repository->archive($this->quote);
         }
 
         if ($this->client->getSetting('auto_email_quote')) {
-           // Todo: Fetch the right client contact.
-            Mail::to($this->client->contacts()->first()->email)
-                ->send(new QuoteWasApproved());
+            $this->quote->invitations->each(function ($invitation, $key) {
+                $this->quote->service()->sendEmail($invitation->contact);
+           });
         }
     }
 }

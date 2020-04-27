@@ -51,11 +51,14 @@ class InvoiceWorkflowSettings implements ShouldQueue
     public function handle()
     {
         if ($this->client->getSetting('auto_archive_invoice')) {
+            /** Throws: Payment amount xxx does not match invoice totals. */
             $this->base_repository->archive($this->invoice);
         }
 
         if ($this->client->getSetting('auto_email_invoice')) {
-           // ..
+           $this->invoice->invitations->each(function ($invitation, $key) {
+                $this->invoice->service()->sendEmail($invitation->contact);
+           });
         }
     }
 }
