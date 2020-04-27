@@ -344,11 +344,10 @@ class StripePaymentDriver extends BasePaymentDriver
 
             /* Link invoices to payment*/
             $this->attachInvoices($payment, $hashed_ids);
+            
+            $payment->service()->UpdateInvoicePayment();
 
             event(new PaymentWasCreated($payment, $payment->company));
-
-            $payment->service()->UpdateInvoicePayment();
-            //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
 
             SystemLogger::dispatch(
                 [

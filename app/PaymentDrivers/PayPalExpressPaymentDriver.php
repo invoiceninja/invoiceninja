@@ -158,11 +158,9 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         $this->attachInvoices($payment, $request->input('hashed_ids'));
 
-        event(new PaymentWasCreated($payment, $payment->company));
-
         $payment->service()->UpdateInvoicePayment();
-
-        //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
+        
+        event(new PaymentWasCreated($payment, $payment->company));
 
         return redirect()->route('client.payments.show', ['payment'=>$this->encodePrimaryKey($payment->id)]);
     }
