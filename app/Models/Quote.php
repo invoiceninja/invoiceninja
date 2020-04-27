@@ -18,6 +18,7 @@ use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Quote\CreateQuotePdf;
 use App\Models\Filterable;
 use App\Services\Quote\QuoteService;
+use App\Utils\Traits\Archivable;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;

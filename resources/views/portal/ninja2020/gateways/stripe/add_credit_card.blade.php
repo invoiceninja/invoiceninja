@@ -37,7 +37,7 @@
                                     {{ ctrans('texts.name') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    <input class="input" id="cardholder-name" type="text" placeholder="{{ ctrans('texts.name') }}">
+                                    <input class="input w-full" id="cardholder-name" type="text" placeholder="{{ ctrans('texts.name') }}">
                                 </dd>
                             </div><div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm leading-5 font-medium text-gray-500">
@@ -52,7 +52,7 @@
                                     {{ ctrans('texts.save_as_default') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    <input type="checkbox" class="form-check" name="proxy_is_default"
+                                    <input type="checkbox" class="form-checkbox" name="proxy_is_default"
                                            id="proxy_is_default"/>
                                 </dd>
                             </div>

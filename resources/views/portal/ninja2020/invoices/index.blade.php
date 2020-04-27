@@ -31,8 +31,8 @@
 @endsection
 
 @section('body')
-    <div class="flex justify-between items-center">
-        <span>{{ ctrans('texts.with_selected') }}</span>
+    <div class="flex justify-end items-center">
+        <span class="text-sm mr-2">{{ ctrans('texts.with_selected') }}:</span>
         <form action="{{ route('client.invoices.bulk') }}" method="post" id="bulkActions">
             @csrf
             <button type="submit" class="button button-primary" name="action" value="download">{{ ctrans('texts.download') }}</button>

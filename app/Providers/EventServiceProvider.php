@@ -28,6 +28,7 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasVoided;
+use App\Events\Quote\QuoteWasApproved;
 use App\Events\User\UserLoggedIn;
 use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
@@ -50,6 +51,7 @@ use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\Misc\InvitationViewedListener;
 use App\Listeners\Payment\PaymentNotification;
+use App\Listeners\Quote\ReachWorkflowSettings;
 use App\Listeners\SendVerificationNotification;
 use App\Listeners\SetDBListener;
 use App\Listeners\User\DeletedUserActivity;
@@ -144,9 +146,11 @@ class EventServiceProvider extends ServiceProvider
         InvitationWasViewed::class => [
             InvitationViewedListener::class
         ],
-
         CompanyWasDeleted::class => [
             DeleteCompanyDocuments::class,
+        ],
+        QuoteWasApproved::class => [
+            ReachWorkflowSettings::class,
         ],
     ];
 

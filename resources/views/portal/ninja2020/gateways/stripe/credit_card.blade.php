@@ -4,6 +4,7 @@
 @push('head')
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     <meta name="using-token" content="{{ boolval($token) }}">
+    <meta name="turbolinks-visit-control" content="reload">
 @endpush
 
 @section('header')
@@ -62,7 +63,7 @@
                                         {{ ctrans('texts.name') }}
                                     </dt>
                                     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                        <input class="input" id="cardholder-name" type="text"
+                                        <input class="input w-full" id="cardholder-name" type="text"
                                                placeholder="{{ ctrans('texts.name') }}">
                                     </dd>
                                 </div>

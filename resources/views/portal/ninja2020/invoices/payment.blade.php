@@ -5,6 +5,7 @@
     <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
     <meta name="require-invoice-signature" content="{{ $settings->require_invoice_signature ? true : false }}">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    <meta name="turbolinks-visit-control" content="reload">
 @endpush
 
 @section('body')

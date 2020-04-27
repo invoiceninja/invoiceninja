@@ -71,7 +71,7 @@ class BaseRepository
         }
         
         $entity->delete();
-
+        
         $className = $this->getEventClass($entity, 'Archived');
 
         if (class_exists($className)) {
