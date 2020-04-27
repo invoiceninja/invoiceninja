@@ -38,7 +38,6 @@ class Quote extends BaseModel
     use MakesReminders;
     use PresentableTrait;
     use MakesInvoiceValues;
-    use Archivable;
 
     protected $presenter = 'App\Models\Presenters\QuotePresenter';
 

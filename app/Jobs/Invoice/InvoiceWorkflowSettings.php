@@ -15,6 +15,7 @@ namespace App\Jobs\Invoice;
 use App\Mail\Invoices\InvoiceWasPaid;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Repositories\BaseRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -28,6 +29,7 @@ class InvoiceWorkflowSettings implements ShouldQueue
 
     public $invoice;
     public $client;
+    private $base_repository;
 
     /**
      * Create a new job instance.
@@ -38,6 +40,7 @@ class InvoiceWorkflowSettings implements ShouldQueue
     {
         $this->invoice = $invoice;
         $this->client = $client ?? $invoice->client;
+        $this->base_repository = new BaseRepository();
     }
 
     /**
@@ -48,13 +51,11 @@ class InvoiceWorkflowSettings implements ShouldQueue
     public function handle()
     {
         if ($this->client->getSetting('auto_archive_invoice')) {
-            $this->invoice->archive();
+            $this->base_repository->archive($this->invoice);
         }
 
         if ($this->client->getSetting('auto_email_invoice')) {
-           // Todo: Fetch the right client contact.
-            Mail::to($this->client->contacts()->first()->email)
-                ->send(new InvoiceWasPaid());
+           // ..
         }
     }
 }

@@ -51,7 +51,6 @@ class Invoice extends BaseModel
     use InvoiceEmailBuilder;
     use MakesReminders;
     use ActionsInvoice;
-    use Archivable;
 
     protected $presenter = 'App\Models\Presenters\InvoicePresenter';
 
