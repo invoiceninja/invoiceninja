@@ -9,16 +9,16 @@ use League\CommonMark\CommonMarkConverter;
 
 class EmailBuilder
 {
-    protected $subject;
-    protected $body;
-    protected $recipients;
-    protected $attachments;
-    protected $footer;
-    protected $template_style;
-    protected $variables = [];
-    protected $contact = null;
-    protected $view_link;
-    protected $view_text;
+    public $subject;
+    public $body;
+    public $recipients;
+    public $attachments;
+    public $footer;
+    public $template_style;
+    public $variables = [];
+    public $contact = null;
+    public $view_link;
+    public $view_text;
 
     private function parseTemplate(string $data, bool $is_markdown = true, $contact = null): string
     {

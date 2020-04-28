@@ -44,7 +44,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new ReminderJob)->daily();
         
-        $schedule->jon(new SendFailedEmails)->daily();
+        $schedule->job(new SendFailedEmails)->daily();
         
         /* Run queue's in shared hosting with this*/
         if (Ninja::isSelfHost()) {

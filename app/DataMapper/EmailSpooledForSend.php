@@ -27,11 +27,11 @@ class EmailSpooledForSend
 {
 	public $entity_name;
 
-	public $invitation;
+	public $invitation_key = '';
 
-	public $reminder;
+	public $reminder_template = '';
 
-	public $subject;
+	public $subject = '';
 
-	public $body;
+	public $body = '';
 }

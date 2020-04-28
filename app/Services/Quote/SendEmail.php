@@ -27,7 +27,7 @@ class SendEmail
         }
 
         $this->quote->invitations->each(function ($invitation) {
-            if ($invitation->contact->send && $invitation->contact->email) {
+            if ($invitation->contact->send_email && $invitation->contact->email) {
                 $email_builder = (new QuoteEmail())->build($invitation, $reminder_template);
 
                 EmailQuote::dispatchNow($email_builder, $invitation);

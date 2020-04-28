@@ -20,6 +20,7 @@ $factory->define(App\Models\ClientContact::class, function (Faker $faker) {
         'phone' => $faker->phoneNumber,
         'email_verified_at' => now(),
         'email' => $faker->unique()->safeEmail,
+        'send_email' => true,
         'password' => bcrypt('password'),
         'remember_token' => \Illuminate\Support\Str::random(10),
         'contact_key' => \Illuminate\Support\Str::random(40),

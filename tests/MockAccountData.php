@@ -200,7 +200,7 @@ trait MockAccountData
 
         $this->invoice->save();
 
-        $this->invoice->service()->markSent();
+        $this->invoice->service()->createInvitations()->markSent();
 
         $this->quote = factory(\App\Models\Quote::class)->create([
                 'user_id' => $this->user->id,

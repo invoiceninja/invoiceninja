@@ -1,0 +1,67 @@
+<?php
+
+namespace Tests\Integration;
+
+use App\Jobs\Invoice\EmailInvoice;
+use App\Jobs\Util\SendFailedEmails;
+use App\Models\SystemLog;
+use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Queue;
+use Tests\MockAccountData;
+use Tests\TestCase;
+
+/**
+ * @test
+ * @covers App\Jobs\Util\SendFailedEmails
+ */
+class SendFailedEmailsTest extends TestCase
+{
+    use MockAccountData;
+	use DatabaseTransactions;
+
+    public function setUp() :void
+    {
+        parent::setUp();
+
+        $this->makeTestData();
+    }
+
+
+    public function testReminderFires()
+    {
+    	$invitation = $this->invoice->invitations->first();
+        $reminder_template = $this->invoice->calculateTemplate();
+
+        $sl = [
+            'entity_name' => 'App\Models\InvoiceInvitation',
+            'invitation_key' => $invitation->key,
+            'reminder_template' => $reminder_template,
+            'subject' => '',
+            'body' => '',
+        ];
+
+        $system_log = new SystemLog;
+        $system_log->company_id = $this->invoice->company_id;
+        $system_log->client_id = $this->invoice->client_id;
+        $system_log->category_id = SystemLog::CATEGORY_MAIL;
+        $system_log->event_id = SystemLog::EVENT_MAIL_RETRY_QUEUE;
+        $system_log->type_id = SystemLog::TYPE_QUOTA_EXCEEDED;
+        $system_log->log = $sl;
+        $system_log->save();
+
+        $sys_log = SystemLog::where('event_id', SystemLog::EVENT_MAIL_RETRY_QUEUE)->first();
+
+        $this->assertNotNull($sys_log);
+
+        Queue::fake();
+
+        // Logic that should dispatch the SendSMS job
+		SendFailedEmails::dispatch();
+
+ 		Queue::assertPushed(SendFailedEmails::class);
+
+    }
+
+}

@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Util;
 
+use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Libraries\MultiDB;
 use App\Models\SystemLog;
@@ -59,27 +60,23 @@ class SendFailedEmails implements ShouldQueue
     private function processEmails()
     {
 
-        $email_jobs = SystemLog::where('type_id', SystemLog::EVENT_MAIL_RETRY_QUEUE)->get();
+        $email_jobs = SystemLog::where('event_id', SystemLog::EVENT_MAIL_RETRY_QUEUE)->get();
 
         $email_jobs->each(function($job){
 
             $job_meta_array = $job->log;
 
-            $invitation = $entity_name::where('key', $job_meta_array['invitation'])->first();
+            $invitation = $job_meta_array['entity_name']::where('key', $job_meta_array['invitation_key'])->with('contact')->first();
 
-            $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
+            if($invitation->invoice){
+                $email_builder = (new InvoiceEmail())->build($invitation, $job_meta_array['reminder_template']);
 
-            $this->sendInvoice($email_builder, $invitation, $this->reminder_template);
-
+                if ($invitation->contact->send_email && $invitation->contact->email) {
+                    EmailInvoice::dispatch($email_builder, $invitation, $invitation->company);
+                }
+            }
         });
 
-    }
-
-    private function sendInvoice($email_builder, $invitation, $reminder_template)
-    {
-        if ($invitation->contact->send && $invitation->contact->email) {
-            EmailInvoice::dispatch($email_builder, $invitation, $invitation->company);
-        }
     }
 
 }
