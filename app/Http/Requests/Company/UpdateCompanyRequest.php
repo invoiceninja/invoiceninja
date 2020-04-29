@@ -51,8 +51,9 @@ class UpdateCompanyRequest extends Request
             $rules['portal_domain'] = 'nullable|alpha_num';
         }
 
-        if($this->company->account->isPaidHostedClient())
-            return $settings;
+        // if($this->company->account->isPaidHostedClient()) {
+        //     return $settings;
+        // }
 
         return $rules;
     }
