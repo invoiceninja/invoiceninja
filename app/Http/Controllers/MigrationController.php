@@ -189,22 +189,48 @@ class MigrationController extends BaseController
             ]);
         }
 
-        $existing_company = Company::where('company_key', $request->company_key)->first();
+        $checks = [
+            'same_keys' => $request->company_key == $company->company_key,
+            'existing_company' => (bool) Company::where('company_key', $request->company_key)->first(),
+            'with_force' => (bool) ($request->has('force') && !empty($request->force)),
+        ];
 
-        if ($request->company_key !== $company->company_key) {
+        // If same company keys, and force provided.
+        if ($checks['same_keys'] && $checks['with_force']) { 
+            info('Migrating: Same company keys, with force.');
+        }
+
+        // If keys are same and no force has been provided.
+        if ($checks['same_keys'] && !$checks['with_force']) {
+            info('Migrating: Same company keys, no force provided.');
+        }
+
+        // If keys ain't same, but existing company without force.
+        if (!$checks['same_keys'] && $checks['existing_company'] && !$checks['with_force']) {
+            // Cancel the migration.
+            info('Migrating: Different keys, existing company with the key without the force option.');
+        }
+
+        // If keys ain't same, but existing company with force.
+        if (!$checks['same_keys'] && $checks['existing_company'] && $checks['with_force']) {
+            info('Migrating: Different keys, exisiting company with force option.');
+        }
+
+        // If keys ain't same, but with force.
+        if (!$checks['same_keys'] && $checks['with_force']) {
+            info('Migrating: Different keys with force.');
+        }
+
+        // If keys ain't same, fresh migrate.
+        if (!$checks['same_keys'] && !$checks['with_force']) {
+            info('Migrating: Vanilla, fresh migrate.');
+        }
+
+        return;
+
+        /** Case 01 */
+        if (($request->company_key !== $company->company_key) && !$existing_company) {
             info('Migration type: Fresh migration with new company. MigrationController::203');
-
-            if ($existing_company && !$request->force) {
-                info('Migration type: Migration with pre-existing company key, that doesn\t belong to user. No force option.');
-
-                Mail::to($user)->send(new ExistingMigration());
-
-                return response()->json([
-                    '_id' => Str::uuid(),
-                    'method' => config('queue.default'),
-                    'started_at' => now(),
-                ], 200);
-            }
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
@@ -228,6 +254,7 @@ class MigrationController extends BaseController
             ]);
         }
 
+        /** Case 03 */
         if (($request->company_key == $company->company_key) && ($request->has('force') && !empty($request->force))) {
             info('Migration type: Completely wipe company and start again. MigrationController::228');
 
@@ -255,6 +282,7 @@ class MigrationController extends BaseController
             ]);
         }
 
+        /** Case 04 */
         if (($request->company_key == $company->company_key) && !$request->force) {
             info('Migration type: Nothing, skip this since no "force" is provided.. MigrationController::255');
 
