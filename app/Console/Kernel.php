@@ -12,6 +12,7 @@
 namespace App\Console;
 
 use App\Jobs\Cron\RecurringInvoicesCron;
+use App\Jobs\Util\AdjustEmailQuota;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SendFailedEmails;
 use App\Jobs\Util\VersionCheck;
@@ -44,8 +45,11 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new ReminderJob)->daily();
         
-        $schedule->job(new SendFailedEmails)->daily();
-        
+        /* Run hosted specific jobs */
+        if(Ninja::isHosted()) {
+            $schedule->json()->daily(new AdjustEmailQuota())->daily;
+            $schedule->job(new SendFailedEmails())->daily();
+        }
         /* Run queue's in shared hosting with this*/
         if (Ninja::isSelfHost()) {
             $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
