@@ -182,10 +182,12 @@ class MigrationController extends BaseController
     {
         $user = auth()->user();
 
-        info([
-            'Company key' => $company->company_key,
-            'Request key' => $request->company_key,
-        ]);
+        if (app()->environment() === 'local') {
+            info([
+                'Company key' => $company->company_key,
+                'Request key' => $request->company_key,
+            ]);
+        }
 
         $existing_company = Company::where('company_key', $request->company_key)->first();
 
