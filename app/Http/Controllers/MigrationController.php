@@ -182,25 +182,31 @@ class MigrationController extends BaseController
     {
         $user = auth()->user();
 
+        if (app()->environment() === 'local') {
+            info([
+                'Company key' => $company->company_key,
+                'Request key' => $request->company_key,
+            ]);
+        }
+
         $existing_company = Company::where('company_key', $request->company_key)->first();
 
         if ($request->company_key !== $company->company_key) {
             info('Migration type: Fresh migration with new company. MigrationController::203');
 
-            /**
-             * This case is still unresolved.
-             *
-             * Following block will happen in case $request->company_key and $company.company_key
-             * are different in which case the migration might fail due duplicated company_key
-             * record.
-             */
+            if ($existing_company && !$request->force) {
+                info('Migration type: Migration with pre-existing company key, that doesn\t belong to user. No force option.');
 
-            if ($existing_company) {
-                return;
+                Mail::to($user)->send(new ExistingMigration());
+
+                return response()->json([
+                    '_id' => Str::uuid(),
+                    'method' => config('queue.default'),
+                    'started_at' => now(),
+                ], 200);
             }
 
             $account = auth()->user()->account;
-            //$account = (new ImportMigrations())->getAccount();
             $company = (new ImportMigrations())->getCompany($account);
 
             $company_token = new CompanyToken();
@@ -227,7 +233,7 @@ class MigrationController extends BaseController
 
             $this->purgeCompany($company);
 
-            $account = (new ImportMigrations())->getAccount();
+            $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
 
             $company_token = new CompanyToken();
