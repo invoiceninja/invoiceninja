@@ -4,6 +4,7 @@ namespace Tests\Integration;
 
 use App\Jobs\Invoice\EmailInvoice;
 use App\Jobs\Util\SendFailedEmails;
+use App\Jobs\Util\SystemLogger;
 use App\Models\SystemLog;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -55,12 +56,12 @@ class SendFailedEmailsTest extends TestCase
 
         $this->assertNotNull($sys_log);
 
-        Queue::fake();
-
-        // Logic that should dispatch the SendSMS job
+       // Queue::fake();
 		SendFailedEmails::dispatch();
 
- 		Queue::assertPushed(SendFailedEmails::class);
+ 		//Queue::assertPushed(SendFailedEmails::class);
+ 		//Queue::assertPushed(EmailInvoice::class);
+		//$this->expectsJobs(EmailInvoice::class);
 
     }
 

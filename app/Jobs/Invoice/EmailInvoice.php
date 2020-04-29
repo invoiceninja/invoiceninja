@@ -53,7 +53,7 @@ class EmailInvoice implements ShouldQueue
      */
 
     public function handle()
-    {
+    {        
         MultiDB::setDB($this->company->db);
         
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())

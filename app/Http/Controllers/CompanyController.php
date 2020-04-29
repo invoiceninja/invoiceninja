@@ -21,6 +21,7 @@ use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Requests\SignupRequest;
 use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Ninja\RefundCancelledAccount;
 use App\Jobs\RegisterNewAccount;
 use App\Jobs\Util\UploadAvatar;
 use App\Models\Account;
@@ -30,6 +31,7 @@ use App\Repositories\CompanyRepository;
 use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyTransformer;
 use App\Transformers\CompanyUserTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -460,15 +462,21 @@ class CompanyController extends BaseController
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
         $company_count = $company->account->companies->count();
+        $account = $company->account;
 
         if ($company_count == 1) {
+            
             $company->company_users->each(function ($company_user) {
                 $company_user->user->forceDelete();
             });
 
-            $company->account->delete();
+            if(Ninja::isHosted())
+                RefundCancelledAccount::dispatchNow($account);
+
+            $account->delete();
+
         } else {
-            $account = $company->account;
+
             $company_id = $company->id;
             $company->delete();
 
@@ -479,11 +487,6 @@ class CompanyController extends BaseController
                 $account->save();
             }
         }
-
-        //@todo delete documents also!!
-
-        //@todo in the hosted version deleting the last
-        //account will trigger an account refund.
            
         return response()->json(['message' => 'success'], 200);
     }

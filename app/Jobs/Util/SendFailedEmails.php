@@ -60,6 +60,9 @@ class SendFailedEmails implements ShouldQueue
     private function processEmails()
     {
 
+        //info("process emails");
+        //@todo check that the quota is available for the job
+        
         $email_jobs = SystemLog::where('event_id', SystemLog::EVENT_MAIL_RETRY_QUEUE)->get();
 
         $email_jobs->each(function($job){
