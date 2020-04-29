@@ -191,45 +191,15 @@ class MigrationController extends BaseController
 
         $existing_company = Company::where('company_key', $request->company_key)->first();
 
-        if ($request->company_key !== $company->company_key) {
-            info('Migration type: Fresh migration with new company. MigrationController::203');
+        $checks = [
+            'same_keys' => $request->company_key == $company->company_key,
+            'existing_company' => (bool) $existing_company,
+            'with_force' => (bool) ($request->has('force') && !empty($request->force)),
+        ];
 
-            if ($existing_company && !$request->force) {
-                info('Migration type: Migration with pre-existing company key, that doesn\t belong to user. No force option.');
-
-                Mail::to($user)->send(new ExistingMigration());
-
-                return response()->json([
-                    '_id' => Str::uuid(),
-                    'method' => config('queue.default'),
-                    'started_at' => now(),
-                ], 200);
-            }
-
-            $account = auth()->user()->account;
-            $company = (new ImportMigrations())->getCompany($account);
-
-            $company_token = new CompanyToken();
-            $company_token->user_id = $user->id;
-            $company_token->company_id = $company->id;
-            $company_token->account_id = $account->id;
-            $company_token->name = $request->token_name ?? Str::random(12);
-            $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
-            $company_token->save();
-
-            $user->companies()->attach($company->id, [
-                'account_id' => $account->id,
-                'is_owner' => 1,
-                'is_admin' => 1,
-                'is_locked' => 0,
-                'notifications' => CompanySettings::notificationDefaults(),
-                'permissions' => '',
-                'settings' => null,
-            ]);
-        }
-
-        if (($request->company_key == $company->company_key) && ($request->has('force') && !empty($request->force))) {
-            info('Migration type: Completely wipe company and start again. MigrationController::228');
+        // If same company keys, and force provided.
+        if ($checks['same_keys'] && $checks['with_force']) { 
+            info('Migrating: Same company keys, with force.');
 
             $this->purgeCompany($company);
 
@@ -255,8 +225,9 @@ class MigrationController extends BaseController
             ]);
         }
 
-        if (($request->company_key == $company->company_key) && !$request->force) {
-            info('Migration type: Nothing, skip this since no "force" is provided.. MigrationController::255');
+        // If keys are same and no force has been provided.
+        if ($checks['same_keys'] && !$checks['with_force']) {
+            info('Migrating: Same company keys, no force provided.');
 
             Mail::to($user)->send(new ExistingMigration());
 
@@ -265,6 +236,101 @@ class MigrationController extends BaseController
                 'method' => config('queue.default'),
                 'started_at' => now(),
             ], 200);
+        }
+
+        // If keys ain't same, but existing company without force.
+        if (!$checks['same_keys'] && $checks['existing_company'] && !$checks['with_force']) {
+            info('Migrating: Different keys, existing company with the key without the force option.');
+
+            Mail::to($user)->send(new ExistingMigration());
+
+            return response()->json([
+                '_id' => Str::uuid(),
+                'method' => config('queue.default'),
+                'started_at' => now(),
+            ], 200);
+        }
+
+        // If keys ain't same, but existing company with force.
+        if (!$checks['same_keys'] && $checks['existing_company'] && $checks['with_force']) {
+            info('Migrating: Different keys, exisiting company with force option.');
+
+            $this->purgeCompany($company);
+
+            $account = auth()->user()->account;
+            $company = (new ImportMigrations())->getCompany($account);
+
+            $company_token = new CompanyToken();
+            $company_token->user_id = $user->id;
+            $company_token->company_id = $company->id;
+            $company_token->account_id = $account->id;
+            $company_token->name = $request->token_name ?? Str::random(12);
+            $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+            $company_token->save();
+
+            $user->companies()->attach($company->id, [
+                'account_id' => $account->id,
+                'is_owner' => 1,
+                'is_admin' => 1,
+                'is_locked' => 0,
+                'notifications' => CompanySettings::notificationDefaults(),
+                'permissions' => '',
+                'settings' => null,
+            ]);
+        }
+
+        // If keys ain't same, but with force.
+        if (!$checks['same_keys'] && $checks['with_force']) {
+            info('Migrating: Different keys with force.');
+
+            $this->purgeCompany($existing_company);
+
+            $account = auth()->user()->account;
+            $company = (new ImportMigrations())->getCompany($account);
+
+            $company_token = new CompanyToken();
+            $company_token->user_id = $user->id;
+            $company_token->company_id = $company->id;
+            $company_token->account_id = $account->id;
+            $company_token->name = $request->token_name ?? Str::random(12);
+            $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+            $company_token->save();
+
+            $user->companies()->attach($company->id, [
+                'account_id' => $account->id,
+                'is_owner' => 1,
+                'is_admin' => 1,
+                'is_locked' => 0,
+                'notifications' => CompanySettings::notificationDefaults(),
+                'permissions' => '',
+                'settings' => null,
+            ]);
+        }
+
+        // If keys ain't same, fresh migrate.
+        if (!$checks['same_keys'] && !$checks['with_force']) {
+            info('Migrating: Vanilla, fresh migrate.');
+
+            $account = auth()->user()->account;
+            $company = (new ImportMigrations())->getCompany($account);
+
+            $company_token = new CompanyToken();
+            $company_token->user_id = $user->id;
+            $company_token->company_id = $company->id;
+            $company_token->account_id = $account->id;
+            $company_token->name = $request->token_name ?? Str::random(12);
+            $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+            $company_token->save();
+
+            $user->companies()->attach($company->id, [
+                'account_id' => $account->id,
+                'is_owner' => 1,
+                'is_admin' => 1,
+                'is_locked' => 0,
+                'notifications' => CompanySettings::notificationDefaults(),
+                'permissions' => '',
+                'settings' => null,
+            ]);
         }
 
         $migration_file = $request->file('migration')

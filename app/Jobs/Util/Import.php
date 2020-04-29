@@ -419,10 +419,6 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
-            if (array_key_exists('invitations', $modified)) {
-                unset($modified['invitations']);
-            }
-
             $invoice = $invoice_repository->save(
                 $modified,
                 InvoiceFactory::create($this->company->id, $modified['user_id'])
@@ -467,10 +463,6 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
 
             unset($modified['id']);
-
-            if (array_key_exists('invitations', $modified)) {
-                unset($modified['invitations']);
-            }
 
             $credit = $credit_repository->save(
                 $modified,
@@ -517,10 +509,6 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
 
             unset($modified['id']);
-
-            if (array_key_exists('invitations', $modified)) {
-                unset($modified['invitations']);
-            }
 
             $invoice = $quote_repository->save(
                 $modified,
