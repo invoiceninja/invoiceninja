@@ -236,6 +236,8 @@ return [
 
         'Countries' => 'Webpatser\Countries\CountriesFacade',
         'CustomMessage' => App\Utils\ClientPortal\CustomMessage\CustomMessageFacade::class,
+        'Collector' => Turbo124\Collector\CollectorFacade::class,
+
     ],
 
 ];
