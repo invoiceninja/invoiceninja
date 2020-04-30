@@ -11,6 +11,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\DataMapper\Analytics\LoginFailure;
+use App\DataMapper\Analytics\LoginSuccess;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Jobs\Account\CreateAccount;
@@ -26,6 +28,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
+use Turbo124\Collector\CollectorFacade as Collector;
 
 class LoginController extends BaseController
 {
@@ -168,6 +171,11 @@ class LoginController extends BaseController
         }
 
         if ($this->attemptLogin($request)) {
+
+            Collector::create(new LoginSuccess())
+                ->increment()
+                ->batch();
+
             $user = $this->guard()->user();
             
             $user->setCompany($user->company_user->account->default_company);
@@ -177,6 +185,11 @@ class LoginController extends BaseController
 
             return $this->listResponse($ct);
         } else {
+
+            Collector::create(new LoginFailure())
+                ->increment()
+                ->batch();
+
             $this->incrementLoginAttempts($request);
 
             return response()

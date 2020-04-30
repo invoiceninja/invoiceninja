@@ -59,7 +59,7 @@ class SendFailedEmails implements ShouldQueue
 
     private function processEmails()
     {
-
+\Log::error("processing emails");
         //info("process emails");
         //@todo check that the quota is available for the job
         
