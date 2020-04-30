@@ -28,12 +28,16 @@ class SystemLog extends Model
     const EVENT_GATEWAY_ERROR = 23;
 
     const EVENT_MAIL_SEND = 30;
+    const EVENT_MAIL_RETRY_QUEUE = 31; //we use this to queue emails that are spooled and not sent due to the email queue quota being exceeded.
 
     /*Type IDs*/
     const TYPE_PAYPAL = 300;
     const TYPE_STRIPE = 301;
     const TYPE_LEDGER = 302;
     const TYPE_FAILURE = 303;
+
+    const TYPE_QUOTA_EXCEEDED = 400;
+    const TYPE_UPSTREAM_FAILURE = 401;
 
     protected $fillable = [
         'client_id',

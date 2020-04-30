@@ -23,8 +23,8 @@ class ShowInvoiceRequest extends Request
      */
 
     public function authorize() : bool
-    {info(auth('contact')->user()->client->id);
-    info($this->invoice->client_id);
+    {
+        
         return auth('contact')->user()->client->id === $this->invoice->client_id;
     }
 }

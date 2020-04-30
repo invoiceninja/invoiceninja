@@ -100,7 +100,7 @@ class CreateUbl implements ShouldQueue
         try {
             return Generator::invoice($ubl_invoice, $invoice->client->getCurrencyCode());
         } catch (\Exception $exception) {
-            info(print_r($exception, 1));
+
             return false;
         }
     }

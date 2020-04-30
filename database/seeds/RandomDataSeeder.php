@@ -144,7 +144,7 @@ class RandomDataSeeder extends Seeder
         /** Invoice Factory */
         factory(\App\Models\Invoice::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
-        $invoices = Invoice::cursor();
+        $invoices = Invoice::all();
         $invoice_repo = new InvoiceRepository();
 
         $invoices->each(function ($invoice) use ($invoice_repo, $user, $company, $client) {
@@ -160,11 +160,11 @@ class RandomDataSeeder extends Seeder
 
             $invoice->save();
 
-            event(new CreateInvoiceInvitation($invoice));
+            //event(new CreateInvoiceInvitation($invoice));
 
+            $invoice->service()->createInvitations()->markSent()->save();
+            
             $invoice->ledger()->updateInvoiceBalance($invoice->balance);
-
-            $invoice->service()->markSent()->save();
 
             event(new InvoiceWasMarkedSent($invoice, $company));
 
