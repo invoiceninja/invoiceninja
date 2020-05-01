@@ -47,14 +47,14 @@
 
                     <div class="flex justify-center mt-4">
                         <div class="flex flex-col">
-                            <div class="mt-4">
-                                <input type="checkbox" class="form-checkbox" name="terms_of_service" required>
+                            <div class="mt-4 text-sm">
+                                <input type="checkbox" class="form-checkbox mr-2" name="terms_of_service" required>
                                 <span>I agree to
                                     <a class="button-link" href="https://www.invoiceninja.com/self-hosting-terms-service/">{{ ctrans('texts.terms_of_service') }}</a>
                                 </span>
                             </div>
-                            <div class="mt-2">
-                                <input type="checkbox" class="form-checkbox" name="privacy_policy" required>
+                            <div class="mt-2 text-sm">
+                                <input type="checkbox" class="form-checkbox mr-2" name="privacy_policy" required>
                                 <span>I agree to
                                     <a class="button-link" href="https://www.invoiceninja.com/self-hosting-privacy-data-control/">{{ ctrans('texts.privacy_policy') }}</a>
                                 </span>

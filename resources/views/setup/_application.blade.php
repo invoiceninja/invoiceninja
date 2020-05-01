@@ -14,7 +14,7 @@
                     {{ ctrans('texts.url') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input" name="url" required value="{{ old('url') }}">
+                    <input type="text" class="input w-full" name="url" required value="{{ old('url') }}">
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -42,7 +42,7 @@
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     <input type="checkbox" class="form-checkbox mr-1" name="send_logs" {{ old('send_logs' ? 'checked': '') }}>
                     <span>{{ ctrans('texts.send_fail_logs_to_our_server') }}</span>
-                    <a href="https://www.invoiceninja.com/privacy-policy/">Read more about how we use this</a>
+                    <a class="button-link mt-1 block" href="https://www.invoiceninja.com/privacy-policy/">Read more about how we use this.</a>
                 </dd>
             </div>
         </dl>
