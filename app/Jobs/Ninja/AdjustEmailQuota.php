@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Jobs\Util;
+namespace App\Jobs\Ninja;
 
 use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Invoice\EmailInvoice;
