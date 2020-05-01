@@ -73,7 +73,9 @@ class CreateQuotePdf implements ShouldQueue
 
         $path       = $this->quote->client->quote_filepath();
 
-        $design     = Design::find($this->decodePrimaryKey($this->quote->client->getSetting('quote_design_id')));
+        $quote_design_id = $this->quote->design_id ? $this->quote->design_id : $this->decodePrimaryKey($this->quote->client->getSetting('quote_design_id'));
+
+        $design     = Design::find($quote_design_id);
 
         $designer   = new Designer($this->quote, $design, $this->quote->client->getSetting('pdf_variables'), 'quote');
 
