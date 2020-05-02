@@ -99,7 +99,22 @@ class Designer
 
     public function getFooter()
     {
-        return $this->getSection('footer');
+        $div = '
+            %s <!-- Placeholder for getSection(footer) -->
+            <div class="flex items-center justify-between m-12">
+                %s <!-- Placeholder for signature -->
+                %s <!-- Placehoder for Invoice Ninja logo -->
+            </div>'
+        ;
+
+        $signature = '<div></div>'; /** @wip */
+        $logo = '<div></div>';
+
+        if (!$this->entity->user->account->isPaid()) {
+            $logo = '<img src="$app_url/images/created-by-invoiceninja.jpg" />';
+        }
+
+        return sprintf($div, $this->getSection('footer'), $signature, $logo);
     }
 
     public function getBody()
