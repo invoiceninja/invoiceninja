@@ -136,8 +136,6 @@ class Bold extends AbstractDesign
 <footer>
     <div class="div_footer flex justify-between py-8 px-12" style="page-break-inside: avoid;">
     </div>
-</footer>
-</body>
-</html>';
+</footer>';
     }
 }

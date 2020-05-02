@@ -148,8 +148,6 @@ $custom_css
 			$company_address
 		</div>
 	</div>
-</div>
-</html>
-		';
+</div>';
     }
 }
