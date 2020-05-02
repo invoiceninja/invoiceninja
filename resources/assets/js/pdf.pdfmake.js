@@ -955,7 +955,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             }
         }
 
-        if (account.include_item_taxes_inline == '1') {
+        if (account.include_item_taxes_inline == '1'  && account.inclusive_taxes != '1') {
             var taxAmount1 = 0;
             var taxAmount2 = 0;
             if (tax1) {
