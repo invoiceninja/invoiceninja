@@ -10,7 +10,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Traits;
+namespace App\Utils\Traits;
 
 trait WithSorting
 {
