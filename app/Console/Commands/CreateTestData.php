@@ -462,36 +462,14 @@ class CreateTestData extends Command
         $invoice = $invoice_calc->getInvoice();
 
         $invoice->save();
-        $invoice->service()->createInvitations();
-
-        $invoice->ledger()->updateInvoiceBalance($invoice->balance);
-
-        //UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->company);
+        $invoice->service()->createInvitations()->markSent();
 
         $this->invoice_repo->markSent($invoice);
 
-        $invoice->service()->createInvitations();
-
         if (rand(0, 1)) {
-            // $payment = PaymentFactory::create($client->company->id, $client->user->id);
-            // $payment->date = $dateable;
-            // $payment->client_id = $client->id;
-            // $payment->amount = $invoice->balance;
-            // $payment->transaction_reference = rand(0, 500);
-            // $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
-            // $payment->status_id = Payment::STATUS_COMPLETED;
-            // $payment->number = $client->getNextPaymentNumber($client);
-            // $payment->currency_id = 1;
-            // $payment->save();
-
-            // $payment->invoices()->save($invoice);
 
             $invoice = $invoice->service()->markPaid()->save();
 
-            //$payment = $invoice->payments->first();
-
-            //$payment->service()->updateInvoicePayment();
-            //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
         }
         //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
         event(new InvoiceWasCreated($invoice, $invoice->company));

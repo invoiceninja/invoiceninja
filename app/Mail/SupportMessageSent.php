@@ -49,8 +49,14 @@ class SupportMessageSent extends Mailable
             $log_lines = iterator_to_array($lines);
         }
 
+        $account = auth()->user()->account;
+        $company = auth()->user()->company();
+        $user = auth()->user();
+
+        $subject = "Customer MSG {$user->present()->name} - [{$account->plan} - DB:{$company->db}]";
+
         return $this->from(config('mail.from.address')) //todo this needs to be fixed to handle the hosted version
-            ->subject(ctrans('texts.new_support_message'))
+            ->subject($subject)
             ->markdown('email.support.message', [
                 'message' => $this->message,
                 'system_info' => $system_info,
