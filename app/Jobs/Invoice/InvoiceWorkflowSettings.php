@@ -55,10 +55,11 @@ class InvoiceWorkflowSettings implements ShouldQueue
             $this->base_repository->archive($this->invoice);
         }
 
-        if ($this->client->getSetting('auto_email_invoice')) {
-           $this->invoice->invitations->each(function ($invitation, $key) {
-                $this->invoice->service()->sendEmail($invitation->contact);
-           });
-        }
+        //@TODO this setting should only fire for recurring invoices
+        // if ($this->client->getSetting('auto_email_invoice')) {
+        //    $this->invoice->invitations->each(function ($invitation, $key) {
+        //         $this->invoice->service()->sendEmail($invitation->contact);
+        //    });
+        // }
     }
 }

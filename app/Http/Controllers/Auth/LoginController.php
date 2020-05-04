@@ -28,7 +28,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
-use Turbo124\Collector\CollectorFacade as Collector;
+use Turbo124\Collector\Facades\LightLogs;
 
 class LoginController extends BaseController
 {
@@ -172,7 +172,7 @@ class LoginController extends BaseController
 
         if ($this->attemptLogin($request)) {
 
-            Collector::create(new LoginSuccess())
+            LightLogs::create(new LoginSuccess())
                 ->increment()
                 ->batch();
 
@@ -186,7 +186,7 @@ class LoginController extends BaseController
             return $this->listResponse($ct);
         } else {
 
-            Collector::create(new LoginFailure())
+            LightLogs::create(new LoginFailure())
                 ->increment()
                 ->batch();
 

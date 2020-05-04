@@ -5,7 +5,7 @@ return [
     /**
      * Enable or disable the collector
      */
-    'enabled'   =>   true,
+    'enabled'   =>   false,
 
     /**
      * The API endpoint for logs
@@ -27,5 +27,16 @@ return [
      * metrics for batching
      */
     'cache_key' => 'collector',
+
+    /**
+     * Determines whether to log the 
+     * host system variables using
+     * the built in metrics.
+     */
+    'system_logging' => [
+        'Turbo124\Collector\Jobs\System\CpuMetric',
+        'Turbo124\Collector\Jobs\System\HdMetric',
+        'Turbo124\Collector\Jobs\System\MemMetric',
+    ],
 
 ];
