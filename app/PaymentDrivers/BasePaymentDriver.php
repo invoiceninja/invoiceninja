@@ -236,7 +236,7 @@ class BasePaymentDriver
         acceptNotification() - convert an incoming request from an off-site gateway to a generic notification object for further processing
     */
 
-    protected function paymentDetails($input) : array
+    protected function paymentDetails() : array
     {
         $data = [
             'currency' => $this->client->getCurrencyCode(),
@@ -294,5 +294,59 @@ class BasePaymentDriver
         $payment->save();
 
         return $payment;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /////////////////////////////// V1 cut and paste
+    public function completeOffsitePurchase($input)
+    {
+        $this->input = $input;
+        $transRef = array_get($this->input, 'token');
+
+        if (method_exists($this->gateway(), 'completePurchase')) {
+            $details = $this->paymentDetails();
+            $response = $this->gateway()->completePurchase($details)->send();
+            $paymentRef = $response->getTransactionReference() ?: $transRef;
+
+            if ($response->isCancelled()) {
+                return false;
+            } elseif (!$response->isSuccessful()) {
+                throw new \Exception($response->getMessage());
+            }
+        } else {
+            $paymentRef = $transRef;
+        }
+
+        //$this->updateClientFromOffsite($transRef, $paymentRef);
+
+        // check invoice still has balance
+        if (!floatval($this->invoice()->balance)) {
+            throw new Exception(trans('texts.payment_error_code', ['code' => 'NB']));
+        }
+
+        // check this isn't a duplicate transaction reference
+        if (Payment::whereAccountId($this->invitation->account_id)
+            ->whereTransactionReference($paymentRef)
+            ->first()
+        ) {
+            throw new Exception(trans('texts.payment_error_code', ['code' => 'DT']));
+        }
+
+        return $this->createPayment($paymentRef);
     }
 }

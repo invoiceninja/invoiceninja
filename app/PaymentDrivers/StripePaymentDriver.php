@@ -13,7 +13,6 @@ namespace App\PaymentDrivers;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
-//use App\Jobs\Invoice\UpdateInvoicePayment;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
