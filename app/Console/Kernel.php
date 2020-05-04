@@ -12,7 +12,7 @@
 namespace App\Console;
 
 use App\Jobs\Cron\RecurringInvoicesCron;
-use App\Jobs\Util\AdjustEmailQuota;
+use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SendFailedEmails;
 use App\Jobs\Util\VersionCheck;
