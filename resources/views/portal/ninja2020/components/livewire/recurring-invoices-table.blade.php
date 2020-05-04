@@ -79,9 +79,9 @@
         </div>
     </div>
     <div class="flex justify-center md:justify-between mt-6 mb-6">
-        @if($quotes->total() > 0)
+        @if($invoices->total() > 0)
             <span class="text-gray-700 text-sm hidden md:block">
-                {{ ctrans('texts.showing_x_of', ['first' => $quotes->firstItem(), 'last' => $quotes->lastItem(), 'total' => $quotes->total()]) }}
+                {{ ctrans('texts.showing_x_of', ['first' => $invoices->firstItem(), 'last' => $invoices->lastItem(), 'total' => $invoices->total()]) }}
             </span>
         @endif
         {{ $invoices->links() }}
