@@ -143,18 +143,19 @@ class BasePaymentDriver
      */
     public function refundPayment($payment, $amount = 0)
     {
-        if ($amount) {
-            $amount = min($amount, $payment->getCompletedAmount());
-        } else {
-            $amount = $payment->getCompletedAmount();
-        }
 
         if ($payment->is_deleted) {
             return false;
         }
 
-        if (! $amount) {
+        if (!$amount || $amount == 0) {
             return false;
+        }
+
+        if ($amount) {
+            $amount = min($amount, $payment->getCompletedAmount());
+        } else {
+            $amount = $payment->getCompletedAmount();
         }
 
         if ($payment->type_id == Payment::TYPE_CREDIT_CARD) {
@@ -175,6 +176,15 @@ class BasePaymentDriver
         }
 
         return false;
+    }
+
+    protected function refundDetails($payment, $amount)
+    {
+        return [
+            'amount' => $amount,
+            'transactionReference' => $payment->transaction_reference,
+            'currency' => $payment->client->getCurrencyCode(),
+        ];
     }
 
     protected function attemptVoidPayment($response, $payment, $amount)

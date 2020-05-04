@@ -28,4 +28,15 @@ return [
      */
     'cache_key' => 'collector',
 
+    /**
+     * Determines whether to log the 
+     * host system variables using
+     * the built in metrics.
+     */
+    'system_logging' => [
+        'Turbo124\Collector\Jobs\System\CpuMetric',
+        'Turbo124\Collector\Jobs\System\HdMetric',
+        'Turbo124\Collector\Jobs\System\MemMetric',
+    ],
+
 ];
