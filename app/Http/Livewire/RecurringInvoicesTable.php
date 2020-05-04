@@ -3,7 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\RecurringInvoice;
-use App\Traits\WithSorting;
+use App\Utils\Traits\WithSorting;
 use Livewire\Component;
 use Livewire\WithPagination;
 
