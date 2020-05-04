@@ -11,7 +11,9 @@
 
 namespace App\Observers;
 
+use App\Jobs\Util\SubscriptionHandler;
 use App\Models\Expense;
+use App\Models\Subscription;
 
 class ExpenseObserver
 {
@@ -23,7 +25,7 @@ class ExpenseObserver
      */
     public function created(Expense $expense)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_CREATE_EXPENSE, $expense);
     }
 
     /**
@@ -34,7 +36,7 @@ class ExpenseObserver
      */
     public function updated(Expense $expense)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_UPDATE_EXPENSE, $expense);
     }
 
     /**
@@ -45,7 +47,7 @@ class ExpenseObserver
      */
     public function deleted(Expense $expense)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_DELETE_EXPENSE, $expense);
     }
 
     /**

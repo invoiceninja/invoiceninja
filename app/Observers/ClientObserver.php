@@ -12,7 +12,9 @@
 namespace App\Observers;
 
 use App\Events\Client\ClientWasCreated;
+use App\Jobs\Util\SubscriptionHandler;
 use App\Models\Client;
+use App\Models\Subscription;
 
 class ClientObserver
 {
@@ -25,6 +27,8 @@ class ClientObserver
     public function created(Client $client)
     {
         event(new ClientWasCreated($client));
+
+        SubscriptionHandler::dispatch(Subscription::EVENT_CREATE_CLIENT, $client);
     }
 
     /**
@@ -35,7 +39,7 @@ class ClientObserver
      */
     public function updated(Client $client)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_UPDATE_CLIENT, $client);
     }
 
     /**
@@ -46,7 +50,8 @@ class ClientObserver
      */
     public function deleted(Client $client)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_DELETE_CLIENT, $client);
+
     }
 
     /**

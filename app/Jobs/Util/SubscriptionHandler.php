@@ -43,7 +43,7 @@ class SubscriptionHandler implements ShouldQueue
                                     ->where('event_id', $this->event_id)
                                     ->get();
 
-        if(!$subscriptions)
+        if(!$subscriptions || $subscriptions->count() == 0)
             return;
 
         $subscriptions->each(function($subscription) {
@@ -58,12 +58,36 @@ class SubscriptionHandler implements ShouldQueue
         $manager->setSerializer(new ArraySerializer());
         $manager->parseIncludes($include);
 
-        $resource = new Item($entity, $transformer, $entity->getEntityType());
-        $jsonData = $manager->createData($resource)->toArray();
+        $transformer = new $this->getTransformerClassName();
+
+        $resource = new Item($this->entity, $transformer, $this->entity->getEntityType());
+        $data = $manager->createData($resource)->toArray();
+
+        $this->postData($subscription, $data, []);
     }
 
     private function getTransformerClassName()
     {
+        return sprintf('App\\Transformers\\%sTransformer', class_basename($this->entity));
+    }
 
+    private function postData($subscription, $data, $headers = [])
+    {
+        $base_headers = [
+            'Content-Length' => strlen($data),
+            'Accept'         => 'application/json'
+        ];
+
+        $client = new \GuzzleHttp\Client(['headers' => array_merge($base_headers, $headers)]);
+    
+       //$response = $client->request('POST', $subscription->target_url, ['form_params' => $data]);
+        
+        $response = $client->post($subscription->target_url, [
+                        GuzzleHttp\RequestOptions::JSON => $data // or 'json' => [...]
+                    ]);
+
+        if ($response->getStatusCode() == 410 || $response->getStatusCode() == 200) {
+            $subscription->delete();
+        }
     }
 }
