@@ -47,7 +47,7 @@ class Kernel extends ConsoleKernel
         
         /* Run hosted specific jobs */
         if(Ninja::isHosted()) {
-            $schedule->json()->daily(new AdjustEmailQuota())->daily;
+            $schedule->job(new AdjustEmailQuota())->daily();
             $schedule->job(new SendFailedEmails())->daily();
         }
         /* Run queue's in shared hosting with this*/
