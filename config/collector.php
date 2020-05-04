@@ -5,7 +5,7 @@ return [
     /**
      * Enable or disable the collector
      */
-    'enabled'   =>   true,
+    'enabled'   =>   false,
 
     /**
      * The API endpoint for logs

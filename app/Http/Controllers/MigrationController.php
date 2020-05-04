@@ -201,7 +201,8 @@ class MigrationController extends BaseController
         if ($checks['same_keys'] && $checks['with_force']) { 
             info('Migrating: Same company keys, with force.');
 
-            $this->purgeCompany($company);
+            if($company)
+                $this->purgeCompany($company);
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
@@ -255,7 +256,8 @@ class MigrationController extends BaseController
         if (!$checks['same_keys'] && $checks['existing_company'] && $checks['with_force']) {
             info('Migrating: Different keys, exisiting company with force option.');
 
-            $this->purgeCompany($company);
+            if($company)
+                $this->purgeCompany($company);
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
@@ -283,7 +285,8 @@ class MigrationController extends BaseController
         if (!$checks['same_keys'] && $checks['with_force']) {
             info('Migrating: Different keys with force.');
 
-            $this->purgeCompany($existing_company);
+            if($existing_company)
+                $this->purgeCompany($existing_company);
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);

@@ -302,7 +302,9 @@ class SubscriptionController extends BaseController
     public function create(CreateSubscriptionRequest $request)
     {
         $subscription = SubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id);
-
+        $subscription->fill($request->all());
+        $subscription->save();
+        
         return $this->itemResponse($subscription);
     }
 
