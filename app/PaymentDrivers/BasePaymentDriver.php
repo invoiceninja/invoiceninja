@@ -143,19 +143,18 @@ class BasePaymentDriver
      */
     public function refundPayment($payment, $amount = 0)
     {
+        if ($amount) {
+            $amount = min($amount, $payment->getCompletedAmount());
+        } else {
+            $amount = $payment->getCompletedAmount();
+        }
 
         if ($payment->is_deleted) {
             return false;
         }
 
-        if (!$amount || $amount == 0) {
+        if (! $amount) {
             return false;
-        }
-
-        if ($amount) {
-            $amount = min($amount, $payment->getCompletedAmount());
-        } else {
-            $amount = $payment->getCompletedAmount();
         }
 
         if ($payment->type_id == Payment::TYPE_CREDIT_CARD) {
@@ -176,15 +175,6 @@ class BasePaymentDriver
         }
 
         return false;
-    }
-
-    protected function refundDetails($payment, $amount)
-    {
-        return [
-            'amount' => $amount,
-            'transactionReference' => $payment->transaction_reference,
-            'currency' => $payment->client->getCurrencyCode(),
-        ];
     }
 
     protected function attemptVoidPayment($response, $payment, $amount)
@@ -236,7 +226,7 @@ class BasePaymentDriver
         acceptNotification() - convert an incoming request from an off-site gateway to a generic notification object for further processing
     */
 
-    protected function paymentDetails() : array
+    protected function paymentDetails($input) : array
     {
         $data = [
             'currency' => $this->client->getCurrencyCode(),
@@ -294,59 +284,5 @@ class BasePaymentDriver
         $payment->save();
 
         return $payment;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /////////////////////////////// V1 cut and paste
-    public function completeOffsitePurchase($input)
-    {
-        $this->input = $input;
-        $transRef = array_get($this->input, 'token');
-
-        if (method_exists($this->gateway(), 'completePurchase')) {
-            $details = $this->paymentDetails();
-            $response = $this->gateway()->completePurchase($details)->send();
-            $paymentRef = $response->getTransactionReference() ?: $transRef;
-
-            if ($response->isCancelled()) {
-                return false;
-            } elseif (!$response->isSuccessful()) {
-                throw new \Exception($response->getMessage());
-            }
-        } else {
-            $paymentRef = $transRef;
-        }
-
-        //$this->updateClientFromOffsite($transRef, $paymentRef);
-
-        // check invoice still has balance
-        if (!floatval($this->invoice()->balance)) {
-            throw new Exception(trans('texts.payment_error_code', ['code' => 'NB']));
-        }
-
-        // check this isn't a duplicate transaction reference
-        if (Payment::whereAccountId($this->invitation->account_id)
-            ->whereTransactionReference($paymentRef)
-            ->first()
-        ) {
-            throw new Exception(trans('texts.payment_error_code', ['code' => 'DT']));
-        }
-
-        return $this->createPayment($paymentRef);
     }
 }
