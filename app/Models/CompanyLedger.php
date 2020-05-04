@@ -27,6 +27,11 @@ class CompanyLedger extends Model
         'deleted_at' => 'timestamp',
     ];
 
+    public function getEntityType()
+    {
+        return CompanyLedger::class;
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

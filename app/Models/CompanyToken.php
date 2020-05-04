@@ -27,6 +27,11 @@ class CompanyToken extends BaseModel
     protected $with = [
     ];
 
+    public function getEntityType()
+    {
+        return CompanyToken::class;
+    }
+
     public function account()
     {
         return $this->belongsTo(Account::class);

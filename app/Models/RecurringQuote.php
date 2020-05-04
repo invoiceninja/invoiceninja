@@ -94,6 +94,11 @@ class RecurringQuote extends BaseModel
    //     'company',
     ];
 
+    public function getEntityType()
+    {
+        return RecurringQuote::class;
+    }
+
     public function getDateAttribute($value)
     {
         if (!empty($value)) {

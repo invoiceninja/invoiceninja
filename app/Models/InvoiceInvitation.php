@@ -35,6 +35,10 @@ class InvoiceInvitation extends BaseModel
         //    'company',
     ];
 
+    public function getEntityType()
+    {
+        return InvoiceInvitation::class;
+    }
 
     public function getSignatureDateAttribute($value)
     {

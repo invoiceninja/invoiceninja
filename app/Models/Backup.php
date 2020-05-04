@@ -18,6 +18,12 @@ use Laracasts\Presenter\PresentableTrait;
 
 class Backup extends BaseModel
 {
+
+    public function getEntityType()
+    {
+        return Backup::class;
+    }
+
     public function activity()
     {
         return $this->belongsTo(Activity::class);

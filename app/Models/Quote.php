@@ -86,6 +86,11 @@ class Quote extends BaseModel
     const STATUS_APPROVED = 3;
     const STATUS_EXPIRED = -1;
 
+    public function getEntityType()
+    {
+        return Quote::class;
+    }
+
     public function getDateAttribute($value)
     {
         if (!empty($value)) {

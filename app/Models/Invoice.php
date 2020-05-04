@@ -131,6 +131,11 @@ class Invoice extends BaseModel
     const STATUS_OVERDUE = -1; //status < 4 || < 3 && !is_deleted && !trashed() && due_date < now()
     const STATUS_UNPAID = -2; //status < 4 || < 3 && !is_deleted && !trashed()
 
+    public function getEntityType()
+    {
+        return Invoice::class;
+    }
+
     public function getDateAttribute($value)
     {
         if (!empty($value)) {

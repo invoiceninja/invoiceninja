@@ -80,6 +80,11 @@ class Credit extends BaseModel
     const STATUS_PARTIAL = 3;
     const STATUS_APPLIED = 4;
 
+    public function getEntityType()
+    {
+        return Credit::class;
+    }
+
     public function getDateAttribute($value)
     {
         if (!empty($value)) {

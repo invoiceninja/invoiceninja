@@ -23,6 +23,11 @@ class ExpenseCategory extends BaseModel
         'name',
     ];
 
+    public function getEntityType()
+    {
+        return ExpenseCategory::class;
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

@@ -57,6 +57,11 @@ class Vendor extends BaseModel
     //    'contacts',
     ];
 
+    public function getEntityType()
+    {
+        return Vendor::class;
+    }
+
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');

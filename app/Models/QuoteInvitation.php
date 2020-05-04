@@ -30,6 +30,11 @@ class QuoteInvitation extends BaseModel
         'client_contact_id',
     ];
 
+    public function getEntityType()
+    {
+        return QuoteInvitation::class;
+    }
+
     public function getSignatureDateAttribute($value)
     {
         if (!$value) {

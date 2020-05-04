@@ -101,6 +101,11 @@ class User extends Authenticatable implements MustVerifyEmail
         //'last_login' => 'timestamp',
     ];
 
+    public function getEntityType()
+    {
+        return User::class;
+    }
+
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);

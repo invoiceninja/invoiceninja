@@ -2,12 +2,15 @@
 
 namespace App\Jobs\Util;
 
+use App\Models\Subscription;
+use App\Transformers\ArraySerializer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Subscription;
+use League\Fractal\Manager;
+use League\Fractal\Resource\Item;
 
 class SubscriptionHandler implements ShouldQueue
 {
@@ -49,6 +52,17 @@ class SubscriptionHandler implements ShouldQueue
     }
 
     private function process($subscription)
+    {
+        // generate JSON data
+        $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
+        $manager->parseIncludes($include);
+
+        $resource = new Item($entity, $transformer, $entity->getEntityType());
+        $jsonData = $manager->createData($resource)->toArray();
+    }
+
+    private function getTransformerClassName()
     {
 
     }

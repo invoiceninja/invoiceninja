@@ -32,4 +32,10 @@ class Bank extends StaticModel
 
         return new \App\Libraries\Bank($finance, $config->fid, $config->url, $config->org);
     }
+
+    public function getEntityType()
+    {
+        return Bank::class;
+    }
+
 }
