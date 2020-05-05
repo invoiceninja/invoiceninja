@@ -574,6 +574,7 @@ class Import implements ShouldQueue
             unset($modified['invoice_id']);
 
             if (isset($modified['invoices'])) {
+                
                 foreach ($modified['invoices'] as $invoice) {
                     $invoice['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
                 }
