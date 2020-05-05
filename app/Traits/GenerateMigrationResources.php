@@ -58,7 +58,7 @@ trait GenerateMigrationResources
             'postal_code' => $this->account->postal_code ?: '',
             'country_id' => $this->account->country_id ? (string) $this->account->country_id : '840',
             'invoice_terms' => $this->account->invoice_terms ?: '',
-            'enabled_item_tax_rates' => $this->account->invoice_item_taxes ? (bool) $this->account->invoice_item_taxes : false,
+            'enabled_item_tax_rates' => $this->account->invoice_item_taxes ? 2 : 0,
             'invoice_design_id' => $this->account->invoice_design_id ?: (string) $this->account->invoice_design_id ?: '1',
             'phone' => $this->account->work_phone ?: '',
             'email' => $this->account->work_email ?: '',
