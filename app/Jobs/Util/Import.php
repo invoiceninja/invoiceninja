@@ -147,6 +147,9 @@ class Import implements ShouldQueue
      */
     public function handle()
     {
+
+        set_time_limit(0);
+
         foreach ($this->data as $key => $resource) {
             if (! in_array($key, $this->available_imports)) {
                 //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
@@ -414,7 +417,8 @@ class Import implements ShouldQueue
 
         $invoice_repository = new InvoiceRepository();
 
-        foreach ($data as $resource) {
+        foreach ($data as $key => $resource) {
+
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && ! array_key_exists('clients', $this->ids)) {
