@@ -73,7 +73,10 @@ class EntityViewedNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
                     ->subject($subject)
-                    ->markdown('email.admin.generic', $data);
+                    ->markdown('email.admin.generic', $data)
+                    ->withSwiftMessage(function ($message) {
+                            $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
+                        });
     }
 
     /**

@@ -96,7 +96,10 @@ class NewPaymentNotification extends Notification implements ShouldQueue
                             'texts.notification_payment_paid_subject',
                             ['client' => $this->payment->client->present()->name(),]
                         )
-                    )->markdown('email.admin.generic', $data);
+                    )->markdown('email.admin.generic', $data)
+                    ->withSwiftMessage(function ($message) {
+                            $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
+                        });
     }
 
     /**
