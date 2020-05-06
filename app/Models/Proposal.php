@@ -22,6 +22,11 @@ class Proposal extends BaseModel
         'id',
     ];
 
+    public function getEntityType()
+    {
+        return Proposal::class;
+    }
+
     protected $appends = ['proposal_id'];
 
     public function getRouteKeyName()

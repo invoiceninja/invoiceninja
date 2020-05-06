@@ -18,6 +18,11 @@ class RecurringInvoiceInvitation extends BaseModel
 {
     use MakesDates;
 
+    public function getEntityType()
+    {
+        return RecurringInvoiceInvitation::class;
+    }
+
     /**
      * @return mixed
      */

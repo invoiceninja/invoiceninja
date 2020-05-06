@@ -111,6 +111,11 @@ class RecurringInvoice extends BaseModel
         'status'
     ];
 
+    public function getEntityType()
+    {
+        return RecurringInvoice::class;
+    }
+
     public function getDateAttribute($value)
     {
         if (!empty($value)) {

@@ -133,6 +133,11 @@ class Company extends BaseModel
         self::ENTITY_RECURRING_QUOTE => 2048,
     ];
 
+    public function getEntityType()
+    {
+        return Company::class;
+    }
+
     public function ledger()
     {
         return $this->hasMany(CompanyLedger::class);

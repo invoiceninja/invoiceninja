@@ -70,7 +70,10 @@ class NewAccountCreated extends Notification implements ShouldQueue
 
         return (new MailMessage)
                     ->subject(ctrans('texts.new_signup'))
-                    ->markdown('email.admin.generic', $data);
+                    ->markdown('email.admin.generic', $data)
+                    ->withSwiftMessage(function ($message) {
+                            $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
+                        });
     }
 
     /**

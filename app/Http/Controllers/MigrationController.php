@@ -77,6 +77,18 @@ class MigrationController extends BaseController
      */
     public function purgeCompany(Company $company)
     {
+        // $account = $company->account;
+
+        // if($account->default_company_id == $company->id)
+        // {
+        //     $companies = $account->companies;
+
+        //     if($companies->count() > 1)
+        //     {
+
+
+        //     }
+        // }
         $company->delete();
 
         return response()->json(['message' => 'Company purged'], 200);
@@ -207,6 +219,9 @@ class MigrationController extends BaseController
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
 
+            $account->default_company_id = $company->id;
+            $account->save();
+
             $company_token = new CompanyToken();
             $company_token->user_id = $user->id;
             $company_token->company_id = $company->id;
@@ -262,6 +277,10 @@ class MigrationController extends BaseController
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
 
+            $account->default_company_id = $company->id;
+            $account->save();
+            
+
             $company_token = new CompanyToken();
             $company_token->user_id = $user->id;
             $company_token->company_id = $company->id;
@@ -291,6 +310,10 @@ class MigrationController extends BaseController
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
 
+            $account->default_company_id = $company->id;
+            $account->save();
+            
+            
             $company_token = new CompanyToken();
             $company_token->user_id = $user->id;
             $company_token->company_id = $company->id;

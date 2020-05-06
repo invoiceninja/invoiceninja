@@ -11,7 +11,9 @@
 
 namespace App\Observers;
 
+use App\Jobs\Util\SubscriptionHandler;
 use App\Models\Quote;
+use App\Models\Subscription;
 
 class QuoteObserver
 {
@@ -23,7 +25,7 @@ class QuoteObserver
      */
     public function created(Quote $quote)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_CREATE_QUOTE, $quote);
     }
 
     /**
@@ -34,7 +36,7 @@ class QuoteObserver
      */
     public function updated(Quote $quote)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_UPDATE_QUOTE, $quote);
     }
 
     /**
@@ -45,7 +47,7 @@ class QuoteObserver
      */
     public function deleted(Quote $quote)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_DELETE_QUOTE, $quote);
     }
 
     /**

@@ -12,7 +12,9 @@
 namespace App\Observers;
 
 use App\Events\Payment\PaymentWasCreated;
+use App\Jobs\Util\SubscriptionHandler;
 use App\Models\Payment;
+use App\Models\Subscription;
 
 class PaymentObserver
 {
@@ -24,6 +26,7 @@ class PaymentObserver
      */
     public function created(Payment $payment)
     {
+        SubscriptionHandler::dispatch(Subscription::EVENT_CREATE_PAYMENT, $payment);
     }
 
     /**
@@ -34,7 +37,6 @@ class PaymentObserver
      */
     public function updated(Payment $payment)
     {
-        //
     }
 
     /**
@@ -45,7 +47,7 @@ class PaymentObserver
      */
     public function deleted(Payment $payment)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_DELETE_PAYMENT, $payment);
     }
 
     /**

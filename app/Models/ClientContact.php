@@ -86,6 +86,11 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'is_primary',
     ];
 
+    public function getEntityType()
+    {
+        return ClientContact::class;
+    }
+
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);

@@ -11,7 +11,9 @@
 
 namespace App\Observers;
 
+use App\Jobs\Util\SubscriptionHandler;
 use App\Models\Invoice;
+use App\Models\Subscription;
 
 class InvoiceObserver
 {
@@ -23,7 +25,7 @@ class InvoiceObserver
      */
     public function created(Invoice $invoice)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_CREATE_INVOICE, $invoice);
     }
 
     /**
@@ -34,7 +36,7 @@ class InvoiceObserver
      */
     public function updated(Invoice $invoice)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_UPDATE_INVOICE, $invoice);
     }
 
     /**
@@ -45,7 +47,7 @@ class InvoiceObserver
      */
     public function deleted(Invoice $invoice)
     {
-        //
+        SubscriptionHandler::dispatch(Subscription::EVENT_DELETE_INVOICE, $invoice);
     }
 
     /**

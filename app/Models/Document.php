@@ -88,6 +88,10 @@ class Document extends BaseModel
         'tif' => 'tiff',
     ];
 
+    public function getEntityType()
+    {
+        return Document::class;
+    }
 
     public function documentable()
     {

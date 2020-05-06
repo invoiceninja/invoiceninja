@@ -79,6 +79,12 @@ class Activity extends StaticModel
         'deleted_at' => 'timestamp',
     ];
 
+    public function getEntityType()
+    {
+        return Activity::class;
+    }
+
+
     public function backup()
     {
         return $this->hasOne(Backup::class);

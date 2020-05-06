@@ -71,6 +71,11 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         'is_primary',
     ];
     
+    public function getEntityType()
+    {
+        return VendorContact::class;
+    }
+
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);

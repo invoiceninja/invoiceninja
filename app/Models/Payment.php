@@ -79,6 +79,11 @@ class Payment extends BaseModel
         'paymentables',
     ];
 
+    public function getEntityType()
+    {
+        return Payment::class;
+    }
+
     public function client()
     {
         return $this->belongsTo(Client::class)->withTrashed();

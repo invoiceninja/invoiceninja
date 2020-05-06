@@ -32,6 +32,7 @@
         "fideloper/proxy": "^4.0",
         "fzaninotto/faker": "^1.4",
         "google/apiclient": "^2.0",
+        "guzzlehttp/guzzle": "^6.5",
         "hashids/hashids": "^3.0",
         "intervention/image": "^2.4",
         "laracasts/presenter": "^0.2.1",

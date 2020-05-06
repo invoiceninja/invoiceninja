@@ -35,6 +35,11 @@ class Task extends BaseModel
         'created_at' => 'timestamp',
     ];
 
+    public function getEntityType()
+    {
+        return Task::class;
+    }
+
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');

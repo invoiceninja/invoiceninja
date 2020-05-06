@@ -40,6 +40,11 @@ class Product extends BaseModel
         'tax_rate3',
     ];
 
+    public function getEntityType()
+    {
+        return Product::class;
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);

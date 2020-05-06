@@ -60,6 +60,10 @@ class Expense extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
+    public function getEntityType()
+    {
+        return Expense::class;
+    }
 
     public function documents()
     {

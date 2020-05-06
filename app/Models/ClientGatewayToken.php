@@ -29,6 +29,11 @@ class ClientGatewayToken extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
+    public function getEntityType()
+    {
+        return ClientGatewayToken::class;
+    }
+
     public function client()
     {
         return $this->hasOne(Client::class)->withTrashed();

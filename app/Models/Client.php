@@ -113,6 +113,11 @@ class Client extends BaseModel implements HasLocalePreference
         'deleted_at' => 'timestamp',
     ];
 
+    public function getEntityType()
+    {
+        return Client::class;
+    }
+
     public function ledger()
     {
         return $this->hasMany(CompanyLedger::class);

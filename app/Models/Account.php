@@ -84,9 +84,12 @@ class Account extends BaseModel
 
     const RESULT_FAILURE = 'failure';
     const RESULT_SUCCESS = 'success';
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
+
+
+    public function getEntityType()
+    {
+        return Account::class;
+    }
 
     public function users()
     {

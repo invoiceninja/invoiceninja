@@ -27,6 +27,11 @@ class TaxRate extends BaseModel
 
     protected $appends = ['tax_rate_id'];
 
+    public function getEntityType()
+    {
+        return TaxRate::class;
+    }
+
     public function getRouteKeyName()
     {
         return 'tax_rate_id';

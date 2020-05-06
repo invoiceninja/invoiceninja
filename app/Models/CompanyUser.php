@@ -48,6 +48,11 @@ class CompanyUser extends Pivot
         'slack_webhook_url',
     ];
 
+    public function getEntityType()
+    {
+        return CompanyUser::class;
+    }
+
     public function account()
     {
         return $this->belongsTo(Account::class);

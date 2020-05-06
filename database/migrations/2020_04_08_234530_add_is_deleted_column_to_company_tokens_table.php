@@ -31,6 +31,9 @@ class AddIsDeletedColumnToCompanyTokensTable extends Migration
             $table->softDeletes('deleted_at', 6);
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+
+            $table->index(['event_id', 'company_id']);
+
         });
 
         Schema::table('companies', function (Blueprint $table) {

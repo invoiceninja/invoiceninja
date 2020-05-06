@@ -36,6 +36,11 @@ class CreditInvitation extends BaseModel
     //    'company',
     ];
 
+    public function getEntityType()
+    {
+        return CreditInvitation::class;
+    }
+
     public function getSignatureDateAttribute($value)
     {
         if (!$value) {

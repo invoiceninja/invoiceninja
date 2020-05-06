@@ -37,6 +37,11 @@ class Project extends BaseModel
         'created_at' => 'timestamp',
     ];
 
+    public function getEntityType()
+    {
+        return Project::class;
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
