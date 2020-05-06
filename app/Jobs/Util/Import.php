@@ -196,6 +196,12 @@ class Import implements ShouldQueue
         $company_repository->save($data, $this->company);
 
         Company::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $rules = null;
+        $validator = null;
+        $company_repository = null;
     }
 
     private function transformCompanyData(array $data): array
@@ -261,6 +267,11 @@ class Import implements ShouldQueue
         }
 
         TaxRate::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $rules = null;
+        $validator = null;
     }
 
     /**
@@ -308,6 +319,12 @@ class Import implements ShouldQueue
         }
 
         User::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $rules = null;
+        $validator = null;
+        $user_repository = null;
     }
 
     /**
@@ -361,6 +378,11 @@ class Import implements ShouldQueue
         }
 
         Client::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $contact_repository = null;
+        $client_repository = null;
     }
 
     private function processProducts(array $data): void
@@ -399,6 +421,10 @@ class Import implements ShouldQueue
         }
 
         Product::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $product_repository = null;
     }
 
     private function processInvoices(array $data): void
@@ -446,6 +472,11 @@ class Import implements ShouldQueue
         }
 
         Invoice::reguard();
+
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $invoice_repository = null;
     }
 
     private function processCredits(array $data): void
@@ -491,6 +522,10 @@ class Import implements ShouldQueue
         }
 
         Credit::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $credit_repository = null;
     }
 
     private function processQuotes(array $data): void
@@ -539,6 +574,10 @@ class Import implements ShouldQueue
         }
 
         Quote::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $quote_repository = null;
     }
 
     private function processPayments(array $data): void
@@ -596,6 +635,10 @@ class Import implements ShouldQueue
         }
 
         Payment::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $payment_repository = null;
     }
 
     private function processDocuments(array $data): void
@@ -647,6 +690,9 @@ class Import implements ShouldQueue
         }
 
         Document::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
     }
 
     private function processCompanyGateways(array $data) :void
@@ -693,6 +739,9 @@ class Import implements ShouldQueue
         }
 
         CompanyGateway::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
     }
 
     private function processClientGatewayTokens(array $data) :void
@@ -720,6 +769,9 @@ class Import implements ShouldQueue
         }
 
         ClientGatewayToken::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
     }
 
     /**
