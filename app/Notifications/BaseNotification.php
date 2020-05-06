@@ -88,7 +88,9 @@ class BaseNotification extends Notification implements ShouldQueue
         }
 
 
-        return $mail_message;
+        return $mail_message->withSwiftMessage(function ($message) {
+                            $message->getHeaders()->addTextHeader('Tag', $this->invitation->company->company_key);
+                        });
     }
 
     public function buildMailMessageData() :array
