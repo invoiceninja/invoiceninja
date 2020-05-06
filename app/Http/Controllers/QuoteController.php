@@ -501,9 +501,7 @@ class QuoteController extends BaseController
      */
     public function bulk()
     {
-        /*
-         * WIP!
-         */
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');
@@ -511,14 +509,14 @@ class QuoteController extends BaseController
         $quotes = Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (!$quotes) {
-            return response()->json(['message' => 'No Quotes Found']);
+            return response()->json(['message' => 'No Quote/s Found']);
         }
 
         /*
          * Download Invoice/s
          */
 
-        if ($action == 'download' && $quotes->count() > 1) {
+        if ($action == 'download' && $quotes->count() >= 1) {
             $quotes->each(function ($quote) {
                 if (auth()->user()->cannot('view', $quote)) {
                     return response()->json(['message'=>'Insufficient privileges to access quote '. $quote->number]);
@@ -627,8 +625,8 @@ class QuoteController extends BaseController
         switch ($action) {
             case 'clone_to_invoice':
 
-                $this->entity_type = Quote::class;
-                $this->entity_transformer = QuoteTransformer::class;
+                $this->entity_type = Invoice::class;
+                $this->entity_transformer = InvoiceTransformer::class;
 
                 $invoice = CloneQuoteToInvoiceFactory::create($quote, auth()->user()->id);
                 return $this->itemResponse($invoice);
@@ -646,7 +644,12 @@ class QuoteController extends BaseController
                 return $this->itemResponse($quote->service()->approve()->save());
                 break;
             case 'convert':
-            //convert  quote to an invoice make sure we link the two entities!!!
+
+                $this->entity_type = Invoice::class;
+                $this->entity_transformer = InvoiceTransformer::class;
+
+                return $this->itemResponse($quote->service()->convertToInvoice());
+                
                 break;
             case 'history':
                 # code...

@@ -1,6 +1,17 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
 namespace App\Services\Quote;
 
+use App\Factory\CloneQuoteToInvoiceFactory;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
@@ -116,18 +127,17 @@ class QuoteService
 
     public function convertToInvoice() :Invoice
     {
-        Invoice::unguard();
 
-        $invoice = new Invoice((array) $this->quote);
+        $invoice = CloneQuoteToInvoiceFactory::create($this->quote, $this->quote->user_id);
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->due_date = null;
-        $invoice->invitations = null;
         $invoice->number = null;
         $invoice->save();
 
-        Invoice::reguard();
-
-        $invoice->service()->markSent()->createInvitations()->save();
+        $invoice->service()
+                ->markSent()
+                ->createInvitations()
+                ->save();
 
         return $invoice;
     }
