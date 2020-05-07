@@ -18,6 +18,7 @@ use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +45,7 @@ use Omnipay\Omnipay;
 class BasePaymentDriver
 {
     use SystemLogTrait;
+    use MakesHash;
 
     /* The company gateway instance*/
     protected $company_gateway;
@@ -276,7 +278,10 @@ class BasePaymentDriver
 
     public function attachInvoices(Payment $payment, $hashed_ids) : Payment
     {
-        $invoices = Invoice::whereIn('id', $this->transformKeys($hashed_ids))
+        $transformed = $this->transformKeys($hashed_ids);
+        $array = is_array($transformed) ? $transformed : [$transformed]; 
+
+        $invoices = Invoice::whereIn('id', $array)
                         ->whereClientId($this->client->id)
                         ->get();
 

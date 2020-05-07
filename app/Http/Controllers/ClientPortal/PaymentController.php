@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -71,8 +72,8 @@ class PaymentController extends Controller
     public function process()
     {
         $invoices = Invoice::whereIn('id', $this->transformKeys(request()->invoices))
-                                ->whereClientId(auth()->user()->client->id)
-                                ->get();
+            ->whereClientId(auth()->user()->client->id)
+            ->get();
 
         $amount = $invoices->sum('balance');
 
@@ -92,16 +93,12 @@ class PaymentController extends Controller
             return $invoice;
         });
 
-
         $payment_methods = auth()->user()->client->getPaymentMethods($amount);
-
-        //boot the payment gateway
         $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
 
         $payment_method_id = request()->input('payment_method_id');
 
-        //if there is a gateway fee, now is the time to calculate it
-        //and add it to the invoice
+        // Place to calculate gateway fee.
 
         $data = [
             'invoices' => $invoices,
@@ -110,7 +107,7 @@ class PaymentController extends Controller
             'amount_with_fee' => $amount + $gateway->calcGatewayFee($amount),
             'token' => auth()->user()->client->gateway_token($gateway->id, $payment_method_id),
             'payment_method_id' => $payment_method_id,
-            'hashed_ids' => explode(",", request()->input('hashed_ids')),
+            'hashed_ids' => request()->invoices,
         ];
 
 
