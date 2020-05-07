@@ -28,7 +28,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
-use Turbo124\Collector\Facades\LightLogs;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class LoginController extends BaseController
 {
