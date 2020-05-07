@@ -22,7 +22,6 @@ use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Omnipay\Omnipay;
 
 /**
@@ -152,11 +151,7 @@ class BasePaymentDriver
             $amount = $payment->getCompletedAmount();
         }
 
-        if ($payment->is_deleted) {
-            return false;
-        }
-
-        if (!$amount) {
+        if ($payment->is_deleted || !$amount) {
             return false;
         }
 
