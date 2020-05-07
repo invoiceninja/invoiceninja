@@ -3,7 +3,7 @@
 return [
 
     /**
-     * Enable or disable the collector
+     * Enable or disable the beacon
      */
     'enabled'   =>   false,
 
@@ -15,7 +15,7 @@ return [
     /**
      * Your API key
      */
-    'api_key'   => env('COLLECTOR_API_KEY',''),
+    'api_key'   => env('BEACON_API_KEY',''),
 
     /**
      * Should batch requests
@@ -26,7 +26,7 @@ return [
      * The default key used to store
      * metrics for batching
      */
-    'cache_key' => 'collector',
+    'cache_key' => 'beacon',
 
     /**
      * Determines whether to log the 
@@ -34,9 +34,9 @@ return [
      * the built in metrics.
      */
     'system_logging' => [
-        'Turbo124\Collector\Jobs\System\CpuMetric',
-        'Turbo124\Collector\Jobs\System\HdMetric',
-        'Turbo124\Collector\Jobs\System\MemMetric',
+        'Turbo124\Beacon\Jobs\System\CpuMetric',
+        'Turbo124\Beacon\Jobs\System\HdMetric',
+        'Turbo124\Beacon\Jobs\System\MemMetric',
     ],
 
 ];
