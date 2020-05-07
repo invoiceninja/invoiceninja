@@ -47,7 +47,7 @@ class PaymentService
     
     public function sendEmail($contact = null)
     {
-        return (new SendEmail($this->payment))->run(null, $contact);
+        return (new SendEmail($this->payment, $contact))->run();
     }
 
     public function reversePayment()

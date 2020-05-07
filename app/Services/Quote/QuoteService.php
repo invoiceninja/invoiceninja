@@ -49,18 +49,18 @@ class QuoteService
         return $this;
     }
 
-    public function getQuotePdf($contact)
+    public function getQuotePdf($contact = null)
     {
         $get_invoice_pdf = new GetQuotePdf();
 
         return $get_invoice_pdf($this->quote, $contact);
     }
 
-    public function sendEmail($contact) :QuoteService
+    public function sendEmail($contact = null) :QuoteService
     {
-        $send_email = new SendEmail($this->quote);
+        $send_email = new SendEmail($this->quote, null, $contact);
 
-        $send_email->run(null, $contact);
+        $send_email->run();
 
         return $this;
     }

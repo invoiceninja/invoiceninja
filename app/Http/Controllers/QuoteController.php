@@ -654,12 +654,6 @@ class QuoteController extends BaseController
             case 'history':
                 # code...
                 break;
-            case 'delivery_note':
-                # code...
-                break;
-            case 'mark_paid':
-                # code...
-                break;
             case 'download':
                     return response()->download(TempFile::path($quote->pdf_file_path()), basename($quote->pdf_file_path()));
                 break;
@@ -672,6 +666,7 @@ class QuoteController extends BaseController
                 return $this->listResponse($quote);
                 break;
             case 'email':
+                $this->quote->service()->sendEmail();
                 return response()->json(['message'=>'email sent'], 200);
                 break;
             case 'mark_sent':

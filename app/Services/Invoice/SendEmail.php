@@ -22,6 +22,10 @@ class SendEmail extends AbstractService
 {
     protected $invoice;
 
+    protected $reminder_template;
+
+    protected $contact;
+    
     public function __construct(Invoice $invoice, $reminder_template = null, ClientContact $contact = null)
     {
         $this->invoice = $invoice;

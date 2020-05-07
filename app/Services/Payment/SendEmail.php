@@ -9,9 +9,13 @@ class SendEmail
 {
     public $payment;
 
-    public function __construct($payment)
+    public $contact;
+
+    public function __construct($payment, $contact)
     {
         $this->payment = $payment;
+
+        $this->contact = $contact;
     }
 
     /**
@@ -19,7 +23,7 @@ class SendEmail
      * @param string $reminder_template The template name ie reminder1
      * @return array
      */
-    public function run($contact = null): array
+    public function run()
     {
         $email_builder = (new PaymentEmail())->build($this->payment, $contact);
 
