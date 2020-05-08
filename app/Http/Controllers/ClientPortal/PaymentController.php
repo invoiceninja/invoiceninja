@@ -72,7 +72,7 @@ class PaymentController extends Controller
     public function process()
     {
         $invoices = Invoice::whereIn('id', $this->transformKeys(request()->invoices))
-            ->whereClientId(auth()->user()->client->id)
+            ->whereClientId(auth('contact')->user()->client->id)
             ->get();
 
         $amount = $invoices->sum('balance');
