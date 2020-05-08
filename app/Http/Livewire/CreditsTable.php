@@ -17,6 +17,7 @@ class CreditsTable extends Component
     public function render()
     {
         $query = Credit::query()
+            ->where('company_id', auth('contact')->user()->company->id)
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);
 
