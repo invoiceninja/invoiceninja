@@ -87,9 +87,14 @@
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap flex items-center justify-end text-sm leading-5 font-medium">
                                 @if($invoice->isPayable())
-                                    <button class="button button-primary py-1 px-2 text-xs uppercase mr-3 pay-now-button" data-value="{{ $invoice->hashed_id }}">
-                                        @lang('texts.pay_now')
-                                    </button>
+                                    <form action="{{ route('client.invoices.bulk') }}" method="post">
+                                        @csrf
+                                        <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
+                                        <input type="hidden" name="action" value="payment">
+                                        <button class="button button-primary py-1 px-2 text-xs uppercase mr-3">
+                                            @lang('texts.pay_now')
+                                        </button>
+                                    </form>
                                 @endif
                                 <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}" class="button-link">
                                     @lang('texts.view')

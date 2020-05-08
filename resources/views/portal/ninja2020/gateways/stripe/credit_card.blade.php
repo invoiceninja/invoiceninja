@@ -80,7 +80,7 @@
                                         {{ ctrans('texts.token_billing_checkbox') }}
                                     </dt>
                                     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                        <input type="checkbox" class="form-check" name="token-billing-checkbox"/>
+                                        <input type="checkbox" class="form-checkbox" name="token-billing-checkbox"/>
                                     </dd>
                                 </div>
                                 <div class="bg-white px-4 py-5 flex justify-end">

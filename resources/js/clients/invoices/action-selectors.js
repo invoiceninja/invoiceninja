@@ -50,13 +50,6 @@ class ActionSelectors {
             this.watchCheckboxes(this.parentElement);
         });
 
-        for (let child of document.querySelectorAll(".pay-now-button")) {
-            child.addEventListener("click", () => {
-                this.processChildItem(child, this.parentForm, { single: true });
-                document.querySelector('button[value="payment"]').click();
-            });
-        }
-
         for (let child of document.querySelectorAll(".form-check-child")) {
             child.addEventListener("click", () => {
                 this.processChildItem(child, this.parentForm);
