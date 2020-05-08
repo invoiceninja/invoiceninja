@@ -31,6 +31,7 @@ class InvoicesTable extends Component
     public function render()
     {
         $query = Invoice::query();
+        $query = $query->whereCompanyId(auth('contact')->user()->company->id);
         $query = $query->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
         if (in_array('paid', $this->status)) {

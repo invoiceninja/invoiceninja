@@ -5,7 +5,7 @@ return [
     /**
      * Enable or disable the beacon
      */
-    'enabled'   =>   false,
+    'enabled'   =>   true,
 
     /**
      * The API endpoint for logs
