@@ -50,6 +50,8 @@ Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', '
     Route::post('document', 'ClientPortal\DocumentController@store')->name('document.store');
     Route::delete('document', 'ClientPortal\DocumentController@destroy')->name('document.destroy');
 
+    Route::get('client/switch_company/{contact}', 'ClientPortal\SwitchCompanyController')->name('switch_company');
+
     Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 });
 
