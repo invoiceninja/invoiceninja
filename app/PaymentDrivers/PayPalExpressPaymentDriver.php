@@ -184,7 +184,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     private function buildReturnUrl($input) : string
     {
-        $url = $this->client->company->domain() . "client/payments/process/response";
+        $url = $this->client->company->domain() . "/client/payments/process/response";
         $url .= "?company_gateway_id={$this->company_gateway->id}&gateway_type_id=".GatewayType::PAYPAL;
         $url .= "&hashed_ids=" . implode(",", $input['hashed_ids']);
         $url .= "&amount=".$input['amount'];
