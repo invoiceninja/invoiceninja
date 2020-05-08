@@ -41,7 +41,7 @@
                                 <div class="rounded-md bg-white shadow-xs">
                                     <div class="py-1">
                                         @foreach($payment_methods as $payment_method)
-                                            <a href="#" @click="{ open = false }"
+                                            <a data-turbolinks="false" href="#" @click="{ open = false }"
                                                data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}"
                                                data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}"
                                                class="dropdown-gateway-button block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">

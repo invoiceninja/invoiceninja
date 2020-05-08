@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -18,9 +19,9 @@ use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Omnipay\Omnipay;
 
 /**
@@ -44,6 +45,7 @@ use Omnipay\Omnipay;
 class BasePaymentDriver
 {
     use SystemLogTrait;
+    use MakesHash;
 
     /* The company gateway instance*/
     protected $company_gateway;
@@ -105,7 +107,7 @@ class BasePaymentDriver
         ];
     }
 
-    public function getCompanyGatewayId() :int
+    public function getCompanyGatewayId(): int
     {
         return $this->company_gateway->id;
     }
@@ -113,7 +115,7 @@ class BasePaymentDriver
      * Returns whether refunds are possible with the gateway
      * @return boolean TRUE|FALSE
      */
-    public function getRefundable() :bool
+    public function getRefundable(): bool
     {
         return $this->refundable;
     }
@@ -122,7 +124,7 @@ class BasePaymentDriver
      * Returns whether token billing is possible with the gateway
      * @return boolean TRUE|FALSE
      */
-    public function getTokenBilling() :bool
+    public function getTokenBilling(): bool
     {
         return $this->token_billing;
     }
@@ -132,7 +134,7 @@ class BasePaymentDriver
      * authorise and credit card.
      * @return [type] [description]
      */
-    public function canAuthoriseCreditCard() :bool
+    public function canAuthoriseCreditCard(): bool
     {
         return $this->can_authorise_credit_card;
     }
@@ -149,11 +151,7 @@ class BasePaymentDriver
             $amount = $payment->getCompletedAmount();
         }
 
-        if ($payment->is_deleted) {
-            return false;
-        }
-
-        if (! $amount) {
+        if ($payment->is_deleted || !$amount) {
             return false;
         }
 
@@ -224,9 +222,9 @@ class BasePaymentDriver
         refund($options) - refund an already processed transaction
         void($options) - generally can only be called up to 24 hours after submitting a transaction
         acceptNotification() - convert an incoming request from an off-site gateway to a generic notification object for further processing
-    */
+     */
 
-    protected function paymentDetails($input) : array
+    protected function paymentDetails($input): array
     {
         $data = [
             'currency' => $this->client->getCurrencyCode(),
@@ -242,10 +240,10 @@ class BasePaymentDriver
     {
         $this->gateway();
 
-        $response =    	$this->gateway
-                         ->purchase($data)
-                         ->setItems($items)
-                         ->send();
+        $response =        $this->gateway
+            ->purchase($data)
+            ->setItems($items)
+            ->send();
 
         return $response;
         /*
@@ -257,11 +255,11 @@ class BasePaymentDriver
         $this->gateway();
 
         return $this->gateway
-                    ->completePurchase($data)
-                    ->send();
+            ->completePurchase($data)
+            ->send();
     }
 
-    public function createPayment($data) : Payment
+    public function createPayment($data): Payment
     {
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
         $payment->client_id = $this->client->id;
@@ -274,11 +272,14 @@ class BasePaymentDriver
     }
 
 
-    public function attachInvoices(Payment $payment, $hashed_ids) : Payment
+    public function attachInvoices(Payment $payment, $hashed_ids): Payment
     {
-        $invoices = Invoice::whereIn('id', $this->transformKeys($hashed_ids))
-                        ->whereClientId($this->client->id)
-                        ->get();
+        $transformed = $this->transformKeys($hashed_ids);
+        $array = is_array($transformed) ? $transformed : [$transformed];
+
+        $invoices = Invoice::whereIn('id', $array)
+            ->whereClientId($this->client->id)
+            ->get();
 
         $payment->invoices()->sync($invoices);
         $payment->save();

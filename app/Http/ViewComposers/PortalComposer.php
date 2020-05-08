@@ -11,6 +11,7 @@
 
 namespace App\Http\ViewComposers;
 
+use App\Models\ClientContact;
 use App\Utils\TranslationHelper;
 use Illuminate\View\View;
 
@@ -48,6 +49,7 @@ class PortalComposer
         $data['company'] = auth()->user()->company;
         $data['client'] = auth()->user()->client;
         $data['settings'] = auth()->user()->client->getMergedSettings();
+        $data['multiple_contacts'] = ClientContact::where('email', auth('contact')->user()->email)->get();
 
         return $data;
     }
