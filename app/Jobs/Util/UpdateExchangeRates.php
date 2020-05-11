@@ -53,6 +53,10 @@ class UpdateExchangeRates implements ShouldQueue
 
     private function updateCurrencies()
     {
+        
+        if(empty(config('ninja.currency_converter_api_key')))
+            return;
+
         $cc_endpoint = sprintf('https://openexchangerates.org/api/latest.json?app_id=%s', config('ninja.currency_converter_api_key'));
 
         $client = new \GuzzleHttp\Client();

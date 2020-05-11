@@ -23,28 +23,51 @@ class CurrencyApi implements CurrencyConversionInterface
 		if(!$date)
 			$date = Carbon::now();
 
-		$from_currency = Currency::find($from_currency_id)->code;
+		$from_currency = Currency::find($from_currency_id);
 
 		$to_currency = Currency::find($to_currency_id);
 
-		$currency = new \danielme85\CConverter\Currency();
+		$usd_amount = $this->convertToUsd($amount, $from_currency);
 
-	    return $currency->convert($from_currency, $to_currency->code, $amount, $to_currency->precision, $date);
+		return $this->convertFromUsdToCurrency($usd_amount, $to_currency);
 		
 	}
 
 	public function exchangeRate($from_currency_id, $to_currency_id, $date = null)
 	{
-		
-		if(!$date)
-			$date = Carbon::now();
 
-		$from_currency = Currency::find($from_currency_id)->code;
+		$from_currency = Currency::find($from_currency_id);
 
 		$to_currency = Currency::find($to_currency_id);
 
-		return \danielme85\CConverter\Currency::conv($from_currency, $to_currency->code, 1, $to_currency->precision, $date);
+		$usd_amount = $this->convertToUsd(1, $from_currency);
+		
+		return $this->convertFromUsdToCurrency($usd_amount, $to_currency);
 
+	}
+
+	/**
+	 * Converts a currency amount to USD
+	 * 
+	 * @param  float  $amount   amount
+	 * @param  object $currency currency object
+	 * @return float            USD Amount
+	 */
+	private function convertToUsd($amount, $currency)
+	{
+		return $amount / $currency->exchange_rate;
+	}
+
+	/**
+	 * Converts USD to any other denomination
+	 * 
+	 * @param  float  $amount   amount
+	 * @param  object $currency destination currency
+	 * @return float            the converted amount
+	 */
+	private function convertFromUsdToCurrency($amount, $currency)
+	{
+		return $amount * $currency->exchange_rate;
 	}
 
 }

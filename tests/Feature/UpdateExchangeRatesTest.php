@@ -9,6 +9,7 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\Currency;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use AshAllenDesign\LaravelExchangeRates\Facades\ExchangeRate;
@@ -66,6 +67,53 @@ class UpdateExchangeRatesTest extends TestCase
         })->first();
 
         $this->assertEquals($currency_api->rates->GBP, $gbp_currency->exchange_rate);
+
+    }
+
+    public function testExchangeRateConversion()
+    {
+        $usd = Currency::find(1);
+        $gbp = Currency::find(2);
+
+
+        $usd->exchange_rate = 1;
+        $usd->save();
+
+        $gbp->exchange_rate = 0.5;
+        $gbp->save();
+
+        $currency_api = new CurrencyApi();
+
+        $convert_to_gbp = $currency_api->convert(10, 1, 2);
+
+        $this->assertEquals($convert_to_gbp, 5);
+    }
+
+    public function testSyntheticExchangeRate()
+    {
+        $usd = Currency::find(1);
+        $gbp = Currency::find(2);
+        $aud = Currency::find(12);
+
+        $usd->exchange_rate = 1;
+        $usd->save();
+
+        $gbp->exchange_rate = 0.5;
+        $gbp->save();
+
+        $aud->exchange_rate = 1.5;
+        $aud->save();
+
+        $currency_api = new CurrencyApi();
+
+        $convert_to_aud = $currency_api->convert(10, 1, 12);
+
+        $this->assertEquals($convert_to_aud, 15);
+
+        $synthetic_exchange = $currency_api->exchangeRate($gbp->id, $aud->id);
+
+        $this->assertEquals($synthetic_exchange, 3);
+
 
     }
 
