@@ -96,7 +96,7 @@ class CompanyGateway extends BaseModel
         if (class_exists($class)) {
             return $class;
         } else {
-            return 'App\\PaymentDrivers\\CheckoutPaymentDriver';
+            return 'App\\PaymentDrivers\\BasePaymentDriver'; // Replace with CheckoutPaymentDriver if you want to load it.
         }
     }
 

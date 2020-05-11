@@ -79,8 +79,12 @@ class BasePaymentDriver
      */
     protected function gateway()
     {
-        $this->gateway = Omnipay::create('Checkout');
+        $this->gateway = Omnipay::create($this->company_gateway->gateway->provider);
         $this->gateway->initialize((array) $this->company_gateway->getConfig());
+
+        // This part of code was used because Checkout driver wasn't loading properly.
+        // $this->gateway = Omnipay::create('Checkout');
+        // $this->gateway((array) json_decode(config('ninja.testvars.checkout')));
 
         return $this;
     }

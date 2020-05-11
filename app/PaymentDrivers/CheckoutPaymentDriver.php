@@ -19,6 +19,8 @@ class CheckoutPaymentDriver extends BasePaymentDriver
 
     public function createTransactionToken($amount, $currency)
     {
+        // This is part that made me stuck.
+
         // if ($this->invoice()->getCurrencyCode() == 'BHD') {
         //     $amount = $this->invoice()->getRequestedAmount() / 10;
         // } elseif ($this->invoice()->getCurrencyCode() == 'KWD') {
