@@ -97,7 +97,7 @@ class PaymentController extends Controller
 
         //boot the payment gateway
         $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
-
+        
         $payment_method_id = request()->input('payment_method_id');
 
         //if there is a gateway fee, now is the time to calculate it
@@ -112,7 +112,6 @@ class PaymentController extends Controller
             'payment_method_id' => $payment_method_id,
             'hashed_ids' => explode(",", request()->input('hashed_ids')),
         ];
-
 
         return $gateway->driver(auth()->user()->client)->processPaymentView($data);
     }

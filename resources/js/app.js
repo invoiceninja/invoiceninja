@@ -13,4 +13,4 @@ window.axios = require("axios");
  * https://github.com/turbolinks/turbolinks
  */
 const Turbolinks = require("turbolinks");
-Turbolinks.start();
+// Turbolinks.start();

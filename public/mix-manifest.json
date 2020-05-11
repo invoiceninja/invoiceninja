@@ -1,12 +1,12 @@
 {
-    "/js/app.js": "/js/app.js?id=49b0ee243139f6e72bd9",
-    "/css/app.css": "/css/app.css?id=c317169666198ce30427",
-    "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=caec43815d9a13168a38",
-    "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=af49e24958be5fc00c92",
-    "/js/clients/payment_methods/authorize-stripe-card.js": "/js/clients/payment_methods/authorize-stripe-card.js?id=f4c45f0da9868d840799",
-    "/js/clients/payments/process.js": "/js/clients/payments/process.js?id=bb91cb611d1bdab40973",
-    "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=f7c6bfdbf9cfc3efdf0b",
-    "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=fcb23f15eebc3bff639d",
-    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=fc675e996ad606c6eca6",
-    "/js/setup/setup.js": "/js/setup/setup.js?id=d30808ba9e2c9f908ce5"
+    "/js/app.js": "/js/app.js?id=69e24ba3385319460907",
+    "/css/app.css": "/css/app.css?id=b4f28bc71925ec9b1f74",
+    "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=443c8cc6f8d655e2c7b2",
+    "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=4b28b9c5d38d387d81d8",
+    "/js/clients/payment_methods/authorize-stripe-card.js": "/js/clients/payment_methods/authorize-stripe-card.js?id=937df6d2ae660de26592",
+    "/js/clients/payments/process.js": "/js/clients/payments/process.js?id=8c99415e364f92cd4ae4",
+    "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=4a78deed572be196887d",
+    "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=d7dd31defa4dbc3feec5",
+    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=abc69de814a64f10ccac",
+    "/js/setup/setup.js": "/js/setup/setup.js?id=18924d17198a572098f8"
 }
