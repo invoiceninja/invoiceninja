@@ -19,7 +19,7 @@
             </div>
         </div>
         <div class="ml-4 flex items-center md:ml-6">
-            @if($multiple_contacts)
+            @if($multiple_contacts->count() > 1)
             <div class="relative inline-block text-left" x-data="{ open: false }">
                 <div>
                     <span class="rounded shadow-sm">
