@@ -12,7 +12,6 @@
 namespace App\Libraries\Currency\Conversion;
 
 use App\Models\Currency;
-use AshAllenDesign\LaravelExchangeRates\Classes\ExchangeRate;
 use Illuminate\Support\Carbon;
 
 class CurrencyApi implements CurrencyConversionInterface
@@ -26,12 +25,12 @@ class CurrencyApi implements CurrencyConversionInterface
 
 		$from_currency = Currency::find($from_currency_id)->code;
 
-		$to_currency = Currency::find($to_currency_id)->code;
+		$to_currency = Currency::find($to_currency_id);
 
-		$exchangeRates = new ExchangeRate();
+		$currency = new \danielme85\CConverter\Currency();
 
-		return $exchangeRates->convert($amount, $from_currency, $to_currency, $date);
-
+	    return $currency->convert($from_currency, $to_currency->code, $amount, $to_currency->precision, $date);
+		
 	}
 
 	public function exchangeRate($from_currency_id, $to_currency_id, $date = null)
@@ -42,11 +41,9 @@ class CurrencyApi implements CurrencyConversionInterface
 
 		$from_currency = Currency::find($from_currency_id)->code;
 
-		$to_currency = Currency::find($to_currency_id)->code;
+		$to_currency = Currency::find($to_currency_id);
 
-		$exchangeRates = new ExchangeRate();
-
-		return $exchangeRates->exchangeRate($from_currency, $to_currency, $date);
+		return \danielme85\CConverter\Currency::conv($from_currency, $to_currency->code, 1, $to_currency->precision, $date);
 
 	}
 

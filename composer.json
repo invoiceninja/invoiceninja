@@ -21,7 +21,6 @@
         "php": ">=7.3",
         "ext-json": "*",
         "asgrim/ofxparser": "^1.2",
-        "ashallendesign/laravel-exchange-rates": "^2.1",
         "beganovich/omnipay-checkout": "dev-master",
         "cleverit/ubl_invoice": "^1.3",
         "codedge/laravel-selfupdater": "~3.0",
