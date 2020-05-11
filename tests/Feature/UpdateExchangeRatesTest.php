@@ -51,22 +51,28 @@ class UpdateExchangeRatesTest extends TestCase
 
     public function testExchangeRate()
     {
-        $cc_endpoint = sprintf('https://openexchangerates.org/api/latest.json?app_id=%s', config('ninja.currency_converter_api_key'));
 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->get($cc_endpoint);
+        if(!empty(config('ninja.currency_converter_api_key')))
+        {
+            $cc_endpoint = sprintf('https://openexchangerates.org/api/latest.json?app_id=%s', config('ninja.currency_converter_api_key'));
 
-        $currency_api = json_decode($response->getBody());
+            $client = new \GuzzleHttp\Client();
+            $response = $client->get($cc_endpoint);
 
-        UpdateExchangeRates::dispatchNow();
+            $currency_api = json_decode($response->getBody());
 
-        $currencies = Cache::get('currencies');
-        
-        $gbp_currency = $currencies->filter(function ($item) {
-            return $item->id == 2;
-        })->first();
+            UpdateExchangeRates::dispatchNow();
 
-        $this->assertEquals($currency_api->rates->GBP, $gbp_currency->exchange_rate);
+            $currencies = Cache::get('currencies');
+            
+            $gbp_currency = $currencies->filter(function ($item) {
+                return $item->id == 2;
+            })->first();
+
+            $this->assertEquals($currency_api->rates->GBP, $gbp_currency->exchange_rate);
+        }
+        else
+            $this->markTestSkipped('No API Key set');
 
     }
 

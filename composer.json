@@ -53,7 +53,6 @@
         "spatie/browsershot": "^3.29",
         "staudenmeir/eloquent-has-many-deep": "^1.11",
         "stripe/stripe-php": "^7.0",
-        "superbalist/laravel-google-cloud-storage": "^2.2",
         "turbo124/beacon": "^0",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "yajra/laravel-datatables-oracle": "~9.0"
