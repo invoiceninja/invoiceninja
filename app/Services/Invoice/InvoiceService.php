@@ -103,12 +103,12 @@ class InvoiceService
     }
 
 
-    public function getInvoicePdf($contact)
+    public function getInvoicePdf($contact = null)
     {
         return (new GetInvoicePdf($this->invoice, $contact))->run();
     }
 
-    public function sendEmail($contact)
+    public function sendEmail($contact = null)
     {
         $send_email = new SendEmail($this->invoice, null, $contact);
 

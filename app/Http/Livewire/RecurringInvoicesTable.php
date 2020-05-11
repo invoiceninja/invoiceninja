@@ -17,9 +17,8 @@ class RecurringInvoicesTable extends Component
     {
         $query = RecurringInvoice::query();
 
-        // ->whereClientId(auth()->user()->client->id) // auth()->user() null.
-
         $query = $query
+            ->where('company_id', auth('contact')->user()->company->id)
             ->whereIn('status_id', [RecurringInvoice::STATUS_PENDING, RecurringInvoice::STATUS_ACTIVE, RecurringInvoice::STATUS_COMPLETED])
             ->orderBy('status_id', 'asc')
             ->with('client')

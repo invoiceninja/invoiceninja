@@ -1,8 +1,6 @@
 const mix = require("laravel-mix");
 const tailwindcss = require("tailwindcss");
 
-require("laravel-mix-purgecss");
-
 mix.js("resources/js/app.js", "public/js")
     .js(
         "resources/js/clients/payment_methods/authorize-stripe-card.js",
@@ -41,11 +39,6 @@ mix.sass("resources/sass/app.scss", "public/css")
     .options({
         processCssUrls: false,
         postCss: [tailwindcss("./tailwind.config.js")]
-    })
-    .purgeCss({
-        enabled: mix.inProduction(),
-        extensions: ["html", "php"]
     });
-
 mix.version();
 mix.disableNotifications();

@@ -27,7 +27,8 @@ class QuotesTable extends Component
     public function render()
     {
         $query = Quote::query()
-            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
+            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
+            ->where('company_id', auth('contact')->user()->company->id);
         
         if (in_array('draft', $this->status)) {
             $query = $query->orWhere('status_id', Quote::STATUS_DRAFT);

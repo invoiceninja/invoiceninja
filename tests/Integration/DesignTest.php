@@ -156,16 +156,18 @@ class DesignTest extends TestCase
 
     public function testAllDesigns()
     {
-        for ($x=1; $x<=10; $x++) {
-            $settings = $this->invoice->client->settings;
-            $settings->quote_design_id = (string)$this->encodePrimaryKey($x);
-            $settings->all_pages_header = true;
-            $settings->all_pages_footer = true;
 
             $this->quote->client_id = $this->client->id;
             $this->quote->setRelation('client', $this->client);
             $this->quote->save();
 
+
+        for ($x=1; $x<=10; $x++) {
+
+            $settings = $this->invoice->client->settings;
+            $settings->quote_design_id = (string)$this->encodePrimaryKey($x);
+            $settings->all_pages_header = true;
+            $settings->all_pages_footer = true;
             $this->client->settings = $settings;
             $this->client->save();
 
@@ -179,7 +181,9 @@ class DesignTest extends TestCase
             CreateQuotePdf::dispatchNow($invitation);
 
             $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
-            $this->quote->save();
+
+//            $this->quote->save();
+
         }
 
         $this->assertTrue(true);
