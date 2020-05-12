@@ -3,6 +3,8 @@
  * Signup Routes
  */
 
+use Omnipay\Omnipay;
+
 Route::get('/', 'BaseController@flutterRoute')->middleware('guest');
 Route::get('setup', 'SetupController@index')->middleware('guest');
 Route::post('setup/check_db', 'SetupController@checkDB')->middleware('guest');
@@ -31,3 +33,5 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('passw
 Route::group(['middleware' => ['url_db']], function () {
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
 });
+
+Route::get('refund', 'ExampleRefundController');

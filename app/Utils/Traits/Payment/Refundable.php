@@ -164,15 +164,7 @@ trait Refundable
         $credit_note->number = $this->client->getNextCreditNumber($this->client);
         $credit_note->save();
 
-        info($data);
-        info(get_class($this));
-
-        //determine if we need to refund via gateway
-        // if ($data['gateway_refund'] !== false) {
-        //     //todo process gateway refund, on success, reduce the credit note balance to 0
-        // }
-
-        if (true) {
+        if ($data['gateway_refund'] !== false) {
             $gateway = CompanyGateway::find($this->company_gateway_id);
 
             if ($gateway) {
@@ -180,7 +172,12 @@ trait Refundable
                     'transactionReference' => $this->transaction_reference,
                 ]);
 
-                info($response->getMessage());
+                if (!$response->isSuccessful()) {
+                    return response()->json([
+                        'message' => 'Unable to complete the refund.', 
+                        'service_message' => $response->getMessage()
+                    ], 401);
+                }
             }
         }
 
