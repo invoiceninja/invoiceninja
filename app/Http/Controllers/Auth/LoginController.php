@@ -257,7 +257,7 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirect();
+            return Socialite::driver($provider)->scopes(['https://www.googleapis.com/auth/gmail.send','email','profile','openid'])->redirect();
         }
     }
 
@@ -269,7 +269,7 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallbackAndCreate($provider);
         } else {
-            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirectUrl($redirect_url)->redirect();
+            return Socialite::driver($provider)->scopes(['https://www.googleapis.com/auth/gmail.send','email','profile','openid'])->redirectUrl($redirect_url)->redirect();
         }
     }
 
