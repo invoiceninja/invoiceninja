@@ -12,7 +12,7 @@
 namespace App\Libraries\OAuth;
 
 use App\Libraries\MultiDB;
-use App\Ninja\OAuth\Providers\Google;
+use App\Libraries\OAuth\Providers\Google;
 use Laravel\Socialite\Facades\Socialite;
 
 /**

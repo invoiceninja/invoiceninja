@@ -24,6 +24,7 @@ return [
     'error_email' => env('ERROR_EMAIL', ''),
     'company_id' => 0,
     'hash_salt' => env('HASH_SALT', ''),
+    'currency_converter_api_key' => env('OPENEXCHANGE_APP_ID',''),
 
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 

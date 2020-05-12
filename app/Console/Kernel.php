@@ -15,6 +15,7 @@ use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SendFailedEmails;
+use App\Jobs\Util\UpdateExchangeRates;
 use App\Jobs\Util\VersionCheck;
 use App\Utils\Ninja;
 use Illuminate\Console\Scheduling\Schedule;
@@ -44,6 +45,8 @@ class Kernel extends ConsoleKernel
         $schedule->job(new VersionCheck)->daily();
 
         $schedule->job(new ReminderJob)->daily();
+
+        $schedule->job(new UpdateExchangeRates)->daily();
         
         /* Run hosted specific jobs */
         if(Ninja::isHosted()) {

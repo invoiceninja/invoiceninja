@@ -12,7 +12,6 @@
 namespace App\Libraries\Currency\Conversion;
 
 use App\Models\Currency;
-use AshAllenDesign\LaravelExchangeRates\Classes\ExchangeRate;
 use Illuminate\Support\Carbon;
 
 class CurrencyApi implements CurrencyConversionInterface
@@ -24,30 +23,51 @@ class CurrencyApi implements CurrencyConversionInterface
 		if(!$date)
 			$date = Carbon::now();
 
-		$from_currency = Currency::find($from_currency_id)->code;
+		$from_currency = Currency::find($from_currency_id);
 
-		$to_currency = Currency::find($to_currency_id)->code;
+		$to_currency = Currency::find($to_currency_id);
 
-		$exchangeRates = new ExchangeRate();
+		$usd_amount = $this->convertToUsd($amount, $from_currency);
 
-		return $exchangeRates->convert($amount, $from_currency, $to_currency, $date);
-
+		return $this->convertFromUsdToCurrency($usd_amount, $to_currency);
+		
 	}
 
 	public function exchangeRate($from_currency_id, $to_currency_id, $date = null)
 	{
+
+		$from_currency = Currency::find($from_currency_id);
+
+		$to_currency = Currency::find($to_currency_id);
+
+		$usd_amount = $this->convertToUsd(1, $from_currency);
 		
-		if(!$date)
-			$date = Carbon::now();
+		return $this->convertFromUsdToCurrency($usd_amount, $to_currency);
 
-		$from_currency = Currency::find($from_currency_id)->code;
+	}
 
-		$to_currency = Currency::find($to_currency_id)->code;
+	/**
+	 * Converts a currency amount to USD
+	 * 
+	 * @param  float  $amount   amount
+	 * @param  object $currency currency object
+	 * @return float            USD Amount
+	 */
+	private function convertToUsd($amount, $currency)
+	{
+		return $amount / $currency->exchange_rate;
+	}
 
-		$exchangeRates = new ExchangeRate();
-
-		return $exchangeRates->exchangeRate($from_currency, $to_currency, $date);
-
+	/**
+	 * Converts USD to any other denomination
+	 * 
+	 * @param  float  $amount   amount
+	 * @param  object $currency destination currency
+	 * @return float            the converted amount
+	 */
+	private function convertFromUsdToCurrency($amount, $currency)
+	{
+		return $amount * $currency->exchange_rate;
 	}
 
 }

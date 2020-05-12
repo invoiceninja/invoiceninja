@@ -58,6 +58,10 @@ class UpdateOrCreateProduct implements ShouldQueue
         MultiDB::setDB($this->company->db);
 
         foreach ($this->products as $item) {
+
+            if(empty($item->product_key))
+                continue;
+
             $product = Product::firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
                 
             $product->product_key = $item->product_key;
