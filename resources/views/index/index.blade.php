@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Invoice Ninja</title>
   <meta name="report_errors" content="{{ $report_errors }}">
+  <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">
 </head>
 <body style="background-color:#888888;">
 

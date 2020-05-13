@@ -19,4 +19,10 @@ class Google implements ProviderInterface
     {
         return $payload['sub']; // user ID
     }
+
+    public function harvestName($payload)
+    {
+        return $payload['name'];
+    }
+
 }

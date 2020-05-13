@@ -18,6 +18,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Account\CreateAccount;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
+use App\Libraries\OAuth\Providers\Google;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
@@ -246,134 +247,6 @@ class LoginController extends BaseController
     }
 
     /**
-     * Redirect the user to the provider authentication page
-     *
-     * @return void
-     */
-    public function redirectToProvider(string $provider)
-    {
-        //'https://www.googleapis.com/auth/gmail.send','email','profile','openid'
-        //
-        if (request()->has('code')) {
-            return $this->handleProviderCallback($provider);
-        } else {
-            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirect();
-        }
-    }
-
-
-    public function redirectToProviderAndCreate(string $provider)
-    {
-        $redirect_url = config('services.' . $provider . '.redirect') . '/create';
-
-        if (request()->has('code')) {
-            return $this->handleProviderCallbackAndCreate($provider);
-        } else {
-            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirectUrl($redirect_url)->redirect();
-        }
-    }
-
-
-    
-    public function handleProviderCallbackAndCreate(string $provider)
-    {
-        $redirect_url = config('services.' . $provider . '.redirect') . '/create';
-
-        $socialite_user = Socialite::driver($provider)
-                                    ->redirectUrl($redirect_url)
-                                    ->stateless()
-                                    ->user();
-
-        /* Handle existing users who attempt to create another account with existing OAuth credentials */
-        if ($user = OAuth::handleAuth($socialite_user, $provider)) {
-            $user->oauth_user_token = $socialite_user->refreshToken;
-            $user->save();
-            Auth::login($user, true);
-            
-            return redirect($this->redirectTo);
-        } elseif (MultiDB::checkUserEmailExists($socialite_user->getEmail())) {
-            Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
-
-            return view('auth.login');
-        }
-        /** 3. Automagically creating a new account here. */
-        else {
-            //todo
-            $name = OAuth::splitName($socialite_user->getName());
-
-            $new_account = [
-                'first_name' => $name[0],
-                'last_name' => $name[1],
-                'password' => '',
-                'email' => $socialite_user->getEmail(),
-                'oauth_user_id' => $socialite_user->getId(),
-                'oauth_user_token' => $socialite_user->refreshToken,
-                'oauth_provider_id' => $provider
-            ];
-
-            MultiDB::setDefaultDatabase();
-            
-            $account = CreateAccount::dispatchNow($new_account);
-
-            Auth::login($account->default_company->owner(), true);
-            
-            $cookie = cookie('db', $account->default_company->db);
-
-            return redirect($this->redirectTo)->withCookie($cookie);
-        }
-    }
-
-    /**
-     * We use this function when OAUTHING via the web interface
-     *
-     * @return redirect
-     */
-    public function handleProviderCallback(string $provider)
-    {
-        $redirect_url = config('services.' . $provider . '.redirect');
-
-        $socialite_user = Socialite::driver($provider)
-                                    ->redirectUrl($redirect_url)
-                                    ->stateless()
-                                    ->user();
-
-        if ($user = OAuth::handleAuth($socialite_user, $provider)) {
-            $user->oauth_user_token = $socialite_user->token;
-            $user->save();
-            Auth::login($user, true);
-            
-            return redirect($this->redirectTo);
-        } elseif (MultiDB::checkUserEmailExists($socialite_user->getEmail())) {
-            Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
-
-            return view('auth.login');
-        }
-        /** 3. Automagically creating a new account here. */
-        else {
-            //todo
-            $name = OAuth::splitName($socialite_user->getName());
-
-            $new_account = [
-                'first_name' => $name[0],
-                'last_name' => $name[1],
-                'password' => '',
-                'email' => $socialite_user->getEmail(),
-                'oauth_user_id' => $socialite_user->getId(),
-                'oauth_user_token' => $socialite_user->token,
-                'oauth_provider_id' => $provider
-            ];
-
-            $account = CreateAccount::dispatchNow($new_account);
-
-            Auth::login($account->default_company->owner(), true);
-            
-            $cookie = cookie('db', $account->default_company->db);
-
-            return redirect($this->redirectTo)->withCookie($cookie);
-        }
-    }
-
-    /**
      * A client side authentication has taken place.
      * We now digest the token and confirm authentication with
      * the authentication server, the correct user object
@@ -387,18 +260,93 @@ class LoginController extends BaseController
      */
     public function oauthApiLogin()
     {
+
+        if(request()->input('provider') == 'google')
+            return $this->handleGoogleOauth();
+
+        return response()
+        ->json(['message' => 'Provider not supported'], 400)
+        ->header('X-App-Version', config('ninja.app_version'))
+        ->header('X-Api-Version', config('ninja.api_version'));
+    }
+
+    private function handleGoogleOauth()
+    {
         $user = false;
 
-        $oauth = new OAuth();
+        $google = new Google();
 
-        $user = $oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('token'));
+        $user = $google->getTokenResponse(request()->input('id_token'));
 
-        if ($user) {
-            $ct = CompanyUser::whereUserId($user);
-            return $this->listResponse($ct);
-        //  return $this->itemResponse($user);
-        } else {
-            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
+        if(is_array($user))
+        {
+            $query = [
+                'oauth_user_id' => $google->harvestSubField($user),
+                'oauth_provider_id'=> 'google'
+            ];
+
+            if ($existing_user = MultiDB::hasUser($query)) 
+            {
+
+                Auth::login($existing_user, true);
+                $existing_user->setCompany($existing_user->account->default_company);
+
+                $ct = CompanyUser::whereUserId(auth()->user()->id);
+                return $this->listResponse($ct);
+
+            }
+
+
         }
+        
+        if($user){
+
+        $client = new \Google_Client();
+        $client->setClientId(config('ninja.auth.google.client_id'));
+        $client->setClientSecret(config('ninja.auth.google.client_secret'));
+
+        $token = $client->authenticate(request()->input('server_auth_code'));
+        
+        $refresh_token = '';
+
+        if(array_key_exists('refresh_token', $token))
+            $refresh_token = $token['refresh_token'];
+
+        $access_token = $token['access_token'];
+
+            $name = OAuth::splitName($google->harvestName($user));
+
+            $new_account = [
+                'first_name' => $name[0],
+                'last_name' => $name[1],
+                'password' => '',
+                'email' => $google->harvestEmail($user),
+                'oauth_user_id' => $google->harvestSubField($user),
+                'oauth_user_token' => $access_token,
+                'oauth_user_refresh_token' => $refresh_token,
+                'oauth_provider_id' => 'google'
+            ];
+
+            MultiDB::setDefaultDatabase();
+            
+            $account = CreateAccount::dispatchNow($new_account);
+
+            Auth::login($account->default_company->owner(), true);
+
+            auth()->user()->email_verified_at = now();
+            auth()->user()->save();
+
+            $ct = CompanyUser::whereUserId(auth()->user()->id);
+            return $this->listResponse($ct);
+        }
+        
+
+        return response()
+        ->json(['message' => ctrans('texts.invalid_credentials')], 401)
+        ->header('X-App-Version', config('ninja.app_version'))
+        ->header('X-Api-Version', config('ninja.api_version'));
+        
+
     }
+
 }
