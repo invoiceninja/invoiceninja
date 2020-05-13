@@ -286,15 +286,4 @@ class BasePaymentDriver
 
         return $payment;
     }
-
-    public function refund(array $data)
-    {
-        $this->gateway();
-
-        $response = $this->gateway
-            ->refund(['transactionReference' => $data['transactionReference']])
-            ->send();
-
-        return $response;
-    }
 }
