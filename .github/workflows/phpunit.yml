@@ -20,7 +20,7 @@ jobs:
       CACHE_DRIVER: file
       QUEUE_CONNECTION: sync
       SESSION_DRIVER: file
-      NINJA_ENVIRONMENT: development
+      NINJA_ENVIRONMENT: hosted
       MULTI_DB_ENABLED: false
       NINJA_LICENSE: 123456
       TRAVIS: true
