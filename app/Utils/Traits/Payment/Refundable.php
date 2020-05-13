@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits\Payment;
 
+use App\Exceptions\PaymentRefundFailed;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Activity;
@@ -168,10 +169,11 @@ trait Refundable
             $gateway = CompanyGateway::find($this->company_gateway_id);
 
             if ($gateway) {
-                $response = $gateway->driver($this->client)->refund($this);
+                $amount = request()->has('amount') ? request()->amount : null;
+                $response = $gateway->driver($this->client)->refund($this, $amount);
 
                 if (!$response) {
-                    return response()->json(['message' => 'Unable to complete the refund.'], 401);
+                    throw new PaymentRefundFailed();
                 }
             }
         }

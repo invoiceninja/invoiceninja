@@ -270,17 +270,39 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $payment;
     }
     
-    public function refund(Payment $payment, $amount = 0)
+    public function refund(Payment $payment, $amount = null)
     {
         $this->gateway();
 
         $response = $this->gateway
-            ->refund(['transactionReference' => $payment->transaction_reference])
+            ->refund(['transactionReference' => $payment->transaction_reference, 'amount' => $amount ?? $payment->amount])
             ->send();
 
         if ($response->isSuccessful()) {
+            SystemLogger::dispatch(
+                [
+                'server_response' => $response->getMessage(),
+                'data' => request()->all(),
+              ],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_PAYPAL,
+                $this->client
+            );
+
             return true;
         }
+
+        SystemLogger::dispatch(
+            [
+            'server_response' => $response->getMessage(),
+            'data' => request()->all(),
+          ],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_PAYPAL,
+            $this->client
+        );
 
         return false;
     }
