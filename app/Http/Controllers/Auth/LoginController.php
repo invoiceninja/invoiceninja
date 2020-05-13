@@ -257,7 +257,7 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirect();
+            return Socialite::driver($provider)->scopes(['https://www.googleapis.com/auth/gmail.send','email','profile','openid'])->redirect();
         }
     }
 
@@ -269,7 +269,7 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallbackAndCreate($provider);
         } else {
-            return Socialite::driver($provider)->scopes('https://www.googleapis.com/auth/gmail.send')->redirectUrl($redirect_url)->redirect();
+            return Socialite::driver($provider)->scopes(['https://www.googleapis.com/auth/gmail.send','email','profile','openid'])->redirectUrl($redirect_url)->redirect();
         }
     }
 
@@ -387,18 +387,118 @@ class LoginController extends BaseController
      */
     public function oauthApiLogin()
     {
+
+        if(request()->input('provider') == 'google')
+            return $this->handleGoogleOauth();
+
+//         $user = false;
+
+//         $oauth = new OAuth();
+
+//         $user = $oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('id_token'));
+
+// // server_auth_code
+// // access_token
+// // id_token
+ 
+//         if ($user = OAuth::handleAuth($socialite_user, $provider)) {
+//             $user->oauth_user_token = $socialite_user->token;
+//             $user->save();
+//             Auth::login($user, true);
+            
+//             return redirect($this->redirectTo);
+//         } elseif (MultiDB::checkUserEmailExists($socialite_user->getEmail())) {
+//             Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
+
+//             return view('auth.login');
+//         }
+//         * 3. Automagically creating a new account here. 
+//         else {
+//             //todo
+//             $name = OAuth::splitName($socialite_user->getName());
+
+//             $new_account = [
+//                 'first_name' => $name[0],
+//                 'last_name' => $name[1],
+//                 'password' => '',
+//                 'email' => $socialite_user->getEmail(),
+//                 'oauth_user_id' => $socialite_user->getId(),
+//                 'oauth_user_token' => $socialite_user->token,
+//                 'oauth_provider_id' => $provider
+//             ];
+
+//             $account = CreateAccount::dispatchNow($new_account);
+
+//             Auth::login($account->default_company->owner(), true);
+            
+//             $cookie = cookie('db', $account->default_company->db);
+
+//             return redirect($this->redirectTo)->withCookie($cookie);
+//        }
+
+        // if ($user) {
+        //     $ct = CompanyUser::whereUserId($user);
+        //     return $this->listResponse($ct);
+        // //  return $this->itemResponse($user);
+        // } else {
+        //     return $this->errorResponse(['message' => 'Invalid credentials'], 401);
+        // }
+    }
+
+    private function handleGoogleOauth()
+    {
         $user = false;
 
         $oauth = new OAuth();
 
-        $user = $oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('token'));
+        $user = $oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('id_token'));
 
-        if ($user) {
-            $ct = CompanyUser::whereUserId($user);
-            return $this->listResponse($ct);
-        //  return $this->itemResponse($user);
-        } else {
-            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
+        if(is_array($user))
+        {
+            $query = [
+                'oauth_user_id' =>$oauth->getProvider(request()->input('provider'))->harvestSubField($user),
+                'oauth_provider_id'=>$provider
+            ];
+
+            if ($user = MultiDB::hasUser($query)) 
+            {
+
+                Auth::login($user, true);
+
+                $ct = CompanyUser::whereUserId(auth()->user()->id);
+                return $this->listResponse($ct);
+
+            }
         }
+        else if($user && request()->input('create') == 'true') {
+
+//server_auth_code
+        $client = new \Google_Client();
+        $accessToken = $client->fetchAccessTokenWithAuthCode(request()->input('server_auth_code'));
+        $refresh_token = $client->getRefreshToken();
+
+            $name = OAuth::splitName($oauth->getProvider(request()->input('provider'))->harvestName($user));
+
+            $new_account = [
+                'first_name' => $name[0],
+                'last_name' => $name[1],
+                'password' => '',
+                'email' => $oauth->getProvider(request()->input('provider'))->harvestEmail($user),
+                'oauth_user_id' => $oauth->getProvider(request()->input('provider'))->harvestSubField($user),
+                'oauth_user_token' => request()->input('access_token'),
+                'oauth_user_refresh_token' => $refresh_token,
+                'oauth_provider_id' => $provider
+            ];
+
+            MultiDB::setDefaultDatabase();
+            
+            $account = CreateAccount::dispatchNow($new_account);
+
+            Auth::login($account->default_company->owner(), true);
+            $ct = CompanyUser::whereUserId(auth()->user()->id);
+            return $this->listResponse($ct);
+        }
+
     }
+
 }
