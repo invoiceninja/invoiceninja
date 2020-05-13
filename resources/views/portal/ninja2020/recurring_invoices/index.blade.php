@@ -2,8 +2,6 @@
 @section('meta_title', ctrans('texts.recurring_invoices'))
 
 @section('header')
-    {{ Breadcrumbs::render('recurring_invoices') }}
-
     <div class="bg-white shadow rounded mb-4" translate>
         <div class="px-4 py-5 sm:p-6">
             <div class="sm:flex sm:items-start sm:justify-between">

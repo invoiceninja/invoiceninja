@@ -1,9 +1,5 @@
 @extends('portal.ninja2020.layout.app')
 
-@section('header')
-    {{ Breadcrumbs::render('recurring_invoices.request_cancellation', $invoice) }}
-@stop
-
 @section('body')
     <div class="container mx-auto">
         <div class="bg-white shadow overflow-hidden rounded">

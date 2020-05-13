@@ -3,9 +3,6 @@
 @section('body')
 <main class="main" id="client_create">
 
-    <!-- Breadcrumb-->
-    {{ Breadcrumbs::render('clients.create') }}
-
 <form @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
     <div class="container-fluid">
         

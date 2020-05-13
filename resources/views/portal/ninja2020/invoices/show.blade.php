@@ -6,10 +6,6 @@
     <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
 @endpush
 
-@section('header')
-    {{ Breadcrumbs::render('invoices.show', $invoice) }}
-@endsection
-
 @section('body')
 
     @if($invoice->isPayable() && !empty($client->getSetting('custom_message_unpaid_invoice')))

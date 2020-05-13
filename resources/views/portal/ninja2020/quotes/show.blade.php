@@ -6,10 +6,6 @@
     <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
 @endpush
 
-@section('header')
-    {{ Breadcrumbs::render('quotes.show', $quote) }}
-@endsection
-
 @section('body')
 
     @if(!$quote->isApproved() && !empty($client->getSetting('custom_message_unapproved_quote')))

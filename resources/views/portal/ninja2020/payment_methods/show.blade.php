@@ -1,10 +1,6 @@
 @extends('portal.ninja2020.layout.app')
 @section('meta_title', ucfirst($payment_method->gateway_type->name))
 
-@section('header')
-    {{ Breadcrumbs::render('payment_methods.show', $payment_method) }}
-@endsection
-
 @section('body')
     <div class="container mx-auto">
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">

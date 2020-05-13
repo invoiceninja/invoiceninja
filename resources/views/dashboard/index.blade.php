@@ -1,6 +1,4 @@
     <main class="main">
-        <!-- Breadcrumb-->
-        {{ Breadcrumbs::render('dashboard') }}
         <div class="container-fluid">
 
 			<div class="row">

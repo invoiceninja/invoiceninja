@@ -2,7 +2,6 @@
 @section('meta_title', ctrans('texts.payment_methods'))
 
 @section('header')
-    {{ Breadcrumbs::render('payment_methods') }}
     <div class="bg-white shadow rounded mb-4" translate>
         <div class="px-4 py-5 sm:p-6">
             <div class="sm:flex sm:items-start sm:justify-between">

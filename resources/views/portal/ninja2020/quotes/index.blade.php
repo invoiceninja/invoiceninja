@@ -2,8 +2,6 @@
 @section('meta_title', ctrans('texts.quotes'))
 
 @section('header')
-    {{ Breadcrumbs::render('quotes') }}
-
     @if($errors->any())
         <div class="alert alert-failure mb-4">
             @foreach($errors->all() as $error)

@@ -2,15 +2,14 @@
 @section('meta_title', ctrans('texts.invoices'))
 
 @section('header')
-    {{ Breadcrumbs::render('invoices') }}
 
-@if($errors->any())
-    <div class="alert alert-failure mb-4">
-        @foreach($errors->all() as $error)
-        <p>{{ $error }}</p>
-        @endforeach
-    </div>
-@endif
+    @if($errors->any())
+        <div class="alert alert-failure mb-4">
+            @foreach($errors->all() as $error)
+            <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
 
     <div class="bg-white shadow rounded mb-4" translate>
         <div class="px-4 py-5 sm:p-6">

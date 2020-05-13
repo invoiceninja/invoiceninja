@@ -5,10 +5,6 @@
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
 @endpush
 
-@section('header')
-    {{ Breadcrumbs::render('payment_methods.add_credit_card') }}
-@endsection
-
 @section('body')
     <form action="{{ route('client.payment_methods.store') }}" method="post" id="server_response">
         @csrf

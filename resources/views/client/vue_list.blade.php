@@ -7,8 +7,6 @@
 @section('body')
     @parent
     <main class="main" >
-        <!-- Breadcrumb-->
-        {{ Breadcrumbs::render('clients') }}
 
         <div class="container-fluid" id="client_list">
             <vue-toastr ref="toastr"></vue-toastr>
