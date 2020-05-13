@@ -8,5 +8,5 @@ interface ProviderInterface
 
     public function harvestEmail($response);
 
-    public function havestName($response);
+    public function harvestName($response);
 }

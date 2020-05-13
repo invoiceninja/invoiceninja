@@ -398,9 +398,7 @@ class LoginController extends BaseController
 
 //         $user = $oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('id_token'));
 
-// // server_auth_code
-// // access_token
-// // id_token
+
  
 //         if ($user = OAuth::handleAuth($socialite_user, $provider)) {
 //             $user->oauth_user_token = $socialite_user->token;
@@ -446,6 +444,10 @@ class LoginController extends BaseController
         // }
     }
 
+//// // server_auth_code
+// // access_token
+// // id_token
+// 
     private function handleGoogleOauth()
     {
         $user = false;
@@ -454,31 +456,35 @@ class LoginController extends BaseController
 
         $user = $google->getTokenResponse(request()->input('id_token'));
 
-info(print_r($user,1));
-
         if(is_array($user))
         {
             $query = [
                 'oauth_user_id' => $google->harvestSubField($user),
-                'oauth_provider_id'=>$provider
+                'oauth_provider_id'=> 'google'
             ];
 
-            if ($user = MultiDB::hasUser($query)) 
+            if ($existing_user = MultiDB::hasUser($query)) 
             {
 
-                Auth::login($user, true);
+                Auth::login($existing_user, true);
 
                 $ct = CompanyUser::whereUserId(auth()->user()->id);
                 return $this->listResponse($ct);
 
             }
+
+
         }
-        else if($user && request()->input('create') == 'true') {
+        
+        if($user){
+        //if($user && request()->input('create') == 'true') {
 
 //server_auth_code
         $client = new \Google_Client();
-        $accessToken = $client->fetchAccessTokenWithAuthCode(request()->input('server_auth_code'));
-        $client->setAccessToken($accessToken);
+        //$accessToken = $client->fetchAccessTokenWithAuthCode(request()->input('server_auth_code'));
+        //$client->setAccessToken($accessToken);
+        
+        $client->setAccessToken(request()->input('access_token'));
         $refresh_token = $client->getRefreshToken();
 
             $name = OAuth::splitName($google->harvestName($user));
@@ -491,7 +497,7 @@ info(print_r($user,1));
                 'oauth_user_id' => $google->harvestSubField($user),
                 'oauth_user_token' => request()->input('access_token'),
                 'oauth_user_refresh_token' => $refresh_token,
-                'oauth_provider_id' => $provider
+                'oauth_provider_id' => 'google'
             ];
 
             MultiDB::setDefaultDatabase();
