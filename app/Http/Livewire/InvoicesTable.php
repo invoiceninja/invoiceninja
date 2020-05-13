@@ -31,7 +31,6 @@ class InvoicesTable extends Component
     public function render()
     {
         $query = Invoice::query()
-            ->where('company_id', auth('contact')->user()->company->id)
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
         if (in_array('paid', $this->status)) {
@@ -48,7 +47,9 @@ class InvoicesTable extends Component
                 ->orWhere('partial_due_date', '<', Carbon::now());
         }
 
-        $query = $query->paginate($this->per_page);
+        $query = $query
+            ->where('company_id', auth('contact')->user()->company->id)
+            ->paginate($this->per_page);
 
         return render('components.livewire.invoices-table', [
             'invoices' => $query,
