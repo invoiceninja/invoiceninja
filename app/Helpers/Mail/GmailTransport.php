@@ -49,6 +49,8 @@ class GmailTransport extends Transport
 
     public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
+        /*We should nest the token in the message and then discard it as needed*/
+        
         $this->beforeSendPerformed($message);
 
         $this->gmail->using($this->token);
