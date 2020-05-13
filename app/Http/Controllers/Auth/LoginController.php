@@ -481,10 +481,14 @@ class LoginController extends BaseController
 
 //server_auth_code
         $client = new \Google_Client();
-        //$accessToken = $client->fetchAccessTokenWithAuthCode(request()->input('server_auth_code'));
-        //$client->setAccessToken($accessToken);
+        $client->setClientId(config('ninja.auth.google.client_id'));
+        $client->setClientSecret(config('ninja.auth.google.client_secret'));
+
+        $accessToken = $client->fetchAccessTokenWithAuthCode(request()->input('server_auth_code'));
+        info($accessToken);
         
-        $client->setAccessToken(request()->input('access_token'));
+        $client->setAccessToken($accessToken);
+        //$client->setAccessToken(request()->input('access_token'));
         $refresh_token = $client->getRefreshToken();
 
             $name = OAuth::splitName($google->harvestName($user));

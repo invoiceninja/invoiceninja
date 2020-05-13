@@ -147,5 +147,11 @@ return [
         'enterprise' => [
             'daily_emails' => 200,
         ]
+    ],
+    'auth' => [
+        'google' => [
+            'client_id' => env('GOOGLE_CLIENT_ID', ''),
+            'client_secret' => env('GOOGLE_CLIENT_SECRET','')
+        ]
     ]
 ];
