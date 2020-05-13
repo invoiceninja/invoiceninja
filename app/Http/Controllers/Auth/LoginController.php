@@ -453,6 +453,10 @@ class LoginController extends BaseController
 
         $user = $oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('id_token'));
 
+info("checked id token");
+info(print_r($user,1));
+info(print_r($oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('id_token')),1));
+
         if(is_array($user))
         {
             $query = [
@@ -475,6 +479,7 @@ class LoginController extends BaseController
 //server_auth_code
         $client = new \Google_Client();
         $accessToken = $client->fetchAccessTokenWithAuthCode(request()->input('server_auth_code'));
+        $client->setAccessToken($accessToken);
         $refresh_token = $client->getRefreshToken();
 
             $name = OAuth::splitName($oauth->getProvider(request()->input('provider'))->harvestName($user));
@@ -498,6 +503,13 @@ class LoginController extends BaseController
             $ct = CompanyUser::whereUserId(auth()->user()->id);
             return $this->listResponse($ct);
         }
+        
+
+        return response()
+        ->json(['message' => ctrans('texts.invalid_credentials')], 401)
+        ->header('X-App-Version', config('ninja.app_version'))
+        ->header('X-Api-Version', config('ninja.api_version'));
+        
 
     }
 
