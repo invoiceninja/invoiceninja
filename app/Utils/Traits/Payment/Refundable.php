@@ -168,15 +168,10 @@ trait Refundable
             $gateway = CompanyGateway::find($this->company_gateway_id);
 
             if ($gateway) {
-                $response = $gateway->driver($this->client)->refund([
-                    'transactionReference' => $this->transaction_reference,
-                ]);
+                $response = $gateway->driver($this->client)->refund($this);
 
-                if (!$response->isSuccessful()) {
-                    return response()->json([
-                        'message' => 'Unable to complete the refund.', 
-                        'service_message' => $response->getMessage()
-                    ], 401);
+                if (!$response) {
+                    return response()->json(['message' => 'Unable to complete the refund.'], 401);
                 }
             }
         }

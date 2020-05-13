@@ -20,7 +20,6 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Omnipay\Common\Item;
 
 /**
@@ -61,7 +60,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
     use MakesHash;
 
-    protected $refundable = false;
+    protected $refundable = true;
 
     protected $token_billing = false;
 
@@ -269,5 +268,20 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $payment->save();
 
         return $payment;
+    }
+    
+    public function refund(Payment $payment, $amount = 0)
+    {
+        $this->gateway();
+
+        $response = $this->gateway
+            ->refund(['transactionReference' => $payment->transaction_reference])
+            ->send();
+
+        if ($response->isSuccessful()) {
+            return true;
+        }
+
+        return false;
     }
 }
