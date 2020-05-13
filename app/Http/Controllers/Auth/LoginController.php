@@ -18,6 +18,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Account\CreateAccount;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
+use App\Libraries\OAuth\Providers\Google;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
@@ -449,9 +450,11 @@ class LoginController extends BaseController
     {
         $user = false;
 
-        $oauth = new OAuth();
+        $google = new Google();
 
-        $user = $oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('id_token'));
+        $user = $google->getTokenResponse(request()->input('id_token'));
+
+info(print_r($user,1));
 
 info("checked id token");
 info(print_r($user,1));
