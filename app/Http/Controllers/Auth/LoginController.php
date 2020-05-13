@@ -456,14 +456,10 @@ class LoginController extends BaseController
 
 info(print_r($user,1));
 
-info("checked id token");
-info(print_r($user,1));
-info(print_r($oauth->getProvider(request()->input('provider'))->getTokenResponse(request()->input('id_token')),1));
-
         if(is_array($user))
         {
             $query = [
-                'oauth_user_id' =>$oauth->getProvider(request()->input('provider'))->harvestSubField($user),
+                'oauth_user_id' => $google->harvestSubField($user),
                 'oauth_provider_id'=>$provider
             ];
 
@@ -485,14 +481,14 @@ info(print_r($oauth->getProvider(request()->input('provider'))->getTokenResponse
         $client->setAccessToken($accessToken);
         $refresh_token = $client->getRefreshToken();
 
-            $name = OAuth::splitName($oauth->getProvider(request()->input('provider'))->harvestName($user));
+            $name = OAuth::splitName($google->harvestName($user));
 
             $new_account = [
                 'first_name' => $name[0],
                 'last_name' => $name[1],
                 'password' => '',
-                'email' => $oauth->getProvider(request()->input('provider'))->harvestEmail($user),
-                'oauth_user_id' => $oauth->getProvider(request()->input('provider'))->harvestSubField($user),
+                'email' => $google->harvestEmail($user),
+                'oauth_user_id' => $google->harvestSubField($user),
                 'oauth_user_token' => request()->input('access_token'),
                 'oauth_user_refresh_token' => $refresh_token,
                 'oauth_provider_id' => $provider
