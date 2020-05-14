@@ -42,6 +42,12 @@ class AccountTest extends TestCase
 
     public function testApiAccountCreation()
     {
+
+        Account::all()->each(function($account) {
+            $account->delete();
+        });
+
+
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,

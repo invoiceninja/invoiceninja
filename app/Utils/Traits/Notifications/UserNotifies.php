@@ -58,9 +58,6 @@ trait UserNotifies
             array_push($notifiable_methods, 'mail');
         }
 
-        // if(count(array_intersect($required_permissions, $notifications->slack)) >=1)
-        //     array_push($notifiable_methods, 'slack');
-
         return $notifiable_methods;
     }
 
