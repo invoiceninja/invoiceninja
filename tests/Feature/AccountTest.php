@@ -43,7 +43,9 @@ class AccountTest extends TestCase
     public function testApiAccountCreation()
     {
 
-                Account::truncate();
+        Account::all()->each(function($account) {
+            $account->delete();
+        });
 
 
         $data = [

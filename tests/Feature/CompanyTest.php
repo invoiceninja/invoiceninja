@@ -45,7 +45,10 @@ class CompanyTest extends TestCase
     public function testCompanyList()
     {
 
-        Account::truncate();
+                Account::all()->each(function($account) {
+            $account->delete();
+        });
+;
         
         $data = [
             'first_name' => $this->faker->firstName,

@@ -34,7 +34,10 @@ class CreditTest extends TestCase
     public function testCreditsList()
     {
 
-                Account::truncate();
+                        Account::all()->each(function($account) {
+            $account->delete();
+        });
+;
 
 
         $data = [
