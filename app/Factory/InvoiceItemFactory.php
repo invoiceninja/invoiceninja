@@ -34,10 +34,10 @@ class InvoiceItemFactory
         $item->tax_rate3 = 0;
         $item->sort_id = 0;
         $item->line_total = 0;
-        $item->custom_value1 = null;
-        $item->custom_value2 = null;
-        $item->custom_value3 = null;
-        $item->custom_value4 = null;
+        $item->custom_value1 = '';
+        $item->custom_value2 = '';
+        $item->custom_value3 = '';
+        $item->custom_value4 = '';
 
         return $item;
     }
