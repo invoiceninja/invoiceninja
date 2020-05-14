@@ -57,8 +57,4 @@ class BaseMailerJob implements ShouldQueue
 
     }
 
-    public functin setFromUser()
-    {
-    	
-    }
 }
