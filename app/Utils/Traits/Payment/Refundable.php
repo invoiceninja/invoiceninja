@@ -165,12 +165,11 @@ trait Refundable
         $credit_note->number = $this->client->getNextCreditNumber($this->client);
         $credit_note->save();
 
-        if ($data['gateway_refund'] !== false) {
+        if ($data['gateway_refund'] !== false && $total_refund > 0) {
             $gateway = CompanyGateway::find($this->company_gateway_id);
 
             if ($gateway) {
-                $amount = request()->has('amount') ? request()->amount : null;
-                $response = $gateway->driver($this->client)->refund($this, $amount);
+                $response = $gateway->driver($this->client)->refund($this, $total_refund);
 
                 if (!$response) {
                     throw new PaymentRefundFailed();
