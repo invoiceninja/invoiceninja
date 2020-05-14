@@ -11,7 +11,7 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:click="statusChange('paid')" type="checkbox" class="form-checkbox">
+                <input id="paid" wire:click="statusChange('paid')" type="checkbox" class="form-checkbox">
                 <label for="paid" class="text-sm">{{ ctrans('texts.status_paid') }}</label>
             </div>
             <div class="mr-3">
