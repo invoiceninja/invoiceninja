@@ -289,6 +289,9 @@ class StripePaymentDriver extends BasePaymentDriver
         $customer = $payment_intent->customer;
 
         if ($payment_status == 'succeeded') {
+
+            $charge_id = $payment_intent->charges->data[0]->id;
+
             $this->init();
             $stripe_payment_method = \Stripe\PaymentMethod::retrieve($payment_method);
             $stripe_payment_method_obj = $stripe_payment_method->jsonSerialize();
@@ -333,7 +336,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
 
             $data = [
-              'payment_method' => $payment_method,
+              'payment_method' => $charge_id,
               'payment_type' => $payment_type,
               'amount' => $server_response->amount,
             ];
@@ -471,12 +474,12 @@ class StripePaymentDriver extends BasePaymentDriver
         return $customer;
     }
 
-    public function refund(Payment $payment, $amount = null)
+    public function refund(Payment $payment, $amount)
     {
         $this->gateway();
 
         $response = $this->gateway
-            ->refund(['transactionReference' => $payment->transaction_reference, 'amount' => $amount ?? $payment->amount])
+            ->refund(['transactionReference'=>$payment->transaction_reference, 'amount' => $amount, 'currency' => $payment->client->getCurrencyCode()])
             ->send();
 
         if ($response->isSuccessful()) {
