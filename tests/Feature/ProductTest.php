@@ -45,10 +45,10 @@ class ProductTest extends TestCase
     public function testProductList()
     {
 
-                        Account::all()->each(function($account) {
+        Account::all()->each(function($account) {
             $account->delete();
         });
-;
+
 
         $data = [
             'first_name' => $this->faker->firstName,

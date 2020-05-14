@@ -43,20 +43,26 @@ class InvoiceEmailedNotification implements ShouldQueue
         $invitation = $event->invitation;
 
         foreach ($invitation->company->company_users as $company_user) {
+
             $user = $company_user->user;
 
             $notification = new EntitySentNotification($invitation, 'invoice');
 
-            $notification->method = $this->findUserNotificationTypes($invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent']);
+            $methods = $this->findUserNotificationTypes($invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent']);
+
+            if (($key = array_search('mail', $methods)) !== false) {
+                unset($methods[$key]);
+
+                //Fire mail notification here!!!
+                //This allows us better control of how we
+                //handle the mailer 
+            }
+
+            $notification->method = $methods;
 
             $user->notify($notification);
         }
 
-        // if(isset($invitation->company->slack_webhook_url)){
 
-        //     Notification::route('slack', $invitation->company->slack_webhook_url)
-        //         ->notify(new EntitySentNotification($invitation, $invitation->company, true));
-
-        // }
     }
 }

@@ -44,11 +44,9 @@ class InvoiceTest extends TestCase
 
     public function testInvoiceList()
     {
-
-                        Account::all()->each(function($account) {
+          Account::all()->each(function($account) {
             $account->delete();
         });
-;
 
         $data = [
             'first_name' => $this->faker->firstName,

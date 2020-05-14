@@ -34,11 +34,9 @@ class CreditTest extends TestCase
     public function testCreditsList()
     {
 
-                        Account::all()->each(function($account) {
+        Account::all()->each(function($account) {
             $account->delete();
         });
-;
-
 
         $data = [
             'first_name' => $this->faker->firstName,
