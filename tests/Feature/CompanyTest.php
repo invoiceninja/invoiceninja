@@ -44,6 +44,9 @@ class CompanyTest extends TestCase
 
     public function testCompanyList()
     {
+
+        Account::truncate();
+        
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,

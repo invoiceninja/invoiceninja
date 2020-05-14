@@ -44,6 +44,9 @@ class ProductTest extends TestCase
 
     public function testProductList()
     {
+
+                Account::truncate();
+
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,

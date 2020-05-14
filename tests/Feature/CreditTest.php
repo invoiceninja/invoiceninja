@@ -33,6 +33,10 @@ class CreditTest extends TestCase
 
     public function testCreditsList()
     {
+
+                Account::truncate();
+
+
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,

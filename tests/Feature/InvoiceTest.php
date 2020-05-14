@@ -44,6 +44,9 @@ class InvoiceTest extends TestCase
 
     public function testInvoiceList()
     {
+
+                Account::truncate();
+
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,

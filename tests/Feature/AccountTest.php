@@ -42,6 +42,10 @@ class AccountTest extends TestCase
 
     public function testApiAccountCreation()
     {
+
+                Account::truncate();
+
+
         $data = [
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
