@@ -7,10 +7,6 @@
     <meta name="turbolinks-visit-control" content="reload">
 @endpush
 
-@section('header')
-    {{ Breadcrumbs::render('invoices.pay_now') }}
-@endsection
-
 @section('body')
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf

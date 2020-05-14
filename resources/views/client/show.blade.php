@@ -3,9 +3,6 @@
 @section('body')
 <main class="main" id="client_show">
     
-    <!-- Breadcrumb-->
-    {{ Breadcrumbs::render('clients.show', $client) }}
-    
     <vue-toastr ref="toastr"></vue-toastr>
 
     <div class="container-fluid">

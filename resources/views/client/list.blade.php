@@ -10,9 +10,6 @@
 @section('body')
     @parent
     <main class="main" >
-        <!-- Breadcrumb-->
-        {{ Breadcrumbs::render('clients') }}
-
         <div class="container-fluid">
              <div class="row">
                 <div class="col-md-12">

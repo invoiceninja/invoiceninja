@@ -1,10 +1,6 @@
 @extends('portal.ninja2020.layout.app')
 @section('meta_title', ctrans('texts.recurring_invoice'))
 
-@section('header')
-    {{ Breadcrumbs::render('recurring_invoices.show', $invoice) }}
-@endsection
-
 @section('body')
     <div class="container mx-auto">
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">

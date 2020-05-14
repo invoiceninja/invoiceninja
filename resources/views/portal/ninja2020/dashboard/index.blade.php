@@ -2,8 +2,6 @@
 @section('meta_title', ctrans('texts.dashboard'))
 
 @section('header')
-    {{ Breadcrumbs::render('dashboard') }}
-
     @if(!empty($client->getSetting('custom_message_dashboard')))
         @component('portal.ninja2020.components.message')
             {!! CustomMessage::client($client)

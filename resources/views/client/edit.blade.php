@@ -4,9 +4,6 @@
 
 <main class="main" id="client_edit">
     
-    <!-- Breadcrumb-->
-    {{ Breadcrumbs::render('clients.edit', $client) }}
-    
     <vue-toastr ref="toastr"></vue-toastr>
 
     <div class="container-fluid">

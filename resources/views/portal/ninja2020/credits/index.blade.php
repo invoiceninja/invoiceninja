@@ -2,8 +2,6 @@
 @section('meta_title', ctrans('texts.credits'))
 
 @section('header')
-    {{ Breadcrumbs::render('credits') }}
-
     @if($errors->any())
         <div class="alert alert-failure mb-4">
             @foreach($errors->all() as $error)
