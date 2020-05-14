@@ -1195,7 +1195,6 @@ collection
 convert
 crypto
 mime
-package_resolver
 shelf_static
 source_gen
 source_map_stack_trace
