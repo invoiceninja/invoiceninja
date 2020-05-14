@@ -27,9 +27,8 @@ class QuotesTable extends Component
     public function render()
     {
         $query = Quote::query()
-            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
-            ->where('company_id', auth('contact')->user()->company->id);
-        
+            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
+
         if (in_array('draft', $this->status)) {
             $query = $query->orWhere('status_id', Quote::STATUS_DRAFT);
         }
@@ -46,7 +45,9 @@ class QuotesTable extends Component
             $query = $query->orWhere('status_id', Quote::STATUS_EXPIRED);
         }
 
-        $query = $query->paginate($this->per_page);
+        $query = $query
+            ->where('company_id', auth('contact')->user()->company->id)
+            ->paginate($this->per_page);
 
         return render('components.livewire.quotes-table', [
             'quotes' => $query
