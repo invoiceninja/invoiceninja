@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyLedger;
 use App\Models\CompanyUser;
+use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Expense;
 use App\Models\GroupSetting;
@@ -29,6 +30,7 @@ use App\Models\Task;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Transformers\CompanyLedgerTransformer;
+use App\Transformers\CreditTransformer;
 use App\Transformers\TaskTransformer;
 use App\Utils\Traits\MakesHash;
 
@@ -68,6 +70,7 @@ class CompanyTransformer extends EntityTransformer
         'company_gateways',
         'activities',
         'quotes',
+        'credits',
         'projects',
         'tasks',
         'ledger',
@@ -200,6 +203,13 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new QuoteTransformer($this->serializer);
 
         return $this->includeCollection($company->quotes, $transformer, Quote::class);
+    }
+
+    public function includeCredits(Company $company)
+    {
+        $transformer = new CreditTransformer($this->serializer);
+
+        return $this->includeCollection($company->credits, $transformer, Credit::class);
     }
 
     public function includeAccount(Company $company)
