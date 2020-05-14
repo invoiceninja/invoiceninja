@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -20,7 +21,6 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Omnipay\Common\Item;
 
 /**
@@ -61,7 +61,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
     use MakesHash;
 
-    protected $refundable = false;
+    protected $refundable = true;
 
     protected $token_billing = false;
 
@@ -107,9 +107,9 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
             SystemLogger::dispatch(
                 [
-              'server_response' => $response->getData(),
-              'data' => $data
-            ],
+                    'server_response' => $response->getData(),
+                    'data' => $data
+                ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_PAYPAL,
@@ -131,20 +131,20 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         } elseif ($response->isSuccessful()) {
             SystemLogger::dispatch(
                 [
-                'server_response' => $response->getData(),
-                'data' => $request->all()
-              ],
+                    'server_response' => $response->getData(),
+                    'data' => $request->all()
+                ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_PAYPAL,
                 $this->client
             );
-        } elseif (! $response->isSuccessful()) {
+        } elseif (!$response->isSuccessful()) {
             SystemLogger::dispatch(
                 [
-              'data' => $request->all(),
-              'server_response' => $response->getData()
-            ],
+                    'data' => $request->all(),
+                    'server_response' => $response->getData()
+                ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_PAYPAL,
@@ -159,13 +159,13 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $this->attachInvoices($payment, $request->input('hashed_ids'));
 
         $payment->service()->UpdateInvoicePayment();
-        
+
         event(new PaymentWasCreated($payment, $payment->company));
 
-        return redirect()->route('client.payments.show', ['payment'=>$this->encodePrimaryKey($payment->id)]);
+        return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }
 
-    protected function paymentDetails($input) :array
+    protected function paymentDetails($input): array
     {
         $data = parent::paymentDetails($input);
 
@@ -182,41 +182,41 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    private function buildReturnUrl($input) : string
+    private function buildReturnUrl($input): string
     {
         $url = $this->client->company->domain() . "/client/payments/process/response";
-        $url .= "?company_gateway_id={$this->company_gateway->id}&gateway_type_id=".GatewayType::PAYPAL;
+        $url .= "?company_gateway_id={$this->company_gateway->id}&gateway_type_id=" . GatewayType::PAYPAL;
         $url .= "&hashed_ids=" . implode(",", $input['hashed_ids']);
-        $url .= "&amount=".$input['amount'];
-        $url .= "&fee=".$input['fee'];
+        $url .= "&amount=" . $input['amount'];
+        $url .= "&fee=" . $input['fee'];
 
         return $url;
     }
 
-    private function buildCancelUrl($input) : string
+    private function buildCancelUrl($input): string
     {
         $url = $this->client->company->domain() . '/client/invoices';
 
         return $url;
     }
 
-    private function buildDescription($input) : string
+    private function buildDescription($input): string
     {
         $invoice_numbers = "";
 
         foreach ($input['invoices'] as $invoice) {
-            $invoice_numbers .= $invoice->number." ";
+            $invoice_numbers .= $invoice->number . " ";
         }
 
-        return ctrans('texts.invoice_number'). ": {$invoice_numbers}";
+        return ctrans('texts.invoice_number') . ": {$invoice_numbers}";
     }
 
-    private function buildTransactionId($input) : string
+    private function buildTransactionId($input): string
     {
         return implode(",", $input['hashed_ids']);
     }
 
-    private function paymentItems($input) : array
+    private function paymentItems($input): array
     {
         $items = [];
         $total = 0;
@@ -255,7 +255,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $items;
     }
 
-    public function createPayment($data) : Payment
+    public function createPayment($data): Payment
     {
         $payment = parent::createPayment($data);
 
@@ -269,5 +269,42 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $payment->save();
 
         return $payment;
+    }
+
+    public function refund(Payment $payment, $amount = null)
+    {
+        $this->gateway();
+
+        $response = $this->gateway
+            ->refund(['transactionReference' => $payment->transaction_reference, 'amount' => $amount ?? $payment->amount])
+            ->send();
+
+        if ($response->isSuccessful()) {
+            SystemLogger::dispatch(
+                [
+                    'server_response' => $response->getMessage(),
+                    'data' => request()->all(),
+                ],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_PAYPAL,
+                $this->client
+            );
+
+            return true;
+        }
+
+        SystemLogger::dispatch(
+            [
+                'server_response' => $response->getMessage(),
+                'data' => request()->all(),
+            ],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_PAYPAL,
+            $this->client
+        );
+
+        return false;
     }
 }

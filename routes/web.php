@@ -3,6 +3,8 @@
  * Signup Routes
  */
 
+use Omnipay\Omnipay;
+
 Route::get('/', 'BaseController@flutterRoute')->middleware('guest');
 Route::get('setup', 'SetupController@index')->middleware('guest');
 Route::post('setup/check_db', 'SetupController@checkDB')->middleware('guest');

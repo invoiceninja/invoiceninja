@@ -11,9 +11,11 @@
 
 namespace App\Utils\Traits\Payment;
 
+use App\Exceptions\PaymentRefundFailed;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Activity;
+use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -163,11 +165,18 @@ trait Refundable
         $credit_note->number = $this->client->getNextCreditNumber($this->client);
         $credit_note->save();
 
-        //determine if we need to refund via gateway
         if ($data['gateway_refund'] !== false) {
-            //todo process gateway refund, on success, reduce the credit note balance to 0
-        }
+            $gateway = CompanyGateway::find($this->company_gateway_id);
 
+            if ($gateway) {
+                $amount = request()->has('amount') ? request()->amount : null;
+                $response = $gateway->driver($this->client)->refund($this, $amount);
+
+                if (!$response) {
+                    throw new PaymentRefundFailed();
+                }
+            }
+        }
 
         if ($total_refund > 0) {
             $this->refunded += $total_refund;
