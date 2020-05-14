@@ -34,7 +34,7 @@ class CreditTest extends TestCase
     public function testCreditsList()
     {
 
-        factory(Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) {
+        factory(Client::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
