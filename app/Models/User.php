@@ -95,7 +95,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $casts = [
-        'oauth_user_token' => 'array',
+        'oauth_user_token' => 'object',
         'settings'         => 'object',
         'updated_at'       => 'timestamp',
         'created_at'       => 'timestamp',
