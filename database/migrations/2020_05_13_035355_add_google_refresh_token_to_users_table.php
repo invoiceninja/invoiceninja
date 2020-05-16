@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class AddGoogleRefreshTokenToUsersTable extends Migration
@@ -17,6 +18,9 @@ class AddGoogleRefreshTokenToUsersTable extends Migration
             $table->string('oauth_user_refresh_token')->nullable();
             $table->text('oauth_user_token')->change();
         });
+
+        DB::statement("alter table users modify column oauth_user_token text");
+
     }
 
     /**
