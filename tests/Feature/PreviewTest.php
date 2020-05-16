@@ -42,6 +42,12 @@ class PreviewTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+
+
+        if (config('ninja.testvars.travis') !== false) {
+            $this->markTestSkipped('Skip test for CI Testing');
+        }
+        
     }
 
 
