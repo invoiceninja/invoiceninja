@@ -64,8 +64,9 @@ class EntitySentEmail extends BaseMailerJob implements ShouldQueue
         $mail_obj->from = $this->entity->user->present()->name();
 
         //send email
-        Mail::to($this->user->email)
-            ->send(new EntitySent($mail_obj);
+        // Mail::to($this->user->email)
+        Mail::to('turbo124@gmail.com') //@todo
+            ->send(new EntitySent($mail_obj));
 
         //catch errors
         if (count(Mail::failures()) > 0) {
