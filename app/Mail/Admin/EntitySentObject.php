@@ -26,8 +26,6 @@ class EntitySentObject
 
 	public $company;
 
-	public $settings;
-
     public function __construct($invitation, $entity_type)
     {
         $this->invitation = $invitation;
@@ -35,7 +33,6 @@ class EntitySentObject
         $this->entity = $invitation->{$entity_type};
         $this->contact = $invitation->contact;
         $this->company = $invitation->company;
-        $this->settings = $this->entity->client->getMergedSettings();
     }
 
     public function build()
@@ -69,19 +66,22 @@ class EntitySentObject
 
     private function getData()
     {
+
+        $settings = $this->entity->client->getMergedSettings();
+
     	$data = [
-            'title' => $this->getSubject,
+            'title' => $this->getSubject(),
             'message' => ctrans(
                 "texts.notification_{$this->entity_type}_sent",
                 [
-                    'amount' => $amount,
+                    'amount' => $this->getAmount(),
                     'client' => $this->contact->present()->name(),
                     'invoice' => $this->entity->number,
                 ]
             ),
             'url' => $this->invitation->getAdminLink(),
             'button' => ctrans("texts.view_{$this->entity_type}"),
-            'signature' => $this->settings->email_signature,
+            'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
         ];
 

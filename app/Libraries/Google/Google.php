@@ -52,11 +52,11 @@ class Google
             if(is_string($access_token))
                 $user->oauth_user_token = $access_token;
             elseif(isset($access_token['access_token']))
-                $user->oauth_user_token = $access_token['access_token']);
+                $user->oauth_user_token = $access_token['access_token'];
 
             $user->save();
 
-            $this->client->setAccessToken($access_token);
+           //$this->client->setAccessToken($access_token);
 
         }
 

@@ -69,9 +69,10 @@ class UpdateInvoiceRequest extends Request
             foreach ($input['invitations'] as $key => $value) {
                 if (is_numeric($input['invitations'][$key]['id'])) {
                     unset($input['invitations'][$key]['id']);
+
                 }
 
-                if (is_string($input['invitations'][$key]['id'])) {
+                if (array_key_exists('id', $input['invitations'][$key]) && is_string($input['invitations'][$key]['id'])) {
                     $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
                 }
 

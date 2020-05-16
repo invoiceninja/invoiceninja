@@ -95,11 +95,11 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $casts = [
-        'settings' => 'object',
-        'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
-        'deleted_at' => 'timestamp',
-        //'last_login' => 'timestamp',
+        'oauth_user_token' => 'array',
+        'settings'         => 'object',
+        'updated_at'       => 'timestamp',
+        'created_at'       => 'timestamp',
+        'deleted_at'       => 'timestamp',
     ];
 
     public function getEntityType()
