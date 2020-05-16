@@ -26,6 +26,8 @@ class EntitySentObject
 
 	public $company;
 
+	public $settings;
+
     public function __construct($invitation, $entity_type)
     {
         $this->invitation = $invitation;
@@ -67,7 +69,7 @@ class EntitySentObject
     private function getData()
     {
 
-        $settings = $this->entity->client->getMergedSettings();
+      $settings = $this->entity->client->getMergedSettings();
 
     	$data = [
             'title' => $this->getSubject(),
@@ -75,6 +77,7 @@ class EntitySentObject
                 "texts.notification_{$this->entity_type}_sent",
                 [
                     'amount' => $this->getAmount(),
+
                     'client' => $this->contact->present()->name(),
                     'invoice' => $this->entity->number,
                 ]

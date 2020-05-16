@@ -45,18 +45,14 @@ class Google
     public function refreshToken($user)
     {
         if($this->client->isAccessTokenExpired()) {
+          
             $this->client->fetchAccessTokenWithRefreshToken($user->oauth_user_refresh_token);
 
             $access_token = $this->client->getAccessToken();
 
-            if(is_string($access_token))
-                $user->oauth_user_token = $access_token;
-            elseif(isset($access_token['access_token']))
-                $user->oauth_user_token = $access_token['access_token'];
+            $user->oauth_user_token = $access_token;
 
             $user->save();
-
-           //$this->client->setAccessToken($access_token);
 
         }
 

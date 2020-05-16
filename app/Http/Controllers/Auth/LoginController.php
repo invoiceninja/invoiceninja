@@ -311,9 +311,9 @@ class LoginController extends BaseController
 
         if(array_key_exists('refresh_token', $token))
             $refresh_token = $token['refresh_token'];
-
+          
             //$access_token = $token['access_token'];
-
+          
             $name = OAuth::splitName($google->harvestName($user));
 
             $new_account = [

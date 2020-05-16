@@ -53,6 +53,7 @@ class BaseMailerJob implements ShouldQueue
        
         Config::set('mail.driver', 'gmail');
         Config::set('services.gmail.token', $user->oauth_user_token['access_token']);
+
         (new MailServiceProvider(app()))->register();
 
     }
