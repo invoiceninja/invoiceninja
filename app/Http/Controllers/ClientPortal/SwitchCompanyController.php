@@ -15,6 +15,7 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\Controller;
 use App\Models\ClientContact;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Auth;
 
 class SwitchCompanyController extends Controller
 {
@@ -27,7 +28,7 @@ class SwitchCompanyController extends Controller
             ->where('id', $this->transformKeys($contact))
             ->first();
 
-        auth('contact')->login($client_contact, true);
+        Auth::guard('contact')->login($client_contact, true);
 
         return back();
     }

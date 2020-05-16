@@ -39,7 +39,7 @@ class BaseMailerJob implements ShouldQueue
         $user = User::find($sending_user);
 
         $google = (new Google())->init();
-        $google->getClient()->setAccessToken($user->oauth_user_token);
+        $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
 
         if ($google->getClient()->isAccessTokenExpired()) {
             $google->refreshToken($user);
@@ -52,7 +52,7 @@ class BaseMailerJob implements ShouldQueue
         */
        
         Config::set('mail.driver', 'gmail');
-        Config::set('services.gmail.token', $user->oauth_user_token['access_token']);
+        Config::set('services.gmail.token', $user->oauth_user_token->access_token);
 
         (new MailServiceProvider(app()))->register();
 

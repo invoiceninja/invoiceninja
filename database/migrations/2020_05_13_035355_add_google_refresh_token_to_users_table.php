@@ -15,6 +15,7 @@ class AddGoogleRefreshTokenToUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('oauth_user_refresh_token')->nullable();
+            $table->text('oauth_user_token')->change();
         });
     }
 
