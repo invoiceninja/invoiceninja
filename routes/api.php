@@ -108,7 +108,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('templates', 'TemplateController@show')->name('templates.show');
     
-    Route::post('preview', 'PreviewController@show')->name('previews.show');
+    Route::post('preview', 'PreviewController@show');
 
     Route::post('self-update', 'SelfUpdateController@update')->middleware('password_protected');
 

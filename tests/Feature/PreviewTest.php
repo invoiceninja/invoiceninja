@@ -56,11 +56,10 @@ class PreviewTest extends TestCase
 
         ];
 
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token
-            ])->post('/api/v1/preview/', $data)->assertStatus(200);
+            ])->post('/api/v1/preview', $data)->assertStatus(200);
     }
 
 

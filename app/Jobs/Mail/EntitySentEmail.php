@@ -45,6 +45,8 @@ class EntitySentEmail extends BaseMailerJob implements ShouldQueue
         $this->invitation = $invitation;
 
         $this->entity = $invitation->{$entity_type};
+
+        $this->entity_type = $entity_type;
     }
 
     /**
