@@ -9,12 +9,13 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Listeners\Credit;
+namespace App\Listeners\Quote;
 
 use App\Factory\CreditInvitationFactory;
 use App\Factory\InvoiceInvitationFactory;
-use App\Models\CreditInvitation;
+use App\Factory\QuoteInvitationFactory;
 use App\Models\InvoiceInvitation;
+use App\Models\QuoteInvitation;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -24,7 +25,7 @@ use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 
-class CreateCreditInvitation implements ShouldQueue
+class CreateQuoteInvitation implements ShouldQueue
 {
     /**
      * Handle the event.
@@ -34,19 +35,19 @@ class CreateCreditInvitation implements ShouldQueue
      */
     public function handle($event)
     {
-        $credit = $event->credit;
+        $quote = $event->credit;
 
-        $contacts = $credit->client->contacts;
+        $contacts = $quote->client->contacts;
 
-        $contacts->each(function ($contact) use ($credit) {
-            $invitation = CreditInvitation::whereCompanyId($credit->company_id)
+        $contacts->each(function ($contact) use ($quote) {
+            $invitation = QuoteInvitation::whereCompanyId($quote->company_id)
                                         ->whereClientContactId($contact->id)
-                                        ->whereCreditId($credit->id)
+                                        ->whereQuoteId($quote->id)
                                         ->first();
 
             if (!$invitation && $contact->send_credit) {
-                $ii = CreditInvitationFactory::create($credit->company_id, $credit->user_id);
-                $ii->credit_id = $credit->id;
+                $ii = QuoteInvitationFactory::create($quote->company_id, $quote->user_id);
+                $ii->quote_id = $quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
             } elseif ($invitation && !$contact->send_credit) {

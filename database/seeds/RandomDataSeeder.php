@@ -21,10 +21,12 @@ use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Models\Quote;
 use App\Models\User;
 use App\Models\UserAccount;
 use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\QuoteRepository;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -210,7 +212,8 @@ class RandomDataSeeder extends Seeder
 
             $credit->save();
 
-            event(new CreateCreditInvitation($credit));
+            //event(new CreateCreditInvitation($credit));
+            $credit->service()->createInvitations()->markSent()->save();
 
             //$invoice->markSent()->save();
         });
@@ -220,6 +223,29 @@ class RandomDataSeeder extends Seeder
 
         // factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
 
+        /*Credits*/
+        factory(\App\Models\Quote::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+
+        $quotes = Quote::cursor();
+        $quote_repo = new QuoteRepository();
+
+        $quotes->each(function ($quote) use ($quote_repo, $user, $company, $client) {
+            $quote_calc = null;
+
+            if ($quote->uses_inclusive_taxes) {
+                $quote_calc = new InvoiceSumInclusive($quote);
+            } else {
+                $quote_calc = new InvoiceSum($quote);
+            }
+
+            $quote = $quote_calc->build()->getQuote();
+
+            $quote->save();
+
+            //event(new CreateQuoteInvitation($quote));
+            $quote->service()->createInvitations()->markSent()->save();
+            //$invoice->markSent()->save();
+        });
 
 
         $clients = Client::all();
