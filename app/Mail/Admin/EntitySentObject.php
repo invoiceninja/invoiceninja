@@ -77,7 +77,6 @@ class EntitySentObject
                 "texts.notification_{$this->entity_type}_sent",
                 [
                     'amount' => $this->getAmount(),
-
                     'client' => $this->contact->present()->name(),
                     'invoice' => $this->entity->number,
                 ]

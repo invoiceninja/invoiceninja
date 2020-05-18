@@ -94,6 +94,11 @@ class Payment extends BaseModel
         return $this->belongsTo(Company::class);
     }
 
+    public function contact()
+    {
+        return $this->belongsTo(ClientContact::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
