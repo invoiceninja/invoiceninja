@@ -49,8 +49,10 @@ class EntityRequest extends Request
 
         //Support Client Portal Scopes
         $accountId = false;
-
-        if(Input::get('account_id'))
+  
+        if($this->user()->account_id)
+            $accountId = $this->user()->account_id;
+        elseif(Input::get('account_id'))
             $accountId = Input::get('account_id');
         elseif($contact = Contact::getContactIfLoggedIn())
             $accountId = $contact->account->id;
