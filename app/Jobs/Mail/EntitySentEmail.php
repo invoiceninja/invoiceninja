@@ -5,7 +5,7 @@ namespace App\Jobs\Mail;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
-use App\Mail\Admin\EntitySent;
+use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\EntitySentObject;
 use App\Models\SystemLog;
 use App\Models\User;
@@ -56,7 +56,7 @@ class EntitySentEmail extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        //set DB
+        //Set DB
         MultiDB::setDb($this->company->db);
 
         //if we need to set an email driver do it now
@@ -66,9 +66,8 @@ class EntitySentEmail extends BaseMailerJob implements ShouldQueue
         $mail_obj->from = $this->entity->user->present()->name();
 
         //send email
-        // Mail::to($this->user->email)
-        Mail::to('turbo124@gmail.com') //@todo
-            ->send(new EntitySent($mail_obj));
+        Mail::to($this->user->email)
+            ->send(new EntityNotificationMailer($mail_obj));
 
         //catch errors
         if (count(Mail::failures()) > 0) {

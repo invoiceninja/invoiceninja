@@ -115,7 +115,9 @@ class EmailController extends BaseController
         $entity_string = strtolower(class_basename($entity_obj));
 
         $entity_obj->invitations->each(function ($invitation) use ($subject, $body, $entity_string, $entity_obj) {
+
             if ($invitation->contact->send_email && $invitation->contact->email) {
+
                 $when = now()->addSeconds(1);
 
                 $invitation->contact->notify((new SendGenericNotification($invitation, $entity_string, $subject, $body))->delay($when));
@@ -123,6 +125,7 @@ class EmailController extends BaseController
                 EntitySentEmail::dispatch($invitation, $entity_string, $entity_obj->user, $invitation->company); 
 
             }
+            
         });
         
         if ($this instanceof Invoice) {

@@ -21,28 +21,28 @@ class PaymentType extends StaticModel
     public $timestamps = false;
     
     const CREDIT = 1;
-    const ACH = 5;
-    const VISA = 6;
-    const MASTERCARD = 7;
-    const AMERICAN_EXPRESS = 8;
-    const DISCOVER = 9;
-    const DINERS = 10;
-    const EUROCARD = 11;
-    const NOVA = 12;
-    const CREDIT_CARD_OTHER = 13;
-    const PAYPAL = 14;
-    const CARTE_BLANCHE = 17;
-    const UNIONPAY = 18;
-    const JCB = 19;
-    const LASER = 20;
-    const MAESTRO = 21;
-    const SOLO = 22;
-    const SWITCH = 23;
-    const ALIPAY = 28;
-    const SOFORT = 29;
-    const SEPA = 30;
-    const GOCARDLESS = 31;
-    const CRYPTO = 32;
+    const ACH = 4;
+    const VISA = 5;
+    const MASTERCARD = 6;
+    const AMERICAN_EXPRESS = 7;
+    const DISCOVER = 8;
+    const DINERS = 9;
+    const EUROCARD = 10;
+    const NOVA = 11;
+    const CREDIT_CARD_OTHER = 12;
+    const PAYPAL = 13;
+    const CARTE_BLANCHE = 16;
+    const UNIONPAY = 17;
+    const JCB = 18;
+    const LASER = 19;
+    const MAESTRO = 20;
+    const SOLO = 21;
+    const SWITCH = 22;
+    const ALIPAY = 27;
+    const SOFORT = 28;
+    const SEPA = 29;
+    const GOCARDLESS = 30;
+    const CRYPTO = 31;
 
     public static function parseCardType($cardName)
     {
