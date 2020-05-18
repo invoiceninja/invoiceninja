@@ -14,10 +14,11 @@ namespace App\Mail\Admin;
 use App\Models\User;
 use Illuminate\Mail\Mailable;
 
-class EntitySent extends Mailable
+class EntityNotificationMailer extends Mailable
 {
 
     public $mail_obj;
+
     /**
      * Create a new message instance.
      *

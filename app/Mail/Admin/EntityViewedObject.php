@@ -14,7 +14,7 @@ namespace App\Mail\Admin;
 use App\Models\User;
 use App\Utils\Number;
 
-class EntitySentObject 
+class EntityViewedObject 
 {
 	public $invitation;
 
@@ -56,14 +56,14 @@ class EntitySentObject
 
     private function getSubject()
     {
-    	return
-	    	ctrans(
-	            "texts.notification_{$this->entity_type}_sent_subject",
-	            [
-	                    'client' => $this->contact->present()->name(),
-	                    'invoice' => $this->entity->number,
-	                ]
-	        );
+        return
+            ctrans(
+                "texts.notification_{$this->entity_type}_viewed_subject",
+                [
+                        'client' => $this->contact->present()->name(),
+                        'invoice' => $this->entity->number,
+                    ]
+            );
     }
 
     private function getData()
@@ -74,7 +74,7 @@ class EntitySentObject
     	$data = [
             'title' => $this->getSubject(),
             'message' => ctrans(
-                "texts.notification_{$this->entity_type}_sent",
+                "texts.notification_{$this->entity_type}_viewed",
                 [
                     'amount' => $this->getAmount(),
                     'client' => $this->contact->present()->name(),
