@@ -71,6 +71,8 @@ class PaymentController extends Controller
      */
     public function process()
     {
+        // $signature = request()->signature // data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAADICA..
+
         $invoices = Invoice::whereIn('id', $this->transformKeys(request()->invoices))
             ->where('company_id', auth('contact')->user()->company->id)
             ->get();
