@@ -85,12 +85,14 @@ class PostUpdate extends Command
         $output = $factory->createOutput();
 
         $input = new \Symfony\Component\Console\Input\ArrayInput(array(
-          'command' => 'update',
+          'command' => 'update --no-dev',
         ));
         $input->setInteractive(false);
         echo "<pre>";
         $cmdret = $app->doRun($input,$output); 
         echo "end!";
+
+        \Log::error(print_r($cmdret,1));
 
     }
 }
