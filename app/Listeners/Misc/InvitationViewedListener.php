@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Misc;
 
+use App\Jobs\Mail\EntityMailer;
 use App\Notifications\Admin\EntityViewedNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -44,11 +45,25 @@ class InvitationViewedListener implements ShouldQueue
         $notification = new EntityViewedNotification($invitation, $entity_name);
 
         foreach ($invitation->company->company_users as $company_user) {
+
             $entity_viewed = "{$entity_name}_viewed";
 
-            $notification->method = $this->findUserNotificationTypes($invitation, $company_user, $entity_name, ['all_notifications', $entity_viewed]);
+            $methods = $this->findUserNotificationTypes($invitation, $company_user, $entity_name, ['all_notifications', $entity_viewed]);
+
+            if (($key = array_search('mail', $methods)) !== false) {
+                unset($methods[$key]);
+
+                //Fire mail notification here!!!
+                //This allows us better control of how we
+                //handle the mailer
+
+                EntityMailer::dispatch($invitation, 'invoice', $user, $invitation->company); 
+            }
+
+            $notification->method = $methods;
 
             $company_user->user->notify($notification);
+
         }
 
         if (isset($invitation->company->slack_webhook_url)) {
@@ -57,14 +72,9 @@ class InvitationViewedListener implements ShouldQueue
             Notification::route('slack', $invitation->company->slack_webhook_url)
                         ->notify($notification);
         }
+
     }
 
 
 
-    private function userNotificationArray($notifications)
-    {
-        $via_array = [];
-
-        if (stripos($this->company_user->permissions, ) !== false);
-    }
 }

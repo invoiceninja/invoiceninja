@@ -18,7 +18,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 
-class EntitySentEmail extends BaseMailerJob implements ShouldQueue
+class EntityMailer extends BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
