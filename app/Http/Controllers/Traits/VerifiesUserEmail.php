@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -34,9 +35,15 @@ trait VerifiesUserEmail
             $user->confirmation_code = null;
             $user->save();
 
-            return response()->json(['message' => ctrans('texts.security_confirmation')]);
+            return $this->render('auth.confirmed', [
+                'root' => 'themes',
+                'message' => ctrans('texts.security_confirmation'),
+            ]);
         }
 
-        return response()->json(['message' => ctrans('texts.wrong_confirmation')]);
+        return $this->render('auth.confirmed', [
+            'root' => 'themes',
+            'message' => ctrans('texts.wrong_confirmation'),
+        ]);
     }
 }
