@@ -27,6 +27,7 @@
         "composer/composer": "^1.10",
         "dacastro4/laravel-gmail": "^3.2",
         "doctrine/dbal": "^2.10",
+        "fedeisas/laravel-mail-css-inliner": "2.3",
         "fideloper/proxy": "^4.0",
         "fzaninotto/faker": "^1.4",
         "google/apiclient": "^2.0",
