@@ -8,7 +8,6 @@ use Faker\Generator as Faker;
 $factory->define(App\Models\Credit::class, function (Faker $faker) {
     return [
         'status_id' => App\Models\Credit::STATUS_DRAFT,
-        'number' => $faker->ean13(),
         'discount' => $faker->numberBetween(1, 10),
         'is_amount_discount' => (bool)random_int(0, 1),
         'tax_name1' => 'GST',
