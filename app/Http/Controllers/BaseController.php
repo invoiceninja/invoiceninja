@@ -311,6 +311,12 @@ class BaseController extends Controller
     
     public function flutterRoute()
     {
+
+        // // Ensure all request are over HTTPS in production
+        // if (! request()->secure()) {
+        //     return redirect()->secure(request()->path());
+        // }
+
         if ((bool)$this->checkAppSetup() !== false) {
             $data = [];
 

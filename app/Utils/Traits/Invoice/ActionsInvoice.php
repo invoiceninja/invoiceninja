@@ -17,7 +17,7 @@ trait ActionsInvoice
 {
     public function invoiceDeletable($invoice) :bool
     {
-        if ($invoice->status_id <= Invoice::STATUS_SENT && $invoice->is_deleted == false && $invoice->deleted_at == null) {
+        if ($invoice->status_id <= Invoice::STATUS_SENT && $invoice->is_deleted == false && $invoice->deleted_at == null && $invoice->balance == 0) {
             return true;
         }
 
