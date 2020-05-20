@@ -134,12 +134,11 @@ class QuoteService
         $invoice->number = null;
         $invoice->save();
 
-        $invoice->service()
+        return $invoice->service()
                 ->markSent()
                 ->createInvitations()
                 ->save();
 
-        return $invoice;
     }
 
     /**
