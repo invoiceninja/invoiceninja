@@ -36,8 +36,7 @@ class EntityNotificationMailer extends Mailable
      */
     public function build()
     {
-        return $this->from($this->mail_obj->from) //todo
-                    ->subject($this->mail_obj->subject)
+        return $this->subject($this->mail_obj->subject)
                     ->markdown($this->mail_obj->markdown, $this->mail_obj->data)
                     ->withSwiftMessage(function ($message) {
                             $message->getHeaders()->addTextHeader('Tag', $this->mail_obj->tag);
