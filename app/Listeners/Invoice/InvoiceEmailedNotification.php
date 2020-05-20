@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Invoice;
 
+use App\Jobs\Mail\EntitySentMailer;
 use App\Models\Activity;
 use App\Models\ClientContact;
 use App\Models\InvoiceInvitation;

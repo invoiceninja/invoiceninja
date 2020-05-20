@@ -56,6 +56,7 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
+        info("entity sent mailer");
         //Set DB
         MultiDB::setDb($this->company->db);
 
@@ -63,9 +64,11 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver($this->entity->client->getSetting('email_sending_method'));
 
         $mail_obj = (new EntitySentObject($this->invitation, $this->entity_type))->build();
-        $mail_obj->from = $this->entity->user->present()->name();
+        $mail_obj->from = [$this->entity->user->email, $this->entity->user->present()->name()];
 
         //send email
+        info($this->user->email);
+
         Mail::to($this->user->email)
             ->send(new EntityNotificationMailer($mail_obj));
 
