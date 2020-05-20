@@ -11,7 +11,7 @@
 
 namespace App\Listeners\Misc;
 
-use App\Jobs\Mail\EntityMailer;
+use App\Jobs\Mail\EntityViewedMailer;
 use App\Notifications\Admin\EntityViewedNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -53,11 +53,8 @@ class InvitationViewedListener implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                //Fire mail notification here!!!
-                //This allows us better control of how we
-                //handle the mailer
+                EntityViewedMailer::dispatch($invitation, $entity_name, $company_user->user, $invitation->company); 
 
-                EntityMailer::dispatch($invitation, 'invoice', $user, $invitation->company); 
             }
 
             $notification->method = $methods;

@@ -71,7 +71,7 @@ class EntitySentObject
 
       $settings = $this->entity->client->getMergedSettings();
 
-    	$data = [
+    	return [
             'title' => $this->getSubject(),
             'message' => ctrans(
                 "texts.notification_{$this->entity_type}_sent",
@@ -87,6 +87,5 @@ class EntitySentObject
             'logo' => $this->company->present()->logo(),
         ];
 
-        return $data;
     }
 } 
