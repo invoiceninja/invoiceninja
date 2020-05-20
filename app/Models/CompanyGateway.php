@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Gateway;
 use App\Models\GatewayType;
+use App\PaymentDrivers\CheckoutPaymentDriver;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\Model;
 
@@ -92,6 +93,8 @@ class CompanyGateway extends BaseModel
         $class = 'App\\PaymentDrivers\\' . $this->gateway->provider . 'PaymentDriver';
         //$class = str_replace('\\', '', $class);
         $class = str_replace('_', '', $class);
+
+        return 'App\PaymentDrivers\CheckoutPaymentDriver';
 
         if (class_exists($class)) {
             return $class;

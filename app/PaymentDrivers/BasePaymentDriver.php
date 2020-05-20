@@ -81,7 +81,7 @@ class BasePaymentDriver
      */
     protected function gateway()
     {
-        $this->gateway = Omnipay::create($this->company_gateway->gateway->provider);
+        $this->gateway = Omnipay::create('Checkout');
         $this->gateway->initialize((array) $this->company_gateway->getConfig());
 
         return $this;

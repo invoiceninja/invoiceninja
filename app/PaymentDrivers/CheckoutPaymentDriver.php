@@ -77,7 +77,7 @@ class CheckoutPaymentDriver extends BasePaymentDriver
         $response = $this->gateway()->purchase([
             'amount' => $amount,
             'currency' => $this->client->getCurrencyCode(),
-        ])->send();
+        ],[])->send();
 
         if ($response->isRedirect()) {
             $token = $response->getTransactionReference();
@@ -121,7 +121,6 @@ class CheckoutPaymentDriver extends BasePaymentDriver
      */
     public function processPaymentView(array $data)
     {
-        $data['token'] = $this->createTransactionToken($data['amount']);
         $data['gateway'] = $this->gateway();
 
         return render($this->viewForType($data['payment_method_id']), $data);

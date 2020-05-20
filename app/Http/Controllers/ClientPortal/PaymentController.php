@@ -110,7 +110,6 @@ class PaymentController extends Controller
             'hashed_ids' => request()->invoices,
         ];
 
-
         return $gateway->driver(auth()->user()->client)->processPaymentView($data);
     }
 
