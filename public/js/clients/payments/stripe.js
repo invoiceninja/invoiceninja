@@ -81,15 +81,15 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./resources/js/clients/invoices/payment.js":
-/*!**************************************************!*\
-  !*** ./resources/js/clients/invoices/payment.js ***!
-  \**************************************************/
+/***/ "./resources/js/clients/payments/stripe.js":
+/*!*************************************************!*\
+  !*** ./resources/js/clients/payments/stripe.js ***!
+  \*************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -108,107 +108,129 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  *
  * @license https://opensource.org/licenses/AAL
  */
-var Payment = /*#__PURE__*/function () {
-  function Payment(displayTerms, displaySignature) {
-    _classCallCheck(this, Payment);
+var ProcessStripe = /*#__PURE__*/function () {
+  function ProcessStripe(key, usingToken) {
+    _classCallCheck(this, ProcessStripe);
 
-    this.shouldDisplayTerms = displayTerms;
-    this.shouldDisplaySignature = displaySignature;
-    this.termsAccepted = false;
+    this.key = key;
+    this.usingToken = usingToken;
   }
 
-  _createClass(Payment, [{
-    key: "handleMethodSelect",
-    value: function handleMethodSelect(element) {
+  _createClass(ProcessStripe, [{
+    key: "setupStripe",
+    value: function setupStripe() {
+      this.stripe = Stripe(this.key);
+      this.elements = this.stripe.elements();
+      return this;
+    }
+  }, {
+    key: "createElement",
+    value: function createElement() {
+      this.cardElement = this.elements.create("card");
+      return this;
+    }
+  }, {
+    key: "mountCardElement",
+    value: function mountCardElement() {
+      this.cardElement.mount("#card-element");
+      return this;
+    }
+  }, {
+    key: "completePaymentUsingToken",
+    value: function completePaymentUsingToken() {
       var _this = this;
 
-      document.getElementById('company_gateway_id').value = element.dataset.companyGatewayId;
-      document.getElementById('payment_method_id').value = element.dataset.gatewayTypeId;
+      var payNowButton = document.getElementById("pay-now-with-token");
+      this.stripe.handleCardPayment(payNowButton.dataset.secret, {
+        payment_method: payNowButton.dataset.token
+      }).then(function (result) {
+        if (result.error) {
+          return _this.handleFailure(result.error.message);
+        }
 
-      if (this.shouldDisplaySignature && !this.shouldDisplayTerms) {
-        this.displayTerms();
-        document.getElementById('accept-terms-button').addEventListener('click', function () {
-          _this.termsAccepted = true;
-
-          _this.submitForm();
-        });
-      }
-
-      if (!this.shouldDisplaySignature && this.shouldDisplayTerms) {
-        this.displaySignature();
-        document.getElementById('signature-next-step').addEventListener('click', function () {
-          _this.submitForm();
-        });
-      }
-
-      if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
-        this.displaySignature();
-        document.getElementById('signature-next-step').addEventListener('click', function () {
-          _this.displayTerms();
-
-          document.getElementById('accept-terms-button').addEventListener('click', function () {
-            _this.termsAccepted = true;
-
-            _this.submitForm();
-          });
-        });
-      }
-
-      if (!this.shouldDisplaySignature && !this.shouldDisplayTerms) {
-        this.submitForm();
-      }
-    }
-  }, {
-    key: "submitForm",
-    value: function submitForm() {
-      document.getElementById('payment-form').submit();
-    }
-  }, {
-    key: "displayTerms",
-    value: function displayTerms() {
-      var displayTermsModal = document.getElementById('displayTermsModal');
-      displayTermsModal.removeAttribute('style');
-    }
-  }, {
-    key: "displaySignature",
-    value: function displaySignature() {
-      var displaySignatureModal = document.getElementById('displaySignatureModal');
-      displaySignatureModal.removeAttribute('style');
-      var signaturePad = new SignaturePad(document.getElementById('signature-pad'), {
-        backgroundColor: 'rgb(240,240,240)',
-        penColor: 'rgb(0, 0, 0)'
+        return _this.handleSuccess(result);
       });
+    }
+  }, {
+    key: "completePaymentWithoutToken",
+    value: function completePaymentWithoutToken() {
+      var _this2 = this;
+
+      var payNowButton = document.getElementById("pay-now");
+      var cardHolderName = document.getElementById("cardholder-name");
+      this.stripe.handleCardPayment(payNowButton.dataset.secret, this.cardElement, {
+        payment_method_data: {
+          billing_details: {
+            name: cardHolderName.value
+          }
+        }
+      }).then(function (result) {
+        if (result.error) {
+          return _this2.handleFailure(result.error.message);
+        }
+
+        return _this2.handleSuccess(result);
+      });
+    }
+  }, {
+    key: "handleSuccess",
+    value: function handleSuccess(result) {
+      document.querySelector('input[name="gateway_response"]').value = JSON.stringify(result.paymentIntent);
+      var tokenBillingCheckbox = document.querySelector('input[name="token-billing-checkbox"]');
+
+      if (tokenBillingCheckbox) {
+        document.querySelector('input[name="store_card"]').value = tokenBillingCheckbox.checked;
+      }
+
+      document.getElementById("server-response").submit();
+    }
+  }, {
+    key: "handleFailure",
+    value: function handleFailure(message) {
+      var errors = document.getElementById("errors");
+      errors.textContent = "";
+      errors.textContent = message;
+      errors.hidden = false;
     }
   }, {
     key: "handle",
     value: function handle() {
-      var _this2 = this;
+      var _this3 = this;
 
-      document.querySelectorAll('.dropdown-gateway-button').forEach(function (element) {
-        element.addEventListener('click', function () {
-          return _this2.handleMethodSelect(element);
+      this.setupStripe();
+
+      if (this.usingToken) {
+        document.getElementById("pay-now-with-token").addEventListener("click", function () {
+          return _this3.completePaymentUsingToken();
         });
-      });
+      }
+
+      if (!this.usingToken) {
+        this.createElement().mountCardElement();
+        document.getElementById("pay-now").addEventListener("click", function () {
+          return _this3.completePaymentWithoutToken();
+        });
+      }
     }
   }]);
 
-  return Payment;
+  return ProcessStripe;
 }();
 
-var signature = document.querySelector('meta[name="require-invoice-signature"]').content;
-var terms = document.querySelector('meta[name="show-invoice-terms"]').content;
-new Payment(Boolean(+signature), Boolean(+terms)).handle();
+var publishableKey = document.querySelector('meta[name="stripe-publishable-key"]').content;
+var usingToken = document.querySelector('meta[name="using-token"]').content;
+new ProcessStripe(publishableKey, usingToken).handle();
 
 /***/ }),
 
-/***/ 3:
-/*!********************************************************!*\
-  !*** multi ./resources/js/clients/invoices/payment.js ***!
-  \********************************************************/
+/***/ 6:
+/*!*******************************************************!*\
+  !*** multi ./resources/js/clients/payments/stripe.js ***!
+  \*******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /home/benjamin/Code/invoiceninja/resources/js/clients/invoices/payment.js */"./resources/js/clients/invoices/payment.js");
+module.exports = __webpack_require__(/*! /home/benjamin/Code/invoiceninja/resources/js/clients/payments/stripe.js */"./resources/js/clients/payments/stripe.js");
 
 
 /***/ })

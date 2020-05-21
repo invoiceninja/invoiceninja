@@ -4,7 +4,6 @@
 @push('head')
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     <meta name="using-token" content="{{ boolval($token) }}">
-    <meta name="turbolinks-visit-control" content="reload">
 @endpush
 
 @section('body')
@@ -99,5 +98,5 @@
 
 @push('footer')
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="{{ asset('js/clients/payments/process.js') }}"></script>
+    <script src="{{ asset('js/clients/payments/stripe.js') }}"></script>
 @endpush

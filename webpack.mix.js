@@ -23,8 +23,12 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/quotes/approve.js"
     )
     .js(
-        "resources/js/clients/payments/process.js",
-        "public/js/clients/payments/process.js"
+        "resources/js/clients/payments/stripe.js",
+        "public/js/clients/payments/stripe.js"
+    )
+    .js(
+        "resources/js/clients/payments/checkout.js",
+        "public/js/clients/payments/checkout.js"
     )
     .js(
         "resources/js/setup/setup.js", 
@@ -39,6 +43,6 @@ mix.sass("resources/sass/app.scss", "public/css")
     .options({
         processCssUrls: false,
         postCss: [tailwindcss("./tailwind.config.js")]
-    });
-mix.version();
-mix.disableNotifications();
+    })
+    .version()
+    .disableNotifications();

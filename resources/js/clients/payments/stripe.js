@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-class ProcessStripePayment {
+class ProcessStripe {
     constructor(key, usingToken) {
         this.key = key;
         this.usingToken = usingToken;
@@ -120,4 +120,4 @@ const publishableKey = document.querySelector(
 
 const usingToken = document.querySelector('meta[name="using-token"]').content;
 
-new ProcessStripePayment(publishableKey, usingToken).handle();
+new ProcessStripe(publishableKey, usingToken).handle();

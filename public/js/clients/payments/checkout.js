@@ -81,23 +81,17 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./resources/js/clients/quotes/approve.js":
-/*!************************************************!*\
-  !*** ./resources/js/clients/quotes/approve.js ***!
-  \************************************************/
+/***/ "./resources/js/clients/payments/checkout.js":
+/*!***************************************************!*\
+  !*** ./resources/js/clients/payments/checkout.js ***!
+  \***************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 /**
  * Invoice Ninja (https://invoiceninja.com)
@@ -108,63 +102,32 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  *
  * @license https://opensource.org/licenses/AAL
  */
-var Approve = /*#__PURE__*/function () {
-  function Approve(displaySignature) {
-    _classCallCheck(this, Approve);
-
-    this.shouldDisplaySignature = displaySignature;
+window.CKOConfig = {
+  publicKey: get("public-key"),
+  customerEmail: get("customer-email"),
+  value: get("value"),
+  currency: get("currency"),
+  paymentMode: "cards",
+  cardFormMode: "cardTokenisation",
+  cardTokenised: function cardTokenised(event) {
+    document.getElementById("payment-form").submit();
   }
+};
 
-  _createClass(Approve, [{
-    key: "submitForm",
-    value: function submitForm() {
-      document.getElementById('approve-form').submit();
-    }
-  }, {
-    key: "displaySignature",
-    value: function displaySignature() {
-      var displaySignatureModal = document.getElementById('displaySignatureModal');
-      displaySignatureModal.removeAttribute('style');
-      var signaturePad = new SignaturePad(document.getElementById('signature-pad'), {
-        backgroundColor: 'rgb(240,240,240)',
-        penColor: 'rgb(0, 0, 0)'
-      });
-    }
-  }, {
-    key: "handle",
-    value: function handle() {
-      var _this = this;
-
-      document.getElementById('approve-button').addEventListener('click', function () {
-        if (_this.shouldDisplaySignature) {
-          _this.displaySignature();
-
-          document.getElementById('signature-next-step').addEventListener('click', function () {
-            _this.submitForm();
-          });
-        }
-
-        if (!_this.shouldDisplaySignature) _this.submitForm();
-      });
-    }
-  }]);
-
-  return Approve;
-}();
-
-var signature = document.querySelector('meta[name="require-quote-signature"]').content;
-new Approve(Boolean(+signature)).handle();
+function get(selector) {
+  return document.querySelector("meta[name=\"".concat(selector, "\"]")).content;
+}
 
 /***/ }),
 
-/***/ 5:
-/*!******************************************************!*\
-  !*** multi ./resources/js/clients/quotes/approve.js ***!
-  \******************************************************/
+/***/ 7:
+/*!*********************************************************!*\
+  !*** multi ./resources/js/clients/payments/checkout.js ***!
+  \*********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /home/benjamin/Code/invoiceninja/resources/js/clients/quotes/approve.js */"./resources/js/clients/quotes/approve.js");
+module.exports = __webpack_require__(/*! /home/benjamin/Code/invoiceninja/resources/js/clients/payments/checkout.js */"./resources/js/clients/payments/checkout.js");
 
 
 /***/ })

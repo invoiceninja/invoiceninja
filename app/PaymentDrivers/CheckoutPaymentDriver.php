@@ -63,34 +63,17 @@ class CheckoutPaymentDriver extends BasePaymentDriver
     /* Authorise payment methods */
     protected $can_authorise_credit_card = true;
 
-    public function createTransactionToken($amount)
+    public function getPublishableKey() :?string
     {
-        // if ($this->invoice()->getCurrencyCode() == 'BHD') {
-        //     $amount = $this->invoice()->getRequestedAmount() / 10;
-        // } elseif ($this->invoice()->getCurrencyCode() == 'KWD') {
-        //     $amount = $this->invoice()->getRequestedAmount() * 10;
-        // } elseif ($this->invoice()->getCurrencyCode() == 'OMR') {
-        //     $amount = $this->invoice()->getRequestedAmount();
-        // } else
-        //     $amount = $this->invoice()->getRequestedAmount();
+        // @todo: Doesn't return right property key.
+        // return $this->company_gateway->getPublishableKey();
 
-        $response = $this->gateway()->purchase([
-            'amount' => $amount,
-            'currency' => $this->client->getCurrencyCode(),
-        ],[])->send();
+        return 'pk_test_70f73945-07c0-4ec3-8f10-35250c747542';
+    }
 
-        if ($response->isRedirect()) {
-            $token = $response->getTransactionReference();
-
-            session()->flash('transaction_reference', $token);
-
-
-            // On each request, session()->flash() || sesion('', value) || session[name] ||session->flash(key, value)
-
-            return $token;
-        }
-
-        return false;
+    public function getCustomerEmail(): string
+    {
+        return $this->getContact()->email;
     }
 
     public function viewForType($gateway_type_id)
@@ -106,33 +89,33 @@ class CheckoutPaymentDriver extends BasePaymentDriver
                 break;
         }
     }
-    
-    /**
-     *         
-     *  $data = [
-            'invoices' => $invoices,
-            'amount' => $amount,
-            'fee' => $gateway->calcGatewayFee($amount),
-            'amount_with_fee' => $amount + $gateway->calcGatewayFee($amount),
-            'token' => auth()->user()->client->gateway_token($gateway->id, $payment_method_id),
-            'payment_method_id' => $payment_method_id,
-            'hashed_ids' => explode(",", request()->input('hashed_ids')),
-        ];
-     */
+
+    public function formatAmount($amount, $currency)
+    {
+        // Reference: https://github.com/invoiceninja/invoiceninja/blob/master/app/Ninja/PaymentDrivers/CheckoutComPaymentDriver.php
+
+        if ($currency == 'BHD') {
+            return $amount / 10;
+        }
+
+        if ($currency == 'KWD') {
+            return $amount * 10;
+        }
+
+        return $amount;
+    }
+
     public function processPaymentView(array $data)
     {
         $data['gateway'] = $this->gateway();
+        $data['currency'] = $this->getContact()->client->getCurrencyCode();
+        $data['amount'] = $this->formatAmount($data['amount'], $data['currency']);
 
         return render($this->viewForType($data['payment_method_id']), $data);
     }
 
-
-
     public function processPaymentResponse($request) 
     {
-        $data['token'] = session('transaction_reference');
-
-        $this->completeOffsitePurchase($data);
-
+        // ..
 	}
 }
