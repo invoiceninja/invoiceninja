@@ -71,6 +71,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('client_statement', 'ClientStatementController@statement');// name = (client_statement. index / create / show / update / destroy / edit
 
+    Route::resource('payment_terms', 'PaymentTermController');// name = (payments. index / create / show / update / destroy / edit
+
     Route::resource('payments', 'PaymentController');// name = (payments. index / create / show / update / destroy / edit
 
     Route::post('payments/refund', 'PaymentController@refund')->name('payments.refund');
