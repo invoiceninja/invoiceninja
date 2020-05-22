@@ -56,7 +56,7 @@ class PaymentTermController extends BaseController
      */
     public function index()
     {
-        $payment_terms = PaymentTerm::filter($filters);
+        $payment_terms = PaymentTerm::whereCompanyId(auth()->user()->company()->id)->orWhere('company_id', null);
 
         return $this->listResponse($payment_terms);
     }    
