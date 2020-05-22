@@ -11,12 +11,18 @@ class PaymentTermsSeeder extends Seeder
 
         $paymentTerms = [
             ['num_days' => -1, 'name' => 'Net 0'],
+            ['num_days' => 7,  'name'  => ''],
+            ['num_days' => 10, 'name' => ''],
+            ['num_days' => 14, 'name' => ''],
+            ['num_days' => 15, 'name' => ''],
+            ['num_days' => 30, 'name' => ''],
+            ['num_days' => 60, 'name' => ''],
+            ['num_days' => 90, 'name' => ''],
         ];
 
         foreach ($paymentTerms as $paymentTerm) {
-            if (! DB::table('payment_terms')->where('name', '=', $paymentTerm['name'])->first()) {
                 PaymentTerm::create($paymentTerm);
-            }
         }
+
     }
 }

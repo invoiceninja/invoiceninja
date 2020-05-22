@@ -39,7 +39,7 @@ class PaymentTerm extends BaseModel
     {
         $default_terms = collect(config('ninja.payment_terms'));
 
-        $terms = self::scope()->get();
+        $terms = self::whereCompanyId(auth()->user()->company()->id)->orWhere('company_id', null)->get();
 
         $terms->map(function ($term) {
             return $term['num_days'];

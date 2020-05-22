@@ -27,7 +27,7 @@ class CollectionMergingTest extends TestCase
 
     public function testBlankCollectionReturned()
     {
-        $this->assertEquals($this->terms->count(), 0);
+        $this->assertEquals($this->terms->count(), 8);
     }
 
     public function testMergingCollection()
