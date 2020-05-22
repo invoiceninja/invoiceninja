@@ -69,10 +69,7 @@ class CheckoutPaymentDriver extends BasePaymentDriver
 
     public function getPublishableKey(): ?string
     {
-        // @todo: Doesn't return right property key.
-        // return $this->company_gateway->getPublishableKey();
-
-        return 'pk_test_70f73945-07c0-4ec3-8f10-35250c747542';
+        return $this->company_gateway->getPublishableKey();
     }
 
     public function getCustomerEmail(): string
