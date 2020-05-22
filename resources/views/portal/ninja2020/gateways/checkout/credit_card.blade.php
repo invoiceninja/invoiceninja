@@ -33,8 +33,12 @@
                         <form id="payment-form" method="POST" action="{{ route('client.payments.response') }}">
                             @csrf
                             <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
-                            
-                            <script async src="https://cdn.checkout.com/sandbox/js/checkout.js"></script>
+
+                            @if(app()->environment() == 'production')
+                                <script async src="https://cdn.checkout.com/js/checkout.js"></script>
+                            @else
+                                <script async src="https://cdn.checkout.com/sandbox/js/checkout.js"></script>
+                            @endif
                         </form>
                     </div>
                 </div>
