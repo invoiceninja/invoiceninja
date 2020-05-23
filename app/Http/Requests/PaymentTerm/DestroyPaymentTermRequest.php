@@ -24,6 +24,6 @@ class DestroyPaymentTermRequest extends Request
 
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->payment_term);
+        return auth()->user()->isAdmin();
     }
 }

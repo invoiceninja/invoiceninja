@@ -9,21 +9,18 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\PaymentTerm;
+namespace App\Factory;
 
-use App\Http\Requests\Request;
 use App\Models\PaymentTerm;
 
-class ShowPaymentRequest extends Request
+class PaymentTermFactory
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-
-    public function authorize() : bool
+    public static function create(int $company_id, int $user_id) :PaymentTerm
     {
-        return auth()->user()->isAdmin();
+        $payment_term = new PaymentTerm;
+        $payment_term->user_id = $user_id;
+        $payment_term->company_id = $company_id;
+
+        return $payment_term;
     }
 }

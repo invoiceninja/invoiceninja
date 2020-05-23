@@ -24,7 +24,7 @@ class EditPaymentRequest extends Request
 
     public function authorize()
     {
-        return auth()->user()->can('edit', $this->payment_terms);
+        return auth()->user()->isAdmin();
     }
 
     public function rules()

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\PaymentTermFactory;
+use App\Http\Requests\PaymentTerm\CreatePaymentTermRequest;
 use App\Models\PaymentTerm;
 use App\Transformers\PaymentTermTransformer;
 use App\Utils\Traits\MakesHash;

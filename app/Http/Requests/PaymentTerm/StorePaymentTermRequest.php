@@ -27,7 +27,7 @@ class StorePaymentTermRequest extends Request
 
     public function authorize() : bool
     {
-        return auth()->user()->can('create', PaymentTerm::class);
+        return auth()->user()->isAdmin();
     }
 
     protected function prepareForValidation()
