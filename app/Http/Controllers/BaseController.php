@@ -265,6 +265,7 @@ class BaseController extends Controller
           'company.quotes.invitations.contact',
           'company.quotes.invitations.company',
           'company.credits',
+          'company.payment_terms',
           //'company.credits.invitations.contact',
           //'company.credits.invitations.company',
           'company.vendors.contacts',
@@ -282,6 +283,7 @@ class BaseController extends Controller
           'company.users.company_user',
           'company.tax_rates',
           'company.groups',
+          'company.payment_terms',
         ];
 
         /**

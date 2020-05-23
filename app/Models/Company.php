@@ -284,6 +284,11 @@ class Company extends BaseModel
         return $this->hasMany(Design::class)->whereCompanyId($this->id)->orWhere('company_id', null);
     }
 
+    public function payment_terms()
+    {
+        return $this->hasMany(PaymentTerm::class)->whereCompanyId($this->id)->orWhere('company_id', null);
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
