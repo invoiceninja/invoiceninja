@@ -30,6 +30,8 @@ class PaymentTerm extends BaseModel
      */
     protected $dates = ['deleted_at'];
 
+    protected $fillable = ['num_days'];
+    
     public function getNumDays()
     {
         return $this->num_days == -1 ? 0 : $this->num_days;

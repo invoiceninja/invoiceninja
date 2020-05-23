@@ -15,7 +15,7 @@ use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
-class UpdatePaymentRequest extends Request
+class UpdatePaymentTermRequest extends Request
 {
     use MakesHash;
     /**
