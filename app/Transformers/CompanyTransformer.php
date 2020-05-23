@@ -23,6 +23,7 @@ use App\Models\Design;
 use App\Models\Expense;
 use App\Models\GroupSetting;
 use App\Models\Payment;
+use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
@@ -31,6 +32,7 @@ use App\Models\TaxRate;
 use App\Models\User;
 use App\Transformers\CompanyLedgerTransformer;
 use App\Transformers\CreditTransformer;
+use App\Transformers\PaymentTermTransformer;
 use App\Transformers\TaskTransformer;
 use App\Utils\Traits\MakesHash;
 
@@ -65,6 +67,7 @@ class CompanyTransformer extends EntityTransformer
         'expenses',
         'vendors',
         'payments',
+        'payment_terms',
         'company_user',
         'groups',
         'company_gateways',
@@ -252,5 +255,12 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new CompanyLedgerTransformer($this->serializer);
 
         return $this->includeCollection($company->ledger, $transformer, CompanyLedger::class);
+    }
+
+    public function includePaymentTerms(Company $company)
+    {
+        $transformer = new PaymentTermTransformer($this->serializer);
+
+        return $this->includeCollection($company->payment_terms()->get(), $transformer, PaymentTerm::class);      
     }
 }
