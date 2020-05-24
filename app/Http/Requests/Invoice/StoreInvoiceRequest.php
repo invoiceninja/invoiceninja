@@ -49,6 +49,9 @@ class StoreInvoiceRequest extends Request
 
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
+        $rules['invitations.*.client_contact_id'] = 'distinct';
+
+
         return $rules;
     }
 
