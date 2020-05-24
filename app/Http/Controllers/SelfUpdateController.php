@@ -83,6 +83,8 @@ info(print_r($release,1));
 
 info(print_r($res,1));
 
+        Artisan::call('ninja:post-update');
+
         return response()->json(['message'=>$res], 200);
     }
 }
