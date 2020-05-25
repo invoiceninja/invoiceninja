@@ -14,7 +14,7 @@ namespace App\Http\Requests\PaymentTerm;
 use App\Http\Requests\Request;
 use App\Models\PaymentTerm;
 
-class EditPaymentRequest extends Request
+class EditPaymentTermRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
