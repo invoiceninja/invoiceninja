@@ -67,7 +67,7 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => 'Self update not available on this system.'], 403);
         }
 
-
+        /* .git MUST be owned/writable by the webserver user */
         $repo = new GitRepository(base_path());
 
         $res = $repo->pull();
