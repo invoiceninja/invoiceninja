@@ -410,7 +410,7 @@ class PaymentTermController extends BaseController
      *
      *
      * @OA\Post(
-     *      path="/api/v1/payment_termss/bulk",
+     *      path="/api/v1/payment_terms/bulk",
      *      operationId="bulkPaymentTerms",
      *      tags={"payment_terms"},
      *      summary="Performs bulk actions on an array of payment terms",
