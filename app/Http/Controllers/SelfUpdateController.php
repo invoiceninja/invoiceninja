@@ -72,11 +72,10 @@ class SelfUpdateController extends BaseController
 
         info("Are there changes to pull? " . $repo->hasChanges());
 
-        //$res = $repo->pull();
+        $res = $repo->pull();
         
-        $output = $repo->execute('pull origin');
+        info("Are there any changes to pull? " . $repo->hasChanges());
 
-        info(print_r($output,1));
 
         Artisan::call('ninja:post-update');
 
