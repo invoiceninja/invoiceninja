@@ -16,6 +16,7 @@ use Codedge\Updater\UpdaterManager;
 use Composer\Factory;
 use Composer\IO\NullIO;
 use Composer\Installer;
+use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -66,22 +67,27 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => 'Self update not available on this system.'], 403);
         }
 
-        info("is new version available = ". $updater->source()->isNewVersionAvailable());
 
-        // Get the new version available
-        $versionAvailable = $updater->source()->getVersionAvailable();
+        $repo = new GitRepository(base_path());
+        //info($repo->getCurrentBranchName());
+        $repo->pull('origin');
 
-info($versionAvailable);
+//         info("is new version available = ". $updater->source()->isNewVersionAvailable());
 
-        // Create a release
-        $release = $updater->source()->fetch($versionAvailable);
+//         // Get the new version available
+//         $versionAvailable = $updater->source()->getVersionAvailable();
 
-info(print_r($release,1));
+// info($versionAvailable);
 
-        // Run the update process
-        $res = $updater->source()->update($release);
+//         // Create a release
+//         $release = $updater->source()->fetch($versionAvailable);
 
-info(print_r($res,1));
+// info(print_r($release,1));
+
+//         // Run the update process
+//         $res = $updater->source()->update($release);
+
+// info(print_r($res,1));
 
         Artisan::call('ninja:post-update');
 
