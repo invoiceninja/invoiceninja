@@ -69,27 +69,8 @@ class SelfUpdateController extends BaseController
 
 
         $repo = new GitRepository(base_path());
-        //info($repo->getCurrentBranchName());
-        $repo->pull('origin');
 
-//         info("is new version available = ". $updater->source()->isNewVersionAvailable());
-
-//         // Get the new version available
-//         $versionAvailable = $updater->source()->getVersionAvailable();
-
-// info($versionAvailable);
-
-//         // Create a release
-//         $release = $updater->source()->fetch($versionAvailable);
-
-// info(print_r($release,1));
-
-//         // Run the update process
-//         $res = $updater->source()->update($release);
-
-// info(print_r($res,1));
-
-        Artisan::call('ninja:post-update');
+        $res = $repo->pull();
 
         Artisan::call('ninja:post-update');
 
