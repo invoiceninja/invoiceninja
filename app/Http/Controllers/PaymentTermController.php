@@ -9,6 +9,7 @@ use App\Http\Requests\PaymentTerm\ShowPaymentTermRequest;
 use App\Http\Requests\PaymentTerm\StorePaymentTermRequest;
 use App\Http\Requests\PaymentTerm\UpdatePaymentTermRequest;
 use App\Models\PaymentTerm;
+use App\Repositories\PaymentTermRepository;
 use App\Transformers\PaymentTermTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -461,7 +462,7 @@ class PaymentTermController extends BaseController
 
         $ids = request()->input('ids');
 
-        $payment_terms = PaymentTerm::withTrashed()->find($this->transformKeys($ids));
+        $payment_terms = PaymentTerm::withTrashed()->company()->find($this->transformKeys($ids));
 
         $payment_terms->each(function ($payment_term, $key) use ($action) {
             if (auth()->user()->can('edit', $payment_term)) {

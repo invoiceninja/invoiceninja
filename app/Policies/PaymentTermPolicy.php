@@ -28,6 +28,6 @@ class PaymentTermPolicy extends EntityPolicy
      */
     public function create(User $user) : bool
     {
-        return $user->isAdmin() $user->hasPermission('create_all');
+        return $user->isAdmin() || $user->hasPermission('create_all');
     }
 }

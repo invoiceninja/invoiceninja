@@ -1028,6 +1028,7 @@ class CreateUsersTable extends Migration
             $table->string('name')->nullable();
             $table->unsignedInteger('company_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();
+            $table->boolean('is_deleted')->default(0);
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);
 

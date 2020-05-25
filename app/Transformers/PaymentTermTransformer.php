@@ -23,9 +23,10 @@ class PaymentTermTransformer extends EntityTransformer
             'id'          => (string) $this->encodePrimaryKey($payment_term->id),
             'num_days'    => (int) $payment_term->num_days,
             'name'        => (string) ctrans('texts.payment_terms_net') . ' ' . $payment_term->getNumDays(),
-            'created_at'  => (int)$payment_term->created_at,
-            'updated_at'  => (int)$payment_term->updated_at,
-            'archived_at' => (int)$payment_term->deleted_at,
+            'is_deleted'  => (bool) $payment_term->is_deleted,
+            'created_at'  => (int) $payment_term->created_at,
+            'updated_at'  => (int) $payment_term->updated_at,
+            'archived_at' => (int) $payment_term->deleted_at,
         ];
     }
 
