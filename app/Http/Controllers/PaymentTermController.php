@@ -21,9 +21,22 @@ class PaymentTermController extends BaseController
 
     protected $entity_transformer = PaymentTermTransformer::class;
 
-    public function __construct()
+    /**
+     * @var PaymentRepository
+     */
+    protected $payment_term_repo;
+
+
+    /**
+     * PaymentTermController constructor.
+     *
+     * @param      \App\Repositories\PaymentTermRepository  $payment_term_repo  The payment term repo
+     */
+    public function __construct(PaymentTermRepository $payment_term_repo)
     {
         parent::__construct();
+
+        $this->payment_term_repo = $payment_term_repo;
     }
 
     /**
@@ -387,5 +400,77 @@ class PaymentTermController extends BaseController
 
         return response()->json([], 200);
     }
+
+
+    /**
+     * Perform bulk actions on the list view
+     *
+     * @return Collection
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/payment_termss/bulk",
+     *      operationId="bulkPaymentTerms",
+     *      tags={"payment_terms"},
+     *      summary="Performs bulk actions on an array of payment terms",
+     *      description="",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\RequestBody(
+     *         description="Payment Ter,s",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="integer",
+     *                     description="Array of hashed IDs to be bulk 'actioned",
+     *                     example="[0,1,2,3]",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The Payment Terms response",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/PaymentTerm"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function bulk()
+    {
+        $action = request()->input('action');
+
+        $ids = request()->input('ids');
+
+        $payment_terms = PaymentTerm::withTrashed()->find($this->transformKeys($ids));
+
+        $payment_terms->each(function ($payment_term, $key) use ($action) {
+            if (auth()->user()->can('edit', $payment_term)) {
+                $this->payment_term_repo->{$action}($payment_term);
+            }
+        });
+
+        return $this->listResponse(PaymentTerm::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+    }
+
 
 }
