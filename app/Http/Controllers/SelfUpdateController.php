@@ -70,7 +70,13 @@ class SelfUpdateController extends BaseController
         /* .git MUST be owned/writable by the webserver user */
         $repo = new GitRepository(base_path());
 
-        $res = $repo->pull();
+        info("Are there changes to pull? " . $repo->hasChanges());
+
+        //$res = $repo->pull();
+        
+        $output = $repo->execute('pull origin');
+
+        info(print_r($output,1));
 
         Artisan::call('ninja:post-update');
 
