@@ -55,7 +55,7 @@ class CompanySettings extends BaseSettings
 
     public $default_task_rate 			    = 0;
 
-    public $payment_terms  				    = -1;
+    public $payment_terms  				    = "-1";
     public $send_reminders 				    = false;
 
     public $custom_message_dashboard        = '';
@@ -348,7 +348,7 @@ class CompanySettings extends BaseSettings
         'credit_footer'                      => 'string',
         'credit_terms'                       => 'string',
         'name'                               => 'string',
-        'payment_terms'                      => 'integer',
+        'payment_terms'                      => 'string',
         'payment_type_id'                    => 'string',
         'phone'                              => 'string',
         'postal_code'                        => 'string',
