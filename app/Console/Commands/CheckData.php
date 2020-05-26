@@ -5,7 +5,9 @@ namespace App\Console\Commands;
 use App;
 use App\Libraries\CurlUtils;
 use App\Models\Account;
+use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\CompanyLedger;
 use App\Models\Contact;
 use App\Models\Invitation;
 use App\Models\Invoice;
@@ -287,56 +289,59 @@ class CheckData extends Command
 
     private function checkInvoiceBalances()
     {
-        // $invoices = DB::table('invoices')
-        //             ->leftJoin('payments', function($join) {
-        //                 $join->on('payments.invoice_id', '=', 'invoices.id')
-        //                     ->where('payments.payment_status_id', '!=', 2)
-        //                     ->where('payments.payment_status_id', '!=', 3)
-        //                     ->where('payments.is_deleted', '=', 0);
-        //             })
-        //             ->where('invoices.updated_at', '>', '2017-10-01')
-        //             ->groupBy('invoices.id')
-        //             ->havingRaw('(invoices.amount - invoices.balance) != coalesce(sum(payments.amount - payments.refunded), 0)')
-        //             ->get(['invoices.id', 'invoices.amount', 'invoices.balance', DB::raw('coalesce(sum(payments.amount - payments.refunded), 0)')]);
 
-        // $this->logMessage($invoices->count() . ' invoices with incorrect balances');
+        $wrong_balances = 0;
+        $wrong_paid_to_dates = 0;
 
-        // if ($invoices->count() > 0) {
-        //     $this->isValid = false;
-        // }
+        foreach(Client::cursor() as $client)
+        {
+            $invoice_balance = $client->invoices->where('is_deleted', false)->sum('balance');
+
+            $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
+
+            if($ledger && $invoice_balance != $client->balance)
+            {
+                $wrong_balances++;
+                $this->logMessage($client->present()->name . " - " . $client->id . " - balances do not match {$invoice_balance} - {$client->balance} - {$ledger->balance}");
+
+                $this->isValid = false;
+
+            }
+
+         }
+
+         $this->logMessage("{$wrong_balances} clients with incorrect balances");
+
+
     }
 
     private function checkClientBalances()
     {
-        // find all clients where the balance doesn't equal the sum of the outstanding invoices
-        // $clients = DB::table('clients')
-        //             ->join('invoices', 'invoices.client_id', '=', 'clients.id')
-        //             ->join('accounts', 'accounts.id', '=', 'clients.company_id')
-        //             ->where('accounts.id', '!=', 20432)
-        //             ->where('clients.is_deleted', '=', 0)
-        //             ->where('invoices.is_deleted', '=', 0)
-        //             ->where('invoices.is_public', '=', 1)
-        //             ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-        //             ->where('invoices.is_recurring', '=', 0)
-        //             ->havingRaw('abs(clients.balance - sum(invoices.balance)) > .01 and clients.balance != 999999999.9999');
 
-        // if ($this->option('client_id')) {
-        //     $clients->where('clients.id', '=', $this->option('client_id'));
-        // }
+        $wrong_balances = 0;
+        $wrong_paid_to_dates = 0;
 
-        // $clients = $clients->groupBy('clients.id', 'clients.balance')
-        //         ->orderBy('accounts.company_id', 'DESC')
-        //         ->get(['accounts.company_id', 'clients.company_id', 'clients.id', 'clients.balance', 'clients.paid_to_date', DB::raw('sum(invoices.balance) actual_balance')]);
-        // $this->logMessage($clients->count() . ' clients with incorrect balance/activities');
+        foreach(Client::cursor() as $client)
+        {
+            $invoice_balance = $client->invoices->where('is_deleted', false)->sum('balance');
+            $invoice_amounts = $client->invoices->where('is_deleted', false)->sum('amount') - $invoice_balance;
 
-        // if ($clients->count() > 0) {
-        //     $this->isValid = false;
-        // }
+            $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
-        // foreach ($clients as $client) {
-        //     $this->logMessage("=== Company: {$client->company_id} Account:{$client->company_id} Client:{$client->id} Balance:{$client->balance} Actual Balance:{$client->actual_balance} ===");
+            if($ledger && (string)$invoice_amounts != rtrim($client->paid_to_date, "0"))
+            {
 
-        //}
+                $wrong_paid_to_dates++;
+                $this->logMessage($client->present()->name . " - " . $client->id . " - client paid to dates do not match {$invoice_amounts} - " .rtrim($client->paid_to_date, "0"));
+                
+                $this->isValid = false;
+
+            }
+
+         }
+
+         $this->logMessage("{$wrong_paid_to_dates} clients with incorrect paid_to_dates");
+
     }
 
     private function checkLogoFiles()
