@@ -52,7 +52,8 @@ context('Invoices', () => {
             .first()
             .should('contain.text', 'View')
             .click()
-            .location().should(location => {
+            .location()
+            .should(location => {
                 expect(location.pathname).to.eq('/client/invoices/VolejRejNm');
             });
     });
