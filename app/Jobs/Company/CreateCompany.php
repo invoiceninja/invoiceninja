@@ -60,7 +60,6 @@ class CreateCompany
         $company->subdomain = isset($this->request['subdomain']) ? $this->request['subdomain'] : '';
         $company->save();
 
-
         return $company;
     }
 }
