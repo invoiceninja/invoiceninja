@@ -1,26 +1,26 @@
-context('Invoices', () => {
+describe('Quotes', () => {
     beforeEach(() => {
         cy.clientLogin();
     });
 
-    it('should show invoices page', () => {
-        cy.visit('/client/invoices');
+    it('should show quotes page', () => {
+        cy.visit('/client/quotes');
         cy.location().should(location => {
-            expect(location.pathname).to.eq('/client/invoices');
+            expect(location.pathname).to.eq('/client/quotes');
         });
     });
 
-    it('should show invoices text', () => {
-        cy.visit('/client/invoices');
+    it('should show quotes text', () => {
+        cy.visit('/client/quotes');
 
         cy.get('body')
             .find('h3')
             .first()
-            .should('contain.text', 'Invoices');
+            .should('contain.text', 'Quotes');
     });
 
-    it('should show download and pay now buttons', () => {
-        cy.visit('/client/invoices');
+    it('should show download and approve buttons', () => {
+        cy.visit('/client/quotes');
 
         cy.get('body')
             .find('button[value="download"]')
@@ -28,13 +28,13 @@ context('Invoices', () => {
             .should('contain.text', 'Download');
 
         cy.get('body')
-            .find('button[value="payment"]')
+            .find('button[value="approve"]')
             .first()
-            .should('contain.text', 'Pay Now');
+            .should('contain.text', 'Approve');
     });
 
     it('should have per page options dropdown', () => {
-        cy.visit('/client/invoices');
+        cy.visit('/client/quotes');
 
         cy.get('body')
             .find('select')
@@ -43,10 +43,10 @@ context('Invoices', () => {
     });
 
     it('should have required table elements', () => {
-        cy.visit('/client/invoices');
+        cy.visit('/client/quotes');
 
         cy.get('body')
-            .find('table.invoices-table > tbody > tr')
+            .find('table.quotes-table > tbody > tr')
             .first()
             .find('.button-link')
             .first()
@@ -54,20 +54,20 @@ context('Invoices', () => {
             .click()
             .location()
             .should(location => {
-                expect(location.pathname).to.eq('/client/invoices/VolejRejNm');
+                expect(location.pathname).to.eq('/client/quotes/VolejRejNm');
             });
     });
 
     it('should filter table content', () => {
-        cy.visit('/client/invoices');
+        cy.visit('/client/quotes');
 
         cy.get('body')
-            .find('#paid-checkbox')
+            .find('#draft-checkbox')
             .check();
 
         cy.get('body')
-            .find('table.invoices-table > tbody > tr')
+            .find('table.quotes-table > tbody > tr')
             .first()
-            .should('not.contain', 'Overdue');
+            .should('not.contain', 'Sent');
     });
 });
