@@ -29,8 +29,8 @@ class CompanySettings extends BaseSettings
 
     public $enable_client_portal_tasks      = false;
     public $enable_client_portal_password   = false;
-    public $enable_client_portal            = true;//implemented
-    public $enable_client_portal_dashboard  = true;//implemented
+    public $enable_client_portal            = true; //implemented
+    public $enable_client_portal_dashboard  = true; //implemented
     public $signature_on_pdf                = false;
     public $document_email_attachment       = false;
     public $send_portal_password            = false;
@@ -55,7 +55,7 @@ class CompanySettings extends BaseSettings
 
     public $default_task_rate 			    = 0;
 
-    public $payment_terms  				    = "-1";
+    public $payment_terms  				    = "0";
     public $send_reminders 				    = false;
 
     public $custom_message_dashboard        = '';
@@ -231,7 +231,10 @@ class CompanySettings extends BaseSettings
     public $portal_custom_footer = '';
     public $portal_custom_js = '';
 
+    public $client_can_register = false;
+
     public static $casts = [
+        'client_can_register'                => 'bool',
         'portal_design_id'					 => 'string',
         'late_fee_endless_percent'           => 'float',
         'late_fee_endless_amount'            => 'float',

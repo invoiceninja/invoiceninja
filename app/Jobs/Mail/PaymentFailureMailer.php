@@ -12,6 +12,7 @@ use App\Mail\Admin\PaymentFailureObject;
 use App\Models\SystemLog;
 use App\Models\User;
 use App\Providers\MailServiceProvider;
+use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Mail;
 
 class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies;
 
     public $client;
 
@@ -62,17 +63,31 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
         //if we need to set an email driver do it now
         $this->setMailDriver($this->client->getSetting('email_sending_method'));
 
-        $mail_obj = (new PaymentFailureObject($this->client, $this->message, $this->amount, $this->company))->build();
-        $mail_obj->from = [$this->company->owner()->email, $this->company->owner()->present()->name()];
-        
-        //send email
-        Mail::to($this->user->email)
-            ->send(new EntityNotificationMailer($mail_obj));
+        //iterate through company_users
+        $this->company->company_users->each(function ($company_user){
 
-        //catch errors
-        if (count(Mail::failures()) > 0) {
-            $this->logMailError(Mail::failures());
-        }
+            //determine if this user has the right permissions
+            $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure']);
+
+            //if mail is a method type -fire mail!!
+            if (($key = array_search('mail', $methods)) !== false) {
+                unset($methods[$key]);
+
+                $mail_obj = (new PaymentFailureObject($this->client, $this->message, $this->amount, $this->company))->build();
+                $mail_obj->from = [$this->company->owner()->email, $this->company->owner()->present()->name()];
+                
+                //send email
+                Mail::to($company_user->user->email)
+                    ->send(new EntityNotificationMailer($mail_obj));
+
+                //catch errors
+                if (count(Mail::failures()) > 0) {
+                    $this->logMailError(Mail::failures());
+                }
+
+            }
+
+        });
 
     }
 
