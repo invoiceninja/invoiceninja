@@ -38,6 +38,7 @@ use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\TaxRate;
@@ -86,6 +87,7 @@ class Import implements ShouldQueue
     private $available_imports = [
         'company',
         'users',
+        'payment_terms',
         'tax_rates',
         'clients',
         'products',
@@ -691,6 +693,28 @@ class Import implements ShouldQueue
 
         Document::reguard();
 
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+    }
+
+    private function processPaymentTerms(array $data) :void
+    {
+
+        PaymentTerm::unguard();
+
+        $modified = collect($data)->map(function ($item){
+
+            $item['user_id'] = $this->user->id;
+            $item['company_id'] = $this->company->id;
+
+            return $item;
+
+        })->toArray();
+
+        PaymentTerm::insert($modified);
+
+        PaymentTerm::reguard();
+        
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
     }

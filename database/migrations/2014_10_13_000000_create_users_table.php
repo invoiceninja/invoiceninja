@@ -1046,7 +1046,7 @@ class CreateUsersTable extends Migration
 
         Schema::create('payment_terms', function ($table) {
             $table->increments('id');
-            $table->integer('num_days');
+            $table->integer('num_days')->nullable();
             $table->string('name')->nullable();
             $table->unsignedInteger('company_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();
