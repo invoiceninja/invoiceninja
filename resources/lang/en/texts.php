@@ -3205,4 +3205,7 @@ return [
     'to_view_entity_password' => 'To view the :entity you need to enter password.',
     'showing_x_of' => 'Showing :first to :last out of :total results',
     'no_results' => 'No results found.',
+
+    'payment_failed_subject' => 'Payment failed for Client :client',
+    'payment_failed_body' => 'A payment made by client :client failed with message :message',
 ];

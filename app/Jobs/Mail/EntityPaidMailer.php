@@ -6,6 +6,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityNotificationMailer;
+use App\Mail\Admin\EntityPaidObject;
 use App\Mail\Admin\EntitySentObject;
 use App\Models\SystemLog;
 use App\Models\User;
@@ -18,7 +19,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 
-class EntitySentMailer extends BaseMailerJob implements ShouldQueue
+class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -26,7 +27,7 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
 
     public $user;
 
-    public $invitation;
+    public $payment;
 
     public $entity_type;
 
@@ -36,17 +37,13 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($invitation, $entity_type, $user, $company)
+    public function __construct($payment, $user, $company)
     {
         $this->company = $company;
 
         $this->user = $user;
 
-        $this->invitation = $invitation;
-
-        $this->entity = $invitation->{$entity_type};
-
-        $this->entity_type = $entity_type;
+        $this->payment = $payment;
     }
 
     /**
@@ -56,15 +53,15 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        info("entity sent mailer");
+        info("entity paid mailer");
         //Set DB
         MultiDB::setDb($this->company->db);
 
         //if we need to set an email driver do it now
-        $this->setMailDriver($this->entity->client->getSetting('email_sending_method'));
+        $this->setMailDriver($this->payment->client->getSetting('email_sending_method'));
 
-        $mail_obj = (new EntitySentObject($this->invitation, $this->entity_type))->build();
-        $mail_obj->from = [$this->entity->user->email, $this->entity->user->present()->name()];
+        $mail_obj = (new EntityPaidObject($this->payment))->build();
+        $mail_obj->from = [$this->payment->user->email, $this->payment->user->present()->name()];
         
         //send email
         Mail::to($this->user->email)
@@ -84,7 +81,7 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
             SystemLog::TYPE_FAILURE,
-            $this->entity->client
+            $this->payment->client
         );
     }
 

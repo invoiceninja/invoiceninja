@@ -63,6 +63,9 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
+                //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
+
+
         $amount = Number::formatMoney($this->invoice->amount, $this->invoice->client);
         $subject = ctrans(
             'texts.notification_invoice_sent_subject',

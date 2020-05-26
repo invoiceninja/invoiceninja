@@ -13,7 +13,7 @@
 namespace App\PaymentDrivers;
 
 use App\Events\Payment\PaymentWasCreated;
-//use App\Jobs\Invoice\UpdateInvoicePayment;
+use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -140,6 +140,9 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
                 $this->client
             );
         } elseif (!$response->isSuccessful()) {
+
+            PaymentFailureMailer::dispatch($this->client, $response->getMessage, $this->client->company, $response['PAYMENTINFO_0_AMT']);
+
             SystemLogger::dispatch(
                 [
                     'data' => $request->all(),
@@ -271,12 +274,12 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $payment;
     }
 
-    public function refund(Payment $payment, $amount = null)
+    public function refund(Payment $payment, $amount)
     {
         $this->gateway();
 
         $response = $this->gateway
-            ->refund(['transactionReference' => $payment->transaction_reference, 'amount' => $amount ?? $payment->amount])
+            ->refund(['transactionReference' => $payment->transaction_reference, 'amount' => $amount])
             ->send();
 
         if ($response->isSuccessful()) {
@@ -304,6 +307,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             SystemLog::TYPE_PAYPAL,
             $this->client
         );
+
 
         return false;
     }

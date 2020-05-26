@@ -22,6 +22,7 @@ use App\Models\Expense;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
@@ -41,6 +42,7 @@ use App\Policies\ExpensePolicy;
 use App\Policies\GroupSettingPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\PaymentPolicy;
+use App\Policies\PaymentTermPolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\QuotePolicy;
 use App\Policies\RecurringInvoicePolicy;
@@ -72,6 +74,7 @@ class AuthServiceProvider extends ServiceProvider
         GroupSetting::class => GroupSettingPolicy::class,
         Invoice::class => InvoicePolicy::class,
         Payment::class => PaymentPolicy::class,
+        PaymentTerm::class => PaymentTermPolicy::class,
         Product::class => ProductPolicy::class,
         Quote::class => QuotePolicy::class,
         RecurringInvoice::class => RecurringInvoicePolicy::class,
