@@ -13,6 +13,7 @@ namespace App\PaymentDrivers;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
+use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -364,6 +365,9 @@ class StripePaymentDriver extends BasePaymentDriver
 
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
         } else {
+
+            PaymentFailureMailer::dispatch($this->client, $server_response->cancellation_reason, $this->client->company, $server_response->amount);
+
             /*Fail and log*/
             SystemLogger::dispatch(
                 [
