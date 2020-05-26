@@ -57,6 +57,7 @@ class CreateCompany
         $company->ip = request()->ip();
         $company->settings = $settings;
         $company->db = config('database.default');
+        $company->enabled_modules = config('ninja.enabled_modules');
         $company->subdomain = isset($this->request['subdomain']) ? $this->request['subdomain'] : '';
         $company->save();
 
