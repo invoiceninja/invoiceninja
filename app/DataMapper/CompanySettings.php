@@ -411,7 +411,7 @@ class CompanySettings extends BaseSettings
         'custom_value4'                      => 'string',
         'inclusive_taxes'                    => 'bool',
         'name'                               => 'string',
-        'payment_terms'                      => 'integer',
+        'payment_terms'                      => 'string',
         'payment_type_id'                    => 'string',
         'phone'                              => 'string',
         'postal_code'                        => 'string',
@@ -479,7 +479,7 @@ class CompanySettings extends BaseSettings
         $data->timezone_id       = (string) config('ninja.i18n.timezone_id');
         $data->currency_id       = (string) config('ninja.i18n.currency_id');
         $data->language_id       = (string) config('ninja.i18n.language_id');
-        $data->payment_terms     = (int) config('ninja.i18n.payment_terms');
+        $data->payment_terms     = (string) config('ninja.i18n.payment_terms');
         $data->military_time     = (bool) config('ninja.i18n.military_time');
         $data->date_format_id    = (string) config('ninja.i18n.date_format_id');
         $data->country_id        = (string) config('ninja.i18n.country_id');
