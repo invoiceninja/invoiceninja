@@ -68,6 +68,8 @@ class EntityViewedNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
+                //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
+
         $data = $this->buildDataArray();
         $subject = $this->buildSubject();
 
