@@ -11,7 +11,7 @@
         </div>
     @endif
 
-    <div class="bg-white shadow rounded mb-4" translate>
+    <div class="bg-white shadow rounded mb-4">
         <div class="px-4 py-5 sm:p-6">
             <div class="sm:flex sm:items-start sm:justify-between">
                 <div>
@@ -19,7 +19,7 @@
                         {{ ctrans('texts.invoices') }}
                     </h3>
                     <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
-                        <p translate>
+                        <p>
                             {{ ctrans('texts.list_of_invoices') }}
                         </p>
                     </div>
