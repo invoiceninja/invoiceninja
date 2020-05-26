@@ -36,8 +36,8 @@ class CreateAccountRequest extends Request
     {
         return [
             //'email' => 'required|string|email|max:100',
-            'first_name'        => 'required|string|max:100',
-            'last_name'         =>  'required|string:max:100',
+            'first_name'        => 'string|max:100',
+            'last_name'         =>  'string:max:100',
             'password'          => 'required|string|min:6',
             'email'             => 'bail|required|email',
             'email'             => new NewUniqueUserRule(),
