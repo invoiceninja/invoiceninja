@@ -55,8 +55,12 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
     {
         info("entity paid mailer");
         //Set DB
+        //
         MultiDB::setDb($this->company->db);
 
+        if($this->company->company_users->first()->is_migrating)
+            return true;
+        
         //if we need to set an email driver do it now
         $this->setMailDriver($this->payment->client->getSetting('email_sending_method'));
 

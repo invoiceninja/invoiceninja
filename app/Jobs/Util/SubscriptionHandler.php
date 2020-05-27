@@ -37,18 +37,27 @@ class SubscriptionHandler implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle() :bool
     {
+        
+        if(!$this->entity->company || $this->entity->company->company_users->first()->is_migrating)
+            return true;
+
+        info("i got past the check");
+
         $subscriptions = Subscription::where('company_id', $this->entity->company_id)
                                     ->where('event_id', $this->event_id)
                                     ->get();
 
         if(!$subscriptions || $subscriptions->count() == 0)
-            return;
+            return true;
 
         $subscriptions->each(function($subscription) {
             $this->process($subscription);
         });
+
+        return true;
+
     }
 
     private function process($subscription)

@@ -82,6 +82,11 @@ class QuoteFilters extends QueryFilters
         });
     }
 
+    public function number($number = '')
+    {
+        return $this->builder->where('number', 'like', '%'.$number.'%');
+    }
+
     /**
      * Sorts the list based on $sort
      *

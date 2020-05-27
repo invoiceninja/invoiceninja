@@ -74,6 +74,9 @@ class StartMigration implements ShouldQueue
      */
     public function handle()
     {
+
+        set_time_limit(0);
+
         MultiDB::setDb($this->company->db);
 
         auth()->login($this->user, false);
@@ -96,7 +99,7 @@ class StartMigration implements ShouldQueue
             $zip->close();
 
             if (app()->environment() == 'testing') {
-                return;
+                return true;
             }
 
             $this->company->setMigration(true);
@@ -110,6 +113,9 @@ class StartMigration implements ShouldQueue
             $data = json_decode(file_get_contents($file), 1);
 
             Import::dispatchNow($data, $this->company, $this->user);
+
+            $this->company->setMigration(false);
+
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
             $this->company->setMigration(false);
 
@@ -119,6 +125,11 @@ class StartMigration implements ShouldQueue
                 info($e->getMessage());
             }
         }
+
+        //always make sure we unset the migration as running
+        
+
+        return true;
     }
 
     public function failed($exception = null)
