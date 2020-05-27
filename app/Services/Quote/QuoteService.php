@@ -55,6 +55,7 @@ class QuoteService
             return $this;
 
         $convert_quote = new ConvertQuote($this->quote->client);
+
         $this->invoice = $convert_quote->run($this->quote);
 
         $this->quote->fresh();
@@ -125,7 +126,7 @@ class QuoteService
         return $this;
     }
 
-    public function convertToInvoice() :Invoice
+    public function convertToInvoice()
     {
 
         //to prevent circular references we need to explicit call this here.
@@ -135,6 +136,17 @@ class QuoteService
         $this->convert();
 
         return $this->invoice;
+    }
+
+    public function isConvertable() :bool
+    {
+        if($this->quote->invoice_id)
+            return false;
+
+        if($this->quote->status_id == Quote::STATUS_EXPIRED)
+            return false;
+
+        return true;
     }
 
     /**

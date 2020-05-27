@@ -534,7 +534,7 @@ class QuoteController extends BaseController
             $this->entity_transformer = InvoiceTransformer::class;
 
             $invoices = $quotes->map(function ($quote, $key) use ($action) {
-                if (auth()->user()->can('edit', $quote)) {
+                if (auth()->user()->can('edit', $quote) && $quote->service()->isConvertable()) {
                     $invoice = $quote->service()->convertToInvoice();
                     return $invoice->id;
                 }
