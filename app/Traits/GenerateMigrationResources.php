@@ -11,6 +11,7 @@ use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
@@ -220,7 +221,7 @@ trait GenerateMigrationResources
                 'custom_value2' => $contact->custom_value2,
                 'email' => $contact->email,
                 'is_primary' => $contact->is_primary,
-                'send_invoice' => $contact->send_invoice,
+                'send_email' => $contact->send_invoice,
                 'confirmed' => $contact->confirmation_token ? true : false,
                 'last_login' => $contact->last_login,
                 'password' => $contact->password,
@@ -365,7 +366,7 @@ trait GenerateMigrationResources
                 'client_id' => $invoice->client_id,
                 'user_id' => $invoice->user_id,
                 'company_id' => $invoice->account_id,
-                'status_id' => $invoice->invoice_status_id,
+                'status_id' => $this->transformStatusId($invoice->invoice_status_id),
                 'design_id' => $invoice->invoice_design_id,
                 'number' => $invoice->invoice_number,
                 'discount' => $invoice->discount,
@@ -400,6 +401,50 @@ trait GenerateMigrationResources
         }
 
         return $invoices;
+    }
+
+    /*
+    define('INVOICE_STATUS_DRAFT', 1);
+    define('INVOICE_STATUS_SENT', 2);
+    define('INVOICE_STATUS_VIEWED', 3);
+    define('INVOICE_STATUS_APPROVED', 4);
+    define('INVOICE_STATUS_PARTIAL', 5);
+    define('INVOICE_STATUS_PAID', 6);
+    define('INVOICE_STATUS_OVERDUE', -1);
+    define('INVOICE_STATUS_UNPAID', -2);
+
+    const STATUS_DRAFT = 1;
+    const STATUS_SENT = 2;
+    const STATUS_PARTIAL = 3;
+    const STATUS_PAID = 4;
+    const STATUS_CANCELLED = 5;
+    const STATUS_REVERSED = 6;
+     */
+    private function transformStatusId($status)
+    {
+        switch ($status) {
+            case 1:
+                return 1;
+                break;
+            case 2:
+                return 2;
+                break;
+            case 3:
+                return 2;
+                break;
+            case 4:
+              return 2;
+                break;
+            case 5:
+                return 3;
+                break;
+            case 6:
+                return 4;
+                break;
+            default:
+                return 2;
+                break;
+        }
     }
 
     public function getResourceInvitations($items, $resourceKeyId)
@@ -505,6 +550,31 @@ trait GenerateMigrationResources
         }
 
         return $transformed;
+    }
+
+    /*
+    const STATUS_DRAFT = 1;
+    const STATUS_SENT =  2;
+    const STATUS_APPROVED = 3;
+    const STATUS_EXPIRED = -1;
+     */
+    private function transformQuoteStatus($status)
+    {
+        switch ($status) {
+            case 1:
+                return 1;
+                break;
+            case 2:
+                return 2;
+                break;
+            case 4:
+                return 3;
+                break;
+
+            default:
+                return 2;
+                break;
+        }
     }
 
     public function getPayments()
@@ -663,6 +733,30 @@ trait GenerateMigrationResources
             ];
 
             $is_default = false;
+        }
+
+        return $transformed;
+    }
+
+    private function getPaymentTerms()
+    {
+        $payment_terms = PaymentTerm::where('account_id', 0)->orWhere('account_id', $this->account->id)->get();
+
+        $transformed = [];
+
+        foreach($payment_terms as $payment_term)
+        {
+
+            if($payment_term->num_days == -1)
+                $payment_term->num_days = 0;
+
+            $transformed[] = [
+                'user_id' => 0,
+                'company_id' => $this->account->id,
+                'num_days' => $payment_term->num_days,
+                'deleted_at' => $payment_term->deleted_at,
+            ];
+
         }
 
         return $transformed;
