@@ -366,7 +366,7 @@ class MigrationController extends BaseController
             return;
         }
         
-        StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $company);
+        StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $company)->delay(now()->addSeconds(60));
 
         return response()->json([
             '_id' => Str::uuid(),

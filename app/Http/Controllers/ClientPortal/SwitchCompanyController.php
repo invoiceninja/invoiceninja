@@ -23,13 +23,13 @@ class SwitchCompanyController extends Controller
 
     public function __invoke(string $contact)
     {
-        $client_contact = ClientContact::query()
-            ->where('user_id', auth()->user()->id)
+
+        $client_contact = ClientContact::where('email', auth()->user()->email)
             ->where('id', $this->transformKeys($contact))
             ->first();
 
         Auth::guard('contact')->login($client_contact, true);
 
-        return back();
+        return redirect('/client/dashboard');
     }
 }

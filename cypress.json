@@ -1,4 +1,4 @@
 {
     "video": false,
-    "baseUrl": "http://127.0.0.1:8002/"
+    "baseUrl": "http://ninja.test:8000/"
 }

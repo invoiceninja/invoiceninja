@@ -10,10 +10,10 @@ class ConvertQuote
     private $client;
     private $invoice_repo;
 
-    public function __construct($client, InvoiceRepository $invoice_repo)
+    public function __construct($client)
     {
         $this->client = $client;
-        $this->invoice_repo = $invoice_repo;
+        $this->invoice_repo = new InvoiceRepository();
     }
 
     /**
@@ -23,9 +23,19 @@ class ConvertQuote
     public function run($quote)
     {
         $invoice = CloneQuoteToInvoiceFactory::create($quote, $quote->user_id, $quote->company_id);
-        $this->invoice_repo->save([], $invoice);
+        $invoice = $this->invoice_repo->save([], $invoice);
 
+        $invoice->fresh();
+
+            $invoice->service()
+                ->markSent()
+                ->createInvitations()
+                ->save();
+
+        $quote->invoice_id = $invoice->id;
+        $quote->save();
+        
         // maybe should return invoice here
-        return $quote;
+        return $invoice;
     }
 }

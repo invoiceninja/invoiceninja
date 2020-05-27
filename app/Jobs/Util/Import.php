@@ -31,6 +31,7 @@ use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
 use App\Mail\MigrationFailed;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -147,7 +148,7 @@ class Import implements ShouldQueue
      * @return void
      * @throws \Exception
      */
-    public function handle()
+    public function handle() :bool
     {
 
         set_time_limit(0);
@@ -156,7 +157,6 @@ class Import implements ShouldQueue
             if (! in_array($key, $this->available_imports)) {
                 //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
                 info("Resource {$key} is not available for migration.");
-
                 continue;
             }
 
@@ -170,6 +170,8 @@ class Import implements ShouldQueue
         Mail::to($this->user)->send(new MigrationCompleted());
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
+
+        return true;
     }
 
     /**
@@ -368,7 +370,9 @@ class Import implements ShouldQueue
                     unset($modified_contacts[$key]['id']);
                 }
 
-                $contact_repository->save($modified_contacts, $client);
+                $saveable_contacts['contacts'] = $modified_contacts;
+
+                $contact_repository->save($saveable_contacts, $client);
             }
 
             $key = "clients_{$resource['id']}";

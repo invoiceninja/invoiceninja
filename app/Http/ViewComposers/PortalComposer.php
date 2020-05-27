@@ -49,7 +49,8 @@ class PortalComposer
         $data['company'] = auth()->user()->company;
         $data['client'] = auth()->user()->client;
         $data['settings'] = auth()->user()->client->getMergedSettings();
-        $data['multiple_contacts'] = ClientContact::where('email', auth('contact')->user()->email)->get();
+
+        $data['multiple_contacts'] = ClientContact::where('email', auth('contact')->user()->email)->whereNotNull('email')->distinct('company_id')->get();
 
         return $data;
     }

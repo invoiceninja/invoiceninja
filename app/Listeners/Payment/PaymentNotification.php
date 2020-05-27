@@ -48,6 +48,9 @@ class PaymentNotification implements ShouldQueue
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
 
+            if($company_user->is_migrating)
+                return true;
+            
             $user = $company_user->user;
 
             $methods = $this->findUserEntityNotificationType($payment, $company_user, ['all_notifications']);
