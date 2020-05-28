@@ -139,8 +139,13 @@ class InvoiceService
     /* One liners */
     public function setDueDate()
     {
-        $this->invoice->due_date = Carbon::now()->addDays($this->invoice->client->getSetting('payment_terms'));
+        if($this->invoice->due_date != '')
+            return $this;
 
+        //$this->invoice->due_date = Carbon::now()->addDays($this->invoice->client->getSetting('payment_terms'));
+
+        $this->invoice->due_date = Carbon::parse($this->invoice->date)->addDays($this->invoice->client->getSetting('payment_terms'));
+        
         return $this;
     }
 
