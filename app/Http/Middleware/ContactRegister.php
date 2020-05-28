@@ -26,7 +26,11 @@ class ContactRegister
          */
 
         if ($request->subdomain) { 
-            /** @wip */
+            $company = Company::where('subdomain', $request->subdomain)->firstOrFail();
+
+            abort_unless($company->getSetting('enable_client_registration'), 404);
+
+            return $next($request);
         }
 
         abort_unless($request->company_key, 404);

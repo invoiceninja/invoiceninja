@@ -24,7 +24,13 @@ class ContactRegisterController extends Controller
 
     public function register(RegisterRequest $request)
     {
-        $company = Company::where('company_key', $request->company_key)->firstOrFail();
+        if ($request->subdomain) {
+            $company = Company::where('subdomain', $request->subdomain)->firstOrFail();
+        }
+
+        if ($request->company_key) {
+            $company = Company::where('company_key', $request->company_key)->firstOrFail();
+        }
 
         $client = factory(Client::class)->create([
             'user_id' => $user->id, /** @wip */
