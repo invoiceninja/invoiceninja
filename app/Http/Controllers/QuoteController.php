@@ -530,8 +530,8 @@ class QuoteController extends BaseController
 
         if($action == 'convert') {
 
-            $this->entity_type = Invoice::class;
-            $this->entity_transformer = InvoiceTransformer::class;
+            $this->entity_type = Quote::class;
+            $this->entity_transformer = QuoteTransformer::class;
 
             $quotes->each(function ($quote, $key) use ($action) {
                 if (auth()->user()->can('edit', $quote) && $quote->service()->isConvertable()) {
