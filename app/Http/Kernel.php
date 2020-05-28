@@ -105,5 +105,6 @@ class Kernel extends HttpKernel
         'web_db' => \App\Http\Middleware\SetWebDb::class,
         'api_db' => \App\Http\Middleware\SetDb::class,
         'locale' => \App\Http\Middleware\Locale::class,
+        'contact.register' => \App\Http\Middleware\ContactRegister::class,
     ];
 }

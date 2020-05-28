@@ -7,6 +7,9 @@ Route::get('client', 'Auth\ContactLoginController@showLoginForm')->name('client.
 Route::get('client/login', 'Auth\ContactLoginController@showLoginForm')->name('client.login')->middleware('locale');
 Route::post('client/login', 'Auth\ContactLoginController@login')->name('client.login.submit');
 
+Route::get('client/register/{company_key?}', 'Auth\ContactRegisterController@showRegisterForm')->name('client.register');
+Route::post('client/register/{company_key?}', 'Auth\ContactRegisterController@register');
+
 Route::get('client/password/reset', 'Auth\ContactForgotPasswordController@showLinkRequestForm')->name('client.password.request')->middleware('locale');
 Route::post('client/password/email', 'Auth\ContactForgotPasswordController@sendResetLinkEmail')->name('client.password.email')->middleware('locale');
 Route::get('client/password/reset/{token}', 'Auth\ContactResetPasswordController@showResetForm')->name('client.password.reset')->middleware('locale');

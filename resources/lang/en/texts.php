@@ -3208,4 +3208,8 @@ return [
 
     'payment_failed_subject' => 'Payment failed for Client :client',
     'payment_failed_body' => 'A payment made by client :client failed with message :message',
+
+    'register' => 'Register',
+    'register_label' => 'Create your account in seconds',
+    'password_confirmation' => 'Confirm your password',
 ];
