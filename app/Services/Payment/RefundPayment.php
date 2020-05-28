@@ -1,0 +1,272 @@
+<?php
+
+namespace App\Services\Payment;
+
+use App\Factory\CreditFactory;
+use App\Factory\InvoiceItemFactory;
+use App\Models\Credit;
+use App\Models\Payment;
+
+class RefundPayment
+{
+    public $payment;
+
+    public $refund_data
+
+    private $credit_note;
+
+    public function __construct($payment, $refund_data)
+    {
+        $this->payment = $payment;
+
+        $this->refund_data = $refund_data;
+    }
+
+    /**
+     */
+    public function run()
+    {
+
+        return $this->calculateTotalRefund() //sets amount for the refund (needed if we are refunding multiple invoices in one payment)
+                    ->setStatus()
+                    ->buildCreditNote()
+                    ->buildCreditLineItems()
+    }
+
+    private function calculateTotalRefund()
+    {
+
+        if(isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0)
+            $this->refund_data['amount'] = collect($this->refund_data['invoices']->sum('amount'));
+
+        return $this;
+    }
+
+    private function setStatus()
+    {
+        if ($this->refund_data['amount'] == $this->payment->amount) {
+            $this->payment->status_id = Payment::STATUS_REFUNDED;
+        } else {
+            $this->payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        }
+    }
+
+    private function buildCreditNote()
+    {
+        $this->credit_note = CreditFactory::create($this->payment->company_id, $this->payment->user_id);
+        $this->credit_note->assigned_user_id = isset($this->payment->assigned_user_id) ?: null;
+        $this->credit_note->date = $this->refund_data['date'];
+        $this->credit_note->status_id = Credit::STATUS_SENT;
+        $this->credit_note->client_id = $this->payment->client->id;
+        $this->credit_note->amount = $this->refund_data['amount'];
+        $this->credit_note->balance = $this->refund_data['amount'];
+
+        $credit_line_item = InvoiceItemFactory::create();
+        $credit_line_item->quantity = 1;
+        $credit_line_item->cost = $this->refund_data['amount'];
+        $credit_line_item->product_key = ctrans('texts.credit');
+        $credit_line_item->notes = ctrans('texts.credit_created_by', ['transaction_reference' => $this->payment->number]);
+        $credit_line_item->line_total = $this->refund_data['amount'];
+        $credit_line_item->date = $this->refund_data['date'];
+
+        $line_items = [];
+        $line_items[] = $credit_line_item;
+
+        $this->credit_note->save();
+        $this->credit_note->number = $this->payment->client->getNextCreditNumber($this->payment->client);
+        $this->credit_note->save();
+    }
+
+    private function buildCreditLineItems()
+    {
+        
+    }
+
+}
+
+
+
+
+
+/*
+
+    private function refundPaymentWithNoInvoices(array $data)
+    {
+
+        $this->createActivity($data, $credit_note->id);
+
+        //determine if we need to refund via gateway
+        if ($data['gateway_refund'] !== false) {
+            //todo process gateway refund, on success, reduce the credit note balance to 0
+        }
+
+        $this->save();
+
+        //$this->client->paid_to_date -= $data['amount'];
+        $this->client->save();
+
+        return $this->fresh();
+    }
+
+
+    private function refundPaymentWithInvoices($data)
+    {
+
+        $ledger_string = '';
+
+        foreach ($data['invoices'] as $invoice) {
+            $inv = Invoice::find($invoice['invoice_id']);
+
+            $credit_line_item = InvoiceItemFactory::create();
+            $credit_line_item->quantity = 1;
+            $credit_line_item->cost = $invoice['amount'];
+            $credit_line_item->product_key = ctrans('texts.invoice');
+            $credit_line_item->notes = ctrans('texts.refund_body', ['amount' => $data['amount'], 'invoice_number' => $inv->number]);
+            $credit_line_item->line_total = $invoice['amount'];
+            $credit_line_item->date = $data['date'];
+
+            $ledger_string .= $credit_line_item->notes . ' ';
+
+            $line_items[] = $credit_line_item;
+        }
+
+        /* Update paymentable record */
+        foreach ($this->invoices as $paymentable_invoice) {
+            foreach ($data['invoices'] as $refunded_invoice) {
+                if ($refunded_invoice['invoice_id'] == $paymentable_invoice->id) {
+                    $paymentable_invoice->pivot->refunded += $refunded_invoice['amount'];
+                    $paymentable_invoice->pivot->save();
+                }
+            }
+        }
+
+        if ($this->credits()->exists()) {
+            //Adjust credits first!!!
+            foreach ($this->credits as $paymentable_credit) {
+                $available_credit = $paymentable_credit->pivot->amount - $paymentable_credit->pivot->refunded;
+
+                if ($available_credit > $total_refund) {
+                    $paymentable_credit->pivot->refunded += $total_refund;
+                    $paymentable_credit->pivot->save();
+
+                    $paymentable_credit->balance += $total_refund;
+                    $paymentable_credit->save();
+
+                    $total_refund = 0;
+                } else {
+                    $paymentable_credit->pivot->refunded += $available_credit;
+                    $paymentable_credit->pivot->save();
+
+                    $paymentable_credit->balance += $available_credit;
+                    $paymentable_credit->save();
+
+                    $total_refund -= $available_credit;
+                }
+
+                if ($total_refund == 0) {
+                    break;
+                }
+            }
+        }
+
+        $credit_note->line_items = $line_items;
+        $credit_note->save();
+
+        $credit_note->number = $this->client->getNextCreditNumber($this->client);
+        $credit_note->save();
+
+        if ($data['gateway_refund'] !== false && $total_refund > 0) {
+            $gateway = CompanyGateway::find($this->company_gateway_id);
+
+            if ($gateway) {
+                $response = $gateway->driver($this->client)->refund($this, $total_refund);
+
+                if (!$response) {
+                    throw new PaymentRefundFailed();
+                }
+            }
+        }
+
+        if ($total_refund > 0) {
+            $this->refunded += $total_refund;
+        }
+
+        $this->save();
+
+        $client_balance_adjustment = $this->adjustInvoices($data);
+
+        $credit_note->ledger()->updateCreditBalance($client_balance_adjustment, $ledger_string);
+
+        $this->client->paid_to_date -= $data['amount'];
+        $this->client->save();
+
+
+        return $this;
+    }
+
+    private function createActivity(array $data, int $credit_id)
+    {
+        $fields = new \stdClass;
+        $activity_repo = new ActivityRepository();
+
+        $fields->payment_id = $this->id;
+        $fields->user_id = $this->user_id;
+        $fields->company_id = $this->company_id;
+        $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
+        $fields->credit_id = $credit_id;
+
+        if (isset($data['invoices'])) {
+            foreach ($data['invoices'] as $invoice) {
+                $fields->invoice_id = $invoice->id;
+                
+                $activity_repo->save($fields, $this);
+            }
+        } else {
+            $activity_repo->save($fields, $this);
+        }
+    }
+
+
+    private function buildCreditNote(array $data) :?Credit
+    {
+        $credit_note = CreditFactory::create($this->company_id, $this->user_id);
+        $credit_note->assigned_user_id = isset($this->assigned_user_id) ?: null;
+        $credit_note->date = $data['date'];
+        $credit_note->status_id = Credit::STATUS_SENT;
+        $credit_note->client_id = $this->client->id;
+        $credit_note->amount = $data['amount'];
+        $credit_note->balance = $data['amount'];
+
+        return $credit_note;
+    }
+
+    private function adjustInvoices(array $data)
+    {
+        $adjustment_amount = 0;
+
+        foreach ($data['invoices'] as $refunded_invoice) {
+            $invoice = Invoice::find($refunded_invoice['invoice_id']);
+
+            $invoice->service()->updateBalance($refunded_invoice['amount'])->save();
+
+            if ($invoice->amount == $invoice->balance) {
+                $invoice->service()->setStatus(Invoice::STATUS_SENT);
+            } else {
+                $invoice->service()->setStatus(Invoice::STATUS_PARTIAL);
+            }
+
+            $client = $invoice->client;
+
+            $adjustment_amount += $refunded_invoice['amount'];
+            $client->balance += $refunded_invoice['amount'];
+
+            $client->save();
+
+            //todo adjust ledger balance here? or after and reference the credit and its total
+        }
+
+        return $adjustment_amount;
+    }
+}
+
+ */

@@ -14,6 +14,7 @@ namespace App\Services\Payment;
 use App\Factory\PaymentFactory;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\Payment\RefundPayment;
 use App\Services\Payment\UpdateInvoicePayment;
 
 class PaymentService
@@ -71,7 +72,12 @@ class PaymentService
             ->save();
     }
 
-    public function updateInvoicePayment()
+    public function refundPayment(array $data) :?Payment
+    {
+        return ((new RefundPayment($this->payment, $data)))->run();
+    }
+
+    public function updateInvoicePayment() :?Payment
     {
         return ((new UpdateInvoicePayment($this->payment)))->run();
     }
