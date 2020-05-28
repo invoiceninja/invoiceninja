@@ -13,8 +13,6 @@ class RegisterRequest extends FormRequest
      */
     public function authorize()
     {
-        // Place to double check if key is okay, do company allow direct registrations, etc..
-
         return true;
     }
 
@@ -26,6 +24,8 @@ class RegisterRequest extends FormRequest
     public function rules()
     {
         return [
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:client_contacts'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ];

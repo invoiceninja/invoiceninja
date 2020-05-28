@@ -14,6 +14,24 @@
                     <form action="{{ route('client.register', request()->route('company_key')) }}" method="post" class="mt-6">
                         @csrf
                         <div class="flex flex-col">
+                            <label for="first_name" class="input-label">{{ ctrans('texts.first_name') }}</label>
+                            <input type="text" name="first_name" id="first_name" class="input" value="{{ old('first_name') }}" autofocus>
+                            @error('first_name')
+                                <div class="validation validation-fail">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                        <div class="flex flex-col mt-4">
+                            <label for="last_name" class="input-label">{{ ctrans('texts.last_name') }}</label>
+                            <input type="text" name="last_name" id="last_name" class="input" value="{{ old('last_name') }}" autofocus>
+                            @error('last_name')
+                                <div class="validation validation-fail">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                        <div class="flex flex-col mt-4">
                             <label for="email" class="input-label">{{ ctrans('texts.email_address') }}</label>
                             <input type="email" name="email" id="email" class="input" value="{{ old('email') }}" autofocus>
                             @error('email')
