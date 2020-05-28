@@ -533,14 +533,13 @@ class QuoteController extends BaseController
             $this->entity_type = Invoice::class;
             $this->entity_transformer = InvoiceTransformer::class;
 
-            $invoices = $quotes->map(function ($quote, $key) use ($action) {
-                if (auth()->user()->can('edit', $quote)) {
-                    $invoice = $quote->service()->convertToInvoice();
-                    return $invoice->id;
+            $quotes->each(function ($quote, $key) use ($action) {
+                if (auth()->user()->can('edit', $quote) && $quote->service()->isConvertable()) {
+                    $quote->service()->convertToInvoice();
                 }
             });
 
-            return $this->listResponse(Invoice::withTrashed()->whereIn('id', $invoices)->company());
+            return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
         /*

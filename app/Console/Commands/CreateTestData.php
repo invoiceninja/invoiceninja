@@ -135,28 +135,44 @@ class CreateTestData extends Command
             $this->createClient($company, $user);
         }
 
-        foreach ($company->clients as $client) {
+        for($x=0; $x<$this->count; $x++)
+        {
+            $client = $company->clients->random();
+
             $this->info('creating invoice for client #'.$client->id);
             $this->createInvoice($client);
+
+            $client = $company->clients->random();
 
             $this->info('creating credit for client #'.$client->id);
             $this->createCredit($client);
 
+            $client = $company->clients->random();
+
             $this->info('creating quote for client #'.$client->id);
             $this->createQuote($client);
+
+            $client = $company->clients->random();
 
             $this->info('creating expense for client #'.$client->id);
             $this->createExpense($client);
 
+            $client = $company->clients->random();
+
             $this->info('creating vendor for client #'.$client->id);
             $this->createVendor($client);
+
+            $client = $company->clients->random();
 
             $this->info('creating task for client #'.$client->id);
             $this->createTask($client);
 
+            $client = $company->clients->random();
+
             $this->info('creating project for client #'.$client->id);
             $this->createProject($client);
         }
+
     }
 
     private function createMediumAccount()
@@ -217,49 +233,42 @@ class CreateTestData extends Command
             $this->createClient($company, $user);
         }
 
-        foreach ($company->clients as $client) {
-            $this->info('creating invoice for client #'.$client->id);
+        for($x=0; $x<$this->count; $x++)
+        {
+            $client = $company->clients->random();
 
-            for ($i=0; $i<$this->count; $i++) {
-                $this->createInvoice($client);
-            }
+            $this->info('creating invoice for client #'.$client->id);
+            $this->createInvoice($client);
+
+            $client = $company->clients->random();
 
             $this->info('creating credit for client #'.$client->id);
+            $this->createCredit($client);
 
-            for ($i=0; $i<$this->count; $i++) {
-                $this->createCredit($client);
-            }
-
+            $client = $company->clients->random();
 
             $this->info('creating quote for client #'.$client->id);
+            $this->createQuote($client);
 
-            for ($i=0; $i<$this->count; $i++) {
-                $this->createQuote($client);
-            }
+            $client = $company->clients->random();
 
             $this->info('creating expense for client #'.$client->id);
-    
-            for ($i=0; $i<$this->count; $i++) {
-                $this->createExpense($client);
-            }
+            $this->createExpense($client);
+
+            $client = $company->clients->random();
 
             $this->info('creating vendor for client #'.$client->id);
-        
-            for ($i=0; $i<$this->count; $i++) {
-                $this->createVendor($client);
-            }
+            $this->createVendor($client);
+
+            $client = $company->clients->random();
 
             $this->info('creating task for client #'.$client->id);
-                
-            for ($i=0; $i<$this->count; $i++) {
-                $this->createTask($client);
-            }
+            $this->createTask($client);
+
+            $client = $company->clients->random();
 
             $this->info('creating project for client #'.$client->id);
-
-            for ($i=0; $i<$this->count; $i++) {
-                $this->createProject($client);
-            }
+            $this->createProject($client);
         }
     }
 
@@ -322,24 +331,39 @@ class CreateTestData extends Command
             $this->createClient($company, $user);
         }
 
-        foreach ($company->clients as $client) {
+        for($x=0; $x<$this->count; $x++)
+        {
+            $client = $company->clients->random();
+
             $this->info('creating invoice for client #'.$client->id);
             $this->createInvoice($client);
+
+            $client = $company->clients->random();
 
             $this->info('creating credit for client #'.$client->id);
             $this->createCredit($client);
 
+            $client = $company->clients->random();
+
             $this->info('creating quote for client #'.$client->id);
             $this->createQuote($client);
+
+            $client = $company->clients->random();
 
             $this->info('creating expense for client #'.$client->id);
             $this->createExpense($client);
 
+            $client = $company->clients->random();
+
             $this->info('creating vendor for client #'.$client->id);
             $this->createVendor($client);
 
+            $client = $company->clients->random();
+
             $this->info('creating task for client #'.$client->id);
             $this->createTask($client);
+
+            $client = $company->clients->random();
 
             $this->info('creating project for client #'.$client->id);
             $this->createProject($client);
