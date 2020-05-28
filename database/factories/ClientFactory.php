@@ -13,7 +13,7 @@ $factory->define(App\Models\Client::class, function (Faker $faker) {
         'paid_to_date' => 0,
         'vat_number' => $faker->text(25),
         'id_number' => '',
-        'custom_value1' => 'date|'.$faker->date('Y-m-d'),
+        'custom_value1' => $faker->date('Y-m-d'),
         'custom_value2' => '',
         'custom_value3' => '',
         'custom_value4' => '',
