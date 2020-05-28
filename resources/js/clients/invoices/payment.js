@@ -84,7 +84,6 @@ class Payment {
         const signaturePad = new SignaturePad(
             document.getElementById("signature-pad"),
             {
-                backgroundColor: "rgb(240,240,240)",
                 penColor: "rgb(0, 0, 0)"
             }
         );
