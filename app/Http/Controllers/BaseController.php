@@ -23,6 +23,7 @@ use App\Utils\Traits\AppSetup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as Input;
+use Illuminate\Support\Facades\Schema;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
@@ -319,7 +320,7 @@ class BaseController extends Controller
         //     return redirect()->secure(request()->path());
         // }
 
-        if ((bool)$this->checkAppSetup() !== false && $account = Account::all()->first()) {
+        if ((bool)$this->checkAppSetup() !== false && Schema::hasTable('accounts') && $account = Account::all()->first()) {
             $data = [];
 
             if (Ninja::isSelfHost()) {

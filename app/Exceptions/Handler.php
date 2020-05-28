@@ -15,15 +15,16 @@ use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
+use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
+use Sentry\State\Scope;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Illuminate\Database\Eloquent\RelationNotFoundException;
-use Sentry\State\Scope;
 use function Sentry\configureScope;
 
 class Handler extends ExceptionHandler
@@ -55,9 +56,12 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
+        if(!Schema::hasTable('accounts'))
+            return;
+
         if (app()->bound('sentry') && $this->shouldReport($exception)) {
             app('sentry')->configureScope(function (Scope $scope): void {
-                if (auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
+                if (auth()->guard('contact') && auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
                     $scope->setUser([
                         'id'    => auth()->guard('contact')->user()->company->account->key,
                         'email' => "anonymous@example.com",
