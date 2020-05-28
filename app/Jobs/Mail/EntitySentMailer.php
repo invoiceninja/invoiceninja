@@ -5,7 +5,7 @@ namespace App\Jobs\Mail;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
-use App\Mail\Admin\EntitySent;
+use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\EntitySentObject;
 use App\Models\SystemLog;
 use App\Models\User;
@@ -18,7 +18,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 
-class EntitySentEmail extends BaseMailerJob implements ShouldQueue
+class EntitySentMailer extends BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -56,19 +56,19 @@ class EntitySentEmail extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        //set DB
+        info("entity sent mailer");
+        //Set DB
         MultiDB::setDb($this->company->db);
 
         //if we need to set an email driver do it now
         $this->setMailDriver($this->entity->client->getSetting('email_sending_method'));
 
         $mail_obj = (new EntitySentObject($this->invitation, $this->entity_type))->build();
-        $mail_obj->from = $this->entity->user->present()->name();
-
+        $mail_obj->from = [$this->entity->user->email, $this->entity->user->present()->name()];
+        
         //send email
-        // Mail::to($this->user->email)
-        Mail::to('turbo124@gmail.com') //@todo
-            ->send(new EntitySent($mail_obj));
+        Mail::to($this->user->email)
+            ->send(new EntityNotificationMailer($mail_obj));
 
         //catch errors
         if (count(Mail::failures()) > 0) {
@@ -84,7 +84,7 @@ class EntitySentEmail extends BaseMailerJob implements ShouldQueue
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
             SystemLog::TYPE_FAILURE,
-            $this->invoice->client
+            $this->entity->client
         );
     }
 

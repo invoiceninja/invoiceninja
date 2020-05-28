@@ -69,6 +69,7 @@ class EntitySentNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
+        //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
         $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
         $subject = ctrans(
             "texts.notification_{$this->entity_name}_sent_subject",

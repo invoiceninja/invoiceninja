@@ -284,6 +284,11 @@ class Company extends BaseModel
         return $this->hasMany(Design::class)->whereCompanyId($this->id)->orWhere('company_id', null);
     }
 
+    public function payment_terms()
+    {
+        return $this->hasMany(PaymentTerm::class)->whereCompanyId($this->id)->orWhere('company_id', null);
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -401,9 +406,13 @@ class Company extends BaseModel
 
     public function setMigration($status)
     {
-        $this->company_users->each(function ($cu) use ($status) {
+        $company_users = CompanyUser::where('company_id', $this->id)->get();
+
+        foreach($company_users as $cu)
+        {
             $cu->is_migrating=$status;
             $cu->save();
-        });
+        }
+        
     }
 }

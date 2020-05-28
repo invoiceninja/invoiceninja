@@ -11,26 +11,26 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:click="statusChange('draft')" type="checkbox" class="form-checkbox">
-                <label for="draft" class="text-sm">{{ ctrans('texts.status_draft') }}</label>
+                <input wire:click="statusChange('draft')" type="checkbox" class="form-checkbox cursor-pointer" id="draft-checkbox">
+                <label for="draft-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_draft') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('sent')" value="sent" type="checkbox" class="form-checkbox">
-                <label for="sent" class="text-sm">{{ ctrans('texts.status_sent') }}</label>
+                <input wire:click="statusChange('sent')" value="sent" type="checkbox" class="form-checkbox cursor-pointer" id="sent-checkbox">
+                <label for="sent-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_sent') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('approved')" value="approved" type="checkbox" class="form-checkbox">
-                <label for="approved" class="text-sm">{{ ctrans('texts.approved') }}</label>
+                <input wire:click="statusChange('approved')" value="approved" type="checkbox" class="form-checkbox cursor-pointer" id="approved-checkbox">
+                <label for="approved-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.approved') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('expired')" value="expired" type="checkbox" class="form-checkbox">
-                <label for="expired" class="text-sm">{{ ctrans('texts.expired') }}</label>
+                <input wire:click="statusChange('expired')" value="expired" type="checkbox" class="form-checkbox cursor-pointer" id="expired-checkbox">
+                <label for="expired-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.expired') }}</label>
             </div>
         </div>
     </div>
     <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="align-middle inline-block min-w-full overflow-hidden rounded">
-            <table class="min-w-full shadow rounded border border-gray-200 mt-4">
+            <table class="min-w-full shadow rounded border border-gray-200 mt-4 quotes-table">
                 <thead>
                     <tr>
                         <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
@@ -60,7 +60,7 @@
                         </th>
                         <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('status_id')" class="cursor-pointer">
-                                {{ ctrans('texts.status_id') }}
+                                {{ ctrans('texts.quote_status') }}
                             </span>
                         </th>
                         <th class="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>

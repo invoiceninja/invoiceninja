@@ -62,6 +62,8 @@ class ApplyPayment extends AbstractService
             $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($this->payment_amount*-1);
         }
 
+        $this->invoice->service()->applyNumber()->save();
+
         return $this->invoice;
     }
 }

@@ -15,6 +15,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
@@ -26,6 +27,7 @@ class RecurringInvoiceTest extends TestCase
 {
     use MakesHash;
     use DatabaseTransactions;
+    use MockAccountData;
 
     public function setUp() :void
     {
@@ -40,64 +42,38 @@ class RecurringInvoiceTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+
+                $this->makeTestData();
+
     }
 
     public function testRecurringInvoiceList()
     {
-        $data = [
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-            'name' => $this->faker->company,
-            'email' => $this->faker->unique()->safeEmail,
-            'password' => 'ALongAndBrilliantPassword123',
-            '_token' => csrf_token(),
-            'privacy_policy' => 1,
-            'terms_of_service' => 1
-        ];
 
 
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-            ])->post('/api/v1/signup?include=account', $data);
-
-        $acc = $response->json();
-
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
-
-        $company_token = $account->default_company->tokens()->first();
-        $token = $company_token->token;
-        $company = $company_token->company;
-
-        $user = $company_token->user;
-
-        $this->assertNotNull($company_token);
-        $this->assertNotNull($token);
-        $this->assertNotNull($user);
-        $this->assertNotNull($company);
-        //$this->assertNotNull($user->token->company);
-
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+        factory(\App\Models\Client::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
             factory(\App\Models\ClientContact::class, 1)->create([
-                'user_id' => $user->id,
+                'user_id' => $this->user->id,
                 'client_id' => $c->id,
-                'company_id' => $company->id,
+                'company_id' => $this->company->id,
                 'is_primary' => 1
             ]);
 
             factory(\App\Models\ClientContact::class, 1)->create([
-                'user_id' => $user->id,
+                'user_id' => $this->user->id,
                 'client_id' => $c->id,
-                'company_id' => $company->id
+                'company_id' => $this->company->id
             ]);
         });
+
         $client = Client::all()->first();
 
-        factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
+                'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/recurring_invoices');
 
         $response->assertStatus(200);
@@ -105,69 +81,39 @@ class RecurringInvoiceTest extends TestCase
 
     public function testRecurringInvoiceRESTEndPoints()
     {
-        $data = [
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-                     'name' => $this->faker->company,
-       'email' => $this->faker->unique()->safeEmail,
-            'password' => 'ALongAndBrilliantPassword123',
-            '_token' => csrf_token(),
-            'privacy_policy' => 1,
-            'terms_of_service' => 1
-        ];
 
-
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-            ])->post('/api/v1/signup?include=account', $data);
-
-        $acc = $response->json();
-        $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
-
-        $company_token = $account->default_company->tokens()->first();
-        $token = $company_token->token;
-        $company = $company_token->company;
-
-        $user = $company_token->user;
-
-        $this->assertNotNull($company_token);
-        $this->assertNotNull($token);
-        $this->assertNotNull($user);
-        $this->assertNotNull($company);
-        //$this->assertNotNull($user->token->company);
-
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+        factory(\App\Models\Client::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
             factory(\App\Models\ClientContact::class, 1)->create([
-                'user_id' => $user->id,
+                'user_id' => $this->user->id,
                 'client_id' => $c->id,
-                'company_id' => $company->id,
+                'company_id' => $this->company->id,
                 'is_primary' => 1
             ]);
 
             factory(\App\Models\ClientContact::class, 1)->create([
-                'user_id' => $user->id,
+                'user_id' => $this->user->id,
                 'client_id' => $c->id,
-                'company_id' => $company->id
+                'company_id' => $this->company->id
             ]);
         });
         $client = Client::all()->first();
 
-        factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
-        $RecurringInvoice = RecurringInvoice::where('user_id', $user->id)->first();
+        $RecurringInvoice = RecurringInvoice::where('user_id', $this->user->id)->first();
         $RecurringInvoice->save();
 
         
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
+                'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/recurring_invoices/'.$this->encodePrimaryKey($RecurringInvoice->id));
 
         $response->assertStatus(200);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
+                'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/recurring_invoices/'.$this->encodePrimaryKey($RecurringInvoice->id).'/edit');
 
         $response->assertStatus(200);
@@ -181,13 +127,13 @@ class RecurringInvoiceTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
+                'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/recurring_invoices/'.$this->encodePrimaryKey($RecurringInvoice->id), $RecurringInvoice_update)
             ->assertStatus(200);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $token,
+                'X-API-TOKEN' => $this->token,
             ])->delete('/api/v1/recurring_invoices/'.$this->encodePrimaryKey($RecurringInvoice->id));
 
         $response->assertStatus(200);

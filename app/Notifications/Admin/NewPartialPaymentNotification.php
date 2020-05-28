@@ -58,6 +58,9 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
+                //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
+
+
         $amount = Number::formatMoney($this->payment->amount, $this->payment->client);
         
         $invoice_texts = ctrans('texts.invoice_number_short');

@@ -25,6 +25,7 @@ return [
     'company_id' => 0,
     'hash_salt' => env('HASH_SALT', ''),
     'currency_converter_api_key' => env('OPENEXCHANGE_APP_ID',''),
+    'enabled_modules' => 4095,
 
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 
@@ -54,7 +55,7 @@ return [
         'datetime_format_id' => env('DEFAULT_DATETIME_FORMAT_ID', '1'),
         'locale' => env('DEFAULT_LOCALE', 'en'),
         'map_zoom' => env('DEFAULT_MAP_ZOOM', 10),
-        'payment_terms' => env('DEFAULT_PAYMENT_TERMS', -1),
+        'payment_terms' => env('DEFAULT_PAYMENT_TERMS', "-1"),
         'military_time' => env('MILITARY_TIME', 0),
         'first_day_of_week' => env('FIRST_DATE_OF_WEEK', 0),
         'first_month_of_year' => env('FIRST_MONTH_OF_YEAR', '2000-01-01')
@@ -97,41 +98,6 @@ return [
         'slack' => env('SLACK_WEBHOOK_URL', ''),
         'mail' => env('HOSTED_EMAIL', ''),
     ],
-    'payment_terms' => [
-        [
-            'num_days' => 0,
-            'name' => '',
-        ],
-        [
-            'num_days' => 7,
-            'name' => '',
-        ],
-        [
-            'num_days' => 10,
-            'name' => '',
-        ],
-        [
-            'num_days' => 14,
-            'name' => '',
-        ],
-        [
-            'num_days' => 15,
-            'name' => '',
-        ],
-        [
-            'num_days' => 30,
-            'name' => '',
-        ],
-        [
-            'num_days' => 60,
-            'name' => '',
-        ],
-        [
-            'num_days' => 90,
-            'name' => '',
-        ]
-    ],
-
     'themes' => [
         'global' => 'ninja2020',
         'portal' => 'ninja2020',

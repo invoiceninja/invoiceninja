@@ -14,7 +14,7 @@ namespace App\Http\Controllers;
 use App\Helpers\Email\InvoiceEmail;
 use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\Invoice\EmailInvoice;
-use App\Jobs\Mail\EntitySentEmail;
+use App\Jobs\Mail\EntitySentMailer;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
@@ -115,14 +115,17 @@ class EmailController extends BaseController
         $entity_string = strtolower(class_basename($entity_obj));
 
         $entity_obj->invitations->each(function ($invitation) use ($subject, $body, $entity_string, $entity_obj) {
+
             if ($invitation->contact->send_email && $invitation->contact->email) {
+
                 $when = now()->addSeconds(1);
 
                 $invitation->contact->notify((new SendGenericNotification($invitation, $entity_string, $subject, $body))->delay($when));
 
-                EntitySentEmail::dispatch($invitation, $entity_string, $entity_obj->user, $invitation->company); 
+                EntitySentMailer::dispatch($invitation, $entity_string, $entity_obj->user, $invitation->company); 
 
             }
+            
         });
         
         if ($this instanceof Invoice) {

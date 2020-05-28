@@ -528,6 +528,20 @@ class QuoteController extends BaseController
             return response()->json(['message' => 'Email Sent!'], 200);
         }
 
+        if($action == 'convert') {
+
+            $this->entity_type = Quote::class;
+            $this->entity_transformer = QuoteTransformer::class;
+
+            $quotes->each(function ($quote, $key) use ($action) {
+                if (auth()->user()->can('edit', $quote) && $quote->service()->isConvertable()) {
+                    $quote->service()->convertToInvoice();
+                }
+            });
+
+            return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+        }
+
         /*
          * Send the other actions to the switch
          */
@@ -642,14 +656,6 @@ class QuoteController extends BaseController
                 }
                 
                 return $this->itemResponse($quote->service()->approve()->save());
-                break;
-            case 'convert':
-
-                $this->entity_type = Invoice::class;
-                $this->entity_transformer = InvoiceTransformer::class;
-
-                return $this->itemResponse($quote->service()->convertToInvoice());
-                
                 break;
             case 'history':
                 # code...

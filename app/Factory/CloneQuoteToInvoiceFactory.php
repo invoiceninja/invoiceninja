@@ -26,15 +26,16 @@ class CloneQuoteToInvoiceFactory
       unset($quote_array['client']);
       unset($quote_array['company']);
       unset($quote_array['hashed_id']);
+      unset($quote_array['invoice_id']);
       unset($quote_array['id']);
-      
+
       foreach($quote_array as $key => $value)
 			   $invoice->{$key} = $value;
    		
+      $invoice->status_id = Invoice::STATUS_DRAFT;
    		$invoice->due_date = null;
    		$invoice->partial_due_date = null;
       $invoice->number = null;
-      $invoice->status_id = null;
 
       return $invoice;
 

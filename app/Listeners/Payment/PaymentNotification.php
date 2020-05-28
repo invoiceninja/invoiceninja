@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Payment;
 
+use App\Jobs\Mail\EntityPaidMailer;
 use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -46,10 +47,26 @@ class PaymentNotification implements ShouldQueue
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
+
+            if($company_user->is_migrating)
+                return true;
+            
             $user = $company_user->user;
 
+            $methods = $this->findUserEntityNotificationType($payment, $company_user, ['all_notifications']);
+
+            if (($key = array_search('mail', $methods)) !== false) {
+                unset($methods[$key]);
+
+                //Fire mail notification here!!!
+                //This allows us better control of how we
+                //handle the mailer
+
+                EntityPaidMailer::dispatch($payment, $user, $payment->company); 
+            }
+
             $notification = new NewPaymentNotification($payment, $payment->company);
-            $notification->method = $this->findUserEntityNotificationType($payment, $company_user, ['all_notifications']);
+            $notification->method = $methods;
 
             if ($user) {
                 $user->notify($notification);

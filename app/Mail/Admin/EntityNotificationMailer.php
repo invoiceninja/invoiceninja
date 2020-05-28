@@ -14,10 +14,11 @@ namespace App\Mail\Admin;
 use App\Models\User;
 use Illuminate\Mail\Mailable;
 
-class EntitySent extends Mailable
+class EntityNotificationMailer extends Mailable
 {
 
     public $mail_obj;
+
     /**
      * Create a new message instance.
      *
@@ -35,9 +36,9 @@ class EntitySent extends Mailable
      */
     public function build()
     {
-        return $this->from($this->mail_obj->from) //todo
+        return $this->from($this->mail_obj->from[0], $this->mail_obj->from[1]) //todo
                     ->subject($this->mail_obj->subject)
-                    ->markdown($this->mail_obj->markdown, ['data' => $this->mail_obj->data])
+                    ->markdown($this->mail_obj->markdown, $this->mail_obj->data)
                     ->withSwiftMessage(function ($message) {
                             $message->getHeaders()->addTextHeader('Tag', $this->mail_obj->tag);
                         });

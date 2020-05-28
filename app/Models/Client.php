@@ -182,6 +182,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->belongsTo(Country::class);
     }
 
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     public function shipping_country()
     {
         return $this->belongsTo(Country::class, 'shipping_country_id', 'id');

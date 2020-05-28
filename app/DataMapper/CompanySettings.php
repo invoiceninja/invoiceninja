@@ -29,8 +29,8 @@ class CompanySettings extends BaseSettings
 
     public $enable_client_portal_tasks      = false;
     public $enable_client_portal_password   = false;
-    public $enable_client_portal            = true;//implemented
-    public $enable_client_portal_dashboard  = true;//implemented
+    public $enable_client_portal            = true; //implemented
+    public $enable_client_portal_dashboard  = true; //implemented
     public $signature_on_pdf                = false;
     public $document_email_attachment       = false;
     public $send_portal_password            = false;
@@ -55,7 +55,7 @@ class CompanySettings extends BaseSettings
 
     public $default_task_rate 			    = 0;
 
-    public $payment_terms  				    = -1;
+    public $payment_terms  				    = "";
     public $send_reminders 				    = false;
 
     public $custom_message_dashboard        = '';
@@ -231,7 +231,10 @@ class CompanySettings extends BaseSettings
     public $portal_custom_footer = '';
     public $portal_custom_js = '';
 
+    public $client_can_register = false;
+
     public static $casts = [
+        'client_can_register'                => 'bool',
         'portal_design_id'					 => 'string',
         'late_fee_endless_percent'           => 'float',
         'late_fee_endless_amount'            => 'float',
@@ -348,7 +351,7 @@ class CompanySettings extends BaseSettings
         'credit_footer'                      => 'string',
         'credit_terms'                       => 'string',
         'name'                               => 'string',
-        'payment_terms'                      => 'integer',
+        'payment_terms'                      => 'string',
         'payment_type_id'                    => 'string',
         'phone'                              => 'string',
         'postal_code'                        => 'string',
@@ -411,7 +414,7 @@ class CompanySettings extends BaseSettings
         'custom_value4'                      => 'string',
         'inclusive_taxes'                    => 'bool',
         'name'                               => 'string',
-        'payment_terms'                      => 'integer',
+        'payment_terms'                      => 'string',
         'payment_type_id'                    => 'string',
         'phone'                              => 'string',
         'postal_code'                        => 'string',
@@ -479,7 +482,7 @@ class CompanySettings extends BaseSettings
         $data->timezone_id       = (string) config('ninja.i18n.timezone_id');
         $data->currency_id       = (string) config('ninja.i18n.currency_id');
         $data->language_id       = (string) config('ninja.i18n.language_id');
-        $data->payment_terms     = (int) config('ninja.i18n.payment_terms');
+        $data->payment_terms     = (string) config('ninja.i18n.payment_terms');
         $data->military_time     = (bool) config('ninja.i18n.military_time');
         $data->date_format_id    = (string) config('ninja.i18n.date_format_id');
         $data->country_id        = (string) config('ninja.i18n.country_id');

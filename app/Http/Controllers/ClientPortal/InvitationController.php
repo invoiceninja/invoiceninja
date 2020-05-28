@@ -41,7 +41,7 @@ class InvitationController extends Controller
             if ((bool)$invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
                 $this->middleware('auth:contact');
             } else {
-                auth()->guard('contact')->login($invitation->contact, false);
+                auth()->guard('contact')->login($invitation->contact, true);
             }
             
             if (!request()->has('silent')) {

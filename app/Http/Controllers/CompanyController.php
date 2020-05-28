@@ -20,6 +20,7 @@ use App\Http\Requests\Company\StoreCompanyRequest;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Requests\SignupRequest;
 use App\Jobs\Company\CreateCompany;
+use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\Ninja\RefundCancelledAccount;
 use App\Jobs\RegisterNewAccount;
@@ -204,6 +205,8 @@ class CompanyController extends BaseController
 
         $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
 
+        CreateCompanyPaymentTerms::dispatchNow($company, auth()->user());
+        
         $company = $this->company_repo->save($request->all(), $company);
 
         $this->uploadLogo($request->file('company_logo'), $company, $company);

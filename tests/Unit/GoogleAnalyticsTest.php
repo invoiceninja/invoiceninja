@@ -29,6 +29,9 @@ class GoogleAnalyticsTest extends TestCase
 
     public function testGoogleAnalyticsLogic()
     {
+        $this->withoutEvents();
+
+
         $analytics_id = "analytics_id";
         $invoice = $this->invoice;
         $client = $this->client;

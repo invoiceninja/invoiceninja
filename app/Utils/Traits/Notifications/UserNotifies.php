@@ -30,7 +30,7 @@ trait UserNotifies
             array_push($required_permissions, "all_user_notifications");
         }
 
-        if (count(array_intersect($required_permissions, $notifications->email)) >=1) {
+        if (count(array_intersect($required_permissions, $notifications->email)) >=1 || count(array_intersect($required_permissions, "all_user_notifications")) >=1 || count(array_intersect($required_permissions, "all_notifications")) >=1) {
             array_push($notifiable_methods, 'mail');
         }
 
@@ -54,11 +54,28 @@ trait UserNotifies
             array_push($required_permissions, "all_user_notifications");
         }
 
-        if (count(array_intersect($required_permissions, $notifications->email)) >=1) {
+        if (count(array_intersect($required_permissions, $notifications->email)) >=1 || count(array_intersect($required_permissions, "all_user_notifications")) >=1 || count(array_intersect($required_permissions, "all_notifications")) >=1) {
             array_push($notifiable_methods, 'mail');
         }
 
         return $notifiable_methods;
+    }
+
+    public function findCompanyUserNotificationType($company_user, $required_permissions) :array
+    {
+        if ($this->migrationRunning($company_user)) {
+            return [];
+        }
+
+        $notifiable_methods = [];
+        $notifications = $company_user->notifications;
+
+        if (count(array_intersect($required_permissions, $notifications->email)) >=1 || count(array_intersect($required_permissions, "all_user_notifications")) >=1 || count(array_intersect($required_permissions, "all_notifications")) >=1) {
+            array_push($notifiable_methods, 'mail');
+        }
+
+        return $notifiable_methods;
+
     }
 
     private function migrationRunning($company_user)

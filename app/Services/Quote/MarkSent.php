@@ -29,7 +29,11 @@ class MarkSent
 
         event(new QuoteWasMarkedSent($this->quote, $this->quote->company));
 
-        $this->quote->service()->setStatus(Quote::STATUS_SENT)->applyNumber()->save();
+        $this->quote
+             ->service()
+             ->setStatus(Quote::STATUS_SENT)
+             ->applyNumber()
+             ->save();
 
         return $this->quote;
     }

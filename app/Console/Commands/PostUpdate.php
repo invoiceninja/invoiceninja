@@ -38,6 +38,8 @@ class PostUpdate extends Command
     {
         set_time_limit(0);
 
+        info("running post update");
+
         try {
             Artisan::call('migrate');
         } catch (Exception $e) {
@@ -85,12 +87,14 @@ class PostUpdate extends Command
         $output = $factory->createOutput();
 
         $input = new \Symfony\Component\Console\Input\ArrayInput(array(
-          'command' => 'update',
+          'command' => 'install',
         ));
         $input->setInteractive(false);
         echo "<pre>";
         $cmdret = $app->doRun($input,$output); 
         echo "end!";
+
+        \Log::error(print_r($cmdret,1));
 
     }
 }

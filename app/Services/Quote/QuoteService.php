@@ -21,6 +21,8 @@ class QuoteService
 {
     protected $quote;
 
+    public $invoice;
+
     public function __construct($quote)
     {
         $this->quote = $quote;
@@ -38,13 +40,25 @@ class QuoteService
     public function markApproved()
     {
         $mark_approved = new MarkApproved($this->quote->client);
-
         $this->quote = $mark_approved->run($this->quote);
 
         if ($this->quote->client->getSetting('auto_convert_quote') === true) {
-            $convert_quote = new ConvertQuote($this->quote->client);
-            $this->quote = $convert_quote->run($this->quote);
+            $this->convert();
         }
+
+        return $this;
+    }
+
+    public function convert() :QuoteService
+    {
+        if($this->quote->invoice_id)
+            return $this;
+
+        $convert_quote = new ConvertQuote($this->quote->client);
+
+        $this->invoice = $convert_quote->run($this->quote);
+
+        $this->quote->fresh();
 
         return $this;
     }
@@ -101,8 +115,7 @@ class QuoteService
         $invoice = null;
 
         if ($this->quote->client->getSetting('auto_convert_quote')) {
-            $invoice = $this->convertToInvoice();
-            $this->linkInvoiceToQuote($invoice)->save();
+            $this->convert();
         }
 
         if ($this->quote->client->getSetting('auto_archive_quote')) {
@@ -113,33 +126,27 @@ class QuoteService
         return $this;
     }
 
-    /**
-     * Where we convert a quote to an invoice we link the two entities via the invoice_id parameter on the quote table
-     * @param  object $invoice The Invoice object
-     * @return object          QuoteService
-     */
-    public function linkInvoiceToQuote($invoice) :QuoteService
+    public function convertToInvoice()
     {
-        $this->quote->invoice_id = $invoice->id;
 
-        return $this;
+        //to prevent circular references we need to explicit call this here.
+        $mark_approved = new MarkApproved($this->quote->client);
+        $this->quote = $mark_approved->run($this->quote);
+
+        $this->convert();
+
+        return $this->invoice;
     }
 
-    public function convertToInvoice() :Invoice
+    public function isConvertable() :bool
     {
+        if($this->quote->invoice_id)
+            return false;
 
-        $invoice = CloneQuoteToInvoiceFactory::create($this->quote, $this->quote->user_id);
-        $invoice->status_id = Invoice::STATUS_SENT;
-        $invoice->due_date = null;
-        $invoice->number = null;
-        $invoice->save();
+        if($this->quote->status_id == Quote::STATUS_EXPIRED)
+            return false;
 
-        $invoice->service()
-                ->markSent()
-                ->createInvitations()
-                ->save();
-
-        return $invoice;
+        return true;
     }
 
     /**
@@ -149,6 +156,7 @@ class QuoteService
     public function save() : ?Quote
     {
         $this->quote->save();
+
         return $this->quote;
     }
 }

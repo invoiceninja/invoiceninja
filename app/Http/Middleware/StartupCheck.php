@@ -45,6 +45,8 @@ class StartupCheck
             Session::flash('message', 'Cache cleared');
         }
         
+
+
         /* Make sure our cache is built */
         $cached_tables = config('ninja.cached_tables');
         

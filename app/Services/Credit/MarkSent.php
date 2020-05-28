@@ -29,7 +29,11 @@ class MarkSent
 
         event(new CreditWasMarkedSent($this->credit, $this->credit->company));
 
-        $this->credit->service()->setStatus(Credit::STATUS_SENT)->applyNumber()->save();
+        $this->credit
+             ->service()
+             ->setStatus(Credit::STATUS_SENT)
+             ->applyNumber()
+             ->save();
 
         return $this->credit;
     }

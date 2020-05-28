@@ -3,6 +3,7 @@ namespace App\Jobs\Account;
 
 use App\Events\Account\AccountCreated;
 use App\Jobs\Company\CreateCompany;
+use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\User\CreateUser;
 use App\Models\Account;
@@ -60,6 +61,8 @@ class CreateAccount
 
         $spaa9f78 = CreateUser::dispatchNow($this->request, $sp794f3f, $sp035a66, true);
 
+        CreateCompanyPaymentTerms::dispatchNow($sp035a66, $spaa9f78);
+        
         if ($spaa9f78) {
             auth()->login($spaa9f78, false);
         }

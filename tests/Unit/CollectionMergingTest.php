@@ -20,63 +20,6 @@ class CollectionMergingTest extends TestCase
 
         Session::start();
 
-        $this->setCurrentCompanyId(1);
-
-        $this->terms = PaymentTerm::all();
-    }
-
-    public function testBlankCollectionReturned()
-    {
-        $this->assertEquals($this->terms->count(), 0);
-    }
-
-    public function testMergingCollection()
-    {
-        $payment_terms = collect(config('ninja.payment_terms'));
-
-        $new_terms = $this->terms->map(function ($term) {
-            return $term['num_days'];
-        });
-
-        $payment_terms->merge($new_terms);
-
-        $this->assertEquals($payment_terms->count(), 8);
-    }
-
-    public function testSortingCollection()
-    {
-        $payment_terms = collect(config('ninja.payment_terms'));
-
-        $new_terms = $this->terms->map(function ($term) {
-            return $term['num_days'];
-        });
-
-        $payment_terms->merge($new_terms)
-        ->sortBy('num_days')
-        ->values()
-        ->all();
-
-        $term = $payment_terms->first();
-
-        $this->assertEquals($term['num_days'], 0);
-    }
-
-    public function testSortingCollectionLast()
-    {
-        $payment_terms = collect(config('ninja.payment_terms'));
-
-        $new_terms = $this->terms->map(function ($term) {
-            return $term['num_days'];
-        });
-
-        $payment_terms->merge($new_terms)
-        ->sortBy('num_days')
-        ->values()
-        ->all();
-
-        $term = $payment_terms->last();
-
-        $this->assertEquals($term['num_days'], 90);
     }
 
     public function testUniqueValues()

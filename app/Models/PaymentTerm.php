@@ -30,6 +30,8 @@ class PaymentTerm extends BaseModel
      */
     protected $dates = ['deleted_at'];
 
+    protected $fillable = ['num_days'];
+    
     public function getNumDays()
     {
         return $this->num_days == -1 ? 0 : $this->num_days;
@@ -39,7 +41,7 @@ class PaymentTerm extends BaseModel
     {
         $default_terms = collect(config('ninja.payment_terms'));
 
-        $terms = self::scope()->get();
+        $terms = self::whereCompanyId(auth()->user()->company()->id)->orWhere('company_id', null)->get();
 
         $terms->map(function ($term) {
             return $term['num_days'];

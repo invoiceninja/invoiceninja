@@ -11,22 +11,22 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input id="paid" wire:click="statusChange('paid')" type="checkbox" class="form-checkbox">
-                <label for="paid" class="text-sm">{{ ctrans('texts.status_paid') }}</label>
+                <input wire:click="statusChange('paid')" type="checkbox" class="form-checkbox cursor-pointer" id="paid-checkbox">
+                <label for="paid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_paid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('unpaid')" type="checkbox" class="form-checkbox">
-                <label for="unpaid" class="text-sm">{{ ctrans('texts.status_unpaid') }}</label>
+                <input wire:click="statusChange('unpaid')" type="checkbox" class="form-checkbox cursor-pointer" id="unpaid-checkbox">
+                <label for="unpaid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_unpaid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('overdue')" type="checkbox" class="form-checkbox">
-                <label for="overdue" class="text-sm">{{ ctrans('texts.overdue') }}</label>
+                <input wire:click="statusChange('overdue')" type="checkbox" class="form-checkbox cursor-pointer" id="overdue-checkbox">
+                <label for="overdue-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.overdue') }}</label>
             </div>
         </div>
     </div>
     <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="align-middle inline-block min-w-full overflow-hidden rounded">
-            <table class="min-w-full shadow rounded border border-gray-200 mt-4">
+            <table class="min-w-full shadow rounded border border-gray-200 mt-4 invoices-table">
                 <thead>
                     <tr>
                         <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">

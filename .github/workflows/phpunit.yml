@@ -82,7 +82,7 @@ jobs:
         
     - name: Migrate Database
       run: |
-        php artisan migrate:fresh --seed --force && php artisan db:seed --class=RandomDataSeeder --force
+        php artisan migrate:fresh --seed --force && php artisan db:seed --force
 
     - name: Prepare JS/CSS assets
       run: |

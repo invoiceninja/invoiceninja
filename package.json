@@ -7,7 +7,8 @@
         "watch-poll": "npm run watch -- --watch-poll",
         "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
         "prod": "npm run production",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+        "test": "cypress run"
     },
     "devDependencies": {
         "@babel/compat-data": "7.9.0",
@@ -18,6 +19,7 @@
         "@tailwindcss/ui": "^0.1.3",
         "axios": "^0.19",
         "cross-env": "^7.0",
+        "cypress": "^4.6.0",
         "jsignature": "^2.1.3",
         "laravel-mix": "^5.0.1",
         "lodash": "^4.17.13",

@@ -124,7 +124,7 @@
                                 <div class="col-span-6 sm:col-span-3">
                                     <label for="street" class="input-label">@lang('texts.name')</label>
                                     <input id="name" class="input w-full" name="name"
-                                           value="{{ auth()->user()->client->name }}"/>
+                                           value="{{ auth()->user()->client->present()->name }}"/>
                                     @error('name')
                                     <div class="validation validation-fail">
                                         {{ $message }}
@@ -229,7 +229,7 @@
                                     <select id="country" class="input w-full form-select" name="country">
                                         @foreach($countries as $country)
                                             <option
-                                                {{ $country == auth()->user()->client->country->id ? 'selected' : null }} value="{{ $country->id }}">
+                                                {{ $country == isset(auth()->user()->client->country->id) ? 'selected' : null }} value="{{ $country->id }}">
                                                 {{ $country->iso_3166_2 }}
                                                 ({{ $country->name }})
                                             </option>
@@ -333,7 +333,7 @@
                                     <select id="shipping_country" class="input w-full form-select" name="shipping_country">
                                         @foreach($countries as $country)
                                             <option
-                                                {{ $country == auth()->user()->client->shipping_country->id ? 'selected' : null }} value="{{ $country->id }}">
+                                                {{ $country == isset(auth()->user()->client->shipping_country->id) ? 'selected' : null }} value="{{ $country->id }}">
                                                 {{ $country->iso_3166_2 }}
                                                 ({{ $country->name }})
                                             </option>

@@ -64,6 +64,7 @@ class UserTransformer extends EntityTransformer
             'custom_value2' => $user->custom_value2 ?: '',
             'custom_value3' => $user->custom_value3 ?: '',
             'custom_value4' => $user->custom_value4 ?: '',
+            'oauth_provider_id' => (string)$user->oauth_provider_id,
         ];
     }
 

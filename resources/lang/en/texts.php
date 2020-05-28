@@ -257,8 +257,8 @@ return [
     'notification_quote_sent_subject' => 'Quote :invoice was sent to :client',
     'notification_credit_sent_subject' => 'Credit :invoice was sent to :client',
     'notification_invoice_viewed_subject' => 'Invoice :invoice was viewed by :client',
-    'notification_credit_viewed_subject' => 'Credit :credit was viewed by :client',
-    'notification_quote_viewed_subject' => 'Quote :quote was viewed by :client',
+    'notification_credit_viewed_subject' => 'Credit :invoice was viewed by :client',
+    'notification_quote_viewed_subject' => 'Quote :invoice was viewed by :client',
     'notification_invoice_paid' => 'A payment of :amount was made by client :client towards Invoice :invoice.',
     'notification_invoice_sent' => 'The following client :client was emailed Invoice :invoice for :amount.',
     'notification_quote_sent' => 'The following client :client was emailed Quote :invoice for :amount.',
@@ -3205,4 +3205,7 @@ return [
     'to_view_entity_password' => 'To view the :entity you need to enter password.',
     'showing_x_of' => 'Showing :first to :last out of :total results',
     'no_results' => 'No results found.',
+
+    'payment_failed_subject' => 'Payment failed for Client :client',
+    'payment_failed_body' => 'A payment made by client :client failed with message :message',
 ];

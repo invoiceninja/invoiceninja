@@ -1,6 +1,11 @@
 @extends('portal.ninja2020.layout.clean')
 @section('meta_title', ctrans('texts.login'))
 
+@component('portal.ninja2020.components.test')
+    <input type="hidden" id="test_email" value="{{ config('ninja.testvars.username') }}">
+    <input type="hidden" id="test_password" value="{{ config('ninja.testvars.password') }}">
+@endcomponent
+
 @section('body')
     <div class="grid lg:grid-cols-3">
         <div class="hidden lg:block col-span-1 bg-red-100 h-screen">
@@ -42,7 +47,7 @@
                             @enderror
                         </div>
                         <div class="mt-5">
-                            <button class="button button-primary button-block">
+                            <button id="loginBtn" class="button button-primary button-block">
                                 {{ trans('texts.login') }}
                             </button>
                         </div>

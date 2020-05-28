@@ -31,6 +31,7 @@ use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
 use App\Mail\MigrationFailed;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -38,6 +39,7 @@ use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\TaxRate;
@@ -86,6 +88,7 @@ class Import implements ShouldQueue
     private $available_imports = [
         'company',
         'users',
+        'payment_terms',
         'tax_rates',
         'clients',
         'products',
@@ -145,7 +148,7 @@ class Import implements ShouldQueue
      * @return void
      * @throws \Exception
      */
-    public function handle()
+    public function handle() :bool
     {
 
         set_time_limit(0);
@@ -154,7 +157,6 @@ class Import implements ShouldQueue
             if (! in_array($key, $this->available_imports)) {
                 //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
                 info("Resource {$key} is not available for migration.");
-
                 continue;
             }
 
@@ -168,6 +170,8 @@ class Import implements ShouldQueue
         Mail::to($this->user)->send(new MigrationCompleted());
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
+
+        return true;
     }
 
     /**
@@ -366,7 +370,9 @@ class Import implements ShouldQueue
                     unset($modified_contacts[$key]['id']);
                 }
 
-                $contact_repository->save($modified_contacts, $client);
+                $saveable_contacts['contacts'] = $modified_contacts;
+
+                $contact_repository->save($saveable_contacts, $client);
             }
 
             $key = "clients_{$resource['id']}";
@@ -691,6 +697,28 @@ class Import implements ShouldQueue
 
         Document::reguard();
 
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+    }
+
+    private function processPaymentTerms(array $data) :void
+    {
+
+        PaymentTerm::unguard();
+
+        $modified = collect($data)->map(function ($item){
+
+            $item['user_id'] = $this->user->id;
+            $item['company_id'] = $this->company->id;
+
+            return $item;
+
+        })->toArray();
+
+        PaymentTerm::insert($modified);
+
+        PaymentTerm::reguard();
+        
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
     }

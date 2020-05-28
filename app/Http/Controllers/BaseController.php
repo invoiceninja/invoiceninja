@@ -23,6 +23,7 @@ use App\Utils\Traits\AppSetup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as Input;
+use Illuminate\Support\Facades\Schema;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
@@ -265,6 +266,7 @@ class BaseController extends Controller
           'company.quotes.invitations.contact',
           'company.quotes.invitations.company',
           'company.credits',
+          'company.payment_terms',
           //'company.credits.invitations.contact',
           //'company.credits.invitations.company',
           'company.vendors.contacts',
@@ -282,6 +284,7 @@ class BaseController extends Controller
           'company.users.company_user',
           'company.tax_rates',
           'company.groups',
+          'company.payment_terms',
         ];
 
         /**
@@ -311,10 +314,16 @@ class BaseController extends Controller
     
     public function flutterRoute()
     {
-        if ((bool)$this->checkAppSetup() !== false) {
+
+        // // Ensure all request are over HTTPS in production
+        // if (! request()->secure()) {
+        //     return redirect()->secure(request()->path());
+        // }
+
+        if ((bool)$this->checkAppSetup() !== false && Schema::hasTable('accounts') && $account = Account::all()->first()) {
             $data = [];
 
-            if (Ninja::isSelfHost() && $account = Account::all()->first()) {
+            if (Ninja::isSelfHost()) {
                 $data['report_errors'] = $account->report_errors;
             } else {
                 $data['report_errors'] = true;
