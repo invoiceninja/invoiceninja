@@ -27,7 +27,7 @@
                 </h3>
                 <div class="mt-2">
                     <p class="text-sm leading-5 text-gray-500">
-                        <canvas id="signature-pad" class="signature-pad" width=400 height=200></canvas>
+                        <canvas id="signature-pad" class="signature-pad border rounded" width=400 height=200></canvas>
                     </p>
                 </div>
             </div>

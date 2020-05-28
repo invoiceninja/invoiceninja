@@ -14,6 +14,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Filters\PaymentFilters;
 use App\Http\Controllers\Controller;
+use App\Jobs\Invoice\InjectSignature;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -71,8 +72,6 @@ class PaymentController extends Controller
      */
     public function process()
     {
-        // $signature = request()->signature // data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAADICA..
-
         $invoices = Invoice::whereIn('id', $this->transformKeys(request()->invoices))
             ->where('company_id', auth('contact')->user()->company->id)
             ->get();
@@ -92,7 +91,12 @@ class PaymentController extends Controller
         $invoices->map(function ($invoice) {
             $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
             $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
+            
             return $invoice;
+        });
+
+        $invoices->each(function ($invoice) {
+            InjectSignature::dispatch($invoice, request()->signature);
         });
 
         $payment_methods = auth()->user()->client->getPaymentMethods($amount);
@@ -111,7 +115,6 @@ class PaymentController extends Controller
             'payment_method_id' => $payment_method_id,
             'hashed_ids' => request()->invoices,
         ];
-
 
         return $gateway->driver(auth()->user()->client)->processPaymentView($data);
     }

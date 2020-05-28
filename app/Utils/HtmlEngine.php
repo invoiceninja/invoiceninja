@@ -301,7 +301,7 @@ class HtmlEngine
         $data['$task.tax_name2']                     = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name3']                     = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.line_total']                    = ['value' => '', 'label' => ctrans('texts.line_total')];
-        //$data['$contact.signature']
+        $data['$contact.signature']                  = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
 
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
