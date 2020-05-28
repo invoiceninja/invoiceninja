@@ -17,7 +17,7 @@
                         <summary class="cursor-pointer focus:outline-none">Show code</summary>
                         <pre class="text-sm overflow-y-scroll bg-gray-100 p-4">
 -- Commands to create a MySQL database and user
-CREATE SCHEMA `ninja` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE SCHEMA `db-ninja-01` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 CREATE USER 'ninja'@'localhost' IDENTIFIED BY 'ninja';
 GRANT ALL PRIVILEGES ON `ninja`.* TO 'ninja'@'localhost';
 FLUSH PRIVILEGES;
@@ -38,7 +38,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.host') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input w-full" name="host" required value="{{ old('host') }}">
+                    <input type="text" class="input w-full" name="host" required value="{{ old('host') ?: 'localhost'}}">
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -46,7 +46,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.database') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input w-full" name="database" required value="{{ old('database') }}">
+                    <input type="text" class="input w-full" name="database" required value="{{ old('database') ?: 'db-ninja-01'}}">
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -54,7 +54,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.username') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input w-full" name="db_username" required value="{{ old('db_username') }}">
+                    <input type="text" class="input w-full" name="db_username" required value="{{ old('db_username') ?: 'ninja' }}">
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -62,7 +62,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.password') }}
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="password" class="input w-full" name="db_password" value="{{ old('db_password') }}">
+                    <input type="password" class="input w-full" name="db_password" value="{{ old('db_password') ?: 'ninja' }}">
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">

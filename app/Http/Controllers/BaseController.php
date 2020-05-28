@@ -319,10 +319,10 @@ class BaseController extends Controller
         //     return redirect()->secure(request()->path());
         // }
 
-        if ((bool)$this->checkAppSetup() !== false) {
+        if ((bool)$this->checkAppSetup() !== false && $account = Account::all()->first()) {
             $data = [];
 
-            if (Ninja::isSelfHost() && $account = Account::all()->first()) {
+            if (Ninja::isSelfHost()) {
                 $data['report_errors'] = $account->report_errors;
             } else {
                 $data['report_errors'] = true;
