@@ -296,8 +296,8 @@ class BaseRepository
 
             $model = $model->calc()->getInvoice();
 
-            event(new InvoiceWasUpdated($model));
-            
+            event(new InvoiceWasUpdated($model, $model->company));
+
         }
 
         if ($class->name == Credit::class) {

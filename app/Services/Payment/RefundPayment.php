@@ -5,15 +5,17 @@ namespace App\Services\Payment;
 use App\Exceptions\PaymentRefundFailed;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
+use App\Models\Activity;
 use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Payment;
+use App\Repositories\ActivityRepository;
 
 class RefundPayment
 {
     public $payment;
 
-    public $refund_data
+    public $refund_data;
 
     private $credit_note;
 
@@ -38,13 +40,13 @@ class RefundPayment
     {
 
         return $this->calculateTotalRefund() //sets amount for the refund (needed if we are refunding multiple invoices in one payment)
-                    ->setStatus()
-                    ->buildCreditNote()
-                    ->buildCreditLineItems()
-                    ->updateCreditables()
-                    ->updatePaymentables()
-                    ->createActivity()
-                    ->processGatewayRefund();
+                    ->setStatus() //sets status of payment
+                    ->buildCreditNote() //generate the credit note
+                    ->buildCreditLineItems() //generate the credit note items
+                    ->updateCreditables() //return the credits first
+                    ->updatePaymentables() //update the paymentable items
+                    ->createActivity() // create the refund activity
+                    ->processGatewayRefund() //process the gateway refund if needed
                     ->save();
     }
 
@@ -55,7 +57,7 @@ class RefundPayment
             $gateway = CompanyGateway::find($this->company_gateway_id);
 
             if ($gateway) {
-                $response = $gateway->driver($this->client)->refund($this, $this->total_refund);
+                $response = $gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
 
                 if (!$response) {
                     throw new PaymentRefundFailed();
@@ -66,9 +68,28 @@ class RefundPayment
         return $this;
     }
 
-    private function createActivity()
+    private function createActivity(array $data, int $credit_id)
     {
+        $fields = new \stdClass;
+        $activity_repo = new ActivityRepository();
 
+        $fields->payment_id = $this->payment->id;
+        $fields->user_id = $this->payment->user_id;
+        $fields->company_id = $this->payment->company_id;
+        $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
+        $fields->credit_id = $this->credit_note->id;
+
+        if (isset($this->refund_data['invoices'])) {
+            foreach ($this->refund_data['invoices'] as $invoice) {
+                $fields->invoice_id = $invoice->id;
+                
+                $activity_repo->save($fields, $this->payment);
+            }
+        } else {
+            $activity_repo->save($fields, $this->payment);
+        }
+
+        return $this;
     }
 
     private function calculateTotalRefund()
