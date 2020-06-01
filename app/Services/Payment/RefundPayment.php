@@ -46,6 +46,7 @@ class RefundPayment
                     ->buildCreditLineItems() //generate the credit note items
                     ->updateCreditables() //return the credits first
                     ->updatePaymentables() //update the paymentable items
+                    ->adjustInvoices()
                     ->createActivity() // create the refund activity
                     ->processGatewayRefund() //process the gateway refund if needed
                     ->save();
@@ -237,6 +238,46 @@ class RefundPayment
                     break;
                 }
             }
+        }
+
+        return $this;
+    }
+
+
+    private function adjustInvoices()
+    {
+        $adjustment_amount = 0;
+
+        if(isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0)
+        {
+            foreach ($this->refund_data['invoices'] as $refunded_invoice) {
+                $invoice = Invoice::find($refunded_invoice['invoice_id']);
+
+                $invoice->service()->updateBalance($refunded_invoice['amount'])->save();
+
+                if ($invoice->amount == $invoice->balance) {
+                    $invoice->service()->setStatus(Invoice::STATUS_SENT);
+                } else {
+                    $invoice->service()->setStatus(Invoice::STATUS_PARTIAL);
+                }
+
+                $client = $invoice->client;
+
+                $adjustment_amount += $refunded_invoice['amount'];
+                $client->balance += $refunded_invoice['amount'];
+
+                $client->save();
+
+                //todo adjust ledger balance here? or after and reference the credit and its total
+            }
+
+            $ledger_string = ''; //todo
+
+            $this->credit_note->ledger()->updateCreditBalance($adjustment_amount, $ledger_string);
+
+            $this->payment->client->paid_to_date -= $this->refund_data['amount'];
+            $this->payment->client->save();
+
         }
 
         return $this;
