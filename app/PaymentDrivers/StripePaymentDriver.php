@@ -173,28 +173,6 @@ class StripePaymentDriver extends BasePaymentDriver
     public function processPaymentView(array $data)
     {
         return $this->payment_method->paymentView($data);
-
-        $payment_intent_data = [
-            'amount' => $this->convertToStripeAmount($data['amount_with_fee'], $this->client->currency()->precision),
-            'currency' => $this->client->getCurrencyCode(),
-            'customer' => $this->findOrCreateCustomer(),
-            'description' => $data['invoices']->pluck('id'), //todo more meaningful description here:
-        ];
-
-        if ($data['token']) {
-            $payment_intent_data['payment_method'] = $data['token']->token;
-        } else {
-            $payment_intent_data['setup_future_usage']  = 'off_session';
-//            $payment_intent_data['save_payment_method'] = true;
-//            $payment_intent_data['confirm'] = true;
-        }
-
-
-        $data['intent'] = $this->createPaymentIntent($payment_intent_data);
-
-        $data['gateway'] = $this;
-
-        return render($this->viewForType($data['payment_method_id']), $data);
     }
 
     /**
