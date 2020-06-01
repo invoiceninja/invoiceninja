@@ -48,7 +48,10 @@ class PaymentMethodController extends Controller
             'token' => false,
         ];
 
-        return $gateway->driver(auth()->user()->client)->authorizeCreditCardView($data);
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard')
+            ->authorizeView($data);
     }
 
     /**

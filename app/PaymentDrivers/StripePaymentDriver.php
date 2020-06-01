@@ -40,6 +40,8 @@ class StripePaymentDriver extends BasePaymentDriver
 
     protected $customer_reference = 'customerReferenceParam';
 
+    protected $payment_method;
+
     /**
      * Methods in this class are divided into
      * two separate streams
@@ -60,6 +62,21 @@ class StripePaymentDriver extends BasePaymentDriver
     public function init() :void
     {
         Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
+    }
+
+    /**
+     * Return payment method type.
+     * 
+     * @param string $method 
+     * @return $this 
+     */
+    public function setPaymentMethod(string $method)
+    {
+        // Example: setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard');
+
+        $this->payment_method = new $method($this);
+
+        return $this;
     }
 
     /**
@@ -128,16 +145,15 @@ class StripePaymentDriver extends BasePaymentDriver
     }
 
     /**
-     * Authorises a credit card for future use.
-     *
-     * @param  array  $data Array of variables needed for the view
+     * Proxy method to pass the data into payment method authorizeView().
+     * 
+     * @param array $data 
+     * 
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function authorizeCreditCardView(array $data)
+    public function authorizeView(array $data)
     {
-        $intent['intent'] = $this->getSetupIntent();
-
-        return render('gateways.stripe.add_credit_card', array_merge($data, $intent));
+        return $this->payment_method->authorizeView($data);
     }
 
     /**
@@ -400,12 +416,12 @@ class StripePaymentDriver extends BasePaymentDriver
         return $payment;
     }
 
-    private function convertFromStripeAmount($amount, $precision)
+    public function convertFromStripeAmount($amount, $precision)
     {
         return $amount / pow(10, $precision);
     }
 
-    private function convertToStripeAmount($amount, $precision)
+    public function convertToStripeAmount($amount, $precision)
     {
         return $amount * pow(10, $precision);
     }
