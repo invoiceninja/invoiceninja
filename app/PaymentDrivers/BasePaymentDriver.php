@@ -48,7 +48,7 @@ class BasePaymentDriver
     use MakesHash;
 
     /* The company gateway instance*/
-    protected $company_gateway;
+    public $company_gateway;
 
     /* The Omnipay payment driver instance*/
     protected $gateway;

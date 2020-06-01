@@ -64,7 +64,10 @@ class PaymentMethodController extends Controller
     {
         $gateway = auth()->user()->client->getCreditCardGateway();
 
-        return $gateway->driver(auth()->user()->client)->authorizeCreditCardResponse($request);
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard')
+            ->authorizeCreditCardResponse($request);
     }
 
     /**
