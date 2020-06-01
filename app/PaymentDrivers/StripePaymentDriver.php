@@ -65,12 +65,6 @@ class StripePaymentDriver extends BasePaymentDriver
         Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
     }
 
-    /**
-     * Return payment method type.
-     * 
-     * @param string $method 
-     * @return $this 
-     */
     public function setPaymentMethod(string $method)
     {
         // Example: setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard');
@@ -160,9 +154,9 @@ class StripePaymentDriver extends BasePaymentDriver
     /**
      * Processes the gateway response for credit card authorization.
      *
-     * @param Request $request The returning request object
-     * @return view          Returns the user to payment methods screen.
-     * @throws \Stripe\Exception\ApiErrorException
+     * @param \Illuminate\Http\Request $request The returning request object
+
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function authorizeCreditCardResponse($request)
     {
@@ -173,11 +167,13 @@ class StripePaymentDriver extends BasePaymentDriver
      * Process the payment with gateway.
      *
      * @param array $data
+
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|void
-     * @throws \Exception
      */
     public function processPaymentView(array $data)
     {
+        return $this->payment_method->paymentView($data);
+
         $payment_intent_data = [
             'amount' => $this->convertToStripeAmount($data['amount_with_fee'], $this->client->currency()->precision),
             'currency' => $this->client->getCurrencyCode(),

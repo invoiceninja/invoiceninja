@@ -68,12 +68,40 @@ class CreditCard
         $client_gateway_token->save();
 
         if ($is_default == 'true' || $this->stripe->client->gateway_tokens->count() == 1) {
-            $this->stripe->client->gateway_tokens()->update(['is_default'=>0]);
+            $this->stripe->client->gateway_tokens()->update(['is_default' => 0]);
 
             $client_gateway_token->is_default = 1;
             $client_gateway_token->save();
         }
 
         return redirect()->route('client.payment_methods.index');
+    }
+
+    public function paymentView(array $data)
+    {
+        $payment_intent_data = [
+            'amount' => $this->stripe->convertToStripeAmount($data['amount_with_fee'], $this->stripe->client->currency()->precision),
+            'currency' => $this->stripe->client->getCurrencyCode(),
+            'customer' => $this->stripe->findOrCreateCustomer(),
+            'description' => $data['invoices']->pluck('id'), //todo more meaningful description here:
+        ];
+
+        if ($data['token']) {
+            $payment_intent_data['payment_method'] = $data['token']->token;
+        } else {
+            $payment_intent_data['setup_future_usage']  = 'off_session';
+            // $payment_intent_data['save_payment_method'] = true;
+            // $payment_intent_data['confirm'] = true;
+        }
+
+        $data['intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
+        $data['gateway'] = $this->stripe;
+
+        return render('gateways.stripe.credit_card', $data);
+    }
+
+    public function paymentResponse()
+    {
+        # code...
     }
 }
