@@ -8,6 +8,7 @@ use App\Factory\InvoiceItemFactory;
 use App\Models\Activity;
 use App\Models\CompanyGateway;
 use App\Models\Credit;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\ActivityRepository;
 
@@ -54,6 +55,7 @@ class RefundPayment
     {
 
         if ($this->refund_data['gateway_refund'] !== false && $this->total_refund > 0) {
+
             $gateway = CompanyGateway::find($this->company_gateway_id);
 
             if ($gateway) {
@@ -62,13 +64,21 @@ class RefundPayment
                 if (!$response) {
                     throw new PaymentRefundFailed();
                 }
+
+                //todo
+                //need to check the gateway response has successfully be transacted.
+
+                //if a credit has been generated I think this is the correct section to fix the balance of the credit
             }
         }
+        else
+            $this->payment->refunded += $this->total_refund;
+
 
         return $this;
     }
 
-    private function createActivity(array $data, int $credit_id)
+    private function createActivity()
     {
         $fields = new \stdClass;
         $activity_repo = new ActivityRepository();
@@ -81,8 +91,7 @@ class RefundPayment
 
         if (isset($this->refund_data['invoices'])) {
             foreach ($this->refund_data['invoices'] as $invoice) {
-                $fields->invoice_id = $invoice->id;
-                
+                $fields->invoice_id = $invoice['invoice_id'];
                 $activity_repo->save($fields, $this->payment);
             }
         } else {
@@ -96,7 +105,7 @@ class RefundPayment
     {
 
         if(isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0)
-            $this->total_refund = collect($this->refund_data['invoices']->sum('amount'));
+            $this->total_refund = collect($this->refund_data['invoices'])->sum('amount');
         else
             $this->total_refund = $this->refund_data['amount'];
 
@@ -133,6 +142,8 @@ class RefundPayment
 
     private function buildCreditLineItems()
     {
+        $ledger_string = '';
+
         if(isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0)
         {
             foreach ($this->refund_data['invoices'] as $invoice) 
@@ -144,7 +155,7 @@ class RefundPayment
                 $credit_line_item->quantity = 1;
                 $credit_line_item->cost = $invoice['amount'];
                 $credit_line_item->product_key = ctrans('texts.invoice');
-                $credit_line_item->notes = ctrans('texts.refund_body', ['amount' => $data['amount'], 'invoice_number' => $inv->number]);
+                $credit_line_item->notes = ctrans('texts.refund_body', ['amount' => $invoice['amount'], 'invoice_number' => $inv->number]);
                 $credit_line_item->line_total = $invoice['amount'];
                 $credit_line_item->date = $this->refund_data['date'];
 
