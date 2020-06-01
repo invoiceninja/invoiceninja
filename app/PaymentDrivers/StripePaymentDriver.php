@@ -21,6 +21,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -30,7 +31,7 @@ use Stripe\Stripe;
 
 class StripePaymentDriver extends BasePaymentDriver
 {
-    use MakesHash;
+    use MakesHash, Utilities;
 
     protected $refundable = true;
 
@@ -374,15 +375,6 @@ class StripePaymentDriver extends BasePaymentDriver
         return $payment;
     }
 
-    public function convertFromStripeAmount($amount, $precision)
-    {
-        return $amount / pow(10, $precision);
-    }
-
-    public function convertToStripeAmount($amount, $precision)
-    {
-        return $amount * pow(10, $precision);
-    }
     /**
      * Creates a new String Payment Intent
      *
