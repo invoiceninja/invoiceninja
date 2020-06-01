@@ -128,6 +128,9 @@ class PaymentController extends Controller
     {
         $gateway = CompanyGateway::find($request->input('company_gateway_id'));
 
-        return $gateway->driver(auth()->user()->client)->processPaymentResponse($request);
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard')
+            ->processPaymentResponse($request);
     }
 }
