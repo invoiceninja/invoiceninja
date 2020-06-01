@@ -125,6 +125,8 @@ class RefundTest extends TestCase
 
         $response->assertStatus(200);
 
+info($arr);
+
         $this->assertEquals(50, $arr['data']['refunded']);
         $this->assertEquals(Payment::STATUS_REFUNDED, $arr['data']['status_id']);
     }

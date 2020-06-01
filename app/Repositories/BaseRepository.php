@@ -11,6 +11,7 @@
 
 namespace App\Repositories;
 
+use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\InvoiceInvitationFactory;
 use App\Factory\QuoteInvitationFactory;
 use App\Jobs\Product\UpdateOrCreateProduct;
@@ -294,6 +295,9 @@ class BaseRepository
             }
 
             $model = $model->calc()->getInvoice();
+
+            event(new InvoiceWasUpdated($model, $model->company));
+
         }
 
         if ($class->name == Credit::class) {

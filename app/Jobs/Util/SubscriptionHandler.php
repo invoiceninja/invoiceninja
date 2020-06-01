@@ -43,7 +43,7 @@ class SubscriptionHandler implements ShouldQueue
         if(!$this->entity->company || $this->entity->company->company_users->first()->is_migrating)
             return true;
 
-        info("i got past the check");
+        //info("i got past the check");
 
         $subscriptions = Subscription::where('company_id', $this->entity->company_id)
                                     ->where('event_id', $this->event_id)
