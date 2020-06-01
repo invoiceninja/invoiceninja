@@ -19,6 +19,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Client\UpdateClientBalance;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Models\Backup;
 use App\Models\CompanyLedger;
 use App\Models\Currency;
 use App\Models\Filterable;
@@ -208,7 +209,7 @@ class Invoice extends BaseModel
 
     public function history()
     {
-        $this->activities->with('backup');
+        return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
     // public function credits()

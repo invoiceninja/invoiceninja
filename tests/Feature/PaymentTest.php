@@ -21,6 +21,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\WithoutEvents;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
@@ -43,10 +44,6 @@ class PaymentTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutMiddleware(
-            ThrottleRequests::class
-        );
-
         Session::start();
 
         $this->faker = \Faker\Factory::create();
@@ -55,6 +52,10 @@ class PaymentTest extends TestCase
 
         $this->makeTestData();
         $this->withoutExceptionHandling();
+
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
     }
 
     public function testPaymentList()
