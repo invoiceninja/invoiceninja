@@ -95,9 +95,11 @@ class PaymentController extends Controller
             return $invoice;
         });
 
-        $invoices->each(function ($invoice) {
-            InjectSignature::dispatch($invoice, request()->signature);
-        });
+        if ((bool) request()->signature) {
+            $invoices->each(function ($invoice) {
+                InjectSignature::dispatch($invoice, request()->signature);
+            });
+        }
 
         $payment_methods = auth()->user()->client->getPaymentMethods($amount);
         $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
@@ -116,13 +118,19 @@ class PaymentController extends Controller
             'hashed_ids' => request()->invoices,
         ];
 
-        return $gateway->driver(auth()->user()->client)->processPaymentView($data);
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard')
+            ->processPaymentView($data);
     }
 
     public function response(Request $request)
     {
         $gateway = CompanyGateway::find($request->input('company_gateway_id'));
 
-        return $gateway->driver(auth()->user()->client)->processPaymentResponse($request);
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard')
+            ->processPaymentResponse($request);
     }
 }
