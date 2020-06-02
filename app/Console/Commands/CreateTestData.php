@@ -25,6 +25,7 @@ use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\User;
 use App\Repositories\InvoiceRepository;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use Faker\Factory;
@@ -35,7 +36,7 @@ use Illuminate\Support\Str;
 
 class CreateTestData extends Command
 {
-    use MakesHash;
+    use MakesHash, GeneratesCounter;
     /**
      * @var string
      */
@@ -233,7 +234,7 @@ class CreateTestData extends Command
             $this->createClient($company, $user);
         }
 
-        for($x=0; $x<$this->count; $x++)
+        for($x=0; $x<$this->count*100; $x++)
         {
             $client = $company->clients->random();
 
@@ -324,7 +325,7 @@ class CreateTestData extends Command
         $this->info('Creating '.$this->count. ' clients');
 
 
-        for ($x=0; $x<$this->count; $x++) {
+        for ($x=0; $x<$this->count*1000; $x++) {
             $z = $x+1;
             $this->info("Creating client # ".$z);
 
@@ -393,6 +394,10 @@ class CreateTestData extends Command
                     'client_id' => $client->id,
                     'company_id' => $company->id
                 ]);
+
+        $client->id_number = $this->getNextClientNumber($client);
+        $client->save();
+
     }
 
     private function createExpense($client)
