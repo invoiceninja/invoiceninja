@@ -2,7 +2,7 @@
 namespace App\Services\Quote;
 
 use App\Factory\CloneQuoteToInvoiceFactory;
-use App\Quote;
+use App\Models\Quote;
 use App\Repositories\InvoiceRepository;
 
 class ConvertQuote
@@ -33,6 +33,7 @@ class ConvertQuote
                 ->save();
 
         $quote->invoice_id = $invoice->id;
+        $quote->status_id = Quote::STATUS_CONVERTED;
         $quote->save();
         
         // maybe should return invoice here

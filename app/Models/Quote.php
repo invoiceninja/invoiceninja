@@ -84,6 +84,7 @@ class Quote extends BaseModel
     const STATUS_DRAFT = 1;
     const STATUS_SENT =  2;
     const STATUS_APPROVED = 3;
+    const STATUS_CONVERTED = 4;
     const STATUS_EXPIRED = -1;
 
     public function getEntityType()
