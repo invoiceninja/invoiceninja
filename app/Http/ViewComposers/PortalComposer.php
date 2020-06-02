@@ -46,6 +46,7 @@ class PortalComposer
         $data['header'] = [];
         $data['footer'] = [];
         $data['countries'] = TranslationHelper::getCountries();
+        $data['currencies'] = TranslationHelper::getCurrencies();
         $data['company'] = auth()->user()->company;
         $data['client'] = auth()->user()->client;
         $data['settings'] = auth()->user()->client->getMergedSettings();

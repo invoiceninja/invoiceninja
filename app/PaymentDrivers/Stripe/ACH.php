@@ -12,15 +12,19 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-trait Utilities
+use App\PaymentDrivers\StripePaymentDriver;
+
+class ACH
 {
-    public function convertFromStripeAmount($amount, $precision)
+    public $stripe;
+
+    public function __construct(StripePaymentDriver $stripe)
     {
-        return $amount / pow(10, $precision);
+        $this->stripe = $stripe;
     }
 
-    public function convertToStripeAmount($amount, $precision)
+    public function authorizeView(array $data)
     {
-        return $amount * pow(10, $precision);
+        return render('gateways.stripe.ach.authorize', array_merge($data));
     }
 }

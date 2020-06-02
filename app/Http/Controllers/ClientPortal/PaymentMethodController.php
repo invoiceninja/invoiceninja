@@ -50,7 +50,7 @@ class PaymentMethodController extends Controller
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard')
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\ACH')
             ->authorizeView($data);
     }
 
@@ -66,7 +66,7 @@ class PaymentMethodController extends Controller
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard')
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\ACH')
             ->authorizeCreditCardResponse($request);
     }
 
