@@ -424,4 +424,73 @@ class CompanyGatewayController extends BaseController
 
         return response()->json([], 200);
     }
+
+     /**
+     * Perform bulk actions on the list view
+     *
+     * @param BulkCompanyGatewayRequest $request
+     * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/company_gateways/bulk",
+     *      operationId="bulkCompanyGateways",
+     *      tags={"company_gateways"},
+     *      summary="Performs bulk actions on an array of company_gateways",
+     *      description="",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\RequestBody(
+     *         description="Array of company gateway IDs",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="integer",
+     *                     description="Array of hashed IDs to be bulk 'actioned",
+     *                     example="[0,1,2,3]",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The Company Gateways response",
+     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/CompanyGateway"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function bulk()
+    {
+        $action = request()->input('action');
+        
+        $ids = request()->input('ids');
+        
+        $company_gateways = CompanyGateway::withTrashed()->find($this->transformKeys($ids));
+        
+        $company_gateways->each(function ($company_gateway, $key) use ($action) {
+            if (auth()->user()->can('edit', $company_gateway)) {
+                $this->company_repo->{$action}($client);
+            }
+        });
+        
+        return $this->listResponse(CompanyGateway::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+    }
 }
