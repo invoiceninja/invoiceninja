@@ -102,6 +102,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('company_gateways', 'CompanyGatewayController');
     
+    Route::post('company_gateways/bulk', 'CompanyGatewayController@bulk')->name('company_gateways.bulk');
+
     Route::put('company_users/{user}', 'CompanyUserController@update');
 
     Route::resource('group_settings', 'GroupSettingController');
