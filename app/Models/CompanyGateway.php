@@ -17,9 +17,12 @@ use App\Models\Gateway;
 use App\Models\GatewayType;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CompanyGateway extends BaseModel
 {
+    use SoftDeletes;
+    
     protected $casts = [
         'fees_and_limits' => 'object',
         'updated_at' => 'timestamp',
