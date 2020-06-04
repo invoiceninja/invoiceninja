@@ -487,7 +487,7 @@ class CompanyGatewayController extends BaseController
         
         $company_gateways->each(function ($company_gateway, $key) use ($action) {
             if (auth()->user()->can('edit', $company_gateway)) {
-                $this->company_repo->{$action}($client);
+                $this->company_repo->{$action}($company_gateway);
             }
         });
         
