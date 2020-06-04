@@ -315,7 +315,7 @@ class CreateTestData extends Command
         ]);
 
 
-        factory(\App\Models\Product::class, 50)->create([
+        factory(\App\Models\Product::class, 15000)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
