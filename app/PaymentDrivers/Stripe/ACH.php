@@ -96,6 +96,21 @@ class ACH
         ];
     }
 
+    public function paymentView(array $data)
+    {
+        $state = [
+            'amount' => $this->stripe->convertToStripeAmount($data['amount_with_fee'], $this->stripe->client->currency()->precision),
+            'currency' => $this->stripe->client->getCurrencyCode(),
+            'invoices' => $data['invoices'],
+            'gateway' => $this->stripe,
+            'payment_method_id' => GatewayType::BANK_TRANSFER, // needs verification
+            'token' => $data['token'],
+        ];
+
+
+        return render('gateways.stripe.ach.pay', $state);
+    }
+
     public function acceptWebhook()
     {
         // ..
