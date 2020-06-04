@@ -4,13 +4,15 @@
 @section('body')
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
-        <input type="hidden" name="gateway_response">
-        <input type="hidden" name="store_card">
         @foreach($invoices as $invoice)
             <input type="hidden" name="hashed_ids[]" value="{{ $invoice->hashed_id }}">
         @endforeach
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
+        <input type="hidden" name="source" value="{{ $token->meta->id }}">
+        <input type="hidden" name="amount" value="{{ $amount }}">
+        <input type="hidden" name="currency" value="{{ $currency }}">
+        <input type="hidden" name="customer" value="{{ $customer->id }}">
     </form>
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">

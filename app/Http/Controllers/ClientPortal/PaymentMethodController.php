@@ -106,6 +106,26 @@ class PaymentMethodController extends Controller
         //
     }
 
+    public function verify(ClientGatewayToken $payment_method)
+    {
+        $gateway = auth()->user()->client->getCreditCardGateway();
+
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\ACH')
+            ->verificationView($payment_method);
+    }
+
+    public function processVerification(ClientGatewaytoken $payment_method)
+    {
+        $gateway = auth()->user()->client->getCreditCardGateway();
+
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\ACH')
+            ->processVerification($payment_method);
+    }
+
     /**
      * Remove the specified resource from storage.
      *

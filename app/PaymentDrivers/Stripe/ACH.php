@@ -43,7 +43,7 @@ class ACH
         $customer = $this->stripe->findOrCreateCustomer();
 
         $this->stripe->init();
-        
+
         $local_stripe = new \Stripe\StripeClient(
             $this->stripe->company_gateway->getConfigField('apiKey')
         );
@@ -53,7 +53,7 @@ class ACH
                 $customer->id,
                 ['source' => $state['server_response']->token->id]
             );
-        } catch(InvalidRequestException $e) {
+        } catch (InvalidRequestException $e) {
             return back()->with('ach_error', $e->getMessage());
         }
 
@@ -61,6 +61,7 @@ class ACH
         $payment_meta->brand = ctrans('texts.ach');
         $payment_meta->type = ctrans('texts.bank_transfer');
         $payment_meta->verified_at = null;
+        $payment_meta->btok = $state['server_response']->token->id;
 
         $client_gateway_token = new ClientGatewayToken();
         $client_gateway_token->company_id = $this->stripe->client->company->id;
@@ -82,20 +83,6 @@ class ACH
         return redirect()->route('client.payment_methods.index');
     }
 
-    public function paymentResponse($request)
-    {
-        $server_response = json_decode($request->input('gateway_response'));
-
-        $state = [
-            'payment_method' => $server_response->payment_method,
-            'payment_status' => $server_response->status,
-            'save_card' => $request->store_card,
-            'gateway_type_id' => $request->payment_method_id,
-            'hashed_ids' => $request->hashed_ids,
-            'server_response' => $server_response,
-        ];
-    }
-
     public function paymentView(array $data)
     {
         $state = [
@@ -105,10 +92,61 @@ class ACH
             'gateway' => $this->stripe,
             'payment_method_id' => GatewayType::BANK_TRANSFER, // needs verification
             'token' => $data['token'],
+            'customer' => $this->stripe->findOrCreateCustomer(),
         ];
 
-
         return render('gateways.stripe.ach.pay', $state);
+    }
+
+    public function paymentResponse($request)
+    {
+        $state = [
+            'payment_method' => $request->payment_method_id,
+            'gateway_type_id' => $request->company_gateway_id,
+            'hashed_ids' => $request->hashed_ids,
+            'amount' => $request->amount,
+            'currency' => $request->currency,
+            'source' => $request->source,
+            'customer' => $request->customer,
+        ];
+
+        $this->stripe->init();
+
+        try {
+            $charge = \Stripe\Charge::create([
+                'amount' => $state['amount'],
+                'currency' => $state['currency'],
+                'customer' => $state['customer'],
+                'source' => $state['source'],
+            ]);
+        } catch (\Exception $e) {
+            if ($e instanceof \Stripe\Exception\CardException) {
+                return redirect()
+                    ->route('client.payment_methods.verification', ClientGatewayToken::first()->hashed_id)
+                    ->with('message', $e->getMessage());
+            }
+        }
+    }
+
+    public function verificationView(ClientGatewayToken $token)
+    {
+        return render('gateways.stripe.ach.verify', compact('token'));
+    }
+
+    public function processVerification(ClientGatewayToken $token)
+    {
+        $this->stripe->init();
+
+        $bank_account = \Stripe\Customer::retrieveSource(
+            request()->customer,
+            request()->source,
+        );
+
+        try {
+            $status = $bank_account->verify(['amounts' => request()->transactions]);
+        } catch (\Stripe\Exception\CardException $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function acceptWebhook()

@@ -330,5 +330,15 @@ class StripePaymentDriver extends BasePaymentDriver
         return false;
     }
 
+    public function verificationView(ClientGatewayToken $payment_method)
+    {
+        return $this->payment_method->verificationView($payment_method);
+    }
+
+    public function processVerification(ClientGatewayToken $payment_method)
+    {
+        return $this->payment_method->processVerification($payment_method);
+    }
+
     /************************************** Omnipay API methods **********************************************************/
 }
