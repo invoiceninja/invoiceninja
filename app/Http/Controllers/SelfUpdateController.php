@@ -60,7 +60,7 @@ class SelfUpdateController extends BaseController
      *     )
      *
      */
-    public function update(UpdaterManager $updater)
+    public function update()
     {
         if (Ninja::isNinja()) {
             return response()->json(['message' => 'Self update not available on this system.'], 403);
