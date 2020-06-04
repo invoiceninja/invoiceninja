@@ -62,6 +62,8 @@ class SelfUpdateController extends BaseController
      */
     public function update()
     {
+        define('STDIN',fopen("php://stdin","r"));
+
         if (Ninja::isNinja()) {
             return response()->json(['message' => 'Self update not available on this system.'], 403);
         }
