@@ -12,7 +12,6 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Ninja;
-use Codedge\Updater\UpdaterManager;
 use Composer\Factory;
 use Composer\IO\NullIO;
 use Composer\Installer;
