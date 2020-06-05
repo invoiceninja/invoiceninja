@@ -46,7 +46,6 @@ class PaymentRepository extends BaseRepository
     /**
      * Saves and updates a payment. //todo refactor to handle refunds and payments.
      *
-     *
      * @param array $data the request object
      * @param Payment $payment The Payment object
      * @return Payment|null Payment $payment
@@ -62,8 +61,8 @@ class PaymentRepository extends BaseRepository
 
     /**
      * Handles a positive payment request
-     * @param array $data The data object
-     * @param Payment $payment The $payment entity
+     * @param  array $data      The data object
+     * @param  Payment $payment The $payment entity
      * @return Payment          The updated/created payment object
      */
     private function applyPayment(array $data, Payment $payment): ?Payment
@@ -73,21 +72,20 @@ class PaymentRepository extends BaseRepository
             $this->processExchangeRates($data, $payment);
         }
 
+        /*Fill the payment*/
         $payment->fill($data);
-
         $payment->status_id = Payment::STATUS_COMPLETED;
-
         $payment->save();
 
+        /*Ensure payment number generated*/
         if (!$payment->number || strlen($payment->number) == 0) {
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
         }
 
-        $payment->client->service()->updatePaidToDate($payment->amount)->save();
-
         $invoice_totals = 0;
         $credit_totals = 0;
 
+        /*Iterate through invoices and apply payments*/
         if (array_key_exists('invoices', $data) && is_array($data['invoices'])) {
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
@@ -103,15 +101,14 @@ class PaymentRepository extends BaseRepository
                 }
             }
         } else {
-            //payment is made, but not to any invoice, therefore we are applying the payment to the clients credit
-            $payment->client->processUnappliedPayment($payment->amount);
+            //payment is made, but not to any invoice, therefore we are applying the payment to the clients paid_to_date only
+            $payment->client->service()->updatePaidToDate($payment->amount)->save(); 
         }
 
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
             $credits = Credit::whereIn('id', $this->transformKeys(array_column($data['credits'], 'credit_id')))->get();
-
             $payment->credits()->saveMany($credits);
 
             foreach ($data['credits'] as $paid_credit) {
@@ -136,7 +133,6 @@ class PaymentRepository extends BaseRepository
         }
 
         $payment->save();
-
         return $payment->fresh();
     }
 
