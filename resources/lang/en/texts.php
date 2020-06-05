@@ -3210,5 +3210,5 @@ return [
     'payment_failed_body' => 'A payment made by client :client failed with message :message',
 
     'verification' => 'Verification',
-    'complete_your_bank_account_verification' => 'Complete your bank account verification',
+    'complete_your_bank_account_verification' => 'Before using bank account they must be verified.',
 ];

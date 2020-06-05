@@ -16,6 +16,7 @@
                     <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">
                         {{ ctrans('texts.complete_your_bank_account_verification') }} ({{ ctrans('texts.ach') }}/{{ $token->meta->last4 }})
                     </p>
+                    <a href="#" class="button-link text-sm">{{ __('texts.learn_more') }}</a>
                 </div>
                 <div>
                     <form method="post">

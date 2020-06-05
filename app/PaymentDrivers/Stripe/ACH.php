@@ -12,8 +12,14 @@
 
 namespace App\PaymentDrivers\Stripe;
 
+use App\Events\Payment\PaymentWasCreated;
+use App\Jobs\Mail\PaymentFailureMailer;
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
+use App\Models\PaymentType;
+use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 use Stripe\Exception\InvalidRequestException;
 
@@ -80,7 +86,7 @@ class ACH
             $client_gateway_token->save();
         }
 
-        return redirect()->route('client.payment_methods.index');
+        return redirect()->route('client.payment_methods.verification', $client_gateway_token->hashed_id);
     }
 
     public function paymentView(array $data)
@@ -110,22 +116,73 @@ class ACH
             'customer' => $request->customer,
         ];
 
+        $state['invoices'] = Invoice::whereIn('id', $this->stripe->transformKeys($state['hashed_ids']))
+            ->whereClientId($this->stripe->client->id)
+            ->get();
+
+        if ($this->stripe->getContact()) {
+            $state['client_contact'] = $this->stripe->getContact();
+        } else {
+            $state['client_contact'] = $state['invoices']->first()->invitations->first()->contact;
+        }
+
         $this->stripe->init();
 
         try {
-            $charge = \Stripe\Charge::create([
+            $state['charge'] = \Stripe\Charge::create([
                 'amount' => $state['amount'],
                 'currency' => $state['currency'],
                 'customer' => $state['customer'],
                 'source' => $state['source'],
             ]);
+
+            if ($state['charge']->status === 'pending') {
+                return $this->processPendingPayment($state);
+            }
+
+            return $this->processUnsuccessfulPayment($state);
         } catch (\Exception $e) {
             if ($e instanceof \Stripe\Exception\CardException) {
-                return redirect()
-                    ->route('client.payment_methods.verification', ClientGatewayToken::first()->hashed_id)
-                    ->with('message', $e->getMessage());
+                return redirect()->route('client.payment_methods.verification', ClientGatewayToken::first()->hashed_id);
             }
         }
+    }
+
+    public function processPendingPayment($state)
+    {
+        $state['charge_id'] = $state['charge']->id;
+
+        $this->stripe->init();
+
+        $state['payment_type'] = PaymentType::ACH;
+
+        $data = [
+            'payment_method' => $state['charge_id'],
+            'payment_type' => $state['payment_type'],
+            'amount' => $state['charge']->amount,
+        ];
+
+        $payment = $this->stripe->createPayment($data);
+
+        $this->stripe->attachInvoices($payment, $state['hashed_ids']);
+
+        $payment->service()->updateInvoicePayment();
+
+        event(new PaymentWasCreated($payment, $payment->company));
+
+        $logger_message = [
+            'server_response' => $state['charge'],
+            'data' => $data,
+        ];
+
+        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client);
+
+        return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
+    }
+
+    public function processUnsuccessfulPayment($state)
+    {
+        // Do we have unsuccessful payments here?
     }
 
     public function verificationView(ClientGatewayToken $token)
@@ -144,6 +201,13 @@ class ACH
 
         try {
             $status = $bank_account->verify(['amounts' => request()->transactions]);
+
+            $token->meta->verified_at = now();
+            $token->save();
+
+            return redirect()
+                ->route('client.invoices.index')
+                ->with('success', __('texts.payment_method_verified'));
         } catch (\Stripe\Exception\CardException $e) {
             return back()->with('error', $e->getMessage());
         }
