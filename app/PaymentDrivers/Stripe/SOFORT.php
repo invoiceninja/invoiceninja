@@ -12,7 +12,11 @@
 
 namespace App\PaymentDrivers\Stripe;
 
+use App\Events\Payment\PaymentWasCreated;
+use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
+use App\Models\PaymentType;
+use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 
 class SOFORT
@@ -46,6 +50,8 @@ class SOFORT
     public function paymentResponse($request)
     {
         $state = array_merge($request->all(), []);
+        $amount = $state['amount'] + $state['fee'];
+        $state['amount'] = $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision);
 
         if ($request->redirect_status == 'succeeded') {
             return $this->processSuccessfulPayment($state);
@@ -56,7 +62,34 @@ class SOFORT
 
     public function processSuccessfulPayment($state)
     {
-        // ..
+        $state['charge_id'] = $state['source'];
+
+        $this->stripe->init();
+
+        $state['payment_type'] = PaymentType::SOFORT;
+
+        $data = [
+            'payment_method' => $state['charge_id'],
+            'payment_type' => $state['payment_type'],
+            'amount' => $state['amount'],
+        ];
+
+        $payment = $this->stripe->createPayment($data);
+
+        $this->stripe->attachInvoices($payment, $state['hashed_ids']);
+
+        $payment->service()->updateInvoicePayment();
+
+        event(new PaymentWasCreated($payment, $payment->company));
+
+        $logger_message = [
+            'server_response' => $state,
+            'data' => $data
+        ];
+
+        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client);
+
+        return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }
 
     public function processUnsuccessfulPayment($state)
