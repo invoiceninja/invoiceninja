@@ -50,6 +50,9 @@ trait UserNotifies
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
+        if(!$notifications)
+            return [];
+
         if ($entity->user_id == $company_user->_user_id || $entity->assigned_user_id == $company_user->user_id) {
             array_push($required_permissions, "all_user_notifications");
         }
