@@ -27,6 +27,10 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/payments/process.js"
     )
     .js(
+        "resources/js/clients/payments/process-sofort.js",
+        "public/js/clients/payments/process-sofort.js"
+    )
+    .js(
         "resources/js/setup/setup.js", 
         "public/js/setup/setup.js"
     )

@@ -1,12 +1,13 @@
 {
     "/js/app.js": "/js/app.js?id=8b49701583f407403ddf",
-    "/css/app.css": "/css/app.css?id=9082c02ea8f150e2a3e9",
+    "/css/app.css": "/css/app.css?id=264ecf2b5f7a5755103e",
     "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=3e58537817b968346c9f",
     "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=e01d8dcf73a3898615dd",
     "/js/clients/payment_methods/authorize-stripe-card.js": "/js/clients/payment_methods/authorize-stripe-card.js?id=f4c45f0da9868d840799",
     "/js/clients/payments/process.js": "/js/clients/payments/process.js?id=bb91cb611d1bdab40973",
+    "/js/clients/payments/process-sofort.js": "/js/clients/payments/process-sofort.js?id=6452a1d803989f71c485",
     "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=f7c6bfdbf9cfc3efdf0b",
     "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=fcb23f15eebc3bff639d",
-    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=fc675e996ad606c6eca6",
-    "/js/setup/setup.js": "/js/setup/setup.js?id=d30808ba9e2c9f908ce5"
+    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=afc25cff1d17c538d66d",
+    "/js/setup/setup.js": "/js/setup/setup.js?id=39f1625d7fbbda12d0e3"
 }
