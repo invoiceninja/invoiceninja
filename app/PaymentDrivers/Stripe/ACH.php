@@ -18,6 +18,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
@@ -162,7 +163,7 @@ class ACH
             'amount' => $state['charge']->amount,
         ];
 
-        $payment = $this->stripe->createPayment($data);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         $this->stripe->attachInvoices($payment, $state['hashed_ids']);
 

@@ -208,9 +208,9 @@ class StripePaymentDriver extends BasePaymentDriver
         return $this->payment_method->paymentResponse($request);
     }
 
-    public function createPayment($data) :Payment
+    public function createPayment($data, $status = Payment::STATUS_COMPLETED) :Payment
     {
-        $payment = parent::createPayment($data);
+        $payment = parent::createPayment($data, $status);
 
         $client_contact = $this->getContact();
         $client_contact_id = $client_contact ? $client_contact->id : null;
