@@ -171,6 +171,7 @@ class CompanyLedgerTest extends TestCase
 
         $invoice = Invoice::find($this->decodePrimaryKey($acc['data']['id']));
 
+        //client->balance should = 10
         $invoice->service()->markSent()->save();
 
         $this->assertEquals($invoice->client->balance, 10);
@@ -193,6 +194,7 @@ class CompanyLedgerTest extends TestCase
         $invoice = Invoice::find($this->decodePrimaryKey($acc['data']['id']));
         $invoice->service()->markSent()->save();
 
+        //client balance should = 20
         $this->assertEquals($invoice->client->balance, 20);
         $invoice_ledger = $invoice->company_ledger->sortByDesc('id')->first();
 
@@ -211,7 +213,6 @@ class CompanyLedgerTest extends TestCase
                 ],
             ],
             'date' => '2020/12/11',
-
         ];
 
         $response = $this->withHeaders([
@@ -224,7 +225,8 @@ class CompanyLedgerTest extends TestCase
         $payment = Payment::find($this->decodePrimaryKey($acc['data']['id']));
 
         $payment_ledger = $payment->company_ledger->sortByDesc('id')->first();
-        $invoice->fresh();
+
+info($payment->client->balance);
 
         $this->assertEquals($payment->client->balance, $payment_ledger->balance);
         $this->assertEquals($payment->client->paid_to_date, 10);
