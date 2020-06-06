@@ -74,9 +74,13 @@ class PaymentRepository extends BaseRepository
 
             /*We only update the paid to date ONCE per payment*/
             if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
-               $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
+
+                if($data['amount'] == '')
+                    $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
+                
                 $client = Client::find($data['client_id']);
-                $client->service()->updatePaidToDate($invoice_totals)->save();
+                $client->service()->updatePaidToDate($data['amount'])->save();
+
             }
         }
 
@@ -99,7 +103,6 @@ class PaymentRepository extends BaseRepository
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
-
 
             $payment->invoices()->saveMany($invoices);
 
