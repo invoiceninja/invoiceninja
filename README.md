@@ -26,7 +26,7 @@ npm i
 npm run production
 ```
 
-Please Note: Your APP_KEY in the .env file is used to encrypt data, if you loose this you will not be able to run the application.
+Please Note: Your APP_KEY in the .env file is used to encrypt data, if you lose this you will not be able to run the application.
 
 Run if you want to load sample data, remember to configure .env
 ```

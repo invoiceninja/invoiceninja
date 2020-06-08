@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Http\Requests\Company\CreateCompanyRequest;
 use App\Http\Requests\Company\DestroyCompanyRequest;
@@ -218,6 +219,7 @@ class CompanyController extends BaseController
             'is_locked' => 0,
             'permissions' => '',
             'settings' => null,
+            'notifications' => CompanySettings::notificationDefaults(),
             //'settings' => DefaultSettings::userSettings(),
         ]);
 
