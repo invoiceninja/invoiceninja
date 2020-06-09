@@ -14,8 +14,10 @@ namespace App\PaymentDrivers;
 
 use net\authorize\api\constants\ANetEnvironment;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
+use net\authorize\api\contract\v1\GetMerchantDetailsRequest;
 use net\authorize\api\contract\v1\MerchantAuthenticationType;
 use net\authorize\api\controller\CreateTransactionController;
+use net\authorize\api\controller\GetMerchantDetailsController;
 
 /**
  * Class BaseDriver
@@ -25,35 +27,58 @@ use net\authorize\api\controller\CreateTransactionController;
 class AuthorizePaymentDriver extends BaseDriver
 {
 
-    public $anet;
+    public $merchant_authentication;
 
     public function init()
     {
+        error_reporting (E_ALL & ~E_DEPRECATED);
 
-        $merchantAuthentication = new MerchantAuthenticationType();
-        $merchantAuthentication->setName($this->company_gateway->getConfigField('apiLoginId'));
-        $merchantAuthentication->setTransactionKey($this->company_gateway->getConfigField('transactionKey'));
-
-
-        $this->anet = new CreateTransactionRequest();
-        $this->anet->setMerchantAuthentication($merchantAuthentication);
+        $this->merchant_authentication = new MerchantAuthenticationType();
+        $this->merchant_authentication->setName($this->company_gateway->getConfigField('apiLoginId'));
+        $this->merchant_authentication->setTransactionKey($this->company_gateway->getConfigField('transactionKey'));
 
         return $this;
     }
 
-    public function fire()
+    public function getPublicClientKey()
+    {
+
+        $request = new GetMerchantDetailsRequest();
+        $request->setMerchantAuthentication($this->merchant_authentication);
+
+        $controller = new GetMerchantDetailsController($request);
+        $response = $controller->executeWithApiResponse($this->mode());
+
+        return $response->getPublicClientKey();
+
+    }
+
+    private function mode()
     {
 
         if($this->company_gateway->getConfigField('testMode'))
-            $env = ANetEnvironment::SANDBOX;
-        else
-            $env = ANetEnvironment::PRODUCTION;
+            return  ANetEnvironment::SANDBOX;
+        
+        return $env = ANetEnvironment::PRODUCTION;
 
-        $controller = new CreateTransactionController($this->anet);
-        $response = $controller->executeWithApiResponse($env);
-
-        return $response;
     }
+
+    public function authorizeView()
+    {
+        $data['gateway'] = $this->gateway;
+        $data['public_client_id'] = $this->init()->getPublicClientKey();
+
+        return render('gateways.authorize.add_credit_card', $data);
+    }
+
+    // public function fire()
+    // {
+
+    //     $controller = new CreateTransactionController($this->anet);
+    //     $response = $controller->executeWithApiResponse($env);
+
+    //     return $response;
+    // }
 
 
     public function authorize() {}

@@ -80,7 +80,7 @@ class AuthorizeNetAIMPaymentDriver extends BasePaymentDriver
     {
         $data['gateway'] = $this->gateway;
         
-        return render($this->viewForType(GatewayType::CREDIT_CARD), $data);
+        return render('gateways.authorize.add_credit_card', $data);
     }
 
     public function authorizeCreditCardResponse($request)

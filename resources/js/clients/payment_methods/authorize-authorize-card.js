@@ -9,8 +9,10 @@
  */
 
 class AuthorizeAuthorizeCard {
-    constructor(key) {
-        this.key = key;
+
+    constructor(publicKey, loginId) {
+        this.publicKey = publicKey;
+        this.loginId = loginId;
         this.cardHolderName = document.getElementById("cardholder_name");
         this.cardButton = document.getElementById("card_button");
 
@@ -19,8 +21,8 @@ class AuthorizeAuthorizeCard {
     handleAuthorization() {
 
     	var authData = {};
-        authData.clientKey = this.key;
-        authData.apiLoginID = "YOUR API LOGIN ID";
+        authData.clientKey = this.publicKey;
+        authData.apiLoginID = this.loginId;
     
     	var cardData = {};
         cardData.cardNumber = document.getElementById("card_number").value;
@@ -77,5 +79,9 @@ const publicKey = document.querySelector(
     'meta[name="authorize-public-key"]'
 ).content;
 
+const loginId = document.querySelector(
+    'meta[name="api_login_id"]'
+).content;
+
 /** @handle */
-new AuthorizeAuthorizeCard(publicKey).handle();
+new AuthorizeAuthorizeCard(publicKey, loginId).handle();

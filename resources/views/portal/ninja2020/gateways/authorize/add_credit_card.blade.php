@@ -2,7 +2,8 @@
 @section('meta_title', ctrans('texts.add_credit_card'))
 
 @push('head')
-    <meta name="authorize-public-key" content="{{ $gateway->getPublishableKey() }}">
+    <meta name="authorize-public-key" content="{{ $public_client_id }}">
+    <meta name="authorize-login-id" content="{{ $api_login_id }}">
 @endpush
 
 @section('body')
