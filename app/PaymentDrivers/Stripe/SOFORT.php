@@ -36,8 +36,7 @@ class SOFORT
         $data['return_url'] = $this->buildReturnUrl($data);
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['amount_with_fee'], $this->stripe->client->currency()->precision);
         $data['client'] = $this->stripe->client;
-        // $data['country'] = $this->stripe->client->country->iso_3166_2;
-        $data['country'] = 'DE';
+        $data['country'] = $this->stripe->client->country->iso_3166_2;
 
         return render('gateways.stripe.sofort.pay', $data);
     }
