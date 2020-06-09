@@ -1,13 +1,16 @@
 {
-    "/js/app.js": "/js/app.js?id=f2e8918e01f1279fc8e1",
-    "/css/app.css": "/css/app.css?id=0c121bd8add5c55b5736",
-    "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=6f135aee6afea4af6f0c",
-    "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=03cd8e076e822e0a2ecc",
-    "/js/clients/payment_methods/authorize-authorize-card.js": "/js/clients/payment_methods/authorize-authorize-card.js?id=721a9b832849c20004a1",
-    "/js/clients/payment_methods/authorize-stripe-card.js": "/js/clients/payment_methods/authorize-stripe-card.js?id=420e22ba244289dd75f8",
-    "/js/clients/payments/process.js": "/js/clients/payments/process.js?id=16971f5d097fd5891500",
-    "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=bc2947291aa9014f2854",
-    "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=a6055367026d6299d8da",
-    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=fdc8697ff6d3d6e3f068",
-    "/js/setup/setup.js": "/js/setup/setup.js?id=c761366ca0acdd72cb95"
+    "/js/app.js": "/js/app.js?id=8b49701583f407403ddf",
+    "/css/app.css": "/css/app.css?id=05d9dbe4a834b13c2fde",
+    "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=d16c0e6728b00d329cbb",
+    "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=8ce8955ba775ea5f47d1",
+    "/js/clients/payment_methods/authorize-ach.js": "/js/clients/payment_methods/authorize-ach.js?id=30a5db56b004becf4715",
+    "/js/clients/payment_methods/authorize-authorize-card.js": "/js/clients/payment_methods/authorize-authorize-card.js?id=a48d471c20f615831703",
+    "/js/clients/payment_methods/authorize-stripe-card.js": "/js/clients/payment_methods/authorize-stripe-card.js?id=f4c45f0da9868d840799",
+    "/js/clients/payments/alipay.js": "/js/clients/payments/alipay.js?id=04778cbf46488e8f6b5f",
+    "/js/clients/payments/process.js": "/js/clients/payments/process.js?id=0bdd1a7589d74f11c66f",
+    "/js/clients/payments/sofort.js": "/js/clients/payments/sofort.js?id=f9253aea74535bc46886",
+    "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=222bdd54bf9ed1d9b837",
+    "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=5cf5a06486e8a108adb1",
+    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=514f558f39158d50f4c7",
+    "/js/setup/setup.js": "/js/setup/setup.js?id=4e25e6ead22865dabbf6"
 }
