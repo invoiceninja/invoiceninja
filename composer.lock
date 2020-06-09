@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e34e27d2c285356d9251ab97646caf69",
+    "content-hash": "71160af87b4347c05f90402c2790540e",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -61,6 +61,49 @@
                 "parser"
             ],
             "time": "2018-10-29T10:10:13+00:00"
+        },
+        {
+            "name": "authorizenet/authorizenet",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AuthorizeNet/sdk-php.git",
+                "reference": "7fa78e6397d363296e462c3b348573c17175b7a8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AuthorizeNet/sdk-php/zipball/7fa78e6397d363296e462c3b348573c17175b7a8",
+                "reference": "7fa78e6397d363296e462c3b348573c17175b7a8",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "phpmd/phpmd": "~2.0",
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "proprietary"
+            ],
+            "description": "Official PHP SDK for Authorize.Net",
+            "homepage": "http://developer.authorize.net",
+            "keywords": [
+                "authorize.net",
+                "authorizenet",
+                "ecommerce",
+                "payment"
+            ],
+            "time": "2019-01-14T13:32:41+00:00"
         },
         {
             "name": "aws/aws-sdk-php",
@@ -684,12 +727,6 @@
                 "Xdebug",
                 "performance"
             ],
-            "funding": [
-                {
-                    "url": "https://packagist.com",
-                    "type": "custom"
-                }
-            ],
             "time": "2020-03-01T12:26:26+00:00"
         },
         {
@@ -1020,20 +1057,6 @@
                 "sqlite",
                 "sqlserver",
                 "sqlsrv"
-            ],
-            "funding": [
-                {
-                    "url": "https://www.doctrine-project.org/sponsorship.html",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://www.patreon.com/phpdoctrine",
-                    "type": "patreon"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/doctrine%2Fdbal",
-                    "type": "tidelift"
-                }
             ],
             "time": "2020-04-20T17:19:26+00:00"
         },
@@ -3841,70 +3864,6 @@
             "time": "2019-11-12T18:38:48+00:00"
         },
         {
-            "name": "omnipay/authorizenet",
-            "version": "3.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/omnipay-authorizenet.git",
-                "reference": "8ccce3190c00d0a129c62dc1d1451d0125bab640"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-authorizenet/zipball/8ccce3190c00d0a129c62dc1d1451d0125bab640",
-                "reference": "8ccce3190c00d0a129c62dc1d1451d0125bab640",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "ext-libxml": "*",
-                "ext-simplexml": "*",
-                "omnipay/common": "^3"
-            },
-            "require-dev": {
-                "omnipay/tests": "^3",
-                "phpro/grumphp": "^0.14",
-                "squizlabs/php_codesniffer": "^3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Omnipay\\AuthorizeNet\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Adrian Macneil",
-                    "email": "adrian@adrianmacneil.com"
-                },
-                {
-                    "name": "Omnipay Contributors",
-                    "homepage": "https://github.com/thephpleague/omnipay-authorizenet/contributors"
-                }
-            ],
-            "description": "Authorize.Net gateway for the Omnipay payment processing library",
-            "homepage": "https://github.com/thephpleague/omnipay-authorizenet",
-            "keywords": [
-                "authorize",
-                "authorize net",
-                "authorize.net",
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment"
-            ],
-            "time": "2019-04-27T22:33:23+00:00"
-        },
-        {
             "name": "omnipay/common",
             "version": "v3.0.3",
             "source": {
@@ -5866,12 +5825,6 @@
                 "puppeteer",
                 "screenshot",
                 "webpage"
-            ],
-            "funding": [
-                {
-                    "url": "https://www.patreon.com/spatie",
-                    "type": "patreon"
-                }
             ],
             "time": "2020-04-20T10:33:41+00:00"
         },
@@ -9462,6 +9415,70 @@
             "time": "2018-11-21T21:40:54+00:00"
         },
         {
+            "name": "omnipay/authorizenet",
+            "version": "3.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/omnipay-authorizenet.git",
+                "reference": "8ccce3190c00d0a129c62dc1d1451d0125bab640"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-authorizenet/zipball/8ccce3190c00d0a129c62dc1d1451d0125bab640",
+                "reference": "8ccce3190c00d0a129c62dc1d1451d0125bab640",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-libxml": "*",
+                "ext-simplexml": "*",
+                "omnipay/common": "^3"
+            },
+            "require-dev": {
+                "omnipay/tests": "^3",
+                "phpro/grumphp": "^0.14",
+                "squizlabs/php_codesniffer": "^3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\AuthorizeNet\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrian Macneil",
+                    "email": "adrian@adrianmacneil.com"
+                },
+                {
+                    "name": "Omnipay Contributors",
+                    "homepage": "https://github.com/thephpleague/omnipay-authorizenet/contributors"
+                }
+            ],
+            "description": "Authorize.Net gateway for the Omnipay payment processing library",
+            "homepage": "https://github.com/thephpleague/omnipay-authorizenet",
+            "keywords": [
+                "authorize",
+                "authorize net",
+                "authorize.net",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2019-04-27T22:33:23+00:00"
+        },
+        {
             "name": "phar-io/manifest",
             "version": "1.0.3",
             "source": {
@@ -11061,7 +11078,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "beganovich/omnipay-checkout": 20,
-        "omnipay/authorizenet": 20,
         "webpatser/laravel-countries": 20
     },
     "prefer-stable": true,
