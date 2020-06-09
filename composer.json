@@ -46,7 +46,6 @@
         "livewire/livewire": "^1.0",
         "maennchen/zipstream-php": "^1.2",
         "nwidart/laravel-modules": "^6.0",
-        "omnipay/authorizenet": "3.x@dev",
         "omnipay/paypal": "^3.0",
         "omnipay/stripe": "^3.0",
         "predis/predis": "^1.1",

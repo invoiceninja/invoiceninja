@@ -11,6 +11,7 @@
 
 namespace App\Repositories;
 
+use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
@@ -31,8 +32,11 @@ class ActivityRepository extends BaseRepository
      * @param      stdClass  $fields  The fields
      * @param      Collection  $entity  The entity that you wish to have backed up (typically Invoice, Quote etc etc rather than Payment)
      */
-    public function save($fields, $entity)
+    public function save($fields, $entity, $db = null)
     {
+        if($db)
+            MultiDB::setDB($db);
+
         $activity = new Activity();
 
         $activity->is_system = app()->runningInConsole();
