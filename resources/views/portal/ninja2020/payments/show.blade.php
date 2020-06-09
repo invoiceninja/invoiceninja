@@ -78,7 +78,6 @@
                                    href="{{ route('client.invoice.show', ['invoice' => $invoice->hashed_id])}}">
                                     {{ $invoice->number }}
                                 </a>
-                                <span>Payment: {{ $payment->hashed_id }} Invoice: {{ $invoice->hashed_id }} Amount: {{ $payment->amount }}</span>
                             </div>
                         </div>
                     @endforeach
