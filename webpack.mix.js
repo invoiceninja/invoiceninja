@@ -11,6 +11,10 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/payment_methods/authorize-authorize-card.js"
     )
     .js(
+        "resources/js/clients/payment_methods/authorize-ach.js",
+        "public/js/clients/payment_methods/authorize-ach.js"
+    )
+    .js(
         "resources/js/clients/invoices/action-selectors.js",
         "public/js/clients/invoices/action-selectors.js"
     )

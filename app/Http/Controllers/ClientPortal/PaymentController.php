@@ -120,7 +120,7 @@ class PaymentController extends Controller
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\SOFORT')
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\ACH')
             ->processPaymentView($data);
     }
 
@@ -130,7 +130,7 @@ class PaymentController extends Controller
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\SOFORT')
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\ACH')
             ->processPaymentResponse($request);
     }
 }
