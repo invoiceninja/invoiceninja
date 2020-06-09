@@ -38,11 +38,13 @@ class AuthorizeAuthorizeCard {
         //
         // secureData.bankData = bankData;
 
-		Accept.dispatchData(secureData, responseHandler);
+		Accept.dispatchData(secureData, this.responseHandler);
+          return false;
+
     }
 
     responseHandler(response) {
-
+console.log("responseHandler");
 	    if (response.messages.resultCode === "Error") {
 	        var i = 0;
 	        while (i < response.messages.message.length) {
@@ -53,16 +55,24 @@ class AuthorizeAuthorizeCard {
 	            i = i + 1;
 	        }
 	    }
-	    else {
-        	paymentFormUpdate(response.opaqueData);
+	    else if(response.messages.resultCode === "Ok"){
+            console.log("else");
+            // return this.paymentFormUpdate(response.opaqueData);
+            // 
+            document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
+            document.getElementById("dataValue").value = opaqueData.dataValue;
+            document.getElementById("server_response").submit();
 	    }
 
+        return false;
 	}
 
 	paymentFormUpdate(opaqueData) {
+        console.log("payment form update");
 	    document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
 	    document.getElementById("dataValue").value = opaqueData.dataValue;
         document.getElementById("server_response").submit();
+
 	}
 
     handle() {
@@ -80,7 +90,7 @@ const publicKey = document.querySelector(
 ).content;
 
 const loginId = document.querySelector(
-    'meta[name="api_login_id"]'
+    'meta[name="authorize-login-id"]'
 ).content;
 
 /** @handle */

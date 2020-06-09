@@ -65,8 +65,9 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function authorizeView()
     {
-        $data['gateway'] = $this->gateway;
+        $data['gateway'] = $this->company_gateway;
         $data['public_client_id'] = $this->init()->getPublicClientKey();
+        $data['api_login_id'] = $this->company_gateway->getConfigField('apiLoginId');
 
         return render('gateways.authorize.add_credit_card', $data);
     }

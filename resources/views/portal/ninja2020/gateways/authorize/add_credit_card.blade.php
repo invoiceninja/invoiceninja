@@ -93,7 +93,7 @@
 
 @push('footer')
 
-    @if($this->gateway->getConfigField('testMode'))
+    @if($gateway->getConfigField('testMode'))
         <script src="https://jstest.authorize.net/v1/Accept.js" charset="utf-8"></script>
     @else
         <script src="https://js.authorize.net/v1/Accept.js" charset="utf-8"></script>

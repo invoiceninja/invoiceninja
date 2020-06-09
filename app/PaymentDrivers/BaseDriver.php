@@ -24,7 +24,7 @@ use Omnipay\Omnipay;
  * @package App\PaymentDrivers
  *
  */
-class BaseDriver implements AbstractPaymentDriver
+class BaseDriver extends AbstractPaymentDriver
 {
     use SystemLogTrait;
     use MakesHash;

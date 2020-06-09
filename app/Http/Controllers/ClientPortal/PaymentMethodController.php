@@ -15,6 +15,7 @@ use App\Events\Payment\Methods\MethodDeleted;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\CreatePaymentMethodRequest;
 use App\Models\ClientGatewayToken;
+use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -42,16 +43,20 @@ class PaymentMethodController extends Controller
     {
         $gateway = auth()->user()->client->getCreditCardGateway();
 
-        $data = [
-            'gateway' => $gateway,
-            'gateway_type_id' => 1,
-            'token' => false,
-        ];
+        $auth = new AuthorizePaymentDriver($gateway, auth()->user()->client);
+        
+        return $auth->authorizeView();
 
-        return $gateway
-            ->driver(auth()->user()->client)
-            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard')
-            ->authorizeView($data);
+        // $data = [
+        //     'gateway' => $gateway,
+        //     'gateway_type_id' => 1,
+        //     'token' => false,
+        // ];
+
+        // return $gateway
+        //     ->driver(auth()->user()->client)
+        //     ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard')
+        //     ->authorizeView($data);
     }
 
     /**

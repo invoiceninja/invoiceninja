@@ -109,10 +109,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  * @license https://opensource.org/licenses/AAL
  */
 var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
-  function AuthorizeAuthorizeCard(key) {
+  function AuthorizeAuthorizeCard(publicKey, loginId) {
     _classCallCheck(this, AuthorizeAuthorizeCard);
 
-    this.key = key;
+    this.publicKey = publicKey;
+    this.loginId = loginId;
     this.cardHolderName = document.getElementById("cardholder_name");
     this.cardButton = document.getElementById("card_button");
   }
@@ -121,8 +122,8 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
     key: "handleAuthorization",
     value: function handleAuthorization() {
       var authData = {};
-      authData.clientKey = this.key;
-      authData.apiLoginID = "YOUR API LOGIN ID";
+      authData.clientKey = this.publicKey;
+      authData.apiLoginID = this.loginId;
       var cardData = {};
       cardData.cardNumber = document.getElementById("card_number").value;
       cardData.month = document.getElementById("expiration_month").value;
@@ -135,11 +136,14 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
       //
       // secureData.bankData = bankData;
 
-      Accept.dispatchData(secureData, responseHandler);
+      Accept.dispatchData(secureData, this.responseHandler);
+      return false;
     }
   }, {
     key: "responseHandler",
     value: function responseHandler(response) {
+      console.log("responseHandler");
+
       if (response.messages.resultCode === "Error") {
         var i = 0;
 
@@ -147,13 +151,21 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
           console.log(response.messages.message[i].code + ": " + response.messages.message[i].text);
           i = i + 1;
         }
-      } else {
-        paymentFormUpdate(response.opaqueData);
+      } else if (response.messages.resultCode === "Ok") {
+        console.log("else"); // return this.paymentFormUpdate(response.opaqueData);
+        // 
+
+        document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
+        document.getElementById("dataValue").value = opaqueData.dataValue;
+        document.getElementById("server_response").submit();
       }
+
+      return false;
     }
   }, {
     key: "paymentFormUpdate",
     value: function paymentFormUpdate(opaqueData) {
+      console.log("payment form update");
       document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
       document.getElementById("dataValue").value = opaqueData.dataValue;
       document.getElementById("server_response").submit();
@@ -174,9 +186,10 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
 }();
 
 var publicKey = document.querySelector('meta[name="authorize-public-key"]').content;
+var loginId = document.querySelector('meta[name="authorize-login-id"]').content;
 /** @handle */
 
-new AuthorizeAuthorizeCard(publicKey).handle();
+new AuthorizeAuthorizeCard(publicKey, loginId).handle();
 
 /***/ }),
 
