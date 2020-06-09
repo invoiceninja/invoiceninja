@@ -172,7 +172,7 @@ class CreditCard
         }
 
         $data = [
-            'payment_method' => $state['charge_id'], // ????
+            'payment_method' => $state['charge_id'],
             'payment_type' => $state['payment_type'],
             'amount' => $state['server_response']->amount,
         ];
