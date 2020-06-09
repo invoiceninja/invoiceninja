@@ -12,6 +12,7 @@
     },
     "devDependencies": {
         "@babel/compat-data": "7.9.0",
+        "@babel/plugin-proposal-class-properties": "^7.10.1",
         "laravel-mix-purgecss": "^5.0.0-rc.1",
         "vue-template-compiler": "^2.6.11"
     },
