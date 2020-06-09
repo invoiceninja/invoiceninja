@@ -44,7 +44,7 @@ class AuthorizeAuthorizeCard {
     }
 
     responseHandler(response) {
-console.log("responseHandler");
+
 	    if (response.messages.resultCode === "Error") {
 	        var i = 0;
 	        while (i < response.messages.message.length) {
@@ -56,24 +56,16 @@ console.log("responseHandler");
 	        }
 	    }
 	    else if(response.messages.resultCode === "Ok"){
-            console.log("else");
-            // return this.paymentFormUpdate(response.opaqueData);
-            // 
-            document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
-            document.getElementById("dataValue").value = opaqueData.dataValue;
+            
+            document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
+            document.getElementById("dataValue").value = response.opaqueData.dataValue;
             document.getElementById("server_response").submit();
 	    }
 
         return false;
 	}
 
-	paymentFormUpdate(opaqueData) {
-        console.log("payment form update");
-	    document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
-	    document.getElementById("dataValue").value = opaqueData.dataValue;
-        document.getElementById("server_response").submit();
 
-	}
 
     handle() {
 

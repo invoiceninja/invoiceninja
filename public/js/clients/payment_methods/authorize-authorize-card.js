@@ -142,8 +142,6 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
   }, {
     key: "responseHandler",
     value: function responseHandler(response) {
-      console.log("responseHandler");
-
       if (response.messages.resultCode === "Error") {
         var i = 0;
 
@@ -152,23 +150,12 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
           i = i + 1;
         }
       } else if (response.messages.resultCode === "Ok") {
-        console.log("else"); // return this.paymentFormUpdate(response.opaqueData);
-        // 
-
-        document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
-        document.getElementById("dataValue").value = opaqueData.dataValue;
+        document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
+        document.getElementById("dataValue").value = response.opaqueData.dataValue;
         document.getElementById("server_response").submit();
       }
 
       return false;
-    }
-  }, {
-    key: "paymentFormUpdate",
-    value: function paymentFormUpdate(opaqueData) {
-      console.log("payment form update");
-      document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
-      document.getElementById("dataValue").value = opaqueData.dataValue;
-      document.getElementById("server_response").submit();
     }
   }, {
     key: "handle",
