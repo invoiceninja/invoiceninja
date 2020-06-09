@@ -81,23 +81,17 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./resources/js/clients/quotes/action-selectors.js":
-/*!*********************************************************!*\
-  !*** ./resources/js/clients/quotes/action-selectors.js ***!
-  \*********************************************************/
+/***/ "./resources/js/clients/payment_methods/authorize-authorize-card.js":
+/*!**************************************************************************!*\
+  !*** ./resources/js/clients/payment_methods/authorize-authorize-card.js ***!
+  \**************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
-
-function _createForOfIteratorHelper(o) { if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) { var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var it, normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -114,102 +108,86 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  *
  * @license https://opensource.org/licenses/AAL
  */
-var ActionSelectors = /*#__PURE__*/function () {
-  function ActionSelectors() {
-    _classCallCheck(this, ActionSelectors);
+var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
+  function AuthorizeAuthorizeCard(key) {
+    _classCallCheck(this, AuthorizeAuthorizeCard);
 
-    this.parentElement = document.querySelector(".form-check-parent");
-    this.parentForm = document.getElementById("bulkActions");
+    this.key = key;
+    this.cardHolderName = document.getElementById("cardholder_name");
+    this.cardButton = document.getElementById("card_button");
   }
 
-  _createClass(ActionSelectors, [{
-    key: "watchCheckboxes",
-    value: function watchCheckboxes(parentElement) {
-      var _this = this;
+  _createClass(AuthorizeAuthorizeCard, [{
+    key: "handleAuthorization",
+    value: function handleAuthorization() {
+      var authData = {};
+      authData.clientKey = this.key;
+      authData.apiLoginID = "YOUR API LOGIN ID";
+      var cardData = {};
+      cardData.cardNumber = document.getElementById("card_number").value;
+      cardData.month = document.getElementById("expiration_month").value;
+      cardData.year = document.getElementById("expiration_year").value;
+      cardData.cardCode = document.getElementById("cvv").value;
+      var secureData = {};
+      secureData.authData = authData;
+      secureData.cardData = cardData; // If using banking information instead of card information,
+      // send the bankData object instead of the cardData object.
+      //
+      // secureData.bankData = bankData;
 
-      document.querySelectorAll(".form-check-child").forEach(function (child) {
-        if (parentElement.checked) {
-          child.checked = parentElement.checked;
-
-          _this.processChildItem(child, document.getElementById("bulkActions"));
-        } else {
-          child.checked = false;
-          document.querySelectorAll(".child-hidden-input").forEach(function (element) {
-            return element.remove();
-          });
-        }
-      });
+      Accept.dispatchData(secureData, responseHandler);
     }
   }, {
-    key: "processChildItem",
-    value: function processChildItem(element, parent) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    key: "responseHandler",
+    value: function responseHandler(response) {
+      if (response.messages.resultCode === "Error") {
+        var i = 0;
 
-      if (options.hasOwnProperty("single")) {
-        document.querySelectorAll(".child-hidden-input").forEach(function (element) {
-          return element.remove();
-        });
+        while (i < response.messages.message.length) {
+          console.log(response.messages.message[i].code + ": " + response.messages.message[i].text);
+          i = i + 1;
+        }
+      } else {
+        paymentFormUpdate(response.opaqueData);
       }
-
-      var _temp = document.createElement("INPUT");
-
-      _temp.setAttribute("name", "quotes[]");
-
-      _temp.setAttribute("value", element.dataset.value);
-
-      _temp.setAttribute("class", "child-hidden-input");
-
-      _temp.hidden = true;
-      parent.append(_temp);
+    }
+  }, {
+    key: "paymentFormUpdate",
+    value: function paymentFormUpdate(opaqueData) {
+      document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
+      document.getElementById("dataValue").value = opaqueData.dataValue;
+      document.getElementById("server_response").submit();
     }
   }, {
     key: "handle",
     value: function handle() {
-      var _this2 = this;
+      var _this = this;
 
-      this.parentElement.addEventListener("click", function () {
-        _this2.watchCheckboxes(_this2.parentElement);
+      this.cardButton.addEventListener("click", function () {
+        _this.handleAuthorization();
       });
-
-      var _iterator = _createForOfIteratorHelper(document.querySelectorAll(".form-check-child")),
-          _step;
-
-      try {
-        var _loop = function _loop() {
-          var child = _step.value;
-          child.addEventListener("click", function () {
-            _this2.processChildItem(child, _this2.parentForm);
-          });
-        };
-
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          _loop();
-        }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
+      return this;
     }
   }]);
 
-  return ActionSelectors;
+  return AuthorizeAuthorizeCard;
 }();
-/** @handle **/
 
+var publicKey = document.querySelector('meta[name="authorize-public-key"]').content;
+/** @handle */
 
-new ActionSelectors().handle();
+new AuthorizeAuthorizeCard(publicKey).handle();
 
 /***/ }),
 
-/***/ 5:
-/*!***************************************************************!*\
-  !*** multi ./resources/js/clients/quotes/action-selectors.js ***!
-  \***************************************************************/
+/***/ 2:
+/*!********************************************************************************!*\
+  !*** multi ./resources/js/clients/payment_methods/authorize-authorize-card.js ***!
+  \********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /home/david/Development/invoiceninja/resources/js/clients/quotes/action-selectors.js */"./resources/js/clients/quotes/action-selectors.js");
+module.exports = __webpack_require__(/*! /home/david/Development/invoiceninja/resources/js/clients/payment_methods/authorize-authorize-card.js */"./resources/js/clients/payment_methods/authorize-authorize-card.js");
 
 
 /***/ })

@@ -75,4 +75,35 @@ class AuthorizeNetAIMPaymentDriver extends BasePaymentDriver
     {
       return $this->company_gateway->getConfigField('transactionKey');
     }
+
+    public function authorizeView(array $data)
+    {
+        $data['gateway'] = $this->gateway;
+        
+        return render($this->viewForType(GatewayType::CREDIT_CARD), $data);
+    }
+
+    public function authorizeCreditCardResponse($request)
+    {
+
+      $request = $gateway->authorize(
+          [
+              'amount' => 0,
+              'opaqueDataDescriptor' => $request->input('dataDescriptor'),
+              'opaqueDataValue' => $request->input('dataValue'),
+          ]
+      );
+
+        $response = $request->send();
+        $data = $response->getData();
+
+        info($data);
+
+        $data['paymentProfile']['customerProfileId'];
+        $data['paymentProfile']['customerPaymentProfileId'];
+
+    }
+
+
+
 }
