@@ -466,11 +466,12 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
+
         $company_count = $company->account->companies->count();
         $account = $company->account;
 
         if ($company_count == 1) {
-            
+        
             $company->company_users->each(function ($company_user) {
                 $company_user->user->forceDelete();
             });
@@ -482,11 +483,13 @@ class CompanyController extends BaseController
 
         } else {
 
+
             $company_id = $company->id;
             $company->delete();
 
             //If we are deleting the default companies, we'll need to make a new company the default.
             if ($account->default_company_id == $company_id) {
+            
                 $new_default_company = Company::whereAccountId($account->id)->first();
                 $account->default_company_id = $new_default_company->id;
                 $account->save();
