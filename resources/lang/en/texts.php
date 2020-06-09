@@ -3208,4 +3208,7 @@ return [
 
     'payment_failed_subject' => 'Payment failed for Client :client',
     'payment_failed_body' => 'A payment made by client :client failed with message :message',
+
+    'verification' => 'Verification',
+    'complete_your_bank_account_verification' => 'Before using bank account they must be verified.',
 ];

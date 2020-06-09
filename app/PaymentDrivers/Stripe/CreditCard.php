@@ -201,7 +201,7 @@ class CreditCard
 
         $message = [
             'server_response' => $server_response,
-            'data' => $data // - undefined @todo
+            'data' => [],
         ];
 
         SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);

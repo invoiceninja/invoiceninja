@@ -49,6 +49,7 @@ class PortalComposer
         $data['company'] = auth()->user()->company;
         $data['client'] = auth()->user()->client;
         $data['settings'] = auth()->user()->client->getMergedSettings();
+        $data['currencies'] = TranslationHelper::getCurrencies();
 
         $data['multiple_contacts'] = ClientContact::where('email', auth('contact')->user()->email)->whereNotNull('email')->distinct('company_id')->get();
 
