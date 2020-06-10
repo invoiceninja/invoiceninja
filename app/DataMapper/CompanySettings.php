@@ -113,7 +113,7 @@ class CompanySettings extends BaseSettings
     public $invoice_terms          = '';
     public $quote_terms            = '';
     public $invoice_taxes          = 0;
-    public $enabled_item_tax_rates = 0;
+   // public $enabled_item_tax_rates = 0;
     public $invoice_design_id      = 'VolejRejNm';
     public $quote_design_id        = 'VolejRejNm';
     public $credit_design_id       = 'VolejRejNm';
@@ -344,7 +344,7 @@ class CompanySettings extends BaseSettings
         'invoice_design_id'                  => 'string',
         'invoice_fields'                     => 'string',
         'invoice_taxes'                      => 'int',
-        'enabled_item_tax_rates'             => 'int',
+        //'enabled_item_tax_rates'             => 'int',
         'invoice_footer'                     => 'string',
         'invoice_labels'                     => 'string',
         'invoice_terms'                      => 'string',
