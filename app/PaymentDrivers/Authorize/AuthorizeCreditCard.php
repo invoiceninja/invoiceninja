@@ -132,10 +132,10 @@ class AuthorizePaymentMethod
     public function buildPaymentMethod($payment_profile)
     {
         $payment_meta = new \stdClass;
-        $payment_meta->exp_month = $stripe_payment_method_obj['card']['exp_month'];
-        $payment_meta->exp_year = $stripe_payment_method_obj['card']['exp_year'];
-        $payment_meta->brand = $stripe_payment_method_obj['card']['brand'];
-        $payment_meta->last4 = $stripe_payment_method_obj['card']['last4'];
+        $payment_meta->exp_month = 'xx';
+        $payment_meta->exp_year = 'xx';
+        $payment_meta->brand =  $payment_profile->getCardType();
+        $payment_meta->last4 = $payment_profile->getCardNumber();
         $payment_meta->type = $this->payment_method;
 
         return $payment_meta;
@@ -170,7 +170,10 @@ class AuthorizePaymentMethod
             $billto->setCity($this->client->city);
             $billto->setState($this->client->state);
             $billto->setZip($this->client->postal_code);
-            $billto->setCountry("USA");
+
+            if($this->client->country_id)
+                $billto->setCountry($this->client->country->name);
+            
             $billto->setPhoneNumber($this->client->phone);
         }
 
