@@ -1,13 +1,13 @@
 {
-    "/js/app.js": "/js/app.js?id=f2e8918e01f1279fc8e1",
-    "/css/app.css": "/css/app.css?id=b4f28bc71925ec9b1f74",
-    "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=c67520bd431448c04e4d",
-    "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=03cd8e076e822e0a2ecc",
-    "/js/clients/payment_methods/authorize-authorize-card.js": "/js/clients/payment_methods/authorize-authorize-card.js?id=b6d5731911467d58897d",
-    "/js/clients/payment_methods/authorize-stripe-card.js": "/js/clients/payment_methods/authorize-stripe-card.js?id=420e22ba244289dd75f8",
-    "/js/clients/payments/process.js": "/js/clients/payments/process.js?id=16971f5d097fd5891500",
-    "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=6c09099ad5510550993d",
-    "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=a6055367026d6299d8da",
-    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=fdc8697ff6d3d6e3f068",
-    "/js/setup/setup.js": "/js/setup/setup.js?id=c761366ca0acdd72cb95"
+    "/js/app.js": "/js/app.js?id=8b49701583f407403ddf",
+    "/css/app.css": "/css/app.css?id=9082c02ea8f150e2a3e9",
+    "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=725ed8b1ad1518cdffe9",
+    "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=af22ef81288656e46b7f",
+    "/js/clients/payment_methods/authorize-authorize-card.js": "/js/clients/payment_methods/authorize-authorize-card.js?id=b0a1bd21a57e12cd491a",
+    "/js/clients/payment_methods/authorize-stripe-card.js": "/js/clients/payment_methods/authorize-stripe-card.js?id=f4c45f0da9868d840799",
+    "/js/clients/payments/process.js": "/js/clients/payments/process.js?id=a97ddadb7af0563c1d4b",
+    "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=3af82eeaf86fe5efaa2c",
+    "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=972c7cc8e9d9406babfa",
+    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=afc25cff1d17c538d66d",
+    "/js/setup/setup.js": "/js/setup/setup.js?id=39f1625d7fbbda12d0e3"
 }
