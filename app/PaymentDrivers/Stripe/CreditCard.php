@@ -18,6 +18,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
@@ -171,12 +172,12 @@ class CreditCard
         }
 
         $data = [
-            'payment_method' => $state['charge_id'], // ????
+            'payment_method' => $state['charge_id'],
             'payment_type' => $state['payment_type'],
             'amount' => $state['server_response']->amount,
         ];
 
-        $payment = $this->stripe->createPayment($data);
+        $payment = $this->stripe->createPayment($data, $status = Payment::STATUS_COMPLETED);
 
         $this->stripe->attachInvoices($payment, $state['hashed_ids']);
 
@@ -200,7 +201,7 @@ class CreditCard
 
         $message = [
             'server_response' => $server_response,
-            'data' => $data // - undefined @todo
+            'data' => [],
         ];
 
         SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);

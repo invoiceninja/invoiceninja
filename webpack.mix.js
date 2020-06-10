@@ -11,12 +11,24 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/payment_methods/authorize-authorize-card.js"
     )
     .js(
+        "resources/js/clients/payment_methods/authorize-ach.js",
+        "public/js/clients/payment_methods/authorize-ach.js"
+    )
+    .js(
         "resources/js/clients/invoices/action-selectors.js",
         "public/js/clients/invoices/action-selectors.js"
     )
     .js(
         "resources/js/clients/invoices/payment.js",
         "public/js/clients/invoices/payment.js"
+    )
+    .js(
+        "resources/js/clients/payments/sofort.js",
+        "public/js/clients/payments/sofort.js"
+    )
+    .js(
+        "resources/js/clients/payments/alipay.js",
+        "public/js/clients/payments/alipay.js"
     )
     .js(
         "resources/js/clients/quotes/action-selectors.js",
