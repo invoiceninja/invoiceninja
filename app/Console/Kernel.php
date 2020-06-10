@@ -13,6 +13,7 @@ namespace App\Console;
 
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
+use App\Jobs\Ninja\CheckDbStatus;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SendFailedEmails;
 use App\Jobs\Util\UpdateExchangeRates;
@@ -48,10 +49,13 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new UpdateExchangeRates)->daily();
         
+        $schedule->job(new CheckDbStatus())->everyFiveMinutes();
+
         /* Run hosted specific jobs */
         if(Ninja::isHosted()) {
             $schedule->job(new AdjustEmailQuota())->daily();
             $schedule->job(new SendFailedEmails())->daily();
+            $schedule->job(new CheckDbStatus())->everyFiveMinutes();
         }
         /* Run queue's in shared hosting with this*/
         if (Ninja::isSelfHost()) {

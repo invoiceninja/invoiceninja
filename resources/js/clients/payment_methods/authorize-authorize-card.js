@@ -9,8 +9,10 @@
  */
 
 class AuthorizeAuthorizeCard {
-    constructor(key) {
-        this.key = key;
+
+    constructor(publicKey, loginId) {
+        this.publicKey = publicKey;
+        this.loginId = loginId;
         this.cardHolderName = document.getElementById("cardholder_name");
         this.cardButton = document.getElementById("card_button");
 
@@ -19,8 +21,8 @@ class AuthorizeAuthorizeCard {
     handleAuthorization() {
 
     	var authData = {};
-        authData.clientKey = this.key;
-        authData.apiLoginID = "YOUR API LOGIN ID";
+        authData.clientKey = this.publicKey;
+        authData.apiLoginID = this.loginId;
     
     	var cardData = {};
         cardData.cardNumber = document.getElementById("card_number").value;
@@ -36,7 +38,9 @@ class AuthorizeAuthorizeCard {
         //
         // secureData.bankData = bankData;
 
-		Accept.dispatchData(secureData, responseHandler);
+		Accept.dispatchData(secureData, this.responseHandler);
+          return false;
+
     }
 
     responseHandler(response) {
@@ -51,17 +55,17 @@ class AuthorizeAuthorizeCard {
 	            i = i + 1;
 	        }
 	    }
-	    else {
-        	paymentFormUpdate(response.opaqueData);
+	    else if(response.messages.resultCode === "Ok"){
+            
+            document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
+            document.getElementById("dataValue").value = response.opaqueData.dataValue;
+            document.getElementById("server_response").submit();
 	    }
 
+        return false;
 	}
 
-	paymentFormUpdate(opaqueData) {
-	    document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
-	    document.getElementById("dataValue").value = opaqueData.dataValue;
-        document.getElementById("server_response").submit();
-	}
+
 
     handle() {
 
@@ -77,5 +81,9 @@ const publicKey = document.querySelector(
     'meta[name="authorize-public-key"]'
 ).content;
 
+const loginId = document.querySelector(
+    'meta[name="authorize-login-id"]'
+).content;
+
 /** @handle */
-new AuthorizeAuthorizeCard(publicKey).handle();
+new AuthorizeAuthorizeCard(publicKey, loginId).handle();

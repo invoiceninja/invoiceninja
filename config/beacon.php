@@ -36,7 +36,7 @@ return [
     'system_logging' => [
         'Turbo124\Beacon\Jobs\System\CpuMetric',
         'Turbo124\Beacon\Jobs\System\HdMetric',
-        'Turbo124\Beacon\Jobs\System\MemMetric',
+        'Turbo124\Beacon\Jobs\System\MemMetric'
     ],
 
 ];
