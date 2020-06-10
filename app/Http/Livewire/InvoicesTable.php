@@ -30,6 +30,7 @@ class InvoicesTable extends Component
 
     public function render()
     {
+
         $query = Invoice::query()
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
@@ -48,7 +49,7 @@ class InvoicesTable extends Component
         }
 
         $query = $query
-            ->where('company_id', auth('contact')->user()->company->id)
+            ->where('client_id', auth('contact')->user()->client->id)
             ->paginate($this->per_page);
 
         return render('components.livewire.invoices-table', [
