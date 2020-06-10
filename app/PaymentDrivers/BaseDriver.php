@@ -32,9 +32,6 @@ class BaseDriver extends AbstractPaymentDriver
     /* The company gateway instance*/
     public $company_gateway;
 
-    /* The Gateway Driver instance*/
-    protected $gateway;
-
     /* The Invitation */
     protected $invitation;
 

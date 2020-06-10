@@ -44,7 +44,7 @@ class PaymentMethodController extends Controller
         $gateway = auth()->user()->client->getCreditCardGateway();
 
         $auth = new AuthorizePaymentDriver($gateway, auth()->user()->client);
-        
+
         return $auth->authorizeView();
 
         // $data = [
@@ -69,10 +69,14 @@ class PaymentMethodController extends Controller
     {
         $gateway = auth()->user()->client->getCreditCardGateway();
 
-        return $gateway
-            ->driver(auth()->user()->client)
-            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard')
-            ->authorizeCreditCardResponse($request);
+        $auth = new AuthorizePaymentDriver($gateway, auth()->user()->client);
+
+        return $auth->authorizeResponseView($request->all());
+
+        // return $gateway
+        //     ->driver(auth()->user()->client)
+        //     ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard')
+        //     ->authorizeCreditCardResponse($request);
     }
 
     /**
