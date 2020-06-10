@@ -44,7 +44,7 @@ class AuthorizePaymentDriver extends BaseDriver
 
         return $types;
     }
-    
+
     public function init()
     {
         error_reporting (E_ALL & ~E_DEPRECATED);
@@ -69,7 +69,7 @@ class AuthorizePaymentDriver extends BaseDriver
 
     }
 
-    private function mode()
+    public function mode()
     {
 
         if($this->company_gateway->getConfigField('testMode'))
@@ -116,7 +116,7 @@ class AuthorizePaymentDriver extends BaseDriver
 
     }
 
-    private function findClientGatewayRecord() :?ClientGatewayToken
+    public function findClientGatewayRecord() :?ClientGatewayToken
     {
         return ClientGatewayToken::where('client_id', $this->client->id)
                                  ->where('company_gateway_id', $this->company_gateway->id)

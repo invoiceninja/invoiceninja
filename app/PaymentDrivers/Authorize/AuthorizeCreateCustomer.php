@@ -45,11 +45,12 @@ class AuthorizeCreateCustomer
     {
 		error_reporting (E_ALL & ~E_DEPRECATED);
 
-        $merchantAuthentication = $this->authorize->init();
+        $this->authorize->init();
         // Create the Bill To info for new payment type
         
         $contact = $this->client->primary_contact()->first();
-
+        $refId = 'ref' . time();
+        
         // Create a new CustomerProfileType and add the payment profile object
         $customerProfile = new CustomerProfileType();
         $customerProfile->setDescription($this->client->present()->name());
@@ -58,7 +59,7 @@ class AuthorizeCreateCustomer
 
         // Assemble the complete transaction request
         $request = new CreateCustomerProfileRequest();
-        $request->setMerchantAuthentication($merchantAuthentication);
+        $request->setMerchantAuthentication($this->authorize->merchant_authentication);
         $request->setRefId($refId);
         $request->setProfile($customerProfile);
 
