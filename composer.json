@@ -53,7 +53,7 @@
         "spatie/browsershot": "^3.29",
         "staudenmeir/eloquent-has-many-deep": "^1.11",
         "stripe/stripe-php": "^7.0",
-        "turbo124/beacon": "^0",
+        "turbo124/beacon": "^1",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
