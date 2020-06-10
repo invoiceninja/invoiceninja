@@ -120,17 +120,18 @@ class PaymentController extends Controller
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\Alipay')
+            ->setPaymentMethod()
             ->processPaymentView($data);
     }
 
     public function response(Request $request)
     {
+
         $gateway = CompanyGateway::find($request->input('company_gateway_id'));
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\Alipay')
+            ->setPaymentMethod()
             ->processPaymentResponse($request);
     }
 }

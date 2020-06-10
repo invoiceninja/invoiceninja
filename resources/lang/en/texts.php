@@ -3211,4 +3211,6 @@ return [
 
     'verification' => 'Verification',
     'complete_your_bank_account_verification' => 'Before using bank account they must be verified.',
+    
+    'checkout_com' => 'Checkout.com',
 ];

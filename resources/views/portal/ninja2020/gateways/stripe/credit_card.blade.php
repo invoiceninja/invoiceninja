@@ -4,7 +4,6 @@
 @push('head')
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     <meta name="using-token" content="{{ boolval($token) }}">
-    <meta name="turbolinks-visit-control" content="reload">
 @endpush
 
 @section('body')
