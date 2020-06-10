@@ -319,7 +319,7 @@ class RandomDataSeeder extends Seeder
             $cg = new CompanyGateway;
             $cg->company_id = $company->id;
             $cg->user_id = $user->id;
-            $cg->gateway_key = '2f71dc17b0158ac30a7ae0839799e888';
+            $cg->gateway_key = '3b6621f970ab18887c4f6dca78d3f8bb';
             $cg->require_cvv = true;
             $cg->show_billing_address = true;
             $cg->show_shipping_address = true;

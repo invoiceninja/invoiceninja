@@ -11,7 +11,7 @@ class PaymentLibrariesSeeder extends Seeder
         Eloquent::unguard();
 
         $gateways = [
-            ['id' => 1, 'name' => 'Authorize.Net AIM', 'provider' => 'AuthorizeNet_AIM', 'sort_order' => 5, 'key' => '3b6621f970ab18887c4f6dca78d3f8bb', 'fields' => '{"apiLoginId":"","transactionKey":"","testMode":false,"developerMode":false,"liveEndpoint":"https:\/\/api2.authorize.net\/xml\/v1\/request.api","developerEndpoint":"https:\/\/apitest.authorize.net\/xml\/v1\/request.api"}
+            ['id' => 1, 'name' => 'Authorize.Net', 'provider' => 'Authorize', 'sort_order' => 5, 'key' => '3b6621f970ab18887c4f6dca78d3f8bb', 'fields' => '{"apiLoginId":"","transactionKey":"","testMode":false,"developerMode":false,"liveEndpoint":"https:\/\/api2.authorize.net\/xml\/v1\/request.api","developerEndpoint":"https:\/\/apitest.authorize.net\/xml\/v1\/request.api"}
 '],
             ['id' => 2, 'name' => 'CardSave', 'provider' => 'CardSave', 'key' => '46c5c1fed2c43acf4f379bae9c8b9f76', 'fields' => '{"merchantId":"","password":""}
 '],

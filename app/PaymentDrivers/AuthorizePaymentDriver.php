@@ -13,7 +13,9 @@
 namespace App\PaymentDrivers;
 
 use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
 use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
+use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
 use net\authorize\api\constants\ANetEnvironment;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\GetMerchantDetailsRequest;
@@ -31,6 +33,18 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public $merchant_authentication;
 
+    /**
+     * Returns the gateway types
+     */
+    public function gatewayTypes() :array
+    {
+        $types = [
+            GatewayType::CREDIT_CARD,
+        ];
+
+        return $types;
+    }
+    
     public function init()
     {
         error_reporting (E_ALL & ~E_DEPRECATED);
@@ -70,23 +84,10 @@ class AuthorizePaymentDriver extends BaseDriver
         return (new AuthorizePaymentMethod($this))->authorizeView($payment_method);
     }
 
-    public function authorizeResponse($payment_method, array $data)
+    public function authorizeResponseView(array $data)
     {
 
-        // <input type="hidden" name="is_default" id="is_default">
-        // <input type="hidden" name="dataValue" id="dataValue" />
-        // <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
-
-
-        // $client_gateway_token = new ClientGatewayToken();
-        // $client_gateway_token->company_id = $this->stripe->client->company->id;
-        // $client_gateway_token->client_id = $this->stripe->client->id;
-        // $client_gateway_token->token = $payment_method;
-        // $client_gateway_token->company_gateway_id = $this->stripe->company_gateway->id;
-        // $client_gateway_token->gateway_type_id = $gateway_type_id;
-        // $client_gateway_token->gateway_customer_reference = $customer->id;
-        // $client_gateway_token->meta = $payment_meta;
-        // $client_gateway_token->save();
+        return (new AuthorizePaymentMethod($this))->authorizeResponseView($data['gateway_type_id'], $data);
 
     }
 

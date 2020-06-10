@@ -28,8 +28,8 @@ use net\authorize\api\controller\CreateCustomerPaymentProfileController;
 use net\authorize\api\controller\CreateCustomerProfileController;
 
 /**
- * Class BaseDriver
- * @package App\PaymentDrivers
+ * Class AuthorizePaymentMethod
+ * @package App\PaymentDrivers\AuthorizePaymentMethod
  *
  */
 class AuthorizePaymentMethod
@@ -101,7 +101,7 @@ class AuthorizePaymentMethod
         if($client_gateway_token = $this->authorize->findClientGatewayRecord())
             $payment_profile = $this->addPaymentMethodToClient($client_gateway_token->gateway_customer_reference, $data);
         else{
-            $gateway_customer_reference = (new AuthorizeCreateCustomer($this->authorize, $this->client))->create($data);
+            $gateway_customer_reference = (new AuthorizeCreateCustomer($this->authorize, $this->authorize->client))->create($data);
             $payment_profile = $this->addPaymentMethodToClient($gateway_customer_reference, $data);
         }
 
@@ -119,8 +119,8 @@ class AuthorizePaymentMethod
     private function createClientGatewayToken($payment_profile, $gateway_customer_reference)
     {
         $client_gateway_token = new ClientGatewayToken();
-        $client_gateway_token->company_id = $this->client->company_id;
-        $client_gateway_token->client_id = $this->client->id;
+        $client_gateway_token->company_id = $this->authorize->client->company_id;
+        $client_gateway_token->client_id = $this->authorize->client->id;
         $client_gateway_token->token = $payment_profile->getCustomerPaymentProfileId();
         $client_gateway_token->company_gateway_id = $this->authorize->company_gateway->id;
         $client_gateway_token->gateway_type_id = $this->payment_method;
@@ -158,23 +158,23 @@ class AuthorizePaymentMethod
         $paymentOne = new PaymentType();
         $paymentOne->setOpaqueData($op);
 
-        $contact = $this->client->primary_contact()->first();
+        $contact = $this->authorize->client->primary_contact()->first();
 
         if($contact){
         // Create the Bill To info for new payment type
             $billto = new CustomerAddressType();
             $billto->setFirstName($contact->present()->first_name());
             $billto->setLastName($contact->present()->last_name());
-            $billto->setCompany($this->client->present()->name());
-            $billto->setAddress($this->client->address1);
-            $billto->setCity($this->client->city);
-            $billto->setState($this->client->state);
-            $billto->setZip($this->client->postal_code);
+            $billto->setCompany($this->authorize->client->present()->name());
+            $billto->setAddress($this->authorize->client->address1);
+            $billto->setCity($this->authorize->client->city);
+            $billto->setState($this->authorize->client->state);
+            $billto->setZip($this->authorize->client->postal_code);
 
-            if($this->client->country_id)
-                $billto->setCountry($this->client->country->name);
+            if($this->authorize->client->country_id)
+                $billto->setCountry($this->authorize->client->country->name);
             
-            $billto->setPhoneNumber($this->client->phone);
+            $billto->setPhoneNumber($this->authorize->client->phone);
         }
 
         // Create a new Customer Payment Profile object

@@ -55,7 +55,7 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     
-    public function authorize() {}
+    public function authorize($payment_method) {}
     
     public function purchase() {}
 

@@ -14,7 +14,7 @@ namespace App\PaymentDrivers;
 abstract class AbstractPaymentDriver
 {
     
-    abstract public function authorize();
+    abstract public function authorize($payment_method);
     
     abstract public function purchase();
     
