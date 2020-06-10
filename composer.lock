@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "71160af87b4347c05f90402c2790540e",
+    "content-hash": "723f03b92457a3f3410083e2b42f96c3",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -61,49 +61,6 @@
                 "parser"
             ],
             "time": "2018-10-29T10:10:13+00:00"
-        },
-        {
-            "name": "authorizenet/authorizenet",
-            "version": "2.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/AuthorizeNet/sdk-php.git",
-                "reference": "7fa78e6397d363296e462c3b348573c17175b7a8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/AuthorizeNet/sdk-php/zipball/7fa78e6397d363296e462c3b348573c17175b7a8",
-                "reference": "7fa78e6397d363296e462c3b348573c17175b7a8",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-json": "*",
-                "php": ">=5.6"
-            },
-            "require-dev": {
-                "phpmd/phpmd": "~2.0",
-                "phpunit/phpunit": "~4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "lib"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "proprietary"
-            ],
-            "description": "Official PHP SDK for Authorize.Net",
-            "homepage": "http://developer.authorize.net",
-            "keywords": [
-                "authorize.net",
-                "authorizenet",
-                "ecommerce",
-                "payment"
-            ],
-            "time": "2019-01-14T13:32:41+00:00"
         },
         {
             "name": "aws/aws-sdk-php",
