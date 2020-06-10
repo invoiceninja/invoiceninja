@@ -46,7 +46,7 @@ class QuotesTable extends Component
         }
 
         $query = $query
-            ->where('company_id', auth('contact')->user()->company->id)
+            ->where('client_id', auth('contact')->user()->client->id)
             ->paginate($this->per_page);
 
         return render('components.livewire.quotes-table', [
