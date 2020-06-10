@@ -45,7 +45,7 @@ class BaseDriver extends AbstractPaymentDriver
     protected $can_authorise_credit_card = false;
 
 
-    public function __construct(CompanyGateway $company_gateway, Client $client, $invitation = false)
+    public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
     {
         $this->company_gateway = $company_gateway;
 

@@ -91,15 +91,6 @@ class AuthorizePaymentDriver extends BaseDriver
 
     }
 
-    // public function fire()
-    // {
-
-    //     $controller = new CreateTransactionController($this->anet);
-    //     $response = $controller->executeWithApiResponse($env);
-
-    //     return $response;
-    // }
-
 
     public function authorize($payment_method) 
     {
