@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e468c512bf9db2f11e2d1e7d1cd1afb5",
+    "content-hash": "6441fc634b3600e7099ae8c02d6230b0",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -63,17 +63,60 @@
             "time": "2018-10-29T10:10:13+00:00"
         },
         {
-            "name": "aws/aws-sdk-php",
-            "version": "3.141.0",
+            "name": "authorizenet/authorizenet",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "d57dbde176a7db7a6131bb5d325aff63515eabc3"
+                "url": "https://github.com/AuthorizeNet/sdk-php.git",
+                "reference": "7fa78e6397d363296e462c3b348573c17175b7a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d57dbde176a7db7a6131bb5d325aff63515eabc3",
-                "reference": "d57dbde176a7db7a6131bb5d325aff63515eabc3",
+                "url": "https://api.github.com/repos/AuthorizeNet/sdk-php/zipball/7fa78e6397d363296e462c3b348573c17175b7a8",
+                "reference": "7fa78e6397d363296e462c3b348573c17175b7a8",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "phpmd/phpmd": "~2.0",
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "proprietary"
+            ],
+            "description": "Official PHP SDK for Authorize.Net",
+            "homepage": "http://developer.authorize.net",
+            "keywords": [
+                "authorize.net",
+                "authorizenet",
+                "ecommerce",
+                "payment"
+            ],
+            "time": "2019-01-14T13:32:41+00:00"
+        },
+        {
+            "name": "aws/aws-sdk-php",
+            "version": "3.142.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aws/aws-sdk-php.git",
+                "reference": "0d1c6f5cc98640af39c0ea77f329ada775b70fe6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/0d1c6f5cc98640af39c0ea77f329ada775b70fe6",
+                "reference": "0d1c6f5cc98640af39c0ea77f329ada775b70fe6",
                 "shasum": ""
             },
             "require": {
@@ -96,6 +139,7 @@
                 "ext-pcntl": "*",
                 "ext-sockets": "*",
                 "nette/neon": "^2.3",
+                "paragonie/random_compat": ">= 2",
                 "phpunit/phpunit": "^4.8.35|^5.4.3",
                 "psr/cache": "^1.0",
                 "psr/simple-cache": "^1.0",
@@ -144,7 +188,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2020-06-10T18:11:38+00:00"
+            "time": "2020-06-11T18:12:15+00:00"
         },
         {
             "name": "beganovich/omnipay-checkout",
@@ -1032,6 +1076,20 @@
                 "sqlite",
                 "sqlserver",
                 "sqlsrv"
+            ],
+            "funding": [
+                {
+                    "url": "https://www.doctrine-project.org/sponsorship.html",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://www.patreon.com/phpdoctrine",
+                    "type": "patreon"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/doctrine%2Fdbal",
+                    "type": "tidelift"
+                }
             ],
             "time": "2020-04-20T17:19:26+00:00"
         },
@@ -5812,6 +5870,12 @@
                 "screenshot",
                 "webpage"
             ],
+            "funding": [
+                {
+                    "url": "https://www.patreon.com/spatie",
+                    "type": "patreon"
+                }
+            ],
             "time": "2020-04-20T10:33:41+00:00"
         },
         {
@@ -6009,16 +6073,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v7.37.0",
+            "version": "v7.37.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "246871743edb26c7a7657784205218daf7d99a73"
+                "reference": "e3e29131a131785c3d2f85556b0154e8170e9bba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/246871743edb26c7a7657784205218daf7d99a73",
-                "reference": "246871743edb26c7a7657784205218daf7d99a73",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/e3e29131a131785c3d2f85556b0154e8170e9bba",
+                "reference": "e3e29131a131785c3d2f85556b0154e8170e9bba",
                 "shasum": ""
             },
             "require": {
@@ -6062,7 +6126,7 @@
                 "payment processing",
                 "stripe"
             ],
-            "time": "2020-06-09T22:55:43+00:00"
+            "time": "2020-06-11T16:27:35+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -10688,16 +10752,16 @@
         },
         {
             "name": "swagger-api/swagger-ui",
-            "version": "v3.26.0",
+            "version": "v3.26.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swagger-api/swagger-ui.git",
-                "reference": "b9064157e710d0c56d4459b5a7c16751ad0ae72c"
+                "reference": "9a0927b52cd1a561990122630b5aeed104798230"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/b9064157e710d0c56d4459b5a7c16751ad0ae72c",
-                "reference": "b9064157e710d0c56d4459b5a7c16751ad0ae72c",
+                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/9a0927b52cd1a561990122630b5aeed104798230",
+                "reference": "9a0927b52cd1a561990122630b5aeed104798230",
                 "shasum": ""
             },
             "type": "library",
@@ -10741,7 +10805,7 @@
                 "swagger",
                 "ui"
             ],
-            "time": "2020-06-05T00:57:11+00:00"
+            "time": "2020-06-11T21:31:19+00:00"
         },
         {
             "name": "symfony/yaml",
