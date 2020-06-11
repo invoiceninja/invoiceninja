@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "723f03b92457a3f3410083e2b42f96c3",
+    "content-hash": "e468c512bf9db2f11e2d1e7d1cd1afb5",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -8188,16 +8188,16 @@
         },
         {
             "name": "turbo124/beacon",
-            "version": "0.83",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/beacon.git",
-                "reference": "97157e507fcca352d1cc445b8a3a1970ec448eee"
+                "reference": "21e1ba46776fae8dc4bcf672890b257e3452be59"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/beacon/zipball/97157e507fcca352d1cc445b8a3a1970ec448eee",
-                "reference": "97157e507fcca352d1cc445b8a3a1970ec448eee",
+                "url": "https://api.github.com/repos/turbo124/beacon/zipball/21e1ba46776fae8dc4bcf672890b257e3452be59",
+                "reference": "21e1ba46776fae8dc4bcf672890b257e3452be59",
                 "shasum": ""
             },
             "require": {
@@ -8244,7 +8244,7 @@
                 "lightlogs",
                 "turbo124"
             ],
-            "time": "2020-06-09T07:24:25+00:00"
+            "time": "2020-06-10T22:55:22+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
