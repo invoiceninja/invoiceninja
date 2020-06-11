@@ -33,7 +33,7 @@ class CompanySettings extends BaseSettings
     public $enable_client_portal_dashboard  = true; //implemented
     public $signature_on_pdf                = false;
     public $document_email_attachment       = false;
-    public $send_portal_password            = false;
+    //public $send_portal_password            = false;
 
     public $portal_design_id     		    = '1';
 
@@ -274,7 +274,7 @@ class CompanySettings extends BaseSettings
         'email_template_statement'           => 'string',
         'email_subject_statement'            => 'string',
         'signature_on_pdf'                   => 'bool',
-        'send_portal_password'               => 'bool',
+       // 'send_portal_password'               => 'bool',
         'quote_footer'                       => 'string',
         'page_size'                          => 'string',
         'font_size'                          => 'int',

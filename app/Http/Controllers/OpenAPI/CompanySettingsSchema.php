@@ -129,7 +129,6 @@
  *       @OA\Property(property="email_template_statement", type="string", example="template matter", description="____________"),
  *       @OA\Property(property="email_subject_statement", type="string", example="subject matter", description="____________"),
  *       @OA\Property(property="signature_on_pdf", type="boolean", example=false, description="____________"),
- *       @OA\Property(property="send_portal_password", type="boolean", example=false, description="____________"),
  *       @OA\Property(property="quote_footer", type="string", example="the quote footer", description="____________"),
  *       @OA\Property(property="email_subject_custom1", type="string", example="Custom Subject 1", description="____________"),
  *       @OA\Property(property="email_subject_custom2", type="string", example="Custom Subject 2", description="____________"),
