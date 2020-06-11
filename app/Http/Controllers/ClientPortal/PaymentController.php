@@ -126,7 +126,6 @@ class PaymentController extends Controller
 
     public function response(Request $request)
     {
-
         $gateway = CompanyGateway::find($request->input('company_gateway_id'));
 
         return $gateway

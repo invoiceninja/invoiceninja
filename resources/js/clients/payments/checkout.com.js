@@ -20,6 +20,10 @@ window.CKOConfig = {
         document.querySelector(
             'input[name="gateway_response"]'
         ).value = JSON.stringify(event.data);
+
+        document.querySelector(
+            'input[name="store_card"]'
+        ).value = document.getElementById('store-card-checkbox').checked;
         
         document.getElementById('server-response').submit();
     },
