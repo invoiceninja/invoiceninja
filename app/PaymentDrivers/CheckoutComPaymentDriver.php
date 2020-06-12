@@ -77,8 +77,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     {
         $data['gateway'] = $this;
         $data['client'] = $this->client;
-        // $data['currency'] = $this->client->getCurrencyCode();
-        $data['currency'] = 'EUR';
+        $data['currency'] = $this->client->getCurrencyCode();
         $data['value'] = $this->convertToCheckoutAmount($data['amount_with_fee'], $this->client->getCurrencyCode());
         $data['raw_value'] = $data['amount_with_fee'];
         $data['customer_email'] = $this->client->present()->email;
