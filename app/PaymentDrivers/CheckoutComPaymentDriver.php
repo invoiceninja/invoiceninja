@@ -15,6 +15,7 @@ namespace App\PaymentDrivers;
 use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment as NinjaPaymentModel;
 use App\Models\PaymentType;
@@ -139,7 +140,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         $state['charge_id'] = $state['payment_response']->id;
 
         if (isset($state['store_card'])) {
-            // ..
+            $this->saveCard($state);
         }
 
         $data = [
@@ -171,7 +172,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         $state['charge_id'] = $state['payment_response']->id;
         
         if (isset($state['store_card'])) {
-            // ..
+            $this->saveCard($state);
         }
 
         $data = [
@@ -248,5 +249,24 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         $payment->save();
 
         return $payment;
+    }
+
+    public function saveCard($state)
+    {
+        $company_gateway_token = new ClientGatewayToken();
+        $company_gateway_token->company_id = $this->client->company->id;
+        $company_gateway_token->client_id = $this->client->id;
+        $company_gateway_token->token = $state['payment_response']->source['id'];
+        $company_gateway_token->company_gateway_id = $this->company_gateway->id;
+        $company_gateway_token->gateway_type_id = $state['payment_method_id'];
+        $company_gateway_token->meta = $state['payment_response']->source;
+        $company_gateway_token->save();
+
+        if ($this->client->gateway_tokens->count() == 1) {
+            $this->client->gateway_tokens()->update(['is_default' => 0]);
+
+            $company_gateway_token->is_default = 1;
+            $company_gateway_token->save();
+        }
     }
 }
