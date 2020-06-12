@@ -76,7 +76,8 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     {
         $data['gateway'] = $this;
         $data['client'] = $this->client;
-        $data['currency'] = $this->client->getCurrencyCode();
+        // $data['currency'] = $this->client->getCurrencyCode();
+        $data['currency'] = 'EUR';
         $data['value'] = $this->convertToCheckoutAmount($data['amount_with_fee'], $this->client->getCurrencyCode());
         $data['raw_value'] = $data['amount_with_fee'];
         $data['customer_email'] = $this->client->present()->email;
@@ -96,14 +97,22 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         ];
 
         $state = array_merge($state, $request->all());
-        
+
         $method = new TokenSource($state['server_response']->cardToken);
 
         $payment = new Payment($method, $state['currency']);
         $payment->amount = $state['value'];
-        // $payment->{"3ds"} = [
-        //     'enabled' => true,
-        // ];
+
+        // We need a proper logic to test if this is first payment with Checkout.
+        // Pseudo: if ($this->client->payments()->where('gateway_id', PaymentType::TYPE_CHECKOUT)->count() == 0)
+
+        $first_payment = true;
+
+        if ($first_payment && $this->client->currency()->code === 'EUR') {
+            $payment->{"3ds"} = [
+                'enabled' => true,
+            ];
+        }
 
         try {
             $response = $this->gateway->payments()->request($payment);
@@ -153,18 +162,60 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         ];
 
         SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_CHECKOUT, $this->client);
-    
+
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }
 
     public function processPendingPayment($state)
     {
+        $state['charge_id'] = $state['payment_response']->id;
         
+        if (isset($state['store_card'])) {
+            // ..
+        }
+
+        $data = [
+            'payment_method' => $state['charge_id'],
+            'payment_type' => PaymentType::CREDIT_CARD_OTHER, // @todo: needs proper status
+            'amount' => $state['raw_value'],
+        ];
+
+        $payment = $this->createPayment($data, NinjaPaymentModel::STATUS_PENDING);
+
+        $this->attachInvoices($payment, $state['hashed_ids']);
+
+        $payment->service()->updateInvoicePayment();
+
+        event(new PaymentWasCreated($payment, $payment->company));
+
+        $logger_message = [
+            'server_response' => $state['payment_response'],
+            'data' => $data
+        ];
+
+        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_CHECKOUT, $this->client);
+
+        try {
+            return redirect($state['payment_response']->_links['redirect']['href']);
+        } catch (\Exception $e) {
+            SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client);
+
+            throw new \Exception('Failed to process the payment.', 1);
+        }
     }
 
     public function processUnsuccessfulPayment($state)
     {
-        dd($state);
+        PaymentFailureMailer::dispatch($this->client, $state['payment_response']->response_summary, $this->client->company, $state['payment_response']->amount);
+
+        $message = [
+            'server_response' => $state['server_response'],
+            'data' => $state,
+        ];
+
+        SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client);
+
+        throw new \Exception('Failed to process the payment: ' . $state['payment_response']->response_summary, 1);
     }
 
     public function processInternallyFailedPayment($e, $state)

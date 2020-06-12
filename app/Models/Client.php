@@ -507,4 +507,9 @@ class Client extends BaseModel implements HasLocalePreference
 
         return $defaults;
     }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }
