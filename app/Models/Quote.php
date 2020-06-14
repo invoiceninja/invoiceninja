@@ -76,6 +76,7 @@ class Quote extends BaseModel
         'due_date' => 'date:Y-m-d',
         'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
+        'backup' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',

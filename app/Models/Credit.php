@@ -70,6 +70,7 @@ class Credit extends BaseModel
 
     protected $casts = [
         'line_items' => 'object',
+        'backup' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',

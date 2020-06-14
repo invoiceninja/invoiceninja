@@ -44,6 +44,10 @@ class HandleReversal extends AbstractService
             return $this->invoice;
         }
 
+        if($this->invoice->status_id == Invoice::STATUS_CANCELLED)
+            $this->invoice->service()->reverseCancellation();
+
+        /*Consider if we have just cancelled the invoice here... this is broken!*/
         $balance_remaining = $this->invoice->balance;
 
         $total_paid = $this->invoice->amount - $this->invoice->balance;
@@ -88,10 +92,12 @@ class HandleReversal extends AbstractService
 
             $credit->service()->markSent()->save();
         }
-        /* Set invoice balance to 0 */
-        $this->invoice->ledger()->updateInvoiceBalance($balance_remaining*-1, $notes)->save();
 
-        $this->invoice->balance= 0;
+        /* Set invoice balance to 0 */
+        if($this->invoice->balance != 0)
+            $this->invoice->ledger()->updateInvoiceBalance($balance_remaining*-1, $notes)->save();
+
+        $this->invoice->balance=0;
 
         /* Set invoice status to reversed... somehow*/
         $this->invoice->service()->setStatus(Invoice::STATUS_REVERSED)->save();
