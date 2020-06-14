@@ -66,7 +66,7 @@ class HandleCancellation extends AbstractService
     public function reverse()
     {
 
-        $cancellation = $this->backup->cancellation;
+        $cancellation = $this->invoice->backup->cancellation;
 
         $adjustment = $cancellation->adjustment*-1;
 
