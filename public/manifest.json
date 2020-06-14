@@ -17,11 +17,11 @@
             "platform": "itunes",
             "url": "https://testflight.apple.com/join/MJ6WpaXh"
         }
-    ]
+    ],
     "icons": [
         {
             "src": "images/logo.png",
-            "sizes": "397x397",
+            "sizes": "512x512",
             "type": "image/png"
         }
     ]

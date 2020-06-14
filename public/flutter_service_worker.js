@@ -14,8 +14,8 @@ const RESOURCES = {
 "assets/packages/font_awesome_flutter/lib/fonts/fa-regular-400.ttf": "2bca5ec802e40d3f4b60343e346cedde",
 "assets/web/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
 "assets/AssetManifest.json": "43bc57fb55ca8ea2fc1975108be086c9",
-"main.dart.js": "987cd33862c6b91c82edee9d71fe6177",
-"manifest.json": "4674b4d7b1f1471cb9a6d64634a8592a",
+"main.dart.js": "3e1fb9fdca33979f2f7b64d1024d0c76",
+"manifest.json": "77215c1737c7639764e64a192be2f7b8",
 "index.html": "57fdc91b6cf6f7a7eddf1419c5763c19",
 "/": "57fdc91b6cf6f7a7eddf1419c5763c19",
 "favicon.ico": "51636d3a390451561744c42188ccd628"
@@ -27,7 +27,7 @@ const CORE = [
   "/",
 "main.dart.js",
 "index.html",
-"assets/LICENSE",
+"assets/NOTICES",
 "assets/AssetManifest.json",
 "assets/FontManifest.json"];
 
@@ -156,8 +156,8 @@ async function downloadOffline() {
   }
   for (var resourceKey in Object.keys(RESOURCES)) {
     if (!currentContent[resourceKey]) {
-      resources.add(resourceKey);
+      resources.push(resourceKey);
     }
   }
-  return Cache.addAll(resources);
+  return contentCache.addAll(resources);
 }
