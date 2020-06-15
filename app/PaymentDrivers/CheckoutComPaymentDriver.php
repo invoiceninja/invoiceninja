@@ -143,7 +143,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     {
         $state['charge_id'] = $state['payment_response']->id;
 
-        if (isset($state['store_card'])) {
+        if (isset($state['store_card']) && $state['store_card']) {
             $this->saveCard($state);
         }
 
@@ -175,7 +175,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     {
         $state['charge_id'] = $state['payment_response']->id;
 
-        if (isset($state['store_card'])) {
+        if (isset($state['store_card']) && $state['store_card']) {
             $this->saveCard($state);
         }
 
