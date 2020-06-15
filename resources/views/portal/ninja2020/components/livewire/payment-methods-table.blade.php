@@ -9,6 +9,9 @@
                 <option>20</option>
             </select>
         </div>
+        @if($client->getCreditCardGateway())
+            <a href="{{ route('client.payment_methods.create') }}" class="button button-primary">{{ ctrans('texts.add_payment_method') }}</a>
+        @endif
     </div>
     <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="align-middle inline-block min-w-full overflow-hidden rounded">
