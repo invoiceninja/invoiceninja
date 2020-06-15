@@ -62,7 +62,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
             'public' =>  $this->company_gateway->getConfigField('publicApiKey'),
             'sandbox' => $this->company_gateway->getConfigField('testMode'),
         ];
-        
+
         $this->gateway = new CheckoutApi($config['secret'], $config['sandbox'], $config['public']);
     }
 
@@ -85,6 +85,12 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         $data['value'] = $this->convertToCheckoutAmount($data['amount_with_fee'], $this->client->getCurrencyCode());
         $data['raw_value'] = $data['amount_with_fee'];
         $data['customer_email'] = $this->client->present()->email;
+
+        // dd($data['token']);
+
+        // if (isset($data['token'])) {
+        // $data['raw_token'] = $data['token'];
+        // }
 
         return render($this->viewForType($data['payment_method_id']), $data);
     }
@@ -148,7 +154,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
         $data = [
             'payment_method' => $state['charge_id'],
-            'payment_type' => PaymentType::CREDIT_CARD_OTHER, // @todo: needs proper status
+            'payment_type' => PaymentType::parseCardType($state['server_response']->card->paymentMethod),
             'amount' => $state['raw_value'],
         ];
 
@@ -173,14 +179,14 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     public function processPendingPayment($state)
     {
         $state['charge_id'] = $state['payment_response']->id;
-        
+
         if (isset($state['store_card'])) {
             $this->saveCard($state);
         }
 
         $data = [
             'payment_method' => $state['charge_id'],
-            'payment_type' => PaymentType::CREDIT_CARD_OTHER, // @todo: needs proper status
+            'payment_type' => PaymentType::parseCardType($state['server_response']->card->paymentMethod),
             'amount' => $state['raw_value'],
         ];
 
