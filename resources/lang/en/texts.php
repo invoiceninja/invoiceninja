@@ -3211,6 +3211,8 @@ return [
 
     'verification' => 'Verification',
     'complete_your_bank_account_verification' => 'Before using bank account they must be verified.',
+    
+    'checkout_com' => 'Checkout.com',
 
     'footer_label' => 'Copyright © :year Invoice Ninja. All rights reserved.',
 ];

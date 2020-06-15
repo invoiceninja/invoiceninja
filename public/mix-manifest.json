@@ -1,16 +1,17 @@
 {
     "/js/app.js": "/js/app.js?id=8b49701583f407403ddf",
-    "/css/app.css": "/css/app.css?id=1b4ad8bb52ea6da03528",
+    "/css/app.css": "/css/app.css?id=05d9dbe4a834b13c2fde",
     "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=d16c0e6728b00d329cbb",
     "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=8ce8955ba775ea5f47d1",
     "/js/clients/payment_methods/authorize-ach.js": "/js/clients/payment_methods/authorize-ach.js?id=30a5db56b004becf4715",
     "/js/clients/payment_methods/authorize-authorize-card.js": "/js/clients/payment_methods/authorize-authorize-card.js?id=b0a1bd21a57e12cd491a",
     "/js/clients/payment_methods/authorize-stripe-card.js": "/js/clients/payment_methods/authorize-stripe-card.js?id=f4c45f0da9868d840799",
     "/js/clients/payments/alipay.js": "/js/clients/payments/alipay.js?id=04778cbf46488e8f6b5f",
-    "/js/clients/payments/process.js": "/js/clients/payments/process.js?id=0bdd1a7589d74f11c66f",
+    "/js/clients/payments/checkout.com.js": "/js/clients/payments/checkout.com.js?id=591618c8bcd926b7111d",
+    "/js/clients/payments/process.js": "/js/clients/payments/process.js?id=be2b10b1b5e3a727f6e2",
     "/js/clients/payments/sofort.js": "/js/clients/payments/sofort.js?id=f9253aea74535bc46886",
-    "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=222bdd54bf9ed1d9b837",
-    "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=5cf5a06486e8a108adb1",
-    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=514f558f39158d50f4c7",
-    "/js/setup/setup.js": "/js/setup/setup.js?id=4e25e6ead22865dabbf6"
+    "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=88ff76c9ca1c15fc011b",
+    "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=9cdbe50bab63dc1dd520",
+    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=5df2af6e8ba88b2621d9",
+    "/js/setup/setup.js": "/js/setup/setup.js?id=cd5d37e5eddb88678da4"
 }
