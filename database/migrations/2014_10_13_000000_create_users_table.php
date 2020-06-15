@@ -166,6 +166,7 @@ class CreateUsersTable extends Migration
             $table->string('subdomain')->nullable();
             $table->string('db')->nullable();
             $table->unsignedInteger('size_id')->nullable();
+            $table->unsignedInteger('enabled_item_tax_rates')->nullable();
             $table->string('first_day_of_week')->nullable();
             $table->string('first_month_of_year')->nullable();
             $table->string('portal_mode')->default('subdomain');

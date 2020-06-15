@@ -44,8 +44,6 @@ class CheckDbStatus implements ShouldQueue
      */
     public function handle()
     {
-
-        info("checking db status");
         
     	DbStatus::dispatchNow('db-ninja-01', 'db.status.db-ninja-01');
     	DbStatus::dispatchNow('db-ninja-02', 'db.status.db-ninja-02');

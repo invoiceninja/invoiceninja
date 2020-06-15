@@ -32,19 +32,21 @@ class BaseDriver extends AbstractPaymentDriver
     public $company_gateway;
 
     /* The Invitation */
-    protected $invitation;
+    public $invitation;
 
     /* Gateway capabilities */
-    protected $refundable = false;
+    public $refundable = false;
 
     /* Token billing */
-    protected $token_billing = false;
+    public $token_billing = false;
 
     /* Authorise payment methods */
-    protected $can_authorise_credit_card = false;
+    public $can_authorise_credit_card = false;
 
     /* The client */
-    protected $client;
+    public $client;
+
+    public $payment_method;
 
     public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
     {
@@ -83,4 +85,24 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function refund($amount, $transaction_reference, $return_client_response = false) {}
 
+    /**
+     * Set the inbound request payment method type for access.
+     * 
+     * @param int $payment_method_id The Payment Method ID
+     */
+    public function setPaymentMethod($payment_method_id)
+    {
+        $this->payment_method = $payment_method_id;
+        return $this;
+    }
+
+    /**
+     * Get the payment method ID
+     * 
+     * @return int The payment method ID
+     */
+    public function getPaymentMethod()
+    {
+        return $this->payment_method;
+    }
 }

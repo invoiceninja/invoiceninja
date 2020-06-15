@@ -94,9 +94,19 @@ class AuthorizePaymentDriver extends BaseDriver
         return $this->authorizeView($payment_method);
     }
     
+    public function processPaymentView($data)
+    {
+
+    }
+
+    public function processPaymentResponse($request)
+    {
+
+    }
+
     public function purchase($amount, $return_client_response = false) 
     {
-        return ()
+        return false;
     }
 
     public function refund($amount, $transaction_reference, $return_client_response = false) 

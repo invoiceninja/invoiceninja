@@ -25,7 +25,7 @@ class Currency extends StaticModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
-        'precision' => 'string',
-        //'precision' => 'integer',
+        //'precision' => 'string',
+        'precision' => 'integer',
     ];
 }

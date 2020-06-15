@@ -120,7 +120,7 @@ class PaymentController extends Controller
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\Alipay')
+            ->setPaymentMethod($payment_method_id)
             ->processPaymentView($data);
     }
 
