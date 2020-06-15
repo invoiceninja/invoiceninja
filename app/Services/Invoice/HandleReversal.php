@@ -45,15 +45,13 @@ class HandleReversal extends AbstractService
         }
 
         if($this->invoice->status_id == Invoice::STATUS_CANCELLED)
-            $this->invoice->service()->reverseCancellation();
+            $this->invoice = $this->invoice->service()->reverseCancellation()->save();
 
-        /*Consider if we have just cancelled the invoice here... this is broken!*/
         $balance_remaining = $this->invoice->balance;
 
         $total_paid = $this->invoice->amount - $this->invoice->balance;
 
         /*Adjust payment applied and the paymentables to the correct amount */
-
         $paymentables = Paymentable::wherePaymentableType(Invoice::class)
                                     ->wherePaymentableId($this->invoice->id)
                                     ->get();
@@ -115,6 +113,42 @@ class HandleReversal extends AbstractService
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
     }
+
+
+    // public function run2()
+    // {
+
+    //     /* Check again!! */
+    //     if (!$this->invoice->invoiceReversable($this->invoice)) {
+    //         return $this->invoice;
+    //     }
+
+    //     if($this->invoice->status_id == Invoice::STATUS_CANCELLED)
+    //         $this->invoice = $this->invoice->service()->reverseCancellation()->save();
+
+    //     //$balance_remaining = $this->invoice->balance;
+
+    //     //$total_paid = $this->invoice->amount - $this->invoice->balance;
+
+    //     /*Adjust payment applied and the paymentables to the correct amount */
+    //     $paymentables = Paymentable::wherePaymentableType(Invoice::class)
+    //                                 ->wherePaymentableId($this->invoice->id)
+    //                                 ->get();
+
+    //     $total_paid = 0;
+
+    //     $paymentables->each(function ($paymentable) use ($total_paid) {
+
+    //         $reversable_amount = $paymentable->amount - $paymentable->refunded;
+    //         $total_paid -= $reversable_amount;
+    //         $paymentable->amount = $paymentable->refunded;
+    //         $paymentable->save();
+    //     });
+
+    //     //Unwinding any payments made to this invoice
+        
+        
+    // }
 }
 
-// The client paid to date amount is reduced by the calculated amount of (invoice balance - invoice amount).
+    
