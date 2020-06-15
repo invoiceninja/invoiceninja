@@ -57,9 +57,13 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
     public function init()
     {
-        $secret_key = $this->company_gateway->getConfig()->secretApiKey;
-
-        $this->gateway = new CheckoutApi($secret_key); // @todo: 2nd (sandbox), 3rd (public)
+        $config = [
+            'secret' =>  $this->company_gateway->getConfigField('secretApiKey'),
+            'public' =>  $this->company_gateway->getConfigField('publicApiKey'),
+            'sandbox' => $this->company_gateway->getConfigField('testMode'),
+        ];
+        
+        $this->gateway = new CheckoutApi($config['secret'], $config['sandbox'], $config['public']);
     }
 
     public function viewForType($gateway_type_id)
