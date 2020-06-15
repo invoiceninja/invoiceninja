@@ -1,4 +1,4 @@
-<footer class="bg-white px-4 py-5 shadow mt-10 px-4 sm:px-6 md:px-8 flex justify-center border border-gray-200 justify-between items-center">
+<footer class="bg-white px-4 py-5 shadow px-4 sm:px-6 md:px-8 flex justify-center border border-gray-200 justify-between items-center">
     <span class="text-sm text-gray-700">{{ ctrans('texts.footer_label', ['year' => date('Y')])  }}</span>
     @if(!auth()->user()->user->account->isPaid())
         <a href="#">

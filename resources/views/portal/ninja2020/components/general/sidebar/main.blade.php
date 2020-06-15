@@ -27,8 +27,8 @@
                     {{ $slot }}
                 </div>
             </div>
-            @include('portal.ninja2020.components.general.footer')
         </main>
+        @include('portal.ninja2020.components.general.footer')
     </div>
 </div>
 
