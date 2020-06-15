@@ -454,6 +454,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_deleted')->default(false);
 
             $t->mediumText('line_items')->nullable();
+            $t->mediumText('backup')->nullable();
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
@@ -530,6 +531,7 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
             $t->mediumText('line_items')->nullable();
+            $t->mediumText('backup')->nullable();
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
@@ -633,6 +635,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_deleted')->default(false);
 
             $t->mediumText('line_items')->nullable();
+            $t->mediumText('backup')->nullable();
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
@@ -699,6 +702,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_deleted')->default(false);
 
             $t->mediumText('line_items')->nullable();
+            $t->mediumText('backup')->nullable();
 
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
@@ -770,7 +774,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_deleted')->default(false);
 
             $t->mediumText('line_items')->nullable();
-
+            $t->mediumText('backup')->nullable();
 
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();

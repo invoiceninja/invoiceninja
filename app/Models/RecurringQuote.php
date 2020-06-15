@@ -83,6 +83,7 @@ class RecurringQuote extends BaseModel
 
     protected $casts = [
         'line_items' => 'object',
+        'backup' => 'object',
         'settings' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',

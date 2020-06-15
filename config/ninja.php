@@ -9,6 +9,7 @@ return [
     'version_url' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v2/VERSION.txt',
     'app_name' => env('APP_NAME'),
     'app_env' => env('APP_ENV', 'local'),
+    'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => env('APP_URL', ''),
     'app_domain' => env('APP_DOMAIN', ''),
     'app_version' => '5.0.4',

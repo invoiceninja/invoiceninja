@@ -49,8 +49,6 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new UpdateExchangeRates)->daily();
         
-        $schedule->job(new CheckDbStatus())->everyFiveMinutes();
-
         /* Run hosted specific jobs */
         if(Ninja::isHosted()) {
             $schedule->job(new AdjustEmailQuota())->daily();
