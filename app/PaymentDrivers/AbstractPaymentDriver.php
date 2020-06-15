@@ -16,8 +16,8 @@ abstract class AbstractPaymentDriver
     
     abstract public function authorize($payment_method);
     
-    abstract public function purchase();
+    abstract public function purchase($amount, $return_client_response = false);
     
-    abstract public function refund();
+    abstract public function refund($amount, $transaction_reference, $return_client_response = false);
 
 }

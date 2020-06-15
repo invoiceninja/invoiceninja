@@ -33,7 +33,7 @@ class CompanySettings extends BaseSettings
     public $enable_client_portal_dashboard  = true; //implemented
     public $signature_on_pdf                = false;
     public $document_email_attachment       = false;
-    public $send_portal_password            = false;
+    //public $send_portal_password            = false;
 
     public $portal_design_id     		    = '1';
 
@@ -113,7 +113,7 @@ class CompanySettings extends BaseSettings
     public $invoice_terms          = '';
     public $quote_terms            = '';
     public $invoice_taxes          = 0;
-    public $enabled_item_tax_rates = 0;
+   // public $enabled_item_tax_rates = 0;
     public $invoice_design_id      = 'VolejRejNm';
     public $quote_design_id        = 'VolejRejNm';
     public $credit_design_id       = 'VolejRejNm';
@@ -274,7 +274,7 @@ class CompanySettings extends BaseSettings
         'email_template_statement'           => 'string',
         'email_subject_statement'            => 'string',
         'signature_on_pdf'                   => 'bool',
-        'send_portal_password'               => 'bool',
+       // 'send_portal_password'               => 'bool',
         'quote_footer'                       => 'string',
         'page_size'                          => 'string',
         'font_size'                          => 'int',
@@ -344,7 +344,7 @@ class CompanySettings extends BaseSettings
         'invoice_design_id'                  => 'string',
         'invoice_fields'                     => 'string',
         'invoice_taxes'                      => 'int',
-        'enabled_item_tax_rates'             => 'int',
+        //'enabled_item_tax_rates'             => 'int',
         'invoice_footer'                     => 'string',
         'invoice_labels'                     => 'string',
         'invoice_terms'                      => 'string',

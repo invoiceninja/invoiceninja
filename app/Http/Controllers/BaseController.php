@@ -265,8 +265,8 @@ class BaseController extends Controller
           'company.payments.paymentables',
           'company.quotes.invitations.contact',
           'company.quotes.invitations.company',
-          'company.credits',
-          'company.payment_terms',
+          'company.credits.invitations.company',
+          'company.payment_terms.company',
           //'company.credits.invitations.contact',
           //'company.credits.invitations.company',
           'company.vendors.contacts',
@@ -291,7 +291,7 @@ class BaseController extends Controller
          * Thresholds for displaying large account on first load
          */
         if (request()->has('first_load') && request()->input('first_load') == 'true') {
-            if (auth()->user()->getCompany()->invoices->count() > 1000 || auth()->user()->getCompany()->products->count() > 1000) {
+            if (auth()->user()->getCompany()->invoices->count() > 1000 || auth()->user()->getCompany()->products->count() > 1000 || auth()->user()->getCompany()->clients->count() > 1000) {
                 $data = $mini_load;
             } else {
                 $data = $first_load;

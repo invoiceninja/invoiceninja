@@ -20,6 +20,10 @@ class AddGoogleRefreshTokenToUsersTable extends Migration
 
         DB::statement("alter table users modify column oauth_user_token text");
 
+        Schema::table('companies', function (Blueprint $table){
+            $table->integer('enabled_item_tax_rates')->default(0);
+        });
+
     }
 
     /**

@@ -81,7 +81,7 @@
                                 </dd>
                             </div>
                             <div class="bg-white px-4 py-5 flex justify-end">
-                                <button type="button" id="card_button">{{ ctrans('texts.add_payment_method') }}</button>
+                                <button type="primary" id="card_button">{{ ctrans('texts.add_payment_method') }}</button>
                             </div>
                         </dl>
                     </div>

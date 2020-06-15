@@ -166,6 +166,7 @@ class CreateUsersTable extends Migration
             $table->string('subdomain')->nullable();
             $table->string('db')->nullable();
             $table->unsignedInteger('size_id')->nullable();
+            $table->unsignedInteger('enabled_item_tax_rates')->nullable();
             $table->string('first_day_of_week')->nullable();
             $table->string('first_month_of_year')->nullable();
             $table->string('portal_mode')->default('subdomain');
@@ -454,6 +455,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_deleted')->default(false);
 
             $t->mediumText('line_items')->nullable();
+            $t->mediumText('backup')->nullable();
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
@@ -530,6 +532,7 @@ class CreateUsersTable extends Migration
 
             $t->boolean('is_deleted')->default(false);
             $t->mediumText('line_items')->nullable();
+            $t->mediumText('backup')->nullable();
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
@@ -633,6 +636,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_deleted')->default(false);
 
             $t->mediumText('line_items')->nullable();
+            $t->mediumText('backup')->nullable();
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
             $t->text('private_notes')->nullable();
@@ -699,6 +703,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_deleted')->default(false);
 
             $t->mediumText('line_items')->nullable();
+            $t->mediumText('backup')->nullable();
 
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();
@@ -770,7 +775,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_deleted')->default(false);
 
             $t->mediumText('line_items')->nullable();
-
+            $t->mediumText('backup')->nullable();
 
             $t->text('footer')->nullable();
             $t->text('public_notes')->nullable();

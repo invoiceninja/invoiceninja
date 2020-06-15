@@ -45,6 +45,9 @@ class HandleCancellation extends AbstractService
         }
 
         $adjustment = $this->invoice->balance*-1;
+
+        $this->backupCancellation($adjustment);
+
         //set invoice balance to 0
         $this->invoice->ledger()->updateInvoiceBalance($adjustment, "Invoice cancellation");
 
@@ -56,6 +59,58 @@ class HandleCancellation extends AbstractService
     
         event(new InvoiceWasCancelled($this->invoice));
         
+
         return $this->invoice;
+    }
+
+    public function reverse()
+    {
+
+        $cancellation = $this->invoice->backup->cancellation;
+
+        $adjustment = $cancellation->adjustment*-1;
+
+        $this->invoice->ledger()->updateInvoiceBalance($adjustment, "Invoice cancellation REVERSAL");
+
+        /* Reverse the invoice status and balance */ 
+        $this->invoice->balance += $adjustment;
+        $this->invoice->status_id = $cancellation->status_id;
+
+        $this->invoice->client->service()->updateBalance($adjustment)->save();
+
+        /* Pop the cancellation out of the backup*/
+        $backup = $this->invoice->backup;
+        unset($backup->cancellation);
+        $this->invoice->backup = $backup;
+        $this->invoice->save();
+
+        return $this->invoice;
+
+    }
+
+    /**
+     * Backup the cancellation in case we ever need to reverse it.
+     * 
+     * @param  float $adjustment  The amount the balance has been reduced by to cancel the invoice
+     * @return void             
+     */
+    private function backupCancellation($adjustment)
+    {
+
+        if(!is_object($this->invoice->backup)){
+            $backup = new \stdClass;
+            $this->invoice->backup = $backup;
+        }
+
+        $cancellation = new \stdClass;
+        $cancellation->adjustment = $adjustment;
+        $cancellation->status_id = $this->invoice->status_id;
+
+        $invoice_backup = $this->invoice->backup;
+        $invoice_backup->cancellation = $cancellation;
+
+        $this->invoice->backup = $invoice_backup;
+        $this->invoice->save();
+
     }
 }

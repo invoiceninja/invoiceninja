@@ -17,7 +17,10 @@ trait ActionsInvoice
 {
     public function invoiceDeletable($invoice) :bool
     {
-        if ($invoice->status_id <= Invoice::STATUS_SENT && $invoice->is_deleted == false && $invoice->deleted_at == null && $invoice->balance == 0) {
+        if ($invoice->status_id <= Invoice::STATUS_SENT && 
+            $invoice->is_deleted == false && 
+            $invoice->deleted_at == null && 
+            $invoice->balance == 0) {
             return true;
         }
 
@@ -26,7 +29,10 @@ trait ActionsInvoice
 
     public function invoiceCancellable($invoice) :bool
     {
-        if (($invoice->status_id == Invoice::STATUS_SENT || $invoice->status_id == Invoice::STATUS_PARTIAL) && $invoice->is_deleted == false && $invoice->deleted_at == null) {
+        if (($invoice->status_id == Invoice::STATUS_SENT || 
+             $invoice->status_id == Invoice::STATUS_PARTIAL) && 
+             $invoice->is_deleted == false && 
+             $invoice->deleted_at == null) {
             return true;
         }
 
@@ -35,7 +41,12 @@ trait ActionsInvoice
 
     public function invoiceReversable($invoice) :bool
     {
-        if (($invoice->status_id == Invoice::STATUS_SENT || $invoice->status_id == Invoice::STATUS_PARTIAL || $invoice->status_id == Invoice::STATUS_PAID) && $invoice->is_deleted == false && $invoice->deleted_at == null) {
+        if (($invoice->status_id == Invoice::STATUS_SENT || 
+             $invoice->status_id == Invoice::STATUS_PARTIAL || 
+             $invoice->status_id == Invoice::STATUS_CANCELLED || 
+             $invoice->status_id == Invoice::STATUS_PAID) && 
+             $invoice->is_deleted == false && 
+             $invoice->deleted_at == null) {
             return true;
         }
 

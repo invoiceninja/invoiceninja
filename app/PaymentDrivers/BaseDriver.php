@@ -17,7 +17,6 @@ use App\Models\CompanyGateway;
 use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
-use Omnipay\Omnipay;
 
 /**
  * Class BaseDriver
@@ -33,17 +32,21 @@ class BaseDriver extends AbstractPaymentDriver
     public $company_gateway;
 
     /* The Invitation */
-    protected $invitation;
+    public $invitation;
 
     /* Gateway capabilities */
-    protected $refundable = false;
+    public $refundable = false;
 
     /* Token billing */
-    protected $token_billing = false;
+    public $token_billing = false;
 
     /* Authorise payment methods */
-    protected $can_authorise_credit_card = false;
+    public $can_authorise_credit_card = false;
 
+    /* The client */
+    public $client;
+
+    public $payment_method;
 
     public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
     {
@@ -54,10 +57,52 @@ class BaseDriver extends AbstractPaymentDriver
         $this->client = $client;
     }
 
-    
+    /**
+     * Authorize a payment method.
+     *
+     * Returns a reusable token for storage for future payments
+     * @param  const $payment_method the GatewayType::constant
+     * @return view                 Return a view for collecting payment method information
+     */
     public function authorize($payment_method) {}
     
-    public function purchase() {}
+    /**
+     * Executes purchase attempt for a given amount
+     * 
+     * @param  float   $amount                 The amount to be collected
+     * @param  boolean $return_client_response Whether the method needs to return a response (otherwise we assume an unattended payment)
+     * @return mixed                          
+     */
+    public function purchase($amount, $return_client_response = false) {}
 
-    public function refund() {}
+    /**
+     * Executes a refund attempt for a given amount with a transaction_reference
+     * 
+     * @param  float   $amount                 The amount to be refunded
+     * @param  string  $transaction_reference  The transaction reference
+     * @param  boolean $return_client_response Whether the method needs to return a response (otherwise we assume an unattended payment)
+     * @return mixed                          
+     */
+    public function refund($amount, $transaction_reference, $return_client_response = false) {}
+
+    /**
+     * Set the inbound request payment method type for access.
+     * 
+     * @param int $payment_method_id The Payment Method ID
+     */
+    public function setPaymentMethod($payment_method_id)
+    {
+        $this->payment_method = $payment_method_id;
+        return $this;
+    }
+
+    /**
+     * Get the payment method ID
+     * 
+     * @return int The payment method ID
+     */
+    public function getPaymentMethod()
+    {
+        return $this->payment_method;
+    }
 }
