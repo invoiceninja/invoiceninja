@@ -24,6 +24,7 @@ use App\PaymentDrivers\CheckoutCom\Utilities;
 use App\Utils\Traits\SystemLogTrait;
 use Checkout\CheckoutApi;
 use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\IdSource;
 use Checkout\Models\Payments\Payment as CheckoutPayment;
 use Checkout\Models\Payments\TokenSource;
 
@@ -86,12 +87,6 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         $data['raw_value'] = $data['amount_with_fee'];
         $data['customer_email'] = $this->client->present()->email;
 
-        // dd($data['token']);
-
-        // if (isset($data['token'])) {
-        // $data['raw_token'] = $data['token'];
-        // }
-
         return render($this->viewForType($data['payment_method_id']), $data);
     }
 
@@ -107,21 +102,21 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         ];
 
         $state = array_merge($state, $request->all());
+        $state['store_card'] = boolval($state['store_card']);
 
-        $method = new TokenSource($state['server_response']->cardToken);
+        if ($request->has('token') && !is_null($request->token)) {
+            $method = new IdSource($state['token']);
+            $payment = new CheckoutPayment($method, $state['currency']);
+            $payment->capture = false;
+            $payment->amount = $state['value'];
+        } else {
+            $method = new TokenSource($state['server_response']->cardToken);
+            $payment = new CheckoutPayment($method, $state['currency']);
+            $payment->amount = $state['value'];
 
-        $payment = new CheckoutPayment($method, $state['currency']);
-        $payment->amount = $state['value'];
-
-        // We need a proper logic to test if this is first payment with Checkout.
-        // Pseudo: if ($this->client->payments()->where('gateway_id', PaymentType::TYPE_CHECKOUT)->count() == 0)
-
-        $first_payment = true;
-
-        if ($first_payment && $this->client->currency()->code === 'EUR') {
-            $payment->{"3ds"} = [
-                'enabled' => true,
-            ];
+            if ($this->client->currency()->code === 'EUR') {
+                $payment->{"3ds"} = ['enabled' => true];
+            }
         }
 
         try {
@@ -154,7 +149,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
         $data = [
             'payment_method' => $state['charge_id'],
-            'payment_type' => PaymentType::parseCardType($state['server_response']->card->paymentMethod),
+            'payment_type' => PaymentType::parseCardType($state['payment_response']->source['scheme']),
             'amount' => $state['raw_value'],
         ];
 
@@ -186,7 +181,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
         $data = [
             'payment_method' => $state['charge_id'],
-            'payment_type' => PaymentType::parseCardType($state['server_response']->card->paymentMethod),
+            'payment_type' => PaymentType::parseCardType($state['payment_response']->source['scheme']),
             'amount' => $state['raw_value'],
         ];
 

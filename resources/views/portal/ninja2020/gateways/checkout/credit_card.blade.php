@@ -23,6 +23,9 @@
         <input type="hidden" name="value" value="{{ $value }}">
         <input type="hidden" name="raw_value" value="{{ $raw_value }}">
         <input type="hidden" name="currency" value="{{ $currency }}">
+        @isset($token)
+            <input type="hidden" name="token" value="{{ $token->meta->id }}">
+        @endisset
     </form>
 
     <div class="container mx-auto">
@@ -54,23 +57,39 @@
                             <span class="font-bold">{{ App\Utils\Number::formatMoney($amount, $client) }}</span>
                         </dd>
                     </div>
-                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 flex items-center">
-                        <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
-                            {{ ctrans('texts.token_billing_checkbox') }}
-                        </dt>
-                        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                            <input type="checkbox" id="store-card-checkbox" class="form-checkbox">
-                        </dd>
-                    </div>
-                    <div class="bg-white px-4 py-5 flex justify-end">
-                        <form class="payment-form" method="POST" action="https://merchant.com/successUrl">
-                            @if(app()->environment() == 'production')
-                                <script async src="https://cdn.checkout.com/js/checkout.js"></script>
-                            @else
-                                <script async src="https://cdn.checkout.com/sandbox/js/checkout.js"></script>
-                            @endif
-                        </form>
-                    </div>
+                    @isset($token)
+                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm leading-5 font-medium text-gray-500">
+                                {{ ctrans('texts.card_number') }}
+                            </dt>
+                            <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                **** {{ ucfirst($token->meta->last4) }}
+                            </dd>
+                        </div>
+                        <div class="bg-white px-4 py-5 flex justify-end">
+                            <button class="button button-primary" onclick="document.getElementById('server-response').submit()">
+                                {{ ctrans('texts.pay_now') }}
+                            </button>
+                        </div>
+                    @else
+                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 flex items-center">
+                            <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
+                                {{ ctrans('texts.token_billing_checkbox') }}
+                            </dt>
+                            <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                <input type="checkbox" id="store-card-checkbox" class="form-checkbox">
+                            </dd>
+                        </div>
+                        <div class="bg-white px-4 py-5 flex justify-end">
+                            <form class="payment-form" method="POST" action="https://merchant.com/successUrl">
+                                @if(app()->environment() == 'production')
+                                    <script async src="https://cdn.checkout.com/js/checkout.js"></script>
+                                @else
+                                    <script async src="https://cdn.checkout.com/sandbox/js/checkout.js"></script>
+                                @endif
+                            </form>
+                        </div>
+                    @endisset
                 </div>
             </div>
         </div>

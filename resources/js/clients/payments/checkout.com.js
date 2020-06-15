@@ -23,7 +23,7 @@ window.CKOConfig = {
 
         document.querySelector(
             'input[name="store_card"]'
-        ).value = document.getElementById('store-card-checkbox').checked;
+        ).value = document.getElementById('store-card-checkbox').checked ? 1 : 0;
         
         document.getElementById('server-response').submit();
     },
