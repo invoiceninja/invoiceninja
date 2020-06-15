@@ -17,14 +17,14 @@ use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
-use App\Models\Payment as NinjaPaymentModel;
+use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\CheckoutCom\Utilities;
 use App\Utils\Traits\SystemLogTrait;
 use Checkout\CheckoutApi;
 use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Payments\Payment;
+use Checkout\Models\Payments\Payment as CheckoutPayment;
 use Checkout\Models\Payments\TokenSource;
 
 class CheckoutComPaymentDriver extends BasePaymentDriver
@@ -104,7 +104,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
         $method = new TokenSource($state['server_response']->cardToken);
 
-        $payment = new Payment($method, $state['currency']);
+        $payment = new CheckoutPayment($method, $state['currency']);
         $payment->amount = $state['value'];
 
         // We need a proper logic to test if this is first payment with Checkout.
@@ -152,7 +152,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
             'amount' => $state['raw_value'],
         ];
 
-        $payment = $this->createPayment($data, NinjaPaymentModel::STATUS_COMPLETED);
+        $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
 
         $this->attachInvoices($payment, $state['hashed_ids']);
 
@@ -184,7 +184,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
             'amount' => $state['raw_value'],
         ];
 
-        $payment = $this->createPayment($data, NinjaPaymentModel::STATUS_PENDING);
+        $payment = $this->createPayment($data, Payment::STATUS_PENDING);
 
         $this->attachInvoices($payment, $state['hashed_ids']);
 
@@ -238,7 +238,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         throw new \Exception('Failed to process the payment.', 1);
     }
 
-    public function createPayment($data, $status = NinjaPaymentModel::STATUS_COMPLETED): NinjaPaymentModel
+    public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
     {
         $payment = parent::createPayment($data, $status);
 
