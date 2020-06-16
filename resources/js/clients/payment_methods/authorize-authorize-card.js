@@ -15,7 +15,13 @@ class AuthorizeAuthorizeCard {
         this.loginId = loginId;
         this.cardHolderName = document.getElementById("cardholder_name");
         this.cardButton = document.getElementById("card_button");
+        this.form = { valid: false };
 
+        this.translations = {
+            invalidCard: document.querySelector('meta[name="credit-card-invalid"]').content,
+            invalidMonth: document.querySelector('meta[name="month-invalid"]').content,
+            invalidYear: document.querySelector('meta[name="year-invalid"]').content,
+        }
     }
 
     handleAuthorization() {
@@ -65,13 +71,54 @@ class AuthorizeAuthorizeCard {
         return false;
 	}
 
+    handleFormValidation = () => {
+        document.getElementById("card_number").addEventListener('keyup', (e) => {
+            let errors = document.getElementById('card_number_errors');
+            if (valid.number(e.target.value).isValid) {
+                errors.hidden = true;
+                this.form.valid = true;
+            } else {
+                errors.textContent = this.translations.invalidCard;
+                errors.hidden = false;
+                this.form.valid = false;
+            }
+        });
 
+        document.getElementById("expiration_month").addEventListener('keyup', (e) => {
+            let errors = document.getElementById('expiration_month_errors');
+            if (valid.expirationMonth(e.target.value).isValid) {
+                errors.hidden = true;
+                this.form.valid = true;
+            } else {
+                errors.textContent = this.translations.invalidMonth;
+                errors.hidden = false;
+                this.form.valid = false;
+            }
+        });
+
+        document.getElementById("expiration_year").addEventListener('keyup', (e) => {
+            let errors = document.getElementById('expiration_year_errors');
+            if (valid.expirationYear(e.target.value).isValid) {
+                errors.hidden = true;
+                this.form.valid = true;
+            } else {
+                errors.textContent = this.translations.invalidYear;
+                errors.hidden = false;
+                this.form.valid = false;
+            }
+        });
+    }
 
     handle() {
+        this.handleFormValidation();
+
+        // At this point as an small API you can request this.form.valid to check if input elements are valid.
+        // Note: this.form.valid will not handle empty fields.
 
         this.cardButton.addEventListener("click", () => {
             this.handleAuthorization();
         });
+
 
         return this;
     }
