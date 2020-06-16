@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6441fc634b3600e7099ae8c02d6230b0",
+    "content-hash": "5197c11f0679bd4daff4669e74c36f9d",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -191,30 +191,29 @@
             "time": "2020-06-12T18:16:31+00:00"
         },
         {
-            "name": "beganovich/omnipay-checkout",
-            "version": "dev-master",
+            "name": "checkout/checkout-sdk-php",
+            "version": "1.0.8",
             "source": {
                 "type": "git",
-                "url": "https://github.com/beganovich/omnipay-checkout.git",
-                "reference": "a4e78bc3ce6ea39ea2c2b7da3019b3966fc86a21"
+                "url": "https://github.com/checkout/checkout-sdk-php.git",
+                "reference": "c83ecc54e549efde8ac53cf1bc9701e800d98b0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beganovich/omnipay-checkout/zipball/a4e78bc3ce6ea39ea2c2b7da3019b3966fc86a21",
-                "reference": "a4e78bc3ce6ea39ea2c2b7da3019b3966fc86a21",
+                "url": "https://api.github.com/repos/checkout/checkout-sdk-php/zipball/c83ecc54e549efde8ac53cf1bc9701e800d98b0b",
+                "reference": "c83ecc54e549efde8ac53cf1bc9701e800d98b0b",
                 "shasum": ""
             },
             "require": {
-                "omnipay/common": "^3",
-                "php": "^7.1"
+                "php": ">=5.4.0"
             },
             "require-dev": {
-                "omnipay/tests": "^3"
+                "phpunit/phpunit": "^6"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Omnipay\\Checkout\\": "src"
+                    "Checkout\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -223,18 +222,28 @@
             ],
             "authors": [
                 {
-                    "name": "Benjamin Beganović",
-                    "email": "ben@invoiceninja.com",
-                    "role": "Developer"
+                    "name": "Checkout.com",
+                    "email": "platforms@checkout.com",
+                    "homepage": "https://github.com/checkout/checkout-sdk-php/graphs/contributors"
                 }
             ],
-            "description": "Checkout driver for the Omnipay PHP payment processing library",
-            "homepage": "https://github.com/beganovich/omnipay-checkout",
+            "description": "Checkout.com SDK for PHP",
+            "homepage": "https://github.com/checkout/checkout-sdk-php",
             "keywords": [
-                "beganovich",
-                "omnipay-checkout"
+                "CKO",
+                "GW3",
+                "Reboot",
+                "api",
+                "checkout",
+                "checkout.com",
+                "checkoutcom",
+                "gateway",
+                "library",
+                "payment",
+                "php",
+                "sdk"
             ],
-            "time": "2020-05-11T22:18:27+00:00"
+            "time": "2019-07-05T16:22:08+00:00"
         },
         {
             "name": "cleverit/ubl_invoice",
@@ -8698,6 +8707,52 @@
             "time": "2020-05-05T10:53:32+00:00"
         },
         {
+            "name": "beganovich/omnipay-checkout",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/beganovich/omnipay-checkout.git",
+                "reference": "a4e78bc3ce6ea39ea2c2b7da3019b3966fc86a21"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/beganovich/omnipay-checkout/zipball/a4e78bc3ce6ea39ea2c2b7da3019b3966fc86a21",
+                "reference": "a4e78bc3ce6ea39ea2c2b7da3019b3966fc86a21",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "^3",
+                "php": "^7.1"
+            },
+            "require-dev": {
+                "omnipay/tests": "^3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Checkout\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Benjamin Beganović",
+                    "email": "ben@invoiceninja.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Checkout driver for the Omnipay PHP payment processing library",
+            "homepage": "https://github.com/beganovich/omnipay-checkout",
+            "keywords": [
+                "beganovich",
+                "omnipay-checkout"
+            ],
+            "time": "2020-05-11T22:18:27+00:00"
+        },
+        {
             "name": "beyondcode/laravel-dump-server",
             "version": "1.3.0",
             "source": {
@@ -11049,7 +11104,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "beganovich/omnipay-checkout": 20,
         "webpatser/laravel-countries": 20
     },
     "prefer-stable": true,
