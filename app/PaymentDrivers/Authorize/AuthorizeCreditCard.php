@@ -42,6 +42,12 @@ class AuthorizeCreditCard
 		$data['api_login_id'] = $this->authorize->company_gateway->getConfigField('apiLoginId');
 
 		return render('gateways.authorize.credit_card_payment', $data);
+        
+    }
+
+    public function processPaymentResponse($response)
+    {
+
     }
 
 }
