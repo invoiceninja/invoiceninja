@@ -7,16 +7,19 @@
 @endpush
 
 @section('body')
-    <form action="{{ route('client.payment_methods.store') }}" method="post" id="server_response">
+    <form action="{{ route('client.payments.response') }}" method="post" id="server_response">
         @csrf
+        @foreach($invoices as $invoice)
+            <input type="hidden" name="hashed_ids[]" value="{{ $invoice->hashed_id }}">
+        @endforeach
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->id }}">
-        <input type="hidden" name="gateway_type_id" value="1">
+        <input type="hidden" name="payment_method_id" value="1">
         <input type="hidden" name="gateway_response" id="gateway_response">
-        <input type="hidden" name="is_default" id="is_default">
         <input type="hidden" name="dataValue" id="dataValue" />
         <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
         <input type="hidden" name="token" id="token" />
-        <input type="hidden" name="save_method" id="save_method" />
+        <input type="hidden" name="store_card" id="store_card" />
+        <input type="hidden" name="amount" id="amount" value="{{ $amount_with_fee }}" />
     </form>
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">
@@ -40,7 +43,7 @@
                                 </dd>
                             </div>
                             <div class="bg-white px-4 py-5 flex justify-end">
-                                <button type="primary" id="card_button">{{ ctrans('texts.pay_now') }}</button>
+                                <button class="button button-primary" id="card_button">{{ ctrans('texts.pay_now') }}</button>
                             </div>
                         </dl>
                         @else
@@ -49,7 +52,7 @@
                             <ul>
                             @foreach($tokens as $token)
                                 <li>
-                                    $token->meta->brand : $token->meta->last4 : <button class="primary" id="{{ $token->token }}">{{ ctrans('texts.pay_now') }}</button>
+                                    {{ $token->meta->brand }} : {{ $token->meta->last4 }} : <button class="button button-primary pay_now_button" data-id="{{ $token->hashed_id }}">{{ ctrans('texts.pay_now') }}</button>
                                 </li>
                             @endforeach
                             </ul>
@@ -69,5 +72,6 @@
         <script src="https://js.authorize.net/v1/Accept.js" charset="utf-8"></script>
     @endif
 
-    <script src="{{ asset('js/clients/payment_methods/authorize-authorize-card.js') }}"></script>
+    <script src="{{ asset('js/clients/payments/authorize-credit-card-payment.js') }}"></script>
+
 @endpush

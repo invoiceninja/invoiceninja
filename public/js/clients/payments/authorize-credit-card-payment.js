@@ -81,15 +81,15 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./resources/js/clients/quotes/action-selectors.js":
-/*!*********************************************************!*\
-  !*** ./resources/js/clients/quotes/action-selectors.js ***!
-  \*********************************************************/
+/***/ "./resources/js/clients/payments/authorize-credit-card-payment.js":
+/*!************************************************************************!*\
+  !*** ./resources/js/clients/payments/authorize-credit-card-payment.js ***!
+  \************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -98,6 +98,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
  * Invoice Ninja (https://invoiceninja.com)
@@ -108,111 +110,129 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  *
  * @license https://opensource.org/licenses/AAL
  */
-var ActionSelectors = /*#__PURE__*/function () {
-  function ActionSelectors() {
-    _classCallCheck(this, ActionSelectors);
+var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
+  function AuthorizeAuthorizeCard(publicKey, loginId) {
+    var _this = this;
 
-    this.parentElement = document.querySelector(".form-check-parent");
-    this.parentForm = document.getElementById("bulkActions");
-  }
+    _classCallCheck(this, AuthorizeAuthorizeCard);
 
-  _createClass(ActionSelectors, [{
-    key: "watchCheckboxes",
-    value: function watchCheckboxes(parentElement) {
-      var _this = this;
+    _defineProperty(this, "handleAuthorization", function () {
+      var authData = {};
+      authData.clientKey = _this.publicKey;
+      authData.apiLoginID = _this.loginId;
+      var cardData = {};
+      cardData.cardNumber = document.getElementById("card_number").value;
+      cardData.month = document.getElementById("expiration_month").value;
+      cardData.year = document.getElementById("expiration_year").value;
+      cardData.cardCode = document.getElementById("cvv").value;
+      var secureData = {};
+      secureData.authData = authData;
+      secureData.cardData = cardData; // If using banking information instead of card information,
+      // send the bankData object instead of the cardData object.
+      //
+      // secureData.bankData = bankData;
 
-      document.querySelectorAll(".form-check-child").forEach(function (child) {
-        if (parentElement.checked) {
-          child.checked = parentElement.checked;
+      Accept.dispatchData(secureData, _this.responseHandler);
+      return false;
+    });
 
-          _this.processChildItem(child, document.getElementById("bulkActions"));
-        } else {
-          child.checked = false;
-          document.querySelectorAll(".child-hidden-input").forEach(function (element) {
-            return element.remove();
-          });
-        }
-      });
-    }
-  }, {
-    key: "processChildItem",
-    value: function processChildItem(element, parent) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    _defineProperty(this, "handle", function () {
+      console.log(_this.payNowButton);
 
-      if (options.hasOwnProperty("single")) {
-        document.querySelectorAll(".child-hidden-input").forEach(function (element) {
-          return element.remove();
+      if (_this.cardButton) {
+        _this.cardButton.addEventListener("click", function () {
+          _this.handleAuthorization();
         });
       }
 
-      var _temp = document.createElement("INPUT");
+      if (_this.payNowButton) {
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
 
-      _temp.setAttribute("name", "quotes[]");
-
-      _temp.setAttribute("value", element.dataset.value);
-
-      _temp.setAttribute("class", "child-hidden-input");
-
-      _temp.hidden = true;
-      parent.append(_temp);
-    }
-  }, {
-    key: "handle",
-    value: function handle() {
-      var _this2 = this;
-
-      this.parentElement.addEventListener("click", function () {
-        _this2.watchCheckboxes(_this2.parentElement);
-      });
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        var _loop = function _loop() {
-          var child = _step.value;
-          child.addEventListener("click", function () {
-            _this2.processChildItem(child, _this2.parentForm);
-          });
-        };
-
-        for (var _iterator = document.querySelectorAll(".form-check-child")[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          _loop();
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
         try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
+          var _loop = function _loop() {
+            var item = _step.value;
+            item.addEventListener('click', function () {
+              _this.handlePayNowAction(item.dataset.id);
+            });
+          };
+
+          for (var _iterator = _this.payNowButton[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            _loop();
           }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
         } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
+          try {
+            if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+              _iterator["return"]();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
           }
         }
       }
+
+      return _this;
+    });
+
+    this.publicKey = publicKey;
+    this.loginId = loginId;
+    this.cardHolderName = document.getElementById("cardholder_name");
+    this.cardButton = document.getElementById("card_button");
+    this.payNowButton = document.getElementsByClassName("pay_now_button");
+  }
+
+  _createClass(AuthorizeAuthorizeCard, [{
+    key: "handlePayNowAction",
+    value: function handlePayNowAction(token_hashed_id) {
+      console.log(token_hashed_id);
+      document.getElementById("token").value = token_hashed_id;
+      document.getElementById("server_response").submit();
+    }
+  }, {
+    key: "responseHandler",
+    value: function responseHandler(response) {
+      if (response.messages.resultCode === "Error") {
+        var i = 0;
+
+        while (i < response.messages.message.length) {
+          console.log(response.messages.message[i].code + ": " + response.messages.message[i].text);
+          i = i + 1;
+        }
+      } else if (response.messages.resultCode === "Ok") {
+        document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
+        document.getElementById("dataValue").value = response.opaqueData.dataValue;
+        document.getElementById("server_response").submit();
+      }
+
+      return false;
     }
   }]);
 
-  return ActionSelectors;
+  return AuthorizeAuthorizeCard;
 }();
-/** @handle **/
 
+var publicKey = document.querySelector('meta[name="authorize-public-key"]').content;
+var loginId = document.querySelector('meta[name="authorize-login-id"]').content;
+/** @handle */
 
-new ActionSelectors().handle();
+new AuthorizeAuthorizeCard(publicKey, loginId).handle();
 
 /***/ }),
 
-/***/ 10:
-/*!***************************************************************!*\
-  !*** multi ./resources/js/clients/quotes/action-selectors.js ***!
-  \***************************************************************/
+/***/ 3:
+/*!******************************************************************************!*\
+  !*** multi ./resources/js/clients/payments/authorize-credit-card-payment.js ***!
+  \******************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /home/david/Development/invoiceninja/resources/js/clients/quotes/action-selectors.js */"./resources/js/clients/quotes/action-selectors.js");
+module.exports = __webpack_require__(/*! /home/david/Development/invoiceninja/resources/js/clients/payments/authorize-credit-card-payment.js */"./resources/js/clients/payments/authorize-credit-card-payment.js");
 
 
 /***/ })

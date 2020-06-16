@@ -14,6 +14,8 @@ namespace App\PaymentDrivers;
 
 use App\Models\Client;
 use App\Models\CompanyGateway;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
@@ -45,9 +47,6 @@ class BaseDriver extends AbstractPaymentDriver
 
     /* The client */
     public $client;
-
-    /* The payment method id*/
-    public $payment_method_id;
 
     public $payment_method;
 
@@ -91,32 +90,31 @@ class BaseDriver extends AbstractPaymentDriver
     public function refund($amount, $transaction_reference, $return_client_response = false) {}
 
     /**
-     * Initializes an instance of the payment method
-     * @return object The payment method instance
-     */
-    public function bootPaymentMethod() {}
-
-    /**
      * Set the inbound request payment method type for access.
      * 
      * @param int $payment_method_id The Payment Method ID
      */
-    public function setPaymentMethod($payment_method_id)
-    {
-        info("setting payment method {$payment_method_id}");
-
-        $this->payment_method_id = $payment_method_id;
-
-        return $this;
-    }
+    public function setPaymentMethod($payment_method_id){}
 
     /**
-     * Get the payment method ID
+     * Helper method to attach invoices to a payment
      * 
-     * @return int The payment method ID
+     * @param  Payment $payment    The payment
+     * @param  array  $hashed_ids  The array of invoice hashed_ids
+     * @return Payment             The payment object
      */
-    public function getPaymentMethod()
+    public function attachInvoices(Payment $payment, $hashed_ids): Payment
     {
-        return $this->payment_method_id;
+        $transformed = $this->transformKeys($hashed_ids);
+        $array = is_array($transformed) ? $transformed : [$transformed];
+
+        $invoices = Invoice::whereIn('id', $array)
+            ->whereClientId($this->client->id)
+            ->get();
+
+        $payment->invoices()->sync($invoices);
+        $payment->save();
+
+        return $payment;
     }
 }

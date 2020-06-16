@@ -19,7 +19,6 @@ use net\authorize\api\contract\v1\PaymentProfileType;
 use net\authorize\api\contract\v1\TransactionRequestType;
 use net\authorize\api\controller\CreateTransactionController;
 
-
 /**
  * Class ChargePaymentProfile
  * @package App\PaymentDrivers\Authorize
@@ -52,6 +51,7 @@ class ChargePaymentProfile
     $transactionRequestType->setTransactionType("authCaptureTransaction"); 
     $transactionRequestType->setAmount($amount);
     $transactionRequestType->setProfile($profileToCharge);
+    $transactionRequestType->setCurrencyCode($this->authorize->client->currency()->code);
 
     $request = new CreateTransactionRequest();
     $request->setMerchantAuthentication($this->authorize->merchant_authentication);
@@ -60,45 +60,60 @@ class ChargePaymentProfile
     $controller = new CreateTransactionController($request);
     $response = $controller->executeWithApiResponse($this->authorize->mode());
 
-
-      if($response != null &&$response->getMessages()->getResultCode() == "Ok")
+      if($response != null && $response->getMessages()->getResultCode() == "Ok")
       {
         $tresponse = $response->getTransactionResponse();
         
 	      if ($tresponse != null && $tresponse->getMessages() != null)   
         {
-          echo " Transaction Response code : " . $tresponse->getResponseCode() . "\n";
-          echo  "Charge Customer Profile APPROVED  :" . "\n";
-          echo " Charge Customer Profile AUTH CODE : " . $tresponse->getAuthCode() . "\n";
-          echo " Charge Customer Profile TRANS ID  : " . $tresponse->getTransId() . "\n";
-          echo " Code : " . $tresponse->getMessages()[0]->getCode() . "\n"; 
-	        echo " Description : " . $tresponse->getMessages()[0]->getDescription() . "\n";
+          info(" Transaction Response code : " . $tresponse->getResponseCode() );
+          info( "Charge Customer Profile APPROVED  :" );
+          info(" Charge Customer Profile AUTH CODE : " . $tresponse->getAuthCode() );
+          info(" Charge Customer Profile TRANS ID  : " . $tresponse->getTransId() );
+          info(" Code : " . $tresponse->getMessages()[0]->getCode()); 
+          info(" Description : " . $tresponse->getMessages()[0]->getDescription());
+          //info(" Charge Customer Profile TRANS STATUS  : " . $tresponse->getTransactionStatus() );
+          //info(" Charge Customer Profile Amount : " . $tresponse->getAuthAmount());
+
+          info(" Code : " . $tresponse->getMessages()[0]->getCode() ); 
+	        info(" Description : " . $tresponse->getMessages()[0]->getDescription() );
+          info(print_r($tresponse->getMessages()[0],1));
         }
         else
         {
-          echo "Transaction Failed \n";
+          info("Transaction Failed ");
           if($tresponse->getErrors() != null)
           {
-            echo " Error code  : " . $tresponse->getErrors()[0]->getErrorCode() . "\n";
-            echo " Error message : " . $tresponse->getErrors()[0]->getErrorText() . "\n";            
+            info(" Error code  : " . $tresponse->getErrors()[0]->getErrorCode() );
+            info(" Error message : " . $tresponse->getErrors()[0]->getErrorText() );            
+            info(print_r($tresponse->getErrors()[0],1));
           }
         }
       }
       else
       {
-        echo "Transaction Failed \n";
+        info("Transaction Failed ");
         $tresponse = $response->getTransactionResponse();
         if($tresponse != null && $tresponse->getErrors() != null)
         {
-          echo " Error code  : " . $tresponse->getErrors()[0]->getErrorCode() . "\n";
-          echo " Error message : " . $tresponse->getErrors()[0]->getErrorText() . "\n";                      
+          info(" Error code  : " . $tresponse->getErrors()[0]->getErrorCode() );
+          info(" Error message : " . $tresponse->getErrors()[0]->getErrorText() );                      
+          info(print_r($tresponse->getErrors()[0],1));
         }
         else
         {
-          echo " Error code  : " . $response->getMessages()->getMessage()[0]->getCode() . "\n";
-          echo " Error message : " . $response->getMessages()->getMessage()[0]->getText() . "\n";
+          info(" Error code  : " . $response->getMessages()->getMessage()[0]->getCode() );
+          info(" Error message : " . $response->getMessages()->getMessage()[0]->getText() );
         }
       }
+
+        return [
+          'response'           => $response,
+          'amount'             => $amount,
+          'profile_id'         => $profile_id,
+          'payment_profile_id' => $payment_profile_id
+        ];
+
     }
 
   }

@@ -10,7 +10,7 @@
     <form action="{{ route('client.payment_methods.store') }}" method="post" id="server_response">
         @csrf
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->id }}">
-        <input type="hidden" name="gateway_type_id" value="1">
+        <input type="hidden" name="payment_method_id" value="1">
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="is_default" id="is_default">
         <input type="hidden" name="dataValue" id="dataValue" />

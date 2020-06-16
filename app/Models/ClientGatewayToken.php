@@ -29,6 +29,9 @@ class ClientGatewayToken extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
+    protected $appends = [
+        'hashed_id',
+    ];
     public function getEntityType()
     {
         return ClientGatewayToken::class;
