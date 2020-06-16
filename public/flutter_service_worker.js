@@ -14,7 +14,7 @@ const RESOURCES = {
 "assets/packages/font_awesome_flutter/lib/fonts/fa-regular-400.ttf": "2bca5ec802e40d3f4b60343e346cedde",
 "assets/web/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
 "assets/AssetManifest.json": "43bc57fb55ca8ea2fc1975108be086c9",
-"main.dart.js": "c126b7f119980d154d5194dce37d0e12",
+"main.dart.js": "850b47133433cf29a298556af071f94b",
 "manifest.json": "77215c1737c7639764e64a192be2f7b8",
 "index.html": "57fdc91b6cf6f7a7eddf1419c5763c19",
 "/": "57fdc91b6cf6f7a7eddf1419c5763c19",
