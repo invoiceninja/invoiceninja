@@ -12,10 +12,13 @@
 
 namespace App\PaymentDrivers\Authorize;
 
+use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
+use App\Models\SystemLog;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
 use App\PaymentDrivers\Authorize\ChargePaymentProfile;
@@ -101,6 +104,7 @@ class AuthorizeCreditCard
 
     private function processSuccessfulResponse($data, $request)
     {
+        $response = $data['response'];
         //create a payment record and fire notifications and then return 
 
         $payment = PaymentFactory::create($this->authorize->client->company_id, $this->authorize->client->user_id);
@@ -109,16 +113,46 @@ class AuthorizeCreditCard
         $payment->status_id = Payment::STATUS_PAID;
         $payment->currency_id = $this->authorize->client->getSetting('currency_id');
         $payment->date = Carbon::now();
+        $payment->transaction_reference = $response->getTransactionResponse()->getTransId();
+        $payment->amount = $request->input('amount'); 
+        $payment->currency_id = $this->authorize->client->id;
+        $payment->save();
 
         $this->authorize->attachInvoices($payment, $request->hashed_ids);
+
+       $payment->service()->updateInvoicePayment();
+
+        event(new PaymentWasCreated($payment, $payment->company));
+
+        $logger_message = [
+            'server_response' => $response->getTransactionResponse()->getTransId(),
+            'data' => $this->formatGatewayResponse($data, $request)
+        ];
+
+        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->client);
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
     }
 
-    private function processFailedResponse($data)
+    private function processFailedResponse($data, $request)
     {
 
+    }
+
+    private function formatGatewayResponse($data, $request)
+    {
+        $response = $data['response'];
+
+        return [
+            'transaction_reference' => $response->getTransactionResponse()->getTransId(),
+            'amount' => $request->input('amount'),
+            'code' => $response->getTransactionResponse()->getCode(),
+            'description' => $response->getTransactionResponse()->getDescription(),
+            'auth_code' => $response->getTransactionResponse()->getAuthCode(),
+            'invoices' => $request->hashed_ids,
+
+        ];
     }
 
 }
