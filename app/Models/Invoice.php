@@ -99,6 +99,7 @@ class Invoice extends BaseModel
         'custom_surcharge_tax3',
         'custom_surcharge_tax4',
         'design_id',
+        'assigned_user_id',
     ];
 
     protected $casts = [

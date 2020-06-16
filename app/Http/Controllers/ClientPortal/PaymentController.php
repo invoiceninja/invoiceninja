@@ -130,7 +130,7 @@ class PaymentController extends Controller
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod()
+            ->setPaymentMethod($request->input('payment_method_id'))
             ->processPaymentResponse($request);
     }
 }

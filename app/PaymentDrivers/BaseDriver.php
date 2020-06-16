@@ -46,7 +46,12 @@ class BaseDriver extends AbstractPaymentDriver
     /* The client */
     public $client;
 
+    /* The payment method id*/
+    public $payment_method_id;
+
     public $payment_method;
+
+    public static $methods = [];
 
     public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
     {
@@ -86,13 +91,22 @@ class BaseDriver extends AbstractPaymentDriver
     public function refund($amount, $transaction_reference, $return_client_response = false) {}
 
     /**
+     * Initializes an instance of the payment method
+     * @return object The payment method instance
+     */
+    public function bootPaymentMethod() {}
+
+    /**
      * Set the inbound request payment method type for access.
      * 
      * @param int $payment_method_id The Payment Method ID
      */
     public function setPaymentMethod($payment_method_id)
     {
-        $this->payment_method = $payment_method_id;
+        info("setting payment method {$payment_method_id}");
+
+        $this->payment_method_id = $payment_method_id;
+
         return $this;
     }
 
@@ -103,6 +117,6 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function getPaymentMethod()
     {
-        return $this->payment_method;
+        return $this->payment_method_id;
     }
 }

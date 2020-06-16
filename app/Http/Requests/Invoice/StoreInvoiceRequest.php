@@ -67,6 +67,10 @@ class StoreInvoiceRequest extends Request
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 
+        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
+            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
+        }
+
         if (isset($input['client_contacts'])) {
             foreach ($input['client_contacts'] as $key => $contact) {
                 if (!array_key_exists('send_email', $contact) || !array_key_exists('id', $contact)) {
