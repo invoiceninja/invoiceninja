@@ -102,12 +102,10 @@ class AuthorizePaymentMethod
         $client_profile_id = null;
 
         if($client_gateway_token = $this->authorize->findClientGatewayRecord()){
-            info("i found a company gateway record");
             $payment_profile = $this->addPaymentMethodToClient($client_gateway_token->gateway_customer_reference, $data);
         }
         else{
             $gateway_customer_reference = (new AuthorizeCreateCustomer($this->authorize, $this->authorize->client))->create($data);
-            info($gateway_customer_reference);
             $payment_profile = $this->addPaymentMethodToClient($gateway_customer_reference, $data);
         }
 
@@ -135,6 +133,8 @@ class AuthorizePaymentMethod
         $client_gateway_token->gateway_customer_reference = $gateway_customer_reference;
         $client_gateway_token->meta = $this->buildPaymentMethod($payment_profile);
         $client_gateway_token->save();
+
+        return $client_gateway_token;
     }
 
     public function buildPaymentMethod($payment_profile)

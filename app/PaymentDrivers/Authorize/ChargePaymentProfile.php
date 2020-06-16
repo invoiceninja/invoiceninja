@@ -19,7 +19,6 @@ use net\authorize\api\contract\v1\PaymentProfileType;
 use net\authorize\api\contract\v1\TransactionRequestType;
 use net\authorize\api\controller\CreateTransactionController;
 
-
 /**
  * Class ChargePaymentProfile
  * @package App\PaymentDrivers\Authorize
@@ -52,6 +51,7 @@ class ChargePaymentProfile
     $transactionRequestType->setTransactionType("authCaptureTransaction"); 
     $transactionRequestType->setAmount($amount);
     $transactionRequestType->setProfile($profileToCharge);
+    $transactionRequestType->setCurrencyCode($this->authorize->client->currency()->code);
 
     $request = new CreateTransactionRequest();
     $request->setMerchantAuthentication($this->authorize->merchant_authentication);
@@ -60,7 +60,7 @@ class ChargePaymentProfile
     $controller = new CreateTransactionController($request);
     $response = $controller->executeWithApiResponse($this->authorize->mode());
 
-      if($response != null &&$response->getMessages()->getResultCode() == "Ok")
+      if($response != null && $response->getMessages()->getResultCode() == "Ok")
       {
         $tresponse = $response->getTransactionResponse();
         
@@ -75,7 +75,7 @@ class ChargePaymentProfile
         }
         else
         {
-          info("Transaction Failed \n";
+          info("Transaction Failed ");
           if($tresponse->getErrors() != null)
           {
             info(" Error code  : " . $tresponse->getErrors()[0]->getErrorCode() );
@@ -85,7 +85,7 @@ class ChargePaymentProfile
       }
       else
       {
-        info("Transaction Failed \n";
+        info("Transaction Failed ");
         $tresponse = $response->getTransactionResponse();
         if($tresponse != null && $tresponse->getErrors() != null)
         {

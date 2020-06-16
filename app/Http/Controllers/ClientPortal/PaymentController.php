@@ -103,7 +103,6 @@ class PaymentController extends Controller
 
         $payment_methods = auth()->user()->client->getPaymentMethods($amount);
         $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
-
         $payment_method_id = request()->input('payment_method_id');
 
         // Place to calculate gateway fee.

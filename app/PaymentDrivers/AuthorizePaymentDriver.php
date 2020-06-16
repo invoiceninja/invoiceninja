@@ -37,14 +37,15 @@ class AuthorizePaymentDriver extends BaseDriver
         GatewayType::CREDIT_CARD => AuthorizeCreditCard::class,
     ];
 
-    public function bootPaymentMethod()
-    {info(print_r($this->getPaymentMethod(),1));
+    public function setPaymentMethod($payment_method_id)
+    {
 
-        $class = self::$methods[$this->getPaymentMethod()];
+        $class = self::$methods[$payment_method_id];
 
         $this->payment_method = new $class($this);
 
         return $this;
+
     }
     /**
      * Returns the gateway types
@@ -110,12 +111,14 @@ class AuthorizePaymentDriver extends BaseDriver
     public function processPaymentView($data)
     {
 
-        return $this->bootPaymentMethod()->payment_method->processPaymentView($data);
+        return $this->payment_method->processPaymentView($data);
 
     }
 
     public function processPaymentResponse($request)
     {
+
+        return $this->payment_method->processPaymentResponse($request);
 
     }
 
