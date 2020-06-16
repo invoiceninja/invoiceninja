@@ -4,6 +4,10 @@
 @push('head')
     <meta name="authorize-public-key" content="{{ $public_client_id }}">
     <meta name="authorize-login-id" content="{{ $api_login_id }}">
+    
+    <meta name="year-invalid" content="{{ ctrans('texts.year_invalid') }}">
+    <meta name="month-invalid" content="{{ ctrans('texts.month_invalid') }}">
+    <meta name="credit-card-invalid" content="{{ ctrans('texts.credit_card_invalid') }}">
 @endpush
 
 @section('body')
@@ -31,20 +35,17 @@
                     </div>
                     <div>
                         <dl>
-                            
                             @include('portal.ninja2020.gateways.authorize.credit_card')
-
-                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm leading-5 font-medium text-gray-500">
                                     {{ ctrans('texts.save_as_default') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    <input type="checkbox" class="form-checkbox" name="proxy_is_default"
-                                           id="proxy_is_default"/>
+                                    <input type="checkbox" class="form-checkbox cursor-pointer" name="proxy_is_default" id="proxy_is_default" />
                                 </dd>
                             </div>
-                            <div class="bg-white px-4 py-5 flex justify-end">
-                                <button type="primary" id="card_button">{{ ctrans('texts.add_payment_method') }}</button>
+                            <div class="bg-gray-50 px-4 py-5 flex justify-end">
+                                <button type="primary" class="button button-primary" id="card_button">{{ ctrans('texts.add_payment_method') }}</button>
                             </div>
                         </dl>
                     </div>
@@ -56,11 +57,11 @@
 
 @push('footer')
 
-    @if($gateway->getConfigField('testMode'))
-        <script src="https://jstest.authorize.net/v1/Accept.js" charset="utf-8"></script>
-    @else
-        <script src="https://js.authorize.net/v1/Accept.js" charset="utf-8"></script>
-    @endif
+@if($gateway->getConfigField('testMode'))
+    <script src="https://jstest.authorize.net/v1/Accept.js" charset="utf-8"></script>
+@else
+    <script src="https://js.authorize.net/v1/Accept.js" charset="utf-8"></script>
+@endif
 
     <script src="{{ asset('js/clients/payment_methods/authorize-authorize-card.js') }}"></script>
 @endpush
