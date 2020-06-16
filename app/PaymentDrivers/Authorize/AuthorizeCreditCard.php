@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Authorize;
 
+use App\Models\ClientGatewayToken;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 
 /**
@@ -30,7 +31,15 @@ class AuthorizeCreditCard
 
     public function processPaymentView($data)
     {
+    	$tokens = ClientGatewayToken::where('client_id', $this->authorize->client->id)
+    								->where('company_gateway_key', $this->authorize->company_gateway->gateway_key)
+    								->where('gateway_type_id', $this->authorize->payment_method_id)
+    								->get();
 
+		$data['tokens'] = $tokens;
+		$data['gateway'] = $this->authorize->company_gateway;
+		
+		return render('portal.ninja202.gateways.authorize.credit_card_payment', $data);
     }
 
 }
