@@ -16,8 +16,8 @@ use App\Models\ClientGatewayToken;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 
 /**
- * Class BaseDriver
- * @package App\PaymentDrivers
+ * Class AuthorizeCreditCard
+ * @package App\PaymentDrivers\Authorize
  *
  */
 class AuthorizeCreditCard
@@ -42,7 +42,7 @@ class AuthorizeCreditCard
 		$data['api_login_id'] = $this->authorize->company_gateway->getConfigField('apiLoginId');
 
 		return render('gateways.authorize.credit_card_payment', $data);
-        
+
     }
 
     public function processPaymentResponse($response)
