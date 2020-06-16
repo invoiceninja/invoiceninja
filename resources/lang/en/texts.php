@@ -3215,4 +3215,8 @@ return [
     'checkout_com' => 'Checkout.com',
 
     'footer_label' => 'Copyright © :year Invoice Ninja. All rights reserved.',
+
+    'credit_card_invalid' => 'Provided credit card number is not valid.',
+    'month_invalid' => 'Provided month is not valid.',
+    'year_invalid' => 'Provided year is not valid.',
 ];
