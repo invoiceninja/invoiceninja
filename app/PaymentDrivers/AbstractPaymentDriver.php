@@ -20,4 +20,6 @@ abstract class AbstractPaymentDriver
     
     abstract public function refund($amount, $transaction_reference, $return_client_response = false);
 
+    abstract public function bootPaymentMethod();
+   
 }
