@@ -14,6 +14,8 @@ namespace App\PaymentDrivers;
 
 use App\Models\Client;
 use App\Models\CompanyGateway;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
@@ -94,5 +96,25 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function setPaymentMethod($payment_method_id){}
 
+    /**
+     * Helper method to attach invoices to a payment
+     * 
+     * @param  Payment $payment    The payment
+     * @param  array  $hashed_ids  The array of invoice hashed_ids
+     * @return Payment             The payment object
+     */
+    public function attachInvoices(Payment $payment, $hashed_ids): Payment
+    {
+        $transformed = $this->transformKeys($hashed_ids);
+        $array = is_array($transformed) ? $transformed : [$transformed];
 
+        $invoices = Invoice::whereIn('id', $array)
+            ->whereClientId($this->client->id)
+            ->get();
+
+        $payment->invoices()->sync($invoices);
+        $payment->save();
+
+        return $payment;
+    }
 }

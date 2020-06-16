@@ -70,8 +70,14 @@ class ChargePaymentProfile
           info( "Charge Customer Profile APPROVED  :" );
           info(" Charge Customer Profile AUTH CODE : " . $tresponse->getAuthCode() );
           info(" Charge Customer Profile TRANS ID  : " . $tresponse->getTransId() );
+          info(" Code : " . $tresponse->getMessages()[0]->getCode()); 
+          info(" Description : " . $tresponse->getMessages()[0]->getDescription());
+          //info(" Charge Customer Profile TRANS STATUS  : " . $tresponse->getTransactionStatus() );
+          //info(" Charge Customer Profile Amount : " . $tresponse->getAuthAmount());
+
           info(" Code : " . $tresponse->getMessages()[0]->getCode() ); 
 	        info(" Description : " . $tresponse->getMessages()[0]->getDescription() );
+          info(print_r($tresponse->getMessages()[0],1));
         }
         else
         {
@@ -80,6 +86,7 @@ class ChargePaymentProfile
           {
             info(" Error code  : " . $tresponse->getErrors()[0]->getErrorCode() );
             info(" Error message : " . $tresponse->getErrors()[0]->getErrorText() );            
+            info(print_r($tresponse->getErrors()[0],1));
           }
         }
       }
@@ -91,6 +98,7 @@ class ChargePaymentProfile
         {
           info(" Error code  : " . $tresponse->getErrors()[0]->getErrorCode() );
           info(" Error message : " . $tresponse->getErrors()[0]->getErrorText() );                      
+          info(print_r($tresponse->getErrors()[0],1));
         }
         else
         {
@@ -99,7 +107,13 @@ class ChargePaymentProfile
         }
       }
 
-      return $response;
+        return [
+          'response'           => $response,
+          'amount'             => $amount,
+          'profile_id'         => $profile_id,
+          'payment_profile_id' => $payment_profile_id
+        ];
+
     }
 
   }

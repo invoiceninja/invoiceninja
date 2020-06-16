@@ -12,12 +12,15 @@
 
 namespace App\PaymentDrivers\Authorize;
 
+use App\Factory\PaymentFactory;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
 use App\PaymentDrivers\Authorize\ChargePaymentProfile;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Carbon;
 
 /**
  * Class AuthorizeCreditCard
@@ -79,11 +82,41 @@ class AuthorizeCreditCard
     {
         $client_gateway_token = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
 
-        $response = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($client_gateway_token->gateway_customer_reference, $client_gateway_token->token, $request->input('amount'));
-        
+        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($client_gateway_token->gateway_customer_reference, $client_gateway_token->token, $request->input('amount'));
+
+        $this->handleResponse($data, $request);
     }
 
-    private function handleResponse($response)
+    private function handleResponse($data, $request)
+    {
+        //info(print_r( $response->getTransactionResponse()->getMessages(),1));
+        
+        $response = $data['response'];
+
+        if($response != null && $response->getMessages()->getResultCode() == "Ok")
+            return $this->processSuccessfulResponse($data, $request);
+
+        return $this->processFailedResponse($data, $request);
+    }
+
+    private function processSuccessfulResponse($data, $request)
+    {
+        //create a payment record and fire notifications and then return 
+
+        $payment = PaymentFactory::create($this->authorize->client->company_id, $this->authorize->client->user_id);
+        $payment->client_id = $this->client->id;
+        $payment->company_gateway_id = $this->authorize->company_gateway->id;
+        $payment->status_id = Payment::STATUS_PAID;
+        $payment->currency_id = $this->authorize->client->getSetting('currency_id');
+        $payment->date = Carbon::now();
+
+        $this->authorize->attachInvoices($payment, $request->hashed_ids);
+
+        return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+
+    }
+
+    private function processFailedResponse($data)
     {
 
     }
