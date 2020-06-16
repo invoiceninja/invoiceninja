@@ -32,14 +32,16 @@ class AuthorizeCreditCard
     public function processPaymentView($data)
     {
     	$tokens = ClientGatewayToken::where('client_id', $this->authorize->client->id)
-    								->where('company_gateway_key', $this->authorize->company_gateway->gateway_key)
+    								->where('company_gateway_id', $this->authorize->company_gateway->id)
     								->where('gateway_type_id', $this->authorize->payment_method_id)
     								->get();
 
 		$data['tokens'] = $tokens;
 		$data['gateway'] = $this->authorize->company_gateway;
-		
-		return render('portal.ninja202.gateways.authorize.credit_card_payment', $data);
+		$data['public_client_id'] = $this->authorize->init()->getPublicClientKey();
+		$data['api_login_id'] = $this->authorize->company_gateway->getConfigField('apiLoginId');
+
+		return render('gateways.authorize.credit_card_payment', $data);
     }
 
 }

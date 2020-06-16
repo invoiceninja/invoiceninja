@@ -38,9 +38,9 @@ class AuthorizePaymentDriver extends BaseDriver
     ];
 
     public function bootPaymentMethod()
-    {
+    {info(print_r($this->getPaymentMethod(),1));
 
-        $class = self::$methods[$this->getPaymentMethodId()];
+        $class = self::$methods[$this->getPaymentMethod()];
 
         $this->payment_method = new $class($this);
 

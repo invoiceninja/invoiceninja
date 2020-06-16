@@ -15,6 +15,8 @@
         <input type="hidden" name="is_default" id="is_default">
         <input type="hidden" name="dataValue" id="dataValue" />
         <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
+        <input type="hidden" name="token" id="token" />
+        <input type="hidden" name="save_method" id="save_method" />
     </form>
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">
@@ -38,15 +40,19 @@
                                 </dd>
                             </div>
                             <div class="bg-white px-4 py-5 flex justify-end">
-                                <button type="primary" id="card_button">{{ ctrans('texts.add_payment_method') }}</button>
+                                <button type="primary" id="card_button">{{ ctrans('texts.pay_now') }}</button>
                             </div>
                         </dl>
                         @else
                             <!-- TODO Iterate through the tokens and display the card type and last4 and present 
                                 a button for payment -->
+                            <ul>
                             @foreach($tokens as $token)
+                                <li>
+                                    $token->meta->brand : $token->meta->last4 : <button class="primary" id="{{ $token->token }}">{{ ctrans('texts.pay_now') }}</button>
+                                </li>
                             @endforeach
-
+                            </ul>
                         @endif
                     </div>
                 </div>

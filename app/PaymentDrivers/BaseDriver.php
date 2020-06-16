@@ -51,7 +51,7 @@ class BaseDriver extends AbstractPaymentDriver
 
     public $payment_method;
 
-    public $methods = [];
+    public static $methods = [];
 
     public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
     {
@@ -101,8 +101,10 @@ class BaseDriver extends AbstractPaymentDriver
      * 
      * @param int $payment_method_id The Payment Method ID
      */
-    public function setPaymentMethod($method_id)
+    public function setPaymentMethod($payment_method_id)
     {
+        info("setting payment method {$payment_method_id}");
+
         $this->payment_method_id = $payment_method_id;
 
         return $this;
@@ -115,6 +117,6 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function getPaymentMethod()
     {
-        return $this->payment_method;
+        return $this->payment_method_id;
     }
 }
