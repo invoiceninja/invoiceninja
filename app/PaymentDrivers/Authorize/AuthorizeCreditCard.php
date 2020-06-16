@@ -18,6 +18,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
@@ -87,7 +88,7 @@ class AuthorizeCreditCard
 
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($client_gateway_token->gateway_customer_reference, $client_gateway_token->token, $request->input('amount'));
 
-        $this->handleResponse($data, $request);
+        return $this->handleResponse($data, $request);
     }
 
     private function handleResponse($data, $request)
@@ -108,19 +109,22 @@ class AuthorizeCreditCard
         //create a payment record and fire notifications and then return 
 
         $payment = PaymentFactory::create($this->authorize->client->company_id, $this->authorize->client->user_id);
-        $payment->client_id = $this->client->id;
+        $payment->client_id = $this->authorize->client->id;
         $payment->company_gateway_id = $this->authorize->company_gateway->id;
-        $payment->status_id = Payment::STATUS_PAID;
+        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
         $payment->currency_id = $this->authorize->client->getSetting('currency_id');
         $payment->date = Carbon::now();
         $payment->transaction_reference = $response->getTransactionResponse()->getTransId();
         $payment->amount = $request->input('amount'); 
-        $payment->currency_id = $this->authorize->client->id;
+        $payment->currency_id = $this->authorize->client->getSetting('currency_id');
+        $payment->client->getNextPaymentNumber($this->authorize->client);
         $payment->save();
+
 
         $this->authorize->attachInvoices($payment, $request->hashed_ids);
 
-       $payment->service()->updateInvoicePayment();
+        $payment->service()->updateInvoicePayment();
 
         event(new PaymentWasCreated($payment, $payment->company));
 
@@ -129,7 +133,7 @@ class AuthorizeCreditCard
             'data' => $this->formatGatewayResponse($data, $request)
         ];
 
-        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->client);
+        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
@@ -137,7 +141,7 @@ class AuthorizeCreditCard
 
     private function processFailedResponse($data, $request)
     {
-
+        info(print_r($data,1));
     }
 
     private function formatGatewayResponse($data, $request)
@@ -147,9 +151,9 @@ class AuthorizeCreditCard
         return [
             'transaction_reference' => $response->getTransactionResponse()->getTransId(),
             'amount' => $request->input('amount'),
-            'code' => $response->getTransactionResponse()->getCode(),
-            'description' => $response->getTransactionResponse()->getDescription(),
             'auth_code' => $response->getTransactionResponse()->getAuthCode(),
+            'code' => $response->getTransactionResponse()->getMessages()[0]->getCode(),
+            'description' => $response->getTransactionResponse()->getMessages()[0]->getDescription(),
             'invoices' => $request->hashed_ids,
 
         ];
