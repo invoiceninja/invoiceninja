@@ -120,7 +120,7 @@ class AuthorizePaymentMethod
         
     }
 
-    private function createClientGatewayToken($payment_profile, $gateway_customer_reference)
+    public function createClientGatewayToken($payment_profile, $gateway_customer_reference)
     {
         info(print_r($payment_profile,1));
 
@@ -149,7 +149,7 @@ class AuthorizePaymentMethod
         return $payment_meta;
     }
 
-    private function addPaymentMethodToClient($gateway_customer_reference, $data)
+    public function addPaymentMethodToClient($gateway_customer_reference, $data)
     {
 
         error_reporting (E_ALL & ~E_DEPRECATED);

@@ -117,13 +117,15 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
     _classCallCheck(this, AuthorizeAuthorizeCard);
 
     _defineProperty(this, "handleAuthorization", function () {
+      var myCard = $('#my-card');
       var authData = {};
       authData.clientKey = _this.publicKey;
       authData.apiLoginID = _this.loginId;
       var cardData = {};
-      cardData.cardNumber = document.getElementById("card_number").value;
-      cardData.month = document.getElementById("expiration_month").value;
-      cardData.year = document.getElementById("expiration_year").value;
+      cardData.cardNumber = myCard.CardJs('cardNumber');
+      cardData.month = myCard.CardJs('expiryMonth');
+      cardData.year = myCard.CardJs('expiryYear');
+      ;
       cardData.cardCode = document.getElementById("cvv").value;
       var secureData = {};
       secureData.authData = authData;
@@ -137,10 +139,10 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
     });
 
     _defineProperty(this, "handle", function () {
-      console.log(_this.payNowButton);
-
       if (_this.cardButton) {
         _this.cardButton.addEventListener("click", function () {
+          _this.cardButton.disabled = true;
+
           _this.handleAuthorization();
         });
       }
@@ -154,6 +156,8 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
           var _loop = function _loop() {
             var item = _step.value;
             item.addEventListener('click', function () {
+              item.disabled = true;
+
               _this.handlePayNowAction(item.dataset.id);
             });
           };
@@ -190,7 +194,6 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
   _createClass(AuthorizeAuthorizeCard, [{
     key: "handlePayNowAction",
     value: function handlePayNowAction(token_hashed_id) {
-      console.log(token_hashed_id);
       document.getElementById("token").value = token_hashed_id;
       document.getElementById("server_response").submit();
     }
@@ -199,17 +202,17 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
     value: function responseHandler(response) {
       if (response.messages.resultCode === "Error") {
         var i = 0;
+        var $errors = $('#errors'); // get the reference of the div
 
-        while (i < response.messages.message.length) {
-          console.log(response.messages.message[i].code + ": " + response.messages.message[i].text);
-          i = i + 1;
-        }
+        $errors.show().html("<p>" + response.messages.message[i].code + ": " + response.messages.message[i].text + "</p>");
       } else if (response.messages.resultCode === "Ok") {
         document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
         document.getElementById("dataValue").value = response.opaqueData.dataValue;
+        document.getElementById("store_card").value = document.getElementById("store_card_checkbox").checked;
         document.getElementById("server_response").submit();
       }
 
+      this.cardButton.disabled = false;
       return false;
     }
   }]);
