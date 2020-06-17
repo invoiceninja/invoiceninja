@@ -45,10 +45,10 @@ $custom_css
     <div class="col-span-2 p-3">
 		<h1 class="text-white font-bold text-3xl">$company.name</h1>
     </div>
-    <div class="col-span-2 p-3 flex flex-col text-white">
+    <div class="col-span-2 p-3 flex flex-col text-white flex-wrap">
         $company_details
     </div>
-    <div class="col-span-2 p-3 flex flex-col text-white">
+    <div class="col-span-2 p-3 flex flex-col text-white flex-wrap">
         $entity_details
     </div>
 </div>
@@ -64,7 +64,7 @@ $custom_css
     <div class="col-span-2 p-3">
 		$company_logo
 	</div>
-    <div class="col-span-3 p-3 flex flex-col">
+    <div class="col-span-3 p-3 flex flex-col flex-wrap">
 		$client_details
     </div>
 </div>
@@ -141,10 +141,10 @@ $custom_css
         return '
 <div class="footer bg-orange-600 flex justify-between py-8 px-12" style="page-break-inside: avoid;">
 	<div class="grid grid-cols-12 gap-4">
-		<div class="col-start-4 col-span-4 p-3 flex flex-col text-white text-right">
+		<div class="col-start-4 col-span-4 p-3 flex flex-col text-white text-right flex-wrap">
 			$company_details
 		</div>
-		<div class="col-span-4 p-3 flex flex-col text-white text-right">
+		<div class="col-span-4 p-3 flex flex-col text-white text-right flex-wrap">
 			$company_address
 		</div>
 	</div>

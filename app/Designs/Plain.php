@@ -56,7 +56,7 @@ $custom_css
 
     public function body()
     {
-        return '<div class="flex flex-col mt-8">
+        return '<div class="flex flex-col mt-8 flex-wrap">
     $client_details
 </div>
 <table class="w-full table-auto mt-8">

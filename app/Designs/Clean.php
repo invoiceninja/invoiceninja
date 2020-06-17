@@ -48,10 +48,10 @@ class Clean extends AbstractDesign
         <div class="h-14 w-14">$company_logo</div>
     </div>
     <div class="w-auto flex">
-        <div class="mr-10 text-gray-600 flex flex-col">
+        <div class="mr-10 text-gray-600 flex flex-col flex-wrap">
             $company_details
         </div>
-        <div class="ml-5 text-gray-600 flex flex-col">
+        <div class="ml-5 text-gray-600 flex flex-col flex-wrap">
             $company_address
         </div>
     </div>
@@ -68,13 +68,13 @@ class Clean extends AbstractDesign
 
 <div class="ml-4 py-4">
     <div class="flex">
-        <div class="w-40 flex flex-col">
+        <div class="w-40 flex flex-col flex-wrap">
             $entity_labels
         </div>
-        <div class="w-48 flex flex-col">
+        <div class="w-48 flex flex-col flex-wrap">
             $entity_details
         </div>
-        <div class="w-56 flex flex-col">
+        <div class="w-56 flex flex-col flex-wrap">
             $client_details
         </div>
     </div>

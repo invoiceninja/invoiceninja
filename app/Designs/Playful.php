@@ -48,7 +48,7 @@ $custom_css
         $company_logo
     </div>
     <div class="col-span-5 bg-teal-600 p-5 text-white">
-        <div class="flex flex-col">
+        <div class="flex flex-col flex-wrap">
             $entity_details
         </div>
     </div>
@@ -62,7 +62,7 @@ $custom_css
     <div class="flex flex-col">
         <p class="font-semibold text-teal-600 pl-4">$to_label:</p>
         <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
-            <section class="flex flex-col">
+            <section class="flex flex-col flex-wrap">
                 $client_details
             </section>
         </div>
@@ -72,7 +72,7 @@ $custom_css
     <div class="flex flex-col">
         <p class="font-semibold text-teal-600 pl-4">$from_label:</p>
         <div class="flex border-dashed border-t-4 border-b-4 border-teal-600 py-4 mt-4 pl-4">
-            <section class="flex flex-col">
+            <section class="flex flex-col flex-wrap">
                 $company_details
             </section>
         </div>
