@@ -117,13 +117,15 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
     _classCallCheck(this, AuthorizeAuthorizeCard);
 
     _defineProperty(this, "handleAuthorization", function () {
+      var myCard = $('#my-card');
       var authData = {};
       authData.clientKey = _this.publicKey;
       authData.apiLoginID = _this.loginId;
       var cardData = {};
-      cardData.cardNumber = document.getElementById("card_number").value;
-      cardData.month = document.getElementById("expiration_month").value;
-      cardData.year = document.getElementById("expiration_year").value;
+      cardData.cardNumber = myCard.CardJs('cardNumber');
+      cardData.month = myCard.CardJs('expiryMonth');
+      cardData.year = myCard.CardJs('expiryYear');
+      ;
       cardData.cardCode = document.getElementById("cvv").value;
       var secureData = {};
       secureData.authData = authData;
@@ -132,13 +134,12 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
       //
       // secureData.bankData = bankData;
 
+      console.log(cardData);
       Accept.dispatchData(secureData, _this.responseHandler);
       return false;
     });
 
     _defineProperty(this, "handle", function () {
-      console.log(_this.payNowButton);
-
       if (_this.cardButton) {
         _this.cardButton.addEventListener("click", function () {
           _this.handleAuthorization();
@@ -198,11 +199,16 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
     value: function responseHandler(response) {
       if (response.messages.resultCode === "Error") {
         var i = 0;
+        var $errors = $('#errors'); // get the reference of the div
 
-        while (i < response.messages.message.length) {
-          console.log(response.messages.message[i].code + ": " + response.messages.message[i].text);
-          i = i + 1;
-        }
+        $errors.show().html("<p>" + response.messages.message[i].code + ": " + response.messages.message[i].text + "</p>"); // while (i < response.messages.message.length) {
+        //     console.log(
+        //         response.messages.message[i].code + ": " +
+        //         response.messages.message[i].text
+        //     );
+        //        document.getElementById('errors').innerHTML = response.messages.message[i].code + ": " + response.messages.message[i].text;
+        //     i = i + 1;
+        // }
       } else if (response.messages.resultCode === "Ok") {
         document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
         document.getElementById("dataValue").value = response.opaqueData.dataValue;
