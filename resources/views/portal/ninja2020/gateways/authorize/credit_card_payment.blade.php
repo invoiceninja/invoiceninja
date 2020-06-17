@@ -1,9 +1,13 @@
 @extends('portal.ninja2020.layout.app')
-@section('meta_title', ctrans('texts.add_credit_card'))
+@section('meta_title', ctrans('texts.payment_type_credit_card'))
 
 @push('head')
     <meta name="authorize-public-key" content="{{ $public_client_id }}">
     <meta name="authorize-login-id" content="{{ $api_login_id }}">
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="{{ asset('js/clients/payments/card-js.min.js') }}"></script>
+    <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
+
 @endpush
 
 @section('body')
@@ -35,11 +39,11 @@
 
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm leading-5 font-medium text-gray-500">
-                                    {{ ctrans('texts.save_as_default') }}
+                                    {{ ctrans('texts.token_billing_checkbox') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    <input type="checkbox" class="form-checkbox" name="proxy_is_default"
-                                           id="proxy_is_default"/>
+                                    <input type="checkbox" class="form-checkbox" name="store_card_checkbox"
+                                           id="store_card_checkbox"/>
                                 </dd>
                             </div>
                             <div class="bg-white px-4 py-5 flex justify-end">
@@ -73,5 +77,5 @@
     @endif
 
     <script src="{{ asset('js/clients/payments/authorize-credit-card-payment.js') }}"></script>
-
+    
 @endpush

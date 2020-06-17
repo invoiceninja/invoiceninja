@@ -55,9 +55,15 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/setup/setup.js"
     )
     .js(
+        "node_modules/card-js/card-js.min.js",
+        "public/js/clients/payments/card-js.min.js"
+    )
+    .js(
         "resources/js/clients/shared/pdf.js",
         "public/js/clients/shared/pdf.js"
     );
+
+mix.copyDirectory('node_modules/card-js/card-js.min.css', 'public/css/card-js.min.css');
 
 mix.sass("resources/sass/app.scss", "public/css")
     .options({

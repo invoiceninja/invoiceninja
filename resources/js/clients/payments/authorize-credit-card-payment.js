@@ -45,8 +45,6 @@ class AuthorizeAuthorizeCard {
 
     handlePayNowAction(token_hashed_id) {
 
-        console.log(token_hashed_id);
-
         document.getElementById("token").value = token_hashed_id;
         document.getElementById("server_response").submit();
 
@@ -68,6 +66,7 @@ class AuthorizeAuthorizeCard {
             
             document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
             document.getElementById("dataValue").value = response.opaqueData.dataValue;
+            document.getElementById("store_card").value = document.getElementById("store_card_checkbox").value;
             document.getElementById("server_response").submit();
 
 	    }

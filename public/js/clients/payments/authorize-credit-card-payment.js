@@ -190,7 +190,6 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
   _createClass(AuthorizeAuthorizeCard, [{
     key: "handlePayNowAction",
     value: function handlePayNowAction(token_hashed_id) {
-      console.log(token_hashed_id);
       document.getElementById("token").value = token_hashed_id;
       document.getElementById("server_response").submit();
     }
@@ -207,6 +206,7 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
       } else if (response.messages.resultCode === "Ok") {
         document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
         document.getElementById("dataValue").value = response.opaqueData.dataValue;
+        document.getElementById("store_card").value = document.getElementById("store_card_checkbox").value;
         document.getElementById("server_response").submit();
       }
 
