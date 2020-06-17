@@ -71,7 +71,7 @@ class Elegant extends AbstractDesign
     <thead class="text-left border-dashed border-b border-black">
         $product_table_header
     </thead>
-    <tbody>
+    <tbody class="whitespace-pre-line">
         $product_table_body
     </tbody>
 </table>
@@ -79,7 +79,7 @@ class Elegant extends AbstractDesign
     <thead class="text-left border-dashed border-b border-black">
         $task_table_header
     </thead>
-    <tbody>
+    <tbody class="whitespace-pre-line">
         $task_table_body
     </tbody>
 </table>

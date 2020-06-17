@@ -84,7 +84,7 @@ $custom_css
 <thead class="text-left border-b-4 border-black">
     $product_table_header
 </thead>
-<tbody>
+<tbody class="whitespace-pre-line">
     $product_table_body
 </tbody>
 </table>
@@ -92,7 +92,7 @@ $custom_css
 <thead class="text-left border-b-4 border-black">
     $task_table_header
 </thead>
-<tbody>
+<tbody class="whitespace-pre-line">
     $task_table_body
 </tbody>
 </table>

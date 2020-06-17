@@ -84,7 +84,7 @@ class Clean extends AbstractDesign
     <thead class="text-left">
         $product_table_header
     </thead>
-    <tbody>
+    <tbody class="whitespace-pre-line">
         $product_table_body
     </tbody>
 </table>
@@ -92,7 +92,7 @@ class Clean extends AbstractDesign
     <thead class="text-left">
         $task_table_header
     </thead>
-    <tbody>
+    <tbody class="whitespace-pre-line">
         $task_table_body
     </tbody>
 </table>

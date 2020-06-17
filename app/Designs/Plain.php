@@ -45,10 +45,10 @@ $custom_css
     <div class="col-span-2 p-3">
         $company_logo
     </div>
-    <div class="col-span-2 p-3 flex flex-col">
+    <div class="col-span-2 p-3 flex flex-col flex-wrap">
         $company_details
     </div>
-    <div class="col-span-2 p-3 flex flex-col">
+    <div class="col-span-2 p-3 flex flex-col flex-wrap">
         $entity_details
     </div>
 </div>';

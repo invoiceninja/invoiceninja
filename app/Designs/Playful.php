@@ -83,7 +83,7 @@ $custom_css
 <thead class="text-left bg-teal-600 rounded-lg">
     $product_table_header
 </thead>
-<tbody>
+<tbody class="whitespace-pre-line">
     $product_table_body
 </tbody>
 </table>
@@ -91,7 +91,7 @@ $custom_css
 <thead class="text-left bg-teal-600 rounded-lg">
     $task_table_header
 </thead>
-<tbody>
+<tbody class="whitespace-pre-line">
     $task_table_body
 </tbody>
 </table>
