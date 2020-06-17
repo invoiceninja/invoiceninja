@@ -22,6 +22,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
+use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
 use App\PaymentDrivers\Authorize\ChargePaymentProfile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
@@ -65,20 +66,22 @@ class AuthorizeCreditCard
 
         $data = $request->all();
         
-        dd($data);
+        $authorise_create_customer = new AuthorizeCreateCustomer($this->authorize, $this->authorize->client);
 
-        $authorise_payment_method = new AuthorizeCreateCustomer($this->authorize, $this->authorize->client);
-
-        $gateway_customer_reference = $authorise_payment_method->create($data);
+        $gateway_customer_reference = $authorise_create_customer->create($data);
         
         info($gateway_customer_reference);
 
+        $authorise_payment_method = new AuthorizePaymentMethod($this->authorize);
+
         $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
 
-        if($data['save_payment_method'] == true)
+        if($request->has('store_card') && $request->input('store_card'))
             $client_gateway_token = $authorise_payment_method->createClientGatewayToken($payment_profile, $gateway_customer_reference);
 
-        return (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile, $data['amount_with_fee']);
+        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile, $data['amount_with_fee']);
+
+        return $this->handleResponse($data, $request);
 
     }
 
