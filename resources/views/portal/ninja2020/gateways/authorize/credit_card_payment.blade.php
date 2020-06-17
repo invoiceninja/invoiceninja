@@ -23,7 +23,7 @@
         <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
         <input type="hidden" name="token" id="token" />
         <input type="hidden" name="store_card" id="store_card" />
-        <input type="hidden" name="amount" id="amount" value="{{ $amount_with_fee }}" />
+        <input type="hidden" name="amount_with_fee" id="amount_with_fee" value="{{ $amount_with_fee }}" />
     </form>
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">

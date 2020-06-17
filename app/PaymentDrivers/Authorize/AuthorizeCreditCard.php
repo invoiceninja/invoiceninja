@@ -76,8 +76,10 @@ class AuthorizeCreditCard
 
         $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
 
-        if($request->has('store_card') && $request->input('store_card'))
+        if($request->has('store_card') && $request->input('store_card')){
+            $authorise_payment_method->payment_method = GatewayType::CREDIT_CARD;
             $client_gateway_token = $authorise_payment_method->createClientGatewayToken($payment_profile, $gateway_customer_reference);
+        }
 
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile, $data['amount_with_fee']);
 
