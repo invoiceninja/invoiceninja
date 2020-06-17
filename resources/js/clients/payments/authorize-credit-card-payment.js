@@ -55,6 +55,7 @@ class AuthorizeAuthorizeCard {
 
     responseHandler(response) {
 
+
 	    if (response.messages.resultCode === "Error") {
 	        var i = 0;
 
@@ -70,7 +71,8 @@ class AuthorizeAuthorizeCard {
             document.getElementById("server_response").submit();
 
 	    }
-
+        
+        this.cardButton.disabled=false;
         return false;
 	}
 
@@ -83,6 +85,8 @@ class AuthorizeAuthorizeCard {
         {
             this.cardButton.addEventListener("click", () => {
 
+                this.cardButton.disabled = true;
+
                 this.handleAuthorization();
 
             });
@@ -94,7 +98,7 @@ class AuthorizeAuthorizeCard {
             for(let item of this.payNowButton) {
 
                 item.addEventListener('click', () => {
-                    
+                    item.disabled = true;
                     this.handlePayNowAction(item.dataset.id);
 
                 });

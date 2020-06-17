@@ -31,10 +31,22 @@
                 <div class="alert alert-failure mb-4" hidden id="errors"></div>
                 <div class="bg-white shadow overflow-hidden sm:rounded-lg">
                     <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            {{ ctrans('texts.enter_payment') }}
+                        </h3>
                     </div>
                     <div>
                         @if($tokens->count() == 0)
                         <dl>
+                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm leading-5 font-medium text-gray-500">
+                                    {{ ctrans('texts.amount') }}
+                                </dt>
+                                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ App\Utils\Number::formatMoney($amount_with_fee, $client) }}
+                                </dd>
+                            </div>
+        
                             @include('portal.ninja2020.gateways.authorize.credit_card')
 
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -51,21 +63,50 @@
                             </div>
                         </dl>
                         @else
-                            <!-- TODO Iterate through the tokens and display the card type and last4 and present 
-                                a button for payment -->
-                            <ul>
-                            @foreach($tokens as $token)
-                                <li>
-                                    {{ $token->meta->brand }} : {{ $token->meta->last4 }} : <button class="button button-primary pay_now_button" data-id="{{ $token->hashed_id }}">{{ ctrans('texts.pay_now') }}</button>
-                                </li>
-                            @endforeach
-                            </ul>
+
+                            <div>
+                                <dl>
+                                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                        <dt class="text-sm leading-5 font-medium text-gray-500">
+                                            {{ ctrans('texts.amount') }}
+                                        </dt>
+                                        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                            {{ App\Utils\Number::formatMoney($amount_with_fee, $client) }}
+                                        </dd>
+                                    </div>
+                                    @foreach($tokens as $token)
+                                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                        <dt class="text-sm leading-5 font-medium text-gray-500">
+                                            {{ $token->meta->brand }} : {{ $token->meta->last4 }}
+                                        </dt>
+                                        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                            <button class="button button-primary pay_now_button" data-id="{{ $token->hashed_id }}">{{ ctrans('texts.pay_now') }}</button>
+                                        </dd>
+                                    </div>
+                                    @endforeach 
+
+                                </dl>
+                            </div>
+
                         @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 @endsection
 
 @push('footer')

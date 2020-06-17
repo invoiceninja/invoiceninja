@@ -141,6 +141,8 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
     _defineProperty(this, "handle", function () {
       if (_this.cardButton) {
         _this.cardButton.addEventListener("click", function () {
+          _this.cardButton.disabled = true;
+
           _this.handleAuthorization();
         });
       }
@@ -154,6 +156,8 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
           var _loop = function _loop() {
             var item = _step.value;
             item.addEventListener('click', function () {
+              item.disabled = true;
+
               _this.handlePayNowAction(item.dataset.id);
             });
           };
@@ -208,6 +212,7 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
         document.getElementById("server_response").submit();
       }
 
+      this.cardButton.disabled = false;
       return false;
     }
   }]);
