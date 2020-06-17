@@ -134,7 +134,6 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
       //
       // secureData.bankData = bankData;
 
-      console.log(cardData);
       Accept.dispatchData(secureData, _this.responseHandler);
       return false;
     });
@@ -201,18 +200,11 @@ var AuthorizeAuthorizeCard = /*#__PURE__*/function () {
         var i = 0;
         var $errors = $('#errors'); // get the reference of the div
 
-        $errors.show().html("<p>" + response.messages.message[i].code + ": " + response.messages.message[i].text + "</p>"); // while (i < response.messages.message.length) {
-        //     console.log(
-        //         response.messages.message[i].code + ": " +
-        //         response.messages.message[i].text
-        //     );
-        //        document.getElementById('errors').innerHTML = response.messages.message[i].code + ": " + response.messages.message[i].text;
-        //     i = i + 1;
-        // }
+        $errors.show().html("<p>" + response.messages.message[i].code + ": " + response.messages.message[i].text + "</p>");
       } else if (response.messages.resultCode === "Ok") {
         document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
         document.getElementById("dataValue").value = response.opaqueData.dataValue;
-        document.getElementById("store_card").value = document.getElementById("store_card_checkbox").value;
+        document.getElementById("store_card").value = document.getElementById("store_card_checkbox").checked;
         document.getElementById("server_response").submit();
       }
 

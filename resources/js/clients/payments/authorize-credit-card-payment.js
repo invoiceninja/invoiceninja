@@ -40,10 +40,9 @@ class AuthorizeAuthorizeCard {
         //
         // secureData.bankData = bankData;
 
-console.log(cardData);
-
 		Accept.dispatchData(secureData, this.responseHandler);
-          return false;
+        
+        return false;
 
     }
 
@@ -62,24 +61,12 @@ console.log(cardData);
             var $errors = $('#errors'); // get the reference of the div
             $errors.show().html("<p>" + response.messages.message[i].code + ": " + response.messages.message[i].text + "</p>"); 
             
-
-	        // while (i < response.messages.message.length) {
-	        //     console.log(
-	        //         response.messages.message[i].code + ": " +
-	        //         response.messages.message[i].text
-	        //     );
-
-         //        document.getElementById('errors').innerHTML = response.messages.message[i].code + ": " + response.messages.message[i].text;
-
-
-	        //     i = i + 1;
-	        // }
 	    }
 	    else if(response.messages.resultCode === "Ok"){
             
             document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
             document.getElementById("dataValue").value = response.opaqueData.dataValue;
-            document.getElementById("store_card").value = document.getElementById("store_card_checkbox").value;
+            document.getElementById("store_card").value = document.getElementById("store_card_checkbox").checked;
             document.getElementById("server_response").submit();
 
 	    }
