@@ -37,9 +37,15 @@ class QuoteController extends Controller
      */
     public function show(ShowQuoteRequest $request, Quote $quote)
     {
-        return $this->render('quotes.show', [
+        $data = [
             'quote' => $quote,
-        ]);
+        ];
+
+        if ($request->query('mode') === 'fullscreen') {
+            return $this->render('quotes.show.fullscreen', $data);
+        }
+
+        return $this->render('quotes.show', $data);
     }
 
     public function bulk(ProcessQuotesInBulkRequest $request)

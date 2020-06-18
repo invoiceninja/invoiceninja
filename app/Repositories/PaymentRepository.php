@@ -151,14 +151,16 @@ class PaymentRepository extends BaseRepository
         $invoice_totals -= $credit_totals;
 
         //$payment->amount = $invoice_totals; //creates problems when setting amount like this.
-
-        if ($invoice_totals == $payment->amount) {
+        if($credit_totals == $payment->amount){
+            $payment->applied += $credit_totals;
+        } elseif ($invoice_totals == $payment->amount) {
             $payment->applied += $payment->amount;
         } elseif ($invoice_totals < $payment->amount) {
             $payment->applied += $invoice_totals;
         }
 
         $payment->save();
+
         return $payment->fresh();
     }
 

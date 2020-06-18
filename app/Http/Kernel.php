@@ -29,6 +29,8 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\TrustProxies::class,
+             \App\Http\Middleware\Cors::class,
+
     ];
 
     /**
@@ -53,7 +55,7 @@ class Kernel extends HttpKernel
             'bindings',
             'query_logging',
             \App\Http\Middleware\StartupCheck::class,
-            \App\Http\Middleware\Cors::class,
+#            \App\Http\Middleware\Cors::class,
         ],
         'contact' => [
             'throttle:60,1',

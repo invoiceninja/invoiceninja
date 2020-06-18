@@ -76,7 +76,7 @@ class PaymentTransformer extends EntityTransformer
             'updated_at' => (int)$payment->updated_at,
             'archived_at' => (int)$payment->deleted_at,
             'is_deleted' => (bool) $payment->is_deleted,
-            'type_id' => (string) $payment->payment_type_id ?: '',
+            'type_id' => (string) $payment->type_id ?: '',
             'invitation_id' => (string) $payment->invitation_id ?: '',
             'private_notes' => (string) $payment->private_notes ?: '',
             'number' => (string) $payment->number ?: '',

@@ -50,14 +50,14 @@ class CreateCompanyPaymentTerms
     {
 
         $paymentTerms = [
-            ['num_days' => 0, 'name' => 'Net 0', 'company_id' => $this->company->id, 'user_id' => $this->user->id],
-            ['num_days' => 7,  'name'  => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id],
-            ['num_days' => 10, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id],
-            ['num_days' => 14, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id],
-            ['num_days' => 15, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id],
-            ['num_days' => 30, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id],
-            ['num_days' => 60, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id],
-            ['num_days' => 90, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id],
+            ['num_days' => 0, 'name' => 'Net 0', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
+            ['num_days' => 7,  'name'  => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
+            ['num_days' => 10, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
+            ['num_days' => 14, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
+            ['num_days' => 15, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
+            ['num_days' => 30, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
+            ['num_days' => 60, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
+            ['num_days' => 90, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
         ];
         
         PaymentTerm::insert($paymentTerms);

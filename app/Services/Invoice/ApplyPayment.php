@@ -37,7 +37,7 @@ class ApplyPayment extends AbstractService
              ->ledger()
              ->updatePaymentBalance($this->payment_amount*-1);
 
-        info("apply paymenet method - current client balance = {$this->payment->client->balance}");
+        info("apply payment method - current client balance = {$this->payment->client->balance}");
 
         info("reducing client balance by payment amount {$this->payment_amount}");
 
@@ -56,7 +56,7 @@ class ApplyPayment extends AbstractService
 
         $this->invoice->fresh('client');
 
-        info("1 end of apply payment method the client balnace = {$this->invoice->client->balance}");
+        info("1 end of apply payment method the client balance = {$this->invoice->client->balance}");
 
         if ($this->invoice->hasPartial()) {
             //is partial and amount is exactly the partial amount

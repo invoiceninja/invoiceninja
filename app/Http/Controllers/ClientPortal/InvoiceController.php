@@ -52,6 +52,10 @@ class InvoiceController extends Controller
             'invoice' => $invoice,
         ];
 
+        if ($request->query('mode') === 'fullscreen') {
+            return $this->render('invoices.show.fullscreen', $data);
+        }
+
         return $this->render('invoices.show', $data);
     }
 

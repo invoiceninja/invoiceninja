@@ -47,7 +47,7 @@ class Elegant extends AbstractDesign
     <div class="col-span-8">
         $company_logo
     </div>
-    <div class="col-span-4 flex flex-col">
+    <div class="col-span-4 flex flex-col flex-wrap">
         $entity_details
     </div>
 </div>
@@ -57,13 +57,13 @@ class Elegant extends AbstractDesign
     public function body()
     {
         return '<div class="grid grid-cols-12 gap-4 mt-8">
-<div class="col-span-4 mr-6 flex flex-col pr-2 border-r border-dashed border-black">
+<div class="col-span-4 mr-6 flex flex-col pr-2 border-r border-dashed border-black flex-wrap">
     $client_details
 </div>
-<div class="col-span-4 flex flex-col mr-6">
+<div class="col-span-4 flex flex-col mr-6 flex-wrap">
     $company_details
 </div>
-<div class="col-span-4 flex flex-col">
+<div class="col-span-4 flex flex-col flex-wrap">
     $company_address
 </div>
 </div>
@@ -71,7 +71,7 @@ class Elegant extends AbstractDesign
     <thead class="text-left border-dashed border-b border-black">
         $product_table_header
     </thead>
-    <tbody>
+    <tbody class="whitespace-pre-line">
         $product_table_body
     </tbody>
 </table>
@@ -79,7 +79,7 @@ class Elegant extends AbstractDesign
     <thead class="text-left border-dashed border-b border-black">
         $task_table_header
     </thead>
-    <tbody>
+    <tbody class="whitespace-pre-line">
         $task_table_body
     </tbody>
 </table>
