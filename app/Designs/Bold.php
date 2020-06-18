@@ -63,7 +63,7 @@ class Bold extends AbstractDesign
         </div>
         <div class="col-span-5">
             <div class="bg-teal-600 px-5 py-3 text-white">
-                <div class="w-80 flex flex-col text-white">
+                <div class="w-80 flex flex-col text-white flex-wrap">
                     $entity_details
                 </div>
             </div>
@@ -76,7 +76,7 @@ class Bold extends AbstractDesign
         <thead class="text-left">
             $product_table_header
         </thead>
-        <tbody>
+        <tbody class="whitespace-pre-line">
             $product_table_body
         </tbody>
     </table>
@@ -84,7 +84,7 @@ class Bold extends AbstractDesign
         <thead class="text-left">
             $task_table_header
         </thead>
-        <tbody>
+        <tbody class="whitespace-pre-line">
             $task_table_body
         </tbody>
     </table>

@@ -50,7 +50,8 @@ class UpdateInvoiceActivity implements ShouldQueue
         $fields->user_id = $event->invoice->user_id;
         $fields->company_id = $event->invoice->company_id;
         $fields->activity_type_id = Activity::UPDATE_INVOICE;
-
+        $fields->invoice_id = $event->invoice->id;
+        
         $this->activity_repo->save($fields, $event->invoice);
     }
 }

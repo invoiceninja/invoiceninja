@@ -91,7 +91,7 @@ class InvoiceItemSum
     }
 
     private function sumLineItem()
-    {
+    {   //todo need to support quantities less than the precision amount
         $this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
         return $this;
     }

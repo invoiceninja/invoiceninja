@@ -7,5 +7,6 @@ $factory->define(App\Models\Account::class, function (Faker $faker) {
     return [
         'default_company_id' => 1,
         'key' => Str::random(32),
+        'report_errors' => 1,
     ];
 });

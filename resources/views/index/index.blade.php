@@ -16,7 +16,7 @@
     }
   </script>
 
-  <script src="main.dart.js" type="application/javascript"></script>
+  <script src="main.dart.js?version={{ config('ninja.api_version') }}" type="application/javascript"></script>
 
   <center style="font-family:Tahoma,Geneva,sans-serif;font-size:28px;color:white;padding-top:100px">
     Loading...

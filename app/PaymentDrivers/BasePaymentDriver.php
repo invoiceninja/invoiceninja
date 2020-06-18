@@ -48,7 +48,7 @@ class BasePaymentDriver
     use MakesHash;
 
     /* The company gateway instance*/
-    protected $company_gateway;
+    public $company_gateway;
 
     /* The Omnipay payment driver instance*/
     protected $gateway;
@@ -259,12 +259,12 @@ class BasePaymentDriver
             ->send();
     }
 
-    public function createPayment($data): Payment
+    public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
     {
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
-        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->status_id = $status;
         $payment->currency_id = $this->client->getSetting('currency_id');
         $payment->date = Carbon::now();
 

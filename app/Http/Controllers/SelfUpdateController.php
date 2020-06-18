@@ -12,7 +12,6 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Ninja;
-use Codedge\Updater\UpdaterManager;
 use Composer\Factory;
 use Composer\IO\NullIO;
 use Composer\Installer;
@@ -61,8 +60,10 @@ class SelfUpdateController extends BaseController
      *     )
      *
      */
-    public function update(UpdaterManager $updater)
+    public function update()
     {
+        define('STDIN',fopen("php://stdin","r"));
+
         if (Ninja::isNinja()) {
             return response()->json(['message' => 'Self update not available on this system.'], 403);
         }

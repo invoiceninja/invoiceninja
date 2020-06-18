@@ -35,7 +35,7 @@
                             {{ ctrans('texts.method') }}
                         </dt>
                         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                            {{ $payment->type->name }}
+                            {{ optional($payment->type)->name }}
                         </dd>
                     </div>
                     <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -62,7 +62,7 @@
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
                     {{ ctrans('texts.invoices') }}
                 </h3>
-                <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
+                <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">
                     {{ ctrans('texts.list_of_payment_invoices') }}
                 </p>
             </div>
@@ -78,7 +78,6 @@
                                    href="{{ route('client.invoice.show', ['invoice' => $invoice->hashed_id])}}">
                                     {{ $invoice->number }}
                                 </a>
-                                <span>Payment: {{ $payment->hashed_id }} Invoice: {{ $invoice->hashed_id }} Amount: {{ $payment->amount }}</span>
                             </div>
                         </div>
                     @endforeach

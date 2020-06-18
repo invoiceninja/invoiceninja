@@ -3212,4 +3212,14 @@ return [
     'register' => 'Register',
     'register_label' => 'Create your account in seconds',
     'password_confirmation' => 'Confirm your password',
+    'verification' => 'Verification',
+    'complete_your_bank_account_verification' => 'Before using bank account they must be verified.',
+    
+    'checkout_com' => 'Checkout.com',
+
+    'footer_label' => 'Copyright © :year Invoice Ninja. All rights reserved.',
+
+    'credit_card_invalid' => 'Provided credit card number is not valid.',
+    'month_invalid' => 'Provided month is not valid.',
+    'year_invalid' => 'Provided year is not valid.',
 ];

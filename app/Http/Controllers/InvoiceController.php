@@ -662,6 +662,13 @@ class InvoiceController extends BaseController
             case 'download':
                     return response()->download(TempFile::path($invoice->pdf_file_path()), basename($invoice->pdf_file_path()));
                 break;
+            case 'restore':
+                $this->invoice_repo->restore($invoice);
+
+                if (!$bulk) {
+                    return $this->listResponse($invoice);
+                }
+                break;
             case 'archive':
                 $this->invoice_repo->archive($invoice);
 

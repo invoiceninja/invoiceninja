@@ -37,7 +37,7 @@ class RefundCancelledAccount implements ShouldQueue
         if(Ninja::isSelfHost() || $this->account->isFreeHostedClient())
             return;
         
-        $plan_details = $account->getPlanDetails();
+        $plan_details = $this->account->getPlanDetails();
 
         /* Trial user cancelling early.... */
         if($plan_details['trial_active'])

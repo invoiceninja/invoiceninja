@@ -60,14 +60,14 @@ $custom_css
     <div class="col-span-7">
         <p class="text-4xl text-pink-700">#$entity_number</p>
     </div>
-    <div class="col-span-5 flex flex-col">$entity_details</div>
+    <div class="col-span-5 flex flex-col flex-wrap">$entity_details</div>
 </div>
 
 <table class="w-full table-auto border-t-4 border-pink-700 bg-white mt-8">
     <thead class="text-left rounded-lg">
         $product_table_header
     </thead>
-    <tbody>
+    <tbody class="whitespace-pre-line">
         $product_table_body
     </tbody>
 </table>
@@ -75,7 +75,7 @@ $custom_css
     <thead class="text-left rounded-lg">
         $task_table_header
     </thead>
-    <tbody>
+    <tbody class="whitespace-pre-line">
         $task_table_body
     </tbody>
 </table>

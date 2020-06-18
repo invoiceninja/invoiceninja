@@ -33,7 +33,7 @@ class FreeCompanySettings extends BaseSettings
     public $custom_value3 				    = '';
     public $custom_value4 				    = '';
     public $date_format_id 				    = '';
-    public $enabled_item_tax_rates          = 0;
+//    public $enabled_item_tax_rates          = 0;
     public $expense_number_pattern          = '';
     public $expense_number_counter          = 1;
     public $inclusive_taxes                 = false;

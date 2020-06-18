@@ -299,7 +299,7 @@ class CheckData extends Command
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
-            if($ledger && $invoice_balance != $client->balance)
+            if($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4))
             {
                 $wrong_balances++;
                 $this->logMessage($client->present()->name . " - " . $client->id . " - balances do not match {$invoice_balance} - {$client->balance} - {$ledger->balance}");

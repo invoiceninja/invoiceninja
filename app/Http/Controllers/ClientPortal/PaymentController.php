@@ -14,6 +14,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Filters\PaymentFilters;
 use App\Http\Controllers\Controller;
+use App\Jobs\Invoice\InjectSignature;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -90,12 +91,18 @@ class PaymentController extends Controller
         $invoices->map(function ($invoice) {
             $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
             $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
+            
             return $invoice;
         });
 
+        if ((bool) request()->signature) {
+            $invoices->each(function ($invoice) {
+                InjectSignature::dispatch($invoice, request()->signature);
+            });
+        }
+
         $payment_methods = auth()->user()->client->getPaymentMethods($amount);
         $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
-
         $payment_method_id = request()->input('payment_method_id');
 
         // Place to calculate gateway fee.
@@ -110,14 +117,19 @@ class PaymentController extends Controller
             'hashed_ids' => request()->invoices,
         ];
 
-
-        return $gateway->driver(auth()->user()->client)->processPaymentView($data);
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod($payment_method_id)
+            ->processPaymentView($data);
     }
 
     public function response(Request $request)
     {
         $gateway = CompanyGateway::find($request->input('company_gateway_id'));
 
-        return $gateway->driver(auth()->user()->client)->processPaymentResponse($request);
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod($request->input('payment_method_id'))
+            ->processPaymentResponse($request);
     }
 }

@@ -44,12 +44,14 @@ class HandleReversal extends AbstractService
             return $this->invoice;
         }
 
+        if($this->invoice->status_id == Invoice::STATUS_CANCELLED)
+            $this->invoice = $this->invoice->service()->reverseCancellation()->save();
+
         $balance_remaining = $this->invoice->balance;
 
         $total_paid = $this->invoice->amount - $this->invoice->balance;
 
         /*Adjust payment applied and the paymentables to the correct amount */
-
         $paymentables = Paymentable::wherePaymentableType(Invoice::class)
                                     ->wherePaymentableId($this->invoice->id)
                                     ->get();
@@ -69,7 +71,8 @@ class HandleReversal extends AbstractService
         if ($total_paid > 0) {
             $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);
             $credit->client_id = $this->invoice->client_id;
-
+            $credit->invoice_id = $this->invoice->id;
+            
             $item = InvoiceItemFactory::create();
             $item->quantity = 1;
             $item->cost = (float)$total_paid;
@@ -88,10 +91,12 @@ class HandleReversal extends AbstractService
 
             $credit->service()->markSent()->save();
         }
-        /* Set invoice balance to 0 */
-        $this->invoice->ledger()->updateInvoiceBalance($balance_remaining*-1, $notes)->save();
 
-        $this->invoice->balance= 0;
+        /* Set invoice balance to 0 */
+        if($this->invoice->balance != 0)
+            $this->invoice->ledger()->updateInvoiceBalance($balance_remaining*-1, $notes)->save();
+
+        $this->invoice->balance=0;
 
         /* Set invoice status to reversed... somehow*/
         $this->invoice->service()->setStatus(Invoice::STATUS_REVERSED)->save();
@@ -109,6 +114,42 @@ class HandleReversal extends AbstractService
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
     }
+
+
+    // public function run2()
+    // {
+
+    //     /* Check again!! */
+    //     if (!$this->invoice->invoiceReversable($this->invoice)) {
+    //         return $this->invoice;
+    //     }
+
+    //     if($this->invoice->status_id == Invoice::STATUS_CANCELLED)
+    //         $this->invoice = $this->invoice->service()->reverseCancellation()->save();
+
+    //     //$balance_remaining = $this->invoice->balance;
+
+    //     //$total_paid = $this->invoice->amount - $this->invoice->balance;
+
+    //     /*Adjust payment applied and the paymentables to the correct amount */
+    //     $paymentables = Paymentable::wherePaymentableType(Invoice::class)
+    //                                 ->wherePaymentableId($this->invoice->id)
+    //                                 ->get();
+
+    //     $total_paid = 0;
+
+    //     $paymentables->each(function ($paymentable) use ($total_paid) {
+
+    //         $reversable_amount = $paymentable->amount - $paymentable->refunded;
+    //         $total_paid -= $reversable_amount;
+    //         $paymentable->amount = $paymentable->refunded;
+    //         $paymentable->save();
+    //     });
+
+    //     //Unwinding any payments made to this invoice
+        
+        
+    // }
 }
 
-// The client paid to date amount is reduced by the calculated amount of (invoice balance - invoice amount).
+    

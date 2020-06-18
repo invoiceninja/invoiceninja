@@ -15,6 +15,8 @@ use App\Events\Payment\Methods\MethodDeleted;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\CreatePaymentMethodRequest;
 use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
+use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -42,13 +44,8 @@ class PaymentMethodController extends Controller
     {
         $gateway = auth()->user()->client->getCreditCardGateway();
 
-        $data = [
-            'gateway' => $gateway,
-            'gateway_type_id' => 1,
-            'token' => false,
-        ];
+        return $gateway->driver(auth()->user()->client)->authorizeView(GatewayType::CREDIT_CARD);
 
-        return $gateway->driver(auth()->user()->client)->authorizeCreditCardView($data);
     }
 
     /**
@@ -60,8 +57,9 @@ class PaymentMethodController extends Controller
     public function store(Request $request)
     {
         $gateway = auth()->user()->client->getCreditCardGateway();
+        
+        return $gateway->driver(auth()->user()->client)->authorizeResponseView($request->all());
 
-        return $gateway->driver(auth()->user()->client)->authorizeCreditCardResponse($request);
     }
 
     /**
@@ -98,6 +96,26 @@ class PaymentMethodController extends Controller
     public function update(Request $request, $id)
     {
         //
+    }
+
+    public function verify(ClientGatewayToken $payment_method)
+    {
+        $gateway = auth()->user()->client->getCreditCardGateway();
+
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\ACH')
+            ->verificationView($payment_method);
+    }
+
+    public function processVerification(ClientGatewaytoken $payment_method)
+    {
+        $gateway = auth()->user()->client->getCreditCardGateway();
+
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\ACH')
+            ->processVerification($payment_method);
     }
 
     /**

@@ -37,7 +37,14 @@ class ApplyPayment extends AbstractService
              ->ledger()
              ->updatePaymentBalance($this->payment_amount*-1);
 
-        $this->payment->client->service()->updateBalance($this->payment_amount*-1)->save();
+        info("apply payment method - current client balance = {$this->payment->client->balance}");
+
+        info("reducing client balance by payment amount {$this->payment_amount}");
+
+        $this->invoice->client->service()->updateBalance($this->payment_amount*-1)->save();
+//        $this->invoice->client->service()->updateBalance($this->payment_amount*-1)->updatePaidToDate($this->payment_amount)->save();
+
+        info("post client balance = {$this->invoice->client->balance}");
 
         /* Update Pivot Record amount */
         $this->payment->invoices->each(function ($inv) {
@@ -46,6 +53,10 @@ class ApplyPayment extends AbstractService
                 $inv->pivot->save();
             }
         });
+
+        $this->invoice->fresh('client');
+
+        info("1 end of apply payment method the client balance = {$this->invoice->client->balance}");
 
         if ($this->invoice->hasPartial()) {
             //is partial and amount is exactly the partial amount
@@ -61,9 +72,11 @@ class ApplyPayment extends AbstractService
         } elseif ($this->payment_amount < $this->invoice->balance) { //partial invoice payment made
             $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($this->payment_amount*-1);
         }
+        info("2 end of apply payment method the client balnace = {$this->invoice->client->balance}");
 
         $this->invoice->service()->applyNumber()->save();
 
+        info("3 end of apply payment method the client balnace = {$this->invoice->client->balance}");
         return $this->invoice;
     }
 }

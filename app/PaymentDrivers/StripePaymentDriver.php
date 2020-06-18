@@ -21,6 +21,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -30,7 +31,7 @@ use Stripe\Stripe;
 
 class StripePaymentDriver extends BasePaymentDriver
 {
-    use MakesHash;
+    use MakesHash, Utilities;
 
     protected $refundable = true;
 
@@ -39,6 +40,8 @@ class StripePaymentDriver extends BasePaymentDriver
     protected $can_authorise_credit_card = true;
 
     protected $customer_reference = 'customerReferenceParam';
+
+    protected $payment_method;
 
     /**
      * Methods in this class are divided into
@@ -60,6 +63,15 @@ class StripePaymentDriver extends BasePaymentDriver
     public function init() :void
     {
         Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
+    }
+
+    public function setPaymentMethod(string $method)
+    {
+        // Example: setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard');
+
+        $this->payment_method = new $method($this);
+
+        return $this;
     }
 
     /**
@@ -128,102 +140,39 @@ class StripePaymentDriver extends BasePaymentDriver
     }
 
     /**
-     * Authorises a credit card for future use.
-     *
-     * @param  array  $data Array of variables needed for the view
+     * Proxy method to pass the data into payment method authorizeView().
+     * 
+     * @param array $data 
+     * 
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function authorizeCreditCardView(array $data)
+    public function authorizeView(array $data)
     {
-        $intent['intent'] = $this->getSetupIntent();
-
-        return render('gateways.stripe.add_credit_card', array_merge($data, $intent));
+        return $this->payment_method->authorizeView($data);
     }
 
     /**
      * Processes the gateway response for credit card authorization.
      *
-     * @param Request $request The returning request object
-     * @return view          Returns the user to payment methods screen.
-     * @throws \Stripe\Exception\ApiErrorException
+     * @param \Illuminate\Http\Request $request The returning request object
+
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function authorizeCreditCardResponse($request)
     {
-        $server_response = json_decode($request->input('gateway_response'));
-
-        $gateway_id = $request->input('gateway_id');
-        $gateway_type_id = $request->input('gateway_type_id');
-        $is_default = $request->input('is_default');
-
-        $payment_method = $server_response->payment_method;
-
-        $customer = $this->findOrCreateCustomer();
-
-        $this->init();
-        $stripe_payment_method = \Stripe\PaymentMethod::retrieve($payment_method);
-        $stripe_payment_method_obj = $stripe_payment_method->jsonSerialize();
-        $stripe_payment_method->attach(['customer' => $customer->id]);
-
-        $payment_meta = new \stdClass;
-
-        if ($stripe_payment_method_obj['type'] == 'card') {
-            $payment_meta->exp_month = $stripe_payment_method_obj['card']['exp_month'];
-            $payment_meta->exp_year = $stripe_payment_method_obj['card']['exp_year'];
-            $payment_meta->brand = $stripe_payment_method_obj['card']['brand'];
-            $payment_meta->last4 = $stripe_payment_method_obj['card']['last4'];
-            $payment_meta->type = GatewayType::CREDIT_CARD;
-        }
-
-        $cgt = new ClientGatewayToken;
-        $cgt->company_id = $this->client->company->id;
-        $cgt->client_id = $this->client->id;
-        $cgt->token = $payment_method;
-        $cgt->company_gateway_id = $this->company_gateway->id;
-        $cgt->gateway_type_id = $gateway_type_id;
-        $cgt->gateway_customer_reference = $customer->id;
-        $cgt->meta = $payment_meta;
-        $cgt->save();
-
-        if ($is_default == 'true' || $this->client->gateway_tokens->count() == 1) {
-            $this->client->gateway_tokens()->update(['is_default'=>0]);
-
-            $cgt->is_default = 1;
-            $cgt->save();
-        }
-
-        return redirect()->route('client.payment_methods.index');
+        return $this->payment_method->authorizeResponse($request);
     }
 
     /**
      * Process the payment with gateway.
      *
      * @param array $data
+
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|void
-     * @throws \Exception
      */
     public function processPaymentView(array $data)
     {
-        $payment_intent_data = [
-            'amount' => $this->convertToStripeAmount($data['amount_with_fee'], $this->client->currency()->precision),
-            'currency' => $this->client->getCurrencyCode(),
-            'customer' => $this->findOrCreateCustomer(),
-            'description' => $data['invoices']->pluck('id'), //todo more meaningful description here:
-        ];
-
-        if ($data['token']) {
-            $payment_intent_data['payment_method'] = $data['token']->token;
-        } else {
-            $payment_intent_data['setup_future_usage']  = 'off_session';
-//            $payment_intent_data['save_payment_method'] = true;
-//            $payment_intent_data['confirm'] = true;
-        }
-
-
-        $data['intent'] = $this->createPaymentIntent($payment_intent_data);
-
-        $data['gateway'] = $this;
-
-        return render($this->viewForType($data['payment_method_id']), $data);
+        return $this->payment_method->paymentView($data);
     }
 
     /**
@@ -256,137 +205,12 @@ class StripePaymentDriver extends BasePaymentDriver
     */
     public function processPaymentResponse($request) //We never have to worry about unsuccessful payments as failures are handled at the front end for this driver.
     {
-        $server_response = json_decode($request->input('gateway_response'));
-
-        $payment_method = $server_response->payment_method;
-        $payment_status = $server_response->status;
-        $save_card = $request->input('store_card');
-
-        $gateway_type_id = $request->input('payment_method_id');
-        $hashed_ids = $request->input('hashed_ids');
-        $invoices = Invoice::whereIn('id', $this->transformKeys($hashed_ids))
-                                ->whereClientId($this->client->id)
-                                ->get();
-        /**
-         * Potential statuses that can be returned
-         *
-         * requires_action
-         * processing
-         * canceled
-         * requires_action
-         * requires_confirmation
-         * requires_payment_method
-         *
-         */
-
-        if ($this->getContact()) {
-            $client_contact = $this->getContact();
-        } else {
-            $client_contact = $invoices->first()->invitations->first()->contact;
-        }
-
-        $this->init();
-        $payment_intent = \Stripe\PaymentIntent::retrieve($server_response->id);
-        $customer = $payment_intent->customer;
-
-        if ($payment_status == 'succeeded') {
-
-            $charge_id = $payment_intent->charges->data[0]->id;
-
-            $this->init();
-            $stripe_payment_method = \Stripe\PaymentMethod::retrieve($payment_method);
-            $stripe_payment_method_obj = $stripe_payment_method->jsonSerialize();
-
-            $payment_meta = new \stdClass;
-
-            if ($stripe_payment_method_obj['type'] == 'card') {
-                $payment_meta->exp_month = $stripe_payment_method_obj['card']['exp_month'];
-                $payment_meta->exp_year = $stripe_payment_method_obj['card']['exp_year'];
-                $payment_meta->brand = $stripe_payment_method_obj['card']['brand'];
-                $payment_meta->last4 = $stripe_payment_method_obj['card']['last4'];
-                $payment_meta->type = $stripe_payment_method_obj['type'];
-
-                $payment_type = PaymentType::parseCardType($stripe_payment_method_obj['card']['brand']);
-            }
-
-            if ($save_card == 'true') {
-                $stripe_payment_method->attach(['customer' => $customer]);
-
-                $cgt = new ClientGatewayToken;
-                $cgt->company_id = $this->client->company->id;
-                $cgt->client_id = $this->client->id;
-                $cgt->token = $payment_method;
-                $cgt->company_gateway_id = $this->company_gateway->id;
-                $cgt->gateway_type_id = $gateway_type_id;
-                $cgt->gateway_customer_reference = $customer;
-                $cgt->meta = $payment_meta;
-                $cgt->save();
-
-                if ($this->client->gateway_tokens->count() == 1) {
-                    $this->client->gateway_tokens()->update(['is_default'=>0]);
-
-                    $cgt->is_default = 1;
-                    $cgt->save();
-                }
-            }
-
-            //todo need to fix this to support payment types other than credit card.... sepa etc etc
-            if (!$payment_type) {
-                $payment_type = PaymentType::CREDIT_CARD_OTHER;
-            }
-
-
-            $data = [
-              'payment_method' => $charge_id,
-              'payment_type' => $payment_type,
-              'amount' => $server_response->amount,
-            ];
-
-            /* Create payment*/
-            $payment = $this->createPayment($data);
-
-            /* Link invoices to payment*/
-            $this->attachInvoices($payment, $hashed_ids);
-            
-            $payment->service()->UpdateInvoicePayment();
-
-            event(new PaymentWasCreated($payment, $payment->company));
-
-            SystemLogger::dispatch(
-                [
-                'server_response' => $payment_intent,
-                'data' => $data
-              ],
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_SUCCESS,
-                SystemLog::TYPE_STRIPE,
-                $this->client
-            );
-
-            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
-        } else {
-
-            PaymentFailureMailer::dispatch($this->client, $server_response->cancellation_reason, $this->client->company, $server_response->amount);
-
-            /*Fail and log*/
-            SystemLogger::dispatch(
-                [
-              'server_response' => $server_response,
-              'data' => $data
-            ],
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_FAILURE,
-                SystemLog::TYPE_STRIPE,
-                $this->client
-            );
-
-            throw new \Exception("Failed to process payment", 1);
-        }
+        return $this->payment_method->paymentResponse($request);
     }
 
-    public function createPayment($data) :Payment
+    public function createPayment($data, $status = Payment::STATUS_COMPLETED) :Payment
     {
-        $payment = parent::createPayment($data);
+        $payment = parent::createPayment($data, $status);
 
         $client_contact = $this->getContact();
         $client_contact_id = $client_contact ? $client_contact->id : null;
@@ -400,15 +224,6 @@ class StripePaymentDriver extends BasePaymentDriver
         return $payment;
     }
 
-    private function convertFromStripeAmount($amount, $precision)
-    {
-        return $amount / pow(10, $precision);
-    }
-
-    private function convertToStripeAmount($amount, $precision)
-    {
-        return $amount * pow(10, $precision);
-    }
     /**
      * Creates a new String Payment Intent
      *
@@ -513,6 +328,16 @@ class StripePaymentDriver extends BasePaymentDriver
         );
 
         return false;
+    }
+
+    public function verificationView(ClientGatewayToken $payment_method)
+    {
+        return $this->payment_method->verificationView($payment_method);
+    }
+
+    public function processVerification(ClientGatewayToken $payment_method)
+    {
+        return $this->payment_method->processVerification($payment_method);
     }
 
     /************************************** Omnipay API methods **********************************************************/

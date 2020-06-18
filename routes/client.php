@@ -43,6 +43,9 @@ Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', '
     Route::put('profile/{client_contact}/edit_client', 'ClientPortal\ProfileController@updateClient')->name('profile.edit_client');
     Route::put('profile/{client_contact}/localization', 'ClientPortal\ProfileController@updateClientLocalization')->name('profile.edit_localization');
 
+    Route::get('payment_methods/{payment_method}/verification', 'ClientPortal\PaymentMethodController@verify')->name('payment_methods.verification');
+    Route::post('payment_methods/{payment_method}/verification', 'ClientPortal\PaymentMethodController@processVerification');
+
     Route::resource('payment_methods', 'ClientPortal\PaymentMethodController');// name = (payment_methods. index / create / show / update / destroy / edit
 
     Route::match(['GET', 'POST'], 'quotes/approve', 'ClientPortal\QuoteController@bulk')->name('quotes.bulk');

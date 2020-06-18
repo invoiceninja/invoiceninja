@@ -107,7 +107,7 @@ class Designer
             </div>'
         ;
 
-        $signature = '<div></div>'; /** @wip */
+        $signature = '<img class="h-40" src="$contact.signature" />';
         $logo = '<div></div>';
 
         if (!$this->entity->user->account->isPaid()) {

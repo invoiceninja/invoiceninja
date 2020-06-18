@@ -76,6 +76,7 @@ class Quote extends BaseModel
         'due_date' => 'date:Y-m-d',
         'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
+        'backup' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
@@ -84,6 +85,7 @@ class Quote extends BaseModel
     const STATUS_DRAFT = 1;
     const STATUS_SENT =  2;
     const STATUS_APPROVED = 3;
+    const STATUS_CONVERTED = 4;
     const STATUS_EXPIRED = -1;
 
     public function getEntityType()

@@ -37,6 +37,7 @@ return [
         'Turbo124\Beacon\Jobs\System\CpuMetric',
         'Turbo124\Beacon\Jobs\System\HdMetric',
         'Turbo124\Beacon\Jobs\System\MemMetric',
+        'App\Jobs\Ninja\CheckDbStatus',
     ],
 
 ];

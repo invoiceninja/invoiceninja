@@ -46,7 +46,6 @@ class PaymentRepository extends BaseRepository
     /**
      * Saves and updates a payment. //todo refactor to handle refunds and payments.
      *
-     *
      * @param array $data the request object
      * @param Payment $payment The Payment object
      * @return Payment|null Payment $payment
@@ -57,61 +56,85 @@ class PaymentRepository extends BaseRepository
             return $this->applyPayment($data, $payment);
         }
 
-        return $this->refundPayment($data, $payment);
+        return $payment;
     }
 
     /**
      * Handles a positive payment request
-     * @param array $data The data object
-     * @param Payment $payment The $payment entity
+     * @param  array $data      The data object
+     * @param  Payment $payment The $payment entity
      * @return Payment          The updated/created payment object
      */
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
+
         //check currencies here and fill the exchange rate data if necessary
         if (!$payment->id) {
             $this->processExchangeRates($data, $payment);
+
+            /*We only update the paid to date ONCE per payment*/
+            if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
+
+                if($data['amount'] == '')
+                    $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
+                
+                $client = Client::find($data['client_id']);
+                $client->service()->updatePaidToDate($data['amount'])->save();
+
+            }
         }
 
+        /*Fill the payment*/
         $payment->fill($data);
-
         $payment->status_id = Payment::STATUS_COMPLETED;
-
         $payment->save();
 
+
+        /*Ensure payment number generated*/
         if (!$payment->number || strlen($payment->number) == 0) {
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
         }
 
-        $payment->client->service()->updatePaidToDate($payment->amount)->save();
-
         $invoice_totals = 0;
         $credit_totals = 0;
 
-        if (array_key_exists('invoices', $data) && is_array($data['invoices'])) {
+        /*Iterate through invoices and apply payments*/
+        if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
             $payment->invoices()->saveMany($invoices);
 
+            info("iterating through payment invoices");
+
             foreach ($data['invoices'] as $paid_invoice) {
-                $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
+
+                $invoice = Invoice::whereId($paid_invoice['invoice_id'])->with('client')->first();
+
+                info("current client balance = {$invoice->client->balance}");
 
                 if ($invoice) {
-                    $invoice->service()->applyPayment($payment, $paid_invoice['amount'])->save();
+                
+                    info("apply payment amount {$paid_invoice['amount']}");
+                    
+                    $invoice = $invoice->service()->markSent()->applyPayment($payment, $paid_invoice['amount'])->save();
+
+                    info("after processing invoice the client balance is now {$invoice->client->balance}");
+
                 }
+
+                
             }
         } else {
-            //payment is made, but not to any invoice, therefore we are applying the payment to the clients credit
-            $payment->client->processUnappliedPayment($payment->amount);
+            //payment is made, but not to any invoice, therefore we are applying the payment to the clients paid_to_date only
+            $payment->client->service()->updatePaidToDate($payment->amount)->save(); 
         }
 
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
             $credits = Credit::whereIn('id', $this->transformKeys(array_column($data['credits'], 'credit_id')))->get();
-
             $payment->credits()->saveMany($credits);
 
             foreach ($data['credits'] as $paid_credit) {
@@ -128,8 +151,9 @@ class PaymentRepository extends BaseRepository
         $invoice_totals -= $credit_totals;
 
         //$payment->amount = $invoice_totals; //creates problems when setting amount like this.
-
-        if ($invoice_totals == $payment->amount) {
+        if($credit_totals == $payment->amount){
+            $payment->applied += $credit_totals;
+        } elseif ($invoice_totals == $payment->amount) {
             $payment->applied += $payment->amount;
         } elseif ($invoice_totals < $payment->amount) {
             $payment->applied += $invoice_totals;
@@ -138,53 +162,6 @@ class PaymentRepository extends BaseRepository
         $payment->save();
 
         return $payment->fresh();
-    }
-
-    /**
-     * @deprecated Refundable trait replaces this.
-     */
-    private function refundPayment(array $data, Payment $payment): string
-    {
-        // //temp variable to sum the total refund/credit amount
-        // $invoice_total_adjustment = 0;
-
-        // if (array_key_exists('invoices', $data) && is_array($data['invoices'])) {
-
-        //     foreach ($data['invoices'] as $adjusted_invoice) {
-
-        //         $invoice = Invoice::whereId($adjusted_invoice['invoice_id'])->first();
-
-        //         $invoice_total_adjustment += $adjusted_invoice['amount'];
-
-        //         if (array_key_exists('credits', $adjusted_invoice)) {
-
-        //             //process and insert credit notes
-        //             foreach ($adjusted_invoice['credits'] as $credit) {
-
-        //                 $credit = $this->credit_repo->save($credit, CreditFactory::create(auth()->user()->id, auth()->user()->id), $invoice);
-
-        //             }
-
-        //         } else {
-        //             //todo - generate Credit Note for $amount on $invoice - the assumption here is that it is a FULL refund
-        //         }
-
-        //     }
-
-        //     if (array_key_exists('amount', $data) && $data['amount'] != $invoice_total_adjustment)
-        //         return 'Amount must equal the sum of invoice adjustments';
-        // }
-
-
-        // //adjust applied amount
-        // $payment->applied += $invoice_total_adjustment;
-
-        // //adjust clients paid to date
-        // $client = $payment->client;
-        // $client->paid_to_date += $invoice_total_adjustment;
-
-        // $payment->save();
-        // $client->save();
     }
 
 

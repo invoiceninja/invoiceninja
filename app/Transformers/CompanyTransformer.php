@@ -121,6 +121,7 @@ class CompanyTransformer extends EntityTransformer
             'slack_webhook_url' => (string)$company->slack_webhook_url,
             'google_analytics_url' => (string)$company->google_analytics_key, //@deprecate
             'google_analytics_key' => (string)$company->google_analytics_key,
+            'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates
         ];
     }
 

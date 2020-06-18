@@ -11,10 +11,12 @@
 
 namespace App\Transformers;
 
+use App\Models\Backup;
 use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Transformers\DocumentTransformer;
+use App\Transformers\InvoiceHistoryTransformer;
 use App\Transformers\InvoiceInvitationTransformer;
 use App\Utils\Traits\MakesHash;
 
@@ -29,6 +31,7 @@ class InvoiceTransformer extends EntityTransformer
 
     protected $availableIncludes = [
         'invitations',
+        'history'
     //    'payments',
     //    'client',
     //    'documents',
@@ -40,16 +43,15 @@ class InvoiceTransformer extends EntityTransformer
 
         return $this->includeCollection($invoice->invitations, $transformer, InvoiceInvitation::class);
     }
+
+    public function includeHistory(Invoice $invoice)
+    {
+        $transformer = new InvoiceHistoryTransformer($this->serializer);
+
+        return $this->includeCollection($invoice->history, $transformer, Backup::class);
+    }
+    
     /*
-        public function includeInvoiceItems(Invoice $invoice)
-        {
-            $transformer = new InvoiceItemTransformer($this->serializer);
-
-            return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
-        }
-
-
-
         public function includePayments(Invoice $invoice)
         {
             $transformer = new PaymentTransformer($this->account, $this->serializer, $invoice);

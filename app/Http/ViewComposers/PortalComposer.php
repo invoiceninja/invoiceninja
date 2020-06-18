@@ -49,6 +49,7 @@ class PortalComposer
         $data['company'] = auth()->user()->company;
         $data['client'] = auth()->user()->client;
         $data['settings'] = auth()->user()->client->getMergedSettings();
+        $data['currencies'] = TranslationHelper::getCurrencies();
 
         $data['multiple_contacts'] = ClientContact::where('email', auth('contact')->user()->email)->whereNotNull('email')->distinct('company_id')->get();
 
@@ -63,9 +64,9 @@ class PortalComposer
         $data[] = [ 'title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'file-text'];
         $data[] = [ 'title' => ctrans('texts.recurring_invoices'), 'url' => 'client.recurring_invoices.index', 'icon' => 'file'];
         $data[] = [ 'title' => ctrans('texts.payments'), 'url' => 'client.payments.index', 'icon' => 'credit-card'];
-        $data[] = [ 'title' => ctrans('texts.payment_methods'), 'url' => 'client.payment_methods.index', 'icon' => 'shield'];
         $data[] = [ 'title' => ctrans('texts.quotes'), 'url' => 'client.quotes.index', 'icon' => 'align-left'];
         $data[] = [ 'title' => ctrans('texts.credits'), 'url' => 'client.credits.index', 'icon' => 'credit-card'];
+        $data[] = [ 'title' => ctrans('texts.payment_methods'), 'url' => 'client.payment_methods.index', 'icon' => 'shield'];
 
         return $data;
     }

@@ -251,12 +251,12 @@ class Client extends BaseModel implements HasLocalePreference
      * @param  float $amount Adjustment amount
      * @return Client
      */
-    public function processUnappliedPayment($amount) :Client
-    {
-        return $this->service()->updatePaidToDate($amount)
-                                ->adjustCreditBalance($amount)
-                                ->save();
-    }
+    // public function processUnappliedPayment($amount) :Client
+    // {
+    //     return $this->service()->updatePaidToDate($amount)
+    //                             ->adjustCreditBalance($amount)
+    //                             ->save();
+    // }
 
     /**
      *
@@ -506,5 +506,10 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         return $defaults;
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

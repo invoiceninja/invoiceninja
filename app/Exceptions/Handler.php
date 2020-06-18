@@ -11,6 +11,7 @@
 
 namespace App\Exceptions;
 
+use App\Exceptions\GenericPaymentDriverFailure;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -115,7 +116,14 @@ class Handler extends ExceptionHandler
             return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);
         } elseif ($exception instanceof RelationNotFoundException && $request->expectsJson()) {
             return response()->json(['message' => $exception->getMessage()], 400);
+        } elseif ($exception instanceof GenericPaymentDriverFailure && $request->expectsJson()) {
+            return response()->json(['message' => $exception->getMessage()], 400);
+        } elseif ($exception instanceof GenericPaymentDriverFailure) {
+            $data['message'] = $exception->getMessage();
+            dd($data);
+           // return view('errors.layout', $data);
         }
+
 
         return parent::render($request, $exception);
     }
