@@ -53,7 +53,7 @@ $custom_css
         $company_logo
     </div>
     <div class="col-span-5">
-        <div class="flex flex-col">
+        <div class="flex flex-col flex-wrap">
             $entity_details
         </div>
     </div>
@@ -67,13 +67,13 @@ $custom_css
 <div class="flex flex-col">
     <div class="flex">
         <p class="uppercase text-orange-800">$to_label:</p>
-        <div class="flex flex-col ml-2">
+        <div class="flex flex-col ml-2 flex-wrap">
             $client_details
         </div>
     </div>
     <div class="flex mt-5">
         <p class="uppercase text-orange-800">$from_label:</p>
-        <div class="flex flex-col ml-2">
+        <div class="flex flex-col ml-2 flex-wrap">
             $company_details
         </div>
     </div>
@@ -84,7 +84,7 @@ $custom_css
 <thead class="text-left border-b-4 border-black">
     $product_table_header
 </thead>
-<tbody>
+<tbody class="whitespace-pre-line">
     $product_table_body
 </tbody>
 </table>
@@ -92,7 +92,7 @@ $custom_css
 <thead class="text-left border-b-4 border-black">
     $task_table_header
 </thead>
-<tbody>
+<tbody class="whitespace-pre-line">
     $task_table_body
 </tbody>
 </table>

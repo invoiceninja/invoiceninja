@@ -48,15 +48,15 @@ $custom_css
     <div class="w-1/2 border-l pl-4 border-black mr-4">
         <p class="font-semibold uppercase text-yellow-600">From:</p>
         <div class="flex">
-            <div class="flex flex-col mr-5">
+            <div class="flex flex-col mr-5 flex-wrap">
                 $company_details
             </div>
-            <div class="flex flex-col">
+            <div class="flex flex-col flex-wrap">
                 $company_address
             </div>
         </div>
     </div>
-    <div class="w-1/3 border-l pl-4 border-black flex flex-col">
+    <div class="w-1/3 border-l pl-4 border-black flex flex-col flex-wrap">
         <p class="font-semibold uppercase text-yellow-600">To:</p>
         $client_details
     </div>
@@ -90,7 +90,7 @@ $custom_css
 <thead class="text-left">
     $product_table_header
 </thead>
-<tbody>
+<tbody class="whitespace-pre-line">
     $product_table_body
 </tbody>
 </table>
@@ -98,7 +98,7 @@ $custom_css
 <thead class="text-left">
     $task_table_header
 </thead>
-<tbody>
+<tbody class="whitespace-pre-line">
     $task_table_body
 </tbody>
 </table>

@@ -45,10 +45,10 @@ $custom_css
     <div class="col-span-2 p-3">
         $company_logo
     </div>
-    <div class="col-span-2 p-3 flex flex-col">
+    <div class="col-span-2 p-3 flex flex-col flex-wrap">
         $company_details
     </div>
-    <div class="col-span-2 p-3 flex flex-col">
+    <div class="col-span-2 p-3 flex flex-col flex-wrap">
         $entity_details
     </div>
 </div>';
@@ -56,7 +56,7 @@ $custom_css
 
     public function body()
     {
-        return '<div class="flex flex-col mt-8">
+        return '<div class="flex flex-col mt-8 flex-wrap">
     $client_details
 </div>
 <table class="w-full table-auto mt-8">

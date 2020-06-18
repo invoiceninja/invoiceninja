@@ -52,10 +52,10 @@ $custom_css
     <div class="col-span-2 p-3">
         $company_logo
     </div>
-    <div class="col-span-2 p-3 flex flex-col">
+    <div class="col-span-2 p-3 flex flex-col flex-wrap">
         $company_details
     </div>
-    <div class="col-span-2 p-3 flex flex-col">
+    <div class="col-span-2 p-3 flex flex-col flex-wrap">
         $company_address
     </div>
 </div>';
@@ -64,11 +64,11 @@ $custom_css
     public function body()
     {
         return '<div class="grid grid-cols-12 gap-1 mt-8">
-    <div class="col-span-7 p-3 flex flex-col">
+    <div class="col-span-7 p-3 flex flex-col flex-wrap">
         $client_details
     </div>
     <div class="col-span-5 p-3 flex flex-col bg-orange-600 px-4 py-4 h-auto rounded-lg">
-        <div class="flex flex-col text-white">
+        <div class="flex flex-col text-white flex-wrap">
             $entity_details
         </div>
     </div>
@@ -78,7 +78,7 @@ $custom_css
     <thead class="text-left">
         $product_table_header
     </thead>
-    <tbody class="bg-gray-200">
+    <tbody class="bg-gray-200 whitespace-pre-line">
         $product_table_body
     </tbody>
 </table>
@@ -86,7 +86,7 @@ $custom_css
     <thead class="text-left">
         $task_table_header
     </thead>
-    <tbody class="bg-gray-200">
+    <tbody class="bg-gray-200 whitespace-pre-line">
         $task_table_body
     </tbody>
 </table>
