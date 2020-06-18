@@ -33,23 +33,23 @@ class ContactRegisterController extends Controller
         }
 
         $client = factory(Client::class)->create([
-            'user_id' => $user->id, /** @wip */
+            'user_id' => $company->owner()->id,
             'company_id' => $company->id
         ]);
 
-        ClientContact::create([
+        $client_contact = ClientContact::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
             'company_id' => $company->id,
             'password' => Hash::make($request->password),
             'client_id' => $client->id,
-            'user_id' => $user->id, /** @wip  */
-            'is_primary' => true, /** @verify */
+            'user_id' => $company->owner()->id,
+            'is_primary' => true,
             'contact_key' => \Illuminate\Support\Str::random(40),
         ]);
 
-        Auth::guard('contact')->login($client, true);
+        Auth::guard('contact')->login($client_contact, true);
 
         return redirect()->route('client.dashboard');
     }
