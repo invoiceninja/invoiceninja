@@ -116,7 +116,8 @@ class AuthorizeAuthorizeCard {
         // Note: this.form.valid will not handle empty fields.
 
         this.cardButton.addEventListener("click", () => {
-            this.handleAuthorization();
+            this.cardButton.disabled = !this.cardButton.disabled;
+            // this.handleAuthorization();
         });
 
 
