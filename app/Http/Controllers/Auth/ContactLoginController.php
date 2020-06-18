@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\Contact\ContactLoggedIn;
 use App\Http\Controllers\Controller;
 use App\Models\ClientContact;
 use Auth;
@@ -61,6 +62,8 @@ class ContactLoginController extends Controller
     public function authenticated(Request $request, ClientContact $client)
     {
         Auth::guard('contact')->login($client, true);
+
+        event(new ContactLoggedIn($client));
 
         if (session()->get('url.intended')) {
             return redirect(session()->get('url.intended'));
