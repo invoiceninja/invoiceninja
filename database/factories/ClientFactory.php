@@ -6,7 +6,7 @@ use Faker\Generator as Faker;
 
 $factory->define(App\Models\Client::class, function (Faker $faker) {
     return [
-        'name' => $faker->name(),
+        'name' => $faker->company(),
         'website' => $faker->url,
         'private_notes' => $faker->text(200),
         'balance' => 0,

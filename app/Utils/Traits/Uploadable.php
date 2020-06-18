@@ -24,6 +24,8 @@ trait Uploadable
         if ($file) {
             $path = UploadAvatar::dispatchNow($file, $company->company_key);
 
+info("the path {$path}");
+
             if ($path) {
                 $settings = $entity->settings;
                 $settings->company_logo = $path;

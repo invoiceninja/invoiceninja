@@ -71,7 +71,8 @@ class HandleReversal extends AbstractService
         if ($total_paid > 0) {
             $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);
             $credit->client_id = $this->invoice->client_id;
-
+            $credit->invoice_id = $this->invoice->id;
+            
             $item = InvoiceItemFactory::create();
             $item->quantity = 1;
             $item->cost = (float)$total_paid;
