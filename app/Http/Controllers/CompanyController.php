@@ -466,9 +466,13 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
+        info(print_r($request->all()));
+        info("destroying {$company->present()->name()} - {$company->hashed_id}");
 
         $company_count = $company->account->companies->count();
         $account = $company->account;
+        
+        info("company count = {$company_count}");
 
         if ($company_count == 1) {
         
