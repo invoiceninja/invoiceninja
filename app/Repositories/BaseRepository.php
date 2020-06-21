@@ -203,13 +203,14 @@ class BaseRepository
         $lcfirst_resource_id = lcfirst($resource) . '_id';
 
         if ($class->name == Invoice::class || $class->name == Quote::class) {
+            info("class name = invoice");
             $state['starting_amount'] = $model->amount;
+            info("starting amount = {$model->amount}");
         }
 
         if (!$model->id) {
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
-
             $data = array_merge($company_defaults, $data);
         }
         
@@ -281,7 +282,10 @@ class BaseRepository
             $model->service()->createInvitations();
         }
 
+        $model = $model->calc()->getInvoice();
         $state['finished_amount'] = $model->amount;
+        
+        info("finished amount = {$model->amount}");
 
         $model = $model->service()->applyNumber()->save();
         
@@ -291,10 +295,10 @@ class BaseRepository
 
         if ($class->name == Invoice::class) {
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
+                info("inside ledger updating");
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
+                $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
             }
-
-            $model = $model->calc()->getInvoice();
 
             event(new InvoiceWasUpdated($model, $model->company));
 

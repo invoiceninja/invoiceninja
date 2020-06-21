@@ -84,6 +84,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('migrate', 'MigrationController@index')->name('migrate.start');
 
     Route::resource('designs', 'DesignController');// name = (payments. index / create / show / update / destroy / edit
+    Route::post('designs/bulk', 'DesignController@bulk')->name('designs.bulk');
 
     Route::get('users', 'UserController@index');
     Route::put('users/{user}', 'UserController@update')->middleware('password_protected');

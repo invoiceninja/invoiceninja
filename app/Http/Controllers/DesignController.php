@@ -21,6 +21,7 @@ use App\Http\Requests\Design\StoreDesignRequest;
 use App\Http\Requests\Design\UpdateDesignRequest;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Design;
+use App\Repositories\DesignRepository;
 use App\Transformers\DesignTransformer;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
@@ -40,14 +41,17 @@ class DesignController extends BaseController
 
     protected $entity_transformer = DesignTransformer::class;
 
+    protected $design_repo;
 
     /**
      * DesignController constructor.
      * @param DesignRepository $designRepo
      */
-    public function __construct()
+    public function __construct(DesignRepository $design_repo)
     {
         parent::__construct();
+
+        $this->design_repo = $design_repo;
     }
 
     /**
@@ -480,7 +484,7 @@ class DesignController extends BaseController
         
         $designs->each(function ($design, $key) use ($action) {
             if (auth()->user()->can('edit', $design)) {
-                //$this->design_repo->{$action}($design);@todo
+                $this->design_repo->{$action}($design);@todo
             }
         });
         
