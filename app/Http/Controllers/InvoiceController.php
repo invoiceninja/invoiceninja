@@ -701,7 +701,7 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'email':
-
+                //check query paramater for email_type and set the template else use calculateTemplate
                 $this->reminder_template = $invoice->calculateTemplate();
 
                 $invoice->invitations->load('contact.client.country','invoice.client.country','invoice.company')->each(function ($invitation) use ($invoice) {
