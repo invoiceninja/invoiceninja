@@ -136,7 +136,7 @@ class LoginController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="The Company User response",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
@@ -168,7 +168,7 @@ class LoginController extends BaseController
             return response()
             ->json(['message' => 'Too many login attempts, you are being throttled'], 401)
             ->header('X-App-Version', config('ninja.app_version'))
-            ->header('X-Api-Version', config('ninja.api_version'));
+            ->header('X-Api-Version', config('ninja.minimum_client_version'));
         }
 
         if ($this->attemptLogin($request)) {
@@ -196,7 +196,7 @@ class LoginController extends BaseController
             return response()
             ->json(['message' => ctrans('texts.invalid_credentials')], 401)
             ->header('X-App-Version', config('ninja.app_version'))
-            ->header('X-Api-Version', config('ninja.api_version'));
+            ->header('X-Api-Version', config('ninja.minimum_client_version'));
         }
     }
 
@@ -221,7 +221,7 @@ class LoginController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="The Company User response",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
@@ -267,7 +267,7 @@ class LoginController extends BaseController
         return response()
         ->json(['message' => 'Provider not supported'], 400)
         ->header('X-App-Version', config('ninja.app_version'))
-        ->header('X-Api-Version', config('ninja.api_version'));
+        ->header('X-Api-Version', config('ninja.minimum_client_version'));
     }
 
     private function handleGoogleOauth()
@@ -344,7 +344,7 @@ class LoginController extends BaseController
         return response()
         ->json(['message' => ctrans('texts.invalid_credentials')], 401)
         ->header('X-App-Version', config('ninja.app_version'))
-        ->header('X-Api-Version', config('ninja.api_version'));
+        ->header('X-Api-Version', config('ninja.minimum_client_version'));
         
 
     }

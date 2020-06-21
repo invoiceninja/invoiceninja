@@ -1,7 +1,7 @@
 <?php
 /**
  * @OA\Header(
- *     header="X-API-Version",
+ *     header="X-MINIMUM-CLIENT-VERSION",
  *     description="The API version",
  *     @OA\Schema( type="number" )
  * ),

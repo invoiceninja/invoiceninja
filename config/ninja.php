@@ -13,7 +13,7 @@ return [
     'app_url' => env('APP_URL', ''),
     'app_domain' => env('APP_DOMAIN', ''),
     'app_version' => '5.0.4',
-    'api_version' => '5.0.4',
+    'minimum_client_version' => '5.0.4',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
     'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
