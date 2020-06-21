@@ -35,7 +35,7 @@ class UpdatePaymentRequest extends Request
 
 
     public function rules()
-    {//min:1 removed
+    {//min:1 removed, 'required'
         return [
             'invoices' => ['array',new PaymentAppliedValidAmount,new ValidCreditsPresentRule],
             'invoices.*.invoice_id' => 'distinct',
