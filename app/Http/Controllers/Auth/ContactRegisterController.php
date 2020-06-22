@@ -21,7 +21,9 @@ class ContactRegisterController extends Controller
 
     public function showRegisterForm(string $company_key)
     {
-        return render('auth.register');
+        $company = Company::where('company_key', $company_key)->firstOrFail();
+
+        return render('auth.register', compact(['company']));
     }
 
     public function register(RegisterRequest $request)
