@@ -39,7 +39,7 @@ class Cors
         $response->headers->set('Access-Control-Allow-Headers', 'X-API-SECRET,X-API-TOKEN,X-API-PASSWORD,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range');
         $response->headers->set('Access-Control-Expose-Headers', 'X-APP-VERSION');
         $response->headers->set('X-APP-VERSION', config('ninja.app_version'));
-        $response->headers->set('X-API-VERSION', config('ninja.api_version'));
+        $response->headers->set('X-MINIMUM-CLIENT-VERSION', config('ninja.minimum_client_version'));
         
         return $response;
     }

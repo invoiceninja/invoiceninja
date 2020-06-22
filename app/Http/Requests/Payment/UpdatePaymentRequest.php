@@ -35,9 +35,9 @@ class UpdatePaymentRequest extends Request
 
 
     public function rules()
-    {//min:1 removed
+    {//min:1 removed, 'required'
         return [
-            'invoices' => ['required','array',new PaymentAppliedValidAmount,new ValidCreditsPresentRule],
+            'invoices' => ['array',new PaymentAppliedValidAmount,new ValidCreditsPresentRule],
             'invoices.*.invoice_id' => 'distinct',
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];

@@ -38,6 +38,7 @@ class Credit extends BaseModel
     protected $presenter = 'App\Models\Presenters\CreditPresenter';
 
     protected $fillable = [
+        'assigned_user_id',
         'number',
         'discount',
         'po_number',

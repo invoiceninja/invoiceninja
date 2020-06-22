@@ -64,6 +64,7 @@ class Client extends BaseModel implements HasLocalePreference
     ];
    
     protected $fillable = [
+        'assigned_user_id',
         'currency_id',
         'name',
         'website',
@@ -120,7 +121,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function ledger()
     {
-        return $this->hasMany(CompanyLedger::class);
+        return $this->hasMany(CompanyLedger::class)->orderBy('id', 'desc');
     }
 
     public function gateway_tokens()
@@ -149,7 +150,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function activities()
     {
-        return $this->hasMany(Activity::class);
+        return $this->hasMany(Activity::class)->orderBy('id', 'desc');
     }
 
     public function contacts()

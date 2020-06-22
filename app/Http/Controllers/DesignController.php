@@ -21,6 +21,7 @@ use App\Http\Requests\Design\StoreDesignRequest;
 use App\Http\Requests\Design\UpdateDesignRequest;
 use App\Jobs\Entity\ActionEntity;
 use App\Models\Design;
+use App\Repositories\DesignRepository;
 use App\Transformers\DesignTransformer;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
@@ -40,14 +41,17 @@ class DesignController extends BaseController
 
     protected $entity_transformer = DesignTransformer::class;
 
+    protected $design_repo;
 
     /**
      * DesignController constructor.
      * @param DesignRepository $designRepo
      */
-    public function __construct()
+    public function __construct(DesignRepository $design_repo)
     {
         parent::__construct();
+
+        $this->design_repo = $design_repo;
     }
 
     /**
@@ -65,7 +69,7 @@ class DesignController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="A list of designs",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Design"),
@@ -122,7 +126,7 @@ class DesignController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the expense object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Design"),
@@ -177,7 +181,7 @@ class DesignController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the design object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Design"),
@@ -234,7 +238,7 @@ class DesignController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the design object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Design"),
@@ -285,7 +289,7 @@ class DesignController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="A blank design object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Design"),
@@ -332,7 +336,7 @@ class DesignController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the saved design object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Design"),
@@ -391,7 +395,7 @@ class DesignController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns a HTTP status",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *       ),
@@ -454,7 +458,7 @@ class DesignController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="The Design User response",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Design"),
@@ -478,9 +482,14 @@ class DesignController extends BaseController
         $ids = request()->input('ids');
         $designs = Design::withTrashed()->find($this->transformKeys($ids));
         
+        info($designs);
+        info(auth()->user()->id);
+        info(auth()->user()->getCompany()->id);
+        
         $designs->each(function ($design, $key) use ($action) {
             if (auth()->user()->can('edit', $design)) {
-                //$this->design_repo->{$action}($design);@todo
+                info("authed");
+                $this->design_repo->{$action}($design);
             }
         });
         

@@ -42,6 +42,7 @@ class Quote extends BaseModel
     protected $presenter = 'App\Models\Presenters\QuotePresenter';
 
     protected $fillable = [
+        'assigned_user_id',
         'number',
         'discount',
         'po_number',

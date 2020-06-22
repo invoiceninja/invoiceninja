@@ -64,7 +64,7 @@ class ProductController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="A list of products",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Product"),
@@ -111,7 +111,7 @@ class ProductController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="A blank Product object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Product"),
@@ -158,7 +158,7 @@ class ProductController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the saved Product object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Product"),
@@ -215,7 +215,7 @@ class ProductController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the Product object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Product"),
@@ -269,7 +269,7 @@ class ProductController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the Product object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Product"),
@@ -325,7 +325,7 @@ class ProductController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the Product object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Product"),
@@ -386,7 +386,7 @@ class ProductController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns a HTTP status",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *       ),
@@ -445,7 +445,7 @@ class ProductController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="The Product response",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Product"),

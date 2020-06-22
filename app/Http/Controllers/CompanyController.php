@@ -89,7 +89,7 @@ class CompanyController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="A list of companies",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Company"),
@@ -135,7 +135,7 @@ class CompanyController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="A blank company object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Company"),
@@ -181,7 +181,7 @@ class CompanyController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the saved company object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Company"),
@@ -274,7 +274,7 @@ class CompanyController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the company object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Company"),
@@ -329,7 +329,7 @@ class CompanyController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the company object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Company"),
@@ -385,7 +385,7 @@ class CompanyController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns the company object",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *          @OA\JsonContent(ref="#/components/schemas/Company"),
@@ -446,7 +446,7 @@ class CompanyController extends BaseController
      *      @OA\Response(
      *          response=200,
      *          description="Returns a HTTP status",
-     *          @OA\Header(header="X-API-Version", ref="#/components/headers/X-API-Version"),
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
      *       ),
@@ -466,9 +466,13 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
+        info(print_r($request->all()));
+        info("destroying {$company->present()->name()} - {$company->hashed_id}");
 
         $company_count = $company->account->companies->count();
         $account = $company->account;
+        
+        info("company count = {$company_count}");
 
         if ($company_count == 1) {
         

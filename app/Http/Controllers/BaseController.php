@@ -100,7 +100,7 @@ class BaseController extends Controller
     public function notFound()
     {
         return response()->json(['message' => '404 | Nothing to see here!'], 404)
-                         ->header('X-API-VERSION', config('ninja.api_version'))
+                         ->header('X-API-VERSION', config('ninja.minimum_client_version'))
                          ->header('X-APP-VERSION', config('ninja.app_version'));
     }
 
@@ -240,7 +240,7 @@ class BaseController extends Controller
     {
         return [
           'Content-Type' => 'application/json',
-          'X-Api-Version' => config('ninja.api_version'),
+          'X-Api-Version' => config('ninja.minimum_client_version'),
           'X-App-Version' => config('ninja.app_version'),
         ];
     }
