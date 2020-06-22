@@ -30,7 +30,7 @@ class PaymentTransformer extends EntityTransformer
     protected $availableIncludes = [
          'client',
          'invoices',
-         'paymentables'
+         'paymentables',
          'documents'
     ];
 
