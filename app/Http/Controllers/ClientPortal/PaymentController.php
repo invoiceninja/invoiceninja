@@ -21,6 +21,7 @@ use App\Models\Payment;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Payment\ResolvePaymentType;
 use Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -35,6 +36,7 @@ class PaymentController extends Controller
 {
     use MakesHash;
     use MakesDates;
+    use ResolvePaymentType;
 
     /**
      * Show the list of payments.
@@ -91,7 +93,7 @@ class PaymentController extends Controller
         $invoices->map(function ($invoice) {
             $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
             $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
-            
+
             return $invoice;
         });
 
@@ -117,9 +119,17 @@ class PaymentController extends Controller
             'hashed_ids' => request()->invoices,
         ];
 
+        $payment_method = $this->resolvePaymentMethod($payment_method_id);
+
+        if (!$payment_method) {
+            // Something went wrong with internal configuration.. Raise events, logger, etc..
+
+            return redirect()->route('client.invoices.index')->with('message', ctrans('texts.error_title'));
+        }
+
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod($payment_method_id)
+            ->setPaymentMethod($payment_method)
             ->processPaymentView($data);
     }
 
@@ -127,9 +137,17 @@ class PaymentController extends Controller
     {
         $gateway = CompanyGateway::find($request->input('company_gateway_id'));
 
+        $payment_method = $this->resolvePaymentMethod($request->payment_method_id);
+
+        if (!$payment_method) {
+            // Something went wrong with internal configuration.. Raise events, logger, etc..
+
+            return redirect()->route('client.invoices.index')->with('message', ctrans('texts.error_title'));
+        }
+
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod($request->input('payment_method_id'))
+            ->setPaymentMethod($payment_method)
             ->processPaymentResponse($request);
     }
 }
