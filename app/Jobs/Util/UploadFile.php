@@ -88,7 +88,7 @@ class UploadFile implements ShouldQueue
         $document = new Document();
         $document->user_id = $this->user->id;
         $document->company_id = $this->company->id;
-        $document->path = $instance;
+        $document->url = $instance;
         $document->name = $this->file->getClientOriginalName();
         $document->type = $this->file->extension();
         $document->disk = $this->disk;

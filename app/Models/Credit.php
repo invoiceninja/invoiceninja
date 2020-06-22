@@ -170,6 +170,12 @@ class Credit extends BaseModel
         return $this->morphToMany(Payment::class, 'paymentable');
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
+
     /**
      * Access the invoice calculator object
      *

@@ -47,7 +47,7 @@ class CompanyDocumentsTest extends TestCase
 
         $this->assertNotNull($document);
 
-        $this->assertTrue(Storage::exists($document->path));
+        $this->assertTrue(Storage::exists($document->url));
 
         $this->assertGreaterThan($original_count, Document::whereCompanyId($this->company->id)->count());
 
@@ -55,6 +55,6 @@ class CompanyDocumentsTest extends TestCase
 
         $this->assertEquals(0, Document::whereCompanyId($this->company->id)->count());
 
-        $this->assertFalse(Storage::exists($document->path));
+        $this->assertFalse(Storage::exists($document->url));
     }
 }
