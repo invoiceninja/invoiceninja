@@ -22,13 +22,14 @@ class QuoteTransformer extends EntityTransformer
 
     protected $defaultIncludes = [
             'invitations',
+            'documents',
     ];
 
     protected $availableIncludes = [
         'invitations',
-    //    'payments',
+        'documents',
+       //    'payments',
     //    'client',
-    //    'documents',
     ];
 
     public function includeInvitations(Quote $quote)

@@ -222,7 +222,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id')->index();
             $table->unsignedInteger('project_id')->nullable();
             $table->unsignedInteger('vendor_id')->nullable();
-            $table->string('path')->nullable();
+            $table->string('url')->nullable();
             $table->string('preview')->nullable();
             $table->string('name')->nullable();
             $table->string('type')->nullable();
