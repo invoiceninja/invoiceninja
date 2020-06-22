@@ -11,8 +11,10 @@
 
 namespace App\Transformers;
 
+use App\Models\Document;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Transformers\DocumentTransformer;
 use App\Transformers\QuoteInvitationTransformer;
 use App\Utils\Traits\MakesHash;
 
@@ -59,18 +61,14 @@ class QuoteTransformer extends EntityTransformer
 
             return $this->includeCollection($quote->expenses, $transformer, ENTITY_EXPENSE);
         }
-
-        public function includeDocuments(quote $quote)
-        {
-            $transformer = new DocumentTransformer($this->account, $this->serializer);
-
-            $quote->documents->each(function ($document) use ($quote) {
-                $document->setRelation('quote', $quote);
-            });
-
-            return $this->includeCollection($quote->documents, $transformer, ENTITY_DOCUMENT);
-        }
     */
+
+    public function includeDocuments(Quote $quote)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+        return $this->includeCollection($quote->documents, $transformer, Document::class);
+    }
+    
     public function transform(Quote $quote)
     {
         return [
