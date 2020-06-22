@@ -41,6 +41,16 @@ class UpdateClientRequest extends Request
     {
         /* Ensure we have a client name, and that all emails are unique*/
 
+        if ($this->input('documents') && is_array($this->input('documents'))) {
+            $documents = count($this->input('documents'));
+
+            foreach (range(0, $documents) as $index) {
+                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+            }
+        } elseif ($this->input('documents')) {
+            $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        }
+        
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
         $rules['industry_id'] = 'integer|nullable';
         $rules['size_id'] = 'integer|nullable';
