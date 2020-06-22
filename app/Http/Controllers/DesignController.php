@@ -482,8 +482,13 @@ class DesignController extends BaseController
         $ids = request()->input('ids');
         $designs = Design::withTrashed()->find($this->transformKeys($ids));
         
+        info($designs);
+        info(auth()->user()->id);
+        info(auth()->user()->getCompany()->id);
+        
         $designs->each(function ($design, $key) use ($action) {
             if (auth()->user()->can('edit', $design)) {
+                info("authed");
                 $this->design_repo->{$action}($design);
             }
         });
