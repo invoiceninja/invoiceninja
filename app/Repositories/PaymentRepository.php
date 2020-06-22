@@ -21,6 +21,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\CreditRepository;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -30,6 +31,7 @@ use Illuminate\Support\Carbon;
 class PaymentRepository extends BaseRepository
 {
     use MakesHash;
+    use SavesDocuments;
 
     protected $credit_repo;
 
@@ -89,6 +91,9 @@ class PaymentRepository extends BaseRepository
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->save();
 
+        if (array_key_exists('documents', $data)) {
+            $this->saveDocuments($data['documents'], $payment);
+        }
 
         /*Ensure payment number generated*/
         if (!$payment->number || strlen($payment->number) == 0) {
