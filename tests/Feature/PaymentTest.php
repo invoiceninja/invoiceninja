@@ -191,7 +191,7 @@ class PaymentTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/payments?include=invoices', $data);
+            ])->post('/api/v1/payments?include=invoices,paymentables', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
@@ -204,6 +204,7 @@ class PaymentTest extends TestCase
             $payment_id = $arr['data']['id'];
 
             $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
+            $payment->load('invoices');
 
             $this->assertNotNull($payment);
             $this->assertNotNull($payment->invoices());
@@ -663,7 +664,7 @@ class PaymentTest extends TestCase
         }
 
         if ($response) {
-            $response->assertStatus(302);
+            $response->assertStatus(200);
         }
     }
 
