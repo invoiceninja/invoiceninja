@@ -74,6 +74,7 @@
         "wildbit/postmark-php": "^2.5"
     },
     "require-dev": {
+        "imanghafoori/laravel-microscope": "1.*",
         "symfony/dom-crawler": "~3.1",
         "codeception/c3": "2.*",
         "codeception/codeception": "2.*",
