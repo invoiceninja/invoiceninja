@@ -16,7 +16,7 @@
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     @foreach($check['extensions'] as $extension)
                     <span class="alert py-1 {{ $extension[key($extension)] == true ? 'alert-success' : 'alert-failure' }} block w-full">
-                        {{ key($extension) }}
+                        {{ $extension[key($extension)] == true ? '✔' : '❌' }} {{ key($extension) }}
                     </span>
                     @endforeach
                 </dd>
@@ -28,14 +28,14 @@
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     @if($check['php_version']['is_okay'])
                     <span class="alert alert-success block">
-                        {{ strtoupper(ctrans('texts.ok')) }}!
+                        ✔ {{ strtoupper(ctrans('texts.ok')) }}
                     </span>
                     @else
                     <span class="alert block">
                         {{ ctrans('texts.minumum_php_version') }}: {{ $check['php_version']['minimum_php_version'] }}
                     </span>
                     <span class="alert alert-failure block">
-                        {{ ctrans('texts.current') }}: {{ $check['php_version']['current_php_version'] }}
+                        ❌ {{ ctrans('texts.current') }}: {{ $check['php_version']['current_php_version'] }}
                     </span>
                     @endif
                 </dd>
@@ -47,11 +47,11 @@
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     @if($check['env_writable'])
                     <span class="alert alert-success block">
-                        {{ strtoupper(ctrans('texts.ok')) }}!
+                        ✔ {{ strtoupper(ctrans('texts.ok')) }}
                     </span>
                     @else
                     <span class="alert alert-failure block">
-                        {{ ctrans('texts.env_not_writable') }}
+                        ❌ {{ ctrans('texts.env_not_writable') }}
                     </span>
                     @endif
                 </dd>

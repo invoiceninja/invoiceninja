@@ -14,9 +14,8 @@
         <div class="grid grid-cols-12 px-6">
             <div class="col-span-12 md:col-start-4 md:col-span-6 mt-4 md:mt-10">
                 <h1 class="text-center text-2xl font-semibold">Invoice Ninja Setup</h1>
-                <p class="text-sm text-center">If you need help you can either post to our
-                    <a href="https://www.invoiceninja.com/forums/forum/support/" class="button-link">support forum</a>
-                    or email us at <a href="mailto:contact@invoiceninja.com" class="button-link">contact@invoiceninja.com</a>.
+                <p class="text-sm text-center">{{ ctrans('texts.if_you_need_help') }}
+                    <a href="https://www.invoiceninja.com/forums/forum/support/" class="button-link">{{ ctrans('texts.support_forum') }}</a>
                 </p>
 
                 @if($errors->any())
@@ -31,7 +30,7 @@
 
                 @if(session()->has('setup_error'))
                     <div class="alert alert-failure mt-4">
-                        <span class="font-bold">Oops, something wen't wrong:</span>
+                        <span class="font-bold">{{ ctrans('texts.error_title') }}:</span>
                         <pre class="bg-white p-3 mt-2 rounded overflow-y-scroll">{{ session('setup_error') }}</pre>
                     </div>
                 @endif
@@ -49,13 +48,13 @@
                         <div class="flex flex-col">
                             <div class="mt-4 text-sm">
                                 <input type="checkbox" class="form-checkbox mr-2" name="terms_of_service" required>
-                                <span>I agree to
+                                <span>{{ ctrans('texts.i_agree') }}
                                     <a class="button-link" href="https://www.invoiceninja.com/self-hosting-terms-service/">{{ ctrans('texts.terms_of_service') }}</a>
                                 </span>
                             </div>
                             <div class="mt-2 text-sm">
                                 <input type="checkbox" class="form-checkbox mr-2" name="privacy_policy" required>
-                                <span>I agree to
+                                <span>{{ ctrans('texts.i_agree') }}
                                     <a class="button-link" href="https://www.invoiceninja.com/self-hosting-privacy-data-control/">{{ ctrans('texts.privacy_policy') }}</a>
                                 </span>
                             </div>
