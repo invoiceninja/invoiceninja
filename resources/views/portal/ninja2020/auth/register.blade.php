@@ -2,7 +2,7 @@
 @section('meta_title', ctrans('texts.register'))
 
 @section('body')
-    <div class="grid lg:grid-cols-12 py-8" x-data="{ more: false }">
+    <div class="grid lg:grid-cols-12 py-8">
         <div class="col-span-4 col-start-5">
             <div class="flex justify-center">
                 <img class="h-32 w-auto" src="{{ $company->present()->logo() }}" alt="{{ ctrans('texts.logo') }}">
@@ -10,7 +10,7 @@
             <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
             <p class="block text-center text-gray-600">{{ ctrans('texts.register_label') }}</p>
 
-            <form action="{{ route('client.register', request()->route('company_key')) }}" method="post">
+            <form action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{ more: false }">
                 @csrf
                 @include('portal.ninja2020.auth.includes.register.personal_information')
 
@@ -21,18 +21,22 @@
                     @include('portal.ninja2020.auth.includes.register.personal_address')
                     @include('portal.ninja2020.auth.includes.register.shipping_address')
                 </div>
-
+                
                 <div class="flex justify-between items-center mt-8">
-                    <span class="inline-flex items-center">
-                        <input type="checkbox" name="terms" class="form-checkbox mr-2 cursor-pointer" checked>
-                        <span class="text-sm text-gray-800">
-                            {{ ctrans('texts.i_agree') }} <a class="button-link" href="https://www.invoiceninja.com/self-hosting-terms-service/">{{ ctrans('texts.terms_of_service') }}</a> and <a class="button-link" href="https://www.invoiceninja.com/self-hosting-privacy-data-control/">{{ ctrans('texts.privacy_policy') }}</a>
+                    <span class="inline-flex items-center" x-data="{ terms_of_service: false, privacy_policy: false }">
+                            @if(!empty($company->settings->client_signup_terms) || !empty($company->settings->client_signup_privacy_policy))
+                                <input type="checkbox" name="terms" class="form-checkbox mr-2 cursor-pointer" checked>
+                                <span class="text-sm text-gray-800">
+
+                                {{ ctrans('texts.i_agree') }}
+                            @endif
+
+                            @includeWhen(!empty($company->settings->client_signup_terms), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'terms_of_service', 'title' => ctrans('texts.terms_of_service'), 'content' => $company->settings->client_signup_terms])
+                            @includeWhen(!empty($company->settings->client_signup_privacy_policy), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'privacy_policy', 'title' => ctrans('texts.privacy_policy'), 'content' => $company->settings->client_signup_privacy_policy])
                         </span>
                     </span>
 
-                    <button class="button button-primary">
-                        @lang('texts.save')
-                    </button>
+                    <button class="button button-primary">{{ ctrans('texts.save') }}</button>
                 </div>
             </form>
         </div>
