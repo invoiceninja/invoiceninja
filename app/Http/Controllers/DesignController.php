@@ -31,7 +31,6 @@ use Illuminate\Support\Facades\Cache;
 /**
  * Class DesignController
  * @package App\Http\Controllers
- * @covers App\Http\Controllers\DesignController
  */
 class DesignController extends BaseController
 {
@@ -480,11 +479,12 @@ class DesignController extends BaseController
         $action = request()->input('action');
         
         $ids = request()->input('ids');
+        info($ids);
         $designs = Design::withTrashed()->find($this->transformKeys($ids));
         
         info($designs);
-        info(auth()->user()->id);
-        info(auth()->user()->getCompany()->id);
+        info("user id = ".auth()->user()->id);
+        info("company id = ".auth()->user()->getCompany()->id);
         
         $designs->each(function ($design, $key) use ($action) {
             if (auth()->user()->can('edit', $design)) {
