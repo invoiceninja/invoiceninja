@@ -24,13 +24,14 @@ class CreditTransformer extends EntityTransformer
 
     protected $defaultIncludes = [
         'invitations',
+        'documents',
     ];
 
     protected $availableIncludes = [
         'invitations',
     //    'payments',
     //    'client',
-    //    'documents',
+        'documents',
     ];
 
     public function includeInvitations(Credit $credit)

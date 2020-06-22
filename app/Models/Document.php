@@ -100,7 +100,7 @@ class Document extends BaseModel
 
     public function generateUrl($absolute = false)
     {
-        $url = Storage::disk($this->disk)->url($this->path);
+        $url = Storage::disk($this->disk)->url($this->url);
 
         if ($url && $absolute) {
             return url($url);
