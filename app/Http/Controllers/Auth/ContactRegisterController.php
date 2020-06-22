@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Factory\ClientContactFactory;
+use App\Factory\ClientFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\RegisterRequest;
 use App\Models\Client;
@@ -24,33 +26,37 @@ class ContactRegisterController extends Controller
 
     public function register(RegisterRequest $request)
     {
-        if ($request->subdomain) {
-            $company = Company::where('subdomain', $request->subdomain)->firstOrFail();
-        }
+        $request->merge(['company' => $request->company()]);
 
-        if ($request->company_key) {
-            $company = Company::where('company_key', $request->company_key)->firstOrFail();
-        }
-
-        $client = factory(Client::class)->create([
-            'user_id' => $company->owner()->id,
-            'company_id' => $company->id
-        ]);
-
-        $client_contact = ClientContact::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'company_id' => $company->id,
-            'password' => Hash::make($request->password),
-            'client_id' => $client->id,
-            'user_id' => $company->owner()->id,
-            'is_primary' => true,
-            'contact_key' => \Illuminate\Support\Str::random(40),
-        ]);
+        $client = $this->getClient($request->all());
+        $client_contact = $this->getClientContact($request->all(), $client);
 
         Auth::guard('contact')->login($client_contact, true);
 
         return redirect()->route('client.dashboard');
+    }
+
+    private function getClient(array $data)
+    {
+        $client = ClientFactory::create($data['company']->id, $data['company']->owner()->id);
+
+        $client->fill($data);
+        $client->save();
+
+        return $client;
+    }
+
+    public function getClientContact(array $data, Client $client)
+    {
+        $client_contact = ClientContactFactory::create($data['company']->id, $data['company']->owner()->id);
+        $client_contact->fill($data);
+
+        $client_contact->client_id = $client->id;
+        $client_contact->is_primary = true;
+        $client_contact->password = Hash::make($data['password']);
+        
+        $client_contact->save();
+
+        return $client_contact;
     }
 }

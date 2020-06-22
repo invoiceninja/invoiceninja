@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ClientPortal;
 
+use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterRequest extends FormRequest
@@ -30,5 +31,18 @@ class RegisterRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:client_contacts'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ];
+    }
+
+    public function company()
+    {
+        if ($this->subdomain) {
+            return Company::where('subdomain', $this->subdomain)->firstOrFail();
+        }
+    
+        if ($this->company_key) {
+            return Company::where('company_key', $this->company_key)->firstOrFail();
+        }
+
+        abort(404);
     }
 }
