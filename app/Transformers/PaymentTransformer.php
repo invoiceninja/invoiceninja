@@ -12,9 +12,11 @@
 namespace App\Transformers;
 
 use App\Models\Client;
+use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
+use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 
 class PaymentTransformer extends EntityTransformer
@@ -29,6 +31,7 @@ class PaymentTransformer extends EntityTransformer
          'client',
          'invoices',
          'paymentables'
+         'documents'
     ];
 
     public function __construct($serializer = null)
@@ -59,6 +62,11 @@ class PaymentTransformer extends EntityTransformer
         return $this->includeCollection($payment->paymentables, $transformer, Paymentable::class);
     }
 
+    public function includeDocuments(Payment $payment)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+        return $this->includeCollection($payment->documents, $transformer, Document::class);
+    }
 
     public function transform(Payment $payment)
     {
