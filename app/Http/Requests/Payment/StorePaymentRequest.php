@@ -76,6 +76,8 @@ class StorePaymentRequest extends Request
 
         $input['is_manual'] = true;
         
+        info(print_r($input,1));
+        
         $this->replace($input);
     }
 

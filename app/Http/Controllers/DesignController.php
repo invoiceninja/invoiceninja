@@ -484,7 +484,7 @@ class DesignController extends BaseController
         
         $designs->each(function ($design, $key) use ($action) {
             if (auth()->user()->can('edit', $design)) {
-                $this->design_repo->{$action}($design);@todo
+                $this->design_repo->{$action}($design);
             }
         });
         
