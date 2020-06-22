@@ -5,7 +5,7 @@ return [
     /**
      * Enable or disable the beacon
      */
-    'enabled'   =>   true,
+    'enabled'   =>   env('BEACON_ENABLED', false),
 
     /**
      * The API endpoint for logs

@@ -75,9 +75,21 @@ class StoreQuoteRequest extends Request
 
     public function rules()
     {
-        return [
-            'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
-            'client_id' => 'required|exists:clients,id,company_id,'.auth()->user()->company()->id,
-        ];
+        $rules = [];
+
+        $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+
+        if ($this->input('documents') && is_array($this->input('documents'))) {
+            $documents = count($this->input('documents'));
+
+            foreach (range(0, $documents) as $index) {
+                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+            }
+        } elseif ($this->input('documents')) {
+            $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        }
+
+        return $rules;
+
     }
 }
