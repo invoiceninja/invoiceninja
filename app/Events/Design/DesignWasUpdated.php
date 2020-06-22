@@ -9,9 +9,9 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Events\Client;
+namespace App\Events\Design;
 
-use App\Models\Client;
+use App\Models\Design;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -45,5 +45,5 @@ class DesignWasUpdated
     {
         return new PrivateChannel('channel-name');
     }
-}
+
 }

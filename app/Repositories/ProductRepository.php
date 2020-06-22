@@ -12,6 +12,7 @@
 namespace App\Repositories;
 
 use App\Models\Product;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 
 /**
@@ -19,6 +20,8 @@ use Illuminate\Http\Request;
  */
 class ProductRepository extends BaseRepository
 {
+    use SavesDocuments;
+    
     public function getClassName()
     {
         return Product::class;
@@ -33,6 +36,10 @@ class ProductRepository extends BaseRepository
     {
         $product->fill($data);
         $product->save();
+
+        if (array_key_exists('documents', $data)) {
+            $this->saveDocuments($data['documents'], $product);
+        }
 
         return $product;
     }

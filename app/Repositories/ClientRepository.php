@@ -15,6 +15,7 @@ use App\Factory\ClientFactory;
 use App\Models\Client;
 use App\Repositories\ClientContactRepository;
 use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 
 /**
@@ -23,6 +24,8 @@ use Illuminate\Http\Request;
 class ClientRepository extends BaseRepository
 {
     use GeneratesCounter;
+    use SavesDocuments;
+
     /**
      * @var ClientContactRepository
      */
@@ -75,6 +78,9 @@ class ClientRepository extends BaseRepository
             $data['name'] = $client->present()->name();
         }
 
+        if (array_key_exists('documents', $data)) {
+            $this->saveDocuments($data['documents'], $client);
+        }
 
         return $client;
     }
