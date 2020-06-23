@@ -69,6 +69,10 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     protected $customer_reference = '';
 
+    public function setPaymentMethod($payment_method_id = null)
+    {
+        return $this;
+    }
 
     public function gatewayTypes()
     {

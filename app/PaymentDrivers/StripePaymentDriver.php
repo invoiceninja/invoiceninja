@@ -21,6 +21,10 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Stripe\ACH;
+use App\PaymentDrivers\Stripe\Alipay;
+use App\PaymentDrivers\Stripe\CreditCard;
+use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -42,6 +46,15 @@ class StripePaymentDriver extends BasePaymentDriver
     protected $customer_reference = 'customerReferenceParam';
 
     protected $payment_method;
+
+    public static $methods = [
+        GatewayType::CREDIT_CARD => CreditCard::class,
+        GatewayType::BANK_TRANSFER => ACH::class,
+        GatewayType::ALIPAY => Alipay::class,
+        GatewayType::SOFORT => SOFORT::class,
+        GatewayType::APPLE_PAY => 1,
+        GatewayType::SEPA => 1,
+    ];
 
     /**
      * Methods in this class are divided into
@@ -65,11 +78,11 @@ class StripePaymentDriver extends BasePaymentDriver
         Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
     }
 
-    public function setPaymentMethod(string $method)
+    public function setPaymentMethod($payment_method_id)
     {
-        // Example: setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard');
-
-        $this->payment_method = new $method($this);
+        $class = self::$methods[$payment_method_id];
+        
+        $this->payment_method = new $class($this);
 
         return $this;
     }
