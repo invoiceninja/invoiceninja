@@ -18,6 +18,7 @@ use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\Design;
+use App\Models\Document;
 use App\Models\Expense;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
@@ -38,6 +39,7 @@ use App\Policies\CompanyPolicy;
 use App\Policies\CompanyTokenPolicy;
 use App\Policies\CreditPolicy;
 use App\Policies\DesignPolicy;
+use App\Policies\DocumentPolicy;
 use App\Policies\ExpensePolicy;
 use App\Policies\GroupSettingPolicy;
 use App\Policies\InvoicePolicy;
@@ -70,6 +72,7 @@ class AuthServiceProvider extends ServiceProvider
         CompanyGateway::class => CompanyGatewayPolicy::class,
         Credit::class => CreditPolicy::class,
         Design::class => DesignPolicy::class,
+        Document::class => DocumentPolicy::class,
         Expense::class => ExpensePolicy::class,
         GroupSetting::class => GroupSettingPolicy::class,
         Invoice::class => InvoicePolicy::class,
