@@ -72,6 +72,7 @@ class Company extends BaseModel
     ];
 
     protected $fillable = [
+        'enabled_item_tax_rates',
         'fill_products',
         'industry_id',
         'subdomain',
@@ -192,7 +193,7 @@ class Company extends BaseModel
 
     public function activities()
     {
-        return $this->hasMany(Activity::class);
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
     }
 
     /**
