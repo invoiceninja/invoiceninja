@@ -112,6 +112,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::put('company_users/{user}', 'CompanyUserController@update');
 
     Route::resource('group_settings', 'GroupSettingController');
+    Route::post('group_settings/bulk', 'GroupSettingController@bulk');
 
     Route::resource('tax_rates', 'TaxRateController');// name = (tasks. index / create / show / update / destroy / edit
 

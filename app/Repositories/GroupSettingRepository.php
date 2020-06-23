@@ -14,7 +14,7 @@ namespace App\Repositories;
 use App\Models\GroupSetting;
 use App\Utils\Traits\MakesHash;
 
-class GroupSettingRepository
+class GroupSettingRepository extends BaseRepository
 {
     use MakesHash;
     /**

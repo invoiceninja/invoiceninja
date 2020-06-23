@@ -35,6 +35,7 @@ class CompanyLedgerTransformer extends EntityTransformer
             'notes' => (string)$company_ledger->notes ?: '',
             'balance' => (float) $company_ledger->balance,
             'adjustment' => (float) $company_ledger->adjustment,
+            'activity_id' => (int)$company_ledger->activity_id,
             'created_at' => (int)$company_ledger->created_at,
             'updated_at' => (int)$company_ledger->updated_at,
             'archived_at' => (int)$company_ledger->deleted_at,

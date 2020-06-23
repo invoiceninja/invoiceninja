@@ -25,11 +25,11 @@ class Activity extends StaticModel
     const ARCHIVE_INVOICE=8;
     const DELETE_INVOICE=9;
     const CREATE_PAYMENT=10;
-    //const UPDATE_PAYMENT=11;
+    const UPDATE_PAYMENT=11;
     const ARCHIVE_PAYMENT=12;
     const DELETE_PAYMENT=13;
     const CREATE_CREDIT=14;
-    //const UPDATE_CREDIT=15;
+    const UPDATE_CREDIT=15;
     const ARCHIVE_CREDIT=16;
     const DELETE_CREDIT=17;
     const CREATE_QUOTE=18;
