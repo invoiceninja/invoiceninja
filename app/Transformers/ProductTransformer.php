@@ -12,8 +12,10 @@
 namespace App\Transformers;
 
 use App\Models\Company;
+use App\Models\Document;
 use App\Models\Product;
 use App\Models\User;
+use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 
 class ProductTransformer extends EntityTransformer
@@ -28,7 +30,8 @@ class ProductTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'company',
-        'user'
+        'user',
+        'documents',
     ];
 
 
@@ -54,6 +57,12 @@ class ProductTransformer extends EntityTransformer
         $transformer = new CompanyTransformer($this->serializer);
 
         return $this->includeItem($product->company, $transformer, Company::class);
+    }
+
+    public function includeDocuments(Product $product)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+        return $this->includeCollection($product->documents, $transformer, Document::class);
     }
 
     public function transform(Product $product)

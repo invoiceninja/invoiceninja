@@ -57,7 +57,7 @@ class RefundPayment
 
         if ($this->refund_data['gateway_refund'] !== false && $this->total_refund > 0) {
 
-            $gateway = CompanyGateway::find($this->company_gateway_id);
+            $gateway = CompanyGateway::find($this->payment->company_gateway_id);
 
             if ($gateway) {
                 $response = $gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
@@ -65,7 +65,7 @@ class RefundPayment
                 if (!$response) {
                     throw new PaymentRefundFailed();
                 }
-
+                info(print_r($response,1));
                 //todo
                 //need to check the gateway response has successfully be transacted.
 
@@ -290,127 +290,3 @@ class RefundPayment
         return $this->payment;
     }
 }
-
-
-
-
-
-/*
-
-    private function refundPaymentWithNoInvoices(array $data)
-    {
-
-        $this->createActivity($data, $credit_note->id);
-
-        //determine if we need to refund via gateway
-        if ($data['gateway_refund'] !== false) {
-            //todo process gateway refund, on success, reduce the credit note balance to 0
-        }
-
-        $this->save();
-
-        //$this->client->paid_to_date -= $data['amount'];
-        $this->client->save();
-
-        return $this->fresh();
-    }
-
-
-    private function refundPaymentWithInvoices($data)
-    {
-
-        if ($data['gateway_refund'] !== false && $this->total_refund > 0) {
-            $gateway = CompanyGateway::find($this->company_gateway_id);
-
-            if ($gateway) {
-                $response = $gateway->driver($this->client)->refund($this, $this->total_refund);
-
-                if (!$response) {
-                    throw new PaymentRefundFailed();
-                }
-            }
-        }
-
-        if ($this->total_refund > 0) {
-            $this->refunded += $this->total_refund;
-        }
-
-        $this->save();
-
-        $client_balance_adjustment = $this->adjustInvoices($data);
-
-        $credit_note->ledger()->updateCreditBalance($client_balance_adjustment, $ledger_string);
-
-        $this->client->paid_to_date -= $data['amount'];
-        $this->client->save();
-
-
-        return $this;
-    }
-
-    private function createActivity(array $data, int $credit_id)
-    {
-        $fields = new \stdClass;
-        $activity_repo = new ActivityRepository();
-
-        $fields->payment_id = $this->id;
-        $fields->user_id = $this->user_id;
-        $fields->company_id = $this->company_id;
-        $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
-        $fields->credit_id = $credit_id;
-
-        if (isset($data['invoices'])) {
-            foreach ($data['invoices'] as $invoice) {
-                $fields->invoice_id = $invoice->id;
-                
-                $activity_repo->save($fields, $this);
-            }
-        } else {
-            $activity_repo->save($fields, $this);
-        }
-    }
-
-
-    private function buildCreditNote(array $data) :?Credit
-    {
-        $credit_note = CreditFactory::create($this->company_id, $this->user_id);
-        $credit_note->assigned_user_id = isset($this->assigned_user_id) ?: null;
-        $credit_note->date = $data['date'];
-        $credit_note->status_id = Credit::STATUS_SENT;
-        $credit_note->client_id = $this->client->id;
-        $credit_note->amount = $data['amount'];
-        $credit_note->balance = $data['amount'];
-
-        return $credit_note;
-    }
-
-    private function adjustInvoices(array $data)
-    {
-        $adjustment_amount = 0;
-
-        foreach ($data['invoices'] as $refunded_invoice) {
-            $invoice = Invoice::find($refunded_invoice['invoice_id']);
-
-            $invoice->service()->updateBalance($refunded_invoice['amount'])->save();
-
-            if ($invoice->amount == $invoice->balance) {
-                $invoice->service()->setStatus(Invoice::STATUS_SENT);
-            } else {
-                $invoice->service()->setStatus(Invoice::STATUS_PARTIAL);
-            }
-
-            $client = $invoice->client;
-
-            $adjustment_amount += $refunded_invoice['amount'];
-            $client->balance += $refunded_invoice['amount'];
-
-            $client->save();
-
-            //todo adjust ledger balance here? or after and reference the credit and its total
-        }
-
-        return $adjustment_amount;
-    }
-}
-
- */

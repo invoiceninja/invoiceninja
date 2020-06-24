@@ -82,12 +82,12 @@ class BaseDriver extends AbstractPaymentDriver
     /**
      * Executes a refund attempt for a given amount with a transaction_reference
      * 
+     * @param  Payment $payment                The Payment Object
      * @param  float   $amount                 The amount to be refunded
-     * @param  string  $transaction_reference  The transaction reference
      * @param  boolean $return_client_response Whether the method needs to return a response (otherwise we assume an unattended payment)
      * @return mixed                          
      */
-    public function refund($amount, $transaction_reference, $return_client_response = false) {}
+    public function refund(Payment $payment, $amount, $return_client_response = false) {}
 
     /**
      * Set the inbound request payment method type for access.

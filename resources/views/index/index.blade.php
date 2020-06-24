@@ -6,6 +6,7 @@
   <meta name="report_errors" content="{{ $report_errors }}">
   <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">
   <meta name="minimum_client_version" content="{{ config('ninja.minimum_client_version') }}">
+  <link rel="manifest" href="manifest.json">
 </head>
 <body style="background-color:#888888;">
 

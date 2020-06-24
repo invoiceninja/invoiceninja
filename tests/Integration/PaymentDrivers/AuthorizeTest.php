@@ -2,6 +2,10 @@
 
 namespace Tests\Integration\PaymentDrivers;
 
+use App\Factory\PaymentFactory;
+use App\Models\CompanyGateway;
+use App\PaymentDrivers\AuthorizePaymentDriver;
+use Tests\MockAccountData;
 use Tests\TestCase;
 use net\authorize\api\constants\ANetEnvironment;
 use net\authorize\api\contract\v1 as AnetAPI;
@@ -31,10 +35,11 @@ use net\authorize\api\controller\GetMerchantDetailsController;
  */
 class AuthorizeTest extends TestCase
 {
+    use MockAccountData;
 
-    public $customer_profile_id = 1512191314;
+    public $customer_profile_id = 1512373273;
 
-    public $customer_payment_profile = 1512219932;
+    public $customer_payment_profile = 1512424103;
 
     public function setUp() :void
     {
@@ -43,7 +48,8 @@ class AuthorizeTest extends TestCase
         if (! config('ninja.testvars.authorize')) {
             $this->markTestSkipped('authorize.net not configured');
         }
-        
+    
+        $this->makeTestData();    
     }
 
     public function testUnpackingVars()
@@ -148,15 +154,7 @@ class AuthorizeTest extends TestCase
         // Create an array of any shipping addresses
         $shippingProfiles[] = $customerShippingAddress;
         $refId = 'ref' . time();
-        $email = "test@gmail.com";
-
-        // // Create a new CustomerPaymentProfile object
-        // $paymentProfile = new AnetAPI\CustomerPaymentProfileType();
-        // $paymentProfile->setCustomerType('individual');
-        // $paymentProfile->setBillTo($billTo);
-        // $paymentProfile->setPayment($paymentCreditCard);
-        // $paymentProfiles[] = $paymentProfile;
-
+        $email = "test12@gmail.com";
 
         // Create a new CustomerProfileType and add the payment profile object
         $customerProfile = new CustomerProfileType();
@@ -188,6 +186,8 @@ class AuthorizeTest extends TestCase
             $errorMessages = $response->getMessages()->getMessage();
             info("Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n");
         }
+
+        info("the new customer profile id = ". $response->getCustomerProfileId());
         
         $this->assertNotNull($response);
 
@@ -241,16 +241,16 @@ class AuthorizeTest extends TestCase
 
         // Set credit card information for payment profile
         $creditCard = new CreditCardType();
-        $creditCard->setCardNumber("4007000000027");
-        $creditCard->setExpirationDate("2038-12");
-        $creditCard->setCardCode("142");
+        $creditCard->setCardNumber("4111111111111111");
+        $creditCard->setExpirationDate("2024-01");
+        $creditCard->setCardCode("100");
         $paymentCreditCard = new PaymentType();
         $paymentCreditCard->setCreditCard($creditCard);
 
         // Create the Bill To info for new payment type
         $billto = new CustomerAddressType();
-        $billto->setFirstName("Ellen");
-        $billto->setLastName("Johnson");
+        $billto->setFirstName("Elas");
+        $billto->setLastName("Joson");
         $billto->setCompany("Souveniropolis");
         $billto->setAddress("14 Main Street");
         $billto->setCity("Pecan Springs");
@@ -315,7 +315,7 @@ class AuthorizeTest extends TestCase
 
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType( "authCaptureTransaction"); 
-        $transactionRequestType->setAmount(400);
+        $transactionRequestType->setAmount(350);
         $transactionRequestType->setProfile($profileToCharge);
 
         $request = new CreateTransactionRequest();
@@ -372,6 +372,31 @@ class AuthorizeTest extends TestCase
         }
 
         $this->assertNotNull($response);
+
+        $this->assertNotNull($tresponse);
+
+        /* Testing refunds - need to research more as payments are in a pending state so cannot be 'refunded'*/
+
+        // info("transaction reference = " . $tresponse->getTransId());
+        
+        // $payment = PaymentFactory::create($this->company->id, $this->user->id);
+        // $payment->amount = 400;
+        // $payment->client_id = $this->client->id;
+        // $payment->date = now();
+        // $payment->transaction_reference = $tresponse->getTransId();
+        // $payment->company_gateway_id = 1;
+
+        // $payment->save();
+
+        // $company_gateway = CompanyGateway::where('gateway_key', '3b6621f970ab18887c4f6dca78d3f8bb')->first();
+
+        // $authorize_payment_driver = new AuthorizePaymentDriver($company_gateway, $this->client);
+        // $response = $authorize_payment_driver->refund($payment, 350);
+
+        // info(print_r($response,1));
+
+        // $this->assertTrue(is_array($response));
+
       }
 
 }

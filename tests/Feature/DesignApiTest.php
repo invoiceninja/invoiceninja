@@ -132,4 +132,80 @@ class DesignApiTest extends TestCase
         $this->assertTrue((bool)$design->is_deleted);
         $this->assertGreaterThan(0, $design->deleted_at);
     }
+
+
+    public function testDesignArchive()
+    {
+        $design = [
+            'body' => 'body',
+            'includes' => 'includes',
+            'product' => 'product',
+            'task' => 'task',
+            'footer' => 'footer',
+            'header' => 'header'
+        ];
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'design' => $design
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->post('/api/v1/designs', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->id = $arr['data']['id'];
+
+        $data['ids'][] = $arr['data']['id'];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token
+        ])->post('/api/v1/designs/bulk?action=archive', $data);
+
+        $response->assertStatus(200);
+
+        $design = Design::where('id', $this->decodePrimaryKey($arr['data']['id']))->withTrashed()->first();
+
+        $this->assertNotNull($design->deleted_at);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token
+        ])->post('/api/v1/designs/bulk?action=restore', $data);
+
+        $response->assertStatus(200);
+
+        $design = Design::where('id', $this->decodePrimaryKey($arr['data']['id']))->withTrashed()->first();
+
+        $this->assertNull($design->deleted_at);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token
+        ])->post('/api/v1/designs/bulk?action=delete', $data);
+
+        $response->assertStatus(200);
+
+        $design = Design::where('id', $this->decodePrimaryKey($arr['data']['id']))->withTrashed()->first();
+
+        $this->assertTrue((bool)$design->is_deleted);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token
+        ])->post('/api/v1/designs/bulk?action=restore', $data);
+
+        $response->assertStatus(200);
+
+        $design = Design::where('id', $this->decodePrimaryKey($arr['data']['id']))->withTrashed()->first();
+
+        $this->assertFalse((bool)$design->is_deleted);
+        $this->assertNull($design->deleted_at);
+    }
 }
