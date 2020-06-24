@@ -15,8 +15,9 @@
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     @foreach($check['extensions'] as $extension)
-                    <span class="alert py-1 {{ $extension[key($extension)] == true ? 'alert-success' : 'alert-failure' }} block w-full">
-                        {{ $extension[key($extension)] == true ? '✔' : '❌' }} {{ key($extension) }}
+                    <span class="alert py-1 {{ $extension[key($extension)] == true ? 'alert-success' : 'alert-failure' }} block w-full flex justify-between items-center">
+                        <span>{{ key($extension) }}</span>
+                        <span>{{ $extension[key($extension)] == true ? '✔' : '❌' }}</span>
                     </span>
                     @endforeach
                 </dd>
@@ -27,15 +28,17 @@
                 </dt>
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     @if($check['php_version']['is_okay'])
-                    <span class="alert alert-success block">
-                        ✔ {{ strtoupper(ctrans('texts.ok')) }}
+                    <span class="alert alert-success block flex justify-between items-center">
+                        <span>{{ strtoupper(ctrans('texts.ok')) }}</span>
+                        <span>✔</span>
                     </span>
                     @else
                     <span class="alert block">
                         {{ ctrans('texts.minumum_php_version') }}: {{ $check['php_version']['minimum_php_version'] }}
                     </span>
-                    <span class="alert alert-failure block">
-                        ❌ {{ ctrans('texts.current') }}: {{ $check['php_version']['current_php_version'] }}
+                    <span class="alert alert-failure block flex justify-between items-center">
+                        <span>{{ ctrans('texts.current') }}: {{ $check['php_version']['current_php_version'] }}</span>
+                        <span>❌</span>
                     </span>
                     @endif
                 </dd>
@@ -46,12 +49,14 @@
                 </dt>
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     @if($check['env_writable'])
-                    <span class="alert alert-success block">
-                        ✔ {{ strtoupper(ctrans('texts.ok')) }}
+                    <span class="alert alert-success block flex justify-between items-center">
+                        <span>{{ strtoupper(ctrans('texts.ok')) }}</span>
+                        <span>✔</span>
                     </span>
                     @else
-                    <span class="alert alert-failure block">
-                        ❌ {{ ctrans('texts.env_not_writable') }}
+                    <span class="alert alert-failure block flex justify-between items-center">
+                        <span>{{ ctrans('texts.env_not_writable') }}</span>
+                        <span>❌</span>
                     </span>
                     @endif
                 </dd>

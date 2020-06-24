@@ -7,7 +7,7 @@
 @endpush
 
 @section('body')
-<div class="container mx-auto mb-10">
+<div class="container mx-auto mb-10 mt-4">
     <form action="{{ url('/setup') }}" method="post">
         @csrf
 
