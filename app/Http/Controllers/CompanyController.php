@@ -466,6 +466,7 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
+  
         $company_count = $company->account->companies->count();
         $account = $company->account;
         
@@ -494,8 +495,8 @@ class CompanyController extends BaseController
                 $account->save();
             }
         }
-        
-        ob_flush();
+
+//        ob_flush();
 
         return response()->json(['message' => 'success'], 200);
     }
