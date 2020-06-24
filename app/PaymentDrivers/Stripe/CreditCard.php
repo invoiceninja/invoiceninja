@@ -162,7 +162,7 @@ class CreditCard
 
         $payment_type = PaymentType::parseCardType($payment_method_object['card']['brand']);
 
-        if ($state['save_card'] === true) {
+        if ($state['save_card'] == true) {
             $this->saveCard($state);
         }
 
@@ -216,7 +216,7 @@ class CreditCard
         $company_gateway_token = new ClientGatewayToken();
         $company_gateway_token->company_id = $this->stripe->client->company->id;
         $company_gateway_token->client_id = $this->stripe->client->id;
-        $company_gateway_token->token = $state['payment_method'];
+        $company_gateway_token->token = $state['payment_method']->id;
         $company_gateway_token->company_gateway_id = $this->stripe->company_gateway->id;
         $company_gateway_token->gateway_type_id = $state['gateway_type_id'];
         $company_gateway_token->gateway_customer_reference = $state['customer'];
