@@ -11,6 +11,8 @@
 
 namespace App\PaymentDrivers;
 
+use App\Models\Payment;
+
 abstract class AbstractPaymentDriver
 {
     
@@ -18,7 +20,7 @@ abstract class AbstractPaymentDriver
     
     abstract public function purchase($amount, $return_client_response = false);
     
-    abstract public function refund($amount, $transaction_reference, $return_client_response = false);
+    abstract public function refund(Payment $payment, $refund_amount, $return_client_response = false);
 
     abstract public function setPaymentMethod($payment_method_id);
    

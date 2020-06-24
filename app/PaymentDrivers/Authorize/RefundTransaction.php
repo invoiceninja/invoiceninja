@@ -12,7 +12,9 @@
 
 namespace App\PaymentDrivers\Authorize;
 
+use App\Models\Payment;
 use App\PaymentDrivers\AuthorizePaymentDriver;
+use App\PaymentDrivers\Authorize\AuthorizeTransactions;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\CustomerProfilePaymentType;
 use net\authorize\api\contract\v1\PaymentProfileType;
@@ -26,14 +28,22 @@ use net\authorize\api\controller\CreateTransactionController;
  */
 class RefundTransaction
 {
+	public $authorize;
+
+	public $authorize_transaction;
 
     public function __construct(AuthorizePaymentDriver $authorize)
     {
         $this->authorize = $authorize;
+        $this->authorize_transaction = new AuthorizeTransactions($this->authorize);
     }
 
-	function refundTransaction($transaction_reference, $amount, $payment_profile_id, $profile_id)
+    function refundTransaction(Payment $payment, $amount)
 	{
+		error_reporting (E_ALL & ~E_DEPRECATED);
+
+		$transaction_details = $this->authorize_transaction->getTransactionDetails($payment->transaction_reference);
+
 
 	   	$this->authorize->init();
 	    
@@ -41,11 +51,11 @@ class RefundTransaction
 	    $refId = 'ref' . time();
 
 	    $paymentProfile = new PaymentProfileType();
-	    $paymentProfile->setPaymentProfileId( $payment_profile_id );
+	    $paymentProfile->setPaymentProfileId( $transaction_details->getTransaction()->getProfile()->getCustomerPaymentProfileId() );
 
 	    // set customer profile
 	    $customerProfile = new CustomerProfilePaymentType();
-	    $customerProfile->setCustomerProfileId( $profile_id );
+	    $customerProfile->setCustomerProfileId( $transaction_details->getTransaction()->getProfile()->getCustomerProfileId() );
 	    $customerProfile->setPaymentProfile( $paymentProfile );
 
 	    //create a transaction
@@ -53,7 +63,7 @@ class RefundTransaction
 	    $transactionRequest->setTransactionType("refundTransaction"); 
 	    $transactionRequest->setAmount($amount);
     	$transactionRequest->setProfile($customerProfile);
-	    $transactionRequest->setRefTransId($transaction_reference);
+	    $transactionRequest->setRefTransId($payment->transaction_reference);
 
 	    $request = new CreateTransactionRequest();
 	    $request->setMerchantAuthentication($this->authorize->merchant_authentication);
@@ -68,20 +78,32 @@ class RefundTransaction
 	      {
 	        $tresponse = $response->getTransactionResponse();
 	        
-		      if ($tresponse != null && $tresponse->getMessages() != null)   
+		    if ($tresponse != null && $tresponse->getMessages() != null)   
 	        {
-	          echo " Transaction Response code : " . $tresponse->getResponseCode() . "\n";
-	          echo "Refund SUCCESS: " . $tresponse->getTransId() . "\n";
-	          echo " Code : " . $tresponse->getMessages()[0]->getCode() . "\n"; 
-		        echo " Description : " . $tresponse->getMessages()[0]->getDescription() . "\n";
+
+	        	return [
+	        		'transaction_reference' => $tresponse->getTransId(),
+	        		'success' => true,
+	        		'description' => $tresponse->getMessages()[0]->getDescription(),
+	        		'code' => $tresponse->getMessages()[0]->getCode(),
+	        		'transaction_response' => $tresponse->getResponseCode()
+	        	];
+
 	        }
 	        else
 	        {
-	          echo "Transaction Failed \n";
+
 	          if($tresponse->getErrors() != null)
 	          {
-	            echo " Error code  : " . $tresponse->getErrors()[0]->getErrorCode() . "\n";
-	            echo " Error message : " . $tresponse->getErrors()[0]->getErrorText() . "\n";            
+
+	        	return [
+	        		'transaction_reference' => '',
+	        		'transaction_response' => '',
+	        		'success' => false,
+	        		'description' => $tresponse->getErrors()[0]->getErrorText(),
+	        		'code' => $tresponse->getErrors()[0]->getErrorCode(),
+	        	];
+
 	          }
 	        }
 	      }
@@ -91,22 +113,50 @@ class RefundTransaction
 	        $tresponse = $response->getTransactionResponse();
 	        if($tresponse != null && $tresponse->getErrors() != null)
 	        {
-	          echo " Error code  : " . $tresponse->getErrors()[0]->getErrorCode() . "\n";
-	          echo " Error message : " . $tresponse->getErrors()[0]->getErrorText() . "\n";                      
+
+	        	return [
+	        		'transaction_reference' => '',
+	        		'transaction_response' => '',
+	        		'success' => false,
+	        		'description' => $tresponse->getErrors()[0]->getErrorText(),
+	        		'code' => $tresponse->getErrors()[0]->getErrorCode(),
+	        	];
+
 	        }
 	        else
 	        {
-	          echo " Error code  : " . $response->getMessages()->getMessage()[0]->getCode() . "\n";
-	          echo " Error message : " . $response->getMessages()->getMessage()[0]->getText() . "\n";
+
+	        	return [
+	        		'transaction_reference' => '',
+	        		'transaction_response' => '',
+	        		'success' => false,
+	        		'description' => $response->getMessages()->getMessage()[0]->getText(),
+	        		'code' => $response->getMessages()->getMessage()[0]->getCode(),
+	        	];
+
 	        }
 	      }      
 	    }
 	    else
 	    {
-	      echo  "No response returned \n";
+
+	    	return [
+	        		'transaction_reference' => '',
+	        		'transaction_response' => '',
+	        		'success' => false,
+	        		'description' => 'No response returned',
+	        		'code' => 'No response returned',
+	        	];
+
 	    }
 
-	    return $response;
+	    	return [
+	        		'transaction_reference' => '',
+	        		'transaction_response' => '',
+	        		'success' => false,
+	        		'description' => 'No response returned',
+	        		'code' => 'No response returned',
+	        	];
 	  }
 
 

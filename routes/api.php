@@ -69,6 +69,10 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('vendors/bulk', 'VendorController@bulk')->name('vendors.bulk');
 
+    Route::resource('documents', 'DocumentController');// name = (documents. index / create / show / update / destroy / edit
+    Route::get('documents/{document}/download', 'DocumentController@download')->name('documents.download');
+    Route::post('documents/bulk', 'DocumentController@bulk')->name('documents.bulk');
+
     Route::resource('client_statement', 'ClientStatementController@statement');// name = (client_statement. index / create / show / update / destroy / edit
 
     Route::resource('payment_terms', 'PaymentTermController');// name = (payments. index / create / show / update / destroy / edit
@@ -108,6 +112,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::put('company_users/{user}', 'CompanyUserController@update');
 
     Route::resource('group_settings', 'GroupSettingController');
+    Route::post('group_settings/bulk', 'GroupSettingController@bulk');
 
     Route::resource('tax_rates', 'TaxRateController');// name = (tasks. index / create / show / update / destroy / edit
 

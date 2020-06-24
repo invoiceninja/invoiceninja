@@ -12,6 +12,7 @@
 namespace App\Services\Ledger;
 
 use App\Factory\CompanyLedgerFactory;
+use App\Models\Activity;
 use App\Models\CompanyLedger;
 
 class LedgerService
@@ -38,6 +39,7 @@ class LedgerService
         $company_ledger->adjustment = $adjustment;
         $company_ledger->notes = $notes;
         $company_ledger->balance = $balance + $adjustment;
+        $company_ledger->activity_id = Activity::UPDATE_INVOICE;
         $company_ledger->save();
 
         $this->entity->company_ledger()->save($company_ledger);
@@ -60,6 +62,7 @@ class LedgerService
         $company_ledger->client_id = $this->entity->client_id;
         $company_ledger->adjustment = $adjustment;
         $company_ledger->balance = $balance + $adjustment;
+        $company_ledger->activity_id = Activity::UPDATE_PAYMENT;
         $company_ledger->save();
 
         $this->entity->company_ledger()->save($company_ledger);
@@ -80,6 +83,7 @@ class LedgerService
         $company_ledger->adjustment = $adjustment;
         $company_ledger->notes = $notes;
         $company_ledger->balance = $balance + $adjustment;
+        $company_ledger->activity_id = Activity::UPDATE_CREDIT;
         $company_ledger->save();
 
         $this->entity->company_ledger()->save($company_ledger);

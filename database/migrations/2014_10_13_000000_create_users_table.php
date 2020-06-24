@@ -1120,6 +1120,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();
+            $table->unsignedInteger('activity_id')->nullable();
 
             $table->decimal('adjustment', 16, 4)->nullable();
             $table->decimal('balance', 16, 4)->nullable(); //this is the clients balance carried forward
@@ -1167,6 +1168,7 @@ class CreateUsersTable extends Migration
             $table->unsignedInteger('user_id')->nullable();
             $table->string('name')->nullable();
             $table->mediumText('settings')->nullable();
+            $table->boolean('is_default')->default(0);
             $table->softDeletes('deleted_at', 6);
             $table->timestamps(6);
 

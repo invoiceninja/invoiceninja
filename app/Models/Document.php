@@ -112,4 +112,14 @@ class Document extends BaseModel
 
         return null;
     }
+
+    public function generateRoute($absolute = false)
+    {
+        return route('api.documents.show', ['document' => $this->hashed_id]) . '/download';
+    }
+
+    public function deleteFile()
+    {
+        Storage::disk($this->disk)->delete($this->url);
+    }
 }

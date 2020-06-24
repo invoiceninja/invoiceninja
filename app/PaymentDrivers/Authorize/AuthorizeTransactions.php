@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Authorize;
 
+use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\GetTransactionDetailsRequest;
 use net\authorize\api\controller\GetTransactionDetailsController;
 
@@ -50,15 +51,15 @@ class AuthorizeTransactions
 
 	    if (($response != null) && ($response->getMessages()->getResultCode() == "Ok"))
 	    {
-	        echo "SUCCESS: Transaction Status:" . $response->getTransaction()->getTransactionStatus() . "\n";
-	        echo "                Auth Amount:" . $response->getTransaction()->getAuthAmount() . "\n";
-	        echo "                   Trans ID:" . $response->getTransaction()->getTransId() . "\n";
+	        info( "SUCCESS: Transaction Status:" . $response->getTransaction()->getTransactionStatus() );
+	        info( "                Auth Amount:" . $response->getTransaction()->getAuthAmount() );
+	        info( "                   Trans ID:" . $response->getTransaction()->getTransId() );
 	     }
 	    else
 	    {
-	        echo "ERROR :  Invalid response\n";
+	        info( "ERROR :  Invalid response\n");
 	        $errorMessages = $response->getMessages()->getMessage();
-	        echo "Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n";
+	        info( "Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() );
 	    }
 
 	    return $response;

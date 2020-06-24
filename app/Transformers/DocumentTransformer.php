@@ -37,7 +37,7 @@ class DocumentTransformer extends EntityTransformer
             'assigned_user_id' => $this->encodePrimaryKey($document->assigned_user_id),
             'project_id' => $this->encodePrimaryKey($document->project_id),
             'vendor_id' => $this->encodePrimaryKey($document->vendor_id),
-            'url' => (string) $document->generateUrl() ?: '',
+            'url' => (string) $document->generateRoute() ?: '',
             'preview' => (string) $document->preview ?: '',
             'name' => (string) $document->name,
             'type' => (string) $document->type,

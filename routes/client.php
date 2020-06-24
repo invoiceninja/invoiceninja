@@ -49,7 +49,9 @@ Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', '
     Route::resource('payment_methods', 'ClientPortal\PaymentMethodController');// name = (payment_methods. index / create / show / update / destroy / edit
 
     Route::match(['GET', 'POST'], 'quotes/approve', 'ClientPortal\QuoteController@bulk')->name('quotes.bulk');
-    Route::resource('quotes', 'ClientPortal\QuoteController')->only('index', 'show');
+    Route::get('quotes', 'ClientPortal\QuoteController@index')->name('quotes.index')->middleware('portal_enabled');
+    Route::get('quotes/{quote}', 'ClientPortal\QuoteController@show')->name('quote.show');
+    Route::get('quotes/{quote_invitation}', 'ClientPortal\QuoteController@show')->name('quote.show_invitation');
 
     Route::resource('credits', 'ClientPortal\CreditController')->only('index', 'show');
 
