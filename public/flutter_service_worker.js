@@ -3,7 +3,7 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "main.dart.js": "5ca8587b2b569d3131763bee6b50c998",
+  "main.dart.js": "e68378fdc4d1a00a3d1d0aa767ab0e91",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
 "manifest.json": "77215c1737c7639764e64a192be2f7b8",
 "assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
@@ -17,7 +17,6 @@ const RESOURCES = {
 "assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
 "assets/assets/images/logo.png": "090f69e23311a4b6d851b3880ae52541",
 "assets/AssetManifest.json": "43bc57fb55ca8ea2fc1975108be086c9",
-"index.html": "57fdc91b6cf6f7a7eddf1419c5763c19",
 "/": "57fdc91b6cf6f7a7eddf1419c5763c19"
 };
 
@@ -26,7 +25,6 @@ const RESOURCES = {
 const CORE = [
   "/",
 "main.dart.js",
-"index.html",
 "assets/NOTICES",
 "assets/AssetManifest.json",
 "assets/FontManifest.json"];
@@ -105,7 +103,6 @@ self.addEventListener("activate", function(event) {
 self.addEventListener("fetch", (event) => {
   var origin = self.location.origin;
   var key = event.request.url.substring(origin.length + 1);
-  // Redirect URLs to the index.html
   if (event.request.url == origin || event.request.url.startsWith(origin + '/#')) {
     key = '/';
   }
