@@ -119,4 +119,9 @@ class Document extends BaseModel
 
         //return route('document.show', ['document' => $this->hashed_id]);
     }
+
+    public function deleteFile()
+    {
+        Storage::disk($this->disk)->delete($this->url);
+    }
 }
