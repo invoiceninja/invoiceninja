@@ -78,7 +78,7 @@ class DocumentController extends BaseController
         return $this->itemResponse($document);
     }
 
-    public function download(DownloadDocumentRequest $request, Document $document)
+    public function download(ShowDocumentRequest $request, Document $document)
     {
         return response()->streamDownload(function () use($document) {
             echo file_get_contents($document->generateUrl());
@@ -93,7 +93,7 @@ class DocumentController extends BaseController
      */
     public function edit(EditDocumentRegquest $request, Document $document)
     {
-        //
+        return $this->itemResponse($document);
     }
 
     /**
@@ -105,7 +105,7 @@ class DocumentController extends BaseController
      */
     public function update(UpdateDocumentRequest $request, Document $document)
     {
-        //
+        return $this->itemResponse($document);
     }
 
     /**

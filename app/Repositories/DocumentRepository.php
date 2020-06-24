@@ -35,8 +35,16 @@ class DocumentRepository extends BaseRepository
         $document->forceDelete();
     }
 
-    public function restore()
+    public function restore($document)
     {
+        if (! $document->trashed()) {
+            return;
+        }
 
+        $document->restore();
+
+        if (class_exists($className)) {
+            event(new $className($document));
+        }
     }
 }
