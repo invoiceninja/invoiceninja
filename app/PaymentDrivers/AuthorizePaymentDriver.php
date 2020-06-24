@@ -17,6 +17,7 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
+use App\PaymentDrivers\Authorize\RefundTransaction;
 use net\authorize\api\constants\ANetEnvironment;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\GetMerchantDetailsRequest;
@@ -111,16 +112,12 @@ class AuthorizePaymentDriver extends BaseDriver
     
     public function processPaymentView($data)
     {
-
         return $this->payment_method->processPaymentView($data);
-
     }
 
     public function processPaymentResponse($request)
     {
-
         return $this->payment_method->processPaymentResponse($request);
-
     }
 
     public function purchase($amount, $return_client_response = false) 
@@ -130,7 +127,7 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $refund_amount, $return_client_response = false) 
     {
-
+        return (new RefundTransaction($this))->refundTransaction($payment, $refund_amount);
     }
 
     public function findClientGatewayRecord() :?ClientGatewayToken

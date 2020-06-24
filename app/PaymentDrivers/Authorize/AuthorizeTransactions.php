@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Authorize;
 
+use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\GetTransactionDetailsRequest;
 use net\authorize\api\controller\GetTransactionDetailsController;
 

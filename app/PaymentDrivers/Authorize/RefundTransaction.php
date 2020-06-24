@@ -32,7 +32,7 @@ class RefundTransaction
 
 	public $authorize_transaction;
 
-    public function __construct(AuthorizePaymentDriver $authorize, AuthorizeTransactions $authorize_transaction)
+    public function __construct(AuthorizePaymentDriver $authorize)
     {
         $this->authorize = $authorize;
         $this->authorize_transaction = new AuthorizeTransactions($this->authorize);
@@ -40,10 +40,10 @@ class RefundTransaction
 
     function refundTransaction(Payment $payment, $amount)
 	{
+		error_reporting (E_ALL & ~E_DEPRECATED);
 
 		$transaction_details = $this->authorize_transaction->getTransactionDetails($payment->transaction_reference);
 
-		info(print_r($transaction_details,1));
 
 	   	$this->authorize->init();
 	    
@@ -51,11 +51,11 @@ class RefundTransaction
 	    $refId = 'ref' . time();
 
 	    $paymentProfile = new PaymentProfileType();
-	    $paymentProfile->setPaymentProfileId( $payment_profile_id );
+	    $paymentProfile->setPaymentProfileId( $transaction_details->getTransaction()->getProfile()->getCustomerPaymentProfileId() );
 
 	    // set customer profile
 	    $customerProfile = new CustomerProfilePaymentType();
-	    $customerProfile->setCustomerProfileId( $profile_id );
+	    $customerProfile->setCustomerProfileId( $transaction_details->getTransaction()->getProfile()->getCustomerProfileId() );
 	    $customerProfile->setPaymentProfile( $paymentProfile );
 
 	    //create a transaction
