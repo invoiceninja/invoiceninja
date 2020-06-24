@@ -273,4 +273,16 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
             $company_gateway_token->save();
         }
     }
+
+    public function refund(Payment $payment, $amount)
+    {
+        $payment = new \Checkout\Models\Payments\Refund($payment->transaction_reference);
+        $payment->amount = $amount;
+
+        try {
+            $refund = $this->gateway->payments()->refund($payment);
+        } catch (CheckoutHttpException $e) {
+            // ..
+        }
+    }
 }

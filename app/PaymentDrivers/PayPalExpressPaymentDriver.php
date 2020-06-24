@@ -69,6 +69,10 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     protected $customer_reference = '';
 
+    public function setPaymentMethod($payment_method_id = null)
+    {
+        return $this;
+    }
 
     public function gatewayTypes()
     {
@@ -283,32 +287,29 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             ->send();
 
         if ($response->isSuccessful()) {
-            SystemLogger::dispatch(
-                [
-                    'server_response' => $response->getMessage(),
-                    'data' => request()->all(),
-                ],
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_SUCCESS,
-                SystemLog::TYPE_PAYPAL,
-                $this->client
-            );
+            SystemLogger::dispatch([
+                'server_response' => $response->getMessage(), 'data' => request()->all(),
+            ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_PAYPAL, $this->client);
 
-            return true;
+            return [
+                'transaction_reference' => $response->getData()['REFUNDTRANSACTIONID'],
+                'transaction_response' => json_encode($response->getData()),
+                'success' => true,
+                'description' => $response->getData()['ACK'],
+                'code' => $response->getCode(),
+            ];
         }
 
-        SystemLogger::dispatch(
-            [
-                'server_response' => $response->getMessage(),
-                'data' => request()->all(),
-            ],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_PAYPAL,
-            $this->client
-        );
+        SystemLogger::dispatch([
+            'server_response' => $response->getMessage(), 'data' => request()->all(),
+        ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_PAYPAL, $this->client);
 
-
-        return false;
+        return [
+            'transaction_reference' => $response->getData()['CORRELATIONID'],
+            'transaction_response' => json_encode($response->getData()),
+            'success' => false,
+            'description' => $response->getData()['L_LONGMESSAGE0'],
+            'code' => $response->getData()['L_ERRORCODE0'],
+        ];
     }
 }

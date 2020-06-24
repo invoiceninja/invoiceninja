@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -21,6 +22,10 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Stripe\ACH;
+use App\PaymentDrivers\Stripe\Alipay;
+use App\PaymentDrivers\Stripe\CreditCard;
+use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -43,6 +48,15 @@ class StripePaymentDriver extends BasePaymentDriver
 
     protected $payment_method;
 
+    public static $methods = [
+        GatewayType::CREDIT_CARD => CreditCard::class,
+        GatewayType::BANK_TRANSFER => ACH::class,
+        GatewayType::ALIPAY => Alipay::class,
+        GatewayType::SOFORT => SOFORT::class,
+        GatewayType::APPLE_PAY => 1,
+        GatewayType::SEPA => 1,
+    ];
+
     /**
      * Methods in this class are divided into
      * two separate streams
@@ -60,16 +74,16 @@ class StripePaymentDriver extends BasePaymentDriver
      * Initializes the Stripe API
      * @return void
      */
-    public function init() :void
+    public function init(): void
     {
         Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
     }
 
-    public function setPaymentMethod(string $method)
+    public function setPaymentMethod($payment_method_id)
     {
-        // Example: setPaymentMethod('App\\PaymentDrivers\\Stripe\\CreditCard');
+        $class = self::$methods[$payment_method_id];
 
-        $this->payment_method = new $method($this);
+        $this->payment_method = new $class($this);
 
         return $this;
     }
@@ -77,7 +91,7 @@ class StripePaymentDriver extends BasePaymentDriver
     /**
      * Returns the gateway types
      */
-    public function gatewayTypes() :array
+    public function gatewayTypes(): array
     {
         $types = [
             GatewayType::CREDIT_CARD,
@@ -202,13 +216,13 @@ class StripePaymentDriver extends BasePaymentDriver
       +"shipping": null
       +"source": null
       +"status": "succeeded"
-    */
+     */
     public function processPaymentResponse($request) //We never have to worry about unsuccessful payments as failures are handled at the front end for this driver.
     {
         return $this->payment_method->paymentResponse($request);
     }
 
-    public function createPayment($data, $status = Payment::STATUS_COMPLETED) :Payment
+    public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
     {
         $payment = parent::createPayment($data, $status);
 
@@ -230,7 +244,7 @@ class StripePaymentDriver extends BasePaymentDriver
      * @param  array $data The data array to be passed to Stripe
      * @return PaymentIntent       The Stripe payment intent object
      */
-    public function createPaymentIntent($data) :?\Stripe\PaymentIntent
+    public function createPaymentIntent($data): ?\Stripe\PaymentIntent
     {
         $this->init();
 
@@ -243,7 +257,7 @@ class StripePaymentDriver extends BasePaymentDriver
      *
      * @return \Stripe\SetupIntent
      */
-    public function getSetupIntent() :\Stripe\SetupIntent
+    public function getSetupIntent(): \Stripe\SetupIntent
     {
         $this->init();
 
@@ -255,7 +269,7 @@ class StripePaymentDriver extends BasePaymentDriver
      * Returns the Stripe publishable key
      * @return NULL|string The stripe publishable key
      */
-    public function getPublishableKey() :?string
+    public function getPublishableKey(): ?string
     {
         return $this->company_gateway->getPublishableKey();
     }
@@ -265,7 +279,7 @@ class StripePaymentDriver extends BasePaymentDriver
      *
      * @return NULL|\Stripe\Customer A Stripe customer object
      */
-    public function findOrCreateCustomer() :?\Stripe\Customer
+    public function findOrCreateCustomer(): ?\Stripe\Customer
     {
         $customer = null;
 
@@ -298,36 +312,34 @@ class StripePaymentDriver extends BasePaymentDriver
         $this->gateway();
 
         $response = $this->gateway
-            ->refund(['transactionReference'=>$payment->transaction_reference, 'amount' => $amount, 'currency' => $payment->client->getCurrencyCode()])
+            ->refund(['transactionReference' => $payment->transaction_reference, 'amount' => $amount, 'currency' => $payment->client->getCurrencyCode()])
             ->send();
 
         if ($response->isSuccessful()) {
-            SystemLogger::dispatch(
-                [
-                    'server_response' => $response->getMessage(),
-                    'data' => request()->all(),
-                ],
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_SUCCESS,
-                SystemLog::TYPE_PAYPAL,
-                $this->client
-            );
+            SystemLogger::dispatch([
+                'server_response' => $response->getMessage(), 'data' => request()->all(),
+            ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client);
 
-            return true;
+            return [
+                'transaction_reference' => $response->getData()['id'],
+                'transaction_response' => json_encode($response->getData()),
+                'success' => $response->getData()['refunded'],
+                'description' => $response->getData()['description'],
+                'code' => $response->getCode(),
+            ];
         }
 
-        SystemLogger::dispatch(
-            [
-                'server_response' => $response->getMessage(),
-                'data' => request()->all(),
-            ],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_PAYPAL,
-            $this->client
-        );
+        SystemLogger::dispatch([
+            'server_response' => $response->getMessage(), 'data' => request()->all(),
+        ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
 
-        return false;
+        return [
+            'transaction_reference' => null,
+            'transaction_response' => json_encode($response->getData()),
+            'success' => false,
+            'description' => $response->getData()['error']['message'],
+            'code' => $response->getData()['error']['code'],
+        ];
     }
 
     public function verificationView(ClientGatewayToken $payment_method)

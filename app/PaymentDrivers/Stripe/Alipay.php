@@ -49,6 +49,7 @@ class Alipay
             'hashed_ids' => implode(",", $data['hashed_ids']),
             'amount' => $data['amount'],
             'fee' => $data['fee'],
+            'payment_method_id' => GatewayType::SOFORT,
         ]);
     }
 
