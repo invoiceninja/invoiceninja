@@ -661,7 +661,10 @@ class QuoteController extends BaseController
                 # code...
                 break;
             case 'download':
-                    return response()->download(TempFile::path($quote->pdf_file_path()), basename($quote->pdf_file_path()));
+                    return response()->streamDownload(function () use($quote) {
+                        echo file_get_contents($quote->pdf_file_path());
+                    }, basename($quote->pdf_file_path()));
+                    //return response()->download(TempFile::path($quote->pdf_file_path()), basename($quote->pdf_file_path()));
                 break;
             case 'archive':
                 $this->invoice_repo->archive($quote);

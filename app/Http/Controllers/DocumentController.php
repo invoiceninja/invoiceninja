@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Document\EditDocumentRequest;
+use App\Http\Requests\Document\ShowDocumentRequest;
+use App\Http\Requests\Document\StoreDocumentRequest;
+use App\Http\Requests\Document\UpdateDocumentRequest;
+use App\Models\Document;
 use Illuminate\Http\Request;
 
-class DocumentController extends Controller
+class DocumentController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -32,7 +37,7 @@ class DocumentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreDocumentRequest $request)
     {
         //
     }
@@ -43,9 +48,13 @@ class DocumentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(ShowDocumentRequest $request, Document $document)
     {
-        //
+        return response()->streamDownload(function () use($document) {
+                echo file_get_contents($document->generateUrl());
+            }, basename($document->generateUrl()));
+
+        //return response()->download($document->generateUrl());
     }
 
     /**
@@ -54,7 +63,7 @@ class DocumentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(EditDocumentRegquest $request, Document $document)
     {
         //
     }
@@ -66,7 +75,7 @@ class DocumentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateDocumentRequest $request, Document $document)
     {
         //
     }
@@ -77,7 +86,7 @@ class DocumentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(DestroyDocumentRequest $request, Document $document)
     {
         //
     }

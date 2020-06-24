@@ -527,7 +527,10 @@ class CreditController extends BaseController
                 }
                 break;
             case 'download':
-                return response()->download(TempFile::path($credit->pdf_file_path()), basename($credit->pdf_file_path()));  
+                    return response()->streamDownload(function () use($credit) {
+                        echo file_get_contents($credit->pdf_file_path());
+                    }, basename($credit->pdf_file_path()));
+                //return response()->download(TempFile::path($credit->pdf_file_path()), basename($credit->pdf_file_path()));  
               break;
             case 'archive':
                 $this->credit_repository->archive($credit);

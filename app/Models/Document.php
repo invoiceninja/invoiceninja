@@ -112,4 +112,11 @@ class Document extends BaseModel
 
         return null;
     }
+
+    public function generateRoute($absolute = false)
+    {
+        return route('api.documents.show', ['document' => $this->hashed_id]);
+
+        //return route('document.show', ['document' => $this->hashed_id]);
+    }
 }
