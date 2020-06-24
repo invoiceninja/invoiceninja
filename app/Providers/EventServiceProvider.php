@@ -111,6 +111,17 @@ class EventServiceProvider extends ServiceProvider
         ],
         ClientWasRestored::class =>[
         ],
+        // Documents
+        DocumentWasCreated::class =>[
+        ],
+        DocumentWasArchived::class =>[
+        ],
+        DocumentWasUpdated::class =>[
+        ],
+        DocumentWasDeleted::class =>[
+        ],
+        DocumentWasRestored::class =>[
+        ],
         CreditWasMarkedSent::class => [
         ],
         //Designs
