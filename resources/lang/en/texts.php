@@ -3222,4 +3222,6 @@ return [
     'credit_card_invalid' => 'Provided credit card number is not valid.',
     'month_invalid' => 'Provided month is not valid.',
     'year_invalid' => 'Provided year is not valid.',
+
+    'if_you_need_help' => 'If you need help you can either post to our',
 ];
