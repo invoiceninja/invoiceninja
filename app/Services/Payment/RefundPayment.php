@@ -24,6 +24,8 @@ class RefundPayment
 
     private $gateway_refund_status;
 
+    private $activity_repository;
+
     public function __construct($payment, $refund_data)
     {
         $this->payment = $payment;
@@ -33,6 +35,8 @@ class RefundPayment
         $this->total_refund = 0;
 
         $this->gateway_refund_status = false;
+
+        $this->activity_repository = new ActivityRepository();
     }
 
     /**
@@ -41,40 +45,50 @@ class RefundPayment
     {
 
         return $this->calculateTotalRefund() //sets amount for the refund (needed if we are refunding multiple invoices in one payment)
-                    ->setStatus() //sets status of payment
-                    ->buildCreditNote() //generate the credit note
-                    ->buildCreditLineItems() //generate the credit note items
-                    ->updateCreditables() //return the credits first
-                    ->updatePaymentables() //update the paymentable items
-                    ->adjustInvoices()
-                    ->createActivity() // create the refund activity
-                    ->processGatewayRefund() //process the gateway refund if needed
-                    ->save();
+            ->setStatus() //sets status of payment
+            ->buildCreditNote() //generate the credit note
+            ->buildCreditLineItems() //generate the credit note items
+            ->updateCreditables() //return the credits first
+            ->updatePaymentables() //update the paymentable items
+            ->adjustInvoices()
+            ->createActivity() // create the refund activity
+            ->processGatewayRefund() //process the gateway refund if needed
+            ->save();
     }
 
     private function processGatewayRefund()
     {
+        // if ($this->refund_data['gateway_refund'] !== false && $this->total_refund > 0) {
+        if (true) {
 
-        if ($this->refund_data['gateway_refund'] !== false && $this->total_refund > 0) {
-
-            $gateway = CompanyGateway::find($this->company_gateway_id);
+            $gateway = CompanyGateway::first();
 
             if ($gateway) {
                 $response = $gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
 
-                if (!$response) {
+                if ($response['success']) {
                     throw new PaymentRefundFailed();
                 }
 
-                //todo
-                //need to check the gateway response has successfully be transacted.
+                $this->payment->refunded = $this->total_refund;
 
-                //if a credit has been generated I think this is the correct section to fix the balance of the credit
+                $activity = [
+                    'payment_id' => $this->payment->id,
+                    'user_id' => $this->payment->user->id,
+                    'company_id' => $this->payment->company->id,
+                    'activity_type_id' => Activity::REFUNDED_PAYMENT,
+                    'credit_id' => 1, // ???
+                    'notes' => $response,
+                ];
+
+                /** Persist activiy to database. */
+                // $this->activity_repository->save($activity, ??);
+
+                /** Substract credit amount from the refunded value. */
             }
-        }
-        else
+        } else {
             $this->payment->refunded += $this->total_refund;
-
+        }
 
         return $this;
     }
@@ -105,7 +119,7 @@ class RefundPayment
     private function calculateTotalRefund()
     {
 
-        if(isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0)
+        if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0)
             $this->total_refund = collect($this->refund_data['invoices'])->sum('amount');
         else
             $this->total_refund = $this->refund_data['amount'];
@@ -145,10 +159,8 @@ class RefundPayment
     {
         $ledger_string = '';
 
-        if(isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0)
-        {
-            foreach ($this->refund_data['invoices'] as $invoice) 
-            {
+        if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
+            foreach ($this->refund_data['invoices'] as $invoice) {
 
                 $inv = Invoice::find($invoice['invoice_id']);
 
@@ -164,9 +176,7 @@ class RefundPayment
 
                 $line_items[] = $credit_line_item;
             }
-        }
-        else
-        {
+        } else {
 
             $credit_line_item = InvoiceItemFactory::create();
             $credit_line_item->quantity = 1;
@@ -177,7 +187,7 @@ class RefundPayment
             $credit_line_item->date = $this->refund_data['date'];
 
             $line_items = [];
-            $line_items[] = $credit_line_item;  
+            $line_items[] = $credit_line_item;
         }
 
         $this->credit_note->line_items = $line_items;
@@ -188,23 +198,19 @@ class RefundPayment
 
     private function updatePaymentables()
     {
-        if(isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0)
-        {
+        if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
             $this->payment->invoices->each(function ($paymentable_invoice) {
 
-                collect($this->refund_data['invoices'])->each(function ($refunded_invoice) use($paymentable_invoice){
+                collect($this->refund_data['invoices'])->each(function ($refunded_invoice) use ($paymentable_invoice) {
 
-                    if($refunded_invoice['invoice_id'] == $paymentable_invoice->id)
-                    {
+                    if ($refunded_invoice['invoice_id'] == $paymentable_invoice->id) {
                         $paymentable_invoice->pivot->refunded += $refunded_invoice['amount'];
                         $paymentable_invoice->pivot->save();
                     }
-
                 });
-
             });
         }
-        
+
         return $this;
     }
 
@@ -248,8 +254,7 @@ class RefundPayment
     {
         $adjustment_amount = 0;
 
-        if(isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0)
-        {
+        if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
             foreach ($this->refund_data['invoices'] as $refunded_invoice) {
                 $invoice = Invoice::find($refunded_invoice['invoice_id']);
 
@@ -277,7 +282,6 @@ class RefundPayment
 
             $this->payment->client->paid_to_date -= $this->refund_data['amount'];
             $this->payment->client->save();
-
         }
 
         return $this;
