@@ -115,9 +115,7 @@ class Document extends BaseModel
 
     public function generateRoute($absolute = false)
     {
-        return route('api.documents.show', ['document' => $this->hashed_id]);
-
-        //return route('document.show', ['document' => $this->hashed_id]);
+        return route('api.documents.show', ['document' => $this->hashed_id]) . '/download';
     }
 
     public function deleteFile()
