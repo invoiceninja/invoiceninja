@@ -134,6 +134,11 @@ class Company extends BaseModel
         self::ENTITY_RECURRING_QUOTE => 2048,
     ];
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+    
     public function getEntityType()
     {
         return Company::class;

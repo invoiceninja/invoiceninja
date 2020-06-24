@@ -660,7 +660,10 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'download':
-                    return response()->download(TempFile::path($invoice->pdf_file_path()), basename($invoice->pdf_file_path()));
+                    return response()->streamDownload(function () use($invoice) {
+                        echo file_get_contents($invoice->pdf_file_path());
+                    }, basename($invoice->pdf_file_path()));
+                    //return response()->download(TempFile::path($invoice->pdf_file_path()), basename($invoice->pdf_file_path()));
                 break;
             case 'restore':
                 $this->invoice_repo->restore($invoice);

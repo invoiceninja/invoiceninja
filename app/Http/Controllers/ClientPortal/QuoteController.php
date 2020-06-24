@@ -74,7 +74,10 @@ class QuoteController extends Controller
         }
 
         if ($quotes->count() == 1) {
-            return response()->download(TempFile::path($invoices->first()->pdf_file_path()), basename($quotes->first()->pdf_file_path()));
+            return response()->streamDownload(function () use($invoices) {
+                echo file_get_contents($invoices->first()->pdf_file_path());
+            }, basename($invoices->first()->pdf_file_path()));
+            //return response()->download(TempFile::path($invoices->first()->pdf_file_path()), basename($quotes->first()->pdf_file_path()));
         }
 
         # enable output of HTTP headers
