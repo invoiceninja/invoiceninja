@@ -14,6 +14,7 @@ namespace App\PaymentDrivers;
 
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
 use net\authorize\api\constants\ANetEnvironment;
@@ -127,7 +128,7 @@ class AuthorizePaymentDriver extends BaseDriver
         return false;
     }
 
-    public function refund($amount, $transaction_reference, $return_client_response = false) 
+    public function refund(Payment $payment, $refund_amount, $return_client_response = false) 
     {
 
     }

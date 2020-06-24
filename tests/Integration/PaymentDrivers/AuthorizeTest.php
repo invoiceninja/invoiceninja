@@ -2,6 +2,10 @@
 
 namespace Tests\Integration\PaymentDrivers;
 
+use App\Factory\PaymentFactory;
+use App\Models\CompanyGateway;
+use App\PaymentDrivers\AuthorizePaymentDriver;
+use Tests\MockAccountData;
 use Tests\TestCase;
 use net\authorize\api\constants\ANetEnvironment;
 use net\authorize\api\contract\v1 as AnetAPI;
@@ -31,6 +35,7 @@ use net\authorize\api\controller\GetMerchantDetailsController;
  */
 class AuthorizeTest extends TestCase
 {
+    use MockAccountData;
 
     public $customer_profile_id = 1512191314;
 
@@ -43,7 +48,8 @@ class AuthorizeTest extends TestCase
         if (! config('ninja.testvars.authorize')) {
             $this->markTestSkipped('authorize.net not configured');
         }
-        
+    
+        $this->makeTestData();    
     }
 
     public function testUnpackingVars()
@@ -372,6 +378,27 @@ class AuthorizeTest extends TestCase
         }
 
         $this->assertNotNull($response);
+
+        $this->assertNotNull($tresponse);
+
+        //$tresponse->getTransId()
+        
+        $payment = PaymentFactory::create($this->company->id, $this->user->id);
+        $payment->amount = 400;
+        $payment->client_id = $this->client->id;
+        $payment->date = now();
+        $payment->transaction_reference = $tresponse->getTransId();
+        $payment->save();
+
+        $company_gateway = CompanyGateway::where('gateway_key', '3b6621f970ab18887c4f6dca78d3f8bb')->first();
+
+        $authorize_payment_driver = new AuthorizePaymentDriver($company_gateway, $this->client);
+        $response = $authorize->refund($payment, 400);
+
+        info(print_r($response,1));
+
+        $this->assertTrue(is_array($response));
+
       }
 
 }
