@@ -9,7 +9,10 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org)
 
-### We're on Slack, join us at [slack.invoiceninja.com](http://slack.invoiceninja.com)
+### We're on Slack, join us at [slack.invoiceninja.com](http://slack.invoiceninja.com) or if you like [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
+  
+Just make sure to add the `invoice-ninja` tag to your question.
+
 
 #### We are currently looking for co-mainteners for the [dockerfiles repository](https://github.com/invoiceninja/dockerfiles), if you're interested please let us know
 
@@ -19,8 +22,9 @@ The self-host zip includes all third party libraries whereas downloading the cod
 
 * [Features](https://www.invoiceninja.com/invoicing-features/)
 * [Videos](https://www.youtube.com/channel/UCXAHcBvhW05PDtWYIq7WDFA/videos)
-* [User Guide](https://invoice-ninja.readthedocs.io/en/latest/)
+* [User Guide](https://docs.invoiceninja.com/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
+* [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
 
 ## Referral Program
 * Earn 50% of Pro & Enterprise Plans up to 4 years - [Learn more](https://www.invoiceninja.com/referral-program/)
@@ -32,11 +36,12 @@ The self-host zip includes all third party libraries whereas downloading the cod
 
 ## Installation Options
 * [Ansible](https://github.com/invoiceninja/ansible-installer)
-* [Self-Host Zip](https://invoice-ninja.readthedocs.io/en/latest/install.html)
+* [Self-Host Zip](https://docs.invoiceninja.com/install.html)
 * [Docker File](https://hub.docker.com/r/invoiceninja/invoiceninja/)
 * [Cloudron](https://cloudron.io/store/com.invoiceninja.cloudronapp.html)
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
 * [Lando](https://github.com/invoiceninja/invoiceninja/issues/2880)
+* [Yunohost](https://github.com/YunoHost-Apps/invoiceninja_ynh)
 
 ## Recommended Providers
 * [Stripe](https://stripe.com/)

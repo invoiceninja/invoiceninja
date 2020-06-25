@@ -207,13 +207,20 @@ function handleSignedUp() {
             </div>
             <br/>&nbsp;<br/>
             @if (Utils::isOAuthEnabled() && ! Auth::user()->registered)
-                <div class="col-md-5">
+                <div class="col-md-6">
                     @foreach (App\Services\AuthService::$providers as $provider)
-                    <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-block"
+                    <a href="{{ URL::to('auth/' . $provider) }}" class=""
                         style="padding-top:10px;padding-bottom:10px;margin-top:10px;margin-bottom:10px"
                         id="{{ strtolower($provider) }}LoginButton">
-                        <i class="fa fa-{{ strtolower($provider) }}"></i> &nbsp;
-                        {{ $provider }}
+                            @if($provider == SOCIAL_GITHUB)
+                                <img style="height: 6rem;" src="{{ asset('images/btn_github_signin.png') }}">
+                            @elseif($provider == SOCIAL_GOOGLE)
+                                <img style="height: 6rem;" src="{{ asset('images/btn_google_signin_dark_normal_web@2x.png') }}">
+                            @elseif($provider == SOCIAL_LINKEDIN)
+                                <img style="height: 6rem;" src="{{ asset('images/btn_linkedin_signin.png') }}">
+                            @elseif($provider === SOCIAL_FACEBOOK)
+                                <img style="height: 6rem;" src="{{ asset('images/btn_facebook_signin.png') }}">
+                            @endif
                     </a>
                     @endforeach
                 </div>
@@ -222,7 +229,7 @@ function handleSignedUp() {
                     {{ trans('texts.or') }}
                     <div style="border-right:thin solid #CCCCCC;height:90px;width:8px;margin-top:10px;"></div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-5">
             @else
                 <div class="col-md-12">
             @endif
