@@ -32,11 +32,13 @@ class RecurringInvoicesCronTest extends TestCase
     {
         parent::setUp();
 
+        RecurringInvoice::truncate();
+
         $this->makeTestData();
     }
 
     public function testCountCorrectNumberOfRecurringInvoicesDue()
-    {
+    {        
         //spin up 5 valid and 1 invalid recurring invoices
         $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', Carbon::now()->addMinutes(30))->get();
 

@@ -92,6 +92,10 @@ class UpdateClientRequest extends Request
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
         }
 
+        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
+            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
+        }
+
         if (isset($input['contacts'])) {
             foreach ($input['contacts'] as $key => $contact) {
                 if (array_key_exists('id', $contact) && is_numeric($contact['id'])) {

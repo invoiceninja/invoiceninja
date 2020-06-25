@@ -49,6 +49,11 @@ class StoreRecurringInvoiceRequest extends Request
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
         
+        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
+            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
+        }
+
+        
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         //$input['line_items'] = json_encode($input['line_items']);
         $this->replace($input);
