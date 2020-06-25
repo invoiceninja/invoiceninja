@@ -18,6 +18,8 @@ use Tests\TestCase;
  */
 class UniqueEmailTest extends TestCase
 {
+    use DatabaseTransactions;
+
     protected $rule;
 
     public function setUp() :void
@@ -73,8 +75,15 @@ class UniqueEmailTest extends TestCase
             'account_id' => $account2->id,
         ];
 
-        User::on('db-ninja-01')->create($user);
-        User::on('db-ninja-02')->create($user2);
+        $user_find = User::on('db-ninja-01')->where('email', 'user@example.com')->first();
+
+        if(!$user_find)
+            User::on('db-ninja-01')->create($user);
+        
+        $user_find = User::on('db-ninja-02')->where('email', 'user@example.com')->first();
+
+        if(!$user_find)
+            User::on('db-ninja-02')->create($user2);
     }
 
     public function test_unique_emails_detected_on_database()
