@@ -57,6 +57,7 @@ class Payment extends BaseModel
     const TYPE_TOKEN = 'token';
 
     protected $fillable = [
+        'assigned_user_id',
         'client_id',
         'type_id',
         'amount',

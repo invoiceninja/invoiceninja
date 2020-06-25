@@ -33,7 +33,8 @@ use Tests\TestCase;
 class InvitationTest extends TestCase
 {
     use MakesHash;
-    use DatabaseTransactions;
+    //use DatabaseTransactions;
+    //use RefreshDatabase;
 
     public function setUp() :void
     {
@@ -56,11 +57,15 @@ class InvitationTest extends TestCase
         $account->default_company_id = $company->id;
         $account->save();
 
-        $user = factory(\App\Models\User::class)->create([
-            'account_id' => $account->id,
-            'confirmation_code' => $this->createDbHash(config('database.default'))
-        ]);
+        $user = User::where('email', 'user@example.com')->first();
 
+        if(!$user)
+        {
+            $user = factory(\App\Models\User::class)->create([
+                'account_id' => $account->id,
+                'confirmation_code' => $this->createDbHash(config('database.default'))
+            ]);
+        }
 
         $userPermissions = collect([
                                     'view_invoice',
