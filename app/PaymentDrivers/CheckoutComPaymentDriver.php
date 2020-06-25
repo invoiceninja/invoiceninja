@@ -107,7 +107,6 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         if ($request->has('token') && !is_null($request->token)) {
             $method = new IdSource($state['token']);
             $payment = new CheckoutPayment($method, $state['currency']);
-            $payment->capture = false;
             $payment->amount = $state['value'];
         } else {
             $method = new TokenSource($state['server_response']->cardToken);
@@ -276,13 +275,31 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
     public function refund(Payment $payment, $amount)
     {
-        $payment = new \Checkout\Models\Payments\Refund($payment->transaction_reference);
-        $payment->amount = $amount;
+        $this->init();
+
+        $checkout_payment = new \Checkout\Models\Payments\Refund($payment->transaction_reference);
 
         try {
-            $refund = $this->gateway->payments()->refund($payment);
+            $refund = $this->gateway->payments()->refund($checkout_payment);
+            $checkout_payment = $this->gateway->payments()->details($refund->id);
+
+            $response = ['refund_response' => $refund, 'checkout_payment_fetch' => $checkout_payment];
+
+            return [
+                'transaction_reference' => $refund->action_id,
+                'transaction_response' => json_encode($response),
+                'success' => $checkout_payment->status == 'Refunded',
+                'description' => $checkout_payment->status,
+                'code' => $checkout_payment->http_code,
+            ];
         } catch (CheckoutHttpException $e) {
-            // ..
+            return [
+                'transaction_reference' => null,
+                'transaction_response' => json_encode($e->getMessage()),
+                'success' => false,
+                'description' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ];
         }
     }
 }
