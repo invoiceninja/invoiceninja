@@ -39,8 +39,6 @@ class RefundPayment
         $this->activity_repository = new ActivityRepository();
     }
 
-    /**
-     */
     public function run()
     {
 
@@ -51,7 +49,6 @@ class RefundPayment
             ->updateCreditables() //return the credits first
             ->updatePaymentables() //update the paymentable items
             ->adjustInvoices()
-            ->createActivity() // create the refund activity
             ->processGatewayRefund() //process the gateway refund if needed
             ->save();
     }
@@ -70,19 +67,9 @@ class RefundPayment
 
                 $this->payment->refunded = $this->total_refund;
 
-                $activity = [
-                    'payment_id' => $this->payment->id,
-                    'user_id' => $this->payment->user->id,
-                    'company_id' => $this->payment->company->id,
-                    'activity_type_id' => Activity::REFUNDED_PAYMENT,
-                    'credit_id' => 1, // ???
-                    'notes' => $response,
-                ];
-
-                /** Persist activiy to database. */
-                // $this->activity_repository->save($activity, ??);
-
-                /** Substract credit amount from the refunded value. */
+                $this
+                    ->createActivity($gateway)
+                    ->updateCreditNoteBalance();
             }
         } else {
             $this->payment->refunded += $this->total_refund;
@@ -91,7 +78,21 @@ class RefundPayment
         return $this;
     }
 
-    private function createActivity()
+    public function updateCreditNoteBalance()
+    {
+        $this->credit_note->balance -= $this->total_refund;
+        $this->credit_note->status_id = Credit::STATUS_APPLIED;
+
+        $this->credit_note->balance === 0
+            ? $this->credit_note->status_id = Credit::STATUS_APPLIED
+            : $this->credit_note->status_id = Credit::STATUS_PARTIAL;
+
+        $this->credit_note->save();
+
+        return $this;
+    }
+
+    private function createActivity($notes)
     {
         $fields = new \stdClass;
         $activity_repo = new ActivityRepository();
@@ -101,6 +102,7 @@ class RefundPayment
         $fields->company_id = $this->payment->company_id;
         $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
         $fields->credit_id = $this->credit_note->id;
+        $fields->notes = json_encode($notes);
 
         if (isset($this->refund_data['invoices'])) {
             foreach ($this->refund_data['invoices'] as $invoice) {
@@ -263,6 +265,8 @@ class RefundPayment
                 } else {
                     $invoice->service()->setStatus(Invoice::STATUS_PARTIAL);
                 }
+
+                $invoice->save();
 
                 $client = $invoice->client;
 
