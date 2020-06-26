@@ -60,7 +60,7 @@ class PortalComposer
     {
         $data = [];
 
-        $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
+        // $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
         $data[] = [ 'title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'file-text'];
         $data[] = [ 'title' => ctrans('texts.recurring_invoices'), 'url' => 'client.recurring_invoices.index', 'icon' => 'file'];
         $data[] = [ 'title' => ctrans('texts.payments'), 'url' => 'client.payments.index', 'icon' => 'credit-card'];
