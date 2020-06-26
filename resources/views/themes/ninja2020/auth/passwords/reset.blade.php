@@ -38,7 +38,7 @@
                         @enderror
                     </div>
                     <div class="flex flex-col mt-4">
-                        <label for="password" class="input-label">{{ ctrans('texts.password') }}</label>
+                        <label for="password" class="input-label">{{ ctrans('texts.password_confirmation') }}</label>
                         <input type="password" name="password_confirmation" id="password_confirmation"
                                class="input"
                                autofocus>
