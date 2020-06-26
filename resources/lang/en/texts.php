@@ -3224,5 +3224,5 @@ return [
     'year_invalid' => 'Provided year is not valid.',
 
     'if_you_need_help' => 'If you need help you can either post to our',
-    'update_password_on_confirm' => 'After updating your password, your account will be confirmed.',
+    'update_password_on_confirm' => 'After updating password, your account will be confirmed.',
 ];
