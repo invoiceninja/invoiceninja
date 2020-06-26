@@ -119,10 +119,14 @@ class RefundPayment
     private function calculateTotalRefund()
     {
 
-        if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0)
+        if (array_key_exists('invoices', $this->refund_data) && count($this->refund_data['invoices']) > 0){
+            info("array of invoice to refund");
             $this->total_refund = collect($this->refund_data['invoices'])->sum('amount');
-        else
+        }
+        else{
+            info("no invoices found - refunding total.");
             $this->total_refund = $this->refund_data['amount'];
+        }
 
         return $this;
     }
@@ -145,8 +149,8 @@ class RefundPayment
         $this->credit_note->date = $this->refund_data['date'];
         $this->credit_note->status_id = Credit::STATUS_SENT;
         $this->credit_note->client_id = $this->payment->client->id;
-        $this->credit_note->amount = $this->refund_data['amount'];
-        $this->credit_note->balance = $this->refund_data['amount'];
+        $this->credit_note->amount = $this->total_refund;
+        $this->credit_note->balance = $this->total_refund;
 
         $this->credit_note->save();
         $this->credit_note->number = $this->payment->client->getNextCreditNumber($this->payment->client);
