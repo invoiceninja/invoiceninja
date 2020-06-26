@@ -44,8 +44,12 @@ class PaymentMethodController extends Controller
     {
         $gateway = auth()->user()->client->getCreditCardGateway();
 
-        return $gateway->driver(auth()->user()->client)->authorizeView(GatewayType::CREDIT_CARD);
+        $data['gateway'] = $gateway;
 
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod(GatewayType::BANK_TRANSFER)
+            ->authorizeView($data);
     }
 
     /**
@@ -57,9 +61,11 @@ class PaymentMethodController extends Controller
     public function store(Request $request)
     {
         $gateway = auth()->user()->client->getCreditCardGateway();
-        
-        return $gateway->driver(auth()->user()->client)->authorizeResponseView($request->all());
 
+        return $gateway
+            ->driver(auth()->user()->client)
+            ->setPaymentMethod(GatewayType::BANK_TRANSFER)
+            ->authorizeResponse($request);
     }
 
     /**
@@ -104,7 +110,7 @@ class PaymentMethodController extends Controller
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\ACH')
+            ->setPaymentMethod(GatewayType::BANK_TRANSFER)
             ->verificationView($payment_method);
     }
 
@@ -114,7 +120,7 @@ class PaymentMethodController extends Controller
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod('App\\PaymentDrivers\\Stripe\\ACH')
+            ->setPaymentMethod(GatewayType::BANK_TRANSFER)
             ->processVerification($payment_method);
     }
 

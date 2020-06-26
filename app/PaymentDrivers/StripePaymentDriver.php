@@ -172,7 +172,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function authorizeCreditCardResponse($request)
+    public function authorizeResponse($request)
     {
         return $this->payment_method->authorizeResponse($request);
     }

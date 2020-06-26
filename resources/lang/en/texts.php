@@ -3224,4 +3224,6 @@ return [
     'year_invalid' => 'Provided year is not valid.',
 
     'if_you_need_help' => 'If you need help you can either post to our',
+
+    'bank_account_not_linked' => 'To pay with bank account, first you have to add it as payment method.',
 ];
