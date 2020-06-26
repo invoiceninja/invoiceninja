@@ -3225,4 +3225,5 @@ return [
 
     'if_you_need_help' => 'If you need help you can either post to our',
     'update_password_on_confirm' => 'After updating password, your account will be confirmed.',
+    'bank_account_not_linked' => 'To pay with bank account, first you have to add it as payment method.',
 ];
