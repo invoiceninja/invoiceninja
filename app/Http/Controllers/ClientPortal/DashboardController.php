@@ -21,6 +21,6 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return $this->render('dashboard.index');
+        return redirect()->route('client.invoices.index');
     }
 }

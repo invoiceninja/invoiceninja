@@ -3223,7 +3223,8 @@ return [
     'month_invalid' => 'Provided month is not valid.',
     'year_invalid' => 'Provided year is not valid.',
 
-    'if_you_need_help' => 'If you need help you can either post to our',
+    'if_you_need_help' => 'If you need help you can either post to our',    
+    'reversed' => 'Reversed',
     'update_password_on_confirm' => 'After updating password, your account will be confirmed.',
     'bank_account_not_linked' => 'To pay with bank account, first you have to add it as payment method.',
 ];

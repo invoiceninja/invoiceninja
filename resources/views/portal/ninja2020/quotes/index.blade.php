@@ -13,7 +13,6 @@
 
 @section('body')
     <div class="flex justify-between items-center">
-        <span>{{ ctrans('texts.with_selected') }}</span>
         <form action="{{ route('client.quotes.bulk') }}" method="post" id="bulkActions">
             @csrf
             <button type="submit" class="button button-primary" name="action"
