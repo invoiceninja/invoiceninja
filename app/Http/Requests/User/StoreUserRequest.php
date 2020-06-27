@@ -28,7 +28,15 @@ class StoreUserRequest extends Request
      */
 
     public function authorize() : bool
-    {
+    {   
+        // info(print_r(auth()->user()->toArray(),1));
+        // info(print_r(auth()->user()->company_user->toArray(),1));
+        // 
+                $queries = \DB::getQueryLog();
+                $count = count($queries);
+            
+                info(request()->method() . ' - ' . request()->url() . ": $count queries - ");
+
         return auth()->user()->isAdmin();
     }
 
@@ -43,8 +51,9 @@ class StoreUserRequest extends Request
             $rules['email'] = new ValidUserForCompany();
         }
 
-        if(auth()->user()->company()->account->isFreeHostedClient())
+        if(auth()->user()->company()->account->isFreeHostedClient()){
             $rules['hosted_users'] = new CanAddUserRule(auth()->user()->company()->account);
+        }
 
         return $rules;
     }
