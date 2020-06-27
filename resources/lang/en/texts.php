@@ -3224,4 +3224,6 @@ return [
     'year_invalid' => 'Provided year is not valid.',
 
     'if_you_need_help' => 'If you need help you can either post to our',
+    'https_required' => 'HTTPS is required, form will fail',
+
 ];

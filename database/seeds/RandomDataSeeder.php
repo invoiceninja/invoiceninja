@@ -265,29 +265,29 @@ class RandomDataSeeder extends Seeder
         ]);
 
 
-        if (config('ninja.testvars.stripe')) {
-            $cg = new CompanyGateway;
-            $cg->company_id = $company->id;
-            $cg->user_id = $user->id;
-            $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
-            $cg->require_cvv = true;
-            $cg->show_billing_address = true;
-            $cg->show_shipping_address = true;
-            $cg->update_details = true;
-            $cg->config = encrypt(config('ninja.testvars.stripe'));
-            $cg->save();
+        // if (config('ninja.testvars.stripe')) {
+        //     $cg = new CompanyGateway;
+        //     $cg->company_id = $company->id;
+        //     $cg->user_id = $user->id;
+        //     $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        //     $cg->require_cvv = true;
+        //     $cg->show_billing_address = true;
+        //     $cg->show_shipping_address = true;
+        //     $cg->update_details = true;
+        //     $cg->config = encrypt(config('ninja.testvars.stripe'));
+        //     $cg->save();
 
-            $cg = new CompanyGateway;
-            $cg->company_id = $company->id;
-            $cg->user_id = $user->id;
-            $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
-            $cg->require_cvv = true;
-            $cg->show_billing_address = true;
-            $cg->show_shipping_address = true;
-            $cg->update_details = true;
-            $cg->config = encrypt(config('ninja.testvars.stripe'));
-            $cg->save();
-        }
+        //     $cg = new CompanyGateway;
+        //     $cg->company_id = $company->id;
+        //     $cg->user_id = $user->id;
+        //     $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        //     $cg->require_cvv = true;
+        //     $cg->show_billing_address = true;
+        //     $cg->show_shipping_address = true;
+        //     $cg->update_details = true;
+        //     $cg->config = encrypt(config('ninja.testvars.stripe'));
+        //     $cg->save();
+        // }
 
         // if (config('ninja.testvars.paypal')) {
         //     $cg = new CompanyGateway;
@@ -315,18 +315,18 @@ class RandomDataSeeder extends Seeder
         //     $cg->save();
         // }
 
-        // if(config('ninja.testvars.authorize')) {
-        //     $cg = new CompanyGateway;
-        //     $cg->company_id = $company->id;
-        //     $cg->user_id = $user->id;
-        //     $cg->gateway_key = '3b6621f970ab18887c4f6dca78d3f8bb';
-        //     $cg->require_cvv = true;
-        //     $cg->show_billing_address = true;
-        //     $cg->show_shipping_address = true;
-        //     $cg->update_details = true;
-        //     $cg->config = encrypt(config('ninja.testvars.authorize'));
-        //     $cg->save();
-        // }
+        if(config('ninja.testvars.authorize')) {
+            $cg = new CompanyGateway;
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_key = '3b6621f970ab18887c4f6dca78d3f8bb';
+            $cg->require_cvv = true;
+            $cg->show_billing_address = true;
+            $cg->show_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.authorize'));
+            $cg->save();
+        }
         
     }
 }

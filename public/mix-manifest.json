@@ -4,7 +4,7 @@
     "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=0632d6281202800e0921",
     "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=d7e708d66a9c769b4c6e",
     "/js/clients/payment_methods/authorize-ach.js": "/js/clients/payment_methods/authorize-ach.js?id=9e6495d9ae236b3cb5ad",
-    "/js/clients/payment_methods/authorize-authorize-card.js": "/js/clients/payment_methods/authorize-authorize-card.js?id=3f6129bf10ff3bf20332",
+    "/js/clients/payment_methods/authorize-authorize-card.js": "/js/clients/payment_methods/authorize-authorize-card.js?id=83c223814db63f9db590",
     "/js/clients/payment_methods/authorize-stripe-card.js": "/js/clients/payment_methods/authorize-stripe-card.js?id=f4c45f0da9868d840799",
     "/js/clients/payments/alipay.js": "/js/clients/payments/alipay.js?id=428ac5b81ed722636e8f",
     "/js/clients/payments/authorize-credit-card-payment.js": "/js/clients/payments/authorize-credit-card-payment.js?id=3a74587f41c617a7cc81",
