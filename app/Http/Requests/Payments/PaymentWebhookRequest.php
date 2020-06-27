@@ -22,6 +22,10 @@ class PaymentWebhookRequest extends FormRequest
 
     public function company()
     {
+        if (!$this->company_key) {
+            return false;
+        }
+
         return Company::query()
             ->where('company_key', $this->company_key)
             ->firstOrFail();
@@ -29,6 +33,10 @@ class PaymentWebhookRequest extends FormRequest
 
     public function companyGateway()
     {
+        if (!$this->gateway_key || !$this->company_key) {
+            return false;
+        }
+
         $company = $this->company();
 
         return CompanyGateway::query()

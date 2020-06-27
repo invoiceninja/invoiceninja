@@ -14,9 +14,12 @@ namespace App\PaymentDrivers;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
+use App\Models\Company;
+use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -233,6 +236,7 @@ class StripePaymentDriver extends BasePaymentDriver
         $payment->type_id = $data['payment_type'];
         $payment->transaction_reference = $data['payment_method'];
         $payment->client_contact_id = $client_contact_id;
+        $payment->gateway_type_id = GatewayType::ALIPAY;
         $payment->save();
 
         return $payment;
@@ -350,6 +354,16 @@ class StripePaymentDriver extends BasePaymentDriver
     public function processVerification(ClientGatewayToken $payment_method)
     {
         return $this->payment_method->processVerification($payment_method);
+    }
+
+    public function processWebhookRequest(PaymentWebhookRequest $request, Company $company, CompanyGateway $company_gateway, Payment $payment)
+    {
+        if ($request->type == 'source.chargable') {
+            $payment->status_id = Payment::STATUS_COMPLETED;
+            $payment->save();
+        }
+
+        return response([], 200);
     }
 
     /************************************** Omnipay API methods **********************************************************/
