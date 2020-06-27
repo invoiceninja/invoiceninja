@@ -15,6 +15,7 @@ namespace App\Http\Controllers\Traits;
 use App\Models\User;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * Class VerifiesUserEmail
@@ -30,20 +31,49 @@ trait VerifiesUserEmail
      */
     public function confirm()
     {
-        if ($user = User::whereRaw("BINARY `confirmation_code`= ?", request()->route('confirmation_code'))->first()) {
-            $user->email_verified_at = now();
-            $user->confirmation_code = null;
-            $user->save();
+        $user = User::where('confirmation_code', request()->confirmation_code)->first();
+        
+        // if ($user = User::whereRaw("BINARY `confirmation_code`= ?", request()->input('confirmation_code'))->first()) {
 
-            return $this->render('auth.confirmed', [
-                'root' => 'themes',
-                'message' => ctrans('texts.security_confirmation'),
-            ]);
+        if (!$user) {
+            return $this->render('auth.confirmed', ['root' => 'themes', 'message' => ctrans('texts.wrong_confirmation')]);
         }
+
+        if (is_null($user->password) || empty($user->password)) {
+            return $this->render('auth.confirmation_with_password', ['root' => 'themes']);
+        }
+
+        $user->email_verified_at = now();
+        $user->confirmation_code = null;
+        $user->save();
 
         return $this->render('auth.confirmed', [
             'root' => 'themes',
-            'message' => ctrans('texts.wrong_confirmation'),
+            'message' => ctrans('texts.security_confirmation'),
+        ]);
+    }
+
+    public function confirmWithPassword()
+    {
+        $user = User::where('confirmation_code', request()->confirmation_code)->first();
+
+        if (!$user) {
+            return $this->render('auth.confirmed', ['root' => 'themes', 'message' => ctrans('texts.wrong_confirmation')]);
+        }
+        
+        request()->validate([
+            'password' => ['required', 'min:6', 'confirmed'],
+        ]);
+
+        $user->password = Hash::make(request()->password);
+
+        $user->email_verified_at = now();
+        $user->confirmation_code = null;
+        $user->save();
+
+        return $this->render('auth.confirmed', [
+            'root' => 'themes',
+            'message' => ctrans('texts.security_confirmation'),
         ]);
     }
 }
