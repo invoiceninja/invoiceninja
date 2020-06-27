@@ -90,6 +90,11 @@ class Payment extends BaseModel
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
+    public function company_gateway()
+    {
+        return $this->belongsTo(CompanyGateway::class)->withTrashed();
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);
