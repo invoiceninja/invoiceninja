@@ -65,7 +65,7 @@ class UserTest extends TestCase
         $data = [
             'first_name' => 'hey',
             'last_name' => 'you',
-            'email' => 'bob@good.ole.boys.com',
+            'email' => 'bob1@good.ole.boys.com',
             'company_user' => [
                     'is_admin' => false,
                     'is_owner' => false,

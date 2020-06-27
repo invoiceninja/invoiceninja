@@ -120,6 +120,7 @@ class AuthorizeCreditCard
         $payment->client_id = $this->authorize->client->id;
         $payment->company_gateway_id = $this->authorize->company_gateway->id;
         $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->gateway_type_id = $this->authorize->payment_method;
         $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
         $payment->currency_id = $this->authorize->client->getSetting('currency_id');
         $payment->date = Carbon::now();
@@ -128,7 +129,6 @@ class AuthorizeCreditCard
         $payment->currency_id = $this->authorize->client->getSetting('currency_id');
         $payment->client->getNextPaymentNumber($this->authorize->client);
         $payment->save();
-
 
         $this->authorize->attachInvoices($payment, $request->hashed_ids);
 
