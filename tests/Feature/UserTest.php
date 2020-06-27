@@ -47,9 +47,6 @@ class UserTest extends TestCase
 
         $this->makeTestData();
 
-        $this->withoutMiddleware(
-            ThrottleRequests::class
-        );
     }
 
     public function testUserList()
@@ -79,7 +76,7 @@ class UserTest extends TestCase
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-                    'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->post('/api/v1/users?include=company_user', $data);
 
         $response->assertStatus(200);
