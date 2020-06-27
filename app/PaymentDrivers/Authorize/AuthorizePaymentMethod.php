@@ -64,11 +64,11 @@ class AuthorizePaymentMethod
 
     }
 
-    public function authorizeResponseView($payment_method, $data)
+    public function authorizeResponseView($data)
     {
-        $this->payment_method = $payment_method;
+        $this->payment_method = $data['payment_method_id'];
 
-        switch ($payment_method) {
+        switch ($this->payment_method) {
             case GatewayType::CREDIT_CARD:
                 return $this->authorizeCreditCardResponse($data);
                 break;

@@ -954,6 +954,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('client_contact_id')->nullable();
             $t->unsignedInteger('invitation_id')->nullable();
             $t->unsignedInteger('company_gateway_id')->nullable();
+            $t->unsignedInteger('gateway_type_id')->nullable();
             $t->unsignedInteger('type_id')->nullable();
             $t->unsignedInteger('status_id')->index();
             $t->decimal('amount', 16, 4)->default(0);

@@ -90,7 +90,7 @@
                                 {!! App\Models\Quote::badgeForStatus($quote->status_id) !!}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap flex items-center justify-end text-sm leading-5 font-medium">
-                                <a href="{{ route('client.quotes.show', $quote->hashed_id) }}" class="button-link">
+                                <a href="{{ route('client.quote.show', $quote->hashed_id) }}" class="button-link">
                                     @lang('texts.view')
                                 </a>
                             </td>

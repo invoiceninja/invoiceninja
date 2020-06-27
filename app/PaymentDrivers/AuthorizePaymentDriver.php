@@ -102,7 +102,7 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function authorizeResponseView(array $data)
     {
-        return (new AuthorizePaymentMethod($this))->authorizeResponseView($data['gateway_type_id'], $data);
+        return (new AuthorizePaymentMethod($this))->authorizeResponseView($data);
     }
 
     public function authorize($payment_method) 

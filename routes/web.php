@@ -25,4 +25,5 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('passw
  */
 Route::group(['middleware' => ['url_db']], function () {
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
+    Route::post('/user/confirm/{confirmation_code}', 'UserController@confirmWithPassword');
 });

@@ -30,6 +30,9 @@
     <div class="grid grid-cols-6 gap-4">
         <div class="col-span-6 md:col-start-2 md:col-span-3">
             <div class="alert alert-failure mb-4" hidden id="errors"></div>
+            @if(!Request::isSecure())
+            <p class="alert alert-failure">{{ ctrans('texts.https_required') }}</p>
+            @endif
             <div class="bg-white shadow overflow-hidden sm:rounded-lg">
                 <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                     <h3 class="text-lg leading-6 font-medium text-gray-900">
