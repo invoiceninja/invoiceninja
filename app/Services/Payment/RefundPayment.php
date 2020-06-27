@@ -185,9 +185,9 @@ class RefundPayment
                 if ($available_credit > $this->total_refund) {
                     $paymentable_credit->pivot->refunded += $this->total_refund;
                     $paymentable_credit->pivot->save();
-
                     $paymentable_credit->balance += $this->total_refund;
-                    $paymentable_credit->save();
+                    $paymentable_credit->service()->setStatus(Credit::STATUS_SENT)->save();
+                    //$paymentable_credit->save();
 
                     $this->total_refund = 0;
                 } else {
@@ -195,7 +195,8 @@ class RefundPayment
                     $paymentable_credit->pivot->save();
 
                     $paymentable_credit->balance += $available_credit;
-                    $paymentable_credit->save();
+                    $paymentable_credit->service()->setStatus(Credit::STATUS_SENT)->save();
+//                    $paymentable_credit->save();
 
                     $this->total_refund -= $available_credit;
                 }
@@ -226,6 +227,7 @@ class RefundPayment
                 $invoice = Invoice::find($refunded_invoice['invoice_id']);
 
                 $invoice->service()->updateBalance($refunded_invoice['amount'])->save();
+                $invoice->ledger()->updateInvoiceBalance($refunded_invoice['amount'], "Refund of payment # {$this->payment->number}")->save();
 
                 if ($invoice->amount == $invoice->balance) 
                     $invoice->service()->setStatus(Invoice::STATUS_SENT);
@@ -246,6 +248,8 @@ class RefundPayment
             // $ledger_string = "Refund for Invoice {$invoice->number} for amount " . $refunded_invoice['amount']; //todo
 
             // $this->credit_note->ledger()->updateCreditBalance($adjustment_amount, $ledger_string);
+
+
 
             $client = $this->payment->client->fresh();
             $client->paid_to_date -= $this->total_refund;
