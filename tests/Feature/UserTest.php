@@ -96,7 +96,7 @@ class UserTest extends TestCase
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-                    'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->post('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/attach_to_company?include=company_user');
 
         $response->assertStatus(200);

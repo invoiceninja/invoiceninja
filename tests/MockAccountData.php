@@ -120,11 +120,12 @@ trait MockAccountData
         if (!$this->user) {
             $this->user = factory(\App\Models\User::class)->create([
                 'account_id' => $this->account->id,
-                'password' => Hash::make('ALongAndBriliantPassword'),
                 'confirmation_code' => $this->createDbHash(config('database.default'))
             ]);
         }
         
+        $this->user->password = Hash::make('ALongAndBriliantPassword');
+
         $cu = CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
         $cu->is_owner = true;
         $cu->is_admin = true;
