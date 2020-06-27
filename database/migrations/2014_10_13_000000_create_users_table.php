@@ -149,6 +149,7 @@ class CreateUsersTable extends Migration
             $table->boolean('fill_products')->default(true);
             $table->boolean('update_products')->default(true);
             $table->boolean('show_product_details')->default(true);
+            $table->boolean('client_can_register')->default(false);
             
             $table->boolean('custom_surcharge_taxes1')->default(false);
             $table->boolean('custom_surcharge_taxes2')->default(false);
@@ -489,6 +490,7 @@ class CreateUsersTable extends Migration
             $t->boolean('custom_surcharge_tax3')->default(false);
             $t->boolean('custom_surcharge_tax4')->default(false);
 
+            $t->decimal('exchange_rate', 16, 4);
             $t->decimal('amount', 16, 4);
             $t->decimal('balance', 16, 4);
             $t->decimal('partial', 16, 4)->nullable();
@@ -566,6 +568,7 @@ class CreateUsersTable extends Migration
             $t->boolean('custom_surcharge_tax3')->default(false);
             $t->boolean('custom_surcharge_tax4')->default(false);
 
+            $t->decimal('exchange_rate', 16, 4);
             $t->decimal('amount', 16, 4);
             $t->decimal('balance', 16, 4);
             $t->decimal('partial', 16, 4)->nullable();
@@ -809,6 +812,7 @@ class CreateUsersTable extends Migration
             $t->boolean('custom_surcharge_tax3')->default(false);
             $t->boolean('custom_surcharge_tax4')->default(false);
 
+            $t->decimal('exchange_rate', 16, 4);
             $t->decimal('amount', 16, 4);
             $t->decimal('balance', 16, 4);
             $t->decimal('partial', 16, 4)->nullable();

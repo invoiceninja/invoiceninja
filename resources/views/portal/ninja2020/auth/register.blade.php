@@ -24,15 +24,15 @@
                 
                 <div class="flex justify-between items-center mt-8">
                     <span class="inline-flex items-center" x-data="{ terms_of_service: false, privacy_policy: false }">
-                            @if(!empty($company->settings->client_signup_terms) || !empty($company->settings->client_signup_privacy_policy))
+                            @if(!empty($company->settings->client_portal_terms) || !empty($company->settings->client_portal_privacy_policy))
                                 <input type="checkbox" name="terms" class="form-checkbox mr-2 cursor-pointer" checked>
                                 <span class="text-sm text-gray-800">
 
                                 {{ ctrans('texts.i_agree') }}
                             @endif
 
-                            @includeWhen(!empty($company->settings->client_signup_terms), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'terms_of_service', 'title' => ctrans('texts.terms_of_service'), 'content' => $company->settings->client_signup_terms])
-                            @includeWhen(!empty($company->settings->client_signup_privacy_policy), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'privacy_policy', 'title' => ctrans('texts.privacy_policy'), 'content' => $company->settings->client_signup_privacy_policy])
+                            @includeWhen(!empty($company->settings->client_portal_terms), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'terms_of_service', 'title' => ctrans('texts.terms_of_service'), 'content' => $company->settings->client_portal_terms])
+                            @includeWhen(!empty($company->settings->client_portal_privacy_policy), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'privacy_policy', 'title' => ctrans('texts.privacy_policy'), 'content' => $company->settings->client_portal_privacy_policy])
                         </span>
                     </span>
 

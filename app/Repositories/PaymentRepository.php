@@ -193,4 +193,14 @@ class PaymentRepository extends BaseRepository
 
         return $payment;
     }
+
+    public function delete($payment)
+    {
+
+        if($payment->is_deleted)
+            return;
+
+        $payment->service()->deletePayment();
+
+    }
 }
