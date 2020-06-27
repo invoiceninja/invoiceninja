@@ -10,7 +10,23 @@
             </select>
         </div>
         @if($client->getCreditCardGateway())
-            <a href="{{ route('client.payment_methods.create') }}" class="button button-primary">{{ ctrans('texts.add_payment_method') }}</a>
+        <div class="relative" x-data="{ open: false }">
+            <button x-on:click="open = !open" class="button button-primary">{{ ctrans('texts.add_payment_method') }}</button>
+            <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
+                <div class="py-1 rounded-md bg-white shadow-xs">
+
+                    <!-- Element loop start -->
+                    <a href="{{ route('client.payment_methods.create', ['payment_method_id' => 1, 'gateway_id' => 1]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
+                        Credit card
+                    </a>
+                    <!-- Element loop end -->
+                    
+                    <a href="{{ route('client.payment_methods.create', ['payment_method_id' => 2, 'gateway_id' => 2]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
+                        Bank Account
+                    </a>
+                </div>
+            </div>
+        </div>
         @endif
     </div>
     <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
@@ -45,45 +61,45 @@
                 </thead>
                 <tbody>
                     @forelse($payment_methods as $payment_method)
-                        <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ $payment_method->formatDateTimestamp($payment_method->created_at, $client->date_format()) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ ctrans("texts.{$payment_method->gateway_type->alias}") }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ ucfirst(optional($payment_method->meta)->brand) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                @if(isset($payment_method->meta->exp_month) && isset($payment_method->meta->exp_year))
-                                    {{ $payment_method->meta->exp_month}} / {{ $payment_method->meta->exp_year }}
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                @isset($payment_method->meta->last4)
-                                    **** {{ $payment_method->meta->last4 }}
-                                @endisset
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                @if($payment_method->is_default)
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check">
-                                        <path d="M20 6L9 17l-5-5" />
-                                    </svg>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap flex items-center justify-end text-sm leading-5 font-medium">
-                                <a href="{{ route('client.payment_methods.show', $payment_method->hashed_id) }}" class="text-blue-600 hover:text-indigo-900 focus:outline-none focus:underline">
-                                    @lang('texts.view')
-                                </a>
-                            </td>
-                        </tr>
+                    <tr class="bg-white group hover:bg-gray-100">
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            {{ $payment_method->formatDateTimestamp($payment_method->created_at, $client->date_format()) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            {{ ctrans("texts.{$payment_method->gateway_type->alias}") }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            {{ ucfirst(optional($payment_method->meta)->brand) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            @if(isset($payment_method->meta->exp_month) && isset($payment_method->meta->exp_year))
+                            {{ $payment_method->meta->exp_month}} / {{ $payment_method->meta->exp_year }}
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            @isset($payment_method->meta->last4)
+                            **** {{ $payment_method->meta->last4 }}
+                            @endisset
+                        </td>
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            @if($payment_method->is_default)
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check">
+                                <path d="M20 6L9 17l-5-5" />
+                            </svg>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-no-wrap flex items-center justify-end text-sm leading-5 font-medium">
+                            <a href="{{ route('client.payment_methods.show', $payment_method->hashed_id) }}" class="text-blue-600 hover:text-indigo-900 focus:outline-none focus:underline">
+                                @lang('texts.view')
+                            </a>
+                        </td>
+                    </tr>
                     @empty
-                        <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500" colspan="100%">
-                                {{ ctrans('texts.no_results') }}
-                            </td>
-                        </tr>
+                    <tr class="bg-white group hover:bg-gray-100">
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500" colspan="100%">
+                            {{ ctrans('texts.no_results') }}
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -91,9 +107,9 @@
     </div>
     <div class="flex justify-center md:justify-between mt-6 mb-6">
         @if($payment_methods->total() > 0)
-            <span class="text-gray-700 text-sm hidden md:block">
-                {{ ctrans('texts.showing_x_of', ['first' => $payment_methods->firstItem(), 'last' => $payment_methods->lastItem(), 'total' => $payment_methods->total()]) }}
-            </span>
+        <span class="text-gray-700 text-sm hidden md:block">
+            {{ ctrans('texts.showing_x_of', ['first' => $payment_methods->firstItem(), 'last' => $payment_methods->lastItem(), 'total' => $payment_methods->total()]) }}
+        </span>
         @endif
         {{ $payment_methods->links() }}
     </div>
