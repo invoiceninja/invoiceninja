@@ -316,12 +316,13 @@ class BaseController extends Controller
     
     public function flutterRoute()
     {
-        
-        if (config('ninja.require_https') && !request()->isSecure()) {  
-            return redirect()->secure(request()->getRequestUri());
-        }
-
+      
         if ((bool)$this->checkAppSetup() !== false && Schema::hasTable('accounts') && $account = Account::all()->first()) {
+     
+          if (config('ninja.require_https') && !request()->isSecure()) {  
+              return redirect()->secure(request()->getRequestUri());
+          }
+
             $data = [];
 
             if (Ninja::isSelfHost()) {
