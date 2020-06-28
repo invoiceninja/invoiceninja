@@ -45,16 +45,18 @@ class SystemHealth
      */
     public static function check() : array
     {
-        $system_health = true;
+        $system_health = "true";
 
         if (in_array(false, Arr::dot(self::extensions()))) {
-            $system_health = false;
+            $system_health = "false";
         } elseif (phpversion() < self::$php_version) {
-            $system_health = false;
+            $system_health = "false";
+        } elseif(!self::simpleDbCheck()) {
+            $system_health = "false";
         }
 
         return [
-            'system_health' => (bool) $system_health,
+            'system_health' => $system_health,
             'extensions' => self::extensions(),
             'php_version' => [
                 'minimum_php_version' => self::$php_version,
@@ -62,9 +64,24 @@ class SystemHealth
                 'is_okay' => version_compare(phpversion(), self::$php_version, '>='),
             ],
             'env_writable' => self::checkEnvWritable(),
-            //'dbs' => self::dbCheck(),
             //'mail' => self::testMailServer(),
         ];
+    }
+
+    private static function simpleDbCheck() :bool
+    {
+        $result = true;
+
+        try {
+            $pdo = DB::connection()->getPdo();
+            $result = true;
+        }
+        catch (\Exception $e) {
+            $result = false;
+        }
+            info("returning false");
+
+        return $result;
     }
 
     private static function extensions() :array

@@ -24,6 +24,6 @@ trait AppSetup
         
         $check = SystemHealth::check();
 
-        return settype($check['system_health'], "bool"); // Do the system tests pass?
+        return $check == "true";
     }
 }
