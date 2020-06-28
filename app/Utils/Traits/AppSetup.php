@@ -24,6 +24,6 @@ trait AppSetup
         
         $check = SystemHealth::check();
 
-        return $check == "true";
+        return $check['system_health'] == "true";
     }
 }
