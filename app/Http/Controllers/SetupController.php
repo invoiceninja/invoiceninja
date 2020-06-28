@@ -19,6 +19,7 @@ use App\Models\Account;
 use App\Utils\SystemHealth;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Class SetupController.
@@ -32,6 +33,11 @@ class SetupController extends Controller
      */
     public function index()
     {
+        $check = SystemHealth::check();
+
+        if($check['system_health'] == "true" && Schema::hasTable('accounts') && $account = Account::all()->first())
+            return redirect('/');
+
         $check = SystemHealth::check();
 
         return view('setup.index', ['check' => $check]);
