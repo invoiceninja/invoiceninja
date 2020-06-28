@@ -96,6 +96,7 @@ class Company extends BaseModel
         'first_month_of_year',
         'slack_webhook_url',
         'google_analytics_key',
+        'client_can_register',
     ];
 
 
