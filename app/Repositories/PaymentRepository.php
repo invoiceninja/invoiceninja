@@ -196,11 +196,22 @@ class PaymentRepository extends BaseRepository
 
     public function delete($payment)
     {
-
+        //cannot double delete a payment
         if($payment->is_deleted)
             return;
 
         $payment->service()->deletePayment();
 
+        return parent::delete($payment);
+
+    }
+
+    public function restore($payment)
+    {
+        //we cannot restore a deleted payment.
+        if($payment->is_deleted)
+            return;
+
+        return parent::restore($payment);
     }
 }

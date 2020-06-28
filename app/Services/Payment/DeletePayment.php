@@ -28,14 +28,14 @@ class DeletePayment
     public function run()
     {
 
-        return $this->setStatus() //sets status of payment
+        return $this->setStatus(Payment::STATUS_VOIDED) //sets status of payment
             ->updateCreditables() //return the credits first
-            ->updatePaymentables() //update the paymentable items
             ->adjustInvoices()
+            ->updateClient()
             ->save();
     }
 
-    //
+
 
     //reverse paymentables->invoices
     
@@ -45,7 +45,63 @@ class DeletePayment
 
     //set applied amount to 0
 
+    private function updateClient()
+    {
+        $this->payment->client->service()->updatePaidToDate(-1*$this->payment->amount)->save();
 
+        return $this;
+    }
+
+    private function adjustInvoices()
+    {
+        if ($this->payment->invoices()->exists()) 
+        {
+        
+            $this->payment->invoices()->each(function ($paymentable_invoice){
+
+                $paymentable_invoice->service()->updateBalance($paymentable_invoice->pivot->amount)->save();
+                $paymentable_invoice->ledger()->updateInvoiceBalance($paymentable_invoice->pivot->amount)->save();
+
+                if(floatval($paymentable_invoice->balance) == 0)
+                    $paymentable_invoice->service()->setStatus(Invoice::STATUS_SENT)->save();
+                else
+                    $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();
+
+                //fire event for this credit
+                //
+            });
+
+        }
+
+
+        return $this;
+    }
+
+    private function updateCreditables()
+    {
+        if ($this->payment->credits()->exists()) 
+        {
+        
+            $this->payment->credits()->each(function ($paymentable_credit){
+
+                $paymentable_credit->balance += $paymentable_credit->pivot->amount;
+                $paymentable_credit->setStatus(Credit::STATUS_SENT);
+                //fire event for this credit
+                //
+            });
+
+
+        }
+
+        return $this;
+    }
+
+    private function setStatus($status)
+    {
+        $this->payment->status_id = Payment::STATUS_VOIDED;
+
+        return $this;
+    }
     /**
      * Saves the payment
      * 

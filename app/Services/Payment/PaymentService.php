@@ -80,7 +80,7 @@ class PaymentService
 
     public function deletePayment() :?Payment
     {
-        return (new DeletePayment())->run();
+        return (new DeletePayment($this->payment))->run();
     }
 
     public function updateInvoicePayment() :?Payment
