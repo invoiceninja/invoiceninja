@@ -4,6 +4,7 @@ namespace Feature;
 
 use App\Factory\CompanyUserFactory;
 use App\Factory\UserFactory;
+use App\Http\Middleware\PasswordProtection;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Company;
@@ -35,17 +36,18 @@ class UserTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutMiddleware(
-            ThrottleRequests::class
-        );
-
         Session::start();
 
         $this->faker = \Faker\Factory::create();
 
+        $this->makeTestData();
+
         Model::reguard();
 
-        $this->makeTestData();
+        $this->withoutMiddleware(
+            ThrottleRequests::class,
+            PasswordProtection::class
+        );
 
     }
 
@@ -62,6 +64,8 @@ class UserTest extends TestCase
 
     public function testUserStore()
     {
+        $this->withoutMiddleware(PasswordProtection::class);
+        
         $data = [
             'first_name' => 'hey',
             'last_name' => 'you',
@@ -88,6 +92,8 @@ class UserTest extends TestCase
 
     public function testUserAttachAndDetach()
     {
+        $this->withoutMiddleware(PasswordProtection::class);
+
         $user = UserFactory::create($this->account->id);
         $user->first_name = 'Test';
         $user->last_name = 'Palloni';
@@ -96,7 +102,7 @@ class UserTest extends TestCase
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-                    'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->post('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/attach_to_company?include=company_user');
 
         $response->assertStatus(200);
@@ -124,6 +130,7 @@ class UserTest extends TestCase
 
     public function testAttachUserToMultipleCompanies()
     {
+        $this->withoutMiddleware(PasswordProtection::class);
 
         /* Create New Company */
         $company2 = factory(\App\Models\Company::class)->create([

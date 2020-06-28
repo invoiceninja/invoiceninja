@@ -232,12 +232,12 @@ class CompanySettings extends BaseSettings
     public $portal_custom_js = '';
 
     public $client_can_register = false;
-    public $client_signup_terms = '';
-    public $client_signup_privacy_policy = '';
+    public $client_portal_terms = '';
+    public $client_portal_privacy_policy = '';
 
     public static $casts = [
-        'client_signup_terms'                => 'string',
-        'client_signup_privacy_policy'       => 'string',
+        'client_portal_terms'                => 'string',
+        'client_portal_privacy_policy'       => 'string',
         'client_can_register'                => 'bool',
         'portal_design_id'					 => 'string',
         'late_fee_endless_percent'           => 'float',

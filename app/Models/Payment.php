@@ -261,6 +261,12 @@ class Payment extends BaseModel
         return $this->status_id == self::STATUS_REFUNDED;
     }
 
+    public function setStatus($status)
+    {
+        $this->status_id = $status;
+        $this->save();
+    }
+
     public function markVoided()
     {
         if ($this->isVoided() || $this->isPartiallyRefunded() || $this->isRefunded()) {

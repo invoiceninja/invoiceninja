@@ -70,6 +70,7 @@ class Quote extends BaseModel
         'client_id',
         'footer',
         'design_id',
+        'exchange_rate'
     ];
 
     protected $casts = [

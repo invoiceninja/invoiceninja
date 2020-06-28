@@ -248,12 +248,10 @@ class RefundPayment
             // $ledger_string = "Refund for Invoice {$invoice->number} for amount " . $refunded_invoice['amount']; //todo
 
             // $this->credit_note->ledger()->updateCreditBalance($adjustment_amount, $ledger_string);
-
-
-
+            
             $client = $this->payment->client->fresh();
-            $client->paid_to_date -= $this->total_refund;
-            $client->save();
+            $client->service()->updatePaidToDate(-1*$this->total_refund)->save();
+
         }
 
         return $this;

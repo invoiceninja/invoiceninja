@@ -37,7 +37,7 @@ class ContactRegister
 
         $company = Company::where('company_key', $request->company_key)->firstOrFail();
 
-        abort_unless($company->getSetting('client_can_register'), 404);
+        abort_unless($company->client_can_register, 404);
 
         return $next($request);
     }

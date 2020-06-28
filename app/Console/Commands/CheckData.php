@@ -83,6 +83,8 @@ class CheckData extends Command
         $this->checkInvoiceBalances();
         $this->checkClientBalances();
         $this->checkContacts();
+        $this->checkCompanyData();
+
         //$this->checkLogoFiles();
 
         if (! $this->option('client_id')) {
@@ -387,5 +389,68 @@ class CheckData extends Command
             ['client_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
             ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
         ];
+    }
+
+
+    private function checkCompanyData()
+    {
+        $tables = [
+            'activities' => [
+                'invoice',
+                'client',
+                'client_contact',
+                'payment',
+            ],
+            'invoices' => [
+                'client',
+            ],
+            'payments' => [
+                'client',
+            ],
+            'products' => [
+
+            ],
+        ];
+
+        foreach ($tables as $table => $entityTypes) {
+            foreach ($entityTypes as $entityType) {
+                $tableName = $this->pluralizeEntityType($entityType);
+                $field = $entityType;
+                if ($table == 'companies') {
+                    $company_id = 'id';
+                } else {
+                    $company_id = 'company_id';
+                }
+                $records = \DB::table($table)
+                                ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
+                                ->where("{$table}.{$company_id}", '!=', \DB::raw("{$tableName}.company_id"))
+                                ->get(["{$table}.id"]);
+
+                if ($records->count()) {
+                    $this->isValid = false;
+                    $this->logMessage($records->count() . " {$table} records with incorrect {$entityType} company id");
+
+                }
+            }
+        }
+
+
+        // foreach(User::cursor() as $user) {
+
+        //     $records = Company::where('account_id',)
+
+        // }
+
+    }
+
+    public function pluralizeEntityType($type)
+    {
+
+        if ($type === 'company') {
+            return 'companies';
+        } 
+
+        return $type . 's';
+        
     }
 }
