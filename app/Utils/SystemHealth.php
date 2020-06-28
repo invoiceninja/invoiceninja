@@ -52,6 +52,7 @@ class SystemHealth
         } elseif (phpversion() < self::$php_version) {
             $system_health = "false";
         } elseif(!self::simpleDbCheck()) {
+            info("db fails");
             $system_health = "false";
         }
 
@@ -79,7 +80,6 @@ class SystemHealth
         catch (\Exception $e) {
             $result = false;
         }
-            info("returning false");
 
         return $result;
     }
