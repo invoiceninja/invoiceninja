@@ -14,6 +14,7 @@ namespace App\PaymentDrivers\Stripe;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Util\SystemLogger;
+use App\Models\Gateway;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
@@ -77,6 +78,7 @@ class SOFORT
             'payment_method' => $state['charge_id'],
             'payment_type' => $state['payment_type'],
             'amount' => $state['amount'],
+            'gateway_type_id' => GatewayType::SOFORT,
         ];
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);

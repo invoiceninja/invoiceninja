@@ -185,6 +185,7 @@ class ACH
             'payment_method' => $state['charge_id'],
             'payment_type' => $state['payment_type'],
             'amount' => $state['charge']->amount,
+            'gateway_type_id' => GatewayType::BANK_TRANSFER,
         ];
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);

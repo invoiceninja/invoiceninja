@@ -175,6 +175,7 @@ class CreditCard
             'payment_method' => $state['charge_id'],
             'payment_type' => $state['payment_type'],
             'amount' => $state['server_response']->amount,
+            'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
 
         $payment = $this->stripe->createPayment($data, $status = Payment::STATUS_COMPLETED);
