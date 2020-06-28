@@ -106,6 +106,36 @@ class RandomDataSeeder extends Seeder
             'settings' => null,
         ]);
 
+        $u2 = User::where('email', 'demo@invoiceninja.com')->first();
+
+        if(!$u2){
+
+            $u2 = factory(\App\Models\User::class)->create([
+                'email'             => 'demo@invoiceninja.com',
+                'password'          => Hash::make('demo'),
+                'account_id' => $account->id,
+                'confirmation_code' => $this->createDbHash(config('database.default'))
+            ]);
+
+            $company_token = CompanyToken::create([
+                'user_id' => $u2->id,
+                'company_id' => $company->id,
+                'account_id' => $account->id,
+                'name' => 'test token',
+                'token' => 'TOKEN',
+            ]);
+
+            $u2->companies()->attach($company->id, [
+                'account_id' => $account->id,
+                'is_owner' => 1,
+                'is_admin' => 1,
+                'is_locked' => 0,
+                'notifications' => CompanySettings::notificationDefaults(),
+                'permissions' => '',
+                'settings' => null,
+            ]);
+        }
+
         $client = factory(\App\Models\Client::class)->create([
             'user_id' => $user->id,
             'company_id' => $company->id
