@@ -38,9 +38,14 @@ class DemoMode extends Command
     {
         set_time_limit(0);
 
-        Artisan::call('migrate:fresh');
-        Artisan::call('db:seed');
-        Artisan::call('db:seed --class=RandomDataSeeder');
+        $this->info("Migrating");
+        Artisan::call('migrate:fresh --force');
+
+        $this->info("Seeding");
+        Artisan::call('db:seed --force');
+
+        $this->info("Seeding Random Data");
+        Artisan::call('db:seed --class=RandomDataSeeder --force');
 
     }
 }

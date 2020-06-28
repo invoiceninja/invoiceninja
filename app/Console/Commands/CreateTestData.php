@@ -20,6 +20,7 @@ use App\Jobs\Quote\CreateQuoteInvitations;
 use App\Listeners\Credit\CreateCreditInvitation;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\CompanyToken;
+use App\Models\Country;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\Product;
@@ -396,6 +397,14 @@ class CreateTestData extends Command
                 ]);
 
         $client->id_number = $this->getNextClientNumber($client);
+
+        $settings = $client->settings;
+        $settings->currency_id = (string)rand(1,79);
+        $client->settings = $settings;
+
+        $country = Country::all()->random();
+
+        $client->country_id = $country->id;
         $client->save();
 
     }

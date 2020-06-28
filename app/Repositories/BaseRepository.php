@@ -302,16 +302,25 @@ class BaseRepository
                 $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
             }
 
+            if(!$model->design_id)
+                $model->design_id = $client->getSetting('invoice_design_id');
+
             event(new InvoiceWasUpdated($model, $model->company));
 
         }
 
         if ($class->name == Credit::class) {
             $model = $model->calc()->getCredit();
+
+            if(!$model->design_id)
+                $model->design_id = $client->getSetting('credit_design_id');
         }
         
         if ($class->name == Quote::class) {
             $model = $model->calc()->getQuote();
+
+            if(!$model->design_id)
+                $model->design_id = $client->getSetting('quote_design_id');
         }
 
         $model->save();
