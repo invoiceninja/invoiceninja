@@ -160,7 +160,7 @@ trait GenerateMigrationResources
                 'company_id' => $client->account_id,
                 'user_id' => $client->user_id,
                 'name' => $client->name,
-                'balance' => $client->balance,
+                'balance' => $client->balance ?: 0,
                 'paid_to_date' => $client->paid_to_date,
                 'address1' => $client->address1,
                 'address2' => $client->address2,
