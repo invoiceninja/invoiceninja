@@ -12,6 +12,7 @@
 namespace App\Listeners\Invoice;
 
 use App\Jobs\Invoice\CreateInvoicePdf as PdfCreator;
+use App\Libraries\MultiDB;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -35,6 +36,9 @@ class CreateInvoicePdf implements ShouldQueue
      */
     public function handle($event)
     {
+
+        MultiDB::setDb($event->company->db);
+
         $event->invoice->invitations->each(function ($invitation) {
             
             PdfCreator::dispatch($invitation);

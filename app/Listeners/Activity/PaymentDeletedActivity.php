@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Activity;
 
+use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -20,15 +21,16 @@ use Illuminate\Queue\InteractsWithQueue;
 
 class PaymentDeletedActivity implements ShouldQueue
 {
-    protected $activityRepo;
+    protected $activity_repo;
+
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct(ActivityRepository $activityRepo)
+    public function __construct(ActivityRepository $activity_repo)
     {
-        $this->activityRepo = $activityRepo;
+        $this->activity_repo = $activity_repo;
     }
 
     /**
@@ -39,6 +41,8 @@ class PaymentDeletedActivity implements ShouldQueue
      */
     public function handle($event)
     {
+        MultiDB::setDb($event->company->db);
+
         $payment = $event->payment;
 
         $invoices = $payment->invoices;
@@ -54,11 +58,11 @@ class PaymentDeletedActivity implements ShouldQueue
         foreach ($invoices as $invoice) { //todo we may need to add additional logic if in the future we apply payments to other entity Types, not just invoices
             $fields->invoice_id = $invoice->id;
 
-            $this->activityRepo->save($fields, $invoice);
+            $this->activity_repo->save($fields, $invoice);
         }
 
         if (count($invoices) == 0) {
-            $this->activityRepo->save($fields, $payment);
+            $this->activity_repo->save($fields, $payment);
         }
     }
 }

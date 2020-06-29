@@ -3,6 +3,7 @@
 namespace App\Listeners\Document;
 
 use App\Events\Company\CompanyWasDeleted;
+use App\Libraries\MultiDB;
 use App\Models\Document;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Filesystem\Filesystem;
@@ -29,7 +30,10 @@ class DeleteCompanyDocuments
      */
     public function handle(CompanyWasDeleted $event)
     {
-        $path = sprintf('%s/%s', storage_path('app/public'), $event->company->company_key);
+ 
+         MultiDB::setDb($event->company->db);
+
+       $path = sprintf('%s/%s', storage_path('app/public'), $event->company->company_key);
 
         // Remove all files & folders, under company's path.
         // This will delete directory itself, as well.

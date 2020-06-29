@@ -12,6 +12,7 @@
 namespace App\Listeners\Activity;
 
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
+use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -21,15 +22,15 @@ use Illuminate\Queue\InteractsWithQueue;
 
 class PaymentCreatedActivity implements ShouldQueue
 {
-    protected $activityRepo;
+    protected $activity_repo;
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct(ActivityRepository $activityRepo)
+    public function __construct(ActivityRepository $activity_repo)
     {
-        $this->activityRepo = $activityRepo;
+        $this->activity_repo = $activity_repo;
     }
 
     /**
@@ -40,6 +41,8 @@ class PaymentCreatedActivity implements ShouldQueue
      */
     public function handle($event)
     {
+        MultiDB::setDb($event->company->db);
+
         $payment = $event->payment;
 
         $invoices = $payment->invoices;
@@ -57,11 +60,11 @@ class PaymentCreatedActivity implements ShouldQueue
 
             InvoiceWorkflowSettings::dispatchNow($invoice);
 
-            $this->activityRepo->save($fields, $invoice);
+            $this->activity_repo->save($fields, $invoice);
         }
 
         if (count($invoices) == 0) {
-            $this->activityRepo->save($fields, $payment);
+            $this->activity_repo->save($fields, $payment);
         }
     }
 }

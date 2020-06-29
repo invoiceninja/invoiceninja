@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Contact;
 
+use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -35,6 +36,8 @@ class UpdateContactLastLogin implements ShouldQueue
      */
     public function handle($event)
     {
+        MultiDB::setDb($event->company->db);
+        
         $client_contact = $event->client_contact;
 
         $client_contact->last_login = now();

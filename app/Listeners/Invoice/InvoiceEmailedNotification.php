@@ -12,6 +12,7 @@
 namespace App\Listeners\Invoice;
 
 use App\Jobs\Mail\EntitySentMailer;
+use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\ClientContact;
 use App\Models\InvoiceInvitation;
@@ -41,7 +42,8 @@ class InvoiceEmailedNotification implements ShouldQueue
      */
     public function handle($event)
     {
-        $invitation = $event->invitation;
+        MultiDB::setDb($event->company->db);
+
 
         foreach ($invitation->company->company_users as $company_user) {
 

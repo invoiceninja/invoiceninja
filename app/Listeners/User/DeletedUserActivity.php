@@ -11,6 +11,7 @@
 
 namespace App\Listeners\User;
 
+use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Repositories\ActivityRepository;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -42,7 +43,9 @@ class DeletedUserActivity implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = new \stdClass;
+         MultiDB::setDb($event->company->db);
+
+       $fields = new \stdClass;
 
         if (auth()->user()->id) {
             $fields->user_id = auth()->user()->id;

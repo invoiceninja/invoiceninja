@@ -12,6 +12,7 @@
 namespace App\Listeners\Misc;
 
 use App\Jobs\Mail\EntityViewedMailer;
+use App\Libraries\MultiDB;
 use App\Notifications\Admin\EntityViewedNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -39,7 +40,9 @@ class InvitationViewedListener implements ShouldQueue
      */
     public function handle($event)
     {
-        $entity_name = $event->entity;
+         MultiDB::setDb($event->company->db);
+
+       $entity_name = $event->entity;
         $invitation = $event->invitation;
 
         $notification = new EntityViewedNotification($invitation, $entity_name);

@@ -12,6 +12,7 @@
 namespace App\Listeners\Payment;
 
 use App\Jobs\Mail\EntityPaidMailer;
+use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -43,7 +44,9 @@ class PaymentNotification implements ShouldQueue
      */
     public function handle($event)
     {
-        $payment = $event->payment;
+         MultiDB::setDb($event->company->db);
+
+       $payment = $event->payment;
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
