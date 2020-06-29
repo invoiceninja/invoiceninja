@@ -109,7 +109,7 @@ class HandleReversal extends AbstractService
             ->updatePaidToDate($total_paid*-1)
             ->save();
 
-        event(new InvoiceWasReversed($this->invoice));
+        event(new InvoiceWasReversed($this->invoice, $this->invoice->company));
         
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )

@@ -26,13 +26,15 @@ class ClientWasCreated
      */
     public $client;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Client $client
      */
-    public function __construct(Client $client)
+    public function __construct(Client $client, Company $company)
     {
         $this->client = $client;
+        $this->company = $company;
     }
 }

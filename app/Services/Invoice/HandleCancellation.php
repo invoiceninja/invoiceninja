@@ -57,7 +57,7 @@ class HandleCancellation extends AbstractService
         //adjust client balance
         $this->invoice->client->service()->updateBalance($adjustment)->save();
     
-        event(new InvoiceWasCancelled($this->invoice));
+        event(new InvoiceWasCancelled($this->invoice, $this->invoice->company));
         
 
         return $this->invoice;

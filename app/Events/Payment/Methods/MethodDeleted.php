@@ -20,14 +20,16 @@ class MethodDeleted
      */
     private $payment_method;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param ClientGatewayToken $payment_method
      */
-    public function __construct(ClientGatewayToken $payment_method)
+    public function __construct(ClientGatewayToken $payment_method, $company)
     {
         $this->payment_method = $payment_method;
+        $this->company = $company;
     }
 
     /**

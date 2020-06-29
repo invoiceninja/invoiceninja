@@ -26,13 +26,15 @@ class InvoiceWasDeleted
      */
     public $invoice;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Invoice $invoice
      */
-    public function __construct(Invoice $invoice)
+    public function __construct(Invoice $invoice, $company)
     {
         $this->invoice = $invoice;
+        $this->company = $company;
     }
 }

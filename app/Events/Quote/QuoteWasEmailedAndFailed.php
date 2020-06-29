@@ -26,6 +26,8 @@ class QuoteWasEmailedAndFailed
      */
     public $quote;
 
+    public $company;
+
     /**
      * @var array
      */
@@ -36,10 +38,12 @@ class QuoteWasEmailedAndFailed
      * @param Quote $quote
      * @param array $errors
      */
-    public function __construct(Quote $quote, array $errors)
+    public function __construct(Quote $quote, array $errors, $company)
     {
         $this->quote = $quote;
 
         $this->errors = $errors;
+
+        $this->company = $company;
     }
 }

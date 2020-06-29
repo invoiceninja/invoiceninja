@@ -26,13 +26,15 @@ class PaymentFailed
      */
     public $payment;
 
+    public $company
     /**
      * Create a new event instance.
      *
      * @param Payment $payment
      */
-    public function __construct(Payment $payment)
+    public function __construct(Payment $payment, $company)
     {
         $this->payment = $payment;
+        $this->company = $company;
     }
 }

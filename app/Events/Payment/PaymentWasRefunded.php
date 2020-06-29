@@ -28,15 +28,17 @@ class PaymentWasRefunded
 
     public $refund_amount;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Payment $payment
      * @param $refund_amount
      */
-    public function __construct(Payment $payment, $refund_amount)
+    public function __construct(Payment $payment, $refund_amount, $company)
     {
         $this->payment = $payment;
         $this->refund_amount = $refund_amount;
+        $this->company = $company;
     }
 }

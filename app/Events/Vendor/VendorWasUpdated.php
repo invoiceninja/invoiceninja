@@ -26,13 +26,15 @@ class VendorWasUpdated
      */
     public $vendor;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Vendor $vendor
      */
-    public function __construct(Vendor $vendor)
+    public function __construct(Vendor $vendor, $company)
     {
         $this->vendor = $vendor;
+        $this->company = $company;
     }
 }

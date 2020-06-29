@@ -23,13 +23,15 @@ class ProductWasDeleted
      */
     public $product;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Product $product)
+    public function __construct(Product $product, $company)
     {
         $this->product = $product;
+        $this->company = $company;
     }
 }

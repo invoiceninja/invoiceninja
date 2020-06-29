@@ -53,7 +53,7 @@ class ContactTokenAuth
             //stateless, don't remember the contact.
             auth()->guard('contact')->login($client_contact, false);
             
-            event(new ContactLoggedIn($client_contact)); //todo
+            event(new ContactLoggedIn($client_contact, $client_contact->company)); //todo
         } else {
             $error = [
                 'message' => 'Invalid token',

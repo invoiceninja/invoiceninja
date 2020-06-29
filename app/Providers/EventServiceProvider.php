@@ -21,6 +21,7 @@ use App\Events\Client\DesignWasRestored;
 use App\Events\Client\DesignWasUpdated;
 use App\Events\Company\CompanyWasDeleted;
 use App\Events\Contact\ContactLoggedIn;
+use App\Events\Credit\CreditWasEmailedAndFailed;
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Events\Design\DesignWasArchived;
 use App\Events\Invoice\InvoiceWasCancelled;
@@ -121,6 +122,10 @@ class EventServiceProvider extends ServiceProvider
         DocumentWasDeleted::class =>[
         ],
         DocumentWasRestored::class =>[
+        ],
+        CreditWasEmailedAndFailed::class => [
+        ],
+        CreditWasEmailed::class => [
         ],
         CreditWasMarkedSent::class => [
         ],

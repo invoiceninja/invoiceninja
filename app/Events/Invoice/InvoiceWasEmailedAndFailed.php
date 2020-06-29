@@ -31,14 +31,18 @@ class InvoiceWasEmailedAndFailed
      */
     public $errors;
 
+
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Invoice $invoice
      */
-    public function __construct(Invoice $invoice, array $errors)
+    public function __construct(Invoice $invoice, $company, array $errors)
     {
         $this->invoice = $invoice;
+        
+        $this->company = $company;
         
         $this->errors = $errors;
     }

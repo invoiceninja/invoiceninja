@@ -28,15 +28,17 @@ class InvoiceWasRestored
     
     public $fromDeleted;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Invoice $invoice
      * @param $fromDeleted
      */
-    public function __construct(Invoice $invoice, $fromDeleted)
+    public function __construct(Invoice $invoice, $fromDeleted, $company)
     {
         $this->invoice = $invoice;
         $this->fromDeleted = $fromDeleted;
+        $this->company = $company;
     }
 }

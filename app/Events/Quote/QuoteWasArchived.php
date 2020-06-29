@@ -18,14 +18,15 @@ class QuoteWasArchived
     use SerializesModels;
     
     public $quote;
-
+    public $company;
     /**
      * Create a new event instance.
      *
-     * @param $quote
+     * @return void
      */
-    public function __construct($quote)
+    public function __construct(Quote $quote, $company)
     {
         $this->quote = $quote;
+        $this->company = $company;
     }
 }

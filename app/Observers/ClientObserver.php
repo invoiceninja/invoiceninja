@@ -26,7 +26,7 @@ class ClientObserver
      */
     public function created(Client $client)
     {
-        event(new ClientWasCreated($client));
+        event(new ClientWasCreated($client, $client->company));
 
         SubscriptionHandler::dispatch(Subscription::EVENT_CREATE_CLIENT, $client);
     }

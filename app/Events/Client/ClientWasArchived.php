@@ -12,13 +12,14 @@
 namespace App\Events\Client;
 
 use App\Models\Client;
+use App\Models\Company;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 /**
  * Class ClientWasArchived.
@@ -32,14 +33,16 @@ class ClientWasArchived
      */
     public $client;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Client $client
      */
-    public function __construct(Client $client)
+    public function __construct(Client $client, Company $company)
     {
         $this->client = $client;
+        $this->company = $company;
     }
 
     /**

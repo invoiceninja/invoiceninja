@@ -69,13 +69,13 @@ class EmailCredit implements ShouldQueue
                 ->send(new TemplateEmail($message_array, $template_style, $invitation->contact->user, $invitation->contact->client));
 
                 if (count(Mail::failures()) > 0) {
-                    event(new CreditWasEmailedAndFailed($this->credit, Mail::failures()));
+                    event(new CreditWasEmailedAndFailed($this->credit, $this->credit->company, Mail::failures()));
                     
                     return $this->logMailError($errors);
                 }
 
                 //fire any events
-                event(new CreditWasEmailed($this->credit));
+                event(new CreditWasEmailed($this->credit, $this->company));
 
                 //sleep(5);
             }

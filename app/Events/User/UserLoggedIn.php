@@ -32,14 +32,16 @@ class UserLoggedIn
      */
     public $user;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($user)
+    public function __construct($user, $company)
     {
         $this->user = $user;
+        $this->company = $company;
     }
 
     /**
