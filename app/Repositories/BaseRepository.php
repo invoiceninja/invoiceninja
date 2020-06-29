@@ -303,7 +303,9 @@ class BaseRepository
             }
 
             if(!$model->design_id)
-                $model->design_id = $client->getSetting('invoice_design_id');
+                $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
+
+            info("model design id = {$model->design_id}");
 
             event(new InvoiceWasUpdated($model, $model->company));
 
@@ -313,14 +315,14 @@ class BaseRepository
             $model = $model->calc()->getCredit();
 
             if(!$model->design_id)
-                $model->design_id = $client->getSetting('credit_design_id');
+                $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
         }
         
         if ($class->name == Quote::class) {
             $model = $model->calc()->getQuote();
 
             if(!$model->design_id)
-                $model->design_id = $client->getSetting('quote_design_id');
+                $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
         }
 
         $model->save();
