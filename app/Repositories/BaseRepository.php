@@ -11,7 +11,9 @@
 
 namespace App\Repositories;
 
+use App\Events\Credit\CreditWasUpdated;
 use App\Events\Invoice\InvoiceWasUpdated;
+use App\Events\Quote\QuoteWasUpdated;
 use App\Factory\InvoiceInvitationFactory;
 use App\Factory\QuoteInvitationFactory;
 use App\Jobs\Product\UpdateOrCreateProduct;
@@ -192,10 +194,6 @@ class BaseRepository
      */
     protected function alternativeSave($data, $model)
     {
-        $new_entity = false;
-
-        if(!$model->id)
-            $new_entity = true;
 
         $class = new ReflectionClass($model);
 
@@ -233,9 +231,6 @@ class BaseRepository
 
         $model->fill($tmp_data);
         $model->save();
-
-        if($new_entity)
-            $this->newEntityEvent($model);
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $model);
@@ -302,6 +297,7 @@ class BaseRepository
         }
 
         if ($class->name == Invoice::class) {
+
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
                 info("inside ledger updating");
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
@@ -311,8 +307,6 @@ class BaseRepository
             if(!$model->design_id)
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
 
-            event(new InvoiceWasUpdated($model, $model->company));
-
         }
 
         if ($class->name == Credit::class) {
@@ -320,6 +314,8 @@ class BaseRepository
 
             if(!$model->design_id)
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
+
+
         }
         
         if ($class->name == Quote::class) {
@@ -327,22 +323,14 @@ class BaseRepository
 
             if(!$model->design_id)
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
+
+
+
         }
 
         $model->save();
 
         return $model->fresh();
-    }
-
-    public function newEntityEvent($model)
-    {
-
-        $className = $this->getEventClass($model, 'Created');
-
-        if (class_exists($className)) {
-            event(new $className($model, $model->company));
-        }
-
     }
     
 }
