@@ -111,7 +111,7 @@ class Designer
         $logo = '<div></div>';
 
         if (!$this->entity->user->account->isPaid()) {
-            $logo = '<img src="$app_url/images/created-by-invoiceninja.jpg" />';
+            $logo = '<img class="h-32" src="$app_url/images/created-by-invoiceninja-new.png" />';
         }
 
         return sprintf($div, $this->getSection('footer'), $signature, $logo);
