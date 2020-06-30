@@ -39,8 +39,6 @@ class SetupController extends Controller
             return redirect('/');
         }
 
-        $check = SystemHealth::check();
-
         return view('setup.index', ['check' => $check]);
     }
 
