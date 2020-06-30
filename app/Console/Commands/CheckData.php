@@ -304,7 +304,7 @@ class CheckData extends Command
             if($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4))
             {
                 $wrong_balances++;
-                $this->logMessage($client->present()->name . " - " . $client->id . " - balances do not match {$invoice_balance} - {$client->balance} - {$ledger->balance}");
+                $this->logMessage($client->present()->name . " - " . $client->id . " - balances do not match Invoice Balance = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
 
                 $this->isValid = false;
 
