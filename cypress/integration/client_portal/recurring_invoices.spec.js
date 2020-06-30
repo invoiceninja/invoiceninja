@@ -16,7 +16,7 @@ context('Recurring invoices', () => {
     it('should show reucrring invoices text', () => {
         cy.visit('/client/recurring_invoices');
 
-        cy.get('h3')
+        cy.get('span')
             .first()
             .should('contain.text', 'Recurring Invoices');
     });

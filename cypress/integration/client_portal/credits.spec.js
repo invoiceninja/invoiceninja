@@ -14,7 +14,7 @@ describe('Credits', () => {
         cy.visit('/client/credits');
 
         cy.get('body')
-            .find('h3')
+            .find('span')
             .first()
             .should('contain.text', 'Credits');
     });
