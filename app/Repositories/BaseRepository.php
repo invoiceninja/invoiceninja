@@ -192,6 +192,11 @@ class BaseRepository
      */
     protected function alternativeSave($data, $model)
     {
+        $new_entity = false;
+
+        if(!$model->id)
+            $new_entity = true;
+
         $class = new ReflectionClass($model);
 
         if (array_key_exists('client_id', $data)) {
@@ -205,9 +210,7 @@ class BaseRepository
         $lcfirst_resource_id = lcfirst($resource) . '_id';
 
         if ($class->name == Invoice::class || $class->name == Quote::class) {
-            info("class name = invoice");
             $state['starting_amount'] = $model->amount;
-            info("starting amount = {$model->amount}");
         }
 
         if (!$model->id) {
@@ -230,6 +233,9 @@ class BaseRepository
 
         $model->fill($tmp_data);
         $model->save();
+
+        if($new_entity)
+            $this->newEntityEvent($model);
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $model);
@@ -305,8 +311,6 @@ class BaseRepository
             if(!$model->design_id)
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
 
-            info("model design id = {$model->design_id}");
-
             event(new InvoiceWasUpdated($model, $model->company));
 
         }
@@ -329,4 +333,16 @@ class BaseRepository
 
         return $model->fresh();
     }
+
+    public function newEntityEvent($model)
+    {
+
+        $className = $this->getEventClass($entity, 'Created');
+
+        if (class_exists($className)) {
+            event(new $className($model, $model->company));
+        }
+
+    }
+    
 }

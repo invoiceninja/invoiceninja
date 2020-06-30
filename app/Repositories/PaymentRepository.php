@@ -115,20 +115,13 @@ class PaymentRepository extends BaseRepository
 
             foreach ($data['invoices'] as $paid_invoice) {
 
-                $invoice = Invoice::whereId($paid_invoice['invoice_id'])->with('client')->first();
-
-                info("current client balance = {$invoice->client->balance}");
+                $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
 
                 if ($invoice) {
-                
-                    info("apply payment amount {$paid_invoice['amount']}");
                     
                     $invoice = $invoice->service()->markSent()->applyPayment($payment, $paid_invoice['amount'])->save();
 
-                    info("after processing invoice the client balance is now {$invoice->client->balance}");
-
                 }
-
                 
             }
         } else {
