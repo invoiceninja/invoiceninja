@@ -121,5 +121,9 @@ return [
             'client_id' => env('GOOGLE_CLIENT_ID', ''),
             'client_secret' => env('GOOGLE_CLIENT_SECRET','')
         ]
+    ],
+    'system' => [
+        'node_path' => env('NODE_PATH', false),
+        'npm_path' => env('NPM_PATH', false)
     ]
 ];

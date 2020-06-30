@@ -30,7 +30,7 @@ Please Note: Your APP_KEY in the .env file is used to encrypt data, if you lose 
 
 Run if you want to load sample data, remember to configure .env
 ```
-php artisan migrate:fresh --seed && php artisan db:seed --class=RandomDataSeeder
+php artisan migrate:fresh --seed && php artisan db:seed && php artisan ninja:create-test-data
 ```
 
 To Run the web server
@@ -42,6 +42,10 @@ Navigate to (replace ninja.test as required)
 ```
 http://ninja.test:8000/setup - To setup your configuration if you didn't load sample data.
 http://ninja.test:8000/ - For Administrator Logon
+
+user: small@example.com
+pass: password
+
 http://ninja.test:8000/client/login - For Client Portal
 
 user: user@example.com
