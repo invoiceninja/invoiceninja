@@ -27,7 +27,23 @@ trait PdfMaker
      */
     public function makePdf($header, $footer, $html)
     {
-        
+
+        $browser = Browsershot::html($html);
+
+        if(config('ninja.system.node_path'))
+            $browser->setNodeBinary(config('ninja.system.node_path'));
+
+        if(config('ninja.system.npm_path'))
+            $browser->setNpmBinary(config('ninja.system.npm_path'));
+
+        return $browser->deviceScaleFactor(1)
+                ->showBackground()
+                ->deviceScaleFactor(1)
+                ->waitUntilNetworkIdle(true)
+                ->pdf();
+
+    }
+}
 
 
         // if($header && $footer){
@@ -46,19 +62,9 @@ trait PdfMaker
         // else {
         //     $browser = Browsershot::html($html);
         // }
-
-        $browser = Browsershot::html($html);
-
-        // $browser->format('A4');
-        // $browser->landscape();
-
-        return $browser->deviceScaleFactor(1)
-                ->showBackground()
-                ->deviceScaleFactor(1)
-                ->waitUntilNetworkIdle(true)
-                ->pdf();
-
-        // return Browsershot::html($html)
+        // 
+        // 
+        //         // return Browsershot::html($html)
         // //->showBrowserHeaderAndFooter()
         // //->headerHtml($header)
         // //->footerHtml($footer)
@@ -67,5 +73,6 @@ trait PdfMaker
         //     ->waitUntilNetworkIdle(true)    ->pdf();
         // //->margins(10,10,10,10)
         // //->savePdf('test.pdf');
-    }
-}
+        // 
+        // $browser->format('A4');
+        // $browser->landscape();
