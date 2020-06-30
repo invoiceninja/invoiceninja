@@ -35,8 +35,9 @@ class SetupController extends Controller
     {
         $check = SystemHealth::check();
 
-        if($check['system_health'] == "true" && Schema::hasTable('accounts') && $account = Account::all()->first())
+        if($check['system_health'] == "true" && Schema::hasTable('accounts') && $account = Account::all()->first()) {
             return redirect('/');
+        }
 
         $check = SystemHealth::check();
 
@@ -48,7 +49,7 @@ class SetupController extends Controller
         $check = SystemHealth::check();
 
         if ($check['system_health'] === false) {
-            return back(); // This should never be reached.
+            return response('Oops, something went wrong. Check your logs.'); /** We should never reach this block, but jic. */
         }
 
         $mail_driver = $request->input('mail_driver');

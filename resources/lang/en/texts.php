@@ -3224,8 +3224,12 @@ return [
     'year_invalid' => 'Provided year is not valid.',
 
     'https_required' => 'HTTPS is required, form will fail',
-    'if_you_need_help' => 'If you need help you can either post to our',    
+    'if_you_need_help' => 'If you need help you can post to our',    
     'reversed' => 'Reversed',
     'update_password_on_confirm' => 'After updating password, your account will be confirmed.',
     'bank_account_not_linked' => 'To pay with bank account, first you have to add it as payment method.',
+
+    'application_settings_label' => 'Let\'s store basic information about your Invoice Ninja!',
+    'recommended_in_production' => 'Recommended in production',
+    'enable_only_for_development' => 'Enable only for development',
 ];

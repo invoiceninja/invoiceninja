@@ -45,15 +45,15 @@ class SystemHealth
      */
     public static function check() : array
     {
-        $system_health = "true";
+        $system_health = true;
 
         if (in_array(false, Arr::dot(self::extensions()))) {
-            $system_health = "false";
+            $system_health = false;
         } elseif (phpversion() < self::$php_version) {
-            $system_health = "false";
+            $system_health = false;
         } elseif(!self::simpleDbCheck()) {
             info("db fails");
-            $system_health = "false";
+            $system_health = false;
         }
 
         return [
