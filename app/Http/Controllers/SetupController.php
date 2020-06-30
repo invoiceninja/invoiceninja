@@ -47,6 +47,8 @@ class SetupController extends Controller
         $check = SystemHealth::check();
 
         if ($check['system_health'] === false) {
+            info($check);
+
             return response('Oops, something went wrong. Check your logs.'); /** We should never reach this block, but jic. */
         }
 
