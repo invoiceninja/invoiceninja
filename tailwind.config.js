@@ -6,6 +6,7 @@ module.exports = {
         './resources/views/email/**/*.blade.php',
         './resources/views/themes/ninja2020/**/*.blade.php',
         './resources/views/auth/**/*.blade.php',
+        './resources/views/setup/**/*.blade.php'
     ],
     theme: {
         extend: {
