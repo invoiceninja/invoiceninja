@@ -12,7 +12,7 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => env('APP_URL', ''),
     'app_domain' => env('APP_DOMAIN', ''),
-    'app_version' => '5.0.9',
+    'app_version' => '5.0.10',
     'minimum_client_version' => '5.0.11',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
