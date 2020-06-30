@@ -74,9 +74,7 @@ class BaseRepository
         }
         
         $entity->delete();
-        
-        info("archived");
-        
+                
         $className = $this->getEventClass($entity, 'Archived');
 
         if (class_exists($className)) {
@@ -286,10 +284,9 @@ class BaseRepository
         }
 
         $model = $model->calc()->getInvoice();
+        
         $state['finished_amount'] = $model->amount;
         
-        info("finished amount = {$model->amount}");
-
         $model = $model->service()->applyNumber()->save();
         
         if ($model->company->update_products !== false) {
@@ -299,7 +296,7 @@ class BaseRepository
         if ($class->name == Invoice::class) {
 
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
-                info("inside ledger updating");
+
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
                 $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
             }
