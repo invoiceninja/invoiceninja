@@ -270,7 +270,7 @@ class BaseRepository
                     {
                         $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
                         $new_invitation->{$lcfirst_resource_id} = $model->id;
-                        $new_invitation->client_contact_id = $invitation['client_contact_id'];
+                        $new_invitation->client_contact_id = $contact->id;
                         $new_invitation->save();
                     }
                 }
