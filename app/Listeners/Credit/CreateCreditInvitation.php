@@ -13,6 +13,7 @@ namespace App\Listeners\Credit;
 
 use App\Factory\CreditInvitationFactory;
 use App\Factory\InvoiceInvitationFactory;
+use App\Libraries\MultiDB;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Utils\Traits\MakesHash;
@@ -34,6 +35,8 @@ class CreateCreditInvitation implements ShouldQueue
      */
     public function handle($event)
     {
+        MultiDB::setDb($event->company->db);
+
         $credit = $event->credit;
 
         $contacts = $credit->client->contacts;

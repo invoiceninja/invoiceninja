@@ -78,7 +78,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Archived');
 
         if (class_exists($className)) {
-            event(new $className($entity));
+            event(new $className($entity, $entity->company));
         }
     }
 
@@ -104,7 +104,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Restored');
 
         if (class_exists($className)) {
-            event(new $className($entity, $fromDeleted));
+            event(new $className($entity, $fromDeleted, $entity->company));
         }
     }
 
@@ -125,7 +125,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Deleted');
 
         if (class_exists($className)) {
-            event(new $className($entity));
+            event(new $className($entity, $entity->company));
         }
     }
 
@@ -302,16 +302,27 @@ class BaseRepository
                 $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
             }
 
+            if(!$model->design_id)
+                $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
+
+            info("model design id = {$model->design_id}");
+
             event(new InvoiceWasUpdated($model, $model->company));
 
         }
 
         if ($class->name == Credit::class) {
             $model = $model->calc()->getCredit();
+
+            if(!$model->design_id)
+                $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
         }
         
         if ($class->name == Quote::class) {
             $model = $model->calc()->getQuote();
+
+            if(!$model->design_id)
+                $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
         }
 
         $model->save();

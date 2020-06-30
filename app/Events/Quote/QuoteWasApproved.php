@@ -17,13 +17,15 @@ class QuoteWasApproved
 
     public $quote;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Quote $quote)
+    public function __construct(Quote $quote, $company)
     {
         $this->quote = $quote;
+        $this->company = $company;
     }
 }

@@ -67,7 +67,7 @@ class TokenAuth
             //stateless, don't remember the user.
             auth()->login($user, false);
 
-            event(new UserLoggedIn($user));
+            event(new UserLoggedIn($user, $company_token->company));
         } else {
             $error = [
                 'message' => 'Invalid token',

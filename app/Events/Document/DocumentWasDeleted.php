@@ -26,13 +26,15 @@ class DocumentWasDeleted
      */
     public $document;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Document $document
      */
-    public function __construct(Document $document)
+    public function __construct(Document $document, $company)
     {
         $this->document = $document;
+        $this->company = $company;
     }
 }

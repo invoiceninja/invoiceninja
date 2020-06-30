@@ -15,10 +15,14 @@ class CreditWasEmailedAndFailed
 
     public $errors;
     
-    public function __construct(Credit $credit, array $errors)
+    public $company;
+    
+    public function __construct(Credit $credit, $company, array $errors)
     {
         $this->credit = $credit;
         
+        $this->company = $company;
+
         $this->errors = $errors;
     }
 }

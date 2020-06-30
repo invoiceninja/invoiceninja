@@ -74,7 +74,7 @@ class ReminderJob implements ShouldQueue
                 });
 
                 if ($invoice->invitations->count() > 0) {
-                    event(new InvoiceWasEmailed($invoice->invitations->first()));
+                    event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company));
                 }
 
             } else {

@@ -26,14 +26,17 @@ class DesignWasRestored
      */
     public $design;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Design $design
      */
-    public function __construct(Design $design)
+    public function __construct(Design $design, $company)
     {
         $this->design = $design;
+
+        $this->company = $company;
     }
 
     /**

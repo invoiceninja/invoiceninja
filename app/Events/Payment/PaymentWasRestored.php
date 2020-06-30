@@ -26,16 +26,17 @@ class PaymentWasRestored
      */
     public $payment;
     public $fromDeleted;
-
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Payment $payment
      * @param $fromDeleted
      */
-    public function __construct(Payment $payment, $fromDeleted)
+    public function __construct(Payment $payment, $fromDeleted, $company)
     {
         $this->payment = $payment;
         $this->fromDeleted = $fromDeleted;
+        $this->company = $company;
     }
 }

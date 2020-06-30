@@ -12,6 +12,7 @@
 namespace App\Listeners\Invoice;
 
 use App\Factory\InvoiceInvitationFactory;
+use App\Libraries\MultiDB;
 use App\Models\InvoiceInvitation;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,6 +33,8 @@ class CreateInvoiceInvitation implements ShouldQueue
      */
     public function handle($event)
     {
+        MultiDB::setDb($event->company->db);
+
         $invoice = $event->invoice;
 
         $contacts = $invoice->client->contacts;

@@ -19,7 +19,10 @@ use Illuminate\Queue\SerializesModels;
 class QuoteWasEmailed
 {
     use SerializesModels;
+
     public $quote;
+
+    public $company;
 
     /**
      * @var string
@@ -31,9 +34,11 @@ class QuoteWasEmailed
      *
      * @param $quote
      */
-    public function __construct($quote, $notes)
+    public function __construct($quote, $notes, $company)
     {
         $this->quote = $quote;
         $this->notes = $notes;
+        $this->company = $company;
     }
+
 }

@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Activity;
 
+use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -37,6 +38,8 @@ class PaymentRefundedActivity implements ShouldQueue
      */
     public function handle($event)
     {
+        MultiDB::setDb($event->company->db);
+
         $fields = new \stdClass;
 
         $fields->client_id = $event->payment->id;

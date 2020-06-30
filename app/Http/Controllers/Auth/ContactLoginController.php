@@ -63,7 +63,7 @@ class ContactLoginController extends Controller
     {
         Auth::guard('contact')->login($client, true);
 
-        event(new ContactLoggedIn($client));
+        event(new ContactLoggedIn($client, $client->company));
 
         if (session()->get('url.intended')) {
             return redirect(session()->get('url.intended'));

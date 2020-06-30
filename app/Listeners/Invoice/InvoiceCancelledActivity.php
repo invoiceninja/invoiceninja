@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Invoice;
 
+use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\ClientContact;
 use App\Models\InvoiceInvitation;
@@ -41,7 +42,10 @@ class InvoiceCancelledActivity implements ShouldQueue
      */
     public function handle($event)
     {
-        $fields = new \stdClass;
+ 
+         MultiDB::setDb($event->company->db);
+
+       $fields = new \stdClass;
 
         $fields->invoice_id = $event->invoice->id;
         $fields->user_id = $event->invoice->user_id;

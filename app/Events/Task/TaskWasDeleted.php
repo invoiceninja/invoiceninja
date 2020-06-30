@@ -26,13 +26,16 @@ class TaskWasDeleted
      */
     public $task;
 
+    public $company;
+
     /**
      * Create a new event instance.
      *
      * @param Task $task
      */
-    public function __construct(Task $task)
+    public function __construct(Task $task, $company)
     {
         $this->task = $task;
+        $this->company = $company;
     }
 }

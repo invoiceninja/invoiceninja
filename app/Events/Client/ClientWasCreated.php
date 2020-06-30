@@ -12,6 +12,7 @@
 namespace App\Events\Client;
 
 use App\Models\Client;
+use App\Models\Company;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -26,13 +27,15 @@ class ClientWasCreated
      */
     public $client;
 
+    public $company;
     /**
      * Create a new event instance.
      *
      * @param Client $client
      */
-    public function __construct(Client $client)
+    public function __construct(Client $client, Company $company)
     {
         $this->client = $client;
+        $this->company = $company;
     }
 }

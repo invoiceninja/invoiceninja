@@ -28,14 +28,17 @@ class ProductWasCreated
      **/
     public $input;
 
+    public $company;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Product $product, $input = null)
+    public function __construct(Product $product, $input = null, $company)
     {
         $this->product = $product;
         $this->input = $input;
+        $this->company = $company;
     }
 }

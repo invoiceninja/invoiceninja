@@ -31,15 +31,18 @@ class PaymentWasEmailedAndFailed
      */
     public $errors;
 
+    public $company;
     /**
      * PaymentWasEmailedAndFailed constructor.
      * @param Payment $payment
      * @param array $errors
      */
-    public function __construct(Payment $payment, array $errors)
+    public function __construct(Payment $payment, $company, array $errors)
     {
         $this->payment = $payment;
 
         $this->errors = $errors;
+
+        $this->company = $company;
     }
 }

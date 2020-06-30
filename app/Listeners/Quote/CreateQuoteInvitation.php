@@ -14,6 +14,7 @@ namespace App\Listeners\Quote;
 use App\Factory\CreditInvitationFactory;
 use App\Factory\InvoiceInvitationFactory;
 use App\Factory\QuoteInvitationFactory;
+use App\Libraries\MultiDB;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Utils\Traits\MakesHash;
@@ -35,6 +36,8 @@ class CreateQuoteInvitation implements ShouldQueue
      */
     public function handle($event)
     {
+        MultiDB::setDb($event->company->db);
+
         $quote = $event->credit;
 
         $contacts = $quote->client->contacts;

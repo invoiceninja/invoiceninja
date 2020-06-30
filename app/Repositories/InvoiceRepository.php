@@ -89,7 +89,7 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->delete();
 
-        event(new InvoiceWasDeleted($invoice));
+        event(new InvoiceWasDeleted($invoice, $invoice->company));
 
         return $invoice;
     }
