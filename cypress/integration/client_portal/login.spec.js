@@ -39,7 +39,7 @@ context('Login', () => {
                             .click();
                         cy.location().should(location => {
                             expect(location.pathname).to.eq(
-                                '/client/dashboard'
+                                '/client/invoices'
                             );
                         });
                     });

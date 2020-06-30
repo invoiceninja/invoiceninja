@@ -14,7 +14,7 @@ context('Invoices', () => {
         cy.visit('/client/invoices');
 
         cy.get('body')
-            .find('h3')
+            .find('span')
             .first()
             .should('contain.text', 'Invoices');
     });

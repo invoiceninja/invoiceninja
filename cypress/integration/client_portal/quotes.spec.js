@@ -14,7 +14,7 @@ describe('Quotes', () => {
         cy.visit('/client/quotes');
 
         cy.get('body')
-            .find('h3')
+            .find('span')
             .first()
             .should('contain.text', 'Quotes');
     });
