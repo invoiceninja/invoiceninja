@@ -337,7 +337,7 @@ class BaseRepository
     public function newEntityEvent($model)
     {
 
-        $className = $this->getEventClass($entity, 'Created');
+        $className = $this->getEventClass($model, 'Created');
 
         if (class_exists($className)) {
             event(new $className($model, $model->company));
