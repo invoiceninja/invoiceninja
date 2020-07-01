@@ -190,7 +190,7 @@ class Import implements ShouldQueue
             $company_ledger->adjustment = $client->balance;
             $company_ledger->notes = 'Migrated Client Balance';
             $company_ledger->balance = $client->balance;
-            $company_ledger->activity_id = Activity::STORE_CLIENT;
+            $company_ledger->activity_id = Activity::CREATE_CLIENT;
             $company_ledger->save();
 
             $client->company_ledger()->save($company_ledger);
