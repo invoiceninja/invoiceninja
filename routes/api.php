@@ -103,7 +103,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('companies', 'CompanyController');// name = (companies. index / create / show / update / destroy / edit
     
-    Route::resource('tokens', 'TokenController');// name = (tokens. index / create / show / update / destroy / edit
+    Route::resource('tokens', 'TokenController')->middleware('password_protected');// name = (tokens. index / create / show / update / destroy / edit
 
     Route::resource('company_gateways', 'CompanyGatewayController');
     

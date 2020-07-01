@@ -483,8 +483,8 @@ class Import implements ShouldQueue
                 throw new ResourceDependencyMissing('Processing invoices failed, because of missing dependency - clients.');
             }
 
-            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
-            $modified['user_id'] = $this->processUserId($resource);
+            $modified['client_id']  = $this->transformId('clients', $resource['client_id']);
+            $modified['user_id']    = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
             $modified['line_items'] = $this->cleanItems($modified['line_items']);
 
