@@ -51,6 +51,7 @@ class StoreRecurringInvoiceRequest extends Request
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
+        $rules['frequency_id'] = 'required,integer';
 
         return $rules;
     }
