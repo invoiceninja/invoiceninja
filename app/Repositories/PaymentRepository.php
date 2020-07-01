@@ -126,7 +126,8 @@ class PaymentRepository extends BaseRepository
             }
         } else {
             //payment is made, but not to any invoice, therefore we are applying the payment to the clients paid_to_date only
-            $payment->client->service()->updatePaidToDate($payment->amount)->save(); 
+            //01-07-2020 i think we were duplicating the paid to date here.
+            //$payment->client->service()->updatePaidToDate($payment->amount)->save(); 
         }
 
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
