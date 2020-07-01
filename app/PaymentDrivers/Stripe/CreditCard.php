@@ -45,7 +45,7 @@ class CreditCard
         $server_response = json_decode($request->input('gateway_response'));
 
         $gateway_id = $request->input('gateway_id');
-        $gateway_type_id = $request->input('gateway_type_id');
+        $gateway_type_id = $request->input('payment_method_id');
         $is_default = $request->input('is_default');
 
         $payment_method = $server_response->payment_method;
@@ -192,7 +192,7 @@ class CreditCard
         ];
 
         SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client);
-    
+
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }
 
