@@ -49,6 +49,8 @@ use App\Repositories\ClientRepository;
 use App\Repositories\CompanyRepository;
 use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\Migration\InvoiceMigrationRepository;
+use App\Repositories\Migration\PaymentMigrationRepository;
 use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\QuoteRepository;
@@ -448,7 +450,7 @@ class Import implements ShouldQueue
             throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
-        $invoice_repository = new InvoiceRepository();
+        $invoice_repository = new InvoiceMigrationRepository();
 
         foreach ($data as $key => $resource) {
 
@@ -602,7 +604,7 @@ class Import implements ShouldQueue
             throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
-        $payment_repository = new PaymentRepository(new CreditRepository());
+        $payment_repository = new PaymentMigrationRepository(new CreditRepository());
 
         foreach ($data as $resource) {
             $modified = $resource;
@@ -621,8 +623,8 @@ class Import implements ShouldQueue
 
             if (isset($modified['invoices'])) {
                 
-                foreach ($modified['invoices'] as $invoice) {
-                    $invoice['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
+                foreach ($modified['invoices'] as $key => $invoice) {
+                    $modified['invoices'][$key]['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
                 }
             }
 

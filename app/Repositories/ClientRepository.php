@@ -78,6 +78,8 @@ class ClientRepository extends BaseRepository
             $data['name'] = $client->present()->name();
         }
 
+        info("{$client->present()->name} has a balance of {$client->balance} with a paid to date of {$client->paid_to_date}");
+
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $client);
         }
