@@ -107,14 +107,11 @@ class PaymentMigrationRepository extends BaseRepository
 
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
             
-            info("invoice totals = {$invoice_totals}");
-
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
             $payment->invoices()->saveMany($invoices);
             
             $payment->invoices->each(function ($inv) use($invoice_totals){
-                info("updating the pivot to {$invoice_totals}");
                 $inv->pivot->amount = $invoice_totals;
                 $inv->pivot->save();
             });

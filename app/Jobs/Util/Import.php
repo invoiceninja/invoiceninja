@@ -16,6 +16,7 @@ use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Factory\ClientFactory;
+use App\Factory\CompanyLedgerFactory;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
@@ -30,6 +31,7 @@ use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
 use App\Mail\MigrationFailed;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
@@ -169,11 +171,32 @@ class Import implements ShouldQueue
             $this->{$method}($resource);
         }
 
+        $this->setInitialCompanyLedgerBalances();
+
         Mail::to($this->user)->send(new MigrationCompleted());
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
         return true;
+    }
+
+    private function setInitialCompanyLedgerBalances()
+    {
+
+        Client::cursor()->each(function ($client){
+
+            $company_ledger = CompanyLedgerFactory::create($client->company_id, $client->user_id);
+            $company_ledger->client_id = $client->id;
+            $company_ledger->adjustment = $client->balance;
+            $company_ledger->notes = 'Migrated Client Balance';
+            $company_ledger->balance = $client->balance;
+            $company_ledger->activity_id = Activity::STORE_CLIENT;
+            $company_ledger->save();
+
+            $client->company_ledger()->save($company_ledger);
+
+        });
+
     }
 
     /**

@@ -14,6 +14,7 @@ namespace App\Repositories\Migration;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
 use App\Jobs\Credit\ApplyCreditPayment;
+use App\Jobs\Product\UpdateOrCreateProduct;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Activity;
 use App\Models\Client;
@@ -29,6 +30,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use ReflectionClass;
 
 /**
  * InvoiceMigrationRepository
