@@ -48,7 +48,7 @@ class PaymentMethodController extends Controller
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod(GatewayType::BANK_TRANSFER)
+            ->setPaymentMethod(GatewayType::CREDIT_CARD)
             ->authorizeView($data);
     }
 
@@ -64,7 +64,7 @@ class PaymentMethodController extends Controller
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod(GatewayType::BANK_TRANSFER)
+            ->setPaymentMethod(GatewayType::CREDIT_CARD)
             ->authorizeResponse($request);
     }
 
@@ -133,7 +133,7 @@ class PaymentMethodController extends Controller
     public function destroy(ClientGatewayToken $payment_method)
     {
         try {
-            event(new MethodDeleted($payment_method));
+            event(new MethodDeleted($payment_method, auth('contact')->user()->company));
             $payment_method->delete();
         } catch (\Exception $e) {
             Log::error(json_encode($e));

@@ -44,3 +44,33 @@ Cypress.Commands.add('clientLogin', () => {
                 });
         });
 });
+
+Cypress.Commands.add(
+    'iframeLoaded',
+    {prevSubject: 'element'},
+    ($iframe) => {
+        const contentWindow = $iframe.prop('contentWindow');
+        return new Promise(resolve => {
+            if (
+                contentWindow
+            ) {
+                resolve(contentWindow)
+            } else {
+                $iframe.on('load', () => {
+                    resolve(contentWindow)
+                })
+            }
+        })
+    });
+
+
+Cypress.Commands.add(
+    'getInDocument',
+    {prevSubject: 'Permission denied to access property "document" on cross-origin object'},
+    (document, selector) => Cypress.$(selector, document)
+);
+
+Cypress.Commands.add(
+    'getWithinIframe',
+    (targetElement) => cy.get('iframe').iframeLoaded().its('document').getInDocument(targetElement)
+);

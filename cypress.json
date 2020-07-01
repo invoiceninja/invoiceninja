@@ -1,4 +1,5 @@
 {
     "video": false,
-    "baseUrl": "http://invoiceninja.wip/"
+    "baseUrl": "http://invoiceninja.wip/",
+    "chromeWebSecurity": false
 }
