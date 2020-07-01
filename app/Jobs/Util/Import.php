@@ -16,6 +16,7 @@ use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Factory\ClientFactory;
+use App\Factory\CompanyLedgerFactory;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
@@ -30,6 +31,7 @@ use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
 use App\Mail\MigrationFailed;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
@@ -49,6 +51,8 @@ use App\Repositories\ClientRepository;
 use App\Repositories\CompanyRepository;
 use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\Migration\InvoiceMigrationRepository;
+use App\Repositories\Migration\PaymentMigrationRepository;
 use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\QuoteRepository;
@@ -167,11 +171,32 @@ class Import implements ShouldQueue
             $this->{$method}($resource);
         }
 
+        $this->setInitialCompanyLedgerBalances();
+
         Mail::to($this->user)->send(new MigrationCompleted());
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
         return true;
+    }
+
+    private function setInitialCompanyLedgerBalances()
+    {
+
+        Client::cursor()->each(function ($client){
+
+            $company_ledger = CompanyLedgerFactory::create($client->company_id, $client->user_id);
+            $company_ledger->client_id = $client->id;
+            $company_ledger->adjustment = $client->balance;
+            $company_ledger->notes = 'Migrated Client Balance';
+            $company_ledger->balance = $client->balance;
+            $company_ledger->activity_id = Activity::CREATE_CLIENT;
+            $company_ledger->save();
+
+            $client->company_ledger()->save($company_ledger);
+
+        });
+
     }
 
     /**
@@ -448,7 +473,7 @@ class Import implements ShouldQueue
             throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
-        $invoice_repository = new InvoiceRepository();
+        $invoice_repository = new InvoiceMigrationRepository();
 
         foreach ($data as $key => $resource) {
 
@@ -602,7 +627,7 @@ class Import implements ShouldQueue
             throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
-        $payment_repository = new PaymentRepository(new CreditRepository());
+        $payment_repository = new PaymentMigrationRepository(new CreditRepository());
 
         foreach ($data as $resource) {
             $modified = $resource;
@@ -621,8 +646,8 @@ class Import implements ShouldQueue
 
             if (isset($modified['invoices'])) {
                 
-                foreach ($modified['invoices'] as $invoice) {
-                    $invoice['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
+                foreach ($modified['invoices'] as $key => $invoice) {
+                    $modified['invoices'][$key]['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
                 }
             }
 

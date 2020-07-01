@@ -13,9 +13,11 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Factory\CompanyLedgerFactory;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\QuoteFactory;
+use App\Models\Activity;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Country;
@@ -122,6 +124,11 @@ class Client extends BaseModel implements HasLocalePreference
     public function ledger()
     {
         return $this->hasMany(CompanyLedger::class)->orderBy('id', 'desc');
+    }
+
+    public function company_ledger()
+    {
+        return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
     public function gateway_tokens()

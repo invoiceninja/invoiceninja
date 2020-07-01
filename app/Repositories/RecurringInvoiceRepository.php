@@ -34,9 +34,6 @@ class RecurringInvoiceRepository extends BaseRepository
         $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
 
         $invoice = $invoice_calc->build()->getInvoice();
-
-        //fire events here that cascading from the saving of an invoice
-        //ie. client balance update...
         
         return $invoice;
     }

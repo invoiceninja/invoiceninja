@@ -192,15 +192,15 @@ class RecurringInvoice extends BaseModel
             case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
                 return Carbon::parse($this->next_send_date->addWeeks(4));
             case RecurringInvoice::FREQUENCY_MONTHLY:
-                return Carbon::parse($this->next_send_date->addMonth());
+                return Carbon::parse($this->next_send_date->addMonthNoOverflow());
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                return Carbon::parse($this->next_send_date->addMonths(2));
+                return Carbon::parse($this->next_send_date->addMonthsNoOverflow(2));
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                return Carbon::parse($this->next_send_date->addMonths(3));
+                return Carbon::parse($this->next_send_date->addMonthsNoOverflow(3));
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                return Carbon::parse($this->next_send_date->addMonths(4));
+                return Carbon::parse($this->next_send_date->addMonthsNoOverflow(4));
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                return Carbon::parse($this->next_send_date->addMonths(6));
+                return Carbon::parse($this->next_send_date->addMonthsNoOverflow(6));
             case RecurringInvoice::FREQUENCY_ANNUALLY:
                 return Carbon::parse($this->next_send_date->addYear());
             case RecurringInvoice::FREQUENCY_TWO_YEARS:

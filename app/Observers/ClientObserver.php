@@ -38,7 +38,7 @@ class ClientObserver
      * @return void
      */
     public function updated(Client $client)
-    {
+    {        
         SubscriptionHandler::dispatch(Subscription::EVENT_UPDATE_CLIENT, $client);
     }
 

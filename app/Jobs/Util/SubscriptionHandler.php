@@ -99,4 +99,10 @@ class SubscriptionHandler implements ShouldQueue
             $subscription->delete();
         }
     }
+
+    public function failed($exception)
+    {
+        $exception->getMessage();
+        // etc...
+    }
 }

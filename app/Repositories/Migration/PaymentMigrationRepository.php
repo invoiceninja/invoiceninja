@@ -9,16 +9,19 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Repositories;
+namespace App\Repositories\Migration;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
 use App\Jobs\Credit\ApplyCreditPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Repositories\ActivityRepository;
+use App\Repositories\BaseRepository;
 use App\Repositories\CreditRepository;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
@@ -26,18 +29,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 /**
- * PaymentRepository
+ * PaymentMigrationRepository
  */
-class PaymentRepository extends BaseRepository
+class PaymentMigrationRepository extends BaseRepository
 {
     use MakesHash;
     use SavesDocuments;
 
     protected $credit_repo;
 
+    protected $activity_repo;
+
     public function __construct(CreditRepository $credit_repo)
     {
         $this->credit_repo = $credit_repo;
+        $this->activity_repo = new ActivityRepository();
     }
 
     public function getClassName()
@@ -79,12 +85,7 @@ class PaymentRepository extends BaseRepository
 
                 if($data['amount'] == '')
                     $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
-                
-                $client = Client::find($data['client_id']);
-                info("updating client balance from {$client->balance} by this much ".$data['amount']);
-
-                $client->service()->updatePaidToDate($data['amount'])->save();
-
+            
             }
         }
 
@@ -92,10 +93,6 @@ class PaymentRepository extends BaseRepository
         $payment->fill($data);
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->save();
-
-        if (array_key_exists('documents', $data)) {
-            $this->saveDocuments($data['documents'], $payment);
-        }
 
         /*Ensure payment number generated*/
         if (!$payment->number || strlen($payment->number) == 0) {
@@ -107,56 +104,38 @@ class PaymentRepository extends BaseRepository
 
         /*Iterate through invoices and apply payments*/
         if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
-            $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
-            $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
+            $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
             
-            info("saving this many invoices to the payment ".$invoices->count());
+            $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
             $payment->invoices()->saveMany($invoices);
+            
+            $payment->invoices->each(function ($inv) use($invoice_totals){
+                $inv->pivot->amount = $invoice_totals;
+                $inv->pivot->save();
+            });
 
-            info("iterating through payment invoices");
+        } 
 
-            foreach ($data['invoices'] as $paid_invoice) {
+        $fields = new \stdClass;
 
-                $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
+        $fields->payment_id = $payment->id;
+        $fields->user_id = $payment->user_id;
+        $fields->company_id = $payment->company_id;
+        $fields->activity_type_id = Activity::CREATE_PAYMENT;
 
-                if ($invoice) {
-                    
-                    $invoice = $invoice->service()->markSent()->applyPayment($payment, $paid_invoice['amount'])->save();
+        foreach ($payment->invoices as $invoice) { 
+            $fields->invoice_id = $invoice->id;
 
-                }
-                
-            }
-        } else {
-            //payment is made, but not to any invoice, therefore we are applying the payment to the clients paid_to_date only
-            //01-07-2020 i think we were duplicating the paid to date here.
-            //$payment->client->service()->updatePaidToDate($payment->amount)->save(); 
+            $this->activity_repo->save($fields, $invoice);
         }
 
-        if (array_key_exists('credits', $data) && is_array($data['credits'])) {
-            $credit_totals = array_sum(array_column($data['credits'], 'amount'));
-
-            $credits = Credit::whereIn('id', $this->transformKeys(array_column($data['credits'], 'credit_id')))->get();
-            $payment->credits()->saveMany($credits);
-
-            foreach ($data['credits'] as $paid_credit) {
-                $credit = Credit::find($this->decodePrimaryKey($paid_credit['credit_id']));
-
-                if ($credit) {
-                    ApplyCreditPayment::dispatchNow($credit, $payment, $paid_credit['amount'], $credit->company);
-                }
-            }
+        if (count($invoices) == 0) {
+            $this->activity_repo->save($fields, $payment);
         }
 
-        event(new PaymentWasCreated($payment, $payment->company));
-
-        $invoice_totals -= $credit_totals;
-
-        //$payment->amount = $invoice_totals; //creates problems when setting amount like this.
-        if($credit_totals == $payment->amount){
-            $payment->applied += $credit_totals;
-        } elseif ($invoice_totals == $payment->amount) {
+       if ($invoice_totals == $payment->amount) {
             $payment->applied += $payment->amount;
         } elseif ($invoice_totals < $payment->amount) {
             $payment->applied += $invoice_totals;

@@ -120,7 +120,7 @@ class RecurringInvoiceTest extends TestCase
 
         $RecurringInvoice_update = [
             'status_id' => RecurringInvoice::STATUS_DRAFT,
-            'client_id' => $RecurringInvoice->client_id,
+            'client_id' => $this->encodePrimaryKey($RecurringInvoice->client_id),
         ];
 
         $this->assertNotNull($RecurringInvoice);
