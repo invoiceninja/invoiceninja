@@ -154,6 +154,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::get('settings', 'SettingsController@index')->name('user.settings');
      */
+    Route::get('scheduler', 'SchedulerController@index');
     Route::post('support/messages/send', 'Support\Messages\SendingController');
 });
 
