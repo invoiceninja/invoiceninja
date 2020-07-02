@@ -81,6 +81,7 @@ class CheckData extends Command
         }
 
         $this->checkInvoiceBalances();
+        $this->checkInvoicePayments();
         $this->checkClientBalances();
         $this->checkContacts();
         $this->checkCompanyData();
@@ -314,7 +315,34 @@ class CheckData extends Command
 
          $this->logMessage("{$wrong_balances} clients with incorrect balances");
 
+    }
 
+    private function checkInvoicePayments()
+    {
+        $wrong_balances = 0;
+
+        Client::cursor()->each(function ($client) use($wrong_balances){
+
+            $client->invoices->where('is_deleted', false)->each(function ($invoice) use($wrong_balances){
+
+                $total_amount = $invoice->payments->sum('pivot.amount');
+                $total_refund = $invoice->payments->sum('pivot.refunded');
+                $total_paid = $total_amount - $total_refund;
+
+                if($total_paid != ($invoice->amount - $invoice->balance)) {
+                    $wrong_balances++;
+
+                    $this->logMessage($client->present()->name . " - " . $client->id . " - balances do not match Invoice Amount = {$invoice->amount} - Invoice Balance = {$invoice->balance} Total paid = {$total_paid}");
+
+                    $this->isValid = false;
+
+                }
+
+            });
+
+        });
+
+         $this->logMessage("{$wrong_balances} clients with incorrect invoice balances");
     }
 
     private function checkClientBalances()
