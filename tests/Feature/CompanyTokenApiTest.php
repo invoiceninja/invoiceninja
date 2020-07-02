@@ -3,9 +3,10 @@
 namespace Tests\Feature;
 
 use App\DataMapper\DefaultSettings;
+use App\Http\Middleware\PasswordProtection;
 use App\Models\Account;
-use App\Models\CompanyToken;
 use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Faker\Factory;
@@ -14,11 +15,11 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
@@ -43,15 +44,18 @@ class CompanyTokenApiTest extends TestCase
         Model::reguard();
 
         $this->withoutMiddleware(
-            ThrottleRequests::class
+            ThrottleRequests::class,
         );
     }
 
     public function testCompanyTokenList()
     {
+        $this->withoutMiddleware(PasswordProtection::class);
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->get('/api/v1/tokens');
 
 
@@ -60,12 +64,15 @@ class CompanyTokenApiTest extends TestCase
 
     public function testCompanyTokenPost()
     {
+        $this->withoutMiddleware(PasswordProtection::class);
+
         $data = [
             'name' => $this->faker->firstName,
         ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
                 'X-API-TOKEN' => $this->token
             ])->post('/api/v1/tokens', $data);
 
@@ -75,6 +82,8 @@ class CompanyTokenApiTest extends TestCase
 
     public function testCompanyTokenPut()
     {
+        $this->withoutMiddleware(PasswordProtection::class);
+
         $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
 
         $data = [
@@ -84,6 +93,7 @@ class CompanyTokenApiTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
                 'X-API-TOKEN' => $this->token
             ])->put('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id), $data);
 
@@ -96,11 +106,14 @@ class CompanyTokenApiTest extends TestCase
 
     public function testCompanyTokenGet()
     {
+        $this->withoutMiddleware(PasswordProtection::class);
+
         $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
 
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
                 'X-API-TOKEN' => $this->token
             ])->get('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id));
 
@@ -110,10 +123,13 @@ class CompanyTokenApiTest extends TestCase
 
     public function testCompanyTokenNotArchived()
     {
+        $this->withoutMiddleware(PasswordProtection::class);
+
         $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
                 'X-API-TOKEN' => $this->token
             ])->get('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id));
 
