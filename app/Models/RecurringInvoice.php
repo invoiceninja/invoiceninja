@@ -286,12 +286,15 @@ class RecurringInvoice extends BaseModel
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
                 return ctrans('texts.freq_two_years');
                 break;
-            case RecurringInvoice::RECURS_INDEFINITELY:
-                return ctrans('texts.freq_indefinitely');
-                break;
             default:
                 # code...
                 break;
         }
     }
+
+    public function recurringDates()
+    {
+        //todo send back a list of the next send dates and due dates
+    }
+
 }

@@ -81,6 +81,8 @@ class CheckData extends Command
         }
 
         $this->checkInvoiceBalances();
+        $this->checkInvoicePayments();
+        $this->checkPaidToDates();
         $this->checkClientBalances();
         $this->checkContacts();
         $this->checkCompanyData();
@@ -314,7 +316,73 @@ class CheckData extends Command
 
          $this->logMessage("{$wrong_balances} clients with incorrect balances");
 
+    }
 
+    private function checkPaidToDates()
+    {
+
+        $wrong_paid_to_dates = 0;
+
+        Client::withTrashed()->cursor()->each(function ($client) use($wrong_paid_to_dates){
+
+            $total_invoice_payments = 0;
+
+            $client->invoices->where('is_deleted', false)->each(function ($invoice) use($total_invoice_payments, $wrong_paid_to_dates){
+
+                $total_amount = $invoice->payments->sum('pivot.amount');
+                $total_refund = $invoice->payments->sum('pivot.refunded');
+                
+                info("Pivot = " . $total_amount . " - " . $total_refund);
+
+                $total_invoice_payments += ($total_amount - $total_refund);
+
+                info($total_invoice_payments);
+            });
+
+            info($total_invoice_payments . " = ". $client->paid_to_date);
+
+            if($total_invoice_payments != $client->paid_to_date) {
+                $wrong_paid_to_dates++;
+
+                $this->logMessage($client->present()->name . " - " . $client->id . " - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}");
+
+                $this->isValid = false;
+
+            }
+
+        });
+
+        $this->logMessage("{$wrong_paid_to_dates} clients with incorrect paid to dates");
+
+    }
+
+    private function checkInvoicePayments()
+    {
+        $wrong_balances = 0;
+        $wrong_paid_to_dates = 0;
+
+        Client::cursor()->each(function ($client) use($wrong_balances){
+
+            $client->invoices->where('is_deleted', false)->each(function ($invoice) use($wrong_balances){
+
+                $total_amount = $invoice->payments->sum('pivot.amount');
+                $total_refund = $invoice->payments->sum('pivot.refunded');
+                $total_paid = $total_amount - $total_refund;
+
+                if($total_paid != ($invoice->amount - $invoice->balance)) {
+                    $wrong_balances++;
+
+                    $this->logMessage($client->present()->name . " - " . $client->id . " - balances do not match Invoice Amount = {$invoice->amount} - Invoice Balance = {$invoice->balance} Total paid = {$total_paid}");
+
+                    $this->isValid = false;
+
+                }
+
+            });
+
+        });
+
+         $this->logMessage("{$wrong_balances} clients with incorrect invoice balances");
     }
 
     private function checkClientBalances()

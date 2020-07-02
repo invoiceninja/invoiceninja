@@ -58,32 +58,66 @@ class ClientTest extends TestCase
 
     }
 
+    public function testStoreClientUsingCountryCode()
+    {
+        $data = [
+            'name' => 'Country Code Name',
+            'country_code' => 'US',
+            'currency_code' => 'USD',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+
+        
+        $arr = $response->json();
+        $client = Client::find($this->decodePrimaryKey($arr['data']['id']));
+
+        $this->assertEquals(840, $client->country_id);
+        $this->assertEquals(1, $client->settings->currency_id);
+
+        $data = [
+            'name' => 'Country Code Name',
+            'country_code' => 'USA',
+            'currency_code' => 'USD',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+
+        
+        $arr = $response->json();
+        $client = Client::find($this->decodePrimaryKey($arr['data']['id']));
+
+        $this->assertEquals(840, $client->country_id);
+        $this->assertEquals(1, $client->settings->currency_id);
+
+
+        $data = [
+            'name' => 'Country Code Name',
+            'country_code' => 'AU',
+            'currency_code' => 'AUD',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+
+        
+        $arr = $response->json();
+        $client = Client::find($this->decodePrimaryKey($arr['data']['id']));
+
+        $this->assertEquals(36, $client->country_id);
+        $this->assertEquals(12, $client->settings->currency_id);
+    }
+
     public function testClientList()
     {
-        // $data = [
-        //     'first_name' => $this->faker->firstName,
-        //     'last_name' => $this->faker->lastName,
-        //     'name' => $this->faker->company,
-        //     'email' => $this->faker->unique()->safeEmail,
-        //     'password' => 'ALongAndBrilliantPassword123',
-        //     '_token' => csrf_token(),
-        //     'privacy_policy' => 1,
-        //     'terms_of_service' => 1
-        // ];
-
-
-        // $response = $this->withHeaders([
-        //         'X-API-SECRET' => config('ninja.api_secret'),
-        //     ])->post('/api/v1/signup?include=account', $data);
-
-
-        // $response->assertStatus(200);
-
-        // $acc = $response->json();
-        
-        // $account = Account::find($this->decodePrimaryKey($acc['data'][0]['account']['id']));
-
-        // $this->token = $account->default_company->tokens->first()->token;
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

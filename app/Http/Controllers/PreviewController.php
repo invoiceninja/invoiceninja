@@ -89,8 +89,8 @@ class PreviewController extends BaseController
     {
         if (request()->has('entity') &&
             request()->has('entity_id') &&
-            strlen(request()->input('entity')) > 1 &&
-            strlen(request()->input('entity_id')) > 1 &&
+            !empty(request()->input('entity')) &&
+            !empty(request()->input('entity_id')) &&
             request()->has('body')) {
             $design_object = json_decode(json_encode(request()->input('design')));
 

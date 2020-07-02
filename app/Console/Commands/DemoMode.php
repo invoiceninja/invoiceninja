@@ -82,7 +82,7 @@ class DemoMode extends Command
 
     private function createSmallAccount()
     {
-        $this->count = 10;
+        $this->count = 100;
 
         $this->info('Creating Small Account and Company');
 
@@ -90,6 +90,7 @@ class DemoMode extends Command
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
+            'enabled_modules' => 4095,
         ]);
 
 
@@ -154,7 +155,6 @@ class DemoMode extends Command
             ]);
         }
 
-
         factory(\App\Models\Product::class, 50)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
@@ -166,7 +166,10 @@ class DemoMode extends Command
             $z = $x+1;
             $this->info("Creating client # ".$z);
 
-            $this->createClient($company, $user);
+            if(rand(0,1))
+                $this->createClient($company, $user);
+            else
+                $this->createClient($company, $u2);
         }
 
         for($x=0; $x<$this->count; $x++)
@@ -236,7 +239,7 @@ class DemoMode extends Command
         $client->id_number = $this->getNextClientNumber($client);
 
         $settings = $client->settings;
-        $settings->currency_id = (string)rand(1,79);
+        $settings->currency_id = (string)rand(1,3);
         $client->settings = $settings;
 
         $country = Country::all()->random();
@@ -326,8 +329,8 @@ class DemoMode extends Command
             $invoice->tax_rate3 = 5;
         }
 
-        $invoice->custom_value1 = $faker->date;
-        $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
+       // $invoice->custom_value1 = $faker->date;
+       // $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->save();
 
@@ -361,7 +364,11 @@ class DemoMode extends Command
 
         $credit = factory(\App\Models\Credit::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
 
-        $dateable = Carbon::now()->subDays(rand(0, 90));
+        if((bool)rand(0,1))
+            $dateable = Carbon::now()->subDays(rand(0, 90));
+        else
+            $dateable = Carbon::now()->addDays(rand(0, 90));
+
         $credit->date = $dateable;
 
         $credit->line_items = $this->buildLineItems(rand(1, 10));

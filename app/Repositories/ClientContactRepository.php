@@ -73,13 +73,12 @@ class ClientContactRepository extends BaseRepository
         //always made sure we have one blank contact to maintain state
         if ($client->contacts->count() == 0) {
         
-            info("no contacts found");
-
             $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
             $new_contact->client_id = $client->id;
             $new_contact->contact_key = Str::random(40);
             $new_contact->is_primary = true;
             $new_contact->save();
+        
         }
 
     }
