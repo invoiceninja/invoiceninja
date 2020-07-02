@@ -90,6 +90,7 @@ class DemoMode extends Command
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
+            'enabled_modules' => 4095,
         ]);
 
 
@@ -154,7 +155,6 @@ class DemoMode extends Command
             ]);
         }
 
-
         factory(\App\Models\Product::class, 50)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
@@ -166,7 +166,10 @@ class DemoMode extends Command
             $z = $x+1;
             $this->info("Creating client # ".$z);
 
-            $this->createClient($company, $user);
+            if(rand(0,1))
+                $this->createClient($company, $user);
+            else
+                $this->createClient($company, $u2);
         }
 
         for($x=0; $x<$this->count; $x++)
