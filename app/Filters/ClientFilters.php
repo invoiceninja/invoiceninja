@@ -51,7 +51,16 @@ class ClientFilters extends QueryFilters
 
     public function email(string $email):Builder
     {
-        return $this->builder->where('email', $email);
+        return 
+        
+        $this->builder->whereHas('contacts', function ($query) use ($email) {
+                
+          $query->where('email', $email);
+                
+        });
+
+
+        //return $this->builder->where('email', $email);
     }
 
     public function id_number(string $id_number):Builder
