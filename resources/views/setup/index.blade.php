@@ -1,11 +1,6 @@
 @extends('portal.ninja2020.layout.clean')
 @section('meta_title', ctrans('texts.setup'))
 
-@push('head')
-    <meta name="test-db-endpoint" content="{{ url('/setup/check_db') }}">
-    <meta name="test-smtp-endpoint" content="{{ url('/setup/check_mail') }}">
-@endpush
-
 @section('body')
 <div class="container mx-auto mb-10 mt-4">
     <form action="{{ url('/setup') }}" method="post">

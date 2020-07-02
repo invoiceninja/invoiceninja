@@ -19,7 +19,11 @@ use App\Models\Account;
 use App\Utils\SystemHealth;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Spatie\Browsershot\Browsershot;
 
 /**
  * Class SetupController.
@@ -113,6 +117,10 @@ class SetupController extends Controller
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
 
+            File::delete(
+                public_path('test.pdf')
+            );
+
             /* Create the first account. */
             if (Account::count() == 0) {
                 $account = CreateAccount::dispatchNow($request->all());
@@ -178,5 +186,20 @@ class SetupController extends Controller
         
 
         return false;
+    }
+
+    public function checkPdf(Request $request)
+    {
+        try {
+            Browsershot::html('If you see this text, generating PDF works! Thanks for using Invoice Ninja!')->savePdf(
+                public_path('test.pdf')
+            );
+
+            return response(['url' => asset('test.pdf')], 200);
+        } catch (\Exception $e) {
+            info($e->getMessage());
+
+            return response([], 500);
+        }
     }
 }

@@ -3232,4 +3232,6 @@ return [
     'application_settings_label' => 'Let\'s store basic information about your Invoice Ninja!',
     'recommended_in_production' => 'Recommended in production',
     'enable_only_for_development' => 'Enable only for development',
+
+    'test_pdf' => 'Test PDF',
 ];
