@@ -19,6 +19,7 @@ use App\Models\Client;
 use App\Models\GroupSetting;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Cache;
 
 class StoreClientRequest extends Request
 {
@@ -101,8 +102,11 @@ class StoreClientRequest extends Request
             }
         } elseif (!property_exists($settings, 'currency_id')) {
             $settings->currency_id = (string)auth()->user()->company()->settings->currency_id;
-        }
+        } 
 
+        if (isset($input['currency_code'])) {
+            $settings->currency_id = $this->getCurrencyCode($input['currency_code']);
+        }
 
         $input['settings'] = $settings;
 
@@ -130,6 +134,10 @@ class StoreClientRequest extends Request
             }
         }
 
+        if(isset($input['country_code'])) {
+            $input['country_id'] = $this->getCountryCode($input['country_code']);
+        }
+
         $this->replace($input);
     }
 
@@ -141,4 +149,27 @@ class StoreClientRequest extends Request
             'contacts.*.email.required' => ctrans('validation.email', ['attribute' => 'email']),
         ];
     }
+
+    private function getCountryCode($country_code)
+    {
+        $countries = Cache::get('countries');
+        
+        $country = $countries->filter(function ($item) use($country_code) {
+            return $item->iso_3166_2 == $country_code || $item->iso_3166_3 == $country_code;
+        })->first();
+
+        return (string) $country->id;
+    }
+
+    private function getCurrencyCode($code)
+    {
+        $currencies = Cache::get('currencies');
+        
+        $currency = $currencies->filter(function ($item) use($code){
+            return $item->code == $code;
+        })->first();
+
+        return (string) $currency->id;
+    }
+
 }
