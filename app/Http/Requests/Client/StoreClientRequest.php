@@ -138,6 +138,10 @@ class StoreClientRequest extends Request
             $input['country_id'] = $this->getCountryCode($input['country_code']);
         }
 
+        if(isset($input['shipping_country_code'])) {
+            $input['shipping_country_id'] = $this->getCountryCode($input['shipping_country_code']);
+        }
+
         $this->replace($input);
     }
 
