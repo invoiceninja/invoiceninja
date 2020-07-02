@@ -70,6 +70,11 @@ class InvoiceFilters extends QueryFilters
         return $this->builder;
     }
 
+    public function invoice_number(string $invoice_number):Builder
+    {
+        return $this->builder->where('number', $invoice_number);
+    }
+
     /**
      * Filter based on search text
      *

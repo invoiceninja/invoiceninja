@@ -49,6 +49,16 @@ class ClientFilters extends QueryFilters
         return $this->builder->whereBetween('balance', [$parts[0], $parts[1]]);
     }
 
+    public function email(string $email):Builder
+    {
+        return $this->builder->where('email', $email);
+    }
+
+    public function id_number(string $id_number):Builder
+    {
+        return $this->builder->where('id_number', $id_number);
+    }
+
     /**
      * Filter based on search text
      *
