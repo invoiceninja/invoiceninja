@@ -80,7 +80,9 @@ class StorePaymentRequest extends Request
 
         $input['is_manual'] = true;
         
-        info(print_r($input,1));
+        if(!isset($input['date'])) {
+            $input['date'] = now()->format('Y-m-d');
+        }
         
         $this->replace($input);
     }
@@ -90,7 +92,7 @@ class StorePaymentRequest extends Request
         $rules = [
             'amount' => 'numeric|required',
             'amount' => [new PaymentAmountsBalanceRule(),new ValidCreditsPresentRule()],
-            'date' => 'required',
+            //'date' => 'required',
             'client_id' => 'bail|required|exists:clients,id',
             'invoices.*.invoice_id' => 'required|distinct|exists:invoices,id',
             'invoices.*.invoice_id' => new ValidInvoicesRules($this->all()),
