@@ -10,7 +10,6 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get('/api/v1/ping', 'PingController@index')->name('ping');
 
 Route::group(['middleware' => ['api_secret_check']], function () {
     Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
@@ -23,6 +22,9 @@ Route::group(['api_secret_check', 'email_db'], function () {
 });
 
 Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+    
+    Route::get('ping', 'PingController@index')->name('ping');
+    
     Route::resource('activities', 'ActivityController');// name = (clients. index / create / show / update / destroy / edit
 
     Route::resource('clients', 'ClientController');// name = (clients. index / create / show / update / destroy / edit

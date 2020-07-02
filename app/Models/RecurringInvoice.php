@@ -294,7 +294,7 @@ class RecurringInvoice extends BaseModel
 
     public function recurringDates()
     {
-        //send back a list of the next send dates and due dates
+        //todo send back a list of the next send dates and due dates
     }
 
 }
