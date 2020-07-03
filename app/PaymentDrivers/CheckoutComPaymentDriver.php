@@ -50,6 +50,10 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     /** Instance of \Checkout\CheckoutApi */
     public $gateway;
 
+    public static $methods = [
+        GatewayType::CREDIT_CARD => '',
+    ];
+
     /** Since with Checkout.com we handle only credit cards, this method should be empty. */
     public function setPaymentMethod($string = null)
     {

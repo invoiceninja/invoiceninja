@@ -377,6 +377,29 @@ class Client extends BaseModel implements HasLocalePreference
         return null;
     }
 
+    public function getBankTransferGateway() :?CompanyGateway
+    {
+        $company_gateways = $this->getSetting('company_gateway_ids');
+
+        if (strlen($company_gateways)>=1) {
+            $gateways = $this->company->company_gateways->whereIn('id', $company_gateways);
+        } else {
+            $gateways = $this->company->company_gateways;
+        }
+
+        foreach ($gateways as $gateway) {
+            if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, $gateway->driver($this)->gatewayTypes())) {
+                return $gateway;
+            }
+
+            if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, $gateway->driver($this)->gatewayTypes())) {
+                return $gateway;
+            }
+        }
+
+        return null;
+    }
+
     public function getCurrencyCode()
     {
         if ($this->currency()) {
@@ -385,6 +408,7 @@ class Client extends BaseModel implements HasLocalePreference
 
         return 'USD';
     }
+
     /**
      * Generates an array of payment urls per client
      * for a given amount.
@@ -404,14 +428,14 @@ class Client extends BaseModel implements HasLocalePreference
         //this method will get all the possible gateways a client can pay with
         //but we also need to consider payment methods that are already stored
         //so we MUST filter the company gateways and remove duplicates.
-//
+
         //Also need to harvest the list of client gateway tokens and present these
         //for instant payment
 
         $company_gateways = $this->getSetting('company_gateway_ids');
 
         if ($company_gateways) {
-            $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
+            $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways); //this will never hit
         } else {
             $gateways = $this->company->company_gateways;
         }
@@ -434,7 +458,6 @@ class Client extends BaseModel implements HasLocalePreference
             }
         }
             
-
         $payment_methods_collections = collect($payment_methods);
 
         //** Plucks the remaining keys into its own collection
