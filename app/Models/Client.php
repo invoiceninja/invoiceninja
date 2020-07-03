@@ -385,6 +385,16 @@ class Client extends BaseModel implements HasLocalePreference
 
         return 'USD';
     }
+
+    public function getPaymentMethodByType($amount, $type) :array
+    {
+        $gateways = $this->company->company_gateways;
+
+        $gateways = $gateways->map(function ($gateway) use($type){
+
+        });
+    }
+
     /**
      * Generates an array of payment urls per client
      * for a given amount.
@@ -404,14 +414,14 @@ class Client extends BaseModel implements HasLocalePreference
         //this method will get all the possible gateways a client can pay with
         //but we also need to consider payment methods that are already stored
         //so we MUST filter the company gateways and remove duplicates.
-//
+
         //Also need to harvest the list of client gateway tokens and present these
         //for instant payment
 
         $company_gateways = $this->getSetting('company_gateway_ids');
 
         if ($company_gateways) {
-            $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
+            $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways); //this will never hit
         } else {
             $gateways = $this->company->company_gateways;
         }
@@ -434,7 +444,6 @@ class Client extends BaseModel implements HasLocalePreference
             }
         }
             
-
         $payment_methods_collections = collect($payment_methods);
 
         //** Plucks the remaining keys into its own collection
