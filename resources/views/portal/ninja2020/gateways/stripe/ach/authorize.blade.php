@@ -6,7 +6,7 @@
 @endpush
 
 @section('body')
-    <form action="{{ route('client.payment_methods.store') }}" method="post" id="server_response">
+    <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::BANK_TRANSFER]) }}" method="post" id="server_response">
         @csrf
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->id }}">
         <input type="hidden" name="gateway_type_id" value="2">

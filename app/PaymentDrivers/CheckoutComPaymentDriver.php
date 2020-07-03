@@ -82,6 +82,11 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         }
     }
 
+    public function authorizeView($data)
+    {
+        return render('gateways.checkout.authorize');
+    }
+
     public function processPaymentView(array $data)
     {
         $data['gateway'] = $this;

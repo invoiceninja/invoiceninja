@@ -87,7 +87,7 @@ class ACH
             $client_gateway_token->save();
         }
 
-        return redirect()->route('client.payment_methods.verification', $client_gateway_token->hashed_id);
+        return redirect()->route('client.payment_methods.verification', ['id' => $client_gateway_token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
     }
 
     public function verificationView(ClientGatewayToken $token)
@@ -168,7 +168,7 @@ class ACH
             return $this->processUnsuccessfulPayment($state);
         } catch (\Exception $e) {
             if ($e instanceof \Stripe\Exception\CardException) {
-                return redirect()->route('client.payment_methods.verification', ClientGatewayToken::first()->hashed_id);
+                return redirect()->route('client.payment_methods.verification', ['id' => ClientGatewayToken::first()->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
             }
         }
     }

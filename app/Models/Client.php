@@ -400,6 +400,17 @@ class Client extends BaseModel implements HasLocalePreference
         return null;
     }
 
+    public function getBankTransferMethodType()
+    {
+        if ($this->currency()->code == 'USD') {
+            return GatewayType::BANK_TRANSFER;
+        }
+
+        if ($this->currency()->code == 'EUR') {
+            return GatewayType::SEPA;
+        }
+    }
+
     public function getCurrencyCode()
     {
         if ($this->currency()) {
