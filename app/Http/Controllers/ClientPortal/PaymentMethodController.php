@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -15,6 +16,7 @@ use App\Events\Payment\Methods\MethodDeleted;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\CreatePaymentMethodRequest;
 use App\Models\ClientGatewayToken;
+use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\Utils\Traits\MakesDates;
@@ -42,13 +44,13 @@ class PaymentMethodController extends Controller
      */
     public function create(CreatePaymentMethodRequest $request)
     {
-        $gateway = auth()->user()->client->getCreditCardGateway();
+        $gateway = $this->getClientGateway();
 
         $data['gateway'] = $gateway;
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod(GatewayType::CREDIT_CARD)
+            ->setPaymentMethod($request->query('method'))
             ->authorizeView($data);
     }
 
@@ -60,11 +62,11 @@ class PaymentMethodController extends Controller
      */
     public function store(Request $request)
     {
-        $gateway = auth()->user()->client->getCreditCardGateway();
+        $gateway = $this->getClientGateway();
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod(GatewayType::CREDIT_CARD)
+            ->setPaymentMethod($request->query('method'))
             ->authorizeResponse($request);
     }
 
@@ -106,21 +108,21 @@ class PaymentMethodController extends Controller
 
     public function verify(ClientGatewayToken $payment_method)
     {
-        $gateway = auth()->user()->client->getCreditCardGateway();
+        $gateway = $this->getClientGateway();
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod(GatewayType::BANK_TRANSFER)
+            ->setPaymentMethod(request()->query('method'))
             ->verificationView($payment_method);
     }
 
     public function processVerification(ClientGatewaytoken $payment_method)
     {
-        $gateway = auth()->user()->client->getCreditCardGateway();
+        $gateway = $this->getClientGateway();
 
         return $gateway
             ->driver(auth()->user()->client)
-            ->setPaymentMethod(GatewayType::BANK_TRANSFER)
+            ->setPaymentMethod(request()->query('method'))
             ->processVerification($payment_method);
     }
 
@@ -143,5 +145,18 @@ class PaymentMethodController extends Controller
         return redirect()
             ->route('client.payment_methods.index')
             ->withSuccess('Payment method has been successfully removed.');
+    }
+
+    private function getClientGateway()
+    {
+        if (request()->query('method') == GatewayType::CREDIT_CARD) {
+            return $gateway = auth()->user()->client->getCreditCardGateway();
+        }
+
+        if (request()->query('method') == GatewayType::BANK_TRANSFER) {
+            return $gateway = auth()->user()->client->getBankTransferGateway();
+        }
+
+        return abort(404);
     }
 }
