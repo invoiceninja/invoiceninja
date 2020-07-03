@@ -377,6 +377,29 @@ class Client extends BaseModel implements HasLocalePreference
         return null;
     }
 
+    public function getBankTransferGateway() :?CompanyGateway
+    {
+        $company_gateways = $this->getSetting('company_gateway_ids');
+
+        if (strlen($company_gateways)>=1) {
+            $gateways = $this->company->company_gateways->whereIn('id', $company_gateways);
+        } else {
+            $gateways = $this->company->company_gateways;
+        }
+
+        foreach ($gateways as $gateway) {
+            if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, $gateway->driver($this)->gatewayTypes())) {
+                return $gateway;
+            }
+
+            if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, $gateway->driver($this)->gatewayTypes())) {
+                return $gateway;
+            }
+        }
+
+        return null;
+    }
+
     public function getCurrencyCode()
     {
         if ($this->currency()) {
@@ -384,15 +407,6 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         return 'USD';
-    }
-
-    public function getPaymentMethodByType($amount, $type) :array
-    {
-        $gateways = $this->company->company_gateways;
-
-        $gateways = $gateways->map(function ($gateway) use($type){
-
-        });
     }
 
     /**
