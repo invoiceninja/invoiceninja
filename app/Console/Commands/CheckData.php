@@ -325,23 +325,17 @@ class CheckData extends Command
 
         Client::withTrashed()->cursor()->each(function ($client) use($wrong_paid_to_dates){
 
-            $total_invoice_payments = 0;
+           $total_invoice_payments = 0;
 
-            $client->invoices->where('is_deleted', false)->each(function ($invoice) use($total_invoice_payments, $wrong_paid_to_dates){
-
+            foreach($client->invoices->where('is_deleted', false) as $invoice)
+            {
                 $total_amount = $invoice->payments->sum('pivot.amount');
                 $total_refund = $invoice->payments->sum('pivot.refunded');
                 
-                info("Pivot = " . $total_amount . " - " . $total_refund);
-
                 $total_invoice_payments += ($total_amount - $total_refund);
-
-                info($total_invoice_payments);
-            });
-
-            info($total_invoice_payments . " = ". $client->paid_to_date);
-
-            if($total_invoice_payments != $client->paid_to_date) {
+            }
+            
+            if(round($total_invoice_payments,2) != round($client->paid_to_date,2)) {
                 $wrong_paid_to_dates++;
 
                 $this->logMessage($client->present()->name . " - " . $client->id . " - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}");
