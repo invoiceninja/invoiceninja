@@ -71,7 +71,8 @@ class DeletePayment
 
                 $paymentable_invoice->service()->updateBalance($paymentable_invoice->pivot->amount)->save();
                 $paymentable_invoice->ledger()->updateInvoiceBalance($paymentable_invoice->pivot->amount)->save();
-
+                $paymentable_invoice->client->service()->updateBalance($paymentable_invoice->pivot->amount)->save();
+                
                 if(floatval($paymentable_invoice->balance) == 0)
                     $paymentable_invoice->service()->setStatus(Invoice::STATUS_SENT)->save();
                 else
