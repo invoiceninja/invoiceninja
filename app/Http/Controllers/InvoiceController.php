@@ -215,6 +215,8 @@ class InvoiceController extends BaseController
 
         event(new InvoiceWasCreated($invoice, $invoice->company));
 
+        $invoice = $invoice->service()->triggeredActions($request)->save();
+        
         return $this->itemResponse($invoice);
     }
 

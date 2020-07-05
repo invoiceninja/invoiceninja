@@ -22,6 +22,7 @@ use App\Services\Invoice\HandleCancellation;
 use App\Services\Invoice\HandleReversal;
 use App\Services\Invoice\MarkInvoicePaid;
 use App\Services\Invoice\MarkSent;
+use App\Services\Invoice\TriggeredActions;
 use App\Services\Invoice\UpdateBalance;
 use Illuminate\Support\Carbon;
 
@@ -132,6 +133,13 @@ class InvoiceService
     public function reverseCancellation()
     {
         $this->invoice = (new HandleCancellation($this->invoice))->reverse();
+
+        return $this;
+    }
+
+    public function triggeredActions($request)
+    {
+        $this->invoice = (new TriggeredActions($this->invoice, $request))->run();
 
         return $this;
     }
