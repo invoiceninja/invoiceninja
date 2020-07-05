@@ -56,7 +56,6 @@ class Kernel extends ConsoleKernel
         if(Ninja::isHosted()) {
             $schedule->job(new AdjustEmailQuota())->daily();
             $schedule->job(new SendFailedEmails())->daily();
-            $schedule->job(new CheckDbStatus())->everyFiveMinutes();
         }
         /* Run queue's in shared hosting with this*/
         if (Ninja::isSelfHost()) {
