@@ -18,6 +18,7 @@ use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Util\PreviewPdf;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
@@ -127,6 +128,8 @@ class PreviewController extends BaseController
 
     private function blankEntity()
     {
+        DB::beginTransaction();
+
         $client = factory(\App\Models\Client::class)->create([
                 'user_id' => auth()->user()->id,
                 'company_id' => auth()->user()->company()->id,
@@ -156,15 +159,13 @@ class PreviewController extends BaseController
             return response()->json(['message' => 'Invalid custom design object'], 400);
         }
 
-        $designer = new Designer($invoice, $design_object, auth()->user()->company()->settings->pdf_variables, lcfirst(request()->has('entity')));
+        $designer = new Designer($invoice, $design_object, auth()->user()->company()->settings->pdf_variables, lcfirst(request()->input('entity')));
 
         $html = $this->generateEntityHtml($designer, $invoice, $contact);
 
         $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
 
-        $invoice->forceDelete();
-        $contact->forceDelete();
-        $client->forceDelete();
+        DB::rollBack();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
