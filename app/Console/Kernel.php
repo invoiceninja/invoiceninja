@@ -14,6 +14,7 @@ namespace App\Console;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CheckDbStatus;
+use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SendFailedEmails;
 use App\Jobs\Util\UpdateExchangeRates;
@@ -46,6 +47,8 @@ class Kernel extends ConsoleKernel
         $schedule->job(new VersionCheck)->daily();
 
         $schedule->job(new ReminderJob)->daily();
+
+        $schedule->job(new CompanySizeCheck)->daily();
 
         $schedule->job(new UpdateExchangeRates)->daily();
         

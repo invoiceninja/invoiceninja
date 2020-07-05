@@ -33,13 +33,9 @@ use Spatie\Browsershot\Browsershot;
 
 class PreviewPdf implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker;
-
-    public $invoice;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, PdfMaker;
 
     public $company;
-
-    public $contact;
 
     private $disk;
 
@@ -61,16 +57,8 @@ class PreviewPdf implements ShouldQueue
 
     public function handle()
     {
-        $path      = $this->company->company_key;
 
-        //Storage::makeDirectory($path, 0755);
+        return $this->makePdf(null, null, $this->design_string);
 
-        $file_path = $path . '/stream.pdf';
-
-        $pdf = $this->makePdf(null, null, $this->design_string);
-
-        $instance = Storage::disk('local')->put($file_path, $pdf);
-
-        return storage_path('app') .'/'. $file_path;
     }
 }

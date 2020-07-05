@@ -18,6 +18,7 @@ use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Util\PreviewPdf;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
 class PreviewController extends BaseController
@@ -155,7 +156,7 @@ class PreviewController extends BaseController
             return response()->json(['message' => 'Invalid custom design object'], 400);
         }
 
-        $designer = new Designer($invoice, $design_object, $invoice->client->getSetting('pdf_variables'), lcfirst(request()->has('entity')));
+        $designer = new Designer($invoice, $design_object, auth()->user()->company()->settings->pdf_variables, lcfirst(request()->has('entity')));
 
         $html = $this->generateEntityHtml($designer, $invoice, $contact);
 
@@ -165,6 +166,9 @@ class PreviewController extends BaseController
         $contact->forceDelete();
         $client->forceDelete();
 
-        return response()->file($file_path, array('content-type' => 'application/pdf'));
+        $response = Response::make($file_path, 200);
+        $response->header('Content-Type', 'application/pdf');
+        return $response;
+
     }
 }
