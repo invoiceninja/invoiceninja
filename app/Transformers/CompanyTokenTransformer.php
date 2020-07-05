@@ -43,6 +43,7 @@ class CompanyTokenTransformer extends EntityTransformer
     {
         return [
             'id' => $this->encodePrimaryKey($company_token->id),
+            'user_id' => $this->encodePrimaryKey($company_token->user_id),
             'token' => $company_token->token,
             'name' => $company_token->name ?: '',
             'updated_at' => (int)$company_token->updated_at,
