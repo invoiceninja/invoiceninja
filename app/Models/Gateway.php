@@ -27,6 +27,8 @@ class Gateway extends StaticModel
         'fields' => 'json',
     ];
 
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+    
     /**
      * @return mixed
      */
