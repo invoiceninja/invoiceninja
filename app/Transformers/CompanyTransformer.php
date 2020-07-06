@@ -123,6 +123,7 @@ class CompanyTransformer extends EntityTransformer
             'google_analytics_key' => (string)$company->google_analytics_key,
             'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates,
             'client_can_register' => (bool) $company->client_can_register,
+            'is_large' => (bool) $company->is_large,
         ];
     }
 
