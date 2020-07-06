@@ -181,6 +181,11 @@ class Company extends BaseModel
         return $this->hasMany(Task::class)->withTrashed();
     }
 
+    public function webhooks()
+    {
+        return $this->hasMany(Webhook::class);
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
