@@ -43,15 +43,19 @@ class SystemHealth
      *
      * @return     array  Result set of checks
      */
-    public static function check() : array
+    public static function check($check_database = true) : array
     {
         $system_health = true;
 
         if (in_array(false, Arr::dot(self::extensions()))) {
             $system_health = false;
-        } elseif (phpversion() < self::$php_version) {
+        } 
+        
+        if (phpversion() < self::$php_version) {
             $system_health = false;
-        } elseif(!self::simpleDbCheck()) {
+        } 
+
+        if(!self::simpleDbCheck() && $check_database) {
             info("db fails");
             $system_health = false;
         }
@@ -66,6 +70,7 @@ class SystemHealth
             ],
             'env_writable' => self::checkEnvWritable(),
             //'mail' => self::testMailServer(),
+            'simple_db_check' => (bool) self::simpleDbCheck(),
         ];
     }
 
