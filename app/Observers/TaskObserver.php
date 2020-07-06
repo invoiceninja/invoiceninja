@@ -12,7 +12,6 @@
 namespace App\Observers;
 
 use App\Jobs\Util\WebhookHandler;
-use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\Webhook;
 

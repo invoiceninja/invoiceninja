@@ -13,7 +13,6 @@ namespace App\Observers;
 
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Expense;
-use App\Models\Subscription;
 use App\Models\Webhook;
 
 class ExpenseObserver

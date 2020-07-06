@@ -14,7 +14,6 @@ namespace App\Observers;
 use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Payment;
-use App\Models\Subscription;
 use App\Models\Webhook;
 
 class PaymentObserver

@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Util;
 
-use App\Models\Subscription;
 use App\Transformers\ArraySerializer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -45,7 +44,7 @@ class WebhookHandler implements ShouldQueue
 
         //info("i got past the check");
 
-        $subscriptions = Webhook::where('company_id', $this->entity->company_id)
+        $subscriptions = \App\Models\Webhook::where('company_id', $this->entity->company_id)
                                     ->where('event_id', $this->event_id)
                                     ->get();
 

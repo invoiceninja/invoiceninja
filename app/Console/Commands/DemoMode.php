@@ -177,36 +177,44 @@ class DemoMode extends Command
             $client = $company->clients->random();
 
             $this->info('creating invoice for client #'.$client->id);
-            $this->createInvoice($client);
+
+            for($y=0; $y<($this->count); $y++){
+                $this->info("creating invoice #{$y} for client #".$client->id);
+                $this->createInvoice($client);
+            }
 
             $client = $company->clients->random();
 
-            $this->info('creating credit for client #'.$client->id);
-            $this->createCredit($client);
+            for($y=0; $y<($this->count); $y++){
+                $this->info("creating credit #{$y} for client #".$client->id);
+                $this->createCredit($client);
+            }
 
             $client = $company->clients->random();
 
-            $this->info('creating quote for client #'.$client->id);
-            $this->createQuote($client);
+            for($y=0; $y<($this->count); $y++){
+                $this->info("creating quote #{$y}  for client #".$client->id);
+                $this->createQuote($client);
+            }
 
             $client = $company->clients->random();
 
-            $this->info('creating expense for client #'.$client->id);
+            $this->info("creating expense for client #".$client->id);
             $this->createExpense($client);
 
             $client = $company->clients->random();
 
-            $this->info('creating vendor for client #'.$client->id);
+            $this->info("creating vendor for client #".$client->id);
             $this->createVendor($client);
 
             $client = $company->clients->random();
 
-            $this->info('creating task for client #'.$client->id);
+            $this->info("creating task for client #".$client->id);
             $this->createTask($client);
 
             $client = $company->clients->random();
 
-            $this->info('creating project for client #'.$client->id);
+            $this->info("creating project for client #".$client->id);
             $this->createProject($client);
         }
 

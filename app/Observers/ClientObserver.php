@@ -14,7 +14,6 @@ namespace App\Observers;
 use App\Events\Client\ClientWasCreated;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Client;
-use App\Models\Subscription;
 use App\Models\Webhook;
 
 class ClientObserver

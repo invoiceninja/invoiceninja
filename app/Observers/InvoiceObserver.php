@@ -13,7 +13,6 @@ namespace App\Observers;
 
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Invoice;
-use App\Models\Subscription;
 use App\Models\Webhook;
 
 class InvoiceObserver
