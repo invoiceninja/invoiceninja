@@ -44,17 +44,19 @@ class TriggeredActions extends AbstractService
     {
         //the request may have buried in it additional actions we should automatically perform on the invoice
         
-        if($request->has('send_email')) {
+        if($this->request->has('send_email')) {
 
         }
 
-        if($request->has('auto_bill')) {
+        if($this->request->has('auto_bill')) {
 
         }
 
-        if($request->has('paid')) {
+        if($this->request->has('paid')) {
 
         }
+
+        return $this->invoice;
     }
 
     private function sendEmail()
