@@ -16,6 +16,7 @@ use App\Models\Invoice;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
 use App\Services\Quote\CreateInvitations;
+use App\Services\Quote\GetQuotePdf;
 
 class QuoteService
 {
@@ -65,9 +66,7 @@ class QuoteService
 
     public function getQuotePdf($contact = null)
     {
-        $get_invoice_pdf = new GetQuotePdf();
-
-        return $get_invoice_pdf($this->quote, $contact);
+        return (new GetQuotePdf($this->quote, $contact))->run();
     }
 
     public function sendEmail($contact = null) :QuoteService

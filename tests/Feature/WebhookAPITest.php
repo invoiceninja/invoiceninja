@@ -15,10 +15,10 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers App\Http\Controllers\SubscriptionController
+ * @covers App\Http\Controllers\WebhookController
  */
     
-class SubscriptionAPITest extends TestCase
+class WebhookAPITest extends TestCase
 {
     use MakesHash;
     use DatabaseTransactions;
@@ -41,17 +41,17 @@ class SubscriptionAPITest extends TestCase
         $this->withoutExceptionHandling();
     }
 
-    public function testSubscriptionGetRoute()
+    public function testWebhookGetRoute()
     {
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/subscriptions');
+        ])->get('/api/v1/webhooks');
 
         $response->assertStatus(200);
     }
 
-    public function testSubscriptionPostRoute()
+    public function testWebhookPostRoute()
     {
         $data = [
             'target_url' => 'http://hook.com',
@@ -62,7 +62,7 @@ class SubscriptionAPITest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/subscriptions', $data);
+        ])->post('/api/v1/webhooks', $data);
 
         $response->assertStatus(200);
 
@@ -77,7 +77,7 @@ class SubscriptionAPITest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/subscriptions/'.$arr['data']['id'], $data);
+        ])->put('/api/v1/webhooks/'.$arr['data']['id'], $data);
 
         $response->assertStatus(200);
 
@@ -88,7 +88,7 @@ class SubscriptionAPITest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->delete('/api/v1/subscriptions/'.$arr['data']['id']);
+        ])->delete('/api/v1/webhooks/'.$arr['data']['id']);
 
         $arr = $response->json();
 
@@ -103,7 +103,7 @@ class SubscriptionAPITest extends TestCase
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token
-            ])->post('/api/v1/subscriptions/bulk?action=restore', $data);
+            ])->post('/api/v1/webhooks/bulk?action=restore', $data);
 
         $arr = $response->json();
 
@@ -113,7 +113,7 @@ class SubscriptionAPITest extends TestCase
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token
-            ])->post('/api/v1/subscriptions/bulk?action=delete', $data);
+            ])->post('/api/v1/webhooks/bulk?action=delete', $data);
 
         $arr = $response->json();
 

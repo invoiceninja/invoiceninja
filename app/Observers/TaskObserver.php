@@ -11,9 +11,9 @@
 
 namespace App\Observers;
 
-use App\Jobs\Util\SubscriptionHandler;
-use App\Models\Subscription;
+use App\Jobs\Util\WebhookHandler;
 use App\Models\Task;
+use App\Models\Webhook;
 
 class TaskObserver
 {
@@ -25,7 +25,7 @@ class TaskObserver
      */
     public function created(Task $task)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_CREATE_TASK, $task);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_TASK, $task);
     }
 
     /**
@@ -36,7 +36,7 @@ class TaskObserver
      */
     public function updated(Task $task)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_UPDATE_TASK, $task);
+        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_TASK, $task);
     }
 
     /**
@@ -47,7 +47,7 @@ class TaskObserver
      */
     public function deleted(Task $task)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_DELETE_TASK, $task);
+        WebhookHandler::dispatch(Webhook::EVENT_DELETE_TASK, $task);
     }
 
     /**

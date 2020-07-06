@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Subscription;
+namespace App\Http\Requests\Webhook;
 
 use App\Utils\Traits\BulkOptions;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Vendor;
 
-class BulkSubscriptionRequest extends FormRequest
+class BulkWebhookRequest extends FormRequest
 {
     use BulkOptions;
 

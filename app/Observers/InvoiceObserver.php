@@ -11,9 +11,9 @@
 
 namespace App\Observers;
 
-use App\Jobs\Util\SubscriptionHandler;
+use App\Jobs\Util\WebhookHandler;
 use App\Models\Invoice;
-use App\Models\Subscription;
+use App\Models\Webhook;
 
 class InvoiceObserver
 {
@@ -25,7 +25,7 @@ class InvoiceObserver
      */
     public function created(Invoice $invoice)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_CREATE_INVOICE, $invoice);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice);
     }
 
     /**
@@ -36,7 +36,7 @@ class InvoiceObserver
      */
     public function updated(Invoice $invoice)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_UPDATE_INVOICE, $invoice);
+        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_INVOICE, $invoice);
     }
 
     /**
@@ -47,7 +47,7 @@ class InvoiceObserver
      */
     public function deleted(Invoice $invoice)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_DELETE_INVOICE, $invoice);
+        WebhookHandler::dispatch(Webhook::EVENT_DELETE_INVOICE, $invoice);
     }
 
     /**

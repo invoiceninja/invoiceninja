@@ -131,7 +131,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $transaction_reference = $response->getTransactionReference() ?: $request->input('token');
 
         if ($response->isCancelled()) {
-            return redirect()->route('client.invoices.index')->with('warning', ctrans('texts.status_voided'));
+            return redirect()->route('client.invoices.index')->with('warning', ctrans('texts.status_cancelled'));
         } elseif ($response->isSuccessful()) {
             SystemLogger::dispatch(
                 [

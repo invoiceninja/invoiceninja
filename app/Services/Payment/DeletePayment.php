@@ -38,7 +38,7 @@ class DeletePayment
     public function run()
     {
 
-        return $this->setStatus(Payment::STATUS_VOIDED) //sets status of payment
+        return $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
             ->updateCreditables() //return the credits first
             ->adjustInvoices()
             ->updateClient()
@@ -109,7 +109,7 @@ class DeletePayment
 
     private function setStatus($status)
     {
-        $this->payment->status_id = Payment::STATUS_VOIDED;
+        $this->payment->status_id = Payment::STATUS_CANCELLED;
 
         return $this;
     }

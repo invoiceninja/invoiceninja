@@ -762,16 +762,16 @@
         },
         {
             "name": "czproject/git-php",
-            "version": "v3.18.0",
+            "version": "v3.18.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/czproject/git-php.git",
-                "reference": "ed442216a2f981f894ac6ddb1a2091a826f809e6"
+                "reference": "db664a8d5a1fbfd33e1cdd6ae65bc411bd18dc73"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/czproject/git-php/zipball/ed442216a2f981f894ac6ddb1a2091a826f809e6",
-                "reference": "ed442216a2f981f894ac6ddb1a2091a826f809e6",
+                "url": "https://api.github.com/repos/czproject/git-php/zipball/db664a8d5a1fbfd33e1cdd6ae65bc411bd18dc73",
+                "reference": "db664a8d5a1fbfd33e1cdd6ae65bc411bd18dc73",
                 "shasum": ""
             },
             "require": {
@@ -800,7 +800,7 @@
             "keywords": [
                 "git"
             ],
-            "time": "2020-06-30T14:58:07+00:00"
+            "time": "2020-07-03T08:02:12+00:00"
         },
         {
             "name": "dacastro4/laravel-gmail",
@@ -1088,20 +1088,6 @@
                 "sqlite",
                 "sqlserver",
                 "sqlsrv"
-            ],
-            "funding": [
-                {
-                    "url": "https://www.doctrine-project.org/sponsorship.html",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://www.patreon.com/phpdoctrine",
-                    "type": "patreon"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/doctrine%2Fdbal",
-                    "type": "tidelift"
-                }
             ],
             "time": "2020-04-20T17:19:26+00:00"
         },
@@ -3301,16 +3287,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "874ba1b8d6b12efa472147697942fe2f78a5d371"
+                "reference": "611327efd235c462badf67e901934866ec01395e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/874ba1b8d6b12efa472147697942fe2f78a5d371",
-                "reference": "874ba1b8d6b12efa472147697942fe2f78a5d371",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/611327efd235c462badf67e901934866ec01395e",
+                "reference": "611327efd235c462badf67e901934866ec01395e",
                 "shasum": ""
             },
             "require": {
@@ -3360,7 +3346,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-06-08T15:12:38+00:00"
+            "time": "2020-07-03T12:45:59+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
@@ -3701,16 +3687,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "2.36.0",
+            "version": "2.36.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "d0b65958d9942fd1b501fdb0800c67e8323aa08d"
+                "reference": "ee7378a36cc62952100e718bcc58be4c7210e55f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/d0b65958d9942fd1b501fdb0800c67e8323aa08d",
-                "reference": "d0b65958d9942fd1b501fdb0800c67e8323aa08d",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/ee7378a36cc62952100e718bcc58be4c7210e55f",
+                "reference": "ee7378a36cc62952100e718bcc58be4c7210e55f",
                 "shasum": ""
             },
             "require": {
@@ -3786,7 +3772,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-06-25T20:20:01+00:00"
+            "time": "2020-07-04T12:29:56+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -5662,16 +5648,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "2.4.0",
+            "version": "2.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "e44561875e0d724bac3d9cdb705bf58847acd425"
+                "reference": "407573e22e6cc46b72cff07c117eeb16bf3a17de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/e44561875e0d724bac3d9cdb705bf58847acd425",
-                "reference": "e44561875e0d724bac3d9cdb705bf58847acd425",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/407573e22e6cc46b72cff07c117eeb16bf3a17de",
+                "reference": "407573e22e6cc46b72cff07c117eeb16bf3a17de",
                 "shasum": ""
             },
             "require": {
@@ -5755,7 +5741,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2020-05-20T20:49:38+00:00"
+            "time": "2020-07-03T09:58:40+00:00"
         },
         {
             "name": "sentry/sentry-laravel",

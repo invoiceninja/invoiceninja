@@ -14,7 +14,7 @@ namespace App\Models;
 use App\Models\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Subscription extends BaseModel
+class Webhook extends BaseModel
 {
     use SoftDeletes;
     use Filterable;

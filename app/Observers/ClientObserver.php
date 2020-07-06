@@ -12,9 +12,9 @@
 namespace App\Observers;
 
 use App\Events\Client\ClientWasCreated;
-use App\Jobs\Util\SubscriptionHandler;
+use App\Jobs\Util\WebhookHandler;
 use App\Models\Client;
-use App\Models\Subscription;
+use App\Models\Webhook;
 
 class ClientObserver
 {
@@ -28,7 +28,7 @@ class ClientObserver
     {
         event(new ClientWasCreated($client, $client->company));
 
-        SubscriptionHandler::dispatch(Subscription::EVENT_CREATE_CLIENT, $client);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client);
     }
 
     /**
@@ -39,7 +39,7 @@ class ClientObserver
      */
     public function updated(Client $client)
     {        
-        SubscriptionHandler::dispatch(Subscription::EVENT_UPDATE_CLIENT, $client);
+        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CLIENT, $client);
     }
 
     /**
@@ -50,7 +50,7 @@ class ClientObserver
      */
     public function deleted(Client $client)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_DELETE_CLIENT, $client);
+        WebhookHandler::dispatch(Webhook::EVENT_DELETE_CLIENT, $client);
 
     }
 

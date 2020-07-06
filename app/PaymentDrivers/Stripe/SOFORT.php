@@ -102,6 +102,6 @@ class SOFORT
 
     public function processUnsuccessfulPayment($state)
     {
-        return redirect()->route('client.invoices.index')->with('warning', ctrans('texts.status_voided'));
+        return redirect()->route('client.invoices.index')->with('warning', ctrans('texts.status_cancelled'));
     }
 }

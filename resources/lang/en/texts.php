@@ -3234,6 +3234,9 @@ return [
     'enable_only_for_development' => 'Enable only for development',
 
     'test_pdf' => 'Test PDF',
+    'status_cancelled' => 'Cancelled',
 
     'checkout_authorize_label' => 'Checkout.com can be can saved as payment method for future use, once you complete your first transaction. Don\'t forget to check "Save card" during payment process.',
+
+
 ];

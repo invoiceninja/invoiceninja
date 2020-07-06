@@ -11,9 +11,9 @@
 
 namespace App\Observers;
 
-use App\Jobs\Util\SubscriptionHandler;
+use App\Jobs\Util\WebhookHandler;
 use App\Models\Quote;
-use App\Models\Subscription;
+use App\Models\Webhook;
 
 class QuoteObserver
 {
@@ -25,7 +25,7 @@ class QuoteObserver
      */
     public function created(Quote $quote)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_CREATE_QUOTE, $quote);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote);
     }
 
     /**
@@ -36,7 +36,7 @@ class QuoteObserver
      */
     public function updated(Quote $quote)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_UPDATE_QUOTE, $quote);
+        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote);
     }
 
     /**
@@ -47,7 +47,7 @@ class QuoteObserver
      */
     public function deleted(Quote $quote)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_DELETE_QUOTE, $quote);
+        WebhookHandler::dispatch(Webhook::EVENT_DELETE_QUOTE, $quote);
     }
 
     /**

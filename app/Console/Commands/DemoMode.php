@@ -177,36 +177,44 @@ class DemoMode extends Command
             $client = $company->clients->random();
 
             $this->info('creating invoice for client #'.$client->id);
-            $this->createInvoice($client);
+
+            for($y=0; $y<($this->count); $y++){
+                $this->info("creating invoice #{$y} for client #".$client->id);
+                $this->createInvoice($client);
+            }
 
             $client = $company->clients->random();
 
-            $this->info('creating credit for client #'.$client->id);
-            $this->createCredit($client);
+            for($y=0; $y<($this->count); $y++){
+                $this->info("creating credit #{$y} for client #".$client->id);
+                $this->createCredit($client);
+            }
 
             $client = $company->clients->random();
 
-            $this->info('creating quote for client #'.$client->id);
-            $this->createQuote($client);
+            for($y=0; $y<($this->count); $y++){
+                $this->info("creating quote #{$y}  for client #".$client->id);
+                $this->createQuote($client);
+            }
 
             $client = $company->clients->random();
 
-            $this->info('creating expense for client #'.$client->id);
+            $this->info("creating expense for client #".$client->id);
             $this->createExpense($client);
 
             $client = $company->clients->random();
 
-            $this->info('creating vendor for client #'.$client->id);
+            $this->info("creating vendor for client #".$client->id);
             $this->createVendor($client);
 
             $client = $company->clients->random();
 
-            $this->info('creating task for client #'.$client->id);
+            $this->info("creating task for client #".$client->id);
             $this->createTask($client);
 
             $client = $company->clients->random();
 
-            $this->info('creating project for client #'.$client->id);
+            $this->info("creating project for client #".$client->id);
             $this->createProject($client);
         }
 
@@ -307,8 +315,12 @@ class DemoMode extends Command
 
         $invoice = InvoiceFactory::create($client->company->id, $client->user->id);//stub the company and user_id
         $invoice->client_id = $client->id;
-//        $invoice->date = $faker->date();
-        $dateable = Carbon::now()->subDays(rand(0, 90));
+
+        if((bool)rand(0,1))
+            $dateable = Carbon::now()->subDays(rand(0, 90));
+        else
+            $dateable = Carbon::now()->addDays(rand(0, 90));
+
         $invoice->date = $dateable;
 
         $invoice->line_items = $this->buildLineItems(rand(1, 10));
@@ -411,7 +423,13 @@ class DemoMode extends Command
 
         //$quote = QuoteFactory::create($client->company->id, $client->user->id);//stub the company and user_id
         $quote =factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
-        $quote->date = $faker->date();
+
+        if((bool)rand(0,1))
+            $dateable = Carbon::now()->subDays(rand(0, 90));
+        else
+            $dateable = Carbon::now()->addDays(rand(0, 90));
+
+        $quote->date = $dateable;
         $quote->client_id = $client->id;
         
         $quote->setRelation('client', $client);
