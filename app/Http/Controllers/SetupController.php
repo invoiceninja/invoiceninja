@@ -37,9 +37,9 @@ class SetupController extends Controller
      */
     public function index()
     {
-        $check = SystemHealth::check();
+        $check = SystemHealth::check(false);
 
-        if($check['system_health'] == "true" && Schema::hasTable('accounts') && $account = Account::all()->first()) {
+        if($check['system_health'] == true && $check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::all()->first()) {
             return redirect('/');
         }
 
@@ -48,7 +48,7 @@ class SetupController extends Controller
 
     public function doSetup(StoreSetupRequest $request)
     {
-        $check = SystemHealth::check();
+        $check = SystemHealth::check(false);
 
         if ($check['system_health'] === false) {
             info($check);
@@ -144,8 +144,6 @@ class SetupController extends Controller
     public function checkDB(CheckDatabaseRequest $request): Response
     {
         $status = SystemHealth::dbCheck($request);
-
-        info($status);
 
         if (is_array($status) && $status['success'] === true) {
             return response([], 200);
