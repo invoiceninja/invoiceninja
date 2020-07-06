@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyLedger;
+use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Credit;
 use App\Models\Design;
@@ -30,10 +31,13 @@ use App\Models\Quote;
 use App\Models\Task;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Models\Webhook;
 use App\Transformers\CompanyLedgerTransformer;
+use App\Transformers\CompanyTokenTransformer;
 use App\Transformers\CreditTransformer;
 use App\Transformers\PaymentTermTransformer;
 use App\Transformers\TaskTransformer;
+use App\Transformers\WebhookTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -77,6 +81,8 @@ class CompanyTransformer extends EntityTransformer
         'projects',
         'tasks',
         'ledger',
+        'webhooks',
+        'tokens'
     ];
 
 
@@ -123,6 +129,7 @@ class CompanyTransformer extends EntityTransformer
             'google_analytics_key' => (string)$company->google_analytics_key,
             'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates,
             'client_can_register' => (bool) $company->client_can_register,
+            'is_large' => (bool) $company->is_large,
         ];
     }
 
@@ -131,6 +138,20 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new CompanyUserTransformer($this->serializer);
 
         return $this->includeItem($company->company_users->where('user_id', auth()->user()->id)->first(), $transformer, CompanyUser::class);
+    }
+
+    public function includeTokens(Company $company)
+    {
+        $transformer = new CompanyTokenTransformer($this->serializer);
+
+        return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
+    }
+
+    public function includeWebhooks(Company $company)
+    {
+        $transformer = new WebhookTransformer($this->serializer);
+
+        return $this->includeCollection($company->webhooks, $transformer, Webhook::class);
     }
 
     public function includeActivities(Company $company)
