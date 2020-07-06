@@ -9,12 +9,12 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\Subscription;
+namespace App\Http\Requests\Webhook;
 
 use App\Http\Requests\Request;
 use App\Models\Vendor;
 
-class CreateSubscriptionRequest extends Request
+class CreateWebhookRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.

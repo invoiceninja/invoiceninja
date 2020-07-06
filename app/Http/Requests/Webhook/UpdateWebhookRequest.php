@@ -9,13 +9,17 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\Subscription;
+namespace App\Http\Requests\Webhook;
 
 use App\Http\Requests\Request;
+use App\Utils\Traits\ChecksEntityStatus;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
-class DestroySubscriptionRequest extends Request
+class UpdateWebhookRequest extends Request
 {
-
+    use MakesHash;
+    use ChecksEntityStatus;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -25,5 +29,18 @@ class DestroySubscriptionRequest extends Request
     public function authorize() : bool
     {
         return auth()->user()->isAdmin();
+    }
+
+    public function rules()
+    {
+        return [
+        ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+        
+        $this->replace($input);
     }
 }

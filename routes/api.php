@@ -135,8 +135,9 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     /*Subscription and Webhook routes */
     Route::post('hooks', 'SubscriptionController@subscribe')->name('hooks.subscribe');
     Route::delete('hooks/{subscription_id}', 'SubscriptionController@unsubscribe')->name('hooks.unsubscribe');
-    Route::resource('subscriptions', 'SubscriptionController');
-    Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
+
+    Route::resource('webhooks', 'WebhookController');
+    Route::post('webhooks/bulk', 'WebhookController@bulk')->name('webhooks.bulk');
 
     /*Company Ledger */
     Route::get('company_ledger', 'CompanyLedgerController@index')->name('company_ledger.index');

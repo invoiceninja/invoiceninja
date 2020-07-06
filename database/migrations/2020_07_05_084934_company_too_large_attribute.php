@@ -13,9 +13,17 @@ class CompanyTooLargeAttribute extends Migration
      */
     public function up()
     {
+        
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('is_large')->default(0);
         });
+
+        Schema::table('company_tokens', function (Blueprint $table) {
+            $table->boolean('is_system')->default(0);
+        });
+
+        Schema::rename('subscriptions', 'webhooks');
+
     }
 
     /**

@@ -12,9 +12,9 @@
 namespace App\Policies;
 
 /**
- * Class SubscriptionPolicy
+ * Class WebhookPolicy
  * @package App\Policies
  */
-class SubscriptionPolicy extends EntityPolicy
+class WebhookPolicy extends EntityPolicy
 {
 }

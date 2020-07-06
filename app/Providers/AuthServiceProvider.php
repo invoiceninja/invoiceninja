@@ -28,10 +28,10 @@ use App\Models\Product;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
-use App\Models\Subscription;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
+use App\Models\Webhook;
 use App\Policies\ActivityPolicy;
 use App\Policies\ClientPolicy;
 use App\Policies\CompanyGatewayPolicy;
@@ -49,10 +49,10 @@ use App\Policies\ProductPolicy;
 use App\Policies\QuotePolicy;
 use App\Policies\RecurringInvoicePolicy;
 use App\Policies\RecurringQuotePolicy;
-use App\Policies\SubscriptionPolicy;
 use App\Policies\TaxRatePolicy;
 use App\Policies\UserPolicy;
 use App\Policies\VendorPolicy;
+use App\Policies\WebhookPolicy;
 use Auth;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -82,7 +82,7 @@ class AuthServiceProvider extends ServiceProvider
         Quote::class => QuotePolicy::class,
         RecurringInvoice::class => RecurringInvoicePolicy::class,
         RecurringQuote::class => RecurringQuotePolicy::class,
-        Subscription::class => SubscriptionPolicy::class,
+        Webhook::class => WebhookPolicy::class,
         TaxRate::class => TaxRatePolicy::class,
         User::class => UserPolicy::class,
         Vendor::class => VendorPolicy::class,

@@ -11,7 +11,7 @@
 
 namespace App\Filters;
 
-use App\Models\Subscription;
+use App\Models\Webhook;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Gate;
 /**
  * TokenFilters
  */
-class SubscriptionFilters extends QueryFilters
+class WebhookFilters extends QueryFilters
 {
 
     /**
@@ -38,7 +38,7 @@ class SubscriptionFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('subscriptions.target_url', 'like', '%'.$filter.'%');
+            $query->where('webhooks.target_url', 'like', '%'.$filter.'%');
         });
     }
 
@@ -55,7 +55,7 @@ class SubscriptionFilters extends QueryFilters
             return $this->builder;
         }
 
-        $table = 'subscriptions';
+        $table = 'webhooks';
         $filters = explode(',', $filter);
 
         return $this->builder->where(function ($query) use ($filters, $table) {
@@ -102,19 +102,19 @@ class SubscriptionFilters extends QueryFilters
      */
     public function baseQuery(int $company_id, User $user) : Builder
     {
-        $query = DB::table('subscriptions')
-            ->join('companies', 'companies.id', '=', 'subscriptions.company_id')
-            ->where('subscriptions.company_id', '=', $company_id)
+        $query = DB::table('webhooks')
+            ->join('companies', 'companies.id', '=', 'webhooks.company_id')
+            ->where('webhooks.company_id', '=', $company_id)
             //->whereRaw('(designs.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
-                'subscriptions.id',
-                'subscriptions.target_url',
-                'subscriptions.event_id',
-                'subscriptions.created_at',
-                'subscriptions.created_at as token_created_at',
-                'subscriptions.deleted_at',
-                'subscriptions.format',
-                'subscriptions.user_id',
+                'webhooks.id',
+                'webhooks.target_url',
+                'webhooks.event_id',
+                'webhooks.created_at',
+                'webhooks.created_at as token_created_at',
+                'webhooks.deleted_at',
+                'webhooks.format',
+                'webhooks.user_id',
             );
 
 
@@ -122,8 +122,8 @@ class SubscriptionFilters extends QueryFilters
          * If the user does not have permissions to view all invoices
          * limit the user to only the invoices they have created
          */
-        if (Gate::denies('view-list', Subscription::class)) {
-            $query->where('subscriptions.user_id', '=', $user->id);
+        if (Gate::denies('view-list', Webhook::class)) {
+            $query->where('webhooks.user_id', '=', $user->id);
         }
 
 

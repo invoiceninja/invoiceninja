@@ -35,7 +35,7 @@ class Payment extends BaseModel
     use Refundable;
 
     const STATUS_PENDING = 1;
-    const STATUS_VOIDED = 2;
+    const STATUS_CANCELLED = 2;
     const STATUS_FAILED = 3;
     const STATUS_COMPLETED = 4;
     const STATUS_PARTIALLY_REFUNDED = 5;
@@ -167,7 +167,7 @@ class Payment extends BaseModel
             case self::STATUS_PENDING:
                 return '<h6><span class="badge badge-secondary">'.ctrans('texts.payment_status_1').'</span></h6>';
                 break;
-            case self::STATUS_VOIDED:
+            case self::STATUS_CANCELLED:
                 return '<h6><span class="badge badge-warning">'.ctrans('texts.payment_status_2').'</span></h6>';
                 break;
             case self::STATUS_FAILED:
@@ -248,7 +248,7 @@ class Payment extends BaseModel
 
     public function isVoided()
     {
-        return $this->status_id == self::STATUS_VOIDED;
+        return $this->status_id == self::STATUS_CANCELLED;
     }
 
     public function isPartiallyRefunded()
@@ -274,7 +274,7 @@ class Payment extends BaseModel
         }
 
         $this->refunded = $this->amount;
-        $this->status_id = self::STATUS_VOIDED;
+        $this->status_id = self::STATUS_CANCELLED;
         $this->save();
 
         event(new PaymentWasVoided($this));

@@ -11,9 +11,10 @@
 
 namespace App\Observers;
 
-use App\Jobs\Util\SubscriptionHandler;
+use App\Jobs\Util\WebhookHandler;
 use App\Models\Expense;
 use App\Models\Subscription;
+use App\Models\Webhook;
 
 class ExpenseObserver
 {
@@ -25,7 +26,7 @@ class ExpenseObserver
      */
     public function created(Expense $expense)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_CREATE_EXPENSE, $expense);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_EXPENSE, $expense);
     }
 
     /**
@@ -36,7 +37,7 @@ class ExpenseObserver
      */
     public function updated(Expense $expense)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_UPDATE_EXPENSE, $expense);
+        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_EXPENSE, $expense);
     }
 
     /**
@@ -47,7 +48,7 @@ class ExpenseObserver
      */
     public function deleted(Expense $expense)
     {
-        SubscriptionHandler::dispatch(Subscription::EVENT_DELETE_EXPENSE, $expense);
+        WebhookHandler::dispatch(Webhook::EVENT_DELETE_EXPENSE, $expense);
     }
 
     /**

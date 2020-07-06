@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
 
-class SubscriptionHandler implements ShouldQueue
+class WebhookHandler implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -45,7 +45,7 @@ class SubscriptionHandler implements ShouldQueue
 
         //info("i got past the check");
 
-        $subscriptions = Subscription::where('company_id', $this->entity->company_id)
+        $subscriptions = Webhook::where('company_id', $this->entity->company_id)
                                     ->where('event_id', $this->event_id)
                                     ->get();
 

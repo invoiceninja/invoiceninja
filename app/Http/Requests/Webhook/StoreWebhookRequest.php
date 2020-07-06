@@ -9,11 +9,11 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\Subscription;
+namespace App\Http\Requests\Webhook;
 
 use App\Http\Requests\Request;
 
-class StoreSubscriptionRequest extends Request
+class StoreWebhookRequest extends Request
 {
 
     /**
