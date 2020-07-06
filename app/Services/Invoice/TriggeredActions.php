@@ -11,8 +11,11 @@
 
 namespace App\Services\Invoice;
 
+use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
+use App\Helpers\Email\InvoiceEmail;
+use App\Jobs\Invoice\EmailInvoice;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -40,5 +43,36 @@ class TriggeredActions extends AbstractService
     public function run()
     {
         //the request may have buried in it additional actions we should automatically perform on the invoice
+        
+        if($request->has('send_email')) {
+
+        }
+
+        if($request->has('auto_bill')) {
+
+        }
+
+        if($request->has('paid')) {
+
+        }
+    }
+
+    private function sendEmail()
+    {
+
+        $reminder_template = $this->invoice->calculateTemplate();
+
+        $this->invoice->invitations->load('contact.client.country','invoice.client.country','invoice.company')->each(function ($invitation) use($reminder_template){
+
+            $email_builder = (new InvoiceEmail())->build($invitation, $reminder_template);
+
+            EmailInvoice::dispatch($email_builder, $invitation, $this->invoice->company);
+
+        });
+
+        if ($this->invoice->invitations->count() > 0) {
+            event(new InvoiceWasEmailed($this->invoice->invitations->first(), $this->invoice->company));
+        }
+
     }
 }
