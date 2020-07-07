@@ -42,20 +42,17 @@ class TriggeredActions extends AbstractService
 
     public function run()
     {
-        //the request may have buried in it additional actions we should automatically perform on the invoice
-        
-        if($this->request->has('send_email')) {
-
-        }
 
         if($this->request->has('auto_bill')) {
 
         }
-
+        
         if($this->request->has('paid') && (bool)$this->request->input('paid') !== false) {
-
             $this->invoice->service()->markPaid()->save();
+        }
 
+        if($this->request->has('send_email') && (bool)$this->request->input('send_email') !== false) {
+            $this->sendEmail();
         }
 
         return $this->invoice;

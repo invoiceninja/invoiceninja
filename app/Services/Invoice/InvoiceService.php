@@ -16,6 +16,7 @@ use App\Models\Payment;
 use App\Services\Client\ClientService;
 use App\Services\Invoice\ApplyNumber;
 use App\Services\Invoice\ApplyPayment;
+use App\Services\Invoice\AutoBillInvoice;
 use App\Services\Invoice\CreateInvitations;
 use App\Services\Invoice\GetInvoicePdf;
 use App\Services\Invoice\HandleCancellation;
@@ -103,7 +104,6 @@ class InvoiceService
         return $this;
     }
 
-
     public function getInvoicePdf($contact = null)
     {
         return (new GetInvoicePdf($this->invoice, $contact))->run();
@@ -140,6 +140,13 @@ class InvoiceService
     public function triggeredActions($request)
     {
         $this->invoice = (new TriggeredActions($this->invoice, $request))->run();
+
+        return $this;
+    }
+
+    public function autoBill()
+    {
+        $this->invoice = (new AutoBillInvoice($this->invoice))->run();
 
         return $this;
     }

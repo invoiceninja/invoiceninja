@@ -103,15 +103,16 @@ trait CompanyGatewayFeesAndLimitsSaver
         $new_arr = [];
 
         foreach ($fees_and_limits as $key => $value) {
-            $fal = new FeesAndLimits;
+             $fal = new FeesAndLimits;
+            // $fal->{$key} = $value;
 
-            $fal->{$key} = $value;
-            // foreach ($value as $k => $v) {
-            //     $fal->{$k} = $v;
-            //     $fal->{$k} = BaseSettings::castAttribute(FeesAndLimits::$casts[$k], $v);
-            // }
+            foreach ($value as $k => $v) {
 
-//            $new_arr[$key] = (array)$fal;
+                $fal->{$k} = $v;
+                $fal->{$k} = BaseSettings::castAttribute(FeesAndLimits::$casts[$k], $v);
+            }
+
+            $new_arr[$key] = (array)$fal;
         }
 
         return $new_arr;

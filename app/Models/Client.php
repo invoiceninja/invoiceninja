@@ -452,11 +452,17 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         $gateways->filter(function ($method) use ($amount) {
-            if ($method->min_limit !==  null && $amount < $method->min_limit) {
+
+            $fees_and_limits = $method->fees_and_limits;
+
+            if(!$fees_and_limits)
+                return false;
+            
+            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) {
                 return false;
             }
 
-            if ($method->max_limit !== null && $amount > $method->min_limit) {
+            if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->min_limit) {
                 return false;
             }
         });

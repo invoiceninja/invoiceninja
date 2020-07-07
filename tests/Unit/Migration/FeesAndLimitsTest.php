@@ -22,14 +22,17 @@ class FeesAndLimitsTest extends TestCase
 	    $data['max_limit'] = 65317;
 	    $data['fee_amount'] = 0.00;
 	    $data['fee_percent'] = 0.000;
-	    $data['tax_name1'] = '' ;
-	    $data['tax_rate1'] = '';
-	    $data['tax_name2'] = '';
-	    $data['tax_rate2'] = '';
-	    $data['tax_name3'] = '';
-	    $data['tax_rate3'] = 0;
+	    $data['fee_tax_name1'] = '';
+	    $data['fee_tax_rate1'] = '';
+	    $data['fee_tax_name2'] = '';
+	    $data['fee_tax_rate2'] = '';
+	    $data['fee_tax_name3'] = '';
+	    $data['fee_tax_rate3'] = 0;
 
-	    $transformed = $this->cleanFeesAndLimits($data);
+        $fees_and_limits_array = [];
+        $fees_and_limits_array[] = $data;
+
+	    $transformed = $this->cleanFeesAndLimits($fees_and_limits_array);
 
 	    $this->assertTrue(is_array($transformed));
     }
@@ -40,15 +43,16 @@ class FeesAndLimitsTest extends TestCase
         $new_arr = [];
 
         foreach ($fees_and_limits as $key => $value) {
-            $fal = new FeesAndLimits;
+             $fal = new FeesAndLimits;
+            // $fal->{$key} = $value;
 
-			$fal->{$key} = $value;
-            // foreach ($value as $k => $v) {
-            //     $fal->{$k} = $v;
-            //     $fal->{$k} = BaseSettings::castAttribute(FeesAndLimits::$casts[$k], $v);
-            // }
+            foreach ($value as $k => $v) {
 
-//            $new_arr[$key] = (array)$fal;
+                $fal->{$k} = $v;
+                $fal->{$k} = BaseSettings::castAttribute(FeesAndLimits::$casts[$k], $v);
+            }
+
+            $new_arr[$key] = (array)$fal;
         }
 
         return $new_arr;
