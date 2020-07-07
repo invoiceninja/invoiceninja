@@ -84,12 +84,9 @@ class InvoiceRepository extends BaseRepository
             return;
         }
 
-        $invoice->is_deleted = true;
-        $invoice->save();
-
-        $invoice->delete();
-
-        event(new InvoiceWasDeleted($invoice, $invoice->company));
+        $invoice->service()->handleCancellation()->save();
+        
+        $invoice = $this->invoice_repo->delete($invoice);
 
         return $invoice;
     }
