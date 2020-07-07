@@ -457,12 +457,11 @@ class Client extends BaseModel implements HasLocalePreference
                 $fees_and_limits = $method->fees_and_limits->{"1"};
             else
                 return true;
-            
 
             if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) 
                 return false;   
 
-            if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->min_limit) 
+            if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->max_limit) 
                 return false;
 
             return true;
