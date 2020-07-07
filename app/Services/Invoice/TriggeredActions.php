@@ -52,7 +52,9 @@ class TriggeredActions extends AbstractService
 
         }
 
-        if($this->request->has('paid')) {
+        if($this->request->has('paid') && (bool)$this->request->input('paid') !== false) {
+
+            $this->invoice->service()->markPaid()->save();
 
         }
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @OA\Schema(
- *   schema="Subscription",
+ *   schema="Webhook",
  *   type="object",
  *       @OA\Property(property="id", type="string", example="AS3df3A", description="The subscription hashed id"),
  *       @OA\Property(property="event_id", type="string", example="AS3df3A", description="The subscription event id"),
