@@ -76,9 +76,6 @@ class CheckData extends Command
             config(['database.default' => $database]);
         }
 
-        if (! $this->option('client_id')) {
-            $this->checkPaidToDate();
-        }
 
         $this->checkInvoiceBalances();
         $this->checkInvoicePayments();
@@ -286,11 +283,6 @@ class CheckData extends Command
         }
     }
 
-    private function checkPaidToDate()
-    {
-        //Check the client paid to date value matches the sum of payments by the client
-    }
-
     private function checkInvoiceBalances()
     {
 
@@ -327,7 +319,7 @@ class CheckData extends Command
 
            $total_invoice_payments = 0;
 
-            foreach($client->invoices->where('is_deleted', false) as $invoice)
+            foreach($client->invoices as $invoice)
             {
                 $total_amount = $invoice->payments->sum('pivot.amount');
                 $total_refund = $invoice->payments->sum('pivot.refunded');
@@ -357,7 +349,7 @@ class CheckData extends Command
 
         Client::cursor()->each(function ($client) use($wrong_balances){
 
-            $client->invoices->where('is_deleted', false)->each(function ($invoice) use($wrong_balances){
+            $client->invoices->where('is_deleted', false)->each(function ($invoice) use($wrong_balances, $client){
 
                 $total_amount = $invoice->payments->sum('pivot.amount');
                 $total_refund = $invoice->payments->sum('pivot.refunded');
@@ -387,8 +379,8 @@ class CheckData extends Command
 
         foreach(Client::cursor() as $client)
         {
-            $invoice_balance = $client->invoices->where('is_deleted', false)->sum('balance');
-            $invoice_amounts = $client->invoices->where('is_deleted', false)->sum('amount') - $invoice_balance;
+            $invoice_balance = $client->invoices->sum('balance');
+            $invoice_amounts = $client->invoices->sum('amount') - $invoice_balance;
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
