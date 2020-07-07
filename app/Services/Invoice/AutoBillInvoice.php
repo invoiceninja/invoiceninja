@@ -48,14 +48,27 @@ class AutoBillInvoice extends AbstractService
     {
         $gateway_tokens = $this->client->gateway_tokens->orderBy('is_default', 'DESC');
 
-        $gateways->filter(function ($method) use ($amount) {
-            if ($method->min_limit !==  null && $amount < $method->min_limit) {
-                return false;
-            }
+        $billing_gateway_token = null;
 
-            if ($method->max_limit !== null && $amount > $method->min_limit) {
+        $gateway_tokens->filter(function ($token) use ($amount){
+
+            if(isset($token->gateway->fees_and_limits))
+                $fees_and_limits = $token->gateway->fees_and_limits->{"1"};
+            else
+                return true;
+
+            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) 
+                return false;   
+
+            if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->min_limit) 
                 return false;
-            }
-        });
+
+            return true;
+
+        })->all()->first();
+
+
+
     }
+
 }
