@@ -357,7 +357,7 @@ class CheckData extends Command
 
         Client::cursor()->each(function ($client) use($wrong_balances){
 
-            $client->invoices->where('is_deleted', false)->each(function ($invoice) use($wrong_balances){
+            $client->invoices->where('is_deleted', false)->each(function ($invoice) use($wrong_balances, $client){
 
                 $total_amount = $invoice->payments->sum('pivot.amount');
                 $total_refund = $invoice->payments->sum('pivot.refunded');

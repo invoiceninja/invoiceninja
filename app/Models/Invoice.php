@@ -196,7 +196,7 @@ class Invoice extends BaseModel
 
     public function payments()
     {
-        return $this->morphToMany(Payment::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps();
+        return $this->morphToMany(Payment::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps()->withTrashed();
         ;
     }
 
