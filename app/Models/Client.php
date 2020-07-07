@@ -192,7 +192,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function invoices()
     {
-        return $this->hasMany(Invoice::class);
+        return $this->hasMany(Invoice::class)->withTrashed();
     }
 
     public function shipping_country()
