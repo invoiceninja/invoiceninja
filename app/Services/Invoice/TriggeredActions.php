@@ -44,7 +44,7 @@ class TriggeredActions extends AbstractService
     {
 
         if($this->request->has('auto_bill')) {
-
+            $this->invoice->service()->autoBill()->save();
         }
         
         if($this->request->has('paid') && (bool)$this->request->input('paid') !== false) {

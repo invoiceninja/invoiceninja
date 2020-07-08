@@ -193,17 +193,17 @@ trait MakesReminders
             $client->getSetting('schedule_reminder1'),
             $client->getSetting('num_days_reminder1')
         )) {
-            return 'template1';
+            return 'reminder1';
         } elseif ($client->getSetting('enable_reminder2') !== false && $this->inReminderWindow(
             $client->getSetting('schedule_reminder2'),
             $client->getSetting('num_days_reminder2')
         )) {
-            return 'template2';
+            return 'reminder2';
         } elseif ($client->getSetting('enable_reminder3') !== false && $this->inReminderWindow(
             $client->getSetting('schedule_reminder3'),
             $client->getSetting('num_days_reminder3')
         )) {
-            return 'template3';
+            return 'reminder3';
         } else {
             return 'invoice';
         }
