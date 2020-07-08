@@ -48,11 +48,7 @@ class MarkSent extends AbstractService
              ->setDueDate()
              ->save();
 
-        info("marking invoice sent currently client balance = {$this->client->balance}");
-
         $this->client->service()->updateBalance($this->invoice->balance)->save();
-
-        info("after marking invoice sent currently client balance = {$this->client->balance}");
 
         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance);
 

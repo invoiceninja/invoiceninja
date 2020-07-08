@@ -50,7 +50,7 @@ class AutoBillInvoice extends AbstractService
         $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->balance);
 
         if($fee > 0)
-            $this->addFeeToInvoice($fee);
+            $this->purgeStaleGatewayFees()->addFeeToInvoice($fee);
 
         $response = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $amount);
 
@@ -70,8 +70,17 @@ class AutoBillInvoice extends AbstractService
 
     }
 
+    /**
+     * Adds a gateway fee to the invoice
+     * 
+     * @param float $fee The fee amount.
+     */
     private function addFeeToInvoice(float $fee)
     {
+
+    //todo if we increase the invoice balance here, we will also need to adjust UP the client balance and ledger?
+        $starting_amount = $this->invoice->amount;
+
         $item = new InvoiceItem;
         $item->quantity = 1;
         $item->cost = $fee;
@@ -85,6 +94,46 @@ class AutoBillInvoice extends AbstractService
         $this->invoice->save();
 
         $this->invoice = $this->invoice->calc()->getInvoice()->save();
+
+        if($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT){
+            $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
+            $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, 'Invoice balance updated after stale gateway fee removed')->save();
+        }
+        
+        return $this;
+    }
+
+    /**
+     * Removes any existing unpaid gateway fees 
+     * due to previous payment failure.
+     * 
+     * @return $this
+     */
+    private function purgeStaleGatewayFees()
+    {
+        $starting_amount = $this->invoice->amount;
+
+        $line_items = $this->invoice->line_items;
+
+        $new_items = [];
+
+        foreach($line_items as $item)
+        {
+
+          if($item->type_id != 3)
+            $new_items[] = $item;
+          
+        }
+
+        $this->invoice->line_items = $new_items;
+        $this->invoice->save();
+
+        $this->invoice = $this->invoice->calc()->getInvoice()->save();
+
+        if($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT){
+            $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
+            $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, 'Invoice balance updated after stale gateway fee removed')->save();
+        }
 
         return $this;
     }
