@@ -12,7 +12,7 @@
 namespace App\Models;
 
 use App\DataMapper\CompanySettings;
-use App\Events\Company\CompanyWasDeleted;
+use App\Events\Company\CompanyDocumentsDeleted;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\CompanyGateway;
@@ -66,10 +66,6 @@ class Company extends BaseModel
     const ENTITY_RECURRING_QUOTE = 'recurring_quote';
 
     protected $presenter = 'App\Models\Presenters\CompanyPresenter';
-
-    protected $dispatchesEvents = [
-        'deleted' => CompanyWasDeleted::class,
-    ];
 
     protected $fillable = [
         'enabled_item_tax_rates',

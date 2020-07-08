@@ -26,23 +26,24 @@ class PaymentWasEmailedAndFailed
      */
     public $payment;
 
-    /**
-     * @var array
-     */
     public $errors;
 
     public $company;
+
+    public $event_vars;
     /**
      * PaymentWasEmailedAndFailed constructor.
      * @param Payment $payment
      * @param array $errors
      */
-    public function __construct(Payment $payment, $company, array $errors)
+    public function __construct(Payment $payment, $company, array $errors, array $event_vars)
     {
         $this->payment = $payment;
 
         $this->errors = $errors;
 
         $this->company = $company;
+
+        $this->event_vars = $event_vars;
     }
 }

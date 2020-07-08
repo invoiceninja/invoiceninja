@@ -35,15 +35,17 @@ class ContactLoggedIn
 
     public $company;
 
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(ClientContact $client_contact, $company)
+    public function __construct(ClientContact $client_contact, $company, $event_vars)
     {
         $this->client_contact = $client_contact;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 
     /**

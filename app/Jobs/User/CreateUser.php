@@ -16,6 +16,7 @@ use App\DataMapper\DefaultSettings;
 use App\Events\User\UserWasCreated;
 use App\Models\CompanyUser;
 use App\Models\User;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
@@ -77,7 +78,7 @@ class CreateUser
             'settings' => null,
         ]);
         
-        event(new UserWasCreated($user, $this->company));
+        event(new UserWasCreated($user, $this->company, Ninja::eventVars()));
 
         return $user;
     }

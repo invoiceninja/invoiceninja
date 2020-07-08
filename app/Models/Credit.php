@@ -18,6 +18,7 @@ use App\Jobs\Credit\CreateCreditPdf;
 use App\Models\Filterable;
 use App\Services\Credit\CreditService;
 use App\Services\Ledger\LedgerService;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;
@@ -240,10 +241,10 @@ class Credit extends BaseModel
         }
 
         if (!$invitation) {
-           event(new CreditWasUpdated($this, $this->company)); 
+           event(new CreditWasUpdated($this, $this->company, Ninja::eventVars())); 
             CreateCreditPdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
         } else {
-           event(new CreditWasUpdated($this, $this->company)); 
+           event(new CreditWasUpdated($this, $this->company, Ninja::eventVars())); 
             CreateCreditPdf::dispatchNow($invitation->credit, $invitation->company, $invitation->contact);
         }
 

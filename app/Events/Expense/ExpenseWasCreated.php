@@ -11,6 +11,7 @@
 
 namespace App\Events\Expense;
 
+use App\Models\Company;
 use App\Models\Expense;
 use Illuminate\Queue\SerializesModels;
 
@@ -27,14 +28,17 @@ class ExpenseWasCreated
     public $expense;
 
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @param Expense $expense
      */
-    public function __construct(Expense $expense, $company)
+    public function __construct(Expense $expense, Company $company, array $event_vars)
     {
         $this->expense = $expense;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

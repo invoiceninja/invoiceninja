@@ -19,7 +19,7 @@ use App\Events\Client\ClientWasUpdated;
 use App\Events\Client\DesignWasDeleted;
 use App\Events\Client\DesignWasRestored;
 use App\Events\Client\DesignWasUpdated;
-use App\Events\Company\CompanyWasDeleted;
+use App\Events\Company\CompanyDocumentsDeleted;
 use App\Events\Contact\ContactLoggedIn;
 use App\Events\Credit\CreditWasEmailedAndFailed;
 use App\Events\Credit\CreditWasMarkedSent;
@@ -170,7 +170,7 @@ class EventServiceProvider extends ServiceProvider
         InvitationWasViewed::class => [
             InvitationViewedListener::class
         ],
-        CompanyWasDeleted::class => [
+        CompanyDocumentsDeleted::class => [
             DeleteCompanyDocuments::class,
         ],
         QuoteWasApproved::class => [

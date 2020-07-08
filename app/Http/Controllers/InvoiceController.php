@@ -36,6 +36,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
+use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -213,7 +214,7 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        event(new InvoiceWasCreated($invoice, $invoice->company));
+        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
 
         $invoice = $invoice->service()->triggeredActions($request)->save();
         
@@ -393,7 +394,7 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
-        event(new InvoiceWasUpdated($invoice, $invoice->company));
+        event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
 
         return $this->itemResponse($invoice);
     }
@@ -718,7 +719,7 @@ class InvoiceController extends BaseController
                 });
 
                 if ($invoice->invitations->count() > 0) {
-                    event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company));
+                    event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
                 }
 
                 if (!$bulk) {

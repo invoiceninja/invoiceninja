@@ -27,6 +27,7 @@ use App\Models\UserAccount;
 use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\QuoteRepository;
+use App\Utils\Ninja;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -199,7 +200,7 @@ class RandomDataSeeder extends Seeder
             
             $invoice->ledger()->updateInvoiceBalance($invoice->balance);
 
-            event(new InvoiceWasMarkedSent($invoice, $company));
+            event(new InvoiceWasMarkedSent($invoice, $company, Ninja::eventVars()));
 
             if (rand(0, 1)) {
                 $payment = App\Models\Payment::create([
@@ -215,7 +216,7 @@ class RandomDataSeeder extends Seeder
 
                 $payment->invoices()->save($invoice);
 
-                event(new PaymentWasCreated($payment, $payment->company));
+                event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
                 $payment->service()->updateInvoicePayment();
 

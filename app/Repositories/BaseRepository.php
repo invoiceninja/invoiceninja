@@ -19,10 +19,12 @@ use App\Factory\QuoteInvitationFactory;
 use App\Jobs\Product\UpdateOrCreateProduct;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Quote;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use ReflectionClass;
@@ -78,7 +80,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Archived');
 
         if (class_exists($className)) {
-            event(new $className($entity, $entity->company));
+            event(new $className($entity, $entity->company, Ninja::eventVars()));
         }
     }
 
@@ -104,7 +106,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Restored');
 
         if (class_exists($className)) {
-            event(new $className($entity, $fromDeleted, $entity->company));
+            event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars()));
         }
     }
 
@@ -124,8 +126,8 @@ class BaseRepository
 
         $className = $this->getEventClass($entity, 'Deleted');
 
-        if (class_exists($className)) {
-            event(new $className($entity, $entity->company));
+        if (class_exists($className)  && !($entity instanceOf Company)) {
+            event(new $className($entity, $entity->company, Ninja::eventVars()));
         }
     }
 

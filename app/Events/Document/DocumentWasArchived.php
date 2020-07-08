@@ -11,14 +11,15 @@
 
 namespace App\Events\Document;
 
+use App\Models\Company;
 use App\Models\Document;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 /**
  * Class DocumentWasArchived.
@@ -33,15 +34,19 @@ class DocumentWasArchived
     public $document;
 
     public $company;
+
+    public $event_vars;
+
     /**
      * Create a new event instance.
      *
      * @param Document $document
      */
-    public function __construct(Document $document, $company)
+    public function __construct(Document $document, Company $company, array $event_vars)
     {
         $this->document = $document;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 
     /**

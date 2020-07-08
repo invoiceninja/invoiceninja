@@ -18,6 +18,7 @@ use App\Models\Payment;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
+use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 
 class MarkPaid extends AbstractService
@@ -65,7 +66,7 @@ class MarkPaid extends AbstractService
                 ->save();
 
         /* Update Invoice balance */
-        event(new PaymentWasCreated($payment, $payment->company));
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount*-1);

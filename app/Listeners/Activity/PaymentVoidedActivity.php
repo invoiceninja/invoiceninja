@@ -48,7 +48,7 @@ class PaymentVoidedActivity implements ShouldQueue
         $fields->company_id = $event->payment->company_id;
         $fields->activity_type_id = Activity::VOIDED_PAYMENT;
         $fields->payment_id = $event->payment->id;
-        
-        $this->activity_repo->save($fields, $event->client);
+
+        $this->activity_repo->save($fields, $event->client, $event->event_vars);
     }
 }

@@ -14,6 +14,7 @@ namespace App\Http\Middleware;
 use App\Events\User\UserLoggedIn;
 use App\Models\CompanyToken;
 use App\Models\User;
+use App\Utils\Ninja;
 use Closure;
 
 class TokenAuth
@@ -67,7 +68,7 @@ class TokenAuth
             //stateless, don't remember the user.
             auth()->login($user, false);
 
-            event(new UserLoggedIn($user, $company_token->company));
+            event(new UserLoggedIn($user, $company_token->company, Ninja::eventVars()));
         } else {
             $error = [
                 'message' => 'Invalid token',

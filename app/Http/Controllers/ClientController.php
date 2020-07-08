@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\DataMapper\ClientSettings;
+use App\Events\Client\ClientWasCreated;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
 use App\Http\Requests\Client\BulkClientRequest;
@@ -34,6 +35,7 @@ use App\Models\Size;
 use App\Repositories\BaseRepository;
 use App\Repositories\ClientRepository;
 use App\Transformers\ClientTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
@@ -383,6 +385,8 @@ class ClientController extends BaseController
         $client->load('contacts', 'primary_contact');
 
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
+
+        event(new ClientWasCreated($client, $client->company, Ninja::eventVars()));
 
         return $this->itemResponse($client);
     }

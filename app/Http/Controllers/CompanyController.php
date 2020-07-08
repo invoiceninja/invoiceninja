@@ -482,8 +482,7 @@ class CompanyController extends BaseController
             $account->delete();
 
         } else {
-
-
+            
             $company_id = $company->id;
             $company->delete();
 

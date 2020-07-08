@@ -16,6 +16,7 @@ use App\Events\User\UserWasDeleted;
 use App\Factory\CompanyUserFactory;
 use App\Models\CompanyUser;
 use App\Models\User;
+use App\Utils\Ninja;
 use Illuminate\Http\Request;
 
 /**
@@ -112,7 +113,7 @@ class UserRepository extends BaseRepository
 
         $user->delete();
     
-        event(new UserWasDeleted($user, $company));
+        event(new UserWasDeleted($user, $company, Ninja::eventVars()));
 
         return $user->fresh();
     }
@@ -137,7 +138,7 @@ class UserRepository extends BaseRepository
         $user->save();
         $user->delete();
     
-        event(new UserWasDeleted($user, $company));
+        event(new UserWasDeleted($user, $company, Ninja::eventVars()));
 
         return $user->fresh();
     }

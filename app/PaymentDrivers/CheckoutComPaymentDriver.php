@@ -21,6 +21,7 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\CheckoutCom\Utilities;
+use App\Utils\Ninja;
 use App\Utils\Traits\SystemLogTrait;
 use Checkout\CheckoutApi;
 use Checkout\Library\Exceptions\CheckoutHttpException;
@@ -167,7 +168,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
         $payment->service()->updateInvoicePayment();
 
-        event(new PaymentWasCreated($payment, $payment->company));
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         $logger_message = [
             'server_response' => $state['payment_response'],
@@ -199,7 +200,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
         $payment->service()->updateInvoicePayment();
 
-        event(new PaymentWasCreated($payment, $payment->company));
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         $logger_message = [
             'server_response' => $state['payment_response'],

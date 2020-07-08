@@ -29,15 +29,18 @@ class InvitationWasViewed
     public $entity;
 
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @param Invoice $invoice
      */
-    public function __construct($entity, $invitation, $company)
+    public function __construct($entity, $invitation, $company, $event_vars)
     {
         $this->entity = $entity;
         $this->invitation = $invitation;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

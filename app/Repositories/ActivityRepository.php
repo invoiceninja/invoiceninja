@@ -15,6 +15,7 @@ use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
+use App\Models\CompanyToken;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Utils\Traits\MakesInvoiceHtml;
@@ -32,19 +33,23 @@ class ActivityRepository extends BaseRepository
      * @param      stdClass  $fields  The fields
      * @param      Collection  $entity  The entity that you wish to have backed up (typically Invoice, Quote etc etc rather than Payment)
      */
-    public function save($fields, $entity, $db = null)
+    public function save($fields, $entity, $event_vars)
     {
         if($db)
             MultiDB::setDB($db);
 
         $activity = new Activity();
 
-        $activity->is_system = app()->runningInConsole();
-        $activity->ip = request()->getClientIp();
-
         foreach ($fields as $key => $value) {
             $activity->{$key} = $value;
         }
+
+        if($token_id = $this->getTokenId($event_vars)){
+            $fields->token_id = $token_id;
+        }
+
+        $fields->ip = $event_vars['ip'];
+        $fields->is_system = $event_vars['is_system'];
 
         $activity->save();
 
@@ -84,5 +89,22 @@ class ActivityRepository extends BaseRepository
         $backup->activity_id = $activity->id;
         $backup->json_backup = $entity->toJson();
         $backup->save();
+    }
+
+    public function getTokenId(array $event_vars)
+    {
+
+        if($event_vars['token'])
+        {
+
+            $company_token = CompanyToken::whereRaw("BINARY `token`= ?", [$event_vars['token']])->first();
+
+            if($company_token)
+                return $company_token->id;
+            
+        }
+
+        return false;
+
     }
 }

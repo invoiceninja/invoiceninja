@@ -11,7 +11,6 @@
 
 namespace App\Observers;
 
-use App\Events\Client\ClientWasCreated;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Client;
 use App\Models\Webhook;
@@ -26,8 +25,6 @@ class ClientObserver
      */
     public function created(Client $client)
     {
-        event(new ClientWasCreated($client, $client->company));
-
         WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client);
     }
 

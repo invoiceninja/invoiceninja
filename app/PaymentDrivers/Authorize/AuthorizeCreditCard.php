@@ -24,6 +24,7 @@ use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
 use App\PaymentDrivers\Authorize\ChargePaymentProfile;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 
@@ -137,7 +138,7 @@ class AuthorizeCreditCard
 
         $payment->service()->updateInvoicePayment();
 
-        event(new PaymentWasCreated($payment, $payment->company));
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         $logger_message = [
             'server_response' => $response->getTransactionResponse()->getTransId(),

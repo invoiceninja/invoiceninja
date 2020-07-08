@@ -20,6 +20,7 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Omnipay\Common\Item;
 
@@ -167,7 +168,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         $payment->service()->UpdateInvoicePayment();
 
-        event(new PaymentWasCreated($payment, $payment->company));
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }

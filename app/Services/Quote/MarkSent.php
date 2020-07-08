@@ -14,6 +14,7 @@ namespace App\Services\Quote;
 
 use App\Events\Quote\QuoteWasMarkedSent;
 use App\Models\Quote;
+use App\Utils\Ninja;
 
 class MarkSent
 {
@@ -37,7 +38,7 @@ class MarkSent
 
         $this->quote->markInvitationsSent();
 
-        event(new QuoteWasMarkedSent($this->quote, $this->quote->company));
+        event(new QuoteWasMarkedSent($this->quote, $this->quote->company, Ninja::eventVars()));
 
         $this->quote
              ->service()

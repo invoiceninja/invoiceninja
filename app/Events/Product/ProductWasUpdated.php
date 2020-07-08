@@ -23,22 +23,18 @@ class ProductWasUpdated
      */
     public $product;
 
-    /**
-     * @var array
-     **/
-    public $input;
-
     public $company;
 
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Product $product, $input = null, $company)
+    public function __construct(Product $product, Company $company, array $event_vars)
     {
         $this->product = $product;
-        $this->input = $input;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

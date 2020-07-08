@@ -12,6 +12,7 @@ use App\Models\Country;
 use App\Models\Product;
 use App\Models\User;
 use App\Repositories\InvoiceRepository;
+use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
@@ -362,7 +363,7 @@ class DemoMode extends Command
 
         }
         //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
-        event(new InvoiceWasCreated($invoice, $invoice->company));
+        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
     }
 
     private function createCredit($client)

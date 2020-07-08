@@ -11,6 +11,7 @@
 
 namespace App\Events\Payment;
 
+use App\Models\Company;
 use App\Models\Payment;
 use Illuminate\Queue\SerializesModels;
 
@@ -29,16 +30,19 @@ class PaymentWasRefunded
     public $refund_amount;
 
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @param Payment $payment
      * @param $refund_amount
      */
-    public function __construct(Payment $payment, $refund_amount, $company)
+    public function __construct(Payment $payment, float $refund_amount, Company $company, array $event_vars)
     {
         $this->payment = $payment;
         $this->refund_amount = $refund_amount;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

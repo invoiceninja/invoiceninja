@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Events\Credit;
 
@@ -17,12 +26,16 @@ class CreditWasEmailedAndFailed
     
     public $company;
     
-    public function __construct(Credit $credit, $company, array $errors)
+    public $event_vars;
+
+    public function __construct(Credit $credit, $company, array $errors, array $event_vars)
     {
         $this->credit = $credit;
         
         $this->company = $company;
 
         $this->errors = $errors;
+
+        $this->event_vars = $event_vars;
     }
 }

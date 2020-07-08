@@ -20,6 +20,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\CreditRepository;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
@@ -149,7 +150,7 @@ class PaymentRepository extends BaseRepository
             }
         }
 
-        event(new PaymentWasCreated($payment, $payment->company));
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         $invoice_totals -= $credit_totals;
 

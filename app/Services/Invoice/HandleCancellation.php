@@ -24,6 +24,7 @@ use App\Models\Paymentable;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
+use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 
 class HandleCancellation extends AbstractService
@@ -57,7 +58,7 @@ class HandleCancellation extends AbstractService
         //adjust client balance
         $this->invoice->client->service()->updateBalance($adjustment)->save();
     
-        event(new InvoiceWasCancelled($this->invoice, $this->invoice->company));
+        event(new InvoiceWasCancelled($this->invoice, $this->invoice->company, Ninja::eventVars()));
         
 
         return $this->invoice;

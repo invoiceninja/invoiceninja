@@ -11,6 +11,7 @@
 
 namespace App\Events\Design;
 
+use App\Models\Company;
 use App\Models\Design;
 use Illuminate\Queue\SerializesModels;
 
@@ -27,18 +28,21 @@ class DesignWasUpdated
     public $design;
 
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @param Design $design
      */
-    public function __construct(Design $design, $company)
+    public function __construct(Design $design, Company $company, array $event_vars)
     {
         $this->design = $design;
 
         $this->company = $company;
-    }
 
+        $this->event_vars = $event_vars;
+    }
     /**
      * Get the channels the event should broadcast on.
      *

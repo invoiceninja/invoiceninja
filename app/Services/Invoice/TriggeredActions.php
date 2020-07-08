@@ -22,6 +22,7 @@ use App\Models\Payment;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
+use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Http\Request;
 
@@ -72,7 +73,7 @@ class TriggeredActions extends AbstractService
         });
 
         if ($this->invoice->invitations->count() > 0) {
-            event(new InvoiceWasEmailed($this->invoice->invitations->first(), $this->invoice->company));
+            event(new InvoiceWasEmailed($this->invoice->invitations->first(), $this->invoice->company, Ninja::eventVars()));
         }
 
     }

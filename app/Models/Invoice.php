@@ -26,6 +26,7 @@ use App\Models\Filterable;
 use App\Models\PaymentTerm;
 use App\Services\Invoice\InvoiceService;
 use App\Services\Ledger\LedgerService;
+use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\Archivable;
 use App\Utils\Traits\InvoiceEmailBuilder;
@@ -404,7 +405,7 @@ class Invoice extends BaseModel
         $storage_path = Storage::url($this->client->invoice_filepath() . $this->number . '.pdf');
 
         if (!Storage::exists($this->client->invoice_filepath() . $this->number . '.pdf')) {
-            event(new InvoiceWasUpdated($this, $this->company));
+            event(new InvoiceWasUpdated($this, $this->company, Ninja::eventVars()));
             CreateInvoicePdf::dispatchNow($invitation);
         }
 

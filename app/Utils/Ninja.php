@@ -112,4 +112,13 @@ class Ninja
         curl_exec($ch);
         curl_close($ch);
     }
+
+    public static function eventVars()
+    {
+        return [
+            'ip' => request()->getClientIp(),
+            'token' => request()->header('X-API-TOKEN'),
+            'is_system' => app()->runningInConsole(),
+        ];
+    }
 }

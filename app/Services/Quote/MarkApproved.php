@@ -14,6 +14,7 @@ namespace App\Services\Quote;
 
 use App\Events\Quote\QuoteWasMarkedApproved;
 use App\Models\Quote;
+use App\Utils\Ninja;
 
 class MarkApproved
 {
@@ -33,7 +34,7 @@ class MarkApproved
 
         $quote->service()->setStatus(Quote::STATUS_APPROVED)->applyNumber()->save();
 
-        event(new QuoteWasMarkedApproved($quote, $quote->company));
+        event(new QuoteWasMarkedApproved($quote, $quote->company, Ninja::eventVars()));
 
         return $quote;
     }

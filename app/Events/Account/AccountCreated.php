@@ -33,15 +33,18 @@ class AccountCreated
     public $user;
 
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($user, $company)
+    public function __construct($user, $company, $event_vars)
     {
         $this->user = $user;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 
     /**
