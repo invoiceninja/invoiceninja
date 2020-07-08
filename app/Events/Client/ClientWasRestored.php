@@ -27,14 +27,19 @@ class ClientWasRestored
     public $client;
 
     public $company;
+
+    public $event_vars;
+
     /**
      * Create a new event instance.
      *
      * @param Client $client
      */
-    public function __construct(Client $client, Company $company)
+    public function __construct(Client $client, Company $company, array $event_vars)
     {
         $this->client = $client;
         $this->company = $company;
+        $this->event_vars = $event_vars;
+
     }
 }

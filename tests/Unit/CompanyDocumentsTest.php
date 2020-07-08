@@ -32,7 +32,6 @@ class CompanyDocumentsTest extends TestCase
     {
         $company_key = $this->company->company_key;
 
-
         $original_count = Document::whereCompanyId($this->company->id)->count();
 
         $image = UploadedFile::fake()->image('avatar.jpg');

@@ -14,6 +14,7 @@ namespace App\Http\Controllers\Auth;
 use App\Events\Contact\ContactLoggedIn;
 use App\Http\Controllers\Controller;
 use App\Models\ClientContact;
+use App\Utils\Ninja;
 use Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -63,7 +64,7 @@ class ContactLoginController extends Controller
     {
         Auth::guard('contact')->login($client, true);
 
-        event(new ContactLoggedIn($client, $client->company));
+        event(new ContactLoggedIn($client, $client->company, Ninja::eventVars()));
 
         if (session()->get('url.intended')) {
             return redirect(session()->get('url.intended'));

@@ -11,9 +11,11 @@
 
 namespace Tests;
 
+use App\DataMapper\BaseSettings;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
+use App\DataMapper\FeesAndLimits;
 use App\Factory\ClientFactory;
 use App\Factory\CompanyUserFactory;
 use App\Factory\CreditFactory;
@@ -32,6 +34,7 @@ use App\Models\InvoiceInvitation;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\User;
+use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
@@ -341,6 +344,19 @@ trait MockAccountData
         $gs->save();
 
         if (config('ninja.testvars.stripe')) {
+
+            $data = [];
+            $data[1]['min_limit'] = 234;
+            $data[1]['max_limit'] = 65317;
+            $data[1]['fee_amount'] = 0.00;
+            $data[1]['fee_percent'] = 0.000;
+            $data[1]['fee_tax_name1'] = '';
+            $data[1]['fee_tax_rate1'] = '';
+            $data[1]['fee_tax_name2'] = '';
+            $data[1]['fee_tax_rate2'] = '';
+            $data[1]['fee_tax_name3'] = '';
+            $data[1]['fee_tax_rate3'] = 0;
+
             $cg = new CompanyGateway;
             $cg->company_id = $this->company->id;
             $cg->user_id = $this->user->id;
@@ -350,8 +366,8 @@ trait MockAccountData
             $cg->show_shipping_address = true;
             $cg->update_details = true;
             $cg->config = encrypt(config('ninja.testvars.stripe'));
+            $cg->fees_and_limits = $data;
             $cg->save();
-
 
             $cg = new CompanyGateway;
             $cg->company_id = $this->company->id;
@@ -361,10 +377,13 @@ trait MockAccountData
             $cg->show_billing_address = true;
             $cg->show_shipping_address = true;
             $cg->update_details = true;
+            $cg->fees_and_limits = $data;
             $cg->config = encrypt(config('ninja.testvars.stripe'));
             $cg->save();
+
         }
     }
+
 
 
     private function buildLineItems()
@@ -376,46 +395,6 @@ trait MockAccountData
         $item->cost =10;
 
         $line_items[] = $item;
-
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
-        // $line_items[] = $item;
 
         return $line_items;
     }

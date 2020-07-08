@@ -9,32 +9,31 @@
  * @license https://opensource.org/licenses/AAL
  */
 
+namespace App\Events\Product;
 
-namespace App\Events\Credit;
-
-use App\Models\Company;
-use App\Models\Credit;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Foundation\Events\Dispatchable;
+use App\Models\Product;
 use Illuminate\Queue\SerializesModels;
 
-class CreditWasCreated
+class ProductWasArchived
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use SerializesModels;
 
-    public $credit;
+    /**
+     * @var Product
+     */
+    public $product;
 
     public $company;
-    
+
     public $event_vars;
     /**
      * Create a new event instance.
      *
-     * @param Credit $credit
+     * @return void
      */
-    public function __construct(Credit $credit, Company $company, array $event_vars)
+    public function __construct(Product $product, Company $company, array $event_vars)
     {
-        $this->credit = $credit;
+        $this->product = $product;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }

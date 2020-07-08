@@ -11,6 +11,7 @@
 
 namespace App\Events\Payment;
 
+use App\Models\Company;
 use App\Models\Payment;
 use Illuminate\Queue\SerializesModels;
 
@@ -27,16 +28,18 @@ class PaymentWasRestored
     public $payment;
     public $fromDeleted;
     public $company;
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @param Payment $payment
      * @param $fromDeleted
      */
-    public function __construct(Payment $payment, $fromDeleted, $company)
+    public function __construct(Payment $payment, $fromDeleted, Company $company, array $event_vars)
     {
         $this->payment = $payment;
         $this->fromDeleted = $fromDeleted;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

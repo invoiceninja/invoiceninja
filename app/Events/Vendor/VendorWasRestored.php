@@ -11,6 +11,7 @@
 
 namespace App\Events\Vendor;
 
+use App\Models\Company;
 use App\Models\Vendor;
 use Illuminate\Queue\SerializesModels;
 
@@ -27,14 +28,18 @@ class VendorWasRestored
     public $vendor;
 
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @param Vendor $vendor
      */
-    public function __construct(Vendor $vendor, $company)
+    public function __construct(Vendor $vendor, Company $company, array $event_vars)
     {
         $this->vendor = $vendor;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
+    
 }

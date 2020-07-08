@@ -23,19 +23,22 @@ class PaymentWasCreated
     use SerializesModels;
 
     /**
-     * @var array $payment
+     * @var Payment
      */
     public $payment;
 
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @param Payment $payment
      */
-    public function __construct(Payment $payment, Company $company)
+    public function __construct(Payment $payment, Company $company, array $event_vars)
     {
         $this->payment = $payment;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

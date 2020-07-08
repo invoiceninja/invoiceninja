@@ -19,6 +19,7 @@ use App\Models\Filterable;
 use App\Models\Paymentable;
 use App\Services\Ledger\LedgerService;
 use App\Services\Payment\PaymentService;
+use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -240,7 +241,7 @@ class Payment extends BaseModel
             $this->status_id = $this->refunded == $this->amount ? self::STATUS_REFUNDED : self::STATUS_PARTIALLY_REFUNDED;
             $this->save();
 
-            event(new PaymentWasRefunded($this, $refund_change));
+            event(new PaymentWasRefunded($this, $refund_change, $this->company, Ninja::eventVars()));
         }
 
         return true;
@@ -277,6 +278,6 @@ class Payment extends BaseModel
         $this->status_id = self::STATUS_CANCELLED;
         $this->save();
 
-        event(new PaymentWasVoided($this));
+        event(new PaymentWasVoided($this, $this->company, Ninja::eventVars()));
     }
 }

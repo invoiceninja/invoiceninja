@@ -12,6 +12,7 @@
 namespace App\Repositories;
 
 use App\Models\Document;
+use App\Utils\Ninja;
 
 /**
  * Class for document repository.
@@ -44,7 +45,7 @@ class DocumentRepository extends BaseRepository
         $document->restore();
 
         if (class_exists($className)) {
-            event(new $className($document));
+            event(new $className($document, $document->company, Ninja::eventVars()));
         }
     }
 }

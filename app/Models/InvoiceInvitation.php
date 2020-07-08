@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\Invoice;
+use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -134,7 +135,7 @@ class InvoiceInvitation extends BaseModel
         $storage_path = Storage::url($this->invoice->client->invoice_filepath() . $this->invoice->number . '.pdf');
 
         if (!Storage::exists($this->invoice->client->invoice_filepath() . $this->invoice->number . '.pdf')) {
-            event(new InvoiceWasUpdated($this->invoice, $this->company));
+            event(new InvoiceWasUpdated($this->invoice, $this->company, Ninja::eventVars()));
             CreateInvoicePdf::dispatchNow($this);
         }
 

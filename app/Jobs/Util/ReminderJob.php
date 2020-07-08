@@ -18,6 +18,7 @@ use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Invoice;
 use App\Utils\ClientPortal\CustomMessage\invitation;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -74,7 +75,7 @@ class ReminderJob implements ShouldQueue
                 });
 
                 if ($invoice->invitations->count() > 0) {
-                    event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company));
+                    event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
                 }
 
             } else {

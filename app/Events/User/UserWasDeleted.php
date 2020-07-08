@@ -11,13 +11,15 @@
 
 namespace App\Events\User;
 
+use App\Models\Company;
+use App\Models\User;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 /**
  * Class UserWasDeleted
@@ -32,20 +34,19 @@ class UserWasDeleted
      */
     public $user;
 
-    /**
-     *  @var $company
-     */
-    
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($user, $company)
+    public function __construct(User $user, Company $company, array $event_vars)
     {
         $this->user = $user;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 
     /**

@@ -22,6 +22,7 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
+use App\Utils\Ninja;
 use Stripe\PaymentMethod;
 
 class CreditCard
@@ -184,7 +185,7 @@ class CreditCard
 
         $payment->service()->updateInvoicePayment();
 
-        event(new PaymentWasCreated($payment, $payment->company));
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         $logger_message = [
             'server_response' => $state['payment_intent'],

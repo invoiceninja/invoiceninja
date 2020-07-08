@@ -22,6 +22,7 @@ use App\Models\Payment;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
+use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Http\Request;
 
@@ -42,18 +43,17 @@ class TriggeredActions extends AbstractService
 
     public function run()
     {
-        //the request may have buried in it additional actions we should automatically perform on the invoice
-        
-        if($this->request->has('send_email')) {
-
-        }
 
         if($this->request->has('auto_bill')) {
-
+            $this->invoice->service()->autoBill()->save();
+        }
+        
+        if($this->request->has('paid') && (bool)$this->request->input('paid') !== false) {
+            $this->invoice->service()->markPaid()->save();
         }
 
-        if($this->request->has('paid')) {
-
+        if($this->request->has('send_email') && (bool)$this->request->input('send_email') !== false) {
+            $this->sendEmail();
         }
 
         return $this->invoice;
@@ -73,7 +73,7 @@ class TriggeredActions extends AbstractService
         });
 
         if ($this->invoice->invitations->count() > 0) {
-            event(new InvoiceWasEmailed($this->invoice->invitations->first(), $this->invoice->company));
+            event(new InvoiceWasEmailed($this->invoice->invitations->first(), $this->invoice->company, Ninja::eventVars()));
         }
 
     }

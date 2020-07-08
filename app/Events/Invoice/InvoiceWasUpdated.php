@@ -28,14 +28,17 @@ class InvoiceWasUpdated
     public $invoice;
 
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @param Invoice $invoice
      */
-    public function __construct(Invoice $invoice, Company $company)
+    public function __construct(Invoice $invoice, Company $company, array $event_vars)
     {
         $this->invoice = $invoice;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

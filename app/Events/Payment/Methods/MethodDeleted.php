@@ -1,8 +1,18 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Events\Payment\Methods;
 
 use App\Models\ClientGatewayToken;
+use App\Models\Company;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -21,15 +31,18 @@ class MethodDeleted
     private $payment_method;
 
     public $company;
+    
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @param ClientGatewayToken $payment_method
      */
-    public function __construct(ClientGatewayToken $payment_method, $company)
+    public function __construct(ClientGatewayToken $payment_method, Company $company, array $event_vars)
     {
         $this->payment_method = $payment_method;
         $this->company = $company;
+        $this->event_vars  = $event_vars;
     }
 
     /**

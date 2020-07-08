@@ -14,6 +14,7 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Events\Misc\InvitationWasViewed;
 use App\Http\Controllers\Controller;
 use App\Models\InvoiceInvitation;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -47,7 +48,7 @@ class InvitationController extends Controller
             if (!request()->has('silent')) {
                 $invitation->markViewed();
 
-                event(new InvitationWasViewed($entity, $invitation, $entity->company));
+                event(new InvitationWasViewed($entity, $invitation, $entity->company, Ninja::eventVars()));
             }
 
             return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);

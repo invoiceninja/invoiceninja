@@ -48,6 +48,6 @@ class CreatedClientActivity implements ShouldQueue
         $fields->company_id = $event->client->company_id;
         $fields->activity_type_id = Activity::CREATE_CLIENT;
 
-        $this->activity_repo->save($fields, $event->client);
+        $this->activity_repo->save($fields, $event->client, $event->event_vars);
     }
 }

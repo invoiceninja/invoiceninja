@@ -22,6 +22,7 @@ use App\Models\Client;
 use App\Models\Credit;
 use App\Repositories\CreditRepository;
 use App\Transformers\CreditTransformer;
+use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 
@@ -191,7 +192,7 @@ class CreditController extends BaseController
 
         $credit = StoreCredit::dispatchNow($credit, $request->all(), $credit->company);
 
-        event(new CreditWasCreated($credit, $credit->company));
+        event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars()));
 
         return $this->itemResponse($credit);
     }
@@ -369,7 +370,7 @@ class CreditController extends BaseController
 
         $credit = $this->credit_repository->save($request->all(), $credit);
 
-        event(new CreditWasUpdated($credit, $credit->company));
+        event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars()));
 
         return $this->itemResponse($credit);
     }

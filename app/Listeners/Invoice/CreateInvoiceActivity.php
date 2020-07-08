@@ -51,6 +51,6 @@ class CreateInvoiceActivity implements ShouldQueue
         $fields->company_id = $event->invoice->company_id;
         $fields->activity_type_id = Activity::CREATE_INVOICE;
 
-        $this->activity_repo->save($fields, $event->invoice, $event->invoice->company->db);
+        $this->activity_repo->save($fields, $event->invoice, $event->event_vars);
     }
 }

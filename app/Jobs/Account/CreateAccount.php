@@ -72,7 +72,7 @@ class CreateAccount
         $sp2d97e8 = CreateCompanyToken::dispatchNow($sp035a66, $spaa9f78, $spafe62e);
 
         if ($spaa9f78) {
-            event(new AccountCreated($spaa9f78, $sp035a66));
+            event(new AccountCreated($spaa9f78, $sp035a66, Ninja::eventVars()));
         }
         
         $spaa9f78->fresh();

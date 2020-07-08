@@ -19,6 +19,7 @@ use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -135,7 +136,7 @@ class PaymentMethodController extends Controller
     public function destroy(ClientGatewayToken $payment_method)
     {
         try {
-            event(new MethodDeleted($payment_method, auth('contact')->user()->company));
+            event(new MethodDeleted($payment_method, auth('contact')->user()->company, Ninja::eventVars()));
             $payment_method->delete();
         } catch (\Exception $e) {
             Log::error(json_encode($e));

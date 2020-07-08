@@ -18,6 +18,7 @@ use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Quote\CreateQuotePdf;
 use App\Models\Filterable;
 use App\Services\Quote\QuoteService;
+use App\Utils\Ninja;
 use App\Utils\Traits\Archivable;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -197,7 +198,7 @@ class Quote extends BaseModel
             return $storage_path;
         }
 
-        event(new QuoteWasUpdated($this, $this->company)); 
+        event(new QuoteWasUpdated($this, $this->company, Ninja::eventVars())); 
         
         CreateQuotePdf::dispatchNow($invitation);
 

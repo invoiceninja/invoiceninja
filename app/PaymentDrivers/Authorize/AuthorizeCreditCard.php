@@ -24,6 +24,7 @@ use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
 use App\PaymentDrivers\Authorize\ChargePaymentProfile;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 
@@ -99,10 +100,13 @@ class AuthorizeCreditCard
         return $this->handleResponse($data, $request);
     }
 
-    private function handleResponse($data, $request)
+    private function tokenBilling($cgt, $amount, $invoice)
     {
-        //info(print_r( $response->getTransactionResponse()->getMessages(),1));
-        
+
+    }
+    
+    private function handleResponse($data, $request)
+    {        
         $response = $data['response'];
 
         if($response != null && $response->getMessages()->getResultCode() == "Ok")
@@ -134,7 +138,7 @@ class AuthorizeCreditCard
 
         $payment->service()->updateInvoicePayment();
 
-        event(new PaymentWasCreated($payment, $payment->company));
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         $logger_message = [
             'server_response' => $response->getTransactionResponse()->getTransId(),

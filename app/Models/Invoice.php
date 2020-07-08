@@ -26,6 +26,7 @@ use App\Models\Filterable;
 use App\Models\PaymentTerm;
 use App\Services\Invoice\InvoiceService;
 use App\Services\Ledger\LedgerService;
+use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\Archivable;
 use App\Utils\Traits\InvoiceEmailBuilder;
@@ -268,7 +269,9 @@ class Invoice extends BaseModel
 
     public function isPayable(): bool
     {
-        if ($this->status_id == Invoice::STATUS_SENT && $this->is_deleted == false) {
+        if($this->status_id == Invoice::STATUS_DRAFT && $this->is_deleted == false){
+            return true;
+        }else if ($this->status_id == Invoice::STATUS_SENT && $this->is_deleted == false) {
             return true;
         } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->is_deleted == false) {
             return true;
@@ -402,7 +405,7 @@ class Invoice extends BaseModel
         $storage_path = Storage::url($this->client->invoice_filepath() . $this->number . '.pdf');
 
         if (!Storage::exists($this->client->invoice_filepath() . $this->number . '.pdf')) {
-            event(new InvoiceWasUpdated($this, $this->company));
+            event(new InvoiceWasUpdated($this, $this->company, Ninja::eventVars()));
             CreateInvoicePdf::dispatchNow($invitation);
         }
 

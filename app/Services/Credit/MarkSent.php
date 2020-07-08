@@ -14,6 +14,7 @@ namespace App\Services\Credit;
 
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Models\Credit;
+use App\Utils\Ninja;
 
 class MarkSent
 {
@@ -37,7 +38,7 @@ class MarkSent
 
         $this->credit->markInvitationsSent();
 
-        event(new CreditWasMarkedSent($this->credit, $this->credit->company));
+        event(new CreditWasMarkedSent($this->credit, $this->credit->company, Ninja::eventVars()));
 
         $this->credit
              ->service()

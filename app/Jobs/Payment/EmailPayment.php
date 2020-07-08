@@ -13,6 +13,7 @@ use App\Mail\TemplateEmail;
 use App\Models\Company;
 use App\Models\Payment;
 use App\Models\SystemLog;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -57,13 +58,13 @@ class EmailPayment implements ShouldQueue
                 ->send(new TemplateEmail($this->email_builder, $this->contact->user, $this->contact->customer));
 
             if (count(Mail::failures()) > 0) {
-                event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures()));
+                event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures(), Ninja::eventVars()));
 
                 return $this->logMailError(Mail::failures());
             }
 
             //fire any events
-            event(new PaymentWasEmailed($this->payment));
+            event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars()));
 
             //sleep(5);
         }

@@ -8,6 +8,7 @@ use App\Http\Requests\ClientPortal\ProcessQuotesInBulkRequest;
 use App\Http\Requests\ClientPortal\ShowQuoteRequest;
 use App\Models\Company;
 use App\Models\Quote;
+use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use ZipStream\Option\Archive;
@@ -108,7 +109,7 @@ class QuoteController extends Controller
         if ($process) {
             foreach ($quotes as $quote) {
                 $quote->service()->approve()->save();
-                event(new QuoteWasApproved($quote));
+                event(new QuoteWasApproved($quote, $quote->company, Ninja::eventVars()));
             }
 
             return route('client.quotes.index')->withSuccess('Quote(s) approved successfully.');

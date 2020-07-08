@@ -1,4 +1,14 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
 namespace App\Events\Quote;
 
 use App\Models\Company;
@@ -11,21 +21,21 @@ use Illuminate\Queue\SerializesModels;
 class QuoteWasMarkedApproved
 {
     use SerializesModels;
-    /**
-     * @var Quote
-     */
+
     public $quote;
 
     public $company;
 
+    public $event_vars;
     /**
-     * QuoteWasMarkedApproved constructor.
-     * @param Quote $quote
-     * @param Company $company
+     * Create a new event instance.
+     *
+     * @return void
      */
-    public function __construct(Quote $quote, Company $company)
+    public function __construct(Quote $quote, Company $company, array $event_vars)
     {
         $this->quote = $quote;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

@@ -448,22 +448,29 @@ class Client extends BaseModel implements HasLocalePreference
         if ($company_gateways) {
             $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways); //this will never hit
         } else {
-            $gateways = $this->company->company_gateways;
+            $gateways = $this->company->company_gateways->where('is_deleted', false);
         }
 
-        $gateways->filter(function ($method) use ($amount) {
-            if ($method->min_limit !==  null && $amount < $method->min_limit) {
-                return false;
-            }
+        $valid_gateways = $gateways->filter(function ($method) use ($amount) {
 
-            if ($method->max_limit !== null && $amount > $method->min_limit) {
+            if(isset($method->fees_and_limits))
+                $fees_and_limits = $method->fees_and_limits->{"1"};
+            else
+                return true;
+
+            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) 
+                return false;   
+
+            if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->max_limit) 
                 return false;
-            }
-        });
+
+            return true;
+
+        })->all();
 
         $payment_methods = [];
 
-        foreach ($gateways as $gateway) {
+        foreach ($valid_gateways as $gateway) {
             foreach ($gateway->driver($this)->gatewayTypes() as $type) {
                 $payment_methods[] = [$gateway->id => $type];
             }

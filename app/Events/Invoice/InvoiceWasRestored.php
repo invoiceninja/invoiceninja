@@ -11,6 +11,7 @@
 
 namespace App\Events\Invoice;
 
+use App\Models\Company;
 use App\Models\Invoice;
 use Illuminate\Queue\SerializesModels;
 
@@ -29,16 +30,19 @@ class InvoiceWasRestored
     public $fromDeleted;
 
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @param Invoice $invoice
      * @param $fromDeleted
      */
-    public function __construct(Invoice $invoice, $fromDeleted, $company)
+    public function __construct(Invoice $invoice, $fromDeleted, Company $company, array $event_vars)
     {
         $this->invoice = $invoice;
         $this->fromDeleted = $fromDeleted;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

@@ -21,6 +21,7 @@ use App\Models\Client;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\Product;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -111,13 +112,13 @@ class CreateTestInvoiceJob implements ShouldQueue
 
             $payment->invoices()->save($invoice);
 
-            event(new PaymentWasCreated($payment, $payment->company));
+            event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
             $payment->service()->updateInvoicePayment();
             //UpdateInvoicePayment::dispatchNow($payment, $payment->company);
         }
         //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
-        event(new InvoiceWasCreated($invoice, $invoice->company));
+        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
     }
 
 

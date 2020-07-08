@@ -11,6 +11,7 @@
 
 namespace App\Events\Product;
 
+use App\Models\Company;
 use App\Models\Product;
 use Illuminate\Queue\SerializesModels;
 
@@ -24,14 +25,17 @@ class ProductWasDeleted
     public $product;
 
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Product $product, $company)
+    public function __construct(Product $product, Company $company, array $event_vars)
     {
         $this->product = $product;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

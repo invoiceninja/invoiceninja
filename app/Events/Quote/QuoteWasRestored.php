@@ -11,6 +11,7 @@
 
 namespace App\Events\Quote;
 
+use App\Models\Company;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -19,17 +20,21 @@ use Illuminate\Queue\SerializesModels;
 class QuoteWasRestored
 {
     use SerializesModels;
+
     public $quote;
 
     public $company;
+
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Quote $quote, $company)
+    public function __construct(Quote $quote, Company $company, array $event_vars)
     {
         $this->quote = $quote;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

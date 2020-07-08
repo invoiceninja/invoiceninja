@@ -21,6 +21,7 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
+use App\Utils\Ninja;
 
 class Alipay
 {
@@ -87,7 +88,7 @@ class Alipay
             $this->stripe->attachInvoices($payment, $state['hashed_ids']);
         }
 
-        event(new PaymentWasCreated($payment, $payment->company));
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         $logger_message = [
             'server_response' => $state,

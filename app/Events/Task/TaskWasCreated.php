@@ -11,6 +11,7 @@
 
 namespace App\Events\Task;
 
+use App\Models\Company;
 use App\Models\Task;
 use Illuminate\Queue\SerializesModels;
 
@@ -20,7 +21,7 @@ use Illuminate\Queue\SerializesModels;
 class TaskWasCreated
 {
     use SerializesModels;
-
+    
     /**
      * @var Task
      */
@@ -28,14 +29,16 @@ class TaskWasCreated
 
     public $company;
 
+    public $event_vars;
     /**
      * Create a new event instance.
      *
      * @param Task $task
      */
-    public function __construct(Task $task, $company)
+    public function __construct(Task $task, Company $company, array $event_vars)
     {
         $this->task = $task;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

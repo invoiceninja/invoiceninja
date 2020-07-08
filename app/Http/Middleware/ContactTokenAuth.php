@@ -15,6 +15,7 @@ use App\Events\Contact\ContactLoggedIn;
 use App\Models\ClientContact;
 use App\Models\CompanyToken;
 use App\Models\User;
+use App\Utils\Ninja;
 use Closure;
 
 class ContactTokenAuth
@@ -53,7 +54,7 @@ class ContactTokenAuth
             //stateless, don't remember the contact.
             auth()->guard('contact')->login($client_contact, false);
             
-            event(new ContactLoggedIn($client_contact, $client_contact->company)); //todo
+            event(new ContactLoggedIn($client_contact, $client_contact->company, Ninja::eventVars())); //todo
         } else {
             $error = [
                 'message' => 'Invalid token',

@@ -24,6 +24,7 @@ use App\Models\Paymentable;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
+use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 
 class HandleReversal extends AbstractService
@@ -109,7 +110,7 @@ class HandleReversal extends AbstractService
             ->updatePaidToDate($total_paid*-1)
             ->save();
 
-        event(new InvoiceWasReversed($this->invoice, $this->invoice->company));
+        event(new InvoiceWasReversed($this->invoice, $this->invoice->company, Ninja::eventVars()));
         
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )

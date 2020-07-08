@@ -11,6 +11,7 @@
 
 namespace App\Events\Document;
 
+use App\Models\Company;
 use App\Models\Document;
 use Illuminate\Queue\SerializesModels;
 
@@ -27,14 +28,18 @@ class DocumentWasUpdated
     public $document;
 
     public $company;
+
+    public $event_vars;
+
     /**
      * Create a new event instance.
      *
      * @param Document $document
      */
-    public function __construct(Document $document, $company)
+    public function __construct(Document $document, Company $company, array $event_vars)
     {
         $this->document = $document;
         $this->company = $company;
+        $this->event_vars = $event_vars;
     }
 }

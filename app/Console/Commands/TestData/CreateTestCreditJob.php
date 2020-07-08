@@ -22,6 +22,7 @@ use App\Models\Client;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\Product;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -92,7 +93,7 @@ class CreateTestCreditJob implements ShouldQueue
 
         $credit->save();
 
-        event(new CreateCreditInvitation($credit));
+        event(new CreateCreditInvitation($credit, $credit->company, Ninja::eventVars()));
     }
 
 

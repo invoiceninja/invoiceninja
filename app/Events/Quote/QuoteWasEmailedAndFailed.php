@@ -11,6 +11,7 @@
 
 namespace App\Events\Quote;
 
+use App\Models\Company;
 use App\Models\Quote;
 use Illuminate\Queue\SerializesModels;
 
@@ -28,22 +29,22 @@ class QuoteWasEmailedAndFailed
 
     public $company;
 
-    /**
-     * @var array
-     */
     public $errors;
 
+    public $event_vars;
     /**
      * QuoteWasEmailedAndFailed constructor.
      * @param Quote $quote
      * @param array $errors
      */
-    public function __construct(Quote $quote, array $errors, $company)
+    public function __construct(Quote $quote, array $errors, Company $company, array $event_vars)
     {
         $this->quote = $quote;
 
         $this->errors = $errors;
 
         $this->company = $company;
+
+        $this->event_vars = $event_vars;
     }
 }

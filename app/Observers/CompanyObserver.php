@@ -11,7 +11,9 @@
 
 namespace App\Observers;
 
+use App\Events\Company\CompanyDocumentsDeleted;
 use App\Models\Company;
+use App\Utils\Ninja;
 
 class CompanyObserver
 {
@@ -45,7 +47,7 @@ class CompanyObserver
      */
     public function deleted(Company $company)
     {
-        //
+        event(new CompanyDocumentsDeleted($company));
     }
 
     /**

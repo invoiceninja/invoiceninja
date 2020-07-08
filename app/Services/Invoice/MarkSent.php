@@ -14,6 +14,7 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Models\Invoice;
 use App\Services\AbstractService;
+use App\Utils\Ninja;
 
 class MarkSent extends AbstractService
 {
@@ -39,7 +40,7 @@ class MarkSent extends AbstractService
 
         $this->invoice->setReminder();
 
-        event(new InvoiceWasMarkedSent($this->invoice, $this->invoice->company));
+        event(new InvoiceWasMarkedSent($this->invoice, $this->invoice->company, Ninja::eventVars()));
 
         $this->invoice
              ->service()
@@ -48,11 +49,7 @@ class MarkSent extends AbstractService
              ->setDueDate()
              ->save();
 
-        info("marking invoice sent currently client balance = {$this->client->balance}");
-
         $this->client->service()->updateBalance($this->invoice->balance)->save();
-
-        info("after marking invoice sent currently client balance = {$this->client->balance}");
 
         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance);
 
