@@ -99,10 +99,13 @@ class AuthorizeCreditCard
         return $this->handleResponse($data, $request);
     }
 
-    private function handleResponse($data, $request)
+    private function tokenBilling($cgt, $amount, $invoice)
     {
-        //info(print_r( $response->getTransactionResponse()->getMessages(),1));
-        
+
+    }
+    
+    private function handleResponse($data, $request)
+    {        
         $response = $data['response'];
 
         if($response != null && $response->getMessages()->getResultCode() == "Ok")

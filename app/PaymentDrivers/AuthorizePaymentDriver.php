@@ -17,6 +17,7 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
+use App\PaymentDrivers\Authorize\ChargePaymentProfile;
 use App\PaymentDrivers\Authorize\RefundTransaction;
 use net\authorize\api\constants\ANetEnvironment;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
@@ -137,6 +138,11 @@ class AuthorizePaymentDriver extends BaseDriver
                                  ->first();
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, float $amount) {}
+    public function tokenBilling(ClientGatewayToken $cgt, float $amount, ?Invoice $invoice = null) 
+    {
+        $this->setPaymentMethod($cgt->gateway_type_id);
+
+        $this->payment_method->tokenBilling($cgt, $amount, $invoice);
+    }
 
 }

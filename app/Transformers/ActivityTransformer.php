@@ -48,6 +48,7 @@ class ActivityTransformer extends EntityTransformer
             'is_system' => (bool) $activity->is_system,
             'contact_id' => $activity->contact_id ? (string) $this->encodePrimaryKey($activity->contact_id) : '',
             'task_id' => $activity->task_id ? (string) $this->encodePrimaryKey($activity->task_id) : '',
+            'token_id' => $activity->token_id ? (string) $this->encodePrimaryKey($activity->token_id) : '',
             'notes' => $activity->notes ? (string) $activity->notes : '',
             'ip' => (string) $activity->ip,
 

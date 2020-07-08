@@ -52,7 +52,7 @@ class AutoBillInvoice extends AbstractService
         if($fee > 0)
             $this->purgeStaleGatewayFees()->addFeeToInvoice($fee);
 
-        $response = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $amount);
+        $response = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $amount, $this->invoice);
 
         //if response was successful, toggle the fee type_id to paid
     }
@@ -99,7 +99,7 @@ class AutoBillInvoice extends AbstractService
             $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
             $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, 'Invoice balance updated after stale gateway fee removed')->save();
         }
-        
+
         return $this;
     }
 

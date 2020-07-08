@@ -123,9 +123,10 @@ class BaseDriver extends AbstractPaymentDriver
     /**
      * Process an unattended payment
      * 
-     * @param  ClientGatewayToken $cgt    the client gateway token object
-     * @param  float              $amount the amount to bill
-     * @return Response           The payment response
+     * @param  ClientGatewayToken $cgt      The client gateway token object
+     * @param  float              $amount   The amount to bill
+     * @param  Invoice            $invoice  Optional Invoice object being paid
+     * @return Response                     The payment response
      */
-    public function tokenBilling(ClientGatewayToken $cgt, float $amount) {}
+    public function tokenBilling(ClientGatewayToken $cgt, float $amount, ?Invoice $invoice = null) {}
 }
