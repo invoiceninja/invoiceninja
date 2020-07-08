@@ -46,29 +46,47 @@ class AutoBillInvoice extends AbstractService
 
     private function getGateway($amount)
     {
+        
         $gateway_tokens = $this->client->gateway_tokens->orderBy('is_default', 'DESC');
 
         $billing_gateway_token = null;
 
         $gateway_tokens->filter(function ($token) use ($amount){
 
-            if(isset($token->gateway->fees_and_limits))
-                $fees_and_limits = $token->gateway->fees_and_limits->{"1"};
-            else
-                return true;
-
-            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) 
-                return false;   
-
-            if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->min_limit) 
-                return false;
-
-            return true;
+            return $this->validGatewayLimits($token, $amount);
 
         })->all()->first();
 
+    }
 
+    /**
+     * Checks whether a given gateway token is able
+     * to process the payment after passing through the
+     * fees and limits check
+     *     
+     * @param  CompanyGateway $cg     The CompanyGateway instance
+     * @param  float          $amount The amount to be paid
+     * @return bool
+     */
+    public function validGatewayLimits($cg, $amount) : bool
+    {
+        if(isset($cg->fees_and_limits))
+            $fees_and_limits = $cg->fees_and_limits->{"1"};
+        else
+            $passes = true;
 
+        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) {
+            info("amount {$amount} less than ". $fees_and_limits->min_limit);
+            $passes = false;   
+        }
+        else if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->max_limit){ 
+            info("amount {$amount} greater than ". $fees_and_limits->max_limit);
+            $passes = false;
+        }
+        else
+            $passes = true;
+
+        return $passes;
     }
 
 }

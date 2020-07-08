@@ -23,7 +23,9 @@ class CompanyGatewayTest extends TestCase
         
         $this->makeTestData();
 
-
+        if (!config('ninja.testvars.stripe')) {
+            $this->markTestSkipped('Skip test no company gateways installed');
+        }
     }
 
     public function testGatewayExists()
@@ -67,59 +69,36 @@ class CompanyGatewayTest extends TestCase
         //confirm amount filtering works
             $amount = 100;
 
-            if(isset($cg->fees_and_limits))
-                $fees_and_limits = $cg->fees_and_limits->{"1"};
-            else
-                $passes = true;
-
-            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) 
-                $passes = false;   
-            else if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->max_limit) 
-                $passes = false;
-            else
-                $passes = true;
-
-            $this->assertFalse($passes);
+            $this->assertFalse($this->checkSieve($cg, $amount));
 
             $amount = 235;
 
-            if(isset($cg->fees_and_limits))
-                $fees_and_limits = $cg->fees_and_limits->{"1"};
-            else
-                $passes = true;
-
-            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) {
-                info("amount {$amount} less than ". $fees_and_limits->min_limit);
-                $passes = false;   
-            }
-            else if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->max_limit){ 
-                info("amount {$amount} greater than ". $fees_and_limits->max_limit);
-                $passes = false;
-            }
-            else
-                $passes = true;
-
-            $this->assertTrue($passes);
+            $this->assertTrue($this->checkSieve($cg, $amount));
 
             $amount = 70000;
 
-            if(isset($cg->fees_and_limits))
-                $fees_and_limits = $cg->fees_and_limits->{"1"};
-            else
-                $passes = true;
+            $this->assertFalse($this->checkSieve($cg, $amount));
 
-            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) {
-                info("amount {$amount} less than ". $fees_and_limits->min_limit);
-                $passes = false;   
-            }
-            else if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->max_limit){ 
-                info("amount {$amount} greater than ". $fees_and_limits->max_limit);
-                $passes = false;
-            }
-            else
-                $passes = true;
+    }
 
-            $this->assertFalse($passes);
+    public function checkSieve($cg, $amount)
+    {
+        if(isset($cg->fees_and_limits))
+            $fees_and_limits = $cg->fees_and_limits->{"1"};
+        else
+            $passes = true;
 
+        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) {
+            info("amount {$amount} less than ". $fees_and_limits->min_limit);
+            $passes = false;   
+        }
+        else if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->max_limit){ 
+            info("amount {$amount} greater than ". $fees_and_limits->max_limit);
+            $passes = false;
+        }
+        else
+            $passes = true;
+
+        return $passes;
     }
 }
