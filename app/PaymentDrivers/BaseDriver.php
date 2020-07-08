@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers;
 
 use App\Models\Client;
+use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -48,6 +49,7 @@ class BaseDriver extends AbstractPaymentDriver
     /* The client */
     public $client;
 
+    /* The initiated gateway driver class*/
     public $payment_method;
 
     public static $methods = [];
@@ -117,4 +119,13 @@ class BaseDriver extends AbstractPaymentDriver
 
         return $payment;
     }
+
+    /**
+     * Process an unattended payment
+     * 
+     * @param  ClientGatewayToken $cgt    the client gateway token object
+     * @param  float              $amount the amount to bill
+     * @return Response           The payment response
+     */
+    public function tokenBilling(ClientGatewayToken $cgt, float $amount) {}
 }

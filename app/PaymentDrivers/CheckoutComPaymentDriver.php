@@ -311,4 +311,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
             ];
         }
     }
+
+    public function tokenBilling(ClientGatewayToken $cgt, float $amount) {}
+
 }

@@ -366,5 +366,7 @@ class StripePaymentDriver extends BasePaymentDriver
         return response([], 200);
     }
 
-    /************************************** Omnipay API methods **********************************************************/
+    public function tokenBilling(ClientGatewayToken $cgt, float $amount) {}
+
+
 }

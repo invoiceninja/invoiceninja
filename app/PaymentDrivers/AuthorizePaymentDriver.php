@@ -136,4 +136,7 @@ class AuthorizePaymentDriver extends BaseDriver
                                  ->where('company_gateway_id', $this->company_gateway->id)
                                  ->first();
     }
+
+    public function tokenBilling(ClientGatewayToken $cgt, float $amount) {}
+
 }

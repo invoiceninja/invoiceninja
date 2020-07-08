@@ -11,6 +11,7 @@
 
 namespace App\Services\Invoice;
 
+use App\DataMapper\InvoiceItem;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Models\Client;
@@ -38,25 +39,54 @@ class AutoBillInvoice extends AbstractService
     public function run()
     {
 
-        if(!$invoice->isPayable())
-            return $invoice;
+        if(!$this->invoice->isPayable())
+            return $this->invoice;
 
+        if($this->invoice->balance > 0)
+            $gateway_token = $this->getGateway($this->invoice->balance);
+        else
+            return $this->invoice->service()->markPaid()->save();
 
+        $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->balance);
+
+        if($fee > 0)
+            $this->addFeeToInvoice($fee);
+
+        $response = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $amount);
+
+        //if response was successful, toggle the fee type_id to paid
     }
 
     private function getGateway($amount)
     {
-        
-        $gateway_tokens = $this->client->gateway_tokens->orderBy('is_default', 'DESC');
 
-        $billing_gateway_token = null;
+        $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC');
 
-        $gateway_tokens->filter(function ($token) use ($amount){
+        return $gateway_tokens->filter(function ($token) use ($amount){
 
             return $this->validGatewayLimits($token, $amount);
 
         })->all()->first();
 
+    }
+
+    private function addFeeToInvoice(float $fee)
+    {
+        $item = new InvoiceItem;
+        $item->quantity = 1;
+        $item->cost = $fee;
+        $item->notes = ctrans('texts.online_payment_surcharge');
+        $item->type_id = 3;
+
+        $items = (array)$this->invoice->line_items;
+        $items[] = $item;
+
+        $this->invoice->line_items = $items;
+        $this->invoice->save();
+
+        $this->invoice = $this->invoice->calc()->getInvoice()->save();
+
+        return $this;
     }
 
     /**
