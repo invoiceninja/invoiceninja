@@ -35,8 +35,6 @@ class ActivityRepository extends BaseRepository
      */
     public function save($fields, $entity, $event_vars)
     {
-        if($db)
-            MultiDB::setDB($db);
 
         $activity = new Activity();
 
