@@ -59,7 +59,7 @@ class PaymentCreatedActivity implements ShouldQueue
 
             InvoiceWorkflowSettings::dispatchNow($invoice);
 
-            $this->activity_repo->save($fields, $invoice);
+            $this->activity_repo->save($fields, $invoice, $event->event_vars);
         }
 
         if (count($invoices) == 0) {
