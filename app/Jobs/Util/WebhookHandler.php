@@ -64,7 +64,7 @@ class WebhookHandler implements ShouldQueue
         // generate JSON data
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());
-        $manager->parseIncludes($include);
+       // $manager->parseIncludes($include);
 
         $transformer = new $this->getTransformerClassName();
 

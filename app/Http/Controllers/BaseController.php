@@ -130,6 +130,51 @@ class BaseController extends Controller
         return response()->make($error, $httpErrorCode, $headers);
     }
 
+    protected function refreshResponse($query)
+    {
+        $this->buildManager();
+
+        $transformer = new $this->entity_transformer(Input::get('serializer'));
+
+        $includes = $transformer->getDefaultIncludes();
+
+        $includes = $this->getRequestIncludes($includes);
+
+        $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
+        $updated_at = date('Y-m-d H:i:s', $updated_at);
+
+        $query->with(
+        [
+        'company' => function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.activities' => function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.clients' =>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.tax_rates'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.groups'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.company_gateways'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.clients.contacts'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.products'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.invoices.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.invoices.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.invoices.documents'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.payments.paymentables'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.quotes.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.quotes.documents'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.credits.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.credits'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.payment_terms'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.vendors'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.expenses'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.tasks'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.projects'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.designs'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        ]
+        );
+
+        $data = $this->createCollection($query, $transformer, $this->entity_type);
+
+        return $this->response($data);
+    }
+
     protected function listResponse($query)
     {
         $this->buildManager();
