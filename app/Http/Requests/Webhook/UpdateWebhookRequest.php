@@ -34,6 +34,7 @@ class UpdateWebhookRequest extends Request
     public function rules()
     {
         return [
+            'target_url' => 'url',
         ];
     }
 

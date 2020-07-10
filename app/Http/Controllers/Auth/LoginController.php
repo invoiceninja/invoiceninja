@@ -243,7 +243,7 @@ class LoginController extends BaseController
     public function refresh(Request $request)
     {
         $ct = CompanyUser::whereUserId(auth()->user()->id);
-        return $this->listResponse($ct);
+        return $this->refreshResponse($ct);
     }
 
     /**
