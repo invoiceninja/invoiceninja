@@ -43,10 +43,9 @@ class AutoBillInvoice extends AbstractService
             return $this->invoice;
 
         if($this->invoice->balance > 0)
-            $gateway_token = $this->getGateway($this->invoice->balance);
-      
-        // else
-        //     return $this->invoice->service()->markPaid()->save();
+            $gateway_token = $this->getGateway($this->invoice->balance);      
+        else
+            return $this->invoice->service()->markPaid()->save();
 
         if(!$gateway_token)
             return $this->invoice;
@@ -80,12 +79,6 @@ class AutoBillInvoice extends AbstractService
             if($this->validGatewayLimits($gateway_token, $amount))
                 return $gateway_token;
         }
-
-        // return collect($gateway_tokens)->filter(function ($token) use ($amount){
-
-        //       return $this->validGatewayLimits($token, $amount);
-
-        // })->first();
 
     }
 

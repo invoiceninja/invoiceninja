@@ -16,6 +16,10 @@ class AddTokenIdToActivityTable extends Migration
         Schema::table('activities', function (Blueprint $table) {
             $table->unsignedInteger('token_id')->nullable();
         });
+
+        Schema::table('tax_rates', function (Blueprint $table) {
+            $table->boolean('is_deleted')->default(0);
+        });
     }
 
     /**

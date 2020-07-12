@@ -12,13 +12,14 @@
 namespace App\Http\Controllers;
 
 use App\Factory\TaxRateFactory;
+use App\Http\Requests\TaxRate\CreateTaxRateRequest;
 use App\Http\Requests\TaxRate\DestroyTaxRateRequest;
 use App\Http\Requests\TaxRate\EditTaxRateRequest;
 use App\Http\Requests\TaxRate\ShowTaxRateRequest;
 use App\Http\Requests\TaxRate\StoreTaxRateRequest;
 use App\Http\Requests\TaxRate\UpdateTaxRateRequest;
-use App\Http\Requests\TaxRate\CreateTaxRateRequest;
 use App\Models\TaxRate;
+use App\Repositories\BaseRepository;
 use App\Transformers\TaxRateTransformer;
 use Illuminate\Http\Request;
 
@@ -32,9 +33,13 @@ class TaxRateController extends BaseController
 
     protected $entity_transformer = TaxRateTransformer::class;
 
-    public function __construct()
+    protected $base_repo;
+
+    public function __construct(BaseRepository $base_repo)
     {
         parent::__construct();
+
+        $this->base_repo = $base_repo;
     }
     
     /**
@@ -354,8 +359,82 @@ class TaxRateController extends BaseController
      */
     public function destroy(DestroyTaxRateRequest $request, TaxRate $tax_rate)
     {
+        $tax_rate->is_deleted = true;
+        $tax_rate->save();
         $tax_rate->delete();
 
-        return response()->json([], 200);
+        return $this->itemResponse($tax_rate);
     }
+
+
+    /**
+     * Perform bulk actions on the list view
+     *
+     * @param BulkTaxRateRequest $request
+     * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/tax_rates/bulk",
+     *      operationId="bulkTaxRates",
+     *      tags={"tax_rates"},
+     *      summary="Performs bulk actions on an array of TaxRates",
+     *      description="",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\RequestBody(
+     *         description="Tax Rates",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="integer",
+     *                     description="Array of hashed IDs to be bulk 'actioned",
+     *                     example="[0,1,2,3]",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The TaxRate List response",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Webhook"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function bulk()
+    {
+        $action = request()->input('action');
+
+        $ids = request()->input('ids');
+
+        $tax_rate = TaxRate::withTrashed()->find($this->transformKeys($ids));
+
+
+        $tax_rate->each(function ($tax_rat, $key) use ($action) {
+            if (auth()->user()->can('edit', $tax_rate)) {
+                $this->base_repo->{$action}($tax_rate);
+            }
+        });
+
+        return $this->listResponse(TaxRate::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+    }
+
 }

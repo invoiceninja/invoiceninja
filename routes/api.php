@@ -117,6 +117,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('group_settings/bulk', 'GroupSettingController@bulk');
 
     Route::resource('tax_rates', 'TaxRateController');// name = (tasks. index / create / show / update / destroy / edit
+    Route::post('tax_rates/bulk', 'TaxRateController@bulk')->name('tax_rates.bulk');
 
     Route::post('refresh', 'Auth\LoginController@refresh');
 
