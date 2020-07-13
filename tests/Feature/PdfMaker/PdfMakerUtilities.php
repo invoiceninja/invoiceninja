@@ -34,6 +34,23 @@ trait PdfMakerUtilities
         return $this->document->getElementById($selector);
     }
 
+    public function updateElementProperties(array $elements)
+    {
+        foreach ($elements as $element) {
+            $node = $this->document->getElementById($element['id']);
+
+            if (isset($element['properties'])) {
+                foreach ($element['properties'] as $property => $value) {
+                    $this->updateElementProperty($element['id'], $property, $value);
+                }
+            }
+
+            if (isset($element['elements'])) {
+                $this->createElementContent($node, $element['elements']);
+            }
+        }
+    }
+
     public function updateElementProperty(string $element, string $attribute, string $value)
     {
         $element = $this->document->getElementById($element);
@@ -44,9 +61,19 @@ trait PdfMakerUtilities
             return $element;
         }
 
-        info('Setting element property failed.');
-
         return $element;
+    }
+
+    public function createElementContent($element, $children)
+    {
+        foreach ($children as $child) {
+            $_child = $this->document->createElement($child['element'], $child['content']);
+            $element->appendChild($_child);
+            
+            if (isset($child['elements'])) {
+                $this->createElementContent($_child, $child['elements']);
+            }
+        }
     }
 
     public function updateVariables(array $variables)
@@ -63,8 +90,6 @@ trait PdfMakerUtilities
         $element = $this->document->getElementById($element);
 
         $original = $element->nodeValue;
-
-        info([$variable => $value]);
 
         $element->nodeValue = '';
 

@@ -108,4 +108,43 @@ class PdfMakerTest extends TestCase
         $this->assertStringContainsString('Invoice Ninja', $maker->getCompiledHTML());
         $this->assertStringContainsString('Invoice Ninja', $maker->getSection('header'));
     }
+
+    public function testElementContentIsGenerated()
+    {
+        $state = [
+            'template' => [
+                'product-table' => [
+                    'id' => 'product-table',
+                    'properties' => [],
+                    'elements' => [
+                        ['element' => 'thead', 'content' => '', 'elements' => [
+                            ['element' => 'th', 'content' => 'Company',],
+                            ['element' => 'th', 'content' => 'Contact'],
+                            ['element' => 'th', 'content' => 'Country'],
+                        ]],
+                        ['element' => 'tr', 'content' => '', 'elements' => [
+                            ['element' => 'td', 'content' => '$company'],
+                            ['element' => 'td', 'content' => '$email'],
+                            ['element' => 'td', 'content' => '$country'],
+                        ]],
+                    ],
+                ],
+            ],
+            'variables' => [
+                '$company' => 'Invoice Ninja',
+                '$email' => 'contact@invoiceninja.com',
+                '$country' => 'UK', 
+            ],
+        ];
+
+        $maker = new PdfMaker($state);
+
+        $maker
+            ->design(Business::class)
+            ->build();
+
+        info($maker->getCompiledHTML());
+
+        $this->assertTrue(true);
+    }
 }

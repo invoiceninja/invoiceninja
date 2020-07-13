@@ -32,14 +32,9 @@ class PdfMaker
 
     public function build()
     {
-        $raw = $this->design->html();
+        // $raw = $this->design->html();
 
-        foreach ($this->data['template'] as $element) {
-            foreach ($element['properties'] as $property => $value) {
-                $this->updateElementProperty($element['id'], $property, $value);
-            }
-        }
-
+        $this->updateElementProperties($this->data['template']);
         $this->updateVariables($this->data['variables']);
 
         return $this;
