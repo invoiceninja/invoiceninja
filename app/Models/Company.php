@@ -374,6 +374,11 @@ class Company extends BaseModel
         return $this->hasMany(CompanyToken::class);
     }
 
+    public function tokens_hashed()
+    {
+        return $this->hasMany(CompanyToken::class);
+    }
+
     public function company_users()
     {
         //return $this->hasMany(CompanyUser::class)->withTimestamps();

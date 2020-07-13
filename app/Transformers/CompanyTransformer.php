@@ -33,6 +33,7 @@ use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Webhook;
 use App\Transformers\CompanyLedgerTransformer;
+use App\Transformers\CompanyTokenHashedTransformer;
 use App\Transformers\CompanyTokenTransformer;
 use App\Transformers\CreditTransformer;
 use App\Transformers\PaymentTermTransformer;
@@ -82,7 +83,8 @@ class CompanyTransformer extends EntityTransformer
         'tasks',
         'ledger',
         'webhooks',
-        'tokens'
+        'tokens',
+        'tokens_hashed'
     ];
 
 
@@ -143,6 +145,13 @@ class CompanyTransformer extends EntityTransformer
     public function includeTokens(Company $company)
     {
         $transformer = new CompanyTokenTransformer($this->serializer);
+
+        return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
+    }
+
+    public function includeTokensHashed(Company $company)
+    {
+        $transformer = new CompanyTokenHashedTransformer($this->serializer);
 
         return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
     }
