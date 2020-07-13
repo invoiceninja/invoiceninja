@@ -13,7 +13,7 @@ trait PdfMakerUtilities
 
         $document->validateOnParse = true;
         @$document->loadHTML($this->design->html());
-        
+
         $this->document = $document;
         $this->xpath = new DOMXPath($document);
     }
@@ -49,6 +49,15 @@ trait PdfMakerUtilities
         return $element;
     }
 
+    public function updateVariables(array $variables)
+    {
+        $html = strtr($this->getCompiledHTML(), $variables);
+
+        $this->document->loadHTML($html);
+
+        $this->document->saveHTML();
+    }
+
     public function updateVariable(string $element, string $variable, string $value)
     {
         $element = $this->document->getElementById($element);
@@ -56,7 +65,7 @@ trait PdfMakerUtilities
         $original = $element->nodeValue;
 
         info([$variable => $value]);
-        
+
         $element->nodeValue = '';
 
         $replaced = strtr($original, [$variable => $value]);

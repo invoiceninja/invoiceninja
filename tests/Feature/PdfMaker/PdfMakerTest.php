@@ -95,7 +95,7 @@ class PdfMakerTest extends TestCase
                 ],
             ],
             'variables' => [
-                ['id' => 'header', 'variable' => '$title', 'value' => 'Invoice Ninja'],
+                '$title' => 'Invoice Ninja',
             ],
         ];
 

@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\PdfMaker;
 
-use DOMDocument;
-
 class PdfMaker
 {
     use PdfMakerUtilities;
@@ -42,9 +40,7 @@ class PdfMaker
             }
         }
 
-        foreach ($this->data['variables'] as $entry) {
-            $this->updateVariable($entry['id'], $entry['variable'], $entry['value']);
-        }
+        $this->updateVariables($this->data['variables']);
 
         return $this;
     }
