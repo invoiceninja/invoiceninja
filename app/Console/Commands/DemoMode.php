@@ -7,6 +7,7 @@ use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Util\VersionCheck;
 use App\Models\CompanyToken;
 use App\Models\Country;
 use App\Models\Product;
@@ -77,6 +78,7 @@ class DemoMode extends Command
         $this->info("Seeding Random Data");
         $this->createSmallAccount();
         
+        VersionCheck::dispatchNow();
     }
 
 

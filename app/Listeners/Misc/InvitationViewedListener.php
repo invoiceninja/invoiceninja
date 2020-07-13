@@ -40,9 +40,9 @@ class InvitationViewedListener implements ShouldQueue
      */
     public function handle($event)
     {
-         MultiDB::setDb($event->company->db);
+        MultiDB::setDb($event->company->db);
 
-       $entity_name = $event->entity;
+        $entity_name = lcfirst(class_basename($event->entity));
         $invitation = $event->invitation;
 
         $notification = new EntityViewedNotification($invitation, $entity_name);

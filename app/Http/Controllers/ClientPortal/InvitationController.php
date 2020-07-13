@@ -48,7 +48,7 @@ class InvitationController extends Controller
             if (!request()->has('silent')) {
                 $invitation->markViewed();
 
-                event(new InvitationWasViewed($entity, $invitation, $entity->company, Ninja::eventVars()));
+                event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
             }
 
             return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);

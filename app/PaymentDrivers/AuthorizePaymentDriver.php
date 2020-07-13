@@ -14,6 +14,7 @@ namespace App\PaymentDrivers;
 
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
