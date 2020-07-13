@@ -109,7 +109,22 @@ class AuthorizeCreditCard
             $payment = $this->createPaymentRecord($data, $amount);
 
             $this->authorize->attachInvoices($payment, $invoice->hashed_id);
-            //up to here
+            
+            event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+
+            $vars = [
+                'hashed_ids' => $invoice->hashed_id,
+                'amount' => $amount
+            ];
+
+            $logger_message = [
+                'server_response' => $response->getTransactionResponse()->getTransId(),
+                'data' => $this->formatGatewayResponse($data, $vars)
+            ];
+
+            SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
+
+            
         }
         else {
 
@@ -160,9 +175,14 @@ class AuthorizeCreditCard
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
+        $vars = [
+            'hashed_ids' => $request->input('hashed_ids'),
+            'amount' => $request->input('amount')
+        ];
+
         $logger_message = [
             'server_response' => $response->getTransactionResponse()->getTransId(),
-            'data' => $this->formatGatewayResponse($data, $request)
+            'data' => $this->formatGatewayResponse($data, $vars)
         ];
 
         SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
@@ -176,17 +196,17 @@ class AuthorizeCreditCard
         info(print_r($data,1));
     }
 
-    private function formatGatewayResponse($data, $request)
+    private function formatGatewayResponse($data, $vars)
     {
         $response = $data['response'];
 
         return [
             'transaction_reference' => $response->getTransactionResponse()->getTransId(),
-            'amount' => $request->input('amount'),
+            'amount' => $vars['amount'],
             'auth_code' => $response->getTransactionResponse()->getAuthCode(),
             'code' => $response->getTransactionResponse()->getMessages()[0]->getCode(),
             'description' => $response->getTransactionResponse()->getMessages()[0]->getDescription(),
-            'invoices' => $request->hashed_ids,
+            'invoices' => $vars['hashed_ids'],
 
         ];
     }
