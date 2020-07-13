@@ -59,10 +59,11 @@ class AutoBillInvoice extends AbstractService
             $amount = $this->invoice->balance + $fee;
         }
 
+        /* Make sure we remove any stale fees*/
+        $this->purgeStaleGatewayFees();
+
         if($fee > 0)
-            $this->purgeStaleGatewayFees()->addFeeToInvoice($fee);
-
-
+            $this->addFeeToInvoice($fee);
 
         $response = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $amount, $this->invoice);
 

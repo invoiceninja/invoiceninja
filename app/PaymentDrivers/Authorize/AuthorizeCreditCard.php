@@ -102,6 +102,18 @@ class AuthorizeCreditCard
 
     private function tokenBilling($cgt, $amount, $invoice)
     {
+        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amounts);
+
+        if($data['response'] != null && $data['response']->getMessages()->getResultCode() == "Ok") {
+
+            $payment = $this->createPaymentRecord($data, $amount);
+
+            $this->authorize->attachInvoices($payment, $invoice->hashed_id);
+            //up to here
+        }
+        else {
+
+        }
 
     }
     
@@ -115,10 +127,11 @@ class AuthorizeCreditCard
         return $this->processFailedResponse($data, $request);
     }
 
-    private function processSuccessfulResponse($data, $request)
+    private function createPaymentRecord($data, $amount) :?Payment
     {
+
         $response = $data['response'];
-        //create a payment record and fire notifications and then return 
+        //create a payment record 
 
         $payment = PaymentFactory::create($this->authorize->client->company_id, $this->authorize->client->user_id);
         $payment->client_id = $this->authorize->client->id;
@@ -129,10 +142,17 @@ class AuthorizeCreditCard
         $payment->currency_id = $this->authorize->client->getSetting('currency_id');
         $payment->date = Carbon::now();
         $payment->transaction_reference = $response->getTransactionResponse()->getTransId();
-        $payment->amount = $request->input('amount_with_fee'); 
+        $payment->amount = $amount; 
         $payment->currency_id = $this->authorize->client->getSetting('currency_id');
         $payment->client->getNextPaymentNumber($this->authorize->client);
         $payment->save();
+
+        return $payment;
+    }
+
+    private function processSuccessfulResponse($data, $request)
+    {
+        $payment = $this->createPaymentRecord($data, $request->input('amount_with_fee'));
 
         $this->authorize->attachInvoices($payment, $request->hashed_ids);
 

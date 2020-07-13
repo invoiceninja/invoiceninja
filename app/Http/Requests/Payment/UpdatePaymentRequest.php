@@ -72,17 +72,17 @@ class UpdatePaymentRequest extends Request
             unset($input['amount']);
         }
 
-        if (isset($input['type_id'])) {
-            unset($input['type_id']);
-        }
+        // if (isset($input['type_id'])) {
+        //     unset($input['type_id']);
+        // }
 
-        if (isset($input['date'])) {
-            unset($input['date']);
-        }
+        // if (isset($input['date'])) {
+        //     unset($input['date']);
+        // }
 
-        if (isset($input['transaction_reference'])) {
-            unset($input['transaction_reference']);
-        }
+        // if (isset($input['transaction_reference'])) {
+        //     unset($input['transaction_reference']);
+        // }
 
         if (isset($input['number'])) {
             unset($input['number']);
