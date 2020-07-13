@@ -361,6 +361,10 @@ class DemoMode extends Command
 
             $invoice = $invoice->service()->markPaid()->save();
 
+            $invoice->payments->each(function ($payment){
+                $payment->date = now()->addDays(rand(0,90));
+                $payment->save();
+            });
         }
         //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));

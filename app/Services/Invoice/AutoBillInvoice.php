@@ -50,10 +50,19 @@ class AutoBillInvoice extends AbstractService
         if(!$gateway_token)
             return $this->invoice;
 
-        $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->balance);
+        if($this->invoice->partial){
+            $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->partial);
+            $amount = $this->invoice->partial + $fee;
+        }
+        else{
+            $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->balance);
+            $amount = $this->invoice->balance + $fee;
+        }
 
         if($fee > 0)
             $this->purgeStaleGatewayFees()->addFeeToInvoice($fee);
+
+
 
         $response = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $amount, $this->invoice);
 
