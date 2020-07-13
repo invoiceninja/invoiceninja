@@ -11,7 +11,7 @@ $factory->define(App\Models\Company::class, function (Faker $faker) {
         'db' => config('database.default'),
         'settings' => CompanySettings::defaults(),
         'custom_fields' => (object) [
-            'invoice1' => 'Custom Date|date',
+            //'invoice1' => 'Custom Date|date',
             // 'invoice2' => '2|switch',
             // 'invoice3' => '3|',
             // 'invoice4' => '4',

@@ -76,6 +76,7 @@ class DemoMode extends Command
 
         $this->info("Seeding Random Data");
         $this->createSmallAccount();
+        
     }
 
 

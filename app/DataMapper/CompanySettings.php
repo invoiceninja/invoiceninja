@@ -33,7 +33,7 @@ class CompanySettings extends BaseSettings
     public $enable_client_portal_dashboard  = true; //implemented
     public $signature_on_pdf                = false;
     public $document_email_attachment       = false;
-    //public $send_portal_password            = false;
+    //public $send_portal_password          = false;
 
     public $portal_design_id     		    = '1';
 
