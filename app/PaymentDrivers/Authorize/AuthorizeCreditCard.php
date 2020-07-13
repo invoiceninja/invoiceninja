@@ -102,6 +102,33 @@ class AuthorizeCreditCard
 
     private function tokenBilling($cgt, $amount, $invoice)
     {
+        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amounts);
+
+        if($data['response'] != null && $data['response']->getMessages()->getResultCode() == "Ok") {
+
+            $payment = $this->createPaymentRecord($data, $amount);
+
+            $this->authorize->attachInvoices($payment, $invoice->hashed_id);
+            
+            event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+
+            $vars = [
+                'hashed_ids' => $invoice->hashed_id,
+                'amount' => $amount
+            ];
+
+            $logger_message = [
+                'server_response' => $response->getTransactionResponse()->getTransId(),
+                'data' => $this->formatGatewayResponse($data, $vars)
+            ];
+
+            SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
+
+            
+        }
+        else {
+
+        }
 
     }
     
@@ -115,10 +142,11 @@ class AuthorizeCreditCard
         return $this->processFailedResponse($data, $request);
     }
 
-    private function processSuccessfulResponse($data, $request)
+    private function createPaymentRecord($data, $amount) :?Payment
     {
+
         $response = $data['response'];
-        //create a payment record and fire notifications and then return 
+        //create a payment record 
 
         $payment = PaymentFactory::create($this->authorize->client->company_id, $this->authorize->client->user_id);
         $payment->client_id = $this->authorize->client->id;
@@ -129,10 +157,17 @@ class AuthorizeCreditCard
         $payment->currency_id = $this->authorize->client->getSetting('currency_id');
         $payment->date = Carbon::now();
         $payment->transaction_reference = $response->getTransactionResponse()->getTransId();
-        $payment->amount = $request->input('amount_with_fee'); 
+        $payment->amount = $amount; 
         $payment->currency_id = $this->authorize->client->getSetting('currency_id');
         $payment->client->getNextPaymentNumber($this->authorize->client);
         $payment->save();
+
+        return $payment;
+    }
+
+    private function processSuccessfulResponse($data, $request)
+    {
+        $payment = $this->createPaymentRecord($data, $request->input('amount_with_fee'));
 
         $this->authorize->attachInvoices($payment, $request->hashed_ids);
 
@@ -140,9 +175,14 @@ class AuthorizeCreditCard
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
+        $vars = [
+            'hashed_ids' => $request->input('hashed_ids'),
+            'amount' => $request->input('amount')
+        ];
+
         $logger_message = [
             'server_response' => $response->getTransactionResponse()->getTransId(),
-            'data' => $this->formatGatewayResponse($data, $request)
+            'data' => $this->formatGatewayResponse($data, $vars)
         ];
 
         SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
@@ -156,17 +196,17 @@ class AuthorizeCreditCard
         info(print_r($data,1));
     }
 
-    private function formatGatewayResponse($data, $request)
+    private function formatGatewayResponse($data, $vars)
     {
         $response = $data['response'];
 
         return [
             'transaction_reference' => $response->getTransactionResponse()->getTransId(),
-            'amount' => $request->input('amount'),
+            'amount' => $vars['amount'],
             'auth_code' => $response->getTransactionResponse()->getAuthCode(),
             'code' => $response->getTransactionResponse()->getMessages()[0]->getCode(),
             'description' => $response->getTransactionResponse()->getMessages()[0]->getDescription(),
-            'invoices' => $request->hashed_ids,
+            'invoices' => $vars['hashed_ids'],
 
         ];
     }

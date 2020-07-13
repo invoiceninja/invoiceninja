@@ -106,6 +106,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::resource('companies', 'CompanyController');// name = (companies. index / create / show / update / destroy / edit
     
     Route::resource('tokens', 'TokenController')->middleware('password_protected');// name = (tokens. index / create / show / update / destroy / edit
+    Route::post('tokens/bulk', 'TokenController@bulk')->name('tokens.bulk')->middleware('password_protected');
+
 
     Route::resource('company_gateways', 'CompanyGatewayController');
     
@@ -117,6 +119,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('group_settings/bulk', 'GroupSettingController@bulk');
 
     Route::resource('tax_rates', 'TaxRateController');// name = (tasks. index / create / show / update / destroy / edit
+    Route::post('tax_rates/bulk', 'TaxRateController@bulk')->name('tax_rates.bulk');
 
     Route::post('refresh', 'Auth\LoginController@refresh');
 

@@ -321,6 +321,8 @@ class BaseController extends Controller
           'company.tasks',
           'company.projects',
           'company.designs',
+          'company.webhooks',
+          'company.tokens_hashed'
         ];
 
         $mini_load = [

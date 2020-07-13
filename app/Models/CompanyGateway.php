@@ -254,7 +254,6 @@ class CompanyGateway extends BaseModel
             $fee += $pre_tax_fee * $this->fee_tax_rate2 / 100;
         }
             
-        
         return $fee;
     }
 

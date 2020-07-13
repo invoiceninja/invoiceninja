@@ -43,14 +43,27 @@ class AutoBillInvoice extends AbstractService
             return $this->invoice;
 
         if($this->invoice->balance > 0)
-            $gateway_token = $this->getGateway($this->invoice->balance);
+            $gateway_token = $this->getGateway($this->invoice->balance);      
         else
             return $this->invoice->service()->markPaid()->save();
 
-        $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->balance);
+        if(!$gateway_token)
+            return $this->invoice;
+
+        if($this->invoice->partial){
+            $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->partial);
+            $amount = $this->invoice->partial + $fee;
+        }
+        else{
+            $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->balance);
+            $amount = $this->invoice->balance + $fee;
+        }
+
+        /* Make sure we remove any stale fees*/
+        $this->purgeStaleGatewayFees();
 
         if($fee > 0)
-            $this->purgeStaleGatewayFees()->addFeeToInvoice($fee);
+            $this->addFeeToInvoice($fee);
 
         $response = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $amount, $this->invoice);
 
@@ -60,13 +73,22 @@ class AutoBillInvoice extends AbstractService
     private function getGateway($amount)
     {
 
-        $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC');
+        // $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC');
 
-        return $gateway_tokens->filter(function ($token) use ($amount){
+        // return $gateway_tokens->filter(function ($token) use ($amount){
 
-            return $this->validGatewayLimits($token, $amount);
+        //     return $this->validGatewayLimits($token, $amount);
 
-        })->all()->first();
+        // })->all()->first();
+
+
+        $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC')->get();
+
+        foreach($gateway_tokens as $gateway_token)
+        {
+            if($this->validGatewayLimits($gateway_token, $amount))
+                return $gateway_token;
+        }
 
     }
 
