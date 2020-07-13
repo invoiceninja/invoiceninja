@@ -6,9 +6,14 @@ use Tests\TestCase;
 
 class PdfMakerTest extends TestCase
 {
+    public $state = [
+        'template' => [],
+        'variables' => [],
+    ];
+
     public function testDesignLoadsCorrectly()
     {
-        $maker = new PdfMaker();
+        $maker = new PdfMaker($this->state);
 
         $maker->design(Business::class);
 
@@ -17,18 +22,18 @@ class PdfMakerTest extends TestCase
 
     public function testHtmlDesignLoadsCorrectly()
     {
-        $maker = new PdfMaker();
+        $maker = new PdfMaker($this->state);
 
         $maker
             ->design(Business::class)
             ->build();
 
-        $this->assertStringContainsString('<!-- Business -->', $maker->html);
+        $this->assertStringContainsString('<!-- Business -->', $maker->getCompiledHTML());
     }
 
     public function testGetSectionUtility()
     {
-        $maker = new PdfMaker();
+        $maker = new PdfMaker($this->state);
 
         $maker
             ->design(Business::class)
