@@ -44,6 +44,7 @@ class InvoiceEmailedNotification implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
+        $first_notification_sent = true;
 
         foreach ($invitation->company->company_users as $company_user) {
 
@@ -53,7 +54,7 @@ class InvoiceEmailedNotification implements ShouldQueue
 
             $methods = $this->findUserNotificationTypes($invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent']);
 
-            if (($key = array_search('mail', $methods)) !== false) {
+            if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
                 unset($methods[$key]);
 
                 //Fire mail notification here!!!
@@ -61,6 +62,8 @@ class InvoiceEmailedNotification implements ShouldQueue
                 //handle the mailer
 
                 EntitySentMailer::dispatch($invitation, 'invoice', $user, $invitation->company); 
+                $first_notification_sent = false;
+
             }
 
             $notification->method = $methods;

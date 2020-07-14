@@ -122,11 +122,15 @@ class EmailController extends BaseController
 
                 $invitation->contact->notify((new SendGenericNotification($invitation, $entity_string, $subject, $body))->delay($when));
 
-                EntitySentMailer::dispatch($invitation, $entity_string, $entity_obj->user, $invitation->company); 
-
             }
             
         });
+
+        /*Only notify the admin ONCE, not once per contact/invite*/
+        $invitation = $entity_obj->invitations->first();
+
+        EntitySentMailer::dispatch($invitation, $entity_string, $entity_obj->user, $invitation->company); 
+
         
         if ($this instanceof Invoice) {
             $this->entity_type = Invoice::class ;
