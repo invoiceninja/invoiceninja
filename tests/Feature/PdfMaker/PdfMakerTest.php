@@ -120,12 +120,18 @@ class PdfMakerTest extends TestCase
                         ['element' => 'thead', 'content' => '', 'elements' => [
                             ['element' => 'th', 'content' => 'Company',],
                             ['element' => 'th', 'content' => 'Contact'],
-                            ['element' => 'th', 'content' => 'Country'],
+                            ['element' => 'th', 'content' => 'Country', 'properties' => [
+                                'colspan' => 3,
+                            ]],
                         ]],
                         ['element' => 'tr', 'content' => '', 'elements' => [
                             ['element' => 'td', 'content' => '$company'],
                             ['element' => 'td', 'content' => '$email'],
-                            ['element' => 'td', 'content' => '$country'],
+                            ['element' => 'td', 'content' => '$country', 'elements' => [
+                                ['element' => 'a', 'content' => 'Click here for a link', 'properties' => [
+                                    'href' => 'https://github.com/invoiceninja/invoiceninja',
+                                ]],
+                            ]],
                         ]],
                     ],
                 ],
@@ -133,7 +139,7 @@ class PdfMakerTest extends TestCase
             'variables' => [
                 '$company' => 'Invoice Ninja',
                 '$email' => 'contact@invoiceninja.com',
-                '$country' => 'UK', 
+                '$country' => 'UK',
             ],
         ];
 
@@ -143,8 +149,8 @@ class PdfMakerTest extends TestCase
             ->design(Business::class)
             ->build();
 
-        info($maker->getCompiledHTML());
+        $compiled = 'contact@invoiceninja.com';
 
-        $this->assertTrue(true);
+        $this->assertStringContainsString($compiled, $maker->getCompiledHTML());
     }
 }

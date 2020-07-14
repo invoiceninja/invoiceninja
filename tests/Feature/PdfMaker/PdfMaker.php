@@ -32,11 +32,14 @@ class PdfMaker
 
     public function build()
     {
-        // $raw = $this->design->html();
+        if (isset($this->data['template'])) {
+            $this->updateElementProperties($this->data['template']);
+        }
 
-        $this->updateElementProperties($this->data['template']);
-        $this->updateVariables($this->data['variables']);
-
+        if (isset($this->data['variables'])) {
+            $this->updateVariables($this->data['variables']);
+        }
+        
         return $this;
     }
 
