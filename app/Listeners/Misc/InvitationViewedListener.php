@@ -46,6 +46,7 @@ class InvitationViewedListener implements ShouldQueue
         $invitation = $event->invitation;
 
         $notification = new EntityViewedNotification($invitation, $entity_name);
+        $notification_not_fired_yet = true;
 
         foreach ($invitation->company->company_users as $company_user) {
 
@@ -53,11 +54,12 @@ class InvitationViewedListener implements ShouldQueue
 
             $methods = $this->findUserNotificationTypes($invitation, $company_user, $entity_name, ['all_notifications', $entity_viewed]);
 
-            if (($key = array_search('mail', $methods)) !== false) {
+            if (($key = array_search('mail', $methods)) !== false && $notification_not_fired_yet) {
                 unset($methods[$key]);
 
                 EntityViewedMailer::dispatch($invitation, $entity_name, $company_user->user, $invitation->company); 
-
+                $notification_not_fired_yet = false;
+                
             }
 
             $notification->method = $methods;

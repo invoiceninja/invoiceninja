@@ -44,8 +44,10 @@ class InvitationController extends Controller
             } else {
                 auth()->guard('contact')->login($invitation->contact, true);
             }
-            
-            if (!request()->has('silent')) {
+
+            if (!request()->has('silent') && !$invitation->viewed_date) {
+//            if (!request()->has('silent')) {
+                
                 $invitation->markViewed();
 
                 event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
