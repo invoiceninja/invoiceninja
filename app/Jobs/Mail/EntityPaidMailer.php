@@ -53,7 +53,6 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        info("entity paid mailer");
         //Set DB
         //
         MultiDB::setDb($this->company->db);
