@@ -37,7 +37,7 @@
                         <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">
                                 {{ ctrans('texts.invoice') }}
-                                <a class="button-link" href="{{ route('client.quotes.show', $quote->hashed_id) }}">
+                                <a class="button-link" href="{{ route('client.quote.show', $quote->hashed_id) }}">
                                     ({{ $quote->number }})
                                 </a>
                             </h3>
