@@ -124,10 +124,12 @@ class AuthorizeCreditCard
 
             SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
 
-            
+            return true;            
         }
         else {
 
+
+            return false;
         }
 
     }

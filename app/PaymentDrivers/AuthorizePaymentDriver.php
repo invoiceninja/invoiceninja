@@ -143,7 +143,7 @@ class AuthorizePaymentDriver extends BaseDriver
     {
         $this->setPaymentMethod($cgt->gateway_type_id);
 
-        $this->payment_method->tokenBilling($cgt, $amount, $invoice);
+        return $this->payment_method->tokenBilling($cgt, $amount, $invoice);
     }
 
 }

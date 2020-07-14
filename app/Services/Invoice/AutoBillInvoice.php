@@ -47,8 +47,10 @@ class AutoBillInvoice extends AbstractService
         else
             return $this->invoice->service()->markPaid()->save();
 
-        if(!$gateway_token)
+        if(!$gateway_token || !$gateway_token->gateway->driver($this->client)->token_billing){
+            info("either no gateway token record OR tokenbilling not implemented");
             return $this->invoice;
+        }
 
         if($this->invoice->partial){
             $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->partial);

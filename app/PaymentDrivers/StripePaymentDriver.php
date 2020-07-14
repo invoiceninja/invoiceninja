@@ -27,6 +27,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
+use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\Utilities;
@@ -366,7 +367,10 @@ class StripePaymentDriver extends BasePaymentDriver
         return response([], 200);
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, float $amount) {}
+    public function tokenBilling(ClientGatewayToken $cgt, float $amount, ?Invoice $invoice = null) 
+    {
+        return (new Charge)->tokenBilling($cgt, $amount, $invoice);
+    }
 
 
 }

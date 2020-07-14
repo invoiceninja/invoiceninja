@@ -46,13 +46,13 @@ class InvoiceEmailedNotification implements ShouldQueue
 
         $first_notification_sent = true;
 
-        foreach ($invitation->company->company_users as $company_user) {
+        foreach ($event->invitation->company->company_users as $company_user) {
 
             $user = $company_user->user;
 
-            $notification = new EntitySentNotification($invitation, 'invoice');
+            $notification = new EntitySentNotification($event->invitation, 'invoice');
 
-            $methods = $this->findUserNotificationTypes($invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent']);
+            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent']);
 
             if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
                 unset($methods[$key]);
@@ -61,7 +61,7 @@ class InvoiceEmailedNotification implements ShouldQueue
                 //This allows us better control of how we
                 //handle the mailer
 
-                EntitySentMailer::dispatch($invitation, 'invoice', $user, $invitation->company); 
+                EntitySentMailer::dispatch($event->invitation, 'invoice', $user, $event->invitation->company); 
                 $first_notification_sent = false;
 
             }
