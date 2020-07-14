@@ -46,9 +46,30 @@ trait PdfMakerUtilities
             }
 
             if (isset($element['elements'])) {
-                $this->createElementContent($node, $element['elements']);
+                $sorted = $this->processChildrenOrder($element['elements']);
+
+                $this->createElementContent($node, $sorted);
             }
         }
+    }
+
+    public function processChildrenOrder(array $children)
+    {
+        $processed = [];
+
+        foreach($children as $child) {
+            if (!isset($child['order'])) {
+                $child['order'] = 0;
+            }
+
+            $processed[] = $child;
+        }
+        
+        usort($processed, function ($a, $b) {
+            return $a['order'] <=> $b['order'];
+        });
+        
+        return $processed;
     }
 
     public function updateElementProperty($element, string $attribute, string $value)
@@ -65,6 +86,8 @@ trait PdfMakerUtilities
     public function createElementContent($element, $children)
     {
         foreach ($children as $child) {
+            // info($child);
+
             $_child = $this->document->createElement($child['element'], $child['content']);
             $element->appendChild($_child);
 
@@ -73,7 +96,7 @@ trait PdfMakerUtilities
                     $this->updateElementProperty($_child, $property, $value);
                 }
             }
-            
+
             if (isset($child['elements'])) {
                 $this->createElementContent($_child, $child['elements']);
             }

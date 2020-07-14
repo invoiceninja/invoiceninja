@@ -192,4 +192,61 @@ class PdfMakerTest extends TestCase
 
         $this->assertNotSame($output1, $output2);
     }
+
+    public function testOrderingElements()
+    {
+        $maker = new PdfMaker([
+            'template' => [
+                'header' => [
+                    'id' => 'header',
+                    'properties' => [],
+                    'elements' => [
+                        ['element' => 'h1', 'content' => 'h1-element'],
+                        ['element' => 'span', 'content' => 'span-element'],
+                    ]
+                ],
+            ],
+        ]);
+
+        $maker
+            ->design(Business::class)
+            ->build();
+
+        $node = $maker->getSectionNode('header');
+
+        $before = [];
+
+        foreach ($node->childNodes as $child) {
+            $before[] = $child->nodeName;
+        }
+
+        $this->assertEquals('h1', $before[1]);
+
+        $maker = new PdfMaker([
+            'template' => [
+                'header' => [
+                    'id' => 'header',
+                    'properties' => [],
+                    'elements' => [
+                        ['element' => 'h1', 'content' => 'h1-element', 'order' => 1],
+                        ['element' => 'span', 'content' => 'span-element', 'order' => 0],
+                    ]
+                ],
+            ],
+        ]);
+
+        $maker
+            ->design(Business::class)
+            ->build();
+
+        $node = $maker->getSectionNode('header');
+
+        $after = [];
+
+        foreach ($node->childNodes as $child) {
+            $after[] = $child->nodeName;
+        }
+
+        $this->assertEquals('span', $after[1]);
+    }
 }
