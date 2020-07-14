@@ -153,4 +153,43 @@ class PdfMakerTest extends TestCase
 
         $this->assertStringContainsString($compiled, $maker->getCompiledHTML());
     }
+
+    public function testConditionalRenderingOfElements()
+    {
+        $maker1 = new PdfMaker([
+            'template' => [
+                'header' => [
+                    'id' => 'header',
+                    'properties' => [],
+                ],
+            ],
+        ]);
+
+        $maker1
+            ->design(Business::class)
+            ->build();
+
+        $output1 = $maker1->getCompiledHTML();
+
+        $this->assertStringContainsString('<div id="header">This is $title</div>', $output1);
+
+        $maker2 = new PdfMaker([
+            'template' => [
+                'header' => [
+                    'id' => 'header',
+                    'properties' => ['hidden' => "true"],
+                ],
+            ],
+        ]);
+
+        $maker2
+            ->design(Business::class)
+            ->build();
+
+        $output2 = $maker2->getCompiledHTML();
+
+        $this->assertStringContainsString('<div id="header" hidden="true">This is $title</div>', $output2);
+
+        $this->assertNotSame($output1, $output2);
+    }
 }
