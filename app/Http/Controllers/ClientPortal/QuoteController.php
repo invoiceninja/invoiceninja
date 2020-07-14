@@ -112,7 +112,9 @@ class QuoteController extends Controller
                 event(new QuoteWasApproved($quote, $quote->company, Ninja::eventVars()));
             }
 
-            return route('client.quotes.index')->withSuccess('Quote(s) approved successfully.');
+            return redirect()
+                ->route('client.quotes.index')
+                ->withSuccess('Quote(s) approved successfully.');
         }
 
         return $this->render('quotes.approve', [
