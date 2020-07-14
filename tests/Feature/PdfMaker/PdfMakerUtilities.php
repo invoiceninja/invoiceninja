@@ -64,11 +64,11 @@ trait PdfMakerUtilities
 
             $processed[] = $child;
         }
-        
+
         usort($processed, function ($a, $b) {
             return $a['order'] <=> $b['order'];
         });
-        
+
         return $processed;
     }
 
@@ -86,7 +86,6 @@ trait PdfMakerUtilities
     public function createElementContent($element, $children)
     {
         foreach ($children as $child) {
-            // info($child);
 
             $_child = $this->document->createElement($child['element'], $child['content']);
             $element->appendChild($_child);
@@ -98,7 +97,9 @@ trait PdfMakerUtilities
             }
 
             if (isset($child['elements'])) {
-                $this->createElementContent($_child, $child['elements']);
+                $sorted = $this->processChildrenOrder($child['elements']);
+
+                $this->createElementContent($_child, $sorted);
             }
         }
     }
