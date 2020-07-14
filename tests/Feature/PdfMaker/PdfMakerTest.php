@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\PdfMaker;
 
+use Spatie\Browsershot\Browsershot;
 use Tests\TestCase;
 
 class PdfMakerTest extends TestCase
@@ -171,7 +172,7 @@ class PdfMakerTest extends TestCase
 
         $output1 = $maker1->getCompiledHTML();
 
-        $this->assertStringContainsString('<div id="header">This is $title</div>', $output1);
+        $this->assertStringContainsString('<div id="header">$title</div>', $output1);
 
         $maker2 = new PdfMaker([
             'template' => [
@@ -188,7 +189,7 @@ class PdfMakerTest extends TestCase
 
         $output2 = $maker2->getCompiledHTML();
 
-        $this->assertStringContainsString('<div id="header" hidden="true">This is $title</div>', $output2);
+        $this->assertStringContainsString('<div id="header" hidden="true">$title</div>', $output2);
 
         $this->assertNotSame($output1, $output2);
     }
@@ -248,5 +249,63 @@ class PdfMakerTest extends TestCase
         }
 
         $this->assertEquals('span', $after[1]);
+    }
+
+    public function testGeneratingPdf()
+    {
+        $state = [
+            'template' => [
+                'header' => [
+                    'id' => 'header',
+                    'properties' => ['class' => 'text-white bg-blue-600 p-2'],
+                ],
+                'product-table' => [
+                    'id' => 'product-table',
+                    'properties' => ['class' => 'table-auto'],
+                    'elements' => [
+                        ['element' => 'thead', 'content' => '', 'elements' => [
+                            ['element' => 'tr', 'content' => '', 'elements' => [
+                                ['element' => 'th', 'content' => 'Title', 'properties' => ['class' => 'px-4 py-2']],
+                                ['element' => 'th', 'content' => 'Author', 'properties' => ['class' => 'px-4 py-2']],
+                                ['element' => 'th', 'content' => 'Views', 'properties' => ['class' => 'px-4 py-2']],
+                            ]]
+                        ]],
+                        ['element' => 'tbody', 'content' => '', 'elements' => [
+                            ['element' => 'tr', 'content' => '', 'elements' => [
+                                ['element' => 'td', 'content' => 'An amazing guy', 'properties' => ['class' => 'border px-4 py-2']],
+                                ['element' => 'td', 'content' => 'David Bomba', 'properties' => ['class' => 'border px-4 py-2']],
+                                ['element' => 'td', 'content' => '1M', 'properties' => ['class' => 'border px-4 py-2']],
+                            ]],
+                            ['element' => 'tr', 'content' => '', 'elements' => [
+                                ['element' => 'td', 'content' => 'Flutter master', 'properties' => ['class' => 'border px-4 py-2']],
+                                ['element' => 'td', 'content' => 'Hillel Coren', 'properties' => ['class' => 'border px-4 py-2']],
+                                ['element' => 'td', 'content' => '1M', 'properties' => ['class' => 'border px-4 py-2']],
+                            ]],
+                            ['element' => 'tr', 'content' => '', 'elements' => [
+                                ['element' => 'td', 'content' => 'Bosssssssss', 'properties' => ['class' => 'border px-4 py-2']],
+                                ['element' => 'td', 'content' => 'Shalom Stark', 'properties' => ['class' => 'border px-4 py-2']],
+                                ['element' => 'td', 'content' => '1M', 'properties' => ['class' => 'border px-4 py-2']],
+                            ]],
+                            ['element' => 'tr', 'content' => '', 'order' => 4, 'elements' => [
+                                ['element' => 'td', 'content' => 'Three amazing guys', 'properties' => ['class' => 'border px-4 py-2', 'colspan' => '100%']],
+                            ]],
+                        ]],
+                    ],
+                ]
+            ],
+            'variables' =>[
+                '$title' => 'Invoice Ninja',
+            ]
+        ];
+
+        $maker = new PdfMaker($state);
+
+        $maker
+            ->design(Business::class)
+            ->build();
+
+        info($maker->getCompiledHTML());
+
+        $this->assertTrue(true);
     }
 }
