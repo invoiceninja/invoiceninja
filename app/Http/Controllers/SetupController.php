@@ -62,8 +62,13 @@ class SetupController extends Controller
             $mail_driver = 'log';
         }
 
+        $url = $request->input('url');
+
+        if(substr($url, -1) != '/')
+            $url = $url . '/';
+
         $_ENV['APP_KEY'] = config('app.key');
-        $_ENV['APP_URL'] = $request->input('url');
+        $_ENV['APP_URL'] = $url;
         $_ENV['APP_DEBUG'] = $request->input('debug') ? 'true' : 'false';
         $_ENV['REQUIRE_HTTPS'] = $request->input('https') ? 'true' : 'false';
         $_ENV['DB_TYPE'] = 'mysql';

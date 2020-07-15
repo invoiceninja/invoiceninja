@@ -47,10 +47,11 @@ class AutoBillInvoice extends AbstractService
         else
             return $this->invoice->service()->markPaid()->save();
 
-        if(!$gateway_token)
+        if(!$gateway_token || !$gateway_token->gateway->driver($this->client)->token_billing){
             return $this->invoice;
+        }
 
-        if($this->invoice->partial){
+        if($this->invoice->partial > 0){
             $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->partial);
             $amount = $this->invoice->partial + $fee;
         }
@@ -65,29 +66,39 @@ class AutoBillInvoice extends AbstractService
         if($fee > 0)
             $this->addFeeToInvoice($fee);
 
-        $response = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $amount, $this->invoice);
+        $payment = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $amount, $this->invoice);
 
-        //if response was successful, toggle the fee type_id to paid
+        if($payment){
+            
+            $this->invoice->service()->toggleFeesPaid()->save();
+            
+        }
+        else
+        {
+            //autobill failed
+        }
+
+
+        return $this->invoice;
     }
 
+    /**
+     * Harvests a client gateway token which passes the
+     * necessary filters for an $amount
+     * 
+     * @param  float              $amount The amount to charge
+     * @return ClientGatewayToken         The client gateway token
+     */
     private function getGateway($amount)
     {
-
-        // $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC');
-
-        // return $gateway_tokens->filter(function ($token) use ($amount){
-
-        //     return $this->validGatewayLimits($token, $amount);
-
-        // })->all()->first();
-
 
         $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC')->get();
 
         foreach($gateway_tokens as $gateway_token)
         {
-            if($this->validGatewayLimits($gateway_token, $amount))
+            if($this->validGatewayLimits($gateway_token, $amount)){
                 return $gateway_token;
+            }
         }
 
     }
@@ -150,7 +161,7 @@ class AutoBillInvoice extends AbstractService
         $this->invoice->line_items = $new_items;
         $this->invoice->save();
 
-        $this->invoice = $this->invoice->calc()->getInvoice()->save();
+        $this->invoice = $this->invoice->calc()->getInvoice();
 
         if($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT){
             $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
@@ -174,7 +185,7 @@ class AutoBillInvoice extends AbstractService
         if(isset($cg->fees_and_limits))
             $fees_and_limits = $cg->fees_and_limits->{"1"};
         else
-            $passes = true;
+            return true;
 
         if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) {
             info("amount {$amount} less than ". $fees_and_limits->min_limit);

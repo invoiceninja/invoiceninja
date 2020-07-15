@@ -178,6 +178,33 @@ class InvoiceService
         return $this;
     }
 
+    public function toggleFeesPaid()
+    {
+
+        $this->invoice->line_items = collect($this->invoice->line_items)
+                                     ->where('type_id',3)->map(function ($item) {
+
+                                            $item->type_id=4;
+                                            return $item;
+
+                                      })->toArray();
+
+        return $this;
+    }
+
+    public function removeUnpaidGatewayFees()
+    {
+
+        $this->invoice->line_items = collect($this->invoice->line_items)
+                                     ->reject(function ($item) {
+
+                                            return $item->type_id == 3;
+
+                                      })->toArray();
+
+        return $this;
+    }
+
     public function clearPartial()
     {
         $this->invoice->partial = null;

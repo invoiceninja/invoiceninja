@@ -37,4 +37,9 @@ class GatewayType extends StaticModel
     {
         return $this->belongsTo(Gateway::class);
     }
+
+    public function payment_methods()
+    {
+        return $this->hasMany(PaymentType::class);
+    }
 }

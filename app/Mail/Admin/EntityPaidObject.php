@@ -85,7 +85,8 @@ class EntityPaidObject
                 'invoice' => $invoice_texts,
             ]
             ),
-            'url' => config('ninja.app_url') . '/payments/' . $this->payment->hashed_id,
+            'url' => config('ninja.app_url'),
+            // 'url' => config('ninja.app_url') . '/payments/' . $this->payment->hashed_id, //because we have no deep linking we cannot use this
             'button' => ctrans('texts.view_payment'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),

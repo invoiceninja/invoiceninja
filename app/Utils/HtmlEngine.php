@@ -496,7 +496,8 @@ class HtmlEngine
     */
     public function generateAppUrl()
     {
-        return rtrim(config('ninja.app_url'), "/");
+        //return rtrim(config('ninja.app_url'), "/");
+        return config('ninja.app_url');
     }
 
     /**

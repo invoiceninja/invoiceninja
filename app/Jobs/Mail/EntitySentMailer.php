@@ -56,7 +56,6 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        info("entity sent mailer");
         //Set DB
         MultiDB::setDb($this->company->db);
 

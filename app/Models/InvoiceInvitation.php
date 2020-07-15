@@ -41,37 +41,37 @@ class InvoiceInvitation extends BaseModel
         return InvoiceInvitation::class;
     }
 
-    public function getSignatureDateAttribute($value)
-    {
-        if (!$value) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        return $value;
-    }
+    // public function getSignatureDateAttribute($value)
+    // {
+    //     if (!$value) {
+    //         return (new Carbon($value))->format('Y-m-d');
+    //     }
+    //     return $value;
+    // }
 
-    public function getSentDateAttribute($value)
-    {
-        if (!$value) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        return $value;
-    }
+    // public function getSentDateAttribute($value)
+    // {
+    //     if (!$value) {
+    //         return (new Carbon($value))->format('Y-m-d');
+    //     }
+    //     return $value;
+    // }
 
-    public function getViewedDateAttribute($value)
-    {
-        if (!$value) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        return $value;
-    }
+    // public function getViewedDateAttribute($value)
+    // {
+    //     if (!$value) {
+    //         return (new Carbon($value))->format('Y-m-d');
+    //     }
+    //     return $value;
+    // }
 
-    public function getOpenedDateAttribute($value)
-    {
-        if (!$value) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        return $value;
-    }
+    // public function getOpenedDateAttribute($value)
+    // {
+    //     if (!$value) {
+    //         return (new Carbon($value))->format('Y-m-d');
+    //     }
+    //     return $value;
+    // }
     
     public function entityType()
     {
@@ -127,6 +127,12 @@ class InvoiceInvitation extends BaseModel
     public function markViewed()
     {
         $this->viewed_date = Carbon::now();
+        $this->save();
+    }
+
+    public function markOpened()
+    {
+        $this->opened_date = Carbon::now();
         $this->save();
     }
 

@@ -85,7 +85,7 @@ class InvoiceViewedNotification extends Notification implements ShouldQueue
                     'invoice' => $this->invoice->number,
                 ]
             ),
-            'url' => config('ninja.app_url') . '/invoices/' . $this->invoice->hashed_id,
+            'url' => config('ninja.app_url') . 'invoices/' . $this->invoice->hashed_id,
             'button' => ctrans('texts.view_invoice'),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),

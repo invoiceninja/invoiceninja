@@ -27,6 +27,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
+use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\Utilities;
@@ -41,11 +42,11 @@ class StripePaymentDriver extends BasePaymentDriver
 {
     use MakesHash, Utilities;
 
-    protected $refundable = true;
+    public $refundable = true;
 
-    protected $token_billing = true;
+    public $token_billing = true;
 
-    protected $can_authorise_credit_card = true;
+    public $can_authorise_credit_card = true;
 
     protected $customer_reference = 'customerReferenceParam';
 
@@ -366,7 +367,35 @@ class StripePaymentDriver extends BasePaymentDriver
         return response([], 200);
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, float $amount) {}
+    public function tokenBilling(ClientGatewayToken $cgt, float $amount, ?Invoice $invoice = null) 
+    {
+        return (new Charge($this))->tokenBilling($cgt, $amount, $invoice);
+    }
 
+    /**
+     * Creates a payment record for the given
+     * data array.
+     * 
+     * @param  array $data   An array of payment attributes
+     * @param  float $amount The amount of the payment
+     * @return Payment       The payment object
+     */
+    public function createPaymentRecord($data, $amount) :?Payment
+    {
 
+        $payment = PaymentFactory::create($this->client->company_id, $this->client->user_id);
+        $payment->client_id = $this->client->id;
+        $payment->company_gateway_id = $this->company_gateway->id;
+        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->gateway_type_id = $data['gateway_type_id'];
+        $payment->type_id = $data['type_id'];
+        $payment->currency_id = $this->client->getSetting('currency_id');
+        $payment->date = Carbon::now();
+        $payment->transaction_reference = $data['transaction_reference'];
+        $payment->amount = $amount; 
+        $payment->client->getNextPaymentNumber($this->client);
+        $payment->save();
+
+        return $payment;
+    }
 }

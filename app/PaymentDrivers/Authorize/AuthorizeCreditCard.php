@@ -124,10 +124,12 @@ class AuthorizeCreditCard
 
             SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
 
-            
+            return true;            
         }
         else {
 
+
+            return false;
         }
 
     }
@@ -207,7 +209,6 @@ class AuthorizeCreditCard
             'code' => $response->getTransactionResponse()->getMessages()[0]->getCode(),
             'description' => $response->getTransactionResponse()->getMessages()[0]->getDescription(),
             'invoices' => $vars['hashed_ids'],
-
         ];
     }
 
