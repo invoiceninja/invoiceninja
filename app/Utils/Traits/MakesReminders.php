@@ -189,7 +189,9 @@ trait MakesReminders
         $client = $this->client;
 
         //if the invoice
-        if ($client->getSetting('enable_reminder1') !== false && $this->inReminderWindow(
+        if($this->balance == 0){
+            return 'invoice';
+        }elseif ($client->getSetting('enable_reminder1') !== false && $this->inReminderWindow(
             $client->getSetting('schedule_reminder1'),
             $client->getSetting('num_days_reminder1')
         )) {
