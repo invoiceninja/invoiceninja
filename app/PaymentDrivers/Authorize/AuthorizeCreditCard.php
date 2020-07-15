@@ -209,7 +209,6 @@ class AuthorizeCreditCard
             'code' => $response->getTransactionResponse()->getMessages()[0]->getCode(),
             'description' => $response->getTransactionResponse()->getMessages()[0]->getDescription(),
             'invoices' => $vars['hashed_ids'],
-
         ];
     }
 
