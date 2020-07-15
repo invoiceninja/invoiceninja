@@ -52,10 +52,10 @@ $custom_css
     <div class="col-span-2 p-3">
         $company_logo
     </div>
-    <div class="col-span-2 p-3 flex flex-col flex-wrap">
+    <div class="flex flex-col flex-wrap col-span-2 p-3">
         $company_details
     </div>
-    <div class="col-span-2 p-3 flex flex-col flex-wrap">
+    <div class="flex flex-col flex-wrap col-span-2 p-3">
         $company_address
     </div>
 </div>';
@@ -64,46 +64,46 @@ $custom_css
     public function body()
     {
         return '<div class="grid grid-cols-12 gap-1 mt-8">
-    <div class="col-span-7 p-3 flex flex-col flex-wrap">
+    <div class="flex flex-col flex-wrap col-span-7 p-3">
         $client_details
     </div>
-    <div class="col-span-5 p-3 flex flex-col bg-orange-600 px-4 py-4 h-auto rounded-lg">
-        <div class="flex flex-col text-white flex-wrap">
+    <div class="flex flex-col h-auto col-span-5 p-3 px-4 py-4 bg-orange-600 rounded-lg">
+        <div class="flex flex-col flex-wrap text-white">
             $entity_details
         </div>
     </div>
 </div>
 
-<table class="w-full table-auto mt-20">
+<table class="w-full mt-20 table-auto">
     <thead class="text-left">
         $product_table_header
     </thead>
-    <tbody class="bg-gray-200 whitespace-pre-line">
+    <tbody class="whitespace-pre-line bg-gray-200">
         $product_table_body
     </tbody>
 </table>
-<table class="w-full table-auto mt-20">
+<table class="w-full mt-20 table-auto">
     <thead class="text-left">
         $task_table_header
     </thead>
-    <tbody class="bg-gray-200 whitespace-pre-line">
+    <tbody class="whitespace-pre-line bg-gray-200">
         $task_table_body
     </tbody>
 </table>
-<div class="flex items-center justify-between px-4 pb-4 bg-gray-200 rounded py-2">
+<div class="flex items-center justify-between px-4 py-2 pb-4 bg-gray-200 rounded">
 <div class="w-1/2">
     <div class="flex flex-col">
         <p>$entity.public_notes</p>
     </div>
 </div>
-<div class="w-1/3 flex flex-col">
+<div class="flex flex-col w-1/3">
     <div class="flex px-3 mt-2">
-        <section class="w-1/2 text-right flex flex-col">
+        <section class="flex flex-col w-1/2 text-right">
             $discount_label
             $total_tax_labels
             $line_tax_labels
         </section>
-        <section class="w-1/2 text-right flex flex-col">
+        <section class="flex flex-col w-1/2 text-right">
             $discount
             $total_tax_values
             $line_tax_values
@@ -111,17 +111,17 @@ $custom_css
     </div>
 </div>
 </div>
-<div class="flex items-center justify-between mt-4 pb-4 px-4">
+<div class="flex items-center justify-between px-4 pb-4 mt-4">
 <div class="w-1/2">
     <div class="flex flex-col">
         <p class="font-semibold">$terms_label</p>
         <p>$terms</p>
     </div>
 </div>
-<div class="flex w-2/5 flex-col">
-    <section class="flex py-2 bg-blue-900 px-4 py-3 rounded text-white">
+<div class="flex flex-col w-2/5">
+    <section class="flex px-4 py-2 py-3 text-white bg-blue-900 rounded">
         <p class="w-1/2">$balance_due_label</p>
-        <p class="text-right w-1/2">$balance_due</p>
+        <p class="w-1/2 text-right">$balance_due</p>
     </section>
 </div>
 </div>
@@ -142,7 +142,7 @@ $custom_css
     {
         return '
 <footer>
-    <div class="div_footer flex justify-between py-8 px-12" style="page-break-inside: avoid;">
+    <div class="flex justify-between px-12 py-8 div_footer" style="page-break-inside: avoid;">
     </div>
 </footer>';
     }
