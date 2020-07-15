@@ -292,7 +292,9 @@ class CheckData extends Command
         foreach(Client::cursor() as $client)
         {
             $invoice_balance = $client->invoices->where('is_deleted', false)->sum('balance');
+            $credt_balances = $client->credits->where('is_deleted', false)->sum('balance');
 
+            
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
             if($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4))
