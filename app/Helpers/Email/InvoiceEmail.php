@@ -45,9 +45,9 @@ class InvoiceEmail extends EmailBuilder
         if (iconv_strlen($subject_template) == 0) {
             if ($reminder_template == 'quote') {
                 $subject_template = trans(
-                    'texts.invoice_subject',
+                    'texts.quote_subject',
                     [
-                        'invoice' => $invoice->present()->invoice_number(),
+                        'number' => $invoice->number,
                         'account' => $invoice->company->present()->name()
                     ],
                     null,
@@ -55,9 +55,9 @@ class InvoiceEmail extends EmailBuilder
                 );
             } else {
                 $subject_template = trans(
-                    'texts.reminder_subject',
+                    'texts.invoice_subject',
                     [
-                        'invoice' => $invoice->present()->invoice_number(),
+                        'number' => $invoice->number,
                         'account' => $invoice->company->present()->name()
                     ],
                     null,
