@@ -42,6 +42,10 @@ class MarkPaid extends AbstractService
             $this->invoice->service()->markSent();
         }
 
+        /*Don't double pay*/
+        if($this->invoice->statud_id == Invoice::STATUS_PAID)
+            return $this->invoice;
+
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 

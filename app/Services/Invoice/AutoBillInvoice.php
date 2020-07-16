@@ -42,6 +42,8 @@ class AutoBillInvoice extends AbstractService
         if(!$this->invoice->isPayable())
             return $this->invoice;
 
+        $this->invoice = $this->invoice->service()->markSent()->save();
+
         if($this->invoice->balance > 0)
             $gateway_token = $this->getGateway($this->invoice->balance);      
         else
@@ -70,12 +72,12 @@ class AutoBillInvoice extends AbstractService
 
         if($payment){
             
-            $this->invoice->service()->toggleFeesPaid()->save();
-            
+            $this->invoice = $this->invoice->service()->toggleFeesPaid()->save();
+
         }
         else
         {
-            //autobill failed
+            //TODO autobill failed
         }
 
 

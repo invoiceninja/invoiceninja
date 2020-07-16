@@ -198,7 +198,6 @@ class Invoice extends BaseModel
     public function payments()
     {
         return $this->morphToMany(Payment::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps()->withTrashed();
-        ;
     }
 
     public function company_ledger()
@@ -216,6 +215,10 @@ class Invoice extends BaseModel
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
+    public function credits()
+    {
+        return $this->hasMany(Credit::class);
+    }
     // public function credits()
     // {
     //     return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot(

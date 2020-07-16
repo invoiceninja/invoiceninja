@@ -182,9 +182,11 @@ class InvoiceService
     {
 
         $this->invoice->line_items = collect($this->invoice->line_items)
-                                     ->where('type_id',3)->map(function ($item) {
+                                     ->map(function ($item) {
 
-                                            $item->type_id=4;
+                                            if($item->type_id == 3)
+                                                $item->type_id = 4;
+                                            
                                             return $item;
 
                                       })->toArray();

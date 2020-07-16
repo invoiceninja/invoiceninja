@@ -10,6 +10,7 @@ $factory->define(App\Models\Company::class, function (Faker $faker) {
         'ip' => $faker->ipv4,
         'db' => config('database.default'),
         'settings' => CompanySettings::defaults(),
+        'is_large' => true,
         'custom_fields' => (object) [
             //'invoice1' => 'Custom Date|date',
             // 'invoice2' => '2|switch',

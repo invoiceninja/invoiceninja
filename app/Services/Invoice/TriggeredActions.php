@@ -45,11 +45,11 @@ class TriggeredActions extends AbstractService
     {
 
         if($this->request->has('auto_bill')) {
-            $this->invoice->service()->autoBill()->save();
+            $this->invoice = $this->invoice->service()->autoBill()->save();
         }
         
         if($this->request->has('paid') && (bool)$this->request->input('paid') !== false) {
-            $this->invoice->service()->markPaid()->save();
+            $this->invoice = $this->invoice->service()->markPaid()->save();
         }
 
         if($this->request->has('send_email') && (bool)$this->request->input('send_email') !== false) {
@@ -62,7 +62,8 @@ class TriggeredActions extends AbstractService
     private function sendEmail()
     {
 
-        $reminder_template = $this->invoice->calculateTemplate();
+        //$reminder_template = $this->invoice->calculateTemplate();
+        $reminder_template = 'payment';
 
         $this->invoice->invitations->load('contact.client.country','invoice.client.country','invoice.company')->each(function ($invitation) use($reminder_template){
 

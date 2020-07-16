@@ -86,7 +86,7 @@ class DemoMode extends Command
 
     private function createSmallAccount()
     {
-        $this->count = 100;
+        $this->count = 10;
 
         $this->info('Creating Small Account and Company');
 

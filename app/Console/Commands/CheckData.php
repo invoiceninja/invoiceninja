@@ -291,8 +291,8 @@ class CheckData extends Command
 
         foreach(Client::cursor() as $client)
         {
-            $invoice_balance = $client->invoices->where('is_deleted', false)->sum('balance');
-
+            $invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
+            
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
             if($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4))
@@ -346,16 +346,20 @@ class CheckData extends Command
     {
         $wrong_balances = 0;
         $wrong_paid_to_dates = 0;
-
+        
+        //todo reversing an invoice breaks the check data at this point;
+        
         Client::cursor()->each(function ($client) use($wrong_balances){
 
             $client->invoices->where('is_deleted', false)->each(function ($invoice) use($wrong_balances, $client){
 
                 $total_amount = $invoice->payments->sum('pivot.amount');
                 $total_refund = $invoice->payments->sum('pivot.refunded');
+                $total_credit = $invoice->credits->sum('amount');
+
                 $total_paid = $total_amount - $total_refund;
 
-                if($total_paid != ($invoice->amount - $invoice->balance)) {
+                if($total_paid != ($invoice->amount - $invoice->balance - $total_credit)) {
                     $wrong_balances++;
 
                     $this->logMessage($client->present()->name . " - " . $client->id . " - balances do not match Invoice Amount = {$invoice->amount} - Invoice Balance = {$invoice->balance} Total paid = {$total_paid}");
@@ -382,13 +386,24 @@ class CheckData extends Command
             $invoice_balance = $client->invoices->sum('balance');
             $invoice_amounts = $client->invoices->sum('amount') - $invoice_balance;
 
+            $credit_amounts = 0;
+
+            foreach($client->invoices as $invoice)
+            {
+                $credit_amounts += $invoice->credits->sum('amount');
+            };
+
+
+            /*To handle invoice reversals, we need to "ADD BACK" the credit amounts here*/
+            $client_paid_to_date = $client->paid_to_date + $credit_amounts;
+
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
-            if($ledger && (string)$invoice_amounts != rtrim($client->paid_to_date, "0"))
+            if($ledger && (string)$invoice_amounts != (string)$client_paid_to_date)
             {
 
                 $wrong_paid_to_dates++;
-                $this->logMessage($client->present()->name . " - " . $client->id . " - client paid to dates do not match {$invoice_amounts} - " .rtrim($client->paid_to_date, "0"));
+                $this->logMessage($client->present()->name . " - " . $client->id . " - client paid to dates do not match {$invoice_amounts} - " .rtrim($client_paid_to_date, "0"));
                 
                 $this->isValid = false;
 
