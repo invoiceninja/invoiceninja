@@ -45,6 +45,7 @@ class HandleReversal extends AbstractService
             return $this->invoice;
         }
 
+        /* If the invoice has been cancelled - we need to unwind the cancellation before reversing*/
         if($this->invoice->status_id == Invoice::STATUS_CANCELLED)
             $this->invoice = $this->invoice->service()->reverseCancellation()->save();
 
