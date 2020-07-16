@@ -37,6 +37,8 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     /* Used to authenticate a contact */
     protected $guard = 'contact';
 
+    protected $touches = ['client'];
+
     /* Allow microtime timestamps */
     protected $dateFormat = 'Y-m-d H:i:s.u';
 

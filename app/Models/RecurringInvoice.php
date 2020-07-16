@@ -112,6 +112,8 @@ class RecurringInvoice extends BaseModel
         'status'
     ];
 
+    protected $touches = ['company'];
+
     public function getEntityType()
     {
         return RecurringInvoice::class;

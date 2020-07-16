@@ -23,6 +23,9 @@ class PingController extends BaseController
      */
     public function index()
     {
-        return response()->json(['company_name' => auth()->user()->getCompany()->present()->name() - auth()->user()->present()->name()], 200);
+        return response()->json(
+        	['company_name' => auth()->user()->getCompany()->present()->name(),
+        	 'user_name' => auth()->user()->present()->name(),
+        	], 200);
     }
 }

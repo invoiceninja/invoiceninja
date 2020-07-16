@@ -36,6 +36,9 @@ class InvoiceInvitation extends BaseModel
         //    'company',
     ];
 
+    protected $touches = ['invoice'];
+
+
     public function getEntityType()
     {
         return InvoiceInvitation::class;

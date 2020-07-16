@@ -59,6 +59,8 @@ class Expense extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
+    
+    protected $touches = ['company'];
 
     public function getEntityType()
     {

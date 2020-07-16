@@ -40,6 +40,8 @@ class GroupSetting extends StaticModel
         'settings'
     ];
 
+    protected $touches = ['company'];
+
     public function company()
     {
         return $this->belongsTo(Company::class);

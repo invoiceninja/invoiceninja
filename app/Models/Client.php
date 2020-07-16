@@ -116,6 +116,8 @@ class Client extends BaseModel implements HasLocalePreference
         'deleted_at' => 'timestamp',
     ];
 
+    protected $touches = ['company'];
+
     public function getEntityType()
     {
         return Client::class;

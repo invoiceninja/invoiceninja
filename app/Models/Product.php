@@ -40,6 +40,8 @@ class Product extends BaseModel
         'tax_rate3',
     ];
 
+    protected $touches = ['company'];
+
     public function getEntityType()
     {
         return Product::class;

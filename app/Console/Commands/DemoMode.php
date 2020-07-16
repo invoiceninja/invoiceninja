@@ -7,6 +7,7 @@ use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Models\CompanyToken;
 use App\Models\Country;
@@ -79,6 +80,9 @@ class DemoMode extends Command
         $this->createSmallAccount();
         
         VersionCheck::dispatchNow();
+        
+        CompanySizeCheck::dispatchNow();
+
     }
 
 
@@ -360,7 +364,7 @@ class DemoMode extends Command
 
         $this->invoice_repo->markSent($invoice);
 
-        if (rand(0, 1)) {
+        if ((bool)rand(0, 2)) {
 
             $invoice = $invoice->service()->markPaid()->save();
 
