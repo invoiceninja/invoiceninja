@@ -58,6 +58,8 @@ class CompanyGateway extends BaseModel
     //     return json_decode($this->attributes['fees_and_limits']);
     // }
 
+    protected $touches = ['company'];
+
     public function getEntityType()
     {
         return CompanyGateway::class;

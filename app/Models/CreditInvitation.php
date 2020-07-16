@@ -37,6 +37,8 @@ class CreditInvitation extends BaseModel
     //    'company',
     ];
 
+    protected $touches = ['credit'];
+
     public function getEntityType()
     {
         return CreditInvitation::class;

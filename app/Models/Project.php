@@ -42,6 +42,8 @@ class Project extends BaseModel
         return Project::class;
     }
 
+    protected $touches = ['company'];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

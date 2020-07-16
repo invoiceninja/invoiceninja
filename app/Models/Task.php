@@ -30,6 +30,8 @@ class Task extends BaseModel
         'time_log',
     ];
 
+    protected $touches = ['company'];
+
     protected $casts = [
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
@@ -38,6 +40,11 @@ class Task extends BaseModel
     public function getEntityType()
     {
         return Task::class;
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 
     public function documents()

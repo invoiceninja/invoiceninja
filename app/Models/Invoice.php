@@ -56,6 +56,8 @@ class Invoice extends BaseModel
 
     protected $presenter = 'App\Models\Presenters\InvoicePresenter';
 
+    protected $touches = ['company'];
+
     protected $hidden = [
         'id',
         'private_notes',

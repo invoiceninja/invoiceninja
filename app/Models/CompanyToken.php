@@ -27,6 +27,9 @@ class CompanyToken extends BaseModel
     protected $with = [
     ];
 
+    protected $touches = ['company'];
+
+
     public function getEntityType()
     {
         return CompanyToken::class;

@@ -37,6 +37,8 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     /* Used to authenticate a vendor */
     protected $guard = 'vendor';
 
+    protected $touches = ['vendor'];
+
     /* Allow microtime timestamps */
     protected $dateFormat = 'Y-m-d H:i:s.u';
 

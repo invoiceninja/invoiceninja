@@ -78,6 +78,8 @@ class Credit extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
+    protected $touches = ['company'];
+
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
     const STATUS_PARTIAL = 3;

@@ -22,6 +22,8 @@ class Proposal extends BaseModel
         'id',
     ];
 
+    protected $touches = ['company'];
+
     public function getEntityType()
     {
         return Proposal::class;

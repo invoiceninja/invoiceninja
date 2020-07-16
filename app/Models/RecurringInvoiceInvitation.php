@@ -18,6 +18,8 @@ class RecurringInvoiceInvitation extends BaseModel
 {
     use MakesDates;
 
+    protected $touches = ['recurring_invoice'];
+
     public function getEntityType()
     {
         return RecurringInvoiceInvitation::class;

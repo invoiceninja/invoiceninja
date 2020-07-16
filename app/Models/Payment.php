@@ -81,6 +81,8 @@ class Payment extends BaseModel
         'paymentables',
     ];
 
+    protected $touches = ['company'];
+
     public function getEntityType()
     {
         return Payment::class;
