@@ -27,7 +27,7 @@ class CompanySettings extends BaseSettings
     public $auto_archive_invoice 		    = false;
     public $lock_sent_invoices              = false;
 
-    //public $lock_invoices = 'off';          //off,when_sent,when_paid
+    public $lock_invoices = 'off';          //off,when_sent,when_paid
 
     public $enable_client_portal_tasks      = false;
     public $enable_client_portal_password   = false;
@@ -238,7 +238,7 @@ class CompanySettings extends BaseSettings
     public $client_portal_privacy_policy = '';
 
     public static $casts = [
-   //     'lock_invoices'                      => 'string',
+        'lock_invoices'                      => 'string',
         'client_portal_terms'                => 'string',
         'client_portal_privacy_policy'       => 'string',
         'client_can_register'                => 'bool',

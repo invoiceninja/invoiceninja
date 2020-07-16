@@ -103,7 +103,7 @@ class DemoMode extends Command
             'enabled_modules' => 4095,
         ]);
 
-        $settings = $company->settings;
+         $settings = $company->settings;
 
         $settings->name = $faker->company;
         $settings->address1 = $faker->buildingNumber;
@@ -112,11 +112,11 @@ class DemoMode extends Command
         $settings->state = $faker->state;
         $settings->postal_code = $faker->postcode;
         $settings->website = $faker->url;
-        $settings->vat_number = $faker->numberBetween(123456789, 987654321);
-        $settings->phone = $faker->phoneNumber;
+        $settings->vat_number = (string)$faker->numberBetween(123456789, 987654321);
+        $settings->phone = (string)$faker->phoneNumber;
 
-        $company->settings = $settings;
-        $company->save();
+         $company->settings = $settings;
+         $company->save();
 
         $account->default_company_id = $company->id;
         $account->save();
