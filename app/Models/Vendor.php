@@ -83,4 +83,9 @@ class Vendor extends BaseModel
     {
         return $this->hasMany(Activity::class);
     }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }

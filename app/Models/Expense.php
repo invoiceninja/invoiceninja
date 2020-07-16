@@ -76,4 +76,9 @@ class Expense extends BaseModel
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id');
     }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }

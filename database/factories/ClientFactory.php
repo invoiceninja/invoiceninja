@@ -5,15 +5,16 @@ use App\DataMapper\CompanySettings;
 use Faker\Generator as Faker;
 
 $factory->define(App\Models\Client::class, function (Faker $faker) {
+
     return [
         'name' => $faker->company(),
         'website' => $faker->url,
         'private_notes' => $faker->text(200),
         'balance' => 0,
         'paid_to_date' => 0,
-        'vat_number' => $faker->text(25),
+        'vat_number' => $faker->numberBetween(123456789, 987654321),
         'id_number' => '',
-        'custom_value1' => $faker->date('Y-m-d'),
+        'custom_value1' => '',
         'custom_value2' => '',
         'custom_value3' => '',
         'custom_value4' => '',
