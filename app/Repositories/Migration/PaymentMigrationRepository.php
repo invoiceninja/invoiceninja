@@ -133,7 +133,7 @@ class PaymentMigrationRepository extends BaseRepository
         }
 
         if (count($invoices) == 0) {
-            $this->activity_repo->save($fields, $payment);
+            $this->activity_repo->save($fields, $payment, Ninja::eventVars());
         }
 
        if ($invoice_totals == $payment->amount) {
