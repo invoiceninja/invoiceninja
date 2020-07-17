@@ -21,6 +21,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\ActivityRepository;
+use App\Utils\Ninja;
 
 class RefundPayment
 {
@@ -114,10 +115,10 @@ class RefundPayment
         if (isset($this->refund_data['invoices'])) {
             foreach ($this->refund_data['invoices'] as $invoice) {
                 $fields->invoice_id = $invoice['invoice_id'];
-                $activity_repo->save($fields, $this->payment);
+                $activity_repo->save($fields, $this->payment, Ninja::eventVars());
             }
         } else {
-            $activity_repo->save($fields, $this->payment);
+            $activity_repo->save($fields, $this->payment, Ninja::eventVars());
         }
 
         return $this;

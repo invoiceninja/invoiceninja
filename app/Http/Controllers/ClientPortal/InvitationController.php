@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Events\Invoice\InvoiceWasViewed;
 use App\Events\Misc\InvitationWasViewed;
 use App\Http\Controllers\Controller;
 use App\Models\InvoiceInvitation;
@@ -39,6 +40,7 @@ class InvitationController extends Controller
         $invitation = $entity_obj::whereRaw("BINARY `key`= ?", [$invitation_key])->first();
 
         if ($invitation) {
+
             if ((bool)$invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
                 $this->middleware('auth:contact');
             } else {
@@ -51,11 +53,27 @@ class InvitationController extends Controller
                 $invitation->markViewed();
 
                 event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
+
+                $this->fireEntityViewedEvent($invitation->{$entity}, $entity);
             }
 
             return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
         } else {
             abort(404);
+        }
+    }
+
+    private function fireEntityViewedEvent($invitation, $entity_string)
+    {
+
+        switch ($entity_string) {
+            case 'invoice':
+                event(new InvoiceWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+                break;
+            
+            default:
+                # code...
+                break;
         }
     }
 
