@@ -172,7 +172,7 @@ class EventServiceProvider extends ServiceProvider
         InvoiceWasPaid::class => [
             CreateInvoiceHtmlBackup::class,
         ],
-        InvoiceWasViewed::class = [
+        InvoiceWasViewed::class => [
             InvoiceViewedActivity::class,
         ],
         InvoiceWasEmailed::class => [
