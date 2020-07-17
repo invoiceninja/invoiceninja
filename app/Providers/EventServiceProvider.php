@@ -32,6 +32,7 @@ use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Invoice\InvoiceWasReversed;
 use App\Events\Invoice\InvoiceWasUpdated;
+use App\Events\Invoice\InvoiceWasViewed;
 use App\Events\Misc\InvitationWasViewed;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
@@ -59,6 +60,7 @@ use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
+use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\Misc\InvitationViewedListener;
@@ -158,6 +160,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasPaid::class => [
             CreateInvoiceHtmlBackup::class,
+        ],
+        InvoiceWasViewed::class = [
+            InvoiceViewedActivity::class,
         ],
         InvoiceWasEmailed::class => [
             InvoiceEmailActivity::class,
