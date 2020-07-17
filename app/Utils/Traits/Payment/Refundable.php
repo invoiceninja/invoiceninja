@@ -20,6 +20,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\ActivityRepository;
+use App\Utils\Ninja;
 
 trait Refundable
 {
@@ -209,10 +210,10 @@ trait Refundable
             foreach ($data['invoices'] as $invoice) {
                 $fields->invoice_id = $invoice->id;
                 
-                $activity_repo->save($fields, $this);
+                $activity_repo->save($fields, $this, Ninja::eventVars());
             }
         } else {
-            $activity_repo->save($fields, $this);
+            $activity_repo->save($fields, $this, Ninja::eventVars());
         }
     }
 

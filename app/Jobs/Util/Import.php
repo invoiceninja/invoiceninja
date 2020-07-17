@@ -373,6 +373,7 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
             $modified['balance'] = $modified['balance'] ?: 0;
+            $modified['paid_to_date'] = $modified['paid_to_date'] ?: 0;
             
             unset($modified['id']);
             unset($modified['contacts']);

@@ -23,6 +23,7 @@ use App\Models\Payment;
 use App\Repositories\ActivityRepository;
 use App\Repositories\BaseRepository;
 use App\Repositories\CreditRepository;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
@@ -128,7 +129,7 @@ class PaymentMigrationRepository extends BaseRepository
         foreach ($payment->invoices as $invoice) { 
             $fields->invoice_id = $invoice->id;
 
-            $this->activity_repo->save($fields, $invoice);
+            $this->activity_repo->save($fields, $invoice, Ninja::eventVars());
         }
 
         if (count($invoices) == 0) {
