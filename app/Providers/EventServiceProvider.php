@@ -41,11 +41,14 @@ use App\Events\Quote\QuoteWasApproved;
 use App\Events\User\UserLoggedIn;
 use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
+use App\Listeners\Activity\ArchivedClientActivity;
 use App\Listeners\Activity\CreatedClientActivity;
+use App\Listeners\Activity\DeleteClientActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
 use App\Listeners\Activity\PaymentDeletedActivity;
 use App\Listeners\Activity\PaymentRefundedActivity;
 use App\Listeners\Activity\PaymentVoidedActivity;
+use App\Listeners\Activity\RestoreClientActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Document\DeleteCompanyDocuments;
 use App\Listeners\Invoice\CreateInvoiceActivity;
@@ -105,12 +108,15 @@ class EventServiceProvider extends ServiceProvider
             CreatedClientActivity::class,
         ],
         ClientWasArchived::class =>[
+            ArchivedClientActivity::class,
         ],
         ClientWasUpdated::class =>[
         ],
         ClientWasDeleted::class =>[
+            DeleteClientActivity::class,
         ],
         ClientWasRestored::class =>[
+            RestoreClientActivity::class,
         ],
         // Documents
         DocumentWasCreated::class =>[

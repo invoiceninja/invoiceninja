@@ -15,12 +15,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Activity extends StaticModel
 {
-    const CREATE_CLIENT=1;
-    const ARCHIVE_CLIENT=2;
-    const DELETE_CLIENT=3;
-    const CREATE_INVOICE=4;
-    const UPDATE_INVOICE=5;
-    const EMAIL_INVOICE=6;
+    const CREATE_CLIENT=1; //
+    const ARCHIVE_CLIENT=2; //
+    const DELETE_CLIENT=3; //
+    const CREATE_INVOICE=4; //
+    const UPDATE_INVOICE=5; //
+    const EMAIL_INVOICE=6; //
     const VIEW_INVOICE=7;
     const ARCHIVE_INVOICE=8;
     const DELETE_INVOICE=9;
