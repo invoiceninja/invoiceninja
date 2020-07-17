@@ -24,6 +24,7 @@ use App\Events\Contact\ContactLoggedIn;
 use App\Events\Credit\CreditWasEmailedAndFailed;
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Events\Design\DesignWasArchived;
+use App\Events\Invoice\InvoiceWasArchived;
 use App\Events\Invoice\InvoiceWasCancelled;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasDeleted;
@@ -34,9 +35,11 @@ use App\Events\Invoice\InvoiceWasReversed;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Invoice\InvoiceWasViewed;
 use App\Events\Misc\InvitationWasViewed;
+use App\Events\Payment\PaymentWasArchived;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasRefunded;
+use App\Events\Payment\PaymentWasUpdated;
 use App\Events\Payment\PaymentWasVoided;
 use App\Events\Quote\QuoteWasApproved;
 use App\Events\User\UserLoggedIn;
@@ -48,6 +51,7 @@ use App\Listeners\Activity\DeleteClientActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
 use App\Listeners\Activity\PaymentDeletedActivity;
 use App\Listeners\Activity\PaymentRefundedActivity;
+use App\Listeners\Activity\PaymentUpdatedActivity;
 use App\Listeners\Activity\PaymentVoidedActivity;
 use App\Listeners\Activity\RestoreClientActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
@@ -56,6 +60,7 @@ use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Listeners\Invoice\CreateInvoicePdf;
+use App\Listeners\Invoice\InvoiceArchivedActivity;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
@@ -98,6 +103,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         PaymentWasDeleted::class => [
             PaymentDeletedActivity::class,
+        ],
+        PaymentWasArchived::class => [
+            PaymentArchivedActivity::class,
+        ],
+        PaymentWasUpdated::class => [
+            PaymentUpdatedActivity::class,
         ],
         PaymentWasRefunded::class => [
             PaymentRefundedActivity::class,
@@ -173,6 +184,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasDeleted::class => [
             InvoiceDeletedActivity::class,
+        ],
+        InvoiceWasArchived::class => [
+            InvoiceArchivedActivity::class,
         ],
         InvoiceWasReversed::class => [
         ],
