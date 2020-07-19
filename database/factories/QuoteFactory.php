@@ -15,14 +15,12 @@ $factory->define(App\Models\Quote::class, function (Faker $faker) {
         'tax_rate2' => 17.5,
         'tax_name3' => 'THIRDTAX',
         'tax_rate3' => 5,
-        'custom_value1' => $faker->numberBetween(1, 4),
-        'custom_value2' => $faker->numberBetween(1, 4),
-        'custom_value3' => $faker->numberBetween(1, 4),
-        'custom_value4' => $faker->numberBetween(1, 4),
+        // 'custom_value1' => $faker->numberBetween(1, 4),
+        // 'custom_value2' => $faker->numberBetween(1, 4),
+        // 'custom_value3' => $faker->numberBetween(1, 4),
+        // 'custom_value4' => $faker->numberBetween(1, 4),
         'is_deleted' => false,
         'po_number' => $faker->text(10),
-        'date' => $faker->date(),
-        'due_date' => $faker->date(),
         'line_items' => false,
     ];
 });

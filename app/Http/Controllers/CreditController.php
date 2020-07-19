@@ -540,6 +540,13 @@ class CreditController extends BaseController
                     return $this->listResponse($credit);
                 }
                 break;
+            case 'restore':
+                $this->credit_repository->restore($credit);
+
+                if (!$bulk) {
+                    return $this->listResponse($credit);
+                }
+                break;
             case 'delete':
                 $this->credit_repository->delete($credit);
 

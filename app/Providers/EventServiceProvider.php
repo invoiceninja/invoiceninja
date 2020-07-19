@@ -185,7 +185,7 @@ class EventServiceProvider extends ServiceProvider
         //    CreateInvoicePdf::class,
         ],
         InvoiceWasPaid::class => [
-            CreateInvoiceHtmlBackup::class,
+       //    CreateInvoiceHtmlBackup::class,
         ],
         InvoiceWasViewed::class => [
             InvoiceViewedActivity::class,

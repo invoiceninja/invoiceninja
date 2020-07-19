@@ -28,6 +28,8 @@ use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Ninja\CompanySizeCheck;
+use App\Jobs\Util\VersionCheck;
 use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
 use App\Mail\MigrationFailed;
@@ -174,6 +176,10 @@ class Import implements ShouldQueue
         $this->setInitialCompanyLedgerBalances();
 
         Mail::to($this->user)->send(new MigrationCompleted());
+
+        /*After a migration first some basic jobs to ensure the system is up to date*/
+        VersionCheck::dispatch();
+        CompanySizeCheck::dispatch();
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 

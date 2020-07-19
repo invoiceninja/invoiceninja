@@ -39,11 +39,6 @@ class StartupCheck
     public function handle(Request $request, Closure $next)
     {
         // $start = microtime(true);
-        // Log::error('start up check');
-
-        if ($request->has('clear_cache')) {
-            Session::flash('message', 'Cache cleared');
-        }
         
         /* Make sure our cache is built */
         $cached_tables = config('ninja.cached_tables');
