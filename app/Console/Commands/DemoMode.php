@@ -92,7 +92,7 @@ class DemoMode extends Command
     {
         $faker = \Faker\Factory::create();
 
-        $this->count = 10;
+        $this->count = 50;
 
         $this->info('Creating Small Account and Company');
 
@@ -200,46 +200,46 @@ class DemoMode extends Command
         {
             $client = $company->clients->random();
 
-            $this->info('creating invoice for client #'.$client->id);
-
-            for($y=0; $y<($this->count); $y++){
-                $this->info("creating invoice #{$y} for client #".$client->id);
+            $this->info('creating entities for client #'.$client->id);
                 $this->createInvoice($client);
-            }
+
+            // for($y=0; $y<($this->count); $y++){
+            //     $this->info("creating invoice #{$y} for client #".$client->id);
+            // }
 
             $client = $company->clients->random();
-
-            for($y=0; $y<($this->count); $y++){
-                $this->info("creating credit #{$y} for client #".$client->id);
                 $this->createCredit($client);
-            }
+
+            // for($y=0; $y<($this->count); $y++){
+            //     $this->info("creating credit #{$y} for client #".$client->id);
+            // }
 
             $client = $company->clients->random();
-
-            for($y=0; $y<($this->count); $y++){
-                $this->info("creating quote #{$y}  for client #".$client->id);
                 $this->createQuote($client);
-            }
+
+            // for($y=0; $y<($this->count); $y++){
+            //     $this->info("creating quote #{$y}  for client #".$client->id);
+            // }
 
             $client = $company->clients->random();
+                $this->createExpense($client);
 
-            $this->info("creating expense for client #".$client->id);
-            $this->createExpense($client);
+            //$this->info("creating expense for client #".$client->id);
 
             $client = $company->clients->random();
-
-            $this->info("creating vendor for client #".$client->id);
             $this->createVendor($client);
 
-            $client = $company->clients->random();
+            // $this->info("creating vendor for client #".$client->id);
 
-            $this->info("creating task for client #".$client->id);
+            $client = $company->clients->random();
             $this->createTask($client);
 
-            $client = $company->clients->random();
+            // $this->info("creating task for client #".$client->id);
 
-            $this->info("creating project for client #".$client->id);
+            $client = $company->clients->random();
             $this->createProject($client);
+
+            // $this->info("creating project for client #".$client->id);
         }
 
     }
@@ -446,12 +446,18 @@ class DemoMode extends Command
 
         $quote =factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company_id, 'client_id' => $client->id]);
 
-        if((bool)rand(0,1))
+        if((bool)rand(0,1)){
             $dateable = Carbon::now()->subDays(rand(1, 30));
-        else
+            $dateable_due = $dateable->addDays(rand(1, 30));
+        }
+        else{
             $dateable = Carbon::now()->addDays(rand(1, 30));
+            $dateable_due = $dateable->addDays(rand(-10, 30));
+        }
 
         $quote->date = $dateable;
+        $quote->due_date = $dateable_due;
+
         $quote->client_id = $client->id;
         
         $quote->setRelation('client', $client);
