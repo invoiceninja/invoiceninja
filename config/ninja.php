@@ -56,7 +56,7 @@ return [
         'datetime_format_id' => env('DEFAULT_DATETIME_FORMAT_ID', '1'),
         'locale' => env('DEFAULT_LOCALE', 'en'),
         'map_zoom' => env('DEFAULT_MAP_ZOOM', 10),
-        'payment_terms' => env('DEFAULT_PAYMENT_TERMS', "-1"),
+        'payment_terms' => env('DEFAULT_PAYMENT_TERMS', ""),
         'military_time' => env('MILITARY_TIME', 0),
         'first_day_of_week' => env('FIRST_DATE_OF_WEEK', 0),
         'first_month_of_year' => env('FIRST_MONTH_OF_YEAR', '2000-01-01')
