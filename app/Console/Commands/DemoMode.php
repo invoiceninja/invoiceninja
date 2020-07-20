@@ -383,7 +383,7 @@ class DemoMode extends Command
             $invoice = $invoice->service()->markPaid()->save();
 
             $invoice->payments->each(function ($payment){
-                $payment->date = now()->addDays(rand(0,90));
+                $payment->date = now()->addDays(rand(-30,30));
                 $payment->save();
             });
         }

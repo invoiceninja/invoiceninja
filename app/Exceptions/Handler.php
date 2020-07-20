@@ -36,7 +36,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        \PDOException::class,
     ];
 
     /**
@@ -81,6 +81,7 @@ class Handler extends ExceptionHandler
                 }
             });
 
+            app('sentry')->setRelease(config('ninja.app_version'));
             app('sentry')->captureException($exception);
         }
 

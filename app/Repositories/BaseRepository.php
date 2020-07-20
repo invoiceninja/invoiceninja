@@ -178,7 +178,7 @@ class BaseRepository
 
     public function getInvitation($invitation, $resource)
     {
-        if (!array_key_exists('key', $invitation)) {
+        if (is_array($invitation) && !array_key_exists('key', $invitation)) {
             return false;
         }
 
@@ -253,7 +253,15 @@ class BaseRepository
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use($resource){
-                $this->getInvitation($invitation, $resource)->delete();
+               // $this->getInvitation($invitation, $resource)->delete();
+
+                    $invitation_class = sprintf("App\\Models\\%sInvitation", $resource);
+
+                    $invitation = $invitation_class::whereRaw("BINARY `key`= ?", [$invitation])->first();
+
+                    if($invitation)
+                        $invitation->delete();
+
             });
 
             foreach ($data['invitations'] as $invitation) {

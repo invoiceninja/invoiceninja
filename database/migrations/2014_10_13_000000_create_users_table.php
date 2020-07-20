@@ -112,13 +112,8 @@ class CreateUsersTable extends Migration
             $table->date('trial_started')->nullable();
             $table->enum('trial_plan', ['pro', 'enterprise'])->nullable();
 
-            $table->enum('pending_plan', ['pro', 'enterprise', 'free'])->nullable();
-            $table->enum('pending_term', ['month', 'year'])->nullable();
-
             $table->decimal('plan_price', 7, 2)->nullable();
-            $table->decimal('pending_plan_price', 7, 2)->nullable();
             $table->smallInteger('num_users')->default(1);
-            $table->smallInteger('pending_num_users')->default(1);
 
             $table->string('utm_source')->nullable();
             $table->string('utm_medium')->nullable();
@@ -128,10 +123,6 @@ class CreateUsersTable extends Migration
             $table->string('latest_version')->default('0.0.0');
             $table->boolean('report_errors')->default(false);
 
-            $table->float('discount')->default(0);
-            $table->date('discount_expires')->nullable();
-
-            $table->enum('bluevine_status', ['ignored', 'signed_up'])->nullable();
             $table->string('referral_code')->nullable();
 
             $table->timestamps(6);
