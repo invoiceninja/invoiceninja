@@ -16,21 +16,23 @@ class PdfMakerDesignsTest extends TestCase
 
         $this->state = [
             'variables' => [
-                '#css' => asset('css/tailwindcss@1.4.6.css'),
-                '#global-margin' => 'm-12',
+                '$css' => asset('css/tailwindcss@1.4.6.css'),
+                '$global-margin' => 'm-12',
 
-                '#company-logo' => 'https://invoiceninja-invoice-templates.netlify.app/assets/images/invoiceninja-logo.png',
-                '#entity-number-label' => 'Invoice number',
-                '#entity-number' => '10000',
-                '#entity-date-label' => 'Invoice date',
-                '#entity-date' => '3th of June, 2025.',
-                '#due-date-label' => 'Due date',
-                '#due-date' => '5th of June, 2025.',
-                '#balance-due-label' => 'Balance due',
-                '#balance-due' => '$800.50',
+                '$company-logo' => 'https://invoiceninja-invoice-templates.netlify.app/assets/images/invoiceninja-logo.png',
+                '$entity-number-label' => 'Invoice number',
+                '$entity-number' => '10000',
+                '$entity-date-label' => 'Invoice date',
+                '$entity-date' => '3th of June, 2025.',
+                '$due-date-label' => 'Due date',
+                '$due-date' => '5th of June, 2025.',
+                '$balance-due-label' => 'Balance due',
+                '$balance-due' => '$800.50',
 
-                '#terms-label' => 'Terms',
-                '#terms' => 'Trend and SEO report has been sent via email. This is really long text just to test the width of the elements.',
+                '$terms-label' => 'Terms',
+                '$terms' => 'Trend and SEO report has been sent via email. This is really long text just to test the width of the elements.',
+
+                '$invoice-issued-to' => 'Invoice issued to:',
             ],
         ];
     }
@@ -69,16 +71,16 @@ class PdfMakerDesignsTest extends TestCase
                     'id' => 'entity-details',
                     'elements' => [
                         ['element' => 'div', 'content' => '', 'elements' => [
-                            ['element' => 'p', 'content' => '#entity-number-label'],
-                            ['element' => 'p', 'content' => '#entity-date-label'],
-                            ['element' => 'p', 'content' => '#due-date-label'],
-                            ['element' => 'p', 'content' => '#balance-due-label'],
+                            ['element' => 'p', 'content' => '$entity-number-label'],
+                            ['element' => 'p', 'content' => '$entity-date-label'],
+                            ['element' => 'p', 'content' => '$due-date-label'],
+                            ['element' => 'p', 'content' => '$balance-due-label'],
                         ]],
                         ['element' => 'div', 'content' => '', 'elements' => [
-                            ['element' => 'p', 'content' => '#entity-number'],
-                            ['element' => 'p', 'content' => '#entity-date'],
-                            ['element' => 'p', 'content' => '#due-date'],
-                            ['element' => 'p', 'content' => '#balance-due'],
+                            ['element' => 'p', 'content' => '$entity-number'],
+                            ['element' => 'p', 'content' => '$entity-date'],
+                            ['element' => 'p', 'content' => '$due-date'],
+                            ['element' => 'p', 'content' => '$balance-due'],
                         ]],
                     ],
                 ],
@@ -119,6 +121,21 @@ class PdfMakerDesignsTest extends TestCase
                 '#invoice-issued-to' => 'Invoice issued to',
             ], $this->state['variables']),
         ];
+
+        $maker = new PdfMaker($state);
+
+        $maker
+            ->design(Business::class)
+            ->build();
+
+        exec('echo "" > storage/logs/laravel.log');
+
+        info($maker->getCompiledHTML());
+    }
+
+    public function testClean()
+    {
+        $state = [];
 
         $maker = new PdfMaker($state);
 

@@ -45,6 +45,6 @@ class PdfMaker
 
     public function getCompiledHTML()
     {
-        return $this->document->saveHTML();
+        return $this->document->saveXML();
     }
 }
