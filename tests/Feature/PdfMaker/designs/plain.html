@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+
+        <link rel="stylesheet" href="$css" />
+    </head>
+
+    <body class="$global-margin antialiased break-words bg-white">
+        <!-- Company name, company address, company logo -->
+        <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-4">$company-name</div>
+            <div class="col-span-4" id="company-address"></div>
+            <div class="col-span-4">
+                <img
+                    src="$company-logo"
+                    alt="$company->name logo"
+                    class="block w-24 col-span-4 sm:w-32"
+                />
+            </div>
+        </div>
+
+        <!-- Entity details -->
+        <div class="grid grid-cols-12">
+            <div class="col-span-6 col-start-8 mt-10">
+                <table class="flex justify-between" id="entity-details"></table>
+            </div>
+        </div>
+
+        <!-- Client details -->
+        <div class="grid grid-cols-12">
+            <div class="col-span-6" id="client-details"></div>
+        </div>
+
+        <!-- Product table -->
+        <table id="product-table" class="w-full mt-8 table-auto"></table>
+    </body>
+</html>
