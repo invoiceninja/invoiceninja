@@ -80,7 +80,6 @@ use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\InvoiceViewedActivity;
-use App\Listeners\Invoice\QuoteEmailActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\Misc\InvitationViewedListener;
