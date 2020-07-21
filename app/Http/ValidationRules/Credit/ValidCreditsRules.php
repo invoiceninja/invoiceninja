@@ -78,10 +78,11 @@ class ValidCreditsRules implements Rule
         }
 
 
-        if(count($this->input['credits']) >=1 && count($this->input['invoices']) == 0)
+        if(count($this->input['credits']) >=1 && count($this->input['invoices']) == 0){
             $this->error_msg = "You must have an invoice set when using a credit";
             return false;
-
+        }
+        
         return true;
     }
     
