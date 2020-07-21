@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+
+        <link rel="stylesheet" href="$css" />
+    </head>
+
+    <body class="$global-margin antialiased break-words bg-white">
+        <!-- Company details, address, client details, company logo -->
+        <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-4 pl-4 border-l border-black">
+                <div id="company-details">
+                    <p class="font-semibold text-yellow-600 uppercase">
+                        $from:
+                    </p>
+                </div>
+                <div id="company-address" class="mt-4"></div>
+            </div>
+            <div
+                class="col-span-5 pl-4 border-l border-black"
+                id="client-details"
+            >
+                <p class="font-semibold text-yellow-600 uppercase">$to:</p>
+            </div>
+            <div class="col-span-3">
+                <img
+                    src="$company-logo"
+                    alt="$company->name logo"
+                    class="w-24 col-span-4 sm:w-32"
+                />
+            </div>
+        </div>
+
+        <!-- Entity details -->
+        <h1 class="mt-6 text-4xl font-semibold uppercase lg:text-6xl">$entity</h1>
+        <div id="entity-details" class="flex items-center space-x-6"></div>
+
+        <!-- Product table -->
+        <table id="product-table" class="w-full mt-10 table-auto"></table>
+    </body>
+</html>
