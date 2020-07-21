@@ -205,4 +205,6 @@ class SetupController extends Controller
             return response([], 500);
         }
     }
+
+    
 }
