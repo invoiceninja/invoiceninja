@@ -3240,5 +3240,5 @@ return [
 
     'node_status_not_found' => 'I could not find Node anywhere. Is it installed?',
     'npm_status_not_found' => 'I could not find NPM anywhere. Is it installed?',
-
+    'locked_invoice'    => 'This invoice is locked and unable to be modified',
 ];
