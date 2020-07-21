@@ -41,7 +41,7 @@ class PostUpdate extends Command
         info("running post update");
 
         try {
-            Artisan::call('migrate');
+            Artisan::call('migrate',['--force' => true]);
         } catch (Exception $e) {
             \Log::error("I wasn't able to migrate the data.");
         }
