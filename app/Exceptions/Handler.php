@@ -81,7 +81,7 @@ class Handler extends ExceptionHandler
                 }
             });
 
-            app('sentry')->setRelease(config('ninja.app_version'));
+//            app('sentry')->setRelease(config('ninja.app_version'));
             app('sentry')->captureException($exception);
         }
 
