@@ -139,7 +139,7 @@ class BaseController extends Controller
         $includes = $transformer->getDefaultIncludes();
         $includes = $this->getRequestIncludes($includes);
 
-info(print_r($includes,1));
+        //info(print_r($includes,1));
 
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
         $updated_at = date('Y-m-d H:i:s', $updated_at);

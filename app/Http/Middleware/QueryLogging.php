@@ -48,10 +48,10 @@ class QueryLogging
                 $timeEnd = microtime(true);
                 $time = $timeEnd - $timeStart;
             
-            //    Log::info($request->method() . ' - ' . $request->url() . ": $count queries - " . $time);
+                Log::info($request->method() . ' - ' . $request->url() . ": $count queries - " . $time);
                 
              //if($count > 10)
-                 Log::info($queries);
+             //    Log::info($queries);
                  
             }
         }

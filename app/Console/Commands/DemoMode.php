@@ -100,7 +100,7 @@ class DemoMode extends Command
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
-            'enabled_modules' => 8191,
+            'enabled_modules' => 32767,
         ]);
 
          $settings = $company->settings;
