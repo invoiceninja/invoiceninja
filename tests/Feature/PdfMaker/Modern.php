@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\PdfMaker;
 
-class Business
+class Modern
 {
     public function html()
     {
         return file_get_contents(
-            base_path('tests/Feature/PdfMaker/designs/business.html')
+            base_path('tests/Feature/PdfMaker/designs/modern.html')
         );
     }
 }

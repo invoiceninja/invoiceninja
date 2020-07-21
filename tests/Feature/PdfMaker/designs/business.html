@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="$css">
+</head>
+
+<style>
+    thead th:first-child {
+        border-top-left-radius: .5rem;
+        border-bottom-left-radius: .3rem;
+    }
+
+    thead th:last-child {
+        border-top-right-radius: .5rem;
+        border-bottom-right-radius: .3rem;
+    }
+</style>
+
+<body class="$global-margin bg-white break-words antialiased">
+    <!-- Logo, company details & company address -->
+    <div class="flex grid items-start grid-cols-12 gap-4">
+        <img src="$company-logo" alt="$company-name" class="grid w-24 col-span-4 sm:w-32">
+        <div class="grid grid-cols-2 col-span-8 space-x-10 text-gray-700 lg:col-start-8">
+            <div id="company-details" class="col-span-1 text-gray-500"></div>
+            <div id="company-address" class="col-span-1 text-gray-500"></div>
+        </div>
+    </div>
+
+    <!-- Client details, entity details -->
+    <div class="grid grid-cols-12 gap-4 my-12">
+        <div class="col-span-6">
+            <p>$invoice-issued-to</p>
+            <div id="client-details" class="mt-4 text-orange-600"></div>
+        </div>
+        <div class="col-span-6">
+            <div class="h-auto px-4 py-4 bg-orange-600 rounded-lg">
+                <div class="flex justify-between text-white" id="entity-details"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product table -->
+    <table id="product-table" class="w-full mt-20 rounded table-auto"></table>
+
+    <!-- Balance due card -->
+    <div class="grid grid-cols-12 my-12">
+        <div class="col-span-6">
+            <p class="font-semibold">$terms-label</p>
+            <p>$terms</p>
+        </div>
+        <div class="col-span-5 col-start-8 lg:col-start-9 lg:col-span-4">
+            <div class="h-auto px-4 py-4 bg-orange-600 rounded-lg">
+                <div class="flex justify-between text-white">
+                    <p>$balance-due-label</p>
+                    <p>$balance-due</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

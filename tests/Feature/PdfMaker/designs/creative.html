@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+
+        <link rel="stylesheet" href="$css" />
+    </head>
+
+    <style>
+        #product-table tbody > tr:nth-child(even) {
+            background-color: #edf2f7;
+        }
+
+        #product-table tbody > tr:nth-child(odd) {
+            background-color: #f7fafc;
+        }
+    </style>
+
+    <body class="$global-margin antialiased bg-white break-words">
+        <!-- Client details, company details, company logo -->
+        <div class="grid grid-cols-12 gap-4">
+            <!-- Client details -->
+            <div class="col-span-4">
+                <div id="client-details"></div>
+            </div>
+
+            <!-- Company details -->
+            <div class="flex flex-col col-span-4 space-y-4">
+                <div id="company-details"></div>
+                <div id="company-address"></div>
+            </div>
+
+            <!-- Logo -->
+            <div class="flex flex-col items-end col-span-4">
+                <img
+                    src="$company-logo"
+                    alt="$company-name logo"
+                    class="w-24 col-span-4 sm:w-32"
+                />
+            </div>
+        </div>
+
+        <!-- Entity label, entity details -->
+        <div class="grid grid-cols-12 mt-10">
+            <!-- Entity number -->
+            <div class="col-span-4 text-3xl font-semibold uppercase">
+                <span>$entity</span>
+                <i class="text-pink-700">#$entity-number</i>
+            </div>
+
+            <!-- Entity labels -->
+            <div class="flex flex-col items-end col-span-8">
+                <table id="entity-details"></table>
+            </div>
+        </div>
+
+        <table
+            id="product-table"
+            class="w-full mt-10 border-t-4 border-pink-700 table-auto"
+        ></table>
+    </body>
+</html>

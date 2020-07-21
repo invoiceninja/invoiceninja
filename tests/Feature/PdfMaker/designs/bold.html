@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+
+        <link rel="stylesheet" href="$css" />
+    </head>
+
+    <style>
+        #product-table tbody > tr:nth-child(even) {
+            background-color: #edf2f7;
+        }
+    </style>
+
+    <body class="antialiased break-words bg-white">
+        <!-- Company logo, company details -->
+        <div class="$global-padding static bg-gray-800">
+            <div class="grid grid-cols-12">
+                <div class="absolute col-span-4 p-6 pb-10 bg-white">
+                    <img
+                        src="$company-logo"
+                        alt="$company->name logo"
+                        class="w-24 col-span-4 sm:w-32"
+                    />
+                </div>
+                <div
+                    class="flex justify-between col-span-8 col-start-6 lg:col-span-6 lg:col-start-8"
+                >
+                    <div id="company-details" class="text-white"></div>
+                    <div id="company-address" class="text-white"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client details, entity details -->
+        <div class="grid grid-cols-12 gap-4 my-12 ml-12">
+            <div class="col-span-6">
+                <h2
+                    class="text-2xl font-semibold tracking-tight text-teal-600 uppercase"
+                >
+                    $your-invoice
+                </h2>
+                <div id="client-details" class="mt-4"></div>
+            </div>
+            <div class="col-span-6">
+                <div class="h-auto px-4 py-4 bg-teal-600">
+                    <table
+                        class="flex justify-between text-white"
+                        id="entity-details"
+                    ></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product table -->
+        <div class="$global-margin">
+            <table id="product-table" class="w-full mt-8 table-auto"></table>
+        </div>
+    </body>
+</html>

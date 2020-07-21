@@ -16,6 +16,12 @@ class PdfMaker
 
     private $xpath;
 
+    private $filters = [
+        '<![CDATA[' => '',
+        ']]>' => '',
+        '<?xml version="1.0" encoding="utf-8" standalone="yes"??>' => '',
+    ];
+
     public function __construct(array $data)
     {
         $this->data = $data;
@@ -43,8 +49,16 @@ class PdfMaker
         return $this;
     }
 
-    public function getCompiledHTML()
+    public function getCompiledHTML($final = false)
     {
-        return $this->document->saveHTML();
+        if ($final) {
+            $html = $this->document->saveXML();
+
+            $filtered = strtr($html, $this->filters);
+
+            return $filtered;
+        }
+
+        return $this->document->saveXML();
     }
 }
