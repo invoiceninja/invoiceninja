@@ -137,36 +137,39 @@ class BaseController extends Controller
         $transformer = new $this->entity_transformer(Input::get('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
-
         $includes = $this->getRequestIncludes($includes);
+
+        //info(print_r($includes,1));
 
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
         $updated_at = date('Y-m-d H:i:s', $updated_at);
+
+        //info($updated_at);
 
         $query->with(
         [
         'company' => function ($query) use($updated_at){$query->where('updated_at', '>=', 0);},
         'company.activities' => function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
-        'company.clients' =>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.tax_rates'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.groups'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.company_gateways'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.clients.contacts'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.products'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.invoices.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.invoices.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.invoices.documents'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.payments.paymentables'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.quotes.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.quotes.documents'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.credits.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.credits'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.payment_terms'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.vendors'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.expenses'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.tasks'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.projects'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
-        'company.designs'=>function ($query) use($updated_at){$query->where('updated_at', '>', $updated_at);},
+        'company.clients' =>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.tax_rates'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.groups'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.company_gateways'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.clients.contacts'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.products'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.invoices.invitations.contact'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.invoices.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.invoices.documents'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.payments.paymentables'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.quotes.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.quotes.documents'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.credits.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.credits'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.payment_terms'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.vendors'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.expenses'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.tasks'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.projects'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.designs'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         ]
         );
 
@@ -311,6 +314,7 @@ class BaseController extends Controller
           'company.quotes.invitations.contact',
           'company.quotes.invitations.company',
           'company.quotes.documents',
+          'company.credits.invitations.contact',
           'company.credits.invitations.company',
           'company.credits.documents',
           'company.payment_terms.company',
@@ -340,7 +344,7 @@ class BaseController extends Controller
          * Thresholds for displaying large account on first load
          */
         if (request()->has('first_load') && request()->input('first_load') == 'true') {
-            if (auth()->user()->getCompany()->is_large) {
+            if (auth()->user()->getCompany()->is_large && request()->missing('updated_at')) {
                 $data = $mini_load;
             } else {
                 $data = $first_load;

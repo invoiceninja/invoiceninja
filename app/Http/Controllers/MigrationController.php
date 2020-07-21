@@ -228,6 +228,7 @@ class MigrationController extends BaseController
             $company_token->account_id = $account->id;
             $company_token->name = $request->token_name ?? Str::random(12);
             $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+            $company_token->is_system = true;
             $company_token->save();
 
             $user->companies()->attach($company->id, [
@@ -287,6 +288,8 @@ class MigrationController extends BaseController
             $company_token->account_id = $account->id;
             $company_token->name = $request->token_name ?? Str::random(12);
             $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+                    $company_token->is_system = true;
+
             $company_token->save();
 
             $user->companies()->attach($company->id, [
@@ -320,6 +323,8 @@ class MigrationController extends BaseController
             $company_token->account_id = $account->id;
             $company_token->name = $request->token_name ?? Str::random(12);
             $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+                    $company_token->is_system = true;
+
             $company_token->save();
 
             $user->companies()->attach($company->id, [
@@ -346,6 +351,8 @@ class MigrationController extends BaseController
             $company_token->account_id = $account->id;
             $company_token->name = $request->token_name ?? Str::random(12);
             $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+                    $company_token->is_system = true;
+
             $company_token->save();
 
             $user->companies()->attach($company->id, [

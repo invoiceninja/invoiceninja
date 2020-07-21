@@ -100,7 +100,7 @@ class DemoMode extends Command
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
-            'enabled_modules' => 8191,
+            'enabled_modules' => 32767,
         ]);
 
          $settings = $company->settings;
@@ -137,6 +137,8 @@ class DemoMode extends Command
         $company_token->account_id = $account->id;
         $company_token->name = 'test token';
         $company_token->token = Str::random(64);
+        $company_token->is_system = true;
+        
         $company_token->save();
 
         $user->companies()->attach($company->id, [
@@ -190,10 +192,8 @@ class DemoMode extends Command
             $z = $x+1;
             $this->info("Creating client # ".$z);
 
-            if(rand(0,1))
-                $this->createClient($company, $user);
-            else
-                $this->createClient($company, $u2);
+            $this->createClient($company, $user, $u2->id);
+
         }
 
         for($x=0; $x<$this->count; $x++)
@@ -201,50 +201,50 @@ class DemoMode extends Command
             $client = $company->clients->random();
 
             $this->info('creating entities for client #'.$client->id);
-                $this->createInvoice($client);
+                $this->createInvoice($client, $u2->id);
 
             // for($y=0; $y<($this->count); $y++){
             //     $this->info("creating invoice #{$y} for client #".$client->id);
             // }
 
             $client = $company->clients->random();
-                $this->createCredit($client);
+                $this->createCredit($client, $u2->id);
 
             // for($y=0; $y<($this->count); $y++){
             //     $this->info("creating credit #{$y} for client #".$client->id);
             // }
 
             $client = $company->clients->random();
-                $this->createQuote($client);
+                $this->createQuote($client, $u2->id);
 
             // for($y=0; $y<($this->count); $y++){
             //     $this->info("creating quote #{$y}  for client #".$client->id);
             // }
 
             $client = $company->clients->random();
-                $this->createExpense($client);
+                $this->createExpense($client, $u2->id);
 
             //$this->info("creating expense for client #".$client->id);
 
             $client = $company->clients->random();
-            $this->createVendor($client);
+            $this->createVendor($client, $u2->id);
 
             // $this->info("creating vendor for client #".$client->id);
 
             $client = $company->clients->random();
-            $this->createTask($client);
+            $this->createTask($client, $u2->id);
 
             // $this->info("creating task for client #".$client->id);
 
             $client = $company->clients->random();
-            $this->createProject($client);
+            $this->createProject($client, $u2->id);
 
             // $this->info("creating project for client #".$client->id);
         }
 
     }
 
-    private function createClient($company, $user)
+    private function createClient($company, $user, $assigned_user_id = null)
     {
 
         // dispatch(function () use ($company, $user) {
@@ -274,6 +274,9 @@ class DemoMode extends Command
         $settings->currency_id = (string)rand(1,3);
         $client->settings = $settings;
 
+        if(rand(0,1))
+            $client->assigned_user_id = $assigned_user_id;
+
         $client->country_id = array_rand([36,392,840,124,276,826]);
         $client->save();
 
@@ -288,7 +291,7 @@ class DemoMode extends Command
             ]);
     }
 
-    private function createVendor($client)
+    private function createVendor($client, $assigned_user_id = null)
     {
         $vendor = factory(\App\Models\Vendor::class)->create([
                 'user_id' => $client->user_id,
@@ -311,7 +314,7 @@ class DemoMode extends Command
             ]);
     }
 
-    private function createTask($client)
+    private function createTask($client, $assigned_user_id = null)
     {
         $vendor = factory(\App\Models\Task::class)->create([
                 'user_id' => $client->user->id,
@@ -319,7 +322,7 @@ class DemoMode extends Command
             ]);
     }
 
-    private function createProject($client)
+    private function createProject($client, $assigned_user_id = null)
     {
         $vendor = factory(\App\Models\Project::class)->create([
                 'user_id' => $client->user->id,
@@ -327,7 +330,7 @@ class DemoMode extends Command
             ]);
     }
 
-    private function createInvoice($client)
+    private function createInvoice($client, $assigned_user_id = null)
     {
         // for($x=0; $x<$this->count; $x++){
         //     dispatch(new CreateTestInvoiceJob($client));
@@ -373,6 +376,9 @@ class DemoMode extends Command
 
         $invoice = $invoice_calc->getInvoice();
 
+        if(rand(0,1))
+            $invoice->assigned_user_id = $assigned_user_id;
+
         $invoice->save();
         $invoice->service()->createInvitations()->markSent();
 
@@ -383,7 +389,7 @@ class DemoMode extends Command
             $invoice = $invoice->service()->markPaid()->save();
 
             $invoice->payments->each(function ($payment){
-                $payment->date = now()->addDays(rand(0,90));
+                $payment->date = now()->addDays(rand(-30,30));
                 $payment->save();
             });
         }
@@ -391,7 +397,7 @@ class DemoMode extends Command
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
     }
 
-    private function createCredit($client)
+    private function createCredit($client, $assigned_user_id = null)
     {
         // for($x=0; $x<$this->count; $x++){
 
@@ -434,12 +440,15 @@ class DemoMode extends Command
 
         $credit = $invoice_calc->getCredit();
 
+        if(rand(0,1))
+            $credit->assigned_user_id = $assigned_user_id;
+
         $credit->save();
         $credit->service()->markSent()->save();
         $credit->service()->createInvitations();
     }
 
-    private function createQuote($client)
+    private function createQuote($client, $assigned_user_id = null)
     {
 
         $faker = \Faker\Factory::create();
@@ -487,6 +496,9 @@ class DemoMode extends Command
 
         $quote = $quote_calc->getQuote();
 
+        if(rand(0,1))
+            $quote->assigned_user_id = $assigned_user_id;
+        
         $quote->save();
 
         $quote->service()->markSent()->save();

@@ -23,6 +23,7 @@ use App\Events\Company\CompanyDocumentsDeleted;
 use App\Events\Contact\ContactLoggedIn;
 use App\Events\Credit\CreditWasArchived;
 use App\Events\Credit\CreditWasCreated;
+use App\Events\Credit\CreditWasDeleted;
 use App\Events\Credit\CreditWasEmailedAndFailed;
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Events\Credit\CreditWasUpdated;
@@ -45,19 +46,26 @@ use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasUpdated;
 use App\Events\Payment\PaymentWasVoided;
 use App\Events\Quote\QuoteWasApproved;
+use App\Events\Quote\QuoteWasCreated;
+use App\Events\Quote\QuoteWasEmailed;
+use App\Events\Quote\QuoteWasUpdated;
+use App\Events\Quote\QuoteWasViewed;
 use App\Events\User\UserLoggedIn;
 use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
 use App\Listeners\Activity\ArchivedClientActivity;
 use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\CreatedCreditActivity;
+use App\Listeners\Activity\CreatedQuoteActivity;
 use App\Listeners\Activity\CreditArchivedActivity;
 use App\Listeners\Activity\DeleteClientActivity;
+use App\Listeners\Activity\DeleteCreditActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
 use App\Listeners\Activity\PaymentDeletedActivity;
 use App\Listeners\Activity\PaymentRefundedActivity;
 use App\Listeners\Activity\PaymentUpdatedActivity;
 use App\Listeners\Activity\PaymentVoidedActivity;
+use App\Listeners\Activity\QuoteUpdatedActivity;
 use App\Listeners\Activity\RestoreClientActivity;
 use App\Listeners\Activity\UpdatedCreditActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
@@ -76,6 +84,8 @@ use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\Misc\InvitationViewedListener;
 use App\Listeners\Payment\PaymentNotification;
+use App\Listeners\Quote\QuoteEmailActivity;
+use App\Listeners\Quote\QuoteViewedActivity;
 use App\Listeners\Quote\ReachWorkflowSettings;
 use App\Listeners\SendVerificationNotification;
 use App\Listeners\SetDBListener;
@@ -151,6 +161,9 @@ class EventServiceProvider extends ServiceProvider
         CreditWasCreated::class => [
             CreatedCreditActivity::class,
         ],
+        CreditWasDeleted::class => [
+            DeleteCreditActivity::class,
+        ],
         CreditWasUpdated::class => [
             UpdatedCreditActivity::class,
         ],
@@ -216,6 +229,19 @@ class EventServiceProvider extends ServiceProvider
         QuoteWasApproved::class => [
             ReachWorkflowSettings::class,
         ],
+        QuoteWasCreated::class => [
+            CreatedQuoteActivity::class,
+        ],
+        QuoteWasUpdated::class => [
+            QuoteUpdatedActivity::class,
+        ],
+        QuoteWasEmailed::class => [
+            QuoteEmailActivity::class,
+        ],
+        QuoteWasViewed::class => [
+            QuoteViewedActivity::class,
+        ],
+
     ];
 
     /**

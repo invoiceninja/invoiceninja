@@ -36,7 +36,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        \PDOException::class,
     ];
 
     /**
@@ -81,6 +81,7 @@ class Handler extends ExceptionHandler
                 }
             });
 
+//            app('sentry')->setRelease(config('ninja.app_version'));
             app('sentry')->captureException($exception);
         }
 
@@ -117,6 +118,7 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof MethodNotAllowedHttpException && $request->expectsJson()) {
             return response()->json(['message'=>'Method not support for this route'], 404);
         } elseif ($exception instanceof ValidationException && $request->expectsJson()) {
+//            info(print_r($exception->validator->getMessageBag(),1));
             return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);
         } elseif ($exception instanceof RelationNotFoundException && $request->expectsJson()) {
             return response()->json(['message' => $exception->getMessage()], 400);

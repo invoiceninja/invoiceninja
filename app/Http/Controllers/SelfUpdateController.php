@@ -15,6 +15,7 @@ use App\Utils\Ninja;
 use Composer\Factory;
 use Composer\IO\NullIO;
 use Composer\Installer;
+use Cz\Git\GitException;
 use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
@@ -73,8 +74,12 @@ class SelfUpdateController extends BaseController
 
         info("Are there changes to pull? " . $repo->hasChanges());
 
+        try{
         $res = $repo->pull();
-        
+        }
+        catch(GitException $e) {
+            info($e->getMessage());
+        }
         info("Are there any changes to pull? " . $repo->hasChanges());
 
         Artisan::call('ninja:post-update');

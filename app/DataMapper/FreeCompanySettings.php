@@ -45,7 +45,7 @@ class FreeCompanySettings extends BaseSettings
     public $military_time  				    = false;
     public $payment_number_pattern          = '';
     public $payment_number_counter          = 1;
-    public $payment_terms  				    = -1;
+    public $payment_terms  				    = "";
     public $payment_type_id                 = '0';
     public $portal_design_id     		    = '1';
     public $quote_design_id                 = 'VolejRejNm';
@@ -112,7 +112,7 @@ class FreeCompanySettings extends BaseSettings
         'custom_value4'                      => 'string',
         'inclusive_taxes'                    => 'bool',
         'name'                               => 'string',
-        'payment_terms'                      => 'integer',
+        'payment_terms'                      => 'string',
         'payment_type_id'                    => 'string',
         'phone'                              => 'string',
         'postal_code'                        => 'string',

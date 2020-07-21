@@ -71,7 +71,41 @@ class SystemHealth
             'env_writable' => self::checkEnvWritable(),
             //'mail' => self::testMailServer(),
             'simple_db_check' => (bool) self::simpleDbCheck(),
+            'npm_status' => self::checkNpm(),
+            'node_status' => self::checkNode(),
         ];
+    }
+
+    public static function checkNode()
+    {
+        try {
+            exec('node -v', $foo, $exitCode);
+
+            if ($exitCode === 0) {
+              return $foo[0];
+            }
+        
+        } catch (\Exception $e) {
+           
+                return false;
+        }
+        
+    }
+
+    public static function checkNpm()
+    {
+        try {
+            exec('npm -v', $foo, $exitCode);
+
+            if ($exitCode === 0) {
+              return $foo[0];
+            } 
+
+        }catch (\Exception $e) {
+           
+                return false;
+        }
+        
     }
 
     private static function simpleDbCheck() :bool

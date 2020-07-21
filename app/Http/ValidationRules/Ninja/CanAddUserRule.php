@@ -35,7 +35,7 @@ class CanAddUserRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        return $this->account->num_users < $this->account->pending_num_users;
+        return $this->account->users->count() < $this->account->num_users;
     }
 
     /**
@@ -43,7 +43,7 @@ class CanAddUserRule implements Rule
      */
     public function message()
     {
-        return ctrans('texts.limit_users', ['limit' => $this->account->pending_num_users]);
+        return ctrans('texts.limit_users', ['limit' => $this->account->num_users]);
     }
 
 }
