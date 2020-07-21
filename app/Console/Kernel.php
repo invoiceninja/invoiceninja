@@ -11,6 +11,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CheckData;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CheckDbStatus;
@@ -45,6 +46,8 @@ class Kernel extends ConsoleKernel
         
         //$schedule->job(new RecurringInvoicesCron)->hourly();
         $schedule->job(new VersionCheck)->daily();
+
+        $schedule->command('ninja:check-data')->daily();
 
         $schedule->job(new ReminderJob)->daily();
 
