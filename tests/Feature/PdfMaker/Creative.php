@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\PdfMaker;
 
-class creative
+class Creative
 {
     public function html()
     {
