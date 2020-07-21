@@ -3238,5 +3238,7 @@ return [
 
     'checkout_authorize_label' => 'Checkout.com can be can saved as payment method for future use, once you complete your first transaction. Don\'t forget to check "Save card" during payment process.',
 
+    'node_status_not_found' => 'I could not find Node anywhere. Is it installed?',
+    'npm_status_not_found' => 'I could not find NPM anywhere. Is it installed?',
 
 ];

@@ -82,7 +82,7 @@ class SystemHealth
             exec('node -v', $foo, $exitCode);
 
             if ($exitCode === 0) {
-              return $exitCode;
+              return $foo[0];
             }
         
         } catch (\Exception $e) {
@@ -98,7 +98,7 @@ class SystemHealth
             exec('npm -v', $foo, $exitCode);
 
             if ($exitCode === 0) {
-              return $exitCode;
+              return $foo[0];
             } 
 
         }catch (\Exception $e) {

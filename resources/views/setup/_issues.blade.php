@@ -68,7 +68,7 @@
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     @if($check['npm_status'])
                     <span class="alert alert-success block flex justify-between items-center">
-                        <span>{{ strtoupper(ctrans('texts.ok')) }}</span>
+                        <span>{{ $check['npm_status'] }} => {{ strtoupper(ctrans('texts.ok')) }}</span>
                         <span>✔</span>
                     </span>
                     @else
@@ -86,7 +86,7 @@
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     @if($check['node_status'])
                     <span class="alert alert-success block flex justify-between items-center">
-                        <span>{{ strtoupper(ctrans('texts.ok')) }}</span>
+                        <span>{{ $check['node_status'] }} => {{ strtoupper(ctrans('texts.ok')) }}</span>
                         <span>✔</span>
                     </span>
                     @else
