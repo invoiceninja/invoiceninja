@@ -127,7 +127,7 @@ class PdfMakerDesignsTest extends TestCase
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(Business::class)
+            ->design(ExampleDesign::class)
             ->build();
 
         exec('echo "" > storage/logs/laravel.log');
