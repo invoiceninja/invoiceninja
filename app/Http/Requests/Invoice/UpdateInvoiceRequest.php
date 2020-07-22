@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Invoice\LockedInvoiceRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
@@ -38,6 +39,7 @@ class UpdateInvoiceRequest extends Request
 
     public function rules()
     {
+        
         $rules = [];
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
@@ -49,6 +51,8 @@ class UpdateInvoiceRequest extends Request
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
+
+        $rules['id'] = new LockedInvoiceRule($this->invoice);
 
         return $rules;
     }
@@ -85,7 +89,8 @@ class UpdateInvoiceRequest extends Request
                 }
             }
         }
-        
+
+        $input['id'] = $this->invoice->id;
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
 
         $this->replace($input);

@@ -133,6 +133,8 @@ class PdfMakerDesignsTest extends TestCase
         exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML());
+
+        $this->assertTrue(true);
     }
 
     public function testClean()
@@ -242,6 +244,9 @@ class PdfMakerDesignsTest extends TestCase
         exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML(true));
+
+                $this->assertTrue(true);
+
     }
 
     public function testModern()
@@ -355,7 +360,11 @@ class PdfMakerDesignsTest extends TestCase
         exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML(true));
+
+                $this->assertTrue(true);
+
     }
+
 
     public function testBold()
     {
@@ -468,6 +477,9 @@ class PdfMakerDesignsTest extends TestCase
         exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML(true));
+
+                $this->assertTrue(true);
+
     }
 
     public function testPlain()
@@ -573,6 +585,9 @@ class PdfMakerDesignsTest extends TestCase
         exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML(true));
+
+                $this->assertTrue(true);
+
     }
 
     public function testHipster()
@@ -682,6 +697,9 @@ class PdfMakerDesignsTest extends TestCase
         exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML(true));
+
+                $this->assertTrue(true);
+
     }
 
     public function testElegant()
@@ -795,6 +813,9 @@ class PdfMakerDesignsTest extends TestCase
         exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML(true));
+
+                $this->assertTrue(true);
+
     }
 
     public function testCreative()
@@ -908,6 +929,9 @@ class PdfMakerDesignsTest extends TestCase
         exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML(true));
+
+                $this->assertTrue(true);
+
     }
 
     public function testPlayful()
@@ -1014,5 +1038,9 @@ class PdfMakerDesignsTest extends TestCase
         exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML(true));
+
+
+                $this->assertTrue(true);
+
     }
 }
