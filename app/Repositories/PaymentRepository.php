@@ -82,12 +82,14 @@ class PaymentRepository extends BaseRepository
                     $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
                 
                 $client = Client::find($data['client_id']);
-                info("updating client balance from {$client->balance} by this much ".$data['amount']);
+                //info("updating client balance from {$client->balance} by this much ".$data['amount']);
 
                 $client->service()->updatePaidToDate($data['amount'])->save();
 
             }
         }
+
+        //info(print_r($data,1));
 
         /*Fill the payment*/
         $payment->fill($data);
