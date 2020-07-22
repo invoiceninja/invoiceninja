@@ -27,6 +27,7 @@ use App\Http\Requests\User\ShowUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\User\UserEmailChanged;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;

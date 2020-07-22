@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Bus\Queueable;
 
 class UserEmailChanged extends BaseMailerJob implements ShouldQueue
 {
@@ -61,6 +62,7 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
         $mail_obj->tag = $this->company->company_key;
         $mail_obj->data = $this->getData();
 
+
         //send email
         Mail::to($this->old_email)
             ->send(new UserNotificationMailer($mail_obj));
@@ -78,7 +80,7 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
 
     private function getData()
     {
-        $data = [
+        return [
             'title' => ctrans('texts.email_address_changed'),
             'message' => ctrans(
                 'texts.email_address_changed_message',
