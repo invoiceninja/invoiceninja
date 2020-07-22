@@ -2,6 +2,16 @@
 
 namespace Tests\Feature\PdfMaker;
 
+use App\Services\PdfMaker\Designs\Bold;
+use App\Services\PdfMaker\Designs\Business;
+use App\Services\PdfMaker\Designs\Clean;
+use App\Services\PdfMaker\Designs\Creative;
+use App\Services\PdfMaker\Designs\Elegant;
+use App\Services\PdfMaker\Designs\Hipster;
+use App\Services\PdfMaker\Designs\Modern;
+use App\Services\PdfMaker\Designs\Plain;
+use App\Services\PdfMaker\Designs\Playful;
+use App\Services\PdfMaker\PdfMaker;
 use Tests\TestCase;
 
 class PdfMakerDesignsTest extends TestCase
@@ -245,8 +255,7 @@ class PdfMakerDesignsTest extends TestCase
 
         info($maker->getCompiledHTML(true));
 
-                $this->assertTrue(true);
-
+        $this->assertTrue(true);
     }
 
     public function testModern()
@@ -361,8 +370,7 @@ class PdfMakerDesignsTest extends TestCase
 
         info($maker->getCompiledHTML(true));
 
-                $this->assertTrue(true);
-
+        $this->assertTrue(true);
     }
 
 
@@ -478,8 +486,7 @@ class PdfMakerDesignsTest extends TestCase
 
         info($maker->getCompiledHTML(true));
 
-                $this->assertTrue(true);
-
+        $this->assertTrue(true);
     }
 
     public function testPlain()
@@ -586,8 +593,7 @@ class PdfMakerDesignsTest extends TestCase
 
         info($maker->getCompiledHTML(true));
 
-                $this->assertTrue(true);
-
+        $this->assertTrue(true);
     }
 
     public function testHipster()
@@ -698,8 +704,7 @@ class PdfMakerDesignsTest extends TestCase
 
         info($maker->getCompiledHTML(true));
 
-                $this->assertTrue(true);
-
+        $this->assertTrue(true);
     }
 
     public function testElegant()
@@ -814,8 +819,7 @@ class PdfMakerDesignsTest extends TestCase
 
         info($maker->getCompiledHTML(true));
 
-                $this->assertTrue(true);
-
+        $this->assertTrue(true);
     }
 
     public function testCreative()
@@ -930,8 +934,7 @@ class PdfMakerDesignsTest extends TestCase
 
         info($maker->getCompiledHTML(true));
 
-                $this->assertTrue(true);
-
+        $this->assertTrue(true);
     }
 
     public function testPlayful()
@@ -1039,8 +1042,6 @@ class PdfMakerDesignsTest extends TestCase
 
         info($maker->getCompiledHTML(true));
 
-
-                $this->assertTrue(true);
-
+        $this->assertTrue(true);
     }
 }

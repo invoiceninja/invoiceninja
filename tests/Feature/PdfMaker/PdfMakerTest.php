@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\PdfMaker;
 
+use App\Services\PdfMaker\PdfMaker;
 use Spatie\Browsershot\Browsershot;
 use Tests\TestCase;
 
@@ -12,18 +13,13 @@ class PdfMakerTest extends TestCase
         'variables' => [],
     ];
 
-    public function setUp() :void
-    {
-         $this->markTestSkipped();
-    }
-
     public function testDesignLoadsCorrectly()
     {
         $maker = new PdfMaker($this->state);
 
-        $maker->design(Business::class);
+        $maker->design(ExampleDesign::class);
 
-        $this->assertInstanceOf(Business::class, $maker->design);
+        $this->assertInstanceOf(ExampleDesign::class, $maker->design);
     }
 
     public function testHtmlDesignLoadsCorrectly()
@@ -31,7 +27,7 @@ class PdfMakerTest extends TestCase
         $maker = new PdfMaker($this->state);
 
         $maker
-            ->design(Business::class)
+            ->design(ExampleDesign::class)
             ->build();
 
         $this->assertStringContainsString('<!-- Business -->', $maker->getCompiledHTML());
@@ -42,7 +38,7 @@ class PdfMakerTest extends TestCase
         $maker = new PdfMaker($this->state);
 
         $maker
-            ->design(Business::class)
+            ->design(ExampleDesign::class)
             ->build();
 
         $this->assertEquals('table', $maker->getSectionNode('product-table')->nodeName);
@@ -73,7 +69,7 @@ class PdfMakerTest extends TestCase
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(Business::class)
+            ->design(ExampleDesign::class)
             ->build();
 
         $this->assertStringContainsString('my-awesome-class', $maker->getSection('product-table', 'class'));
@@ -108,7 +104,7 @@ class PdfMakerTest extends TestCase
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(Business::class)
+            ->design(ExampleDesign::class)
             ->build();
 
         $this->assertStringContainsString('Invoice Ninja', $maker->getCompiledHTML());
@@ -152,7 +148,7 @@ class PdfMakerTest extends TestCase
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(Business::class)
+            ->design(ExampleDesign::class)
             ->build();
 
         $compiled = 'contact@invoiceninja.com';
@@ -172,7 +168,7 @@ class PdfMakerTest extends TestCase
         ]);
 
         $maker1
-            ->design(Business::class)
+            ->design(ExampleDesign::class)
             ->build();
 
         $output1 = $maker1->getCompiledHTML();
@@ -189,7 +185,7 @@ class PdfMakerTest extends TestCase
         ]);
 
         $maker2
-            ->design(Business::class)
+            ->design(ExampleDesign::class)
             ->build();
 
         $output2 = $maker2->getCompiledHTML();
@@ -215,7 +211,7 @@ class PdfMakerTest extends TestCase
         ]);
 
         $maker
-            ->design(Business::class)
+            ->design(ExampleDesign::class)
             ->build();
 
         $node = $maker->getSectionNode('header');
@@ -242,7 +238,7 @@ class PdfMakerTest extends TestCase
         ]);
 
         $maker
-            ->design(Business::class)
+            ->design(ExampleDesign::class)
             ->build();
 
         $node = $maker->getSectionNode('header');
@@ -306,10 +302,8 @@ class PdfMakerTest extends TestCase
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(Business::class)
+            ->design(ExampleDesign::class)
             ->build();
-
-        info($maker->getCompiledHTML());
 
         $this->assertTrue(true);
     }
