@@ -370,11 +370,13 @@ class UserController extends BaseController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        event(new UserEmailAddressChangedOldEmail($user->email, auth()->user()->company(), Ninja::eventVars()));
+        $old_email = $user->email;
+        $new_email = $request->input('email');
 
         $user = $this->user_repo->save($request->all(), $user);
 
-        event(new UserEmailAddressChangedNewEmail($user->email, auth()->user()->company(), Ninja::eventVars()));
+        if($user)
+            UserEmailChanged::dispatch($new_email, $old_email, auth()->user()->company());
 
         return $this->itemResponse($user);
     }

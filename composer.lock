@@ -5841,16 +5841,16 @@
         },
         {
             "name": "spatie/browsershot",
-            "version": "3.37.1",
+            "version": "3.37.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/browsershot.git",
-                "reference": "7d526a458ce870a07669bd2416313a4d62f3f15d"
+                "reference": "32d2984079ed8fe690f4dc5b7b6c205ae0a7b0fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/browsershot/zipball/7d526a458ce870a07669bd2416313a4d62f3f15d",
-                "reference": "7d526a458ce870a07669bd2416313a4d62f3f15d",
+                "url": "https://api.github.com/repos/spatie/browsershot/zipball/32d2984079ed8fe690f4dc5b7b6c205ae0a7b0fd",
+                "reference": "32d2984079ed8fe690f4dc5b7b6c205ae0a7b0fd",
                 "shasum": ""
             },
             "require": {
@@ -5899,7 +5899,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-07-08T07:20:45+00:00"
+            "time": "2020-07-21T22:40:58+00:00"
         },
         {
             "name": "spatie/image",
