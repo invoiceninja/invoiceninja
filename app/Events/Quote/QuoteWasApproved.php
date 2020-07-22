@@ -25,6 +25,8 @@ class QuoteWasApproved
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $contact;
+
     public $quote;
 
     public $company;
@@ -35,8 +37,9 @@ class QuoteWasApproved
      *
      * @return void
      */
-    public function __construct(Quote $quote, Company $company, array $event_vars)
+    public function __construct(ClientContact $contact, Quote $quote, Company $company, array $event_vars)
     {
+        $this->contact = $contact;
         $this->quote = $quote;
         $this->company = $company;
         $this->event_vars = $event_vars;

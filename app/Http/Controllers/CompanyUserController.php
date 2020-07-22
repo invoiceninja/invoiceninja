@@ -27,8 +27,6 @@ class CompanyUserController extends BaseController
     public function __construct()
     {
         parent::__construct();
-
-        //$this->middleware('guest');
     }
 
     /**
@@ -38,7 +36,6 @@ class CompanyUserController extends BaseController
      */
     public function index()
     {
-        // return view('signup.index');
     }
 
     /**
@@ -48,11 +45,10 @@ class CompanyUserController extends BaseController
      */
     public function create()
     {
-        //
     }
 
     
-    public function store(CreateAccountRequest $request)
+    public function store()
     {
     }
 
@@ -125,8 +121,8 @@ class CompanyUserController extends BaseController
      */
     public function update(UpdateCompanyUserRequest $request, User $user)
     {
-        $company = auth()->user()->company();
 
+        $company = auth()->user()->company();
             
         $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
@@ -145,6 +141,7 @@ class CompanyUserController extends BaseController
         $company_user->save();
 
         return $this->itemResponse($company_user->fresh());
+        
     }
 
     /**

@@ -13,6 +13,8 @@ namespace App\Http\Controllers;
 
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
+use App\Events\User\UserEmailAddressChangedNewEmail;
+use App\Events\User\UserEmailAddressChangedOldEmail;
 use App\Factory\UserFactory;
 use App\Filters\UserFilters;
 use App\Http\Controllers\Traits\VerifiesUserEmail;
@@ -25,11 +27,13 @@ use App\Http\Requests\User\ShowUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\User\UserEmailChanged;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -367,7 +371,13 @@ class UserController extends BaseController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+        $old_email = $user->email;
+        $new_email = $request->input('email');
+
         $user = $this->user_repo->save($request->all(), $user);
+
+        if($user)
+            UserEmailChanged::dispatch($new_email, $old_email, auth()->user()->company());
 
         return $this->itemResponse($user);
     }
