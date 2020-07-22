@@ -26,6 +26,7 @@ use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasDeleted;
 use App\Events\Credit\CreditWasEmailedAndFailed;
 use App\Events\Credit\CreditWasMarkedSent;
+use App\Events\Credit\CreditWasRestored;
 use App\Events\Credit\CreditWasUpdated;
 use App\Events\Design\DesignWasArchived;
 use App\Events\Invoice\InvoiceWasArchived;
@@ -35,6 +36,7 @@ use App\Events\Invoice\InvoiceWasDeleted;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasPaid;
+use App\Events\Invoice\InvoiceWasRestored;
 use App\Events\Invoice\InvoiceWasReversed;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Invoice\InvoiceWasViewed;
@@ -43,11 +45,15 @@ use App\Events\Payment\PaymentWasArchived;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasRefunded;
+use App\Events\Payment\PaymentWasRestored;
 use App\Events\Payment\PaymentWasUpdated;
 use App\Events\Payment\PaymentWasVoided;
 use App\Events\Quote\QuoteWasApproved;
+use App\Events\Quote\QuoteWasArchived;
 use App\Events\Quote\QuoteWasCreated;
+use App\Events\Quote\QuoteWasDeleted;
 use App\Events\Quote\QuoteWasEmailed;
+use App\Events\Quote\QuoteWasRestored;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Events\Quote\QuoteWasViewed;
 use App\Events\User\UserLoggedIn;
@@ -69,6 +75,7 @@ use App\Listeners\Activity\QuoteUpdatedActivity;
 use App\Listeners\Activity\RestoreClientActivity;
 use App\Listeners\Activity\UpdatedCreditActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
+use App\Listeners\Credit\CreditRestoredActivity;
 use App\Listeners\Document\DeleteCompanyDocuments;
 use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
@@ -79,12 +86,17 @@ use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
+use App\Listeners\Invoice\InvoiceRestoredActivity;
 use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\Misc\InvitationViewedListener;
 use App\Listeners\Payment\PaymentNotification;
+use App\Listeners\Payment\PaymentRestoredActivity;
+use App\Listeners\Quote\QuoteArchivedActivity;
+use App\Listeners\Quote\QuoteDeletedActivity;
 use App\Listeners\Quote\QuoteEmailActivity;
+use App\Listeners\Quote\QuoteRestoredActivity;
 use App\Listeners\Quote\QuoteViewedActivity;
 use App\Listeners\Quote\ReachWorkflowSettings;
 use App\Listeners\SendVerificationNotification;
@@ -132,6 +144,9 @@ class EventServiceProvider extends ServiceProvider
         PaymentWasVoided::class => [
             PaymentVoidedActivity::class,
         ],
+        PaymentWasRestored::class =>[
+            PaymentRestoredActivity::class,
+        ],
         // Clients
         ClientWasCreated::class =>[
             CreatedClientActivity::class,
@@ -176,6 +191,9 @@ class EventServiceProvider extends ServiceProvider
         CreditWasArchived::class => [
             CreditArchivedActivity::class,
         ],
+        CreditWasRestored::class => [
+            CreditRestoredActivity::class,
+        ],
         //Designs
         DesignWasArchived::class => [
         ],
@@ -216,6 +234,9 @@ class EventServiceProvider extends ServiceProvider
         InvoiceWasArchived::class => [
             InvoiceArchivedActivity::class,
         ],
+        InvoiceWasRestored::class => [
+            InvoiceRestoredActivity::class,
+        ],
         InvoiceWasReversed::class => [
         ],
         InvoiceWasCancelled::class => [
@@ -240,6 +261,15 @@ class EventServiceProvider extends ServiceProvider
         ],
         QuoteWasViewed::class => [
             QuoteViewedActivity::class,
+        ],
+        QuoteWasArchived::class => [
+            QuoteArchivedActivity::class,
+        ],
+        QuoteWasDeleted::class => [
+            QuoteDeletedActivity::class,
+        ],
+        QuoteWasRestored::class => [
+            QuoteRestoredActivity::class,
         ],
     ];
 

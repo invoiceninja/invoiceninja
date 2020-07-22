@@ -49,14 +49,15 @@ class QuoteWorkflowSettings implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->client->getSetting('auto_archive_quote')) {
-            $this->base_repository->archive($this->quote);
-        }
 
         if ($this->client->getSetting('auto_email_quote')) {
             $this->quote->invitations->each(function ($invitation, $key) {
                 $this->quote->service()->sendEmail($invitation->contact);
            });
+        }
+        
+        if ($this->client->getSetting('auto_archive_quote')) {
+            $this->base_repository->archive($this->quote);
         }
     }
 }
