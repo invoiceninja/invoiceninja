@@ -17,7 +17,7 @@ class Creative
     public function html()
     {
         return file_get_contents(
-            base_path('app/Services/PdfMaker/Designs/html/creative.html')
+            base_path('resources/views/pdf-designs//creative.html')
         );
     }
 }

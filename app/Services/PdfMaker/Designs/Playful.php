@@ -17,7 +17,7 @@ class Playful
     public function html()
     {
         return file_get_contents(
-            base_path('app/Services/PdfMaker/Designs/html/playful.html')
+            base_path('resources/views/pdf-designs//playful.html')
         );
     }
 }

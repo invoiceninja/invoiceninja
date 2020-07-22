@@ -17,7 +17,7 @@ class Business
     public function html()
     {
         return file_get_contents(
-            base_path('app/Services/PdfMaker/Designs/html/business.html')
+            base_path('resources/views/pdf-designs//business.html')
         );
     }
 }
