@@ -241,7 +241,6 @@ class EventServiceProvider extends ServiceProvider
         QuoteWasViewed::class => [
             QuoteViewedActivity::class,
         ],
-
     ];
 
     /**

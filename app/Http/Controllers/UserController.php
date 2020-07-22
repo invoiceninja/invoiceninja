@@ -13,6 +13,8 @@ namespace App\Http\Controllers;
 
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
+use App\Events\User\UserEmailAddressChangedNewEmail;
+use App\Events\User\UserEmailAddressChangedOldEmail;
 use App\Factory\UserFactory;
 use App\Filters\UserFilters;
 use App\Http\Controllers\Traits\VerifiesUserEmail;
@@ -30,6 +32,7 @@ use App\Models\CompanyUser;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -367,7 +370,11 @@ class UserController extends BaseController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+        event(new UserEmailAddressChangedOldEmail($user->email, auth()->user()->company(), Ninja::eventVars()));
+
         $user = $this->user_repo->save($request->all(), $user);
+
+        event(new UserEmailAddressChangedNewEmail($user->email, auth()->user()->company(), Ninja::eventVars()));
 
         return $this->itemResponse($user);
     }
