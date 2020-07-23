@@ -50,7 +50,8 @@ class QuoteUpdatedActivity implements ShouldQueue
         $fields = new \stdClass;
 
         $fields->payment_id = $quote->id;
-        $fields->user_id = $quote->user_id;
+             $fields->client_id = $quote->client_id;
+      $fields->user_id = $quote->user_id;
         $fields->company_id = $quote->company_id;
         $fields->activity_type_id = Activity::UPDATE_QUOTE;
 

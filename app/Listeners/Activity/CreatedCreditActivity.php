@@ -45,6 +45,8 @@ class CreatedCreditActivity implements ShouldQueue
 
         $fields->credit_id = $event->credit->id;
         $fields->user_id = $event->credit->user_id;
+        $fields->client_id = $event->credit->client_id;
+
         $fields->company_id = $event->credit->company_id;
         $fields->activity_type_id = Activity::CREATE_CREDIT;
 

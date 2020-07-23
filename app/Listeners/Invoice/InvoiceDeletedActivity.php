@@ -48,7 +48,8 @@ class InvoiceDeletedActivity implements ShouldQueue
         $fields = new \stdClass;
 
         $fields->invoice_id = $event->invoice->id;
-        $fields->user_id = $event->invoice->user_id;
+             $fields->client_id = $event->invoice->client_id;
+       $fields->user_id = $event->invoice->user_id;
         $fields->company_id = $event->invoice->company_id;
         $fields->activity_type_id = Activity::DELETE_INVOICE;
 
