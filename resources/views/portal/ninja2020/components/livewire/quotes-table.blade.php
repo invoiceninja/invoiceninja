@@ -1,8 +1,8 @@
 <div>
     <div class="flex items-center justify-between">
         <div class="flex items-center">
-            <span class="mr-2 text-sm hidden md:block">{{ ctrans('texts.per_page') }}</span>
-            <select wire:model="per_page" class="form-select py-1 text-sm">
+            <span class="hidden mr-2 text-sm md:block">{{ ctrans('texts.per_page') }}</span>
+            <select wire:model="per_page" class="py-1 text-sm form-select">
                 <option>5</option>
                 <option selected>10</option>
                 <option>15</option>
@@ -11,54 +11,54 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:click="statusChange('draft')" type="checkbox" class="form-checkbox cursor-pointer" id="draft-checkbox">
+                <input wire:click="statusChange('draft')" type="checkbox" class="cursor-pointer form-checkbox" id="draft-checkbox">
                 <label for="draft-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_draft') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('sent')" value="sent" type="checkbox" class="form-checkbox cursor-pointer" id="sent-checkbox">
-                <label for="sent-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_sent') }}</label>
+                <input wire:click="statusChange('sent')" value="sent" type="checkbox" class="cursor-pointer form-checkbox" id="sent-checkbox">
+                <label for="sent-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_pending') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('approved')" value="approved" type="checkbox" class="form-checkbox cursor-pointer" id="approved-checkbox">
+                <input wire:click="statusChange('approved')" value="approved" type="checkbox" class="cursor-pointer form-checkbox" id="approved-checkbox">
                 <label for="approved-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.approved') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('expired')" value="expired" type="checkbox" class="form-checkbox cursor-pointer" id="expired-checkbox">
+                <input wire:click="statusChange('expired')" value="expired" type="checkbox" class="cursor-pointer form-checkbox" id="expired-checkbox">
                 <label for="expired-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.expired') }}</label>
             </div>
         </div>
     </div>
-    <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <div class="align-middle inline-block min-w-full overflow-hidden rounded">
-            <table class="min-w-full shadow rounded border border-gray-200 mt-4 quotes-table">
+    <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div class="inline-block min-w-full overflow-hidden align-middle rounded">
+            <table class="min-w-full mt-4 border border-gray-200 rounded shadow quotes-table">
                 <thead>
                     <tr>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <label>
                                 <input type="checkbox" class="form-check form-check-parent">
                             </label>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <span role="button" wire:click="sortBy('number')" class="cursor-pointer">
                                 {{ ctrans('texts.quote_number') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <span role="button" wire:click="sortBy('date')" class="cursor-pointer">
                                 {{ ctrans('texts.quote_date') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <span role="button" wire:click="sortBy('balance')" class="cursor-pointer">
                                 {{ ctrans('texts.balance') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <span role="button" wire:click="sortBy('date')" class="cursor-pointer">
                                 {{ ctrans('texts.valid_until') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <span role="button" wire:click="sortBy('status_id')" class="cursor-pointer">
                                 {{ ctrans('texts.quote_status') }}
                             </span>
@@ -69,27 +69,27 @@
                 <tbody>
                     @forelse($quotes as $quote)
                         <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
+                            <td class="px-6 py-4 text-sm font-medium leading-5 text-gray-900 whitespace-no-wrap">
                                 <label>
                                     <input type="checkbox" class="form-check form-check-child" data-value="{{ $quote->hashed_id }}">
                                 </label>
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {{ $quote->number }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {{ $quote->formatDate($quote->date, $quote->client->date_format()) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {{ App\Utils\Number::formatMoney($quote->balance, $quote->client) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ $quote->formatDate($quote->date, $quote->client->date_format()) }} <!-- Fix valid until -->
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                                {{ $quote->formatDate($quote->due_date, $quote->client->date_format()) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {!! App\Models\Quote::badgeForStatus($quote->status_id) !!}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap flex items-center justify-end text-sm leading-5 font-medium">
+                            <td class="flex items-center justify-end px-6 py-4 text-sm font-medium leading-5 whitespace-no-wrap">
                                 <a href="{{ route('client.quote.show', $quote->hashed_id) }}" class="button-link">
                                     @lang('texts.view')
                                 </a>
@@ -97,7 +97,7 @@
                         </tr>
                     @empty
                         <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500" colspan="100%">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap" colspan="100%">
                                 {{ ctrans('texts.no_results') }}
                             </td>
                         </tr>
@@ -106,9 +106,9 @@
             </table>
         </div>
     </div>
-    <div class="flex justify-center md:justify-between mt-6 mb-6">
+    <div class="flex justify-center mt-6 mb-6 md:justify-between">
         @if($quotes->total() > 0)
-            <span class="text-gray-700 text-sm hidden md:block">
+            <span class="hidden text-sm text-gray-700 md:block">
                 {{ ctrans('texts.showing_x_of', ['first' => $quotes->firstItem(), 'last' => $quotes->lastItem(), 'total' => $quotes->total()]) }}
             </span>
         @endif
