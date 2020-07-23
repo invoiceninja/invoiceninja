@@ -30,7 +30,7 @@ class Task extends BaseModel
         'time_log',
     ];
 
-    protected $touches = ['company'];
+    protected $touches = [];
 
     protected $casts = [
         'updated_at' => 'timestamp',

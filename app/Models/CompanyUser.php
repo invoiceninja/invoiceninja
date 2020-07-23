@@ -48,7 +48,7 @@ class CompanyUser extends Pivot
         'slack_webhook_url',
     ];
 
-    protected $touches = ['company'];
+    protected $touches = [];
 
     public function getEntityType()
     {

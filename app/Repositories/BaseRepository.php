@@ -256,7 +256,6 @@ class BaseRepository
                // $this->getInvitation($invitation, $resource)->delete();
 
                     $invitation_class = sprintf("App\\Models\\%sInvitation", $resource);
-
                     $invitation = $invitation_class::whereRaw("BINARY `key`= ?", [$invitation])->first();
 
                     if($invitation)
@@ -277,10 +276,28 @@ class BaseRepository
 
                     if ($contact && $model->client_id == $contact->client_id);
                     {
-                        $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
-                        $new_invitation->{$lcfirst_resource_id} = $model->id;
-                        $new_invitation->client_contact_id = $contact->id;
-                        $new_invitation->save();
+
+                        $invitation_class = sprintf("App\\Models\\%sInvitation", $resource);
+
+                        $new_invitation = $invitation_class::withTrashed()
+                                            ->where('client_contact_id', $contact->id)
+                                            ->where($lcfirst_resource_id, $model->id)
+                                            ->first();
+
+                        if($new_invitation && $new_invitation->trashed()){
+
+                            $new_invitation->restore();
+
+                        }
+                        else {
+
+                            $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
+                            $new_invitation->{$lcfirst_resource_id} = $model->id;
+                            $new_invitation->client_contact_id = $contact->id;
+                            $new_invitation->save();
+
+                        }
+
                     }
                 }
             }
@@ -322,7 +339,6 @@ class BaseRepository
             if(!$model->design_id)
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
 
-
         }
         
         if ($class->name == Quote::class) {
@@ -331,13 +347,12 @@ class BaseRepository
             if(!$model->design_id)
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
 
-
-
         }
 
         $model->save();
 
         return $model->fresh();
+
     }
     
 }

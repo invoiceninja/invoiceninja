@@ -27,7 +27,7 @@ class CompanyLedger extends Model
         'deleted_at' => 'timestamp',
     ];
 
-    protected $touches = ['company'];
+    protected $touches = [];
 
     public function getEntityType()
     {

@@ -22,7 +22,7 @@ class Proposal extends BaseModel
         'id',
     ];
 
-    protected $touches = ['company'];
+    protected $touches = [];
 
     public function getEntityType()
     {

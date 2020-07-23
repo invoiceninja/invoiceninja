@@ -82,7 +82,7 @@ class Payment extends BaseModel
         'paymentables',
     ];
 
-    protected $touches = ['company'];
+    protected $touches = [];
 
     public function getEntityType()
     {
