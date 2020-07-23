@@ -40,7 +40,7 @@ class GroupSetting extends StaticModel
         'settings'
     ];
 
-    protected $touches = ['company'];
+    protected $touches = [];
 
     public function company()
     {

@@ -18,6 +18,8 @@ class RecurringInvoiceInvitation extends BaseModel
 {
     use MakesDates;
 
+    protected $fillable = ['client_contact_id'];
+
     protected $touches = ['recurring_invoice'];
 
     public function getEntityType()

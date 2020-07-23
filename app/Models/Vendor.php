@@ -53,7 +53,7 @@ class Vendor extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
-    protected $touches = ['company'];
+    protected $touches = [];
 
     protected $with = [
     //    'contacts',

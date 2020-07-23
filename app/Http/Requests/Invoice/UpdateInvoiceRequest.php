@@ -39,7 +39,7 @@ class UpdateInvoiceRequest extends Request
 
     public function rules()
     {
-        
+
         $rules = [];
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
@@ -60,7 +60,7 @@ class UpdateInvoiceRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-
+        
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
@@ -75,9 +75,8 @@ class UpdateInvoiceRequest extends Request
         
         if (isset($input['invitations'])) {
             foreach ($input['invitations'] as $key => $value) {
-                if (is_numeric($input['invitations'][$key]['id'])) {
+                if (array_key_exists('id', $input['invitations'][$key]) && is_numeric($input['invitations'][$key]['id'])) {
                     unset($input['invitations'][$key]['id']);
-
                 }
 
                 if (array_key_exists('id', $input['invitations'][$key]) && is_string($input['invitations'][$key]['id'])) {

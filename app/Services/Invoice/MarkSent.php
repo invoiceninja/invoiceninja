@@ -12,17 +12,18 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasMarkedSent;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 
 class MarkSent extends AbstractService
 {
-    private $client;
+    public $client;
 
-    private $invoice;
+    public $invoice;
 
-    public function __construct($client, $invoice)
+    public function __construct(Client $client, Invoice $invoice)
     {
         $this->client = $client;
         $this->invoice = $invoice;

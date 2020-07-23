@@ -13,6 +13,8 @@ namespace App\Events\Invoice;
 
 use App\Models\Company;
 use App\Models\Invoice;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -20,7 +22,7 @@ use Illuminate\Queue\SerializesModels;
  */
 class InvoiceWasUpdated
 {
-    use SerializesModels;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * @var Invoice

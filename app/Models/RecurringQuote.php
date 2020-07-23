@@ -81,7 +81,7 @@ class RecurringQuote extends BaseModel
         'start_date',
     ];
 
-    protected $touches = ['company'];
+    protected $touches = [];
 
     protected $casts = [
         'line_items' => 'object',
