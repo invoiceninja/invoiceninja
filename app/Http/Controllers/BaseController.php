@@ -148,7 +148,7 @@ class BaseController extends Controller
 
         $query->with(
         [
-        'company' => function ($query) use($updated_at){$query->where('updated_at', '>=', 0);},
+        'company' => function ($query) use($updated_at){$query->whereNotNull('updated_at');},
         'company.clients' =>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.tax_rates'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.groups'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
