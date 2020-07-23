@@ -152,7 +152,7 @@ class BaseController extends Controller
         'company.clients' =>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.tax_rates'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.groups'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
-        'company.company_gateways.gateway'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.company_gateways'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.clients.contacts'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.products'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.invoices'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
