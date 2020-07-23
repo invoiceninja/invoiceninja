@@ -55,8 +55,6 @@ class InvitationTest extends TestCase
 
         //test pushing a contact invitation back on
 
-
-
         $contact = $this->invoice->client->contacts->where('is_primary', false)->first();
 
         $new_invite = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
@@ -79,6 +77,5 @@ class InvitationTest extends TestCase
 
         $this->assertEquals(2, count($arr['data']['invitations']));
 
-        //Now test that adding a contact back on works!!
     }
 }

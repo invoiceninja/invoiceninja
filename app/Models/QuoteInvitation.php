@@ -18,6 +18,7 @@ use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,7 +26,8 @@ class QuoteInvitation extends BaseModel
 {
     use MakesDates;
     use Inviteable;
-
+    use SoftDeletes;
+    
     protected $fillable = [
         'id',
         'client_contact_id',

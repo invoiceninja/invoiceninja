@@ -85,18 +85,18 @@ class ValidCreditsRules implements Rule
 
         if(count($this->input['credits']) >=1){
 
-            $total_payments = $this->input['amount'] + array_sum(array_column($this->input['credits'], 'amount'));
+        //    $total_payments = $this->input['amount'] + array_sum(array_column($this->input['credits'], 'amount'));
 
-info(print_r($this->input,1));
-info("total payments = {$total_payments}");
-info("total credits available = " . array_sum(array_column($this->input['credits'], 'amount')));
-info("total invoices payable = " . array_sum(array_column($this->input['invoices'], 'amount')));
+// info(print_r($this->input,1));
+// info("total payments = {$total_payments}");
+// info("total credits available = " . array_sum(array_column($this->input['credits'], 'amount')));
+// info("total invoices payable = " . array_sum(array_column($this->input['invoices'], 'amount')));
 
-            if($total_payments > array_sum(array_column($this->input['invoices'], 'amount'))){
+            // if($total_payments > array_sum(array_column($this->input['invoices'], 'amount'))){
 
-                $this->error_msg = "Sum of total payments and credits is greater than the total of invoices";
-                return false;
-            }
+            //     $this->error_msg = "Sum of total payments and credits is greater than the total of invoices";
+            //     return false;
+            // }
 
         }
 
