@@ -218,7 +218,7 @@ class Quote extends BaseModel
                 return '<h5><span class="badge badge-light">' . ctrans('texts.draft') . '</span></h5>';
                 break;
             case Quote::STATUS_SENT:
-                return '<h5><span class="badge badge-primary">' . ctrans('texts.sent') . '</span></h5>';
+                return '<h5><span class="badge badge-primary">' . ctrans('texts.pending') . '</span></h5>';
                 break;
             case Quote::STATUS_APPROVED:
                 return '<h5><span class="badge badge-success">' . ctrans('texts.approved') . '</span></h5>';

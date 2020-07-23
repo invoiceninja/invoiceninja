@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Invoice;
 use App\Utils\Traits\WithSorting;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -30,6 +31,7 @@ class InvoicesTable extends Component
 
     public function render()
     {
+        DB::enableQueryLog();
 
         $query = Invoice::query()
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
@@ -44,12 +46,16 @@ class InvoicesTable extends Component
 
         if (in_array('overdue', $this->status)) {
             $query = $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                ->where('due_date', '<', Carbon::now())
-                ->orWhere('partial_due_date', '<', Carbon::now());
+                ->where(function ($query) {
+                    $query
+                        ->orWhere('due_date', '<', Carbon::now())
+                        ->orWhere('partial_due_date', '<', Carbon::now());
+                });
         }
 
         $query = $query
             ->where('client_id', auth('contact')->user()->client->id)
+            ->where('status_id', '<>', Invoice::STATUS_DRAFT)
             ->paginate($this->per_page);
 
         return render('components.livewire.invoices-table', [
