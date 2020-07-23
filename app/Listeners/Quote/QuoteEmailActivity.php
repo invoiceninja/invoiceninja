@@ -47,7 +47,8 @@ class QuoteEmailActivity implements ShouldQueue
         $fields = new \stdClass;
 
         $fields->quote_id = $event->invitation->quote->id;
-        $fields->user_id = $event->invitation->quote->user_id;
+                  $fields->client_id = $event->invitation->quote->client_id;
+     $fields->user_id = $event->invitation->quote->user_id;
         $fields->company_id = $event->invitation->quote->company_id;
         $fields->client_contact_id = $event->invitation->quote->client_contact_id;
         $fields->activity_type_id = Activity::EMAIL_QUOTE;

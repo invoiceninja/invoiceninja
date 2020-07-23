@@ -48,7 +48,8 @@ class QuoteArchivedActivity implements ShouldQueue
         $fields = new \stdClass;
 
         $fields->quote_id = $event->quote->id;
-        $fields->user_id = $event->quote->user_id;
+                $fields->client_id = $event->quote->client_id;
+       $fields->user_id = $event->quote->user_id;
         $fields->company_id = $event->quote->company_id;
         $fields->activity_type_id = Activity::ARCHIVE_QUOTE;
 

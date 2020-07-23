@@ -50,6 +50,7 @@ class PaymentUpdatedActivity implements ShouldQueue
         $fields = new \stdClass;
 
         $fields->payment_id = $payment->id;
+           $fields->client_id = $payment->client_id;
         $fields->user_id = $payment->user_id;
         $fields->company_id = $payment->company_id;
         $fields->activity_type_id = Activity::UPDATE_PAYMENT;

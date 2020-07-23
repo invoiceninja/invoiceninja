@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Invoice\UniqueInvoiceNumberRule;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Utils\Traits\CleanLineItems;
@@ -51,7 +52,8 @@ class StoreInvoiceRequest extends Request
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
-
+        $rules['number'] = new UniqueInvoiceNumberRule($this->all());
+        
         return $rules;
     }
 
