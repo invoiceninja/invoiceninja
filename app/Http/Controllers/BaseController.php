@@ -159,7 +159,7 @@ class BaseController extends Controller
         'company.invoices.invitations.contact'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.invoices.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.invoices.documents'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
-        'company.payments.paymentables'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.payments'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.quotes.invitations.contact'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.quotes.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.quotes.documents'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
