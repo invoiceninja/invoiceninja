@@ -75,7 +75,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/flutter_service_worker.js?v={{sha1(time())}}');
+        navigator.serviceWorker.register('/flutter_service_worker.js?v={{ md5(public_path('flutter_service_worker.js')) }}');
       });
     }
 

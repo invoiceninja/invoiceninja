@@ -125,6 +125,15 @@ class InvoiceTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/invoices/', $invoice)
             ->assertStatus(200);
+
+
+        //test that the same request should produce a validation error due 
+        //to duplicate number being used.
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/invoices/', $invoice)
+            ->assertStatus(302);
     }
 
     public function testDeleteInvoice()
