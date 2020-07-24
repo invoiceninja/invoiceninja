@@ -31,6 +31,7 @@ class CreateInvitations extends AbstractService
             $invitation = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
                                         ->whereClientContactId($contact->id)
                                         ->whereInvoiceId($this->invoice->id)
+                                        ->withTrashed()
                                         ->first();
 
             if (!$invitation && $contact->send_email) {
