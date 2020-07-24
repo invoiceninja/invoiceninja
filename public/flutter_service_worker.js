@@ -16,7 +16,7 @@ const RESOURCES = {
 "assets/web/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
 "assets/FontManifest.json": "280b2f61f6810d59bd1bcd4cf01d3bf4",
 "/": "e65799be52f7bbcaf39d78046726b95a",
-"main.dart.js": "051aa38f5fb468c71675fe11bfc6895d",
+"main.dart.js": "8cab84e8f247bc1654411e68939b1274",
 "favicon.ico": "51636d3a390451561744c42188ccd628"
 };
 
