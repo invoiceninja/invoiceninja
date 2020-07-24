@@ -5,7 +5,7 @@
   <title>Invoice Ninja</title>
   <meta name="report_errors" content="{{ $report_errors }}">
   <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">
-  <link rel="manifest" href="manifest.json?v={{sha1(time())}}">
+  <link rel="manifest" href="manifest.json?v={{ md5(config('ninja.app_version')) }}">
 </head>
 <body style="background-color:#888888;">
 
@@ -84,7 +84,7 @@
     });
   </script>
 
-  <script defer src="main.dart.js?version={{ config('ninja.app_version') }}" type="application/javascript"></script>
+  <script defer src="main.dart.js?v={{ md5(config('ninja.app_version')) }}" type="application/javascript"></script>
 
   <center style="padding-top: 150px" id="loader">
     <div class="loader"></div>
