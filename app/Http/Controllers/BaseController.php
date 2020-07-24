@@ -132,13 +132,46 @@ class BaseController extends Controller
 
     protected function refreshResponse($query)
     {
-        $this->buildManager();
+
+      $includes = [
+          'company.tax_rates',
+          'company.clients',
+          'company.clients.contacts',
+          'company.tax_rates',
+          'company.groups',
+          'company.company_gateways',
+          'company.products',
+          'company.invoices',
+          'company.invoices.invitations',
+          'company.invoices.documents',
+          'company.payments',
+          'company.quotes.invitations',
+          'company.quotes.documents',
+          'company.credits.invitations',
+          'company.credits',
+          'company.payment_terms',
+          'company.vendors',
+          'company.expenses',
+          'company.tasks',
+      ];
+
+        $this->manager->parseIncludes($includes);
+
+
+        $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
+
+        if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) {
+            $this->manager->setSerializer(new JsonApiSerializer());
+        } else {
+            $this->manager->setSerializer(new ArraySerializer());
+        }
 
         $transformer = new $this->entity_transformer(Input::get('serializer'));
 
-        $includes = $transformer->getDefaultIncludes();
-        $includes = $this->getRequestIncludes($includes);
+        //$includes = $transformer->getDefaultIncludes();
+       // $includes = $this->getRequestIncludes($includes);
 
+       //info(print_r($includes,1));
         //info(print_r($includes,1));
 
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
@@ -150,24 +183,21 @@ class BaseController extends Controller
         [
         'company' => function ($query) use($updated_at){$query->whereNotNull('updated_at');},
         'company.clients' =>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.clients.contacts'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.tax_rates'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.groups'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.company_gateways'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
-        'company.clients.contacts'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.products'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.invoices'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
-        'company.invoices.invitations.contact'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.invoices.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.invoices.documents'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.payments'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
-        'company.quotes.invitations.contact'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.quotes.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
-        'company.quotes.documents'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
-        'company.credits.documents'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
-        'company.credits.invitations.contact'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.quotes'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.credits'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.credits.invitations'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.payment_terms'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
-        'company.vendors.contacts'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
+        'company.vendors'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.expenses'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.tasks'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
         'company.projects'=>function ($query) use($updated_at){$query->where('updated_at', '>=', $updated_at);},
@@ -175,9 +205,21 @@ class BaseController extends Controller
         ]
         );
 
-        $data = $this->createCollection($query, $transformer, $this->entity_type);
 
-        return $this->response($data);
+        if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
+            $limit = Input::get('per_page', 20);
+
+            $paginator = $query->paginate($limit);
+            $query = $paginator->getCollection();
+            $resource = new Collection($query, $transformer, $this->entity_type);
+            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+        } else {
+            $resource = new Collection($query, $transformer, $this->entity_type);
+        }
+
+        return $this->response($this->manager->createData($resource)->toArray());
+
+
     }
 
     protected function listResponse($query)

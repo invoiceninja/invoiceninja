@@ -51,7 +51,7 @@ class QueryLogging
                 Log::info($request->method() . ' - ' . $request->url() . ": $count queries - " . $time);
                 
              // if($count > 100)
-             //     Log::info($queries);
+                  Log::info($queries);
                  
             }
         }
