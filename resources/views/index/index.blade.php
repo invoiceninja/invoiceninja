@@ -5,7 +5,7 @@
   <title>Invoice Ninja</title>
   <meta name="report_errors" content="{{ $report_errors }}">
   <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">
-  <link rel="manifest" href="manifest.json?v={{ md5(public_path('manifest.json')) }}">
+  <link rel="manifest" href="manifest.json?v={{ $hash }}">
 </head>
 <body style="background-color:#888888;">
 
@@ -75,7 +75,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/flutter_service_worker.js?v={{ md5(public_path('flutter_service_worker.js')) }}');
+        navigator.serviceWorker.register('/flutter_service_worker.js?v={{ $hash }}');
       });
     }
 
@@ -84,7 +84,7 @@
     });
   </script>
 
-  <script defer src="main.dart.js?v={{ md5(public_path('main.dart.js')) }}" type="application/javascript"></script>
+  <script defer src="main.dart.js?v={{ $hash }}" type="application/javascript"></script>
 
   <center style="padding-top: 150px" id="loader">
     <div class="loader"></div>

@@ -132,8 +132,35 @@ class BaseController extends Controller
 
     protected function refreshResponse($query)
     {
+      $includes = [
+          'company.tax_rates',
+          'company.groups',
+          'company.company_gateways.gateway',
+          'company.clients.contacts',
+          'company.products',
+          'company.invoices.invitations.contact',
+          'company.invoices.invitations.company',
+          'company.invoices.documents',
+          'company.payments.paymentables',
+          'company.quotes.invitations.contact',
+          'company.quotes.invitations.company',
+          'company.quotes.documents',
+          'company.credits.invitations.contact',
+          'company.credits.invitations.company',
+          'company.credits.documents',
+          'company.payment_terms.company',
+          'company.credits.invitations.contact',
+          'company.credits.invitations.company',
+          'company.vendors.contacts',
+          'company.expenses',
+          'company.tasks',
+          'company.projects',
+          'company.designs',
+          'company.webhooks',
+          'company.tokens_hashed'
+        ];
 
-//        $this->manager->parseIncludes($includes);
+        $this->manager->parseIncludes($includes);
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 
@@ -151,7 +178,7 @@ class BaseController extends Controller
         $query->with(
         [
           'company' => function ($query) use($updated_at){
-            $query->whereNotNull('updated_at');
+            $query->where('updated_at', '>=', date('Y-m-d H:i:s', 0));
           },
           'company.clients'=>function ($query) use($updated_at){
               $query->where('clients.updated_at', '>=', $updated_at)->with('contacts');
@@ -421,6 +448,8 @@ class BaseController extends Controller
             } else {
                 $data['report_errors'] = true;
             }
+
+            $data['hash'] = md5(public_path('main.dart.js'));
 
             return view('index.index', $data);
         }
