@@ -34,7 +34,8 @@ class CreditInvitation extends BaseModel
     ];
 
     protected $with = [
-    //    'company',
+        'company',
+        'contact',
     ];
 
     protected $touches = ['credit'];

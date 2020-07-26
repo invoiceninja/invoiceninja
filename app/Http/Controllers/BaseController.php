@@ -133,7 +133,30 @@ class BaseController extends Controller
     protected function refreshResponse($query)
     {
 
-//        $this->manager->parseIncludes($includes);
+      $includes = [
+          'company',
+          'company.groups',
+          'company.company_gateways.gateway',
+          'company.clients.contacts',
+          'company.products',
+          'company.invoices.invitations',
+          'company.invoices.documents',
+          'company.payments.paymentables',
+          'company.quotes.invitations.contact',
+          'company.quotes.documents.company',
+          'company.credits.invitations.contact',
+          'company.credits.documents.company',
+          'company.payment_terms.company',
+          'company.credits.invitations.contact',
+          'company.credits.invitations.company',
+          'company.vendors.contacts',
+          'company.expenses',
+          'company.tasks',
+          'company.projects',
+          'company.designs',
+        ];
+
+        $this->manager->parseIncludes($includes);
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 
@@ -143,7 +166,7 @@ class BaseController extends Controller
             $this->manager->setSerializer(new ArraySerializer());
         }
 
-        $transformer = new $this->entity_transformer(Input::get('serializer'));
+        $transformer = new $this->entity_transformer($this->serializer);
 
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
         $updated_at = date('Y-m-d H:i:s', $updated_at);
@@ -169,7 +192,7 @@ class BaseController extends Controller
             $query->where('updated_at', '>=', $updated_at);
           },
           'company.invoices'=>function ($query) use($updated_at){
-            $query->where('updated_at', '>=', $updated_at)->with('invitations','documents');
+            $query->where('updated_at', '>=', $updated_at)->with('invitations','company','documents');
           },
           'company.payments'=>function ($query) use($updated_at){
             $query->where('updated_at', '>=', $updated_at)->with('paymentables');
@@ -421,6 +444,8 @@ class BaseController extends Controller
             } else {
                 $data['report_errors'] = true;
             }
+
+            $data['hash'] = md5(public_path('main.dart.js'));
 
             return view('index.index', $data);
         }
