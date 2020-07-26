@@ -58,6 +58,47 @@ class BaseController extends Controller
      */
     protected $manager;
 
+    private $first_load = [
+          'account',
+          'user.company_user',
+          'token',
+          'company.activities',
+          'company.users.company_user',
+          'company.tax_rates',
+          'company.groups',
+          'company.company_gateways.gateway',
+          'company.clients.contacts',
+          'company.products',
+          'company.invoices.invitations.contact',
+          'company.invoices.invitations.company',
+          'company.invoices.documents',
+          'company.payments.paymentables',
+          'company.quotes.invitations.contact',
+          'company.quotes.invitations.company',
+          'company.quotes.documents',
+          'company.credits.invitations.contact',
+          'company.credits.invitations.company',
+          'company.credits.documents',
+          'company.payment_terms.company',
+          'company.vendors.contacts',
+          'company.expenses',
+          'company.tasks',
+          'company.projects',
+          'company.designs',
+          'company.webhooks',
+          'company.tokens_hashed'
+        ];
+
+    private $mini_load = [
+          'account',
+          'user.company_user',
+          'token',
+          'company.activities',
+          'company.users.company_user',
+          'company.tax_rates',
+          'company.groups',
+          'company.payment_terms',
+        ];
 
     public function __construct()
     {
@@ -133,30 +174,7 @@ class BaseController extends Controller
     protected function refreshResponse($query)
     {
 
-      $includes = [
-          'company',
-          'company.groups',
-          'company.company_gateways.gateway',
-          'company.clients.contacts',
-          'company.products',
-          'company.invoices.invitations',
-          'company.invoices.documents',
-          'company.payments.paymentables',
-          'company.quotes.invitations.contact',
-          'company.quotes.documents.company',
-          'company.credits.invitations.contact',
-          'company.credits.documents.company',
-          'company.payment_terms.company',
-          'company.credits.invitations.contact',
-          'company.credits.invitations.company',
-          'company.vendors.contacts',
-          'company.expenses',
-          'company.tasks',
-          'company.projects',
-          'company.designs',
-        ];
-
-        $this->manager->parseIncludes($includes);
+        $this->manager->parseIncludes($this->first_load);
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 
@@ -359,58 +377,15 @@ class BaseController extends Controller
 
     protected function getRequestIncludes($data)
     {
-        $first_load = [
-          'account',
-          'user.company_user',
-          'token',
-          'company.activities',
-          'company.users.company_user',
-          'company.tax_rates',
-          'company.groups',
-          'company.company_gateways.gateway',
-          'company.clients.contacts',
-          'company.products',
-          'company.invoices.invitations.contact',
-          'company.invoices.invitations.company',
-          'company.invoices.documents',
-          'company.payments.paymentables',
-          'company.quotes.invitations.contact',
-          'company.quotes.invitations.company',
-          'company.quotes.documents',
-          'company.credits.invitations.contact',
-          'company.credits.invitations.company',
-          'company.credits.documents',
-          'company.payment_terms.company',
-          //'company.credits.invitations.contact',
-          //'company.credits.invitations.company',
-          'company.vendors.contacts',
-          'company.expenses',
-          'company.tasks',
-          'company.projects',
-          'company.designs',
-          'company.webhooks',
-          'company.tokens_hashed'
-        ];
-
-        $mini_load = [
-          'account',
-          'user.company_user',
-          'token',
-          'company.activities',
-          'company.users.company_user',
-          'company.tax_rates',
-          'company.groups',
-          'company.payment_terms',
-        ];
 
         /**
          * Thresholds for displaying large account on first load
          */
         if (request()->has('first_load') && request()->input('first_load') == 'true') {
             if (auth()->user()->getCompany()->is_large && request()->missing('updated_at')) {
-                $data = $mini_load;
+                $data = $this->mini_load;
             } else {
-                $data = $first_load;
+                $data = $this->first_load;
             }
         } else {
             $included = request()->input('include');
