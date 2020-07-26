@@ -33,6 +33,11 @@ class QuoteInvitation extends BaseModel
         'client_contact_id',
     ];
 
+    protected $with = [
+        'company',
+        'contact',
+    ];
+    
     protected $touches = ['quote'];
 
     public function getEntityType()

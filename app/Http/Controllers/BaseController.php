@@ -132,22 +132,20 @@ class BaseController extends Controller
 
     protected function refreshResponse($query)
     {
+
       $includes = [
-          'company.tax_rates',
+          'company',
           'company.groups',
           'company.company_gateways.gateway',
           'company.clients.contacts',
           'company.products',
-          'company.invoices.invitations.contact',
-          'company.invoices.invitations.company',
+          'company.invoices.invitations',
           'company.invoices.documents',
           'company.payments.paymentables',
           'company.quotes.invitations.contact',
-          'company.quotes.invitations.company',
-          'company.quotes.documents',
+          'company.quotes.documents.company',
           'company.credits.invitations.contact',
-          'company.credits.invitations.company',
-          'company.credits.documents',
+          'company.credits.documents.company',
           'company.payment_terms.company',
           'company.credits.invitations.contact',
           'company.credits.invitations.company',
@@ -156,8 +154,6 @@ class BaseController extends Controller
           'company.tasks',
           'company.projects',
           'company.designs',
-          'company.webhooks',
-          'company.tokens_hashed'
         ];
 
         $this->manager->parseIncludes($includes);
@@ -170,7 +166,7 @@ class BaseController extends Controller
             $this->manager->setSerializer(new ArraySerializer());
         }
 
-        $transformer = new $this->entity_transformer(Input::get('serializer'));
+        $transformer = new $this->entity_transformer($this->serializer);
 
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
         $updated_at = date('Y-m-d H:i:s', $updated_at);
@@ -178,7 +174,7 @@ class BaseController extends Controller
         $query->with(
         [
           'company' => function ($query) use($updated_at){
-            $query->where('updated_at', '>=', date('Y-m-d H:i:s', 0));
+            $query->whereNotNull('updated_at');
           },
           'company.clients'=>function ($query) use($updated_at){
               $query->where('clients.updated_at', '>=', $updated_at)->with('contacts');
@@ -196,7 +192,7 @@ class BaseController extends Controller
             $query->where('updated_at', '>=', $updated_at);
           },
           'company.invoices'=>function ($query) use($updated_at){
-            $query->where('updated_at', '>=', $updated_at)->with('invitations','documents');
+            $query->where('updated_at', '>=', $updated_at)->with('invitations','company','documents');
           },
           'company.payments'=>function ($query) use($updated_at){
             $query->where('updated_at', '>=', $updated_at)->with('paymentables');

@@ -137,6 +137,11 @@ class Credit extends BaseModel
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
+    // public function contacts()
+    // {
+    //     return $this->hasManyThrough(ClientContact::class, Client::class);
+    // }
+
     public function invitations()
     {
         return $this->hasMany(CreditInvitation::class);
