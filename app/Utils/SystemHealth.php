@@ -49,14 +49,22 @@ class SystemHealth
 
         if (in_array(false, Arr::dot(self::extensions()))) {
             $system_health = false;
-        } 
-        
+        }
+
         if (phpversion() < self::$php_version) {
             $system_health = false;
-        } 
+        }
 
         if(!self::simpleDbCheck() && $check_database) {
             info("db fails");
+            $system_health = false;
+        }
+
+        if (!self::checkNode()) {
+            $system_health = false;
+        }
+
+        if (!self::checkNpm()) {
             $system_health = false;
         }
 
@@ -82,14 +90,13 @@ class SystemHealth
             exec('node -v', $foo, $exitCode);
 
             if ($exitCode === 0) {
-              return $foo[0];
+                return true;
             }
-        
+
+            return false;
         } catch (\Exception $e) {
-           
-                return false;
+            return false;
         }
-        
     }
 
     public static function checkNpm()
@@ -98,14 +105,14 @@ class SystemHealth
             exec('npm -v', $foo, $exitCode);
 
             if ($exitCode === 0) {
-              return $foo[0];
-            } 
+                return true;
+            }
 
-        }catch (\Exception $e) {
-           
-                return false;
+            return false;
+
+        } catch (\Exception $e) {
+            return false;
         }
-        
     }
 
     private static function simpleDbCheck() :bool
