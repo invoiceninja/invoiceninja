@@ -312,7 +312,7 @@ class BaseRepository
         $model = $model->calc()->getInvoice();
         
         $state['finished_amount'] = $model->amount;
-        
+
         $model = $model->service()->applyNumber()->save();
         
         if ($model->company->update_products !== false) {
