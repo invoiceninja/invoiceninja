@@ -35,7 +35,7 @@ class InvoiceRepository extends BaseRepository
      */
     public function getClassName()
     {
-        return Invoice::class ;
+        return Invoice::class;
     }
 
     /**
