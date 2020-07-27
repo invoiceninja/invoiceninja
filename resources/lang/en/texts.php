@@ -3214,7 +3214,7 @@ return [
     'password_confirmation' => 'Confirm your password',
     'verification' => 'Verification',
     'complete_your_bank_account_verification' => 'Before using bank account they must be verified.',
-    
+
     'checkout_com' => 'Checkout.com',
 
     'footer_label' => 'Copyright © :year Invoice Ninja. All rights reserved.',
@@ -3224,7 +3224,7 @@ return [
     'year_invalid' => 'Provided year is not valid.',
 
     'https_required' => 'HTTPS is required, form will fail',
-    'if_you_need_help' => 'If you need help you can post to our',    
+    'if_you_need_help' => 'If you need help you can post to our',
     'reversed' => 'Reversed',
     'update_password_on_confirm' => 'After updating password, your account will be confirmed.',
     'bank_account_not_linked' => 'To pay with bank account, first you have to add it as payment method.',
@@ -3238,6 +3238,8 @@ return [
 
     'checkout_authorize_label' => 'Checkout.com can be can saved as payment method for future use, once you complete your first transaction. Don\'t forget to check "Save card" during payment process.',
 
+    'node_status' => 'Node status',
+    'npm_status' => 'NPM status',
     'node_status_not_found' => 'I could not find Node anywhere. Is it installed?',
     'npm_status_not_found' => 'I could not find NPM anywhere. Is it installed?',
     'locked_invoice'    => 'This invoice is locked and unable to be modified',
