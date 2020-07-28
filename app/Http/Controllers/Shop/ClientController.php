@@ -15,6 +15,7 @@ use App\Events\Client\ClientWasCreated;
 use App\Factory\ClientFactory;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Client\StoreClientRequest;
+use App\Http\Requests\Shop\StoreShopClientRequest;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -23,12 +24,14 @@ use App\Repositories\ClientRepository;
 use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 
 class ClientController extends BaseController
 {
     use MakesHash;
-    
+    use Uploadable;
+
     protected $entity_type = Client::class;
 
     protected $entity_transformer = ClientTransformer::class;
@@ -64,7 +67,7 @@ class ClientController extends BaseController
         return $this->itemResponse($contact->client);
     }
 
-    public function store(StoreClientRequest $request)
+    public function store(StoreShopClientRequest $request)
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
