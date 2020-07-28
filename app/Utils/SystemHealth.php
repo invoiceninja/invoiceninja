@@ -60,14 +60,6 @@ class SystemHealth
             $system_health = false;
         }
 
-        if (!self::checkNode()) {
-            $system_health = false;
-        }
-
-        if (!self::checkNpm()) {
-            $system_health = false;
-        }
-
         return [
             'system_health' => $system_health,
             'extensions' => self::extensions(),
