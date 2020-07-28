@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\BaseController;
+use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\Product;
 use App\Transformers\ProductTransformer;
@@ -31,20 +32,20 @@ class ProductController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $company_token = CompanyToken::with(['company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first();
+        $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
 
-        $products = Product::where('company_id', $company_token->company->id);
+        $products = Product::where('company_id', $company->id);
 
         return $this->listResponse($products);
     }
 
-    public function show(string $product_key)
+    public function show(Request $request, string $product_key)
     {
-        $company_token = CompanyToken::with(['company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first();
+        $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
 
-        $product = Product::where('company_id', $company_token->company->id)
+        $product = Product::where('company_id', $company->id)
                             ->where('product_key', $product_key)
                             ->first();
 

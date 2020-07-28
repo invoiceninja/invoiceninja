@@ -52,10 +52,10 @@ class InvoiceController extends BaseController
 
     public function show(string $invitation_key)
     {
-        $company_token = CompanyToken::with(['company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first();
+        $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
 
         $invitation = InvoiceInvitation::with(['invoice'])
-                                        ->where('company_id', $company_token->company->id)
+                                        ->where('company_id', $company->id)
                                         ->where('key',$invitation_key)
                                         ->firstOrFail();
 
@@ -65,13 +65,17 @@ class InvoiceController extends BaseController
 
     public function store(StoreInvoiceRequest $request)
     {
-        $company_token = CompanyToken::with(['company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first();
+        app('queue')->createPayloadUsing(function () use ($company) {
+            return ['db' => $company->db];
+        });
+                
+        $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
 
         $client = Client::find($request->input('client_id'));
 
-        $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create($company_token->company_id, $company_token->user_id));
+        $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create($company_id, $company->owner()->id));
 
-        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
+        event(new InvoiceWasCreated($invoice, $company, Ninja::eventVars()));
 
         $invoice = $invoice->service()->triggeredActions($request)->save();
         

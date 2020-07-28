@@ -270,7 +270,7 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        if (!auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
+        if (auth()->user() && !auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
             $query->where('user_id', '=', auth()->user()->id);
         }
 

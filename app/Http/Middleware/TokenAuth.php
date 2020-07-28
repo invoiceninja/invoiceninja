@@ -30,19 +30,6 @@ class TokenAuth
     {
         if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user','company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first())) {
 
-            if($company_token->shop_restricted){
-
-                $error = [
-                    'message' => 'Cannot use a restricted token on this route',
-                    'errors' => []
-                ];
-
-
-                return response()->json($error, 403);
-
-            }
-
-
             $user = $company_token->user;
 
             $error = [

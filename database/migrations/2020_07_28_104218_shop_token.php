@@ -13,8 +13,8 @@ class ShopToken extends Migration
      */
     public function up()
     {
-        Schema::table('company_user', function (Blueprint $table) {
-            $table->boolean('shop_restricted')->default(false);
+        Schema::table('companies', function (Blueprint $table) {
+            $table->boolean('enable_shop_api')->default(false);
         });
     }
 

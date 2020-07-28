@@ -50,10 +50,10 @@ class ClientController extends BaseController
 
     public function show(string $contact_key)
     {
-        $company_token = CompanyToken::with(['company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first();
+        $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
 
         $contact = ClientContact::with('client')
-                            ->where('company_id', $company_token->company->id)
+                            ->where('company_id', $company->id)
                             ->where('contact_key', $contact_key)
                             ->firstOrFail();
 
@@ -62,15 +62,19 @@ class ClientController extends BaseController
 
     public function store(StoreClientRequest $request)
     {
-        $company_token = CompanyToken::with(['company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first();
+        $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
 
-        $client = $this->client_repo->save($request->all(), ClientFactory::create($company_token->company_id, $company_token->user_id));
+        app('queue')->createPayloadUsing(function () use ($company) {
+            return ['db' => $company->db];
+        });
+
+        $client = $this->client_repo->save($request->all(), ClientFactory::create($company->id, $company->owner()->id));
 
         $client->load('contacts', 'primary_contact');
 
-        $this->uploadLogo($request->file('company_logo'), $client->company, $client);
+        $this->uploadLogo($request->file('company_logo'), $company, $client);
 
-        event(new ClientWasCreated($client, $client->company, Ninja::eventVars()));
+        event(new ClientWasCreated($client, $company, Ninja::eventVars()));
 
         return $this->itemResponse($client);
     }
