@@ -54,6 +54,9 @@ class InvoiceController extends BaseController
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
 
+        if(!$company->enable_shop_api)
+            return response()->json(['message' => 'Shop is disabled', 'errors' => []],403);
+
         $invitation = InvoiceInvitation::with(['invoice'])
                                         ->where('company_id', $company->id)
                                         ->where('key',$invitation_key)
@@ -65,12 +68,16 @@ class InvoiceController extends BaseController
 
     public function store(StoreInvoiceRequest $request)
     {
-        app('queue')->createPayloadUsing(function () use ($company) {
-            return ['db' => $company->db];
-        });
                 
         $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
 
+        if(!$company->enable_shop_api)
+            return response()->json(['message' => 'Shop is disabled', 'errors' => []],403);
+
+        app('queue')->createPayloadUsing(function () use ($company) {
+            return ['db' => $company->db];
+        });
+        
         $client = Client::find($request->input('client_id'));
 
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create($company_id, $company->owner()->id));

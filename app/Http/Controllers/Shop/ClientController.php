@@ -53,6 +53,9 @@ class ClientController extends BaseController
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
 
+        if(!$company->enable_shop_api)
+            return response()->json(['message' => 'Shop is disabled', 'errors' => []],403);
+
         $contact = ClientContact::with('client')
                             ->where('company_id', $company->id)
                             ->where('contact_key', $contact_key)
@@ -65,6 +68,9 @@ class ClientController extends BaseController
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
 
+        if(!$company->enable_shop_api)
+            return response()->json(['message' => 'Shop is disabled', 'errors' => []],403);
+        
         app('queue')->createPayloadUsing(function () use ($company) {
             return ['db' => $company->db];
         });
