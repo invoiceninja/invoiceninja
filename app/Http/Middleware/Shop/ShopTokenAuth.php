@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Middleware;
+namespace App\Http\Middleware\Shop;
 
 use App\Events\User\UserLoggedIn;
 use App\Models\CompanyToken;
@@ -17,7 +17,7 @@ use App\Models\User;
 use App\Utils\Ninja;
 use Closure;
 
-class TokenAuth
+class ShopTokenAuth
 {
     /**
      * Handle an incoming request.
@@ -28,12 +28,14 @@ class TokenAuth
      */
     public function handle($request, Closure $next)
     {
+
         if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user','company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first())) {
 
-            if($company_token->shop_restricted){
+            /* Check if this is a restricted token*/
+            if(!$company_token->shop_restricted){
 
                 $error = [
-                    'message' => 'Cannot use a restricted token on this route',
+                    'message' => 'Cannot use a unrestricted token on this route',
                     'errors' => []
                 ];
 
@@ -42,13 +44,13 @@ class TokenAuth
 
             }
 
-
             $user = $company_token->user;
 
             $error = [
                 'message' => 'User inactive',
                 'errors' => []
             ];
+
             //user who once existed, but has been soft deleted
             if (!$user) {
                 return response()->json($error, 403);
@@ -69,27 +71,6 @@ class TokenAuth
                 return ['db' => $company_token->company->db];
             });
 
-            //user who once existed, but has been soft deleted
-            if ($user->company_user->is_locked) {
-                $error = [
-                    'message' => 'User access locked',
-                    'errors' => []
-                ];
-
-                return response()->json($error, 403);
-            }
-   
-            //stateless, don't remember the user.
-            auth()->login($user, false);
-
-            event(new UserLoggedIn($user, $company_token->company, Ninja::eventVars()));
-        } else {
-            $error = [
-                'message' => 'Invalid token',
-                'errors' => []
-            ];
-
-            return response()->json($error, 403);
         }
 
         return $next($request);

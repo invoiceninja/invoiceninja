@@ -73,6 +73,11 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\StartupCheck::class,
             \App\Http\Middleware\QueryLogging::class,
         ],
+        'shop' => [
+            'throttle:60,1',
+            'bindings',
+            'query_logging',
+        ],
     ];
 
     /**
@@ -108,5 +113,7 @@ class Kernel extends HttpKernel
         'api_db' => \App\Http\Middleware\SetDb::class,
         'locale' => \App\Http\Middleware\Locale::class,
         'contact.register' => \App\Http\Middleware\ContactRegister::class,
+        'shop_token_auth' => \App\Http\Middleware\ShopTokenAuth::class,
+
     ];
 }
