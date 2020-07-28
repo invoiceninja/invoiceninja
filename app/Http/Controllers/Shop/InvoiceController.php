@@ -52,7 +52,7 @@ class InvoiceController extends BaseController
 
     public function show(string $invitation_key)
     {
-        $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
+        $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
         if(!$company->enable_shop_api)
             return response()->json(['message' => 'Shop is disabled', 'errors' => []],403);
@@ -69,7 +69,7 @@ class InvoiceController extends BaseController
     public function store(StoreInvoiceRequest $request)
     {
                 
-        $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
+        $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
         if(!$company->enable_shop_api)
             return response()->json(['message' => 'Shop is disabled', 'errors' => []],403);
