@@ -54,6 +54,6 @@ class InvoiceViewedActivity implements ShouldQueue
         $fields->invitation_id = $event->invitation->id;
         $fields->invoice_id = $event->invitation->invoice_id;
 
-        $this->activity_repo->save($fields, $event->invoice, $event->event_vars);
+        $this->activity_repo->save($fields, $event->invitation->invoice, $event->event_vars);
     }
 }
