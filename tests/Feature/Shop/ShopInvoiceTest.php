@@ -42,7 +42,7 @@ class ShopInvoiceTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-COMPANY_KEY' => $this->company->company_key
+                'X-API-COMPANY-KEY' => $this->company->company_key
             ])->get('/api/v1/shop/products');
 
 
@@ -54,7 +54,7 @@ class ShopInvoiceTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-COMPANY_KEY' => $this->company->company_key
+                'X-API-COMPANY-KEY' => $this->company->company_key
             ])->get('/api/v1/products');
 
 
@@ -72,7 +72,7 @@ class ShopInvoiceTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-COMPANY_KEY' => $this->company->company_key
+                'X-API-COMPANY-KEY' => $this->company->company_key
             ])->get('/api/v1/shop/product/'.$product->product_key);
 
 
@@ -88,7 +88,7 @@ class ShopInvoiceTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-COMPANY_KEY' => $this->company->company_key
+                'X-API-COMPANY-KEY' => $this->company->company_key
             ])->get('/api/v1/shop/client/'.$this->client->contacts->first()->contact_key);
 
 

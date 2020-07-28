@@ -33,8 +33,8 @@ class SetDbByCompanyKey
         ];
 
 
-        if ($request->header('X-API-COMPANY_KEY') && config('ninja.db.multi_db_enabled')) {
-            if (! MultiDB::findAndSetDbByCompanyKey($request->header('X-API-COMPANY_KEY'))) {
+        if ($request->header('X-API-COMPANY-KEY') && config('ninja.db.multi_db_enabled')) {
+            if (! MultiDB::findAndSetDbByCompanyKey($request->header('X-API-COMPANY-KEY'))) {
                 return response()->json($error, 403);
             }
         } elseif (!config('ninja.db.multi_db_enabled')) {
