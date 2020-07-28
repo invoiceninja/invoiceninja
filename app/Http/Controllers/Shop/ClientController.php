@@ -17,6 +17,7 @@ use App\Http\Controllers\BaseController;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Repositories\ClientRepository;
 use App\Transformers\ClientTransformer;
@@ -48,7 +49,7 @@ class ClientController extends BaseController
         $this->client_repo = $client_repo;
     }
 
-    public function show(string $contact_key)
+    public function show(Request $request, string $contact_key)
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY_KEY'))->first();
 
