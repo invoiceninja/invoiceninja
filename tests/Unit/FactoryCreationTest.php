@@ -126,8 +126,8 @@ class FactoryCreationTest extends TestCase
         $cliz->save();
 
         $this->assertNotNull($cliz->contacts);
-        $this->assertEquals(1, $cliz->contacts->count());
-        $this->assertInternalType("int", $cliz->contacts->first()->id);
+        $this->assertEquals(0, $cliz->contacts->count());
+        $this->assertInternalType("int", $cliz->id);
     }
 
     /**

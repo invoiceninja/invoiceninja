@@ -270,7 +270,7 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        if (!auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
+        if (auth()->user() && !auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
             $query->where('user_id', '=', auth()->user()->id);
         }
 
@@ -346,7 +346,7 @@ class BaseController extends Controller
 
         $data = $this->createItem($item, $transformer, $this->entity_type);
 
-        if (request()->include_static) {
+        if (auth()->user() && request()->include_static) {
             $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
         }
         
