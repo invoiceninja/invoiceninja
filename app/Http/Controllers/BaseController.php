@@ -346,7 +346,7 @@ class BaseController extends Controller
 
         $data = $this->createItem($item, $transformer, $this->entity_type);
 
-        if (request()->include_static) {
+        if (auth()->user() && request()->include_static) {
             $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
         }
         
