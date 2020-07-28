@@ -392,6 +392,9 @@ class InvoiceController extends BaseController
             return $request->disallowUpdate();
         }
 
+        if($invoice->isLocked())
+            return response()->json(['message' => 'Invoice is locked, no modifications allowed']);
+
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));

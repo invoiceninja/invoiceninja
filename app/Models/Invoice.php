@@ -266,17 +266,6 @@ class Invoice extends BaseModel
         }
     }
 
-    /**
-     * If True, prevents an invoice from being
-     * modified once it has been marked as sent
-     *
-     * @return boolean isLocked
-     */
-    public function isLocked(): bool
-    {
-        return $this->client->getSetting('lock_sent_invoices');
-    }
-
     public function isPayable(): bool
     {
         if($this->status_id == Invoice::STATUS_DRAFT && $this->is_deleted == false){
@@ -435,6 +424,32 @@ class Invoice extends BaseModel
                 $invitation->save();
             }
         });
+    }
+
+    /**
+     * Filtering logic to determine
+     * whether an invoice is locked 
+     * based on the current status of the invoice
+     * @return boolean [description]
+     */
+    public function isLocked() :bool
+    {
+        $locked_status = $this->client->getSetting('lock_invoices');
+
+        switch ($locked_status) {
+            case 'off':
+                return false;
+                break;
+            case 'when_sent':
+                return $this->status_id == self::STATUS_DRAFT;
+                break;
+            case 'when_paid':
+                return $this->status_id == self::STATUS_PAID || $this->status_id == self::STATUS_PARTIAL;
+                break;            
+            default:
+                return false;
+                break;
+        }
     }
 
     /* Graveyard */

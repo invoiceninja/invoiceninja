@@ -30,7 +30,7 @@
  *       @OA\Property(property="custom_message_unpaid_invoice", type="string", example="Please pay invoices immediately", description="____________"),
  *       @OA\Property(property="custom_message_paid_invoice", type="string", example="Thanks for paying this invoice!", description="____________"),
  *       @OA\Property(property="custom_message_unapproved_quote", type="string", example="Please approve quote", description="____________"),
- *       @OA\Property(property="lock_sent_invoices", type="boolean", example=true, description="____________"),
+ *       @OA\Property(property="lock_invoices", type="boolean", example=true, description="____________"),
  *       @OA\Property(property="auto_archive_invoice", type="boolean", example=true, description="____________"),
  *       @OA\Property(property="auto_archive_quote", type="boolean", example=true, description="____________"),
  *       @OA\Property(property="auto_convert_quote", type="boolean", example=true, description="____________"),
