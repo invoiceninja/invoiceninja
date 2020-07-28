@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers\Shop;
 
+use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\InvoiceFactory;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
@@ -20,6 +21,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
@@ -60,11 +62,7 @@ class InvoiceController extends BaseController
         return $this->itemResponse($invitation->invoice);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(StoreInvoiceRequest $request)
     {
         $company_token = CompanyToken::with(['company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first();
