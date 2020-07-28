@@ -7,6 +7,7 @@ use App\Models\CompanyToken;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -37,20 +38,33 @@ class ShopInvoiceTest extends TestCase
         $this->withoutExceptionHandling();
     }
 
-    public function testTokenFailure()
+    public function testTokenSuccess()
     {
+        $this->company->enable_shop_api = true;
+        $this->company->save();
 
+        $response = null;
+
+        try {
+        
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-COMPANY-KEY' => $this->company->company_key
-            ])->get('/api/v1/shop/products');
+            ])->get('api/v1/shop/products');
+        }
 
+        catch (ValidationException $e) {
+            $this->assertNotNull($message);
+        }
 
         $response->assertStatus(200);
     }
 
-    public function testTokenSuccess()
+    public function testTokenFailure()
     {
+
+        $this->company->enable_shop_api = true;
+        $this->company->save();
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -63,8 +77,29 @@ class ShopInvoiceTest extends TestCase
         $arr = $response->json();
     }
 
+    public function testCompanyEnableShopApiBooleanWorks()
+    {
+        try {
+        
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-COMPANY-KEY' => $this->company->company_key
+            ])->get('api/v1/shop/products');
+        }
+
+        catch (ValidationException $e) {
+            $this->assertNotNull($message);
+        }
+
+        $response->assertStatus(403);
+    }
+
     public function testGetByProductKey()
     {
+
+        $this->company->enable_shop_api = true;
+        $this->company->save();
+
         $product = factory(\App\Models\Product::class)->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
@@ -85,6 +120,9 @@ class ShopInvoiceTest extends TestCase
 
     public function testGetByClientByContactKey()
     {
+
+        $this->company->enable_shop_api = true;
+        $this->company->save();
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
