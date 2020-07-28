@@ -15,7 +15,9 @@ use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\InvoiceFactory;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Requests\Shop\StoreShopInvoiceRequest;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
@@ -66,7 +68,7 @@ class InvoiceController extends BaseController
     }
 
 
-    public function store(StoreInvoiceRequest $request)
+    public function store(StoreShopInvoiceRequest $request)
     {
                 
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
@@ -80,7 +82,7 @@ class InvoiceController extends BaseController
         
         $client = Client::find($request->input('client_id'));
 
-        $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create($company_id, $company->owner()->id));
+        $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create($company->id, $company->owner()->id));
 
         event(new InvoiceWasCreated($invoice, $company, Ninja::eventVars()));
 
