@@ -30,7 +30,6 @@ class ClientContactRepository extends BaseRepository
         } else {
             $contacts = collect();
         }
-info(print_r($client->contacts->toArray(),1));
 
         $client->contacts->pluck('id')->diff($contacts->pluck('id'))->each(function ($contact) {
             ClientContact::destroy($contact);
