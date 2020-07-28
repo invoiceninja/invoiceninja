@@ -52,7 +52,7 @@ class InvoiceController extends BaseController
         $this->invoice_repo = $invoice_repo;
     }
 
-    public function show(string $invitation_key)
+    public function show(Request $request, string $invitation_key)
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
