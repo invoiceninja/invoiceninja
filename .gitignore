@@ -16,7 +16,6 @@ local_version.txt
 .phpunit.result.cache
 
 /resources/assets/bower
-/public/vendor
 /public/logo
 
 .env.dusk.local
