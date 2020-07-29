@@ -18,9 +18,7 @@ class ExampleIntegrationTest extends TestCase
         $engine = new HtmlEngine($invitation, 'invoice');
 
         $state = [
-            'template' => [
-                
-            ],
+            'template' => Plain::elements(),
             'variables' => $engine->generateLabelsAndValues(),
         ];
 
@@ -30,7 +28,6 @@ class ExampleIntegrationTest extends TestCase
             ->design(Plain::class)
             ->build();
 
-        info($state);
-        info($maker->getCompiledHTML());
+        // info($maker->getCompiledHTML());
     }
 }

@@ -103,6 +103,7 @@ class HtmlEngine
         }
 
         $data = [];
+        $data['$global-margin']          = ['value' => 'm-12', 'label' => ''];
         $data['$tax']                    = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$app_url']                = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from']                   = ['value' => '', 'label' => ctrans('texts.from')];
@@ -267,7 +268,7 @@ class HtmlEngine
         
         $logo = $this->company->present()->logo($this->settings);
 
-        $data['$company.logo']                       = ['value' => "<img src='{$logo}' class='h-32' alt='logo'>" ?: '&nbsp;', 'label' => ctrans('texts.logo')];
+        $data['$company.logo']                       = ['value' => $logo ?: '&nbsp;', 'label' => ctrans('texts.logo')];
         $data['$company_logo']                       = &$data['$company.logo'];
         $data['$company1']                           = ['value' => $this->settings->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('company1')];
         $data['$company2']                           = ['value' => $this->settings->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];
