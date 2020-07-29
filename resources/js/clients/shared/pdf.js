@@ -19,7 +19,7 @@ class PDF {
         this.currentScaleText = document.getElementById('zoom-level');
 
         if (matchMedia('only screen and (max-width: 480px)').matches) {
-            this.currentScale = 1;
+            this.currentScale = 0.5;
         }
 
         this.currentScaleText.textContent = this.currentScale * 100 + '%';
