@@ -59,7 +59,7 @@ class BouncedEmail extends Mailable implements ShouldQueue
             //->bcc('')
             ->queue(new BouncedEmail($invitation));
 
-        return $this->from('turbo124@gmail.com') //todo
+        return $this->from('x@gmail.com') //todo
             ->subject(ctrans('texts.confirmation_subject'))
             ->markdown('email.auth.verify', ['user' => $this->user])
             ->text('email.auth.verify_text');

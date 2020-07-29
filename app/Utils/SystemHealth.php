@@ -60,14 +60,6 @@ class SystemHealth
             $system_health = false;
         }
 
-        if (!self::checkNode()) {
-            $system_health = false;
-        }
-
-        if (!self::checkNpm()) {
-            $system_health = false;
-        }
-
         return [
             'system_health' => $system_health,
             'extensions' => self::extensions(),
@@ -90,13 +82,14 @@ class SystemHealth
             exec('node -v', $foo, $exitCode);
 
             if ($exitCode === 0) {
-                return true;
+              return $foo[0];
             }
-
-            return false;
+        
         } catch (\Exception $e) {
-            return false;
+           
+                return false;
         }
+        
     }
 
     public static function checkNpm()
@@ -105,14 +98,14 @@ class SystemHealth
             exec('npm -v', $foo, $exitCode);
 
             if ($exitCode === 0) {
-                return true;
-            }
+              return $foo[0];
+            } 
 
-            return false;
-
-        } catch (\Exception $e) {
-            return false;
+        }catch (\Exception $e) {
+           
+                return false;
         }
+        
     }
 
     private static function simpleDbCheck() :bool

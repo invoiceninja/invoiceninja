@@ -46,6 +46,7 @@ class CompanyUser extends Pivot
         'is_owner',
         'is_locked',
         'slack_webhook_url',
+        'shop_restricted'
     ];
 
     protected $touches = [];

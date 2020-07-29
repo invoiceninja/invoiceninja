@@ -9,37 +9,36 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\Invoice;
+namespace App\Http\Requests\Shop;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Invoice\LockedInvoiceRule;
-use App\Utils\Traits\ChecksEntityStatus;
+use App\Http\ValidationRules\Invoice\UniqueInvoiceNumberRule;
+use App\Models\ClientContact;
+use App\Models\Company;
+use App\Models\Invoice;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 
-class UpdateInvoiceRequest extends Request
+class StoreShopInvoiceRequest extends Request
 {
     use MakesHash;
     use CleanLineItems;
-    use ChecksEntityStatus;
-    
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
 
+    private $company;
+
     public function authorize() : bool
     {
-        return auth()->user()->can('edit', $this->invoice);
+        return true;
     }
-
 
     public function rules()
     {
-
         $rules = [];
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
@@ -52,34 +51,48 @@ class UpdateInvoiceRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        $rules['id'] = new LockedInvoiceRule($this->invoice);
+        $rules['client_id'] = 'required|exists:clients,id,company_id,'.$this->company->id;
 
+        $rules['invitations.*.client_contact_id'] = 'distinct';
+
+        $rules['number'] = new UniqueInvoiceNumberRule($this->all());
+        
         return $rules;
     }
 
     protected function prepareForValidation()
     {
+        $this->company = Company::where('company_key', request()->header('X-API-COMPANY-KEY'))->firstOrFail();
+
         $input = $this->all();
-        
+
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
-        
-        if (isset($input['client_id'])) {
+
+        if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
-        
+
+        if (isset($input['client_contacts'])) {
+            foreach ($input['client_contacts'] as $key => $contact) {
+                if (!array_key_exists('send_email', $contact) || !array_key_exists('id', $contact)) {
+                    unset($input['client_contacts'][$key]);
+                }
+            }
+        }
+
         if (isset($input['invitations'])) {
             foreach ($input['invitations'] as $key => $value) {
-                if (array_key_exists('id', $input['invitations'][$key]) && is_numeric($input['invitations'][$key]['id'])) {
+                if (isset($input['invitations'][$key]['id']) && is_numeric($input['invitations'][$key]['id'])) {
                     unset($input['invitations'][$key]['id']);
                 }
 
-                if (array_key_exists('id', $input['invitations'][$key]) && is_string($input['invitations'][$key]['id'])) {
+                if (isset($input['invitations'][$key]['id']) && is_string($input['invitations'][$key]['id'])) {
                     $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
                 }
 
@@ -89,16 +102,8 @@ class UpdateInvoiceRequest extends Request
             }
         }
 
-        $input['id'] = $this->invoice->id;
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
-
+        //$input['line_items'] = json_encode($input['line_items']);
         $this->replace($input);
-    }
-
-    public function messages()
-    {
-        return [
-            'id' => ctrans('text.locked_invoice'),
-        ];
     }
 }

@@ -286,6 +286,7 @@ class CreateTestData extends Command
         $company = factory(\App\Models\Company::class)->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
+            'is_large' => true,
         ]);
 
         $account->default_company_id = $company->id;

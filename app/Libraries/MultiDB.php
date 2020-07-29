@@ -180,6 +180,17 @@ class MultiDB
         return false;
     }
 
+    public static function findAndSetDbByCompanyKey($company_key) :bool
+    {
+        foreach (self::$dbs as $db) {
+            if ($company = Company::on($db)->where('company_key', $company_key)->first()) {
+                self::setDb($company->db);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static function findAndSetDbByDomain($subdomain) :bool
     {
         foreach (self::$dbs as $db) {

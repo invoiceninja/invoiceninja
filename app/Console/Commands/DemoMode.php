@@ -101,6 +101,8 @@ class DemoMode extends Command
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
             'enabled_modules' => 32767,
+            'company_key' => 'demo',
+            'enable_shop_api' => true
         ]);
 
          $settings = $company->settings;

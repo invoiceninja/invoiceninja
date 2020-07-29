@@ -103,7 +103,7 @@ class BaseNotification extends Notification implements ShouldQueue
             $email_style_custom = $this->settings->email_style_custom;
             $body = strtr($email_style_custom, "$body", $body);
         }
-
+        
         $data = [
             'body' => $body,
             'design' => $design_style,
@@ -120,4 +120,22 @@ class BaseNotification extends Notification implements ShouldQueue
 
         return $data;
     }
+
+    public function getTemplateView()
+    {
+
+        switch ($this->settings->email_style) {
+            case 'plain':
+                return 'email.template.plain';
+                break;
+            case 'custom':
+                return  'email.template.custom';
+                break;
+            default:
+                return 'email.admin.generic_email';
+                break;
+        }
+
+    }
+    
 }

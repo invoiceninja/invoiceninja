@@ -46,14 +46,14 @@ class InvoiceViewedActivity implements ShouldQueue
 
         $fields = new \stdClass;
 
-        $fields->user_id = $event->invoice->user_id;
-        $fields->company_id = $event->invoice->company_id;
+        $fields->user_id = $event->invitation->user_id;
+        $fields->company_id = $event->invitation->company_id;
         $fields->activity_type_id = Activity::VIEW_INVOICE;
-        $fields->client_id = $event->invitation->client_id;
+        $fields->client_id = $event->invitation->invoice->client_id;
         $fields->client_contact_id = $event->invitation->client_contact_id;
         $fields->invitation_id = $event->invitation->id;
         $fields->invoice_id = $event->invitation->invoice_id;
 
-        $this->activity_repo->save($fields, $event->invoice, $event->event_vars);
+        $this->activity_repo->save($fields, $event->invitation->invoice, $event->event_vars);
     }
 }

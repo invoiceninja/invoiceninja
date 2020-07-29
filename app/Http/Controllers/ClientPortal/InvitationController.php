@@ -54,7 +54,7 @@ class InvitationController extends Controller
 
                 event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
 
-                $this->fireEntityViewedEvent($invitation->{$entity}, $entity);
+                $this->fireEntityViewedEvent($invitation, $entity);
             }
 
             return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
