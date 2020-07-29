@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.clean')
+@extends('portal.ninja2020.layout.clean', ['custom_body_class' => 'overflow-y-hidden'])
 @section('meta_title', ctrans('texts.view_invoice'))
 
 @section('body')
