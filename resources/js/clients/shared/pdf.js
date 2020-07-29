@@ -17,6 +17,12 @@ class PDF {
         this.maxPages = 1;
         this.currentScale = 1.75;
         this.currentScaleText = document.getElementById('zoom-level');
+
+        if (matchMedia('only screen and (max-width: 480px)').matches) {
+            this.currentScale = 1;
+        }
+
+        this.currentScaleText.textContent = this.currentScale * 100 + '%';
     }
 
     handlePreviousPage() {
