@@ -225,6 +225,7 @@ trait MockAccountData
         $this->quote = $this->quote_calc->getQuote();
         
         $this->quote->number = $this->getNextQuoteNumber($this->client);
+        $this->quote->service()->createInvitations()->markSent();
 
         $this->quote->setRelation('client', $this->client);
         $this->quote->setRelation('company', $this->company);
@@ -242,6 +243,7 @@ trait MockAccountData
 
         $this->credit->save();
         
+        $this->credit->service()->createInvitations()->markSent();
 
         $this->credit_calc = new InvoiceSum($this->credit);
         $this->credit_calc->build();
