@@ -29,18 +29,14 @@ class HtmlEngine
 
     public $company;
 
-    public $designer;
-
     public $settings;
 
     public $entity_calc;
 
     public $entity_string;
 
-    public function __construct(Designer $designer, $invitation, $entity_string)
+    public function __construct($invitation, $entity_string)
     {
-        $this->designer = $designer;
-
         $this->invitation = $invitation;
 
         $this->entity = $invitation->{$entity_string};
@@ -347,7 +343,7 @@ class HtmlEngine
         return $data;
     }
 
-    private function generateLabelsAndValues() 
+    public function generateLabelsAndValues() 
     {
         $data = [];
 
