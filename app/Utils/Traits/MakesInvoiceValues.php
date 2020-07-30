@@ -569,7 +569,7 @@ trait MakesInvoiceValues
      * @param  array  $items The array of invoice items
      * @return array        The formatted array of invoice items
      */
-    private function transformLineItems($items, $table_type = '$product') :array
+    public function transformLineItems($items, $table_type = '$product') :array
     {
         $data = [];
         

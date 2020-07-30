@@ -7,10 +7,13 @@ use App\Models\Invoice;
 use App\Services\PdfMaker\Designs\Plain;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HtmlEngine;
+use App\Utils\Traits\MakesInvoiceValues;
 use Tests\TestCase;
 
 class ExampleIntegrationTest extends TestCase
 {
+    use MakesInvoiceValues;
+
     public function testExample()
     {
         $invoice = Invoice::first();
@@ -18,10 +21,17 @@ class ExampleIntegrationTest extends TestCase
 
         $engine = new HtmlEngine($invitation, 'invoice');
         $design = new Plain();
-        
+
+        $product_table_columns = json_decode(
+            json_encode($invoice->company->settings->pdf_variables), 1
+        )['product_columns'];
 
         $state = [
-            'template' => $design->elements(json_decode(json_encode($invoice->company->settings->pdf_variables), 1)['product_columns']),
+            'template' => $design->elements([
+                'client' => $invoice->client,
+                'invoice' => $invoice,
+                'product-table-columns' => $product_table_columns,
+            ]),
             'variables' => $engine->generateLabelsAndValues(),
         ];
 
