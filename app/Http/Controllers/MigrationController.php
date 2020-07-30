@@ -162,7 +162,7 @@ class MigrationController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Password"),
      *      @OA\Parameter(
      *          name="migration",
-     *          in="path",
+     *          in="query",
      *          description="The migraton file",
      *          example="migration.zip",
      *          required=true,

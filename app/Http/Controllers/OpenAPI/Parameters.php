@@ -85,7 +85,7 @@
  *     ),
  *
  *     @OA\Parameter(
- *         name="",
+ *         name="api_version",
  *         in="query",
  *         description="The API version",
  *			 @OA\Schema(
