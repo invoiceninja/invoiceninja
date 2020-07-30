@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\PdfMaker;
 
+use App\Models\Design;
 use App\Models\Invoice;
 use App\Services\PdfMaker\Designs\Plain;
 use App\Services\PdfMaker\PdfMaker;
@@ -16,9 +17,11 @@ class ExampleIntegrationTest extends TestCase
         $invitation = $invoice->invitations()->first();
 
         $engine = new HtmlEngine($invitation, 'invoice');
+        $design = new Plain();
+        
 
         $state = [
-            'template' => Plain::elements(),
+            'template' => $design->elements(json_decode(json_encode($invoice->company->settings->pdf_variables), 1)['product_columns']),
             'variables' => $engine->generateLabelsAndValues(),
         ];
 
@@ -28,6 +31,6 @@ class ExampleIntegrationTest extends TestCase
             ->design(Plain::class)
             ->build();
 
-        // info($maker->getCompiledHTML());
+        info($maker->getCompiledHTML());
     }
 }
