@@ -19,5 +19,12 @@
 
 @endslot
 
+@slot('below_card')
+
+    @if($signature)
+        {{ $signature }}
+    @endif
+
+@endslot    
 
 @endcomponent

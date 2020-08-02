@@ -3,7 +3,7 @@
 <head>
  	<meta charset="utf-8">
 </head>
-<body class="bg-white">
+<body>
 	{!! $body !!}
 </body>
 <footer>

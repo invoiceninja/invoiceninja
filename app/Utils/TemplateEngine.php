@@ -155,6 +155,7 @@ class TemplateEngine
         $data['title'] = '';
         $data['body'] = '$body';
         $data['footer'] = '';
+        $data['signature'] = $this->settings_entity->getSetting('email_signature');
 
         if ($email_style == 'custom') {
             $wrapper = $this->settings_entity->getSetting('email_style_custom');
@@ -171,7 +172,6 @@ class TemplateEngine
             $wrapper = str_replace('<head>',$injection ,$wrapper);
         }
 
-info($this->body);
         $data = [
             'subject' => $this->subject,
             'body' => $this->body,
