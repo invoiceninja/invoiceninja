@@ -131,6 +131,12 @@ class BaseNotification extends Notification implements ShouldQueue
             case 'custom':
                 return  'email.template.custom';
                 break;
+            case 'light':
+                return  'email.template.light';
+                break;
+            case 'dark':
+                return  'email.template.dark';
+                break;
             default:
                 return 'email.admin.generic_email';
                 break;

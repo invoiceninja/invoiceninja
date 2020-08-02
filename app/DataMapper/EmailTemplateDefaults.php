@@ -119,7 +119,9 @@ class EmailTemplateDefaults
             'allow_unsafe_links' => false,
         ]);
 
-        return $converter->convertToHtml(self::transformText('invoice_message'));
+        $invoice_message = '<p>' . self::transformText('invoice_message') . '</p><br><br><p>$view_link</p>';
+        return $invoice_message;
+        //return $converter->convertToHtml($invoice_message);
 
     }
 

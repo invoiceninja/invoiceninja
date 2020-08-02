@@ -126,6 +126,7 @@ class TemplateEngine
         ]);
 
         $this->body = $converter->convertToHtml($this->body);
+
     }
 
     private function entityValues($contact)
@@ -165,10 +166,12 @@ class TemplateEngine
                 $wrapper = '';
             }
         } else {
-            $wrapper = $this->getTemplate();
             $wrapper = view($this->getTemplatePath($email_style), $data)->render();
+            $injection = '<head><link rel="stylesheet" type="text/css" property="stylesheet" href="'.config('ninja.app_url').'/css/tailwind-1.2.0.css">';
+            $wrapper = str_replace('<head>',$injection ,$wrapper);
         }
 
+info($this->body);
         $data = [
             'subject' => $this->subject,
             'body' => $this->body,
