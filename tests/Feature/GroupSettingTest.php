@@ -88,8 +88,8 @@ class GroupSettingTest extends TestCase
         $response->assertStatus(200);
 
         $arr = $response->json();
-
-        $this->assertNotNull($arr['data']['archived_at']);
+        
+        $this->assertNotNull($arr['data'][0]['archived_at']);
     }
 
 }
