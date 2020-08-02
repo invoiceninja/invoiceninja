@@ -42,28 +42,6 @@ class TemplateController extends BaseController
      *      description="Returns a entity template with the template variables replaced with the Entities",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(
-     *          name="entity",
-     *          in="path",
-     *          description="The Entity (invoice,quote,recurring_invoice)",
-     *          example="invoice",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Parameter(
-     *          name="entity_id",
-     *          in="path",
-     *          description="The Entity ID",
-     *          example="X9f87dkf",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
      *      @OA\RequestBody(
      *         description="The template subject and body",
      *         required=true,

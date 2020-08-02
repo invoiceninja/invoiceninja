@@ -1,0 +1,95 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\MockAccountData;
+use Tests\TestCase;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Database\Eloquent\Model;
+
+class GroupSettingTest extends TestCase
+{
+    use MakesHash;
+    use DatabaseTransactions;
+    use MockAccountData;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        Session::start();
+
+        $this->faker = \Faker\Factory::create();
+
+        Model::reguard();
+
+        $this->makeTestData();
+    }
+
+    public function testAddGroupSettings()
+    {
+        $settings = new \stdClass;
+        $settings->currency_id = 1;
+
+        $data = [
+            'name' => 'test',
+            'settings' => $settings
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/group_settings', $data);
+
+        $response->assertStatus(200);
+ 
+        $arr = $response->json();
+
+        $this->assertEquals('test', $arr['data']['name']);
+        $this->assertEquals(0, $arr['data']['archived_at']);
+
+    }
+
+
+    public function testArchiveGroupSettings()
+    {
+        $settings = new \stdClass;
+        $settings->currency_id = 1;
+
+        $data = [
+            'name' => 'test',
+            'settings' => $settings
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/group_settings', $data);
+
+        $response->assertStatus(200);
+ 
+        $arr = $response->json();
+
+        $data = [
+            'action' => 'archive',
+            'ids' => [$arr['data']['id']]
+        ];
+        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/group_settings/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertNotNull($arr['data']['archived_at']);
+    }
+
+}

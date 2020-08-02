@@ -21,6 +21,7 @@ use App\Http\Requests\GroupSetting\UpdateGroupSettingRequest;
 use App\Models\GroupSetting;
 use App\Repositories\GroupSettingRepository;
 use App\Transformers\GroupSettingTransformer;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
@@ -29,7 +30,8 @@ class GroupSettingController extends BaseController
 {
     use DispatchesJobs;
     use Uploadable;
-
+    use MakesHash;
+    
     protected $entity_type = GroupSetting::class;
 
     protected $entity_transformer = GroupSettingTransformer::class;

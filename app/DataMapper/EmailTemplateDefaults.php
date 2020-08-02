@@ -121,7 +121,6 @@ class EmailTemplateDefaults
 
         return $converter->convertToHtml(self::transformText('invoice_message'));
 
-        //return Parsedown::instance()->line(self::transformText('invoice_message'));
     }
 
     public static function emailQuoteSubject()

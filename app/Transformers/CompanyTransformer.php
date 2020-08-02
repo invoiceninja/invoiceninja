@@ -132,6 +132,7 @@ class CompanyTransformer extends EntityTransformer
             'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates,
             'client_can_register' => (bool) $company->client_can_register,
             'is_large' => (bool) $company->is_large,
+            'enable_shop_api' => (bool) $company->enable_shop_api,
         ];
     }
 

@@ -70,6 +70,9 @@ class ClientContactRepository extends BaseRepository
 
         });
 
+        //need to reload here to shake off stale contacts
+        $client->load('contacts');
+
         //always made sure we have one blank contact to maintain state
         if ($client->contacts->count() == 0) {
         

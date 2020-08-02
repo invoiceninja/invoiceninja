@@ -73,14 +73,17 @@ class SendGenericNotification extends BaseNotification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
+
         $mail_message = (new MailMessage)
                         ->withSwiftMessage(function ($message) {
                             $message->getHeaders()->addTextHeader('Tag', $this->invitation->company->company_key);
-                        })->markdown('email.admin.generic_email', $this->buildMailMessageData());
+                        //})->markdown($this->getTemplateView(), $this->buildMailMessageData());
+                        })->markdown('email.template.plain', $this->buildMailMessageData());
 
         $mail_message = $this->buildMailMessageSettings($mail_message);
 
         return $mail_message;
+
     }
 
     /**

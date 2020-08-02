@@ -24,7 +24,8 @@ Route::group(['api_secret_check', 'email_db'], function () {
 Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
     
     Route::get('ping', 'PingController@index')->name('ping');
-    
+    Route::get('health_check', 'PingController@health')->name('health_check');
+
     Route::resource('activities', 'ActivityController');// name = (clients. index / create / show / update / destroy / edit
 
     Route::resource('clients', 'ClientController');// name = (clients. index / create / show / update / destroy / edit

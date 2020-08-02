@@ -70,9 +70,9 @@ class InvoiceFilters extends QueryFilters
         return $this->builder;
     }
 
-    public function invoice_number(string $invoice_number):Builder
+    public function number(string $number) :Builder
     {
-        return $this->builder->where('number', $invoice_number);
+        return $this->builder->where('number', $number);
     }
 
     /**

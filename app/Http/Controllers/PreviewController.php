@@ -45,28 +45,6 @@ class PreviewController extends BaseController
      *      description="Returns a pdf preview.",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(
-     *          name="entity",
-     *          in="path",
-     *          description="The PDF",
-     *          example="invoice",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Parameter(
-     *          name="entity_id",
-     *          in="path",
-     *          description="The Entity ID",
-     *          example="X9f87dkf",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="The pdf response",

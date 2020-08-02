@@ -109,6 +109,7 @@ class Company extends BaseModel
         'slack_webhook_url',
         'google_analytics_key',
         'client_can_register',
+        'enable_shop_api',
     ];
 
 

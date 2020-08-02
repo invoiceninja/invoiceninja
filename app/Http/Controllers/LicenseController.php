@@ -39,7 +39,7 @@ class LicenseController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="license_key",
-     *          in="path",
+     *          in="query",
      *          description="The license hash",
      *          example="d87sh-s755s-s7d76-sdsd8",
      *          required=true,
@@ -50,7 +50,7 @@ class LicenseController extends BaseController
      *      ),
      *      @OA\Parameter(
      *          name="product_id",
-     *          in="path",
+     *          in="query",
      *          description="The ID of the product purchased.",
      *          example="1",
      *          required=true,

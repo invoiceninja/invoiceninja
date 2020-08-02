@@ -87,17 +87,6 @@ class CompanyUserController extends BaseController
      *      description="Attempts to update a company user record. A company user can modify only their settings fields. Full access for Admin users",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The Invoice Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="The Company User response",

@@ -78,7 +78,6 @@ return [
         ],
         'contacts' => [
             'driver' => 'eloquent',
-
             'model' => App\Models\ClientContact::class,
         ],
 

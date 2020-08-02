@@ -187,6 +187,7 @@ trait MakesInvoiceValues
         }
 
         $calc = $this->calc();
+        $invitation = $this->invitations->where('client_contact_id', $contact->id)->first();
 
         $data = [];
         $data['$tax']                    = ['value' => '', 'label' => ctrans('texts.tax')];
@@ -214,6 +215,7 @@ trait MakesInvoiceValues
             $data['$number']             = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
             $data['$entity.terms']       = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.invoice_terms')];
             $data['$terms']              = &$data['$entity.terms'];
+            $data['$view_link']          = ['value' => '<a href="' .$invitation->getLink() .'">'. ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
         }
 
         if ($this instanceof Quote) {
@@ -221,13 +223,15 @@ trait MakesInvoiceValues
             $data['$number']             = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
             $data['$entity.terms']       = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.quote_terms')];
             $data['$terms']              = &$data['$entity.terms'];
-        }
+            $data['$view_link']          = ['value' => '<a href="' .$invitation->getLink() .'">'. ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
+       }
 
         if ($this instanceof Credit) {
             $data['$entity_label']       = ['value' => '', 'label' => ctrans('texts.credit')];
             $data['$number']             = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
             $data['$entity.terms']       = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.credit_terms')];
             $data['$terms']              = &$data['$entity.terms'];
+            $data['$view_link']          = ['value' => '<a href="' .$invitation->getLink() .'">'. ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
         }
 
         $data['$entity_number']          = &$data['$number'];

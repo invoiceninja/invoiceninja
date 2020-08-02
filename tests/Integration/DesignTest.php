@@ -92,7 +92,6 @@ class DesignTest extends TestCase
 
         $this->assertNotNull($html);
 
-
         $this->quote = factory(\App\Models\Invoice::class)->create([
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,

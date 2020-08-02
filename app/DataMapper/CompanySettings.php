@@ -25,7 +25,6 @@ class CompanySettings extends BaseSettings
 
     /*Invoice*/
     public $auto_archive_invoice 		    = false;
-    public $lock_sent_invoices              = false;
 
     public $lock_invoices = 'off';          //off,when_sent,when_paid
 
@@ -391,7 +390,6 @@ class CompanySettings extends BaseSettings
         'show_currency_code'                 => 'bool',
         'send_reminders'                     => 'bool',
         'enable_client_portal_tasks'         => 'bool',
-        'lock_sent_invoices'                 => 'bool',
         'auto_archive_invoice'               => 'bool',
         'auto_archive_quote'                 => 'bool',
         'auto_convert_quote'                 => 'bool',

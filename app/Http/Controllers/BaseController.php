@@ -186,6 +186,10 @@ class BaseController extends Controller
 
         $transformer = new $this->entity_transformer($this->serializer);
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
+
+        if(auth()->user()->getCompany()->is_large && !request()->has('updated_at'))
+          return response()->json(['message' => 'Cannot load a large account without a updated_at parameter','errors' =>[]],401);
+
         $updated_at = date('Y-m-d H:i:s', $updated_at);
 
         $query->with(
@@ -202,8 +206,8 @@ class BaseController extends Controller
             'company.groups' => function ($query) use($updated_at){
               $query->where('updated_at', '>=', $updated_at);
             },
-            'company.company_gateways' => function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at)->with('gateway');
+            'company.company_gateways' => function ($query){
+              $query->whereNotNull('updated_at');
             },
             'company.products' => function ($query) use($updated_at){
               $query->where('updated_at', '>=', $updated_at);

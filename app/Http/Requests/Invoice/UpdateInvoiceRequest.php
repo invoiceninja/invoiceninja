@@ -94,4 +94,11 @@ class UpdateInvoiceRequest extends Request
 
         $this->replace($input);
     }
+
+    public function messages()
+    {
+        return [
+            'id' => ctrans('text.locked_invoice'),
+        ];
+    }
 }

@@ -72,7 +72,7 @@ class AccountController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="token_name",
-     *          in="path",
+     *          in="query",
      *          description="A custom name for the user company token",
      *          example="Daves iOS Device",
      *          required=true,
