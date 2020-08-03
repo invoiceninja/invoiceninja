@@ -9,6 +9,6 @@
         {{ $slot }}
     </h1>
     @isset($p)
-        <p>{{ $p }}</p>
+        {!! $p !!}
     @endisset
 </div>

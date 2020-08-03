@@ -16,6 +16,7 @@ use App\Utils\TemplateEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
+use Illuminate\Notifications\Messages\MailMessage;
 use League\CommonMark\CommonMarkConverter;
 
 class TemplateController extends BaseController
@@ -93,6 +94,8 @@ class TemplateController extends BaseController
 
         $data = (new TemplateEngine($body, $subject, $entity, $entity_id, $template))->build();
         
+
         return response()->json($data, 200);
     }
+
 }

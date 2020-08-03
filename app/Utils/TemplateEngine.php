@@ -126,6 +126,7 @@ class TemplateEngine
         ]);
 
         $this->body = $converter->convertToHtml($this->body);
+
     }
 
     private function entityValues($contact)
@@ -154,6 +155,7 @@ class TemplateEngine
         $data['title'] = '';
         $data['body'] = '$body';
         $data['footer'] = '';
+        $data['signature'] = $this->settings_entity->getSetting('email_signature');
 
         if ($email_style == 'custom') {
             $wrapper = $this->settings_entity->getSetting('email_style_custom');
@@ -165,8 +167,9 @@ class TemplateEngine
                 $wrapper = '';
             }
         } else {
-            $wrapper = $this->getTemplate();
             $wrapper = view($this->getTemplatePath($email_style), $data)->render();
+            $injection = '<head><link rel="stylesheet" type="text/css" property="stylesheet" href="'.config('ninja.app_url').'/css/tailwind-1.2.0.css">';
+            $wrapper = str_replace('<head>',$injection ,$wrapper);
         }
 
         $data = [

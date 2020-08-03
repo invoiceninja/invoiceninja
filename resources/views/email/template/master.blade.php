@@ -26,13 +26,13 @@
         {{ $header }}
         <div id="text" class="px-10 py-6 flex flex-col">
           @isset($greeting)
-            <p>{{ $greeting }}</p>
+            {{ $greeting }}
           @endisset
-          <p>
+          
             {{ $slot }}
-          </p>
+          
           @isset($signature)
-            <p>{{ $signature }}</p>
+            {{ $signature }}
           @endisset
         </div>
       </div>
