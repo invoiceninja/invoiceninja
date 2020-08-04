@@ -55,31 +55,19 @@ class Phantom
 
         $file_path = $path . $entity_obj->number . '.pdf';
 
-		$url = rtrim(config('ninja.app_url'), "/") . 'phantom/' . $entity . '/' . $invitation . '?phantomjs_secret='. config('ninja.phantomjs_secret');
+		$url = config('ninja.app_url') . 'phantom/' . $entity . '/' . $invitation->key . '?phantomjs_secret='. config('ninja.phantomjs_secret');
 
-		$json_payload = new \stdClass;
-		$json_payload->url = $url;
-		$json_payload->renderType = "pdf";
+		$key = config('ninja.phantomjs_key');
+		$secret = config('ninja.phantomjs_key');
 
-		$url = "http://PhantomJScloud.com/api/browser/v2/" . config('ninja.phantomjs_key');
-		$payload = json_encode($json_payload);
-		$options = array(
-		    'http' => array(
-		        'header'  => "Content-type: application/json\r\n",
-		        'method'  => 'POST',
-		        'content' => $payload
-		    )
-		);
-		$context  = stream_context_create($options);
-		$pdf = file_get_contents($url, false, $context);
-		if ($pdf === FALSE) { /* Handle error */ info("i did not make the PDF from phantom"); }
+		$phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
+        $pdf = \App\Utils\CurlUtils::get($phantom_url);
 
         Storage::makeDirectory($path, 0755);
 
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 
         return $file_path;
-
 
 	}
 
