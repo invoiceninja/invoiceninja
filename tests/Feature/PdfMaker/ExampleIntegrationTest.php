@@ -23,7 +23,8 @@ class ExampleIntegrationTest extends TestCase
         $design = new Plain();
 
         $product_table_columns = json_decode(
-            json_encode($invoice->company->settings->pdf_variables), 1
+            json_encode($invoice->company->settings->pdf_variables),
+            1
         )['product_columns'];
 
         $state = [
@@ -41,6 +42,10 @@ class ExampleIntegrationTest extends TestCase
             ->design(Plain::class)
             ->build();
 
-        info($maker->getCompiledHTML());
+        exec('echo "" > storage/logs/laravel.log');
+
+        info($maker->getCompiledHTML(true));
+
+        $this->assertTrue(true);
     }
 }
