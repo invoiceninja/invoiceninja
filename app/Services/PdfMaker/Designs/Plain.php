@@ -13,9 +13,10 @@
 namespace App\Services\PdfMaker\Designs;
 
 use App\Services\PdfMaker\Designs\Utilities\BuildTableHeader;
+use App\Services\PdfMaker\Designs\Utilities\DesignInterface;
 use App\Utils\Traits\MakesInvoiceValues;
 
-class Plain
+class Plain implements DesignInterface
 {
     use MakesInvoiceValues, BuildTableHeader;
 
@@ -65,7 +66,7 @@ class Plain
         ];
     }
 
-    public function productTable()
+    public function productTable(): array
     {
         return  [
             'id' => 'product-table',
