@@ -122,9 +122,8 @@ class SetupController extends Controller
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
 
-            File::delete(
-                public_path('test.pdf')
-            );
+            Storage::disk('local')->delete('test.pdf');
+
 
             /* Create the first account. */
             if (Account::count() == 0) {
@@ -194,7 +193,14 @@ class SetupController extends Controller
     public function checkPdf(Request $request)
     {
         try {
-            Browsershot::html('If you see this text, generating PDF works! Thanks for using Invoice Ninja!')->savePdf(
+        
+            if(config('ninja.phantomjs_key')){
+                return $this->testPhantom();
+            }
+
+
+            Browsershot::url('https://www.invoiceninja.com')->savePdf(
+     //       Browsershot::html('If you see this text, generating PDF works! Thanks for using Invoice Ninja!')->savePdf(
                 public_path('test.pdf')
             );
 
@@ -206,5 +212,29 @@ class SetupController extends Controller
         }
     }
 
+    private function testPhantom()
+    {
+
+        try {
+        
+            $key = config('ninja.phantomjs_key');
+            $url = 'https://www.invoiceninja.org/';
+
+            $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
+            $pdf = \App\Utils\CurlUtils::get($phantom_url);
+
+            Storage::disk(config('filesystems.default'))->put('test.pdf', $pdf);
+            Storage::disk('local')->put('test.pdf', $pdf);
+
+            return response(['url' => Storage::disk('local')->url('test.pdf')], 200);
+        
+        }
+        catch(\Exception $e){
+        
+            return response([], 500);
+
+        }
+
+    }
     
 }
