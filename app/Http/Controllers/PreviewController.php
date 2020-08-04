@@ -126,14 +126,13 @@ class PreviewController extends BaseController
                     'company_id' => auth()->user()->company()->id,
                     'client_id' => $client->id,
                 ]);
-info('blank');
+
         $invitation = factory(\App\Models\InvoiceInvitation::class)->create([
                     'user_id' => auth()->user()->id,
                     'company_id' => auth()->user()->company()->id,
                     'invoice_id' => $invoice->id,
                     'client_contact_id' => $contact->id,
         ]);
-info('post invite');
 
         $invoice->setRelation('invitations', $invitation);
         $invoice->setRelation('client', $client);

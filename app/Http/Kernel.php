@@ -115,6 +115,6 @@ class Kernel extends HttpKernel
         'locale' => \App\Http\Middleware\Locale::class,
         'contact.register' => \App\Http\Middleware\ContactRegister::class,
         'shop_token_auth' => \App\Http\Middleware\Shop\ShopTokenAuth::class,
-
+        'phantom_secret' => \App\Http\Middleware\PhantomSecret::class,
     ];
 }

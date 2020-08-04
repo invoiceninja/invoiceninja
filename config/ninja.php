@@ -27,6 +27,8 @@ return [
     'hash_salt' => env('HASH_SALT', ''),
     'currency_converter_api_key' => env('OPENEXCHANGE_APP_ID',''),
     'enabled_modules' => 32767,
+    'phantomjs_key' => env('PHANTOMJS_KEY', false),
+    'phantomjs_secret' => env('PHANTOMJS_SECRET', false),
 
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 
