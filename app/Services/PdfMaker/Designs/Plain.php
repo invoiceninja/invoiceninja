@@ -12,11 +12,12 @@
 
 namespace App\Services\PdfMaker\Designs;
 
+use App\Services\PdfMaker\Designs\Utilities\BuildTableHeader;
 use App\Utils\Traits\MakesInvoiceValues;
 
 class Plain
 {
-    use MakesInvoiceValues;
+    use MakesInvoiceValues, BuildTableHeader;
 
     public $elements;
 
@@ -87,34 +88,9 @@ class Plain
 
     public function buildTableHeader(): array
     {
+        $this->processTaxColumns();
+
         $elements = [];
-
-        if (isset($this->context['product-table-columns']['$product.tax'])) {
-            $line_items = collect($this->invoice->line_items);
-
-            $tax1 = $line_items->where('tax_name1', '<>', '')->where('type_id', 1)->count();
-            $tax2 = $line_items->where('tax_name2', '<>', '')->where('type_id', 1)->count();
-            $tax3 = $line_items->where('tax_name3', '<>', '')->where('type_id', 1)->count();
-            $taxes = [];
-    
-            if ($tax1 > 0) {
-                array_push($taxes, '$product.tax_rate1');
-            }
-    
-            if ($tax2 > 0) {
-                array_push($taxes, '$product.tax_rate2');
-            }
-    
-            if ($tax3 > 0) {
-                array_push($taxes, '$product.tax_rate3');
-            }
-
-            $key = array_search('$product.tax', $this->context['product-table-columns'], true);
-
-            if ($key) {
-                array_splice($this->context['product-table-columns'], $key, 1, $taxes);
-            }
-        }
 
         foreach ($this->context['product-table-columns'] as $column) {
             $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['class' => 'px-4 py-2']];
@@ -139,10 +115,6 @@ class Plain
             foreach ($this->context['product-table-columns'] as $key => $cell) {
                 $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['class' => 'border-t-2 border-b border-gray-200 px-4 py-4']];
             }
-
-            // foreach ($row as $child) {
-            //     $element['elements'][] = ['element' => 'td', 'content' => $child, 'properties' => ['class' => 'border-t-2 border-b border-gray-200 px-4 py-4']];
-            // }
 
             $elements[] = $element;
         }
