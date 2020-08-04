@@ -545,7 +545,7 @@ trait GenerateMigrationResources
                 'created_at' => $quote->created_at ? $quote->created_at->toDateString() : null,
                 'updated_at' => $quote->updated_at ? $quote->updated_at->toDateString() : null,
                 'deleted_at' => $quote->deleted_at ? $quote->deleted_at->toDateString() : null,
-                'invitations' => $this->getResourceInvitations($quote->invitations, 'quote_id'),
+                //'invitations' => $this->getResourceInvitations($quote->invitations, 'quote_id'),
             ];
         }
 
@@ -799,14 +799,16 @@ trait GenerateMigrationResources
         $fees_and_limits->max_limit = $ags->max_limit;
         $fees_and_limits->fee_amount = $ags->fee_amount;
         $fees_and_limits->fee_percent = $ags->fee_percent;
-        $fees_and_limits->tax_name1 = $ags->tax_name1;
-        $fees_and_limits->tax_rate1 = $ags->tax_rate1;
-        $fees_and_limits->tax_name2 = $ags->tax_name2;
-        $fees_and_limits->tax_rate2 = $ags->tax_rate2;
-        $fees_and_limits->tax_name3 = '';
-        $fees_and_limits->tax_rate3 = 0;
+        $fees_and_limits->fee_tax_name1 = $ags->tax_name1;
+        $fees_and_limits->fee_tax_rate1 = $ags->tax_rate1;
+        $fees_and_limits->fee_tax_name2 = $ags->tax_name2;
+        $fees_and_limits->fee_tax_rate2 = $ags->tax_rate2;
+        $fees_and_limits->fee_tax_name3 = '';
+        $fees_and_limits->fee_tax_rate3 = 0;
 
-        return $fees_and_limits;
+        $data = [];
+        $data[1] = $fees_and_limits;
+        return $data;
     }
 
     private function getGatewayKeyById($gateway_id)
