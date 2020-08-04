@@ -21,6 +21,7 @@ use App\Http\Requests\TaxRate\UpdateTaxRateRequest;
 use App\Models\TaxRate;
 use App\Repositories\BaseRepository;
 use App\Transformers\TaxRateTransformer;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 /**
@@ -29,6 +30,8 @@ use Illuminate\Http\Request;
  */
 class TaxRateController extends BaseController
 {
+    use MakesHash;
+
     protected $entity_type = TaxRate::class;
 
     protected $entity_transformer = TaxRateTransformer::class;
@@ -425,10 +428,10 @@ class TaxRateController extends BaseController
 
         $ids = request()->input('ids');
 
-        $tax_rate = TaxRate::withTrashed()->find($this->transformKeys($ids));
+        $tax_rates = TaxRate::withTrashed()->find($this->transformKeys($ids));
 
 
-        $tax_rate->each(function ($tax_rat, $key) use ($action) {
+        $tax_rates->each(function ($tax_rate, $key) use ($action) {
             if (auth()->user()->can('edit', $tax_rate)) {
                 $this->base_repo->{$action}($tax_rate);
             }
