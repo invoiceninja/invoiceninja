@@ -19,12 +19,16 @@ class Plain
 {
     use MakesInvoiceValues, BuildTableHeader;
 
+    /** Global list of table elements, @var array */
     public $elements;
 
+    /** @var App\Models\Client */
     public $client;
 
+    /** @var App\Models\Invoice */
     public $invoice;
 
+    /** Global state of the design, @var string */
     public $context;
 
     public function html(): ?string
@@ -36,11 +40,13 @@ class Plain
 
     public function setup(): void
     {
-        $this->client = $this->context['client'];
+        if (isset($this->context['client'])) {
+            $this->client = $this->context['client'];
+        }
 
-        $this->invoice = $this->context['invoice'];
-
-        /** @todo: Wrap the elements with correct checks & exceptions. */
+        if (isset($this->context['invoice'])) {
+            $this->invoice = $this->context['invoice'];
+        }
     }
 
     public function elements(array $context): array
@@ -72,7 +78,6 @@ class Plain
                         ['element' => 'td', 'content' => '$subtotal_label', 'properties' => ['class' => 'px-4 py-4 text-right', 'colspan' => '2']],
                         ['element' => 'td', 'content' => '$subtotal', 'properties' => ['class' => 'px-4 py-2 text-right']],
                     ]],
-
                     ['element' => 'tr', 'content' => '', 'elements' => [
                         ['element' => 'td', 'content' => '$discount_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '4']],
                         ['element' => 'td', 'content' => '$discount', 'properties' => ['class' => 'px-4 py-2 text-right']],
