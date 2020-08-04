@@ -26,7 +26,7 @@ class GroupSetting extends StaticModel
     use MakesHash;
     use SoftDeletes;
     
-    public $timestamps = false;
+    //public $timestamps = false;
 
     protected $casts = [
         'settings' => 'object',

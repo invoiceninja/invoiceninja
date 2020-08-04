@@ -73,6 +73,9 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('{entity}/{client_hash}/{invitation_key}', 'ClientPortal\InvitationController@routerForIframe')->name('invoice.client_hash_and_invitation_key'); //should never need this
 
     Route::get('payment_hook/{company_gateway_id}/{gateway_type_id}', 'ClientPortal\PaymentHookController@process');
+
 });
+
+Route::get('phantom/{entity}/{invitation_key}', '\App\Utils\PhantomJS\Phantom@displayInvitation')->middleware(['invite_db','phantom_secret'])->name('phantom_view');
 
 Route::fallback('BaseController@notFoundClient');

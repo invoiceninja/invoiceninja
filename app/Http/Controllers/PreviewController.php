@@ -127,9 +127,19 @@ class PreviewController extends BaseController
                     'client_id' => $client->id,
                 ]);
 
+        $invitation = factory(\App\Models\InvoiceInvitation::class)->create([
+                    'user_id' => auth()->user()->id,
+                    'company_id' => auth()->user()->company()->id,
+                    'invoice_id' => $invoice->id,
+                    'client_contact_id' => $contact->id,
+        ]);
+
+        $invoice->setRelation('invitations', $invitation);
         $invoice->setRelation('client', $client);
         $invoice->setRelation('company', auth()->user()->company());
         $invoice->load('client');
+
+// info(print_r($invoice->toArray(),1));
 
         $design_object = json_decode(json_encode(request()->input('design')));
 
@@ -140,7 +150,7 @@ class PreviewController extends BaseController
         $designer = new Designer($invoice, $design_object, auth()->user()->company()->settings->pdf_variables, lcfirst(request()->input('entity')));
 
         $html = $this->generateEntityHtml($designer, $invoice, $contact);
-
+info($html);
         $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
 
         DB::rollBack();

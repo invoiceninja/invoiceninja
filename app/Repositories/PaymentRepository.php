@@ -71,6 +71,8 @@ class PaymentRepository extends BaseRepository
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
 
+info(print_r($data,1));
+
         //check currencies here and fill the exchange rate data if necessary
         if (!$payment->id) {
             $this->processExchangeRates($data, $payment);
@@ -82,20 +84,18 @@ class PaymentRepository extends BaseRepository
                     $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
                 
                 $client = Client::find($data['client_id']);
-                //info("updating client balance from {$client->balance} by this much ".$data['amount']);
 
                 $client->service()->updatePaidToDate($data['amount'])->save();
 
             }
         }
 
-        //info(print_r($data,1));
-
         /*Fill the payment*/
         $payment->fill($data);
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->save();
 
+        /*Save documents*/
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $payment);
         }
@@ -105,6 +105,7 @@ class PaymentRepository extends BaseRepository
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
         }
 
+        /*Set local total variables*/
         $invoice_totals = 0;
         $credit_totals = 0;
 
@@ -114,21 +115,14 @@ class PaymentRepository extends BaseRepository
 
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
             
-            info("saving this many invoices to the payment ".$invoices->count());
-
             $payment->invoices()->saveMany($invoices);
-
-            info("iterating through payment invoices");
 
             foreach ($data['invoices'] as $paid_invoice) {
 
                 $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
 
-                if ($invoice) {
-                    
+                if ($invoice) 
                     $invoice = $invoice->service()->markSent()->applyPayment($payment, $paid_invoice['amount'])->save();
-
-                }
                 
             }
         } else {
@@ -136,6 +130,7 @@ class PaymentRepository extends BaseRepository
             //01-07-2020 i think we were duplicating the paid to date here.
             //$payment->client->service()->updatePaidToDate($payment->amount)->save(); 
         }
+
 
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
@@ -154,16 +149,23 @@ class PaymentRepository extends BaseRepository
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-        $invoice_totals -= $credit_totals;
+/*info("invoice totals = {$invoice_totals}");
+info("credit totals = {$credit_totals}");
+info("applied totals = " . array_sum(array_column($data['invoices'], 'amount')));
+*/
+        //$invoice_totals -= $credit_totals;
 
-        //$payment->amount = $invoice_totals; //creates problems when setting amount like this.
-        if($credit_totals == $payment->amount){
-            $payment->applied += $credit_totals;
-        } elseif ($invoice_totals == $payment->amount) {
-            $payment->applied += $payment->amount;
-        } elseif ($invoice_totals < $payment->amount) {
-            $payment->applied += $invoice_totals;
-        }
+        ////$payment->amount = $invoice_totals; //creates problems when setting amount like this.
+
+        // if($credit_totals == $payment->amount){
+        //     $payment->applied += $credit_totals;
+        // } elseif ($invoice_totals == $payment->amount) {
+        //     $payment->applied += $payment->amount;
+        // } elseif ($invoice_totals < $payment->amount) {
+        //     $payment->applied += $invoice_totals;
+        // }
+
+        $payment->applied = $invoice_totals; //wont work because - check tests
 
         $payment->save();
 

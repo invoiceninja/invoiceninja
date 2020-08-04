@@ -883,55 +883,55 @@ class PaymentTest extends TestCase
         $this->assertEquals($payment->amount, 20);
         $this->assertEquals($payment->applied, 10);
 
-        $this->invoice = null;
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
-        $this->invoice->client_id = $client->id;
+        // $this->invoice = null;
+        // $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        // $this->invoice->client_id = $client->id;
 
-        $this->invoice->line_items = $this->buildLineItems();
-        $this->invoice->uses_inclusive_taxes = false;
+        // $this->invoice->line_items = $this->buildLineItems();
+        // $this->invoice->uses_inclusive_taxes = false;
 
-        $this->invoice->save();
+        // $this->invoice->save();
 
-        $this->invoice_calc = new InvoiceSum($this->invoice);
-        $this->invoice_calc->build();
+        // $this->invoice_calc = new InvoiceSum($this->invoice);
+        // $this->invoice_calc->build();
 
-        $this->invoice = $this->invoice_calc->getInvoice();
-        $this->invoice->save();
-        $this->invoice->service()->markSent()->save();
-
-
-        $data = [
-            'amount' => 20.0,
-            'client_id' => $this->encodePrimaryKey($client->id),
-            'invoices' => [
-                    [
-                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
-                        'amount' => 10,
-                    ]
-                ],
-            'date' => '2019/12/12',
-        ];
+        // $this->invoice = $this->invoice_calc->getInvoice();
+        // $this->invoice->save();
+        // $this->invoice->service()->markSent()->save();
 
 
-        $response = false;
+        // $data = [
+        //     'amount' => 20.0,
+        //     'client_id' => $this->encodePrimaryKey($client->id),
+        //     'invoices' => [
+        //             [
+        //                 'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
+        //                 'amount' => 10,
+        //             ]
+        //         ],
+        //     'date' => '2019/12/12',
+        // ];
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/payments/'.$this->encodePrimaryKey($payment->id), $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            \Log::error(print_r($e->validator->getMessageBag(), 1));
 
-            $this->assertTrue(array_key_exists('invoices', $message));
-        }
+        // $response = false;
 
-        $response->assertStatus(200);
+        // try {
+        //     $response = $this->withHeaders([
+        //         'X-API-SECRET' => config('ninja.api_secret'),
+        //         'X-API-TOKEN' => $this->token,
+        //     ])->put('/api/v1/payments/'.$this->encodePrimaryKey($payment->id), $data);
+        // } catch (ValidationException $e) {
+        //     $message = json_decode($e->validator->getMessageBag(), 1);
+        //     \Log::error(print_r($e->validator->getMessageBag(), 1));
+
+        //     $this->assertTrue(array_key_exists('invoices', $message));
+        // }
+
+        // $response->assertStatus(200);
         
-        $arr = $response->json();
+        // $arr = $response->json();
 
-        $this->assertEquals(20, $arr['data']['applied']);
+        // $this->assertEquals(20, $arr['data']['applied']);
     }
 
 

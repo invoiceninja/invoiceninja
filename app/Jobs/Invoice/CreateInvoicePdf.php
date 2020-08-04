@@ -20,6 +20,7 @@ use App\Models\Company;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Utils\HtmlEngine;
+use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
@@ -67,6 +68,9 @@ class CreateInvoicePdf implements ShouldQueue
 
     public function handle()
     {
+        if(config('ninja.phantomjs_key'))
+            return (new Phantom)->generate($this->invitation);
+
         App::setLocale($this->contact->preferredLocale());
 
         $path      = $this->invoice->client->invoice_filepath();

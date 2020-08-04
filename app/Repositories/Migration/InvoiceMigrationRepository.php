@@ -115,7 +115,7 @@ class InvoiceMigrationRepository extends BaseRepository
                     //make sure we are creating an invite for a contact who belongs to the client only!
                     $contact = ClientContact::find($invitation['client_contact_id']);
 
-                    if ($contact && $model->client_id == $contact->client_id);
+                    if ($contact && $model->client_id == $contact->client_id)
                     {
                         $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
                         $new_invitation->{$lcfirst_resource_id} = $model->id;

@@ -64,7 +64,7 @@ class SystemHealth
             'system_health' => $system_health,
             'extensions' => self::extensions(),
             'php_version' => [
-                'minimum_php_version' => self::$php_version,
+                'minimum_php_version' => (string)self::$php_version,
                 'current_php_version' => phpversion(),
                 'is_okay' => version_compare(phpversion(), self::$php_version, '>='),
             ],
