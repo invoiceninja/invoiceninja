@@ -29,7 +29,7 @@ class ProfileController extends BaseController
     protected $entity_transformer = CompanyShopProfileTransformer::class;
 
 
-    public function show(Request $request, string $product_key)
+    public function show(Request $request)
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 

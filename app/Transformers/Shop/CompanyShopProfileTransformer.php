@@ -36,6 +36,7 @@ use App\Transformers\CompanyLedgerTransformer;
 use App\Transformers\CompanyTokenHashedTransformer;
 use App\Transformers\CompanyTokenTransformer;
 use App\Transformers\CreditTransformer;
+use App\Transformers\EntityTransformer;
 use App\Transformers\PaymentTermTransformer;
 use App\Transformers\TaskTransformer;
 use App\Transformers\WebhookTransformer;
