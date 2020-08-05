@@ -392,6 +392,8 @@ class Import implements ShouldQueue
                 )
             );
 
+            $client->contacts()->forceDelete();
+
             if (array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
                 $modified_contacts = $resource['contacts'];
 
@@ -403,9 +405,11 @@ class Import implements ShouldQueue
                     unset($modified_contacts[$key]['id']);
                 }
 
+
                 $saveable_contacts['contacts'] = $modified_contacts;
 
                 $contact_repository->save($saveable_contacts, $client);
+
             }
 
             $key = "clients_{$resource['id']}";
