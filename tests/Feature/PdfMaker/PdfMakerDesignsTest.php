@@ -999,7 +999,7 @@ public function testElegant()
                             ['element' => 'th', 'content' => 'Line total', 'properties' => ['class' => 'font-semibold text-white px-4 py-3']],
                         ]],
                         ['element' => 'tbody', 'content' => '', 'elements' => [
-                            ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'border-b-2 border-teal-600 '], 'elements' => [
+                            ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'border-b-2 border-teal-600'], 'elements' => [
                                 ['element' => 'td', 'content' => 'Painting service', 'properties' => ['class' => 'px-4 py-4']],
                                 ['element' => 'td', 'content' => '25 hours of painting', 'properties' => ['class' => 'px-4 py-4']],
                                 ['element' => 'td', 'content' => '885.00', 'properties' => ['class' => 'px-4 py-4']],
