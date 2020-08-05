@@ -79,7 +79,10 @@ class CompanyShopProfileTransformer extends EntityTransformer
 
     private function trimCompany($company)
     {
+        $std = new \stdClass;
+
         $trimmed_company_settings = [
+            'custom_fields' => $company->custom_fields ?: $std,
             'custom_value1' => $company->settings->custom_value1,
             'custom_value2' => $company->settings->custom_value2,
             'custom_value3' => $company->settings->custom_value3,
