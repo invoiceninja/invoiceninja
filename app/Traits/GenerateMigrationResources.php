@@ -223,6 +223,7 @@ trait GenerateMigrationResources
                 'is_primary' => $contact->is_primary,
                 'send_email' => $contact->send_invoice,
                 'confirmed' => $contact->confirmation_token ? true : false,
+                'email_verified_at' => $contact->created_at->toDateTimeString(),
                 'last_login' => $contact->last_login,
                 'password' => $contact->password,
                 'remember_token' => $contact->remember_token,
