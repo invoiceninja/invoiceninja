@@ -55,7 +55,7 @@ class PdfMaker
         if (isset($this->data['variables'])) {
             $this->updateVariables($this->data['variables']);
         }
-        
+
         return $this;
     }
 

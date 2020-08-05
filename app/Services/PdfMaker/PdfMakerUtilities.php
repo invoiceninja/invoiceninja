@@ -116,7 +116,9 @@ trait PdfMakerUtilities
 
     public function updateVariables(array $variables)
     {
-        $html = strtr($this->getCompiledHTML(), $variables);
+        $html = strtr($this->getCompiledHTML(), $variables['labels']);
+        
+        $html = strtr($html, $variables['values']);
 
         $this->document->loadHTML($html);
 

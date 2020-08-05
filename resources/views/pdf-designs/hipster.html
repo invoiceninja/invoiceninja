@@ -30,16 +30,21 @@
             </div>
             <div class="col-span-3">
                 <img
-                    src="$company-logo"
-                    alt="$company-name logo"
+                    src="$company.logo"
+                    alt="$company.name logo"
                     class="w-24 col-span-4 sm:w-32"
                 />
             </div>
         </div>
 
         <!-- Entity details -->
-        <h1 class="mt-6 text-4xl font-semibold uppercase lg:text-6xl">$entity</h1>
-        <div id="entity-details" class="flex items-center space-x-6"></div>
+        <h1 class="mt-6 text-4xl font-semibold uppercase lg:text-5xl">
+            $entity
+        </h1>
+        <div
+            id="entity-details"
+            class="flex flex-wrap items-center space-x-4"
+        ></div>
 
         <!-- Product table -->
         <table id="product-table" class="w-full mt-10 table-auto"></table>

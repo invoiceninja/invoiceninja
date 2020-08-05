@@ -157,7 +157,7 @@ class RandomDataSeeder extends Seeder
         ]);
 
 
-        factory(\App\Models\Client::class, 10)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
@@ -173,10 +173,10 @@ class RandomDataSeeder extends Seeder
         });
 
         /** Product Factory */
-        factory(\App\Models\Product::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id]);
+        factory(\App\Models\Product::class, 2)->create(['user_id' => $user->id, 'company_id' => $company->id]);
 
         /** Invoice Factory */
-        factory(\App\Models\Invoice::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\Invoice::class, 2)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $invoices = Invoice::all();
         $invoice_repo = new InvoiceRepository();
@@ -225,7 +225,7 @@ class RandomDataSeeder extends Seeder
         });
 
         /*Credits*/
-        factory(\App\Models\Credit::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\Credit::class, 2)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $credits = Credit::cursor();
         $credit_repo = new CreditRepository();
@@ -250,12 +250,12 @@ class RandomDataSeeder extends Seeder
         });
 
         /** Recurring Invoice Factory */
-        factory(\App\Models\RecurringInvoice::class, 10)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         // factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
 
         /*Credits*/
-        factory(\App\Models\Quote::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        factory(\App\Models\Quote::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $quotes = Quote::cursor();
         $quote_repo = new QuoteRepository();

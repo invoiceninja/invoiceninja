@@ -707,7 +707,7 @@ class PdfMakerDesignsTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testElegant()
+public function testElegant()
     {
         $state = [
             'template' => [
@@ -799,7 +799,7 @@ class PdfMakerDesignsTest extends TestCase
                                 ['element' => 'td', 'content' => '$2.00', 'properties' => ['class' => 'px-4 py-2 text-right']],
                             ]],
                             ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
-                                ['element' => 'td', 'content' => 'Balance due', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '4']],
+                            ['element' => 'td', 'content' => 'Balance due', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '4']],
                                 ['element' => 'td', 'content' => '$2.00', 'properties' => ['class' => 'px-4 py-2 text-right']],
                             ]],
                         ]],
@@ -999,7 +999,7 @@ class PdfMakerDesignsTest extends TestCase
                             ['element' => 'th', 'content' => 'Line total', 'properties' => ['class' => 'font-semibold text-white px-4 py-3']],
                         ]],
                         ['element' => 'tbody', 'content' => '', 'elements' => [
-                            ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'border-b-2 border-teal-600 '], 'elements' => [
+                            ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'border-b-2 border-teal-600'], 'elements' => [
                                 ['element' => 'td', 'content' => 'Painting service', 'properties' => ['class' => 'px-4 py-4']],
                                 ['element' => 'td', 'content' => '25 hours of painting', 'properties' => ['class' => 'px-4 py-4']],
                                 ['element' => 'td', 'content' => '885.00', 'properties' => ['class' => 'px-4 py-4']],
