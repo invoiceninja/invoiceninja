@@ -799,7 +799,7 @@ class PdfMakerDesignsTest extends TestCase
                                 ['element' => 'td', 'content' => '$2.00', 'properties' => ['class' => 'px-4 py-2 text-right']],
                             ]],
                             ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
-                                ['element' => 'td', 'content' => 'Balance due', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '4']],
+                            ['element' => 'td', 'content' => 'Balance due', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '4']],
                                 ['element' => 'td', 'content' => '$2.00', 'properties' => ['class' => 'px-4 py-2 text-right']],
                             ]],
                         ]],
