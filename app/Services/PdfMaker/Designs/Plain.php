@@ -12,11 +12,11 @@
 
 namespace App\Services\PdfMaker\Designs;
 
+use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\BuildTableHeader;
-use App\Services\PdfMaker\Designs\Utilities\DesignInterface;
 use App\Utils\Traits\MakesInvoiceValues;
 
-class Plain implements DesignInterface
+class Plain extends BaseDesign
 {
     use MakesInvoiceValues, BuildTableHeader;
 
@@ -37,17 +37,6 @@ class Plain implements DesignInterface
         return file_get_contents(
             base_path('resources/views/pdf-designs/plain.html')
         );
-    }
-
-    public function setup(): void
-    {
-        if (isset($this->context['client'])) {
-            $this->client = $this->context['client'];
-        }
-
-        if (isset($this->context['invoice'])) {
-            $this->invoice = $this->context['invoice'];
-        }
     }
 
     public function elements(array $context): array

@@ -12,17 +12,16 @@
 
 namespace App\Services\PdfMaker\Designs\Utilities;
 
-interface DesignInterface
+class BaseDesign
 {
-    public function html(): ?string;
+    public function setup(): void
+    {
+        if (isset($this->context['client'])) {
+            $this->client = $this->context['client'];
+        }
 
-    public function setup(): void;
-
-    public function elements(array $context): array;
-
-    public function productTable(): array;
-
-    public function buildTableHeader(): array;
-
-    public function buildTableBody(): array;
+        if (isset($this->context['invoice'])) {
+            $this->invoice = $this->context['invoice'];
+        }
+    }
 }
