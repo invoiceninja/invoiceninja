@@ -12,6 +12,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\CompanySettings;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasUpdated;
@@ -711,7 +712,10 @@ class InvoiceController extends BaseController
                 break;
             case 'email':
                 //check query paramater for email_type and set the template else use calculateTemplate
-                $this->reminder_template = $invoice->calculateTemplate();
+                if(request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type')))
+                    $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
+                else
+                    $this->reminder_template = $invoice->calculateTemplate();
 
                 $invoice->invitations->load('contact.client.country','invoice.client.country','invoice.company')->each(function ($invitation) use ($invoice) {
 
