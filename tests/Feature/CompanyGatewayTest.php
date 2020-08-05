@@ -63,7 +63,11 @@ class CompanyGatewayTest extends TestCase
         $cg->save();
 
         $this->assertNotNull($cg->fees_and_limits);
-        $this->assertNotNull($cg->fees_and_limits->{"1"});
+
+        $properties = array_keys(get_object_vars($cg->fees_and_limits));
+        $fees_and_limits = $cg->fees_and_limits->{$properties[0]};
+
+        $this->assertNotNull($fees_and_limits);
 
 
         //confirm amount filtering works
@@ -83,8 +87,10 @@ class CompanyGatewayTest extends TestCase
 
     public function checkSieve($cg, $amount)
     {
-        if(isset($cg->fees_and_limits))
-            $fees_and_limits = $cg->fees_and_limits->{"1"};
+        if(isset($cg->fees_and_limits)){
+            $properties = array_keys(get_object_vars($cg->fees_and_limits));
+            $fees_and_limits = $cg->fees_and_limits->{$properties[0]};
+        }
         else
             $passes = true;
 

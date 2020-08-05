@@ -475,8 +475,12 @@ class Client extends BaseModel implements HasLocalePreference
 
         $valid_gateways = $gateways->filter(function ($method) use ($amount) {
 
-            if(isset($method->fees_and_limits))
-                $fees_and_limits = $method->fees_and_limits->{"1"};
+            if(isset($method->fees_and_limits)){
+                //sometimes the key value of the fees and limits object are not static,
+                //we have to harvest the key value as follows
+                $properties = array_keys(get_object_vars($method->fees_and_limits));
+                $fees_and_limits = $method->fees_and_limits->{$properties[0]};
+            }
             else
                 return true;
 
