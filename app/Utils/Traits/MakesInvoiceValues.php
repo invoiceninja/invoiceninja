@@ -334,6 +334,8 @@ trait MakesInvoiceValues
         $data['$contact.phone']             = ['value' => $contact->phone, 'label' => ctrans('texts.phone')];
 
         $data['$contact.name']                     = ['value' => isset($contact) ? $contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
+        $data['$contact.first_name']               = ['value' => isset($contact) ? $contact->first_name : '', 'label' => ctrans('texts.first_name')];
+        $data['$contact.last_name']                = ['value' => isset($contact) ? $contact->last_name : '', 'label' => ctrans('texts.last_name')];
         $data['$contact.custom1']                  = ['value' => isset($contact) ? $contact->custom_value1 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
         $data['$contact.custom2']                  = ['value' => isset($contact) ? $contact->custom_value2 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
         $data['$contact.custom3']                  = ['value' => isset($contact) ? $contact->custom_value3 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
