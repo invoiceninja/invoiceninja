@@ -707,7 +707,7 @@ class PdfMakerDesignsTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testElegant()
+public function testElegant()
     {
         $state = [
             'template' => [
