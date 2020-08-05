@@ -20,8 +20,8 @@ class BaseDesign
             $this->client = $this->context['client'];
         }
 
-        if (isset($this->context['invoice'])) {
-            $this->invoice = $this->context['invoice'];
+        if (isset($this->context['entity'])) {
+            $this->entity = $this->context['entity'];
         }
     }
 }

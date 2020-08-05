@@ -26,11 +26,14 @@ class Plain extends BaseDesign
     /** @var App\Models\Client */
     public $client;
 
-    /** @var App\Models\Invoice */
-    public $invoice;
+    /** @var App\Models\Invoice || @var App\Models\Quote */
+    public $entity;
 
-    /** Global state of the design, @var string */
+    /** Global state of the design, @var array */
     public $context;
+
+    /** Type of entity => invoice||quote */
+    public $type;
 
     public function html(): ?string
     {
@@ -39,9 +42,11 @@ class Plain extends BaseDesign
         );
     }
 
-    public function elements(array $context): array
+    public function elements(array $context, string $type = 'invoice'): array
     {
         $this->context = $context;
+        $this->type = $type;
+
         $this->setup();
 
         return [
@@ -66,7 +71,7 @@ class Plain extends BaseDesign
 
     public function companyAddress(): array
     {
-        $variables = $this->invoice->company->settings->pdf_variables->company_address;
+        $variables = $this->entity->company->settings->pdf_variables->company_address;
 
         $elements = [];
 
@@ -79,7 +84,7 @@ class Plain extends BaseDesign
 
     public function entityDetails(): array
     {
-        $variables = $this->invoice->company->settings->pdf_variables->invoice_details;
+        $variables = $this->entity->company->settings->pdf_variables->invoice_details;
 
         $elements = [];
 
@@ -95,7 +100,7 @@ class Plain extends BaseDesign
 
     public function clientDetails(): array
     {
-        $variables = $this->invoice->company->settings->pdf_variables->client_details;
+        $variables = $this->entity->company->settings->pdf_variables->client_details;
 
         $elements = [];
 
@@ -146,7 +151,7 @@ class Plain extends BaseDesign
     {
         $elements = [];
 
-        $items = $this->transformLineItems($this->invoice->line_items);
+        $items = $this->transformLineItems($this->entity->line_items);
 
         if (count($items) == 0) {
             return [];

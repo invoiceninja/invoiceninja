@@ -30,13 +30,13 @@ class ExampleIntegrationTest extends TestCase
         $state = [
             'template' => $design->elements([
                 'client' => $invoice->client,
-                'invoice' => $invoice,
+                'entity' => $invoice,
                 'product-table-columns' => $product_table_columns,
             ]),
             'variables' => $engine->generateLabelsAndValues(),
         ];
 
-        $maker = new PdfMaker($state);
+        $maker = new PdfMaker($state, 'invoice');
 
         $maker
             ->design(Plain::class)

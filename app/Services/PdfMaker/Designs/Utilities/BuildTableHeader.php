@@ -26,7 +26,7 @@ trait BuildTableHeader
     public function processTaxColumns(): void
     {
         if (in_array('$product.tax', $this->context['product-table-columns'])) {
-            $line_items = collect($this->invoice->line_items);
+            $line_items = collect($this->entity->line_items);
 
             $tax1 = $line_items->where('tax_name1', '<>', '')->where('type_id', 1)->count();
             $tax2 = $line_items->where('tax_name2', '<>', '')->where('type_id', 1)->count();
