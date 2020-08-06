@@ -49,8 +49,8 @@ class DocumentTransformer extends EntityTransformer
             'is_default' => (bool) $document->is_default,
             'updated_at' => (int) $document->updated_at,
             'archived_at' => (int) $document->deleted_at,
-            'created_at' => (int) $document->created_at
-
+            'created_at' => (int) $document->created_at,
+            'is_deleted' => (bool) false,
         ];
     }
 }
