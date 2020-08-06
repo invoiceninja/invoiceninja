@@ -23,6 +23,7 @@ class ProductTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
+        'documents',
     ];
 
     /**

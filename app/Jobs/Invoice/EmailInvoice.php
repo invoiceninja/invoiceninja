@@ -1,10 +1,20 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Jobs\Invoice;
 
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Helpers\Email\InvoiceEmail;
+use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
@@ -20,7 +30,9 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mime\Test\Constraint\EmailTextBodyContains;
 
-class EmailInvoice implements ShouldQueue
+/*Multi Mailer implemented*/
+
+class EmailInvoice extends BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -56,6 +68,8 @@ class EmailInvoice implements ShouldQueue
     {        
         MultiDB::setDB($this->company->db);
         
+        $this->setMailDriver($this->invoice_invitation->invoice->client->getSetting('email_sending_method'));
+
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
             ->send(
                 new TemplateEmail(

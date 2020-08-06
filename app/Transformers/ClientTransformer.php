@@ -16,9 +16,11 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyLedger;
+use App\Models\Document;
 use App\Transformers\ActivityTransformer;
 use App\Transformers\ClientGatewayTokenTransformer;
 use App\Transformers\CompanyLedgerTransformer;
+use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -30,12 +32,14 @@ class ClientTransformer extends EntityTransformer
 
     protected $defaultIncludes = [
         'contacts',
+        'documents',
     ];
 
     /**
      * @var array
      */
     protected $availableIncludes = [
+        'documents',
         'gateway_tokens',
         'activities',
         'ledger',
@@ -54,6 +58,13 @@ class ClientTransformer extends EntityTransformer
         return $this->includeCollection($client->activities, $transformer, Activity::class);
     }
 
+    public function includeDocuments(Client $client)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+
+        return $this->includeCollection($client->documents, $transformer, Document::class);
+    }
+    
     /**
      * @param Client $client
      *

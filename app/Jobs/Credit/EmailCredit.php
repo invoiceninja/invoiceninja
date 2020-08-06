@@ -13,6 +13,7 @@ namespace App\Jobs\Credit;
 
 use App\Events\Credit\CreditWasEmailed;
 use App\Events\Credit\CreditWasEmailedAndFailed;
+use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
@@ -26,7 +27,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
-class EmailCredit implements ShouldQueue
+/*Multi Mailer implemented*/
+class EmailCredit extends BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -57,14 +59,16 @@ class EmailCredit implements ShouldQueue
 
         $template_style = $this->credit->client->getSetting('email_style');
         
+        $this->setMailDriver($this->credit->client->getSetting('email_sending_method'));
+
         $this->credit->invitations->each(function ($invitation) use ($template_style) {
+
             if ($invitation->contact->send_email && $invitation->contact->email) {
+
                 $message_array = $this->credit->getEmailData('', $invitation->contact);
                 $message_array['title'] = &$message_array['subject'];
                 $message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
-                
-                //change the runtime config of the mail provider here:
-                
+                                
                 //send message
                 Mail::to($invitation->contact->email, $invitation->contact->present()->name())
                 ->send(new TemplateEmail($message_array, $template_style, $invitation->contact->user, $invitation->contact->client));
@@ -77,8 +81,6 @@ class EmailCredit implements ShouldQueue
 
                 //fire any events
                 event(new CreditWasEmailed($this->credit, $this->company, Ninja::eventVars()));
-
-                //sleep(5);
             }
         });
     }

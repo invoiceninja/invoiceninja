@@ -21,6 +21,7 @@ use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Credit;
 use App\Models\Design;
+use App\Models\Document;
 use App\Models\Expense;
 use App\Models\GroupSetting;
 use App\Models\Payment;
@@ -36,6 +37,7 @@ use App\Transformers\CompanyLedgerTransformer;
 use App\Transformers\CompanyTokenHashedTransformer;
 use App\Transformers\CompanyTokenTransformer;
 use App\Transformers\CreditTransformer;
+use App\Transformers\DocumentTransformer;
 use App\Transformers\PaymentTermTransformer;
 use App\Transformers\TaskTransformer;
 use App\Transformers\WebhookTransformer;
@@ -52,12 +54,14 @@ class CompanyTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
+        'documents',
     ];
 
     /**
      * @var array
      */
     protected $availableIncludes = [
+        'documents',
         'users',
         'designs',
         'account',
@@ -134,6 +138,13 @@ class CompanyTransformer extends EntityTransformer
             'is_large' => (bool) $company->is_large,
             'enable_shop_api' => (bool) $company->enable_shop_api,
         ];
+    }
+
+    public function includeDocuments(Company $company)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+
+        return $this->includeCollection($company->documents, $transformer, Document::class);
     }
 
     public function includeCompanyUser(Company $company)

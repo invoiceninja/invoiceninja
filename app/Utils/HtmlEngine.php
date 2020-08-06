@@ -35,8 +35,12 @@ class HtmlEngine
 
     public $entity_string;
 
-    public function __construct($invitation, $entity_string)
+    public $designer;
+    
+    public function __construct($designer, $invitation, $entity_string)
     {
+        $this->designer = $designer;
+
         $this->invitation = $invitation;
 
         $this->entity = $invitation->{$entity_string};
