@@ -2,6 +2,9 @@ on:
   push:
     branches:
       - v2
+  pull_request:
+    branches: 
+      - v2
       
 name: phpunit
 jobs:
