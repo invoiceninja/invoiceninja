@@ -15,6 +15,9 @@ class ExampleIntegrationTest extends TestCase
 
     public function testExample()
     {
+        $this->markTestSkipped('WIP');
+
+
         $invoice = Invoice::first();
         $invitation = $invoice->invitations()->first();
 

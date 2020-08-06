@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Jobs\Mail;
 
@@ -18,6 +27,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
+
+/*Multi Mailer implemented*/
 
 class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
 {
@@ -54,9 +65,9 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
     public function handle()
     {
         //Set DB
-        //
         MultiDB::setDb($this->company->db);
 
+        /*If we are migrating data we don't want to fire these notification*/
         if($this->company->company_users->first()->is_migrating)
             return true;
         

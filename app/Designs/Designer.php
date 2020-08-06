@@ -51,7 +51,7 @@ class Designer
         'company4',
     ];
 
-public function __construct($entity, $design, $input_variables, $entity_string)
+    public function __construct($entity, $design, $input_variables, $entity_string)
     {
         $this->entity = $entity;
 

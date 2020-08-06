@@ -27,6 +27,7 @@ class PaymentTransformer extends EntityTransformer
 
     protected $defaultIncludes = [
     //    'invoices'
+        'documents',
     ];
 
     protected $availableIncludes = [

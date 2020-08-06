@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Jobs\Mail;
 
@@ -17,6 +26,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
+
+/*Multi Mailer implemented*/
 
 class EntitySentMailer extends BaseMailerJob implements ShouldQueue
 {

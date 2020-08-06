@@ -52,9 +52,10 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
         //Set DB
         MultiDB::setDb($this->company->db);
 
-        //if we need to set an email driver do it now
+        //If we need to set an email driver do it now
         $this->setMailDriver($this->company->settings->email_sending_method);
 
+        /*Build the object*/
         $mail_obj = new \stdClass;
         $mail_obj->subject = ctrans('texts.email_address_changed');
         $mail_obj->markdown = 'email.admin.generic';
@@ -62,16 +63,14 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
         $mail_obj->tag = $this->company->company_key;
         $mail_obj->data = $this->getData();
 
-
-        //send email
+        //Send email via a Mailable class
         Mail::to($this->old_email)
             ->send(new UserNotificationMailer($mail_obj));
 
         Mail::to($this->new_email)
             ->send(new UserNotificationMailer($mail_obj));
 
-
-        //catch errors
+        //Catch errors and report.
         if (count(Mail::failures()) > 0) {
             $this->logMailError(Mail::failures());
         }
