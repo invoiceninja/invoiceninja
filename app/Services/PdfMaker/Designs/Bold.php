@@ -48,10 +48,6 @@ class Bold extends BaseDesign
         
         $this->type = $type;
 
-        if ($type !== 'product' || $type !== 'task') {
-            throw new \Exception("Type '{$type}' is not allowed. Allowed values are 'product' or 'task'.");
-        }
-
         $this->setup();
 
         return [
@@ -148,7 +144,7 @@ class Bold extends BaseDesign
 
         $elements = [];
 
-        foreach ($this->context['product-table-columns'] as $column) {
+        foreach ($this->context["{$this->type}-table-columns"] as $column) {
             $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['class' => 'text-xl px-4 py-2']];
         }
 

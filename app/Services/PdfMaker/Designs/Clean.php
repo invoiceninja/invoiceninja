@@ -48,10 +48,6 @@ class Clean extends BaseDesign
         
         $this->type = $type;
 
-        if ($type !== 'product' || $type !== 'task') {
-            throw new \Exception("Type '{$type}' is not allowed. Allowed values are 'product' or 'task'.");
-        }
-
         $this->setup();
 
         return [

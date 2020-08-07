@@ -96,6 +96,7 @@ class HtmlEngine
 
         $data = [];
         $data['$global-margin']          = ['value' => 'm-12', 'label' => ''];
+        $data['$global-padding']         = ['value' => 'p-12', 'label' => ''];
         $data['$tax']                    = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$app_url']                = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from']                   = ['value' => '', 'label' => ctrans('texts.from')];
@@ -175,11 +176,11 @@ class HtmlEngine
         $data['$invoice.custom4']        = ['value' => $this->entity->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
         $data['$invoice.public_notes']   = ['value' => $this->entity->public_notes ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes']    = &$data['$invoice.public_notes'];
+
+        $data['$entity_issued_to']      = ['value' => '', 'label' => ctrans("texts.{$this->entity_string}_issued_to")];
         
-        // $data['$your_invoice'] = ;
-        // $data['$quote'] = ;
-        // $data['$your_quote'] = ;
-        //
+        $data['$your_' . $this->entity_string] = ['value' => '', 'label' => ctrans("texts.your_{$this->entity_string}")];
+
         $data['$quote.date']             = ['value' => $this->entity->date ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
         $data['$quote.number']           = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
         $data['$quote.po_number']        = &$data['$invoice.po_number'];
@@ -296,6 +297,10 @@ class HtmlEngine
         $data['$task.tax_name3']                     = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.line_total']                    = ['value' => '', 'label' => ctrans('texts.line_total')];
         $data['$contact.signature']                  = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
+
+        $data['$thanks']                             = ['value' => '', 'label' => ctrans('texts.thanks')];
+        $data['$from']                               = ['value' => '', 'label' => ctrans('texts.from')];
+        $data['$to']                                 = ['value' => '', 'label' => ctrans('texts.to')];
 
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
