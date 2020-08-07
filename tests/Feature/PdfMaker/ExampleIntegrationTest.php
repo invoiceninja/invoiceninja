@@ -35,7 +35,7 @@ class ExampleIntegrationTest extends TestCase
             'variables' => $engine->generateLabelsAndValues(),
         ];
 
-        $maker = new PdfMaker($state, 'invoice');
+        $maker = new PdfMaker($state, 'product');
 
         $maker
             ->design(Plain::class)

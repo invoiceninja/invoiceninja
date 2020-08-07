@@ -32,7 +32,7 @@ class Elegant extends BaseDesign
     /** Global state of the design, @var array */
     public $context;
 
-    /** Type of entity => invoice||quote */
+    /** Type of entity => product||task */
     public $type;
 
     public function html()
@@ -42,10 +42,15 @@ class Elegant extends BaseDesign
         );
     }
 
-    public function elements(array $context, string $type = 'invoice'): array
+    public function elements(array $context, string $type = 'product'): array
     {
         $this->context = $context;
+        
         $this->type = $type;
+
+        if ($type !== 'product' || $type !== 'task') {
+            throw new \Exception("Type '{$type}' is not allowed. Allowed values are 'product' or 'task'.");
+        }
 
         $this->setup();
 
