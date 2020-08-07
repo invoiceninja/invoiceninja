@@ -139,6 +139,21 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         return $this->belongsTo(User::class)->withTrashed();
     }
 
+    public function invoice_invitations()
+    {
+        return $this->hasMany(InvoiceInvitation::class);
+    }
+
+    public function quote_invitations()
+    {
+        return $this->hasMany(QuoteInvitation::class);
+    }
+
+    public function credit_invitations()
+    {
+        return $this->hasMany(CreditInvitation::class);
+    }
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ClientContactResetPassword($token));

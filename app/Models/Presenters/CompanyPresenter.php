@@ -59,7 +59,7 @@ class CompanyPresenter extends EntityPresenter
         if ($cityState = $this->getCompanyCityState($settings)) {
             $str .= e($cityState) . '<br/>';
         }
-        if ($country = Country::find($settings->country_id)->first()) {
+        if ($country = Country::find($settings->country_id)) {
             $str .= e($country->name) . '<br/>';
         }
         if ($settings->phone) {

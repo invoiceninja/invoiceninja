@@ -45,7 +45,9 @@ class ClientContactObserver
      */
     public function deleted(ClientContact $clientContact)
     {
-        //
+        $clientContact->invoice_invitations()->delete();
+        $clientContact->quote_invitations()->delete();
+        $clientContact->credit_invitations()->delete();
     }
 
     /**
@@ -56,7 +58,9 @@ class ClientContactObserver
      */
     public function restored(ClientContact $clientContact)
     {
-        //
+        $clientContact->invoice_invitations()->restore();
+        $clientContact->quote_invitations()->restore();
+        $clientContact->credit_invitations()->restore();
     }
 
     /**
