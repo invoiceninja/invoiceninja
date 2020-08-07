@@ -15,13 +15,10 @@ class ExampleIntegrationTest extends TestCase
 
     public function testExample()
     {
-        $this->markTestSkipped('WIP');
-
-
         $invoice = Invoice::first();
         $invitation = $invoice->invitations()->first();
 
-        $engine = new HtmlEngine($invitation, 'invoice');
+        $engine = new HtmlEngine(null, $invitation, 'invoice');
         $design = new Playful();
 
         $product_table_columns = json_decode(
