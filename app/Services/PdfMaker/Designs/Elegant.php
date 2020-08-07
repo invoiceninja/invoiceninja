@@ -134,21 +134,7 @@ class Elegant extends BaseDesign
         return  [
             ['element' => 'thead', 'content' => '', 'properties' => ['class' => 'text-left border-dashed border-b border-black'], 'elements' => $this->buildTableHeader()],
             ['element' => 'tbody', 'content' => '', 'elements' => $this->buildTableBody()],
-            ['element' => 'tfoot', 'content' => '', 'elements' => [
-                ['element' => 'tr', 'content' => '', 'elements' => [
-                    ['element' => 'td', 'content' => '$entity.public_notes', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '4']],
-                    ['element' => 'td', 'content' => '$subtotal_label', 'properties' => ['class' => 'px-4 py-4 text-right', 'colspan' => '2']],
-                    ['element' => 'td', 'content' => '$subtotal', 'properties' => ['class' => 'px-4 py-2 text-right']],
-                ]],
-                ['element' => 'tr', 'content' => '', 'elements' => [
-                    ['element' => 'td', 'content' => '$discount_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
-                    ['element' => 'td', 'content' => '$discount', 'properties' => ['class' => 'px-4 py-2 text-right']],
-                ]],
-                ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
-                    ['element' => 'td', 'content' => '$balance_due_label', 'properties' => ['class' => 'px-4 text-right text-xl text-green-600 font-semibold', 'colspan' => '6']],
-                    ['element' => 'td', 'content' => '$balance_due', 'properties' => ['class' => 'px-4 py-2 text-right text-green-600']],
-                ]],
-            ]],
+            ['element' => 'tfoot', 'content' => '', 'elements' => $this->tableFooter()],
         ];
     }
 
@@ -176,7 +162,7 @@ class Elegant extends BaseDesign
         }
 
         foreach ($items as $row) {
-            $element = ['element' => 'tr', 'properties' => ['class' => 'border-dashed border-b border-black'] ,'content' => '', 'elements' => []];
+            $element = ['element' => 'tr', 'properties' => ['class' => 'border-dashed border-b border-black'], 'content' => '', 'elements' => []];
 
             foreach ($this->context['product-table-columns'] as $key => $cell) {
                 $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['class' => 'px-4 py-3']];
@@ -186,5 +172,40 @@ class Elegant extends BaseDesign
         }
 
         return $elements;
+    }
+
+    public function tableFooter()
+    {
+        return [
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$entity.public_notes', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '4']],
+                ['element' => 'td', 'content' => '$subtotal_label', 'properties' => ['class' => 'px-4 py-4 text-right', 'colspan' => '2']],
+                ['element' => 'td', 'content' => '$subtotal', 'properties' => ['class' => 'px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$discount_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
+                ['element' => 'td', 'content' => '$discount', 'properties' => ['class' => 'px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$partial_due_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
+                ['element' => 'td', 'content' => '$partial_due', 'properties' => ['class' => 'px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$outstanding_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
+                ['element' => 'td', 'content' => '$outstanding', 'properties' => ['class' => 'px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$outstanding_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
+                ['element' => 'td', 'content' => '$outstanding', 'properties' => ['class' => 'px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$invoice_total_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
+                ['element' => 'td', 'content' => '$invoice_total', 'properties' => ['class' => 'px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
+                ['element' => 'td', 'content' => '$balance_due_label', 'properties' => ['class' => 'px-4 text-right text-xl text-green-600 font-semibold', 'colspan' => '6']],
+                ['element' => 'td', 'content' => '$balance_due', 'properties' => ['class' => 'px-4 py-2 text-right text-green-600']],
+            ]],
+        ];
     }
 }
