@@ -10,7 +10,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
- namespace App\Services\PdfMaker\Designs\Utilities;
+namespace App\Services\PdfMaker\Designs\Utilities;
 
 trait BuildTableHeader
 {
@@ -51,5 +51,18 @@ trait BuildTableHeader
                 array_splice($this->context['product-table-columns'], $key, 1, $taxes);
             }
         }
+    }
+
+    /**
+     * Calculates the remaining colspans.
+     * 
+     * @param int $taken 
+     * @return int 
+     */
+    public function calculateColspan(int $taken): int
+    {
+        $total = (int) count($this->context['product-table-columns']);
+
+        return (int)$total - $taken;
     }
 }
