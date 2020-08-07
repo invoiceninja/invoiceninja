@@ -133,21 +133,7 @@ class Hipster extends BaseDesign
         return  [
             ['element' => 'thead', 'content' => '', 'properties' => ['class' => 'text-left'], 'elements' => $this->buildTableHeader()],
             ['element' => 'tbody', 'content' => '', 'elements' => $this->buildTableBody()],
-            ['element' => 'tfoot', 'content' => '', 'elements' => [
-                ['element' => 'tr', 'content' => '', 'elements' => [
-                    ['element' => 'td', 'content' => '$entity.public_notes', 'properties' => ['class' => 'px-4 py-4 text-rightt', 'colspan' => '4']],
-                    ['element' => 'td', 'content' => '$subtotal_label', 'properties' => ['class' => 'px-4 py-4 text-right', 'colspan' => '2']],
-                    ['element' => 'td', 'content' => '$subtotal', 'properties' => ['class' => 'border-l-2 border-black px-4 py-2 text-right']],
-                ]],
-                ['element' => 'tr', 'content' => '', 'elements' => [
-                    ['element' => 'td', 'content' => '$discount_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
-                    ['element' => 'td', 'content' => '$discount', 'properties' => ['class' => 'border-l-2 border-black px-4 py-2 text-right']],
-                ]],
-                ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
-                    ['element' => 'td', 'content' => '$balance_due_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
-                    ['element' => 'td', 'content' => '$balance_due', 'properties' => ['class' => 'border-l-2 border-black px-4 py-2 text-right']],
-                ]],
-            ]],
+            ['element' => 'tfoot', 'content' => '', 'elements' => $this->tableFooter()],
         ];
     }
 
@@ -185,5 +171,36 @@ class Hipster extends BaseDesign
         }
 
         return $elements;
+    }
+
+    public function tableFooter()
+    {
+        return [
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$entity.public_notes', 'properties' => ['class' => 'px-4 py-4 text-rightt', 'colspan' => '4']],
+                ['element' => 'td', 'content' => '$subtotal_label', 'properties' => ['class' => 'px-4 py-4 text-right', 'colspan' => '2']],
+                ['element' => 'td', 'content' => '$subtotal', 'properties' => ['class' => 'border-l-2 border-black px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$discount_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
+                ['element' => 'td', 'content' => '$discount', 'properties' => ['class' => 'border-l-2 border-black px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$partial_due_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
+                ['element' => 'td', 'content' => '$partial_due', 'properties' => ['class' => 'border-l-2 border-black px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$outstanding_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
+                ['element' => 'td', 'content' => '$outstanding', 'properties' => ['class' => 'border-l-2 border-black px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$invoice_total_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
+                ['element' => 'td', 'content' => '$invoice_total', 'properties' => ['class' => 'border-l-2 border-black px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
+                ['element' => 'td', 'content' => '$balance_due_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
+                ['element' => 'td', 'content' => '$balance_due', 'properties' => ['class' => 'border-l-2 border-black px-4 py-2 text-right']],
+            ]],
+        ];
     }
 }

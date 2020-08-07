@@ -3,7 +3,7 @@
 namespace Tests\Feature\PdfMaker;
 
 use App\Models\Invoice;
-use App\Services\PdfMaker\Designs\Elegant;
+use App\Services\PdfMaker\Designs\Hipster;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesInvoiceValues;
@@ -19,7 +19,7 @@ class ExampleIntegrationTest extends TestCase
         $invitation = $invoice->invitations()->first();
 
         $engine = new HtmlEngine(null, $invitation, 'invoice');
-        $design = new Elegant();
+        $design = new Hipster();
 
         $product_table_columns = json_decode(
             json_encode($invoice->company->settings->pdf_variables),
@@ -38,7 +38,7 @@ class ExampleIntegrationTest extends TestCase
         $maker = new PdfMaker($state, 'invoice');
 
         $maker
-            ->design(Elegant::class)
+            ->design(Hipster::class)
             ->build();
 
         exec('echo "" > storage/logs/laravel.log');
