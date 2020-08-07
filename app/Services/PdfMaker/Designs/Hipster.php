@@ -13,12 +13,12 @@
 namespace App\Services\PdfMaker\Designs;
 
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
-use App\Services\PdfMaker\Designs\Utilities\BuildTableHeader;
+use App\Services\PdfMaker\Designs\Utilities\TableHelpers;
 use App\Utils\Traits\MakesInvoiceValues;
 
 class Hipster extends BaseDesign
 {
-    use MakesInvoiceValues, BuildTableHeader;
+    use MakesInvoiceValues, TableHelpers;
 
     /** Global list of table elements, @var array */
     public $elements;

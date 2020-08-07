@@ -12,7 +12,7 @@
 
 namespace App\Services\PdfMaker\Designs\Utilities;
 
-trait BuildTableHeader
+trait TableHelpers
 {
     /**
      * This method will help us decide either we show
@@ -64,5 +64,25 @@ trait BuildTableHeader
         $total = (int) count($this->context['product-table-columns']);
 
         return (int)$total - $taken;
+    }
+
+    /**
+     * Return "true" or "false" based on null or empty check.
+     * We need to return false as string because of HTML parsing.
+     * 
+     * @param string $property 
+     * @return string 
+     */
+    public function toggleHiddenProperty(string $property): string
+    {
+        if (is_null($property)) {
+            return 'false';
+        }
+
+        if (empty($property)) {
+            return 'false';
+        }
+
+        return 'true';
     }
 }

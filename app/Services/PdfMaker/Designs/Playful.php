@@ -13,12 +13,12 @@
 namespace App\Services\PdfMaker\Designs;
 
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
-use App\Services\PdfMaker\Designs\Utilities\BuildTableHeader;
+use App\Services\PdfMaker\Designs\Utilities\TableHelpers;
 use App\Utils\Traits\MakesInvoiceValues;
 
 class Playful extends BaseDesign
 {
-    use MakesInvoiceValues, BuildTableHeader;
+    use MakesInvoiceValues, TableHelpers;
 
     /** Global list of table elements, @var array */
     public $elements;
@@ -179,14 +179,14 @@ class Playful extends BaseDesign
         return [
             ['element' => 'tr', 'content' => '', 'elements' => [
                 ['element' => 'td', 'content' => '$entity.public_notes', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(3)]],
-                ['element' => 'td', 'content' => '$subtotal_label', 'properties' => ['class' => 'px-4 py-4 text-right', 'colspan' => '2']],
-                ['element' => 'td', 'content' => '$subtotal', 'properties' => ['class' => 'px-4 py-2 text-right']],
+                ['element' => 'td', 'content' => '$subtotal_label', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->calc()->getSubTotal()), 'class' => 'px-4 py-4 text-right', 'colspan' => '2']],
+                ['element' => 'td', 'content' => '$subtotal', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->calc()->getSubTotal()), 'class' => 'px-4 py-2 text-right']],
             ]],
-            ['element' => 'tr', 'content' => '', 'elements' => [
+            ['element' => 'tr', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->calc()->getTotalDiscount())], 'content' => '', 'elements' => [
                 ['element' => 'td', 'content' => '$discount_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
                 ['element' => 'td', 'content' => '$discount', 'properties' => ['class' => 'px-4 py-2 text-right']],
             ]],
-            ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
+            ['element' => 'tr', 'content' => '', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->partial), 'class' => 'mt-8 px-4 py-2'], 'elements' => [
                 ['element' => 'td', 'content' => '$partial_due_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
                 ['element' => 'td', 'content' => '$partial_due', 'properties' => ['class' => 'px-4 py-2 text-right']],
             ]],
@@ -198,7 +198,7 @@ class Playful extends BaseDesign
                 ['element' => 'td', 'content' => '$invoice_total_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
                 ['element' => 'td', 'content' => '$invoice_total', 'properties' => ['class' => 'px-4 py-2 text-right']],
             ]],
-            ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
+            ['element' => 'tr', 'content' => '', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->balance), 'class' => 'mt-8 px-4 py-2'], 'elements' => [
                 ['element' => 'td', 'content' => '$balance_due_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right font-semibold text-teal-600', 'colspan' => $this->calculateColspan(1)]],
                 ['element' => 'td', 'content' => '$balance_due', 'properties' => ['class' => 'px-4 py-2 text-right']],
             ]],
