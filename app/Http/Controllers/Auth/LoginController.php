@@ -19,6 +19,7 @@ use App\Jobs\Account\CreateAccount;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
+use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
@@ -177,9 +178,13 @@ class LoginController extends BaseController
                 ->increment()
                 ->batch();
 
-            $user = $this->guard()->user();
+            $company_token = CompanyToken::with(['user','company'])
+                    ->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])
+                    ->first();
+
+            $user = $company_token->user;
             
-            $user->setCompany($user->company_user->account->default_company);
+            $user->setCompany($company_token->company);
 
 //            $ct = CompanyUser::whereUserId($user->id)->with('company');
             $ct = CompanyUser::whereUserId($user->id);
