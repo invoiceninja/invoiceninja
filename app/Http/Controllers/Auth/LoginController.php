@@ -19,6 +19,7 @@ use App\Jobs\Account\CreateAccount;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
+use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
@@ -241,8 +242,11 @@ class LoginController extends BaseController
      */
     public function refresh(Request $request)
     {
-        $ct = CompanyUser::whereUserId(auth()->user()->id);
-        return $this->refreshResponse($ct);
+        $company_token = CompanyToken::whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])
+            ->first();
+
+        //$ct = CompanyUser::whereUserId(auth()->user()->id);
+        return $this->refreshResponse($company_token->company_user());
     }
 
     /**
