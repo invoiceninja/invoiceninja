@@ -80,18 +80,9 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
             );
 
         if (count(Mail::failures()) > 0) {
-            return $this->logMailError(Mail::failures());
+            return $this->logMailError(Mail::failures(), $this->invoice->client);
         }
     }
 
-    private function logMailError($errors)
-    {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->invoice->client
-        );
-    }
+
 }

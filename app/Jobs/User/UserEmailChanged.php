@@ -72,7 +72,7 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
 
         //Catch errors and report.
         if (count(Mail::failures()) > 0) {
-            $this->logMailError(Mail::failures());
+            return $this->logMailError(Mail::failures(), $this->company);
         }
 
     }
@@ -92,17 +92,6 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
             'signature' => $this->company->owner()->signature,
             'logo' => $this->company->present()->logo(),
         ];
-    }
-
-    private function logMailError($errors)
-    {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->company
-        );
     }
 
 }

@@ -76,7 +76,8 @@ class EmailCredit extends BaseMailerJob implements ShouldQueue
                 if (count(Mail::failures()) > 0) {
                     event(new CreditWasEmailedAndFailed($this->credit, $this->credit->company, Mail::failures(), Ninja::eventVars()));
                     
-                    return $this->logMailError($errors);
+                    return $this->logMailError(Mail::failures(), $this->credit->client);
+
                 }
 
                 //fire any events

@@ -93,24 +93,13 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
 
                 //catch errors
                 if (count(Mail::failures()) > 0) {
-                    $this->logMailError(Mail::failures());
+                    return $this->logMailError(Mail::failures(), $this->client);
                 }
 
             }
 
         });
 
-    }
-
-    private function logMailError($errors)
-    {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->client
-        );
     }
 
 
