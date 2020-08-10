@@ -78,6 +78,10 @@ class Elegant extends BaseDesign
     {
         $variables = $this->entity->company->settings->pdf_variables->invoice_details;
 
+        if ($this->entity instanceof \App\Models\Quote) {
+            $variables = $this->entity->company->settings->pdf_variables->quote_details;
+        }
+
         $elements = [];
 
         foreach ($variables as $variable) {
