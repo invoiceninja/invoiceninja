@@ -191,10 +191,6 @@ class Playful extends BaseDesign
                 ['element' => 'td', 'content' => '$partial_due', 'properties' => ['class' => 'px-4 py-2 text-right']],
             ]],
             ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
-                ['element' => 'td', 'content' => '$outstanding_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
-                ['element' => 'td', 'content' => '$outstanding', 'properties' => ['class' => 'px-4 py-2 text-right']],
-            ]],
-            ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
                 ['element' => 'td', 'content' => '$invoice_total_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
                 ['element' => 'td', 'content' => '$invoice_total', 'properties' => ['class' => 'px-4 py-2 text-right']],
             ]],
