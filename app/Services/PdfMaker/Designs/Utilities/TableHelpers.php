@@ -70,10 +70,10 @@ trait TableHelpers
      * Return "true" or "false" based on null or empty check.
      * We need to return false as string because of HTML parsing.
      * 
-     * @param string $property 
+     * @param mixed $property 
      * @return string 
      */
-    public function toggleHiddenProperty(string $property): string
+    public function toggleHiddenProperty($property): string
     {
         if (is_null($property)) {
             return 'false';
