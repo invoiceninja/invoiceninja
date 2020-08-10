@@ -118,7 +118,7 @@ class HtmlEngine
         $data['$invoice.total_taxes']    = &$data['$total_taxes'];
 
         if ($this->entity_string == 'invoice') {
-            $data['$entity_label']       = ['value' => '', 'label' => ctrans('texts.invoice')];
+            $data['$entity']             = ['value' => '', 'label' => ctrans('texts.invoice')];
             $data['$number']             = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
             $data['$entity.terms']       = ['value' => $this->entity->terms ?: '&nbsp;', 'label' => ctrans('texts.invoice_terms')];
             $data['$terms']              = &$data['$entity.terms'];
@@ -126,7 +126,7 @@ class HtmlEngine
        }
 
         if ($this->entity_string == 'quote') {
-            $data['$entity_label']       = ['value' => '', 'label' => ctrans('texts.quote')];
+            $data['$entity']             = ['value' => '', 'label' => ctrans('texts.quote')];
             $data['$number']             = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
             $data['$entity.terms']       = ['value' => $this->entity->terms ?: '&nbsp;', 'label' => ctrans('texts.quote_terms')];
             $data['$terms']              = &$data['$entity.terms'];
@@ -134,7 +134,7 @@ class HtmlEngine
        }
 
         if ($this->entity_string == 'credit') {
-            $data['$entity_label']       = ['value' => '', 'label' => ctrans('texts.credit')];
+            $data['$entity']             = ['value' => '', 'label' => ctrans('texts.credit')];
             $data['$number']             = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
             $data['$entity.terms']       = ['value' => $this->entity->terms ?: '&nbsp;', 'label' => ctrans('texts.credit_terms')];
             $data['$terms']              = &$data['$entity.terms'];
@@ -177,9 +177,8 @@ class HtmlEngine
         $data['$invoice.public_notes']   = ['value' => $this->entity->public_notes ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes']    = &$data['$invoice.public_notes'];
 
-        $data['$entity_issued_to']      = ['value' => '', 'label' => ctrans("texts.{$this->entity_string}_issued_to")];
-        
-        $data['$your_' . $this->entity_string] = ['value' => '', 'label' => ctrans("texts.your_{$this->entity_string}")];
+        $data['$entity_issued_to']       = ['value' => '', 'label' => ctrans("texts.{$this->entity_string}_issued_to")];
+        $data['$your_entity']            = ['value' => '', 'label' => ctrans("texts.your_{$this->entity_string}")];
 
         $data['$quote.date']             = ['value' => $this->entity->date ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
         $data['$quote.number']           = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
