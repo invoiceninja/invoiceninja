@@ -67,7 +67,7 @@ trait PdfMakerUtilities
     {
         $processed = [];
 
-        foreach($children as $child) {
+        foreach ($children as $child) {
             if (!isset($child['order'])) {
                 $child['order'] = 0;
             }
@@ -84,6 +84,14 @@ trait PdfMakerUtilities
 
     public function updateElementProperty($element, string $attribute, string $value)
     {
+        // We have exception for "hidden" property.
+        // hidden="true" or hidden="false" will both hide the element, 
+        // that's why we have to create an exception here for this rule.
+
+        if ($attribute == 'hidden' && ($value == false || $value == "false")) {
+            return $element;
+        }
+
         $element->setAttribute($attribute, $value);
 
         if ($element->getAttribute($attribute) === $value) {
@@ -117,7 +125,7 @@ trait PdfMakerUtilities
     public function updateVariables(array $variables)
     {
         $html = strtr($this->getCompiledHTML(), $variables['labels']);
-        
+
         $html = strtr($html, $variables['values']);
 
         $this->document->loadHTML($html);
