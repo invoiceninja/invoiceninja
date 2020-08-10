@@ -36,7 +36,7 @@ class EmailCredit extends BaseMailerJob implements ShouldQueue
 
     public $message_array = [];
     
-
+    public $settings;
     /**
      * Create a new job instance.
      *
@@ -45,6 +45,8 @@ class EmailCredit extends BaseMailerJob implements ShouldQueue
     public function __construct(Credit $credit)
     {
         $this->credit = $credit;
+
+        $this->settings = $credit->client->getMergedSettings();
     }
 
     /**
@@ -59,7 +61,7 @@ class EmailCredit extends BaseMailerJob implements ShouldQueue
 
         $template_style = $this->credit->client->getSetting('email_style');
         
-        $this->setMailDriver($this->credit->client->getSetting('email_sending_method'));
+        $this->setMailDriver();
 
         $this->credit->invitations->each(function ($invitation) use ($template_style) {
 

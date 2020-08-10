@@ -17,6 +17,7 @@ use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\EntitySentObject;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\SystemLog;
 use App\Models\User;
@@ -45,6 +46,8 @@ class MailRouter extends BaseMailerJob implements ShouldQueue
 
     public $sending_method;
 
+    public $settings;
+
 	public function __construct(Mailable $mailable, Company $company, $to_user, string $sending_method)
     {
         $this->mailable = $mailable;
@@ -54,6 +57,11 @@ class MailRouter extends BaseMailerJob implements ShouldQueue
         $this->to_user = $to_user;
 
         $this->sending_method = $sending_method;
+
+        if($to_user instanceof ClientContact)
+            $this->settings = $to_user->client->getMergedSettings();
+        else
+            $this->settings = $this->company->settings;
     }
 
     public function handle()
@@ -61,7 +69,7 @@ class MailRouter extends BaseMailerJob implements ShouldQueue
     	MultiDB::setDb($this->company->db);
  
         //if we need to set an email driver do it now
-        $this->setMailDriver($sending_method);
+        $this->setMailDriver();
         
         //send email
         Mail::to($this->to_user->email)

@@ -29,9 +29,9 @@ class BaseMailerJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
-    public function setMailDriver(string $driver)
+    public function setMailDriver()
     {
-        switch ($driver) {
+        switch ($this->settings->email_sending_method) {
             case 'default':
                 break;
             case 'gmail':
@@ -45,7 +45,7 @@ class BaseMailerJob implements ShouldQueue
 
     public function setGmailMailer()
     {
-        $sending_user = $this->entity->client->getSetting('gmail_sending_user_id');
+        $sending_user = $this->settings->gmail_sending_user_id;
 
         $user = User::find($sending_user);
 

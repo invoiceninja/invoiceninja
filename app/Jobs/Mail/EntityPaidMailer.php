@@ -43,6 +43,8 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
     public $entity_type;
 
     public $entity;
+
+    public $settings;
     /**
      * Create a new job instance.
      *
@@ -55,6 +57,9 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
         $this->user = $user;
 
         $this->payment = $payment;
+
+        $this->settings = $payment->client->getMergedSettings();
+
     }
 
     /**
@@ -72,7 +77,7 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
             return true;
         
         //if we need to set an email driver do it now
-        $this->setMailDriver($this->payment->client->getSetting('email_sending_method'));
+        $this->setMailDriver();
 
         $mail_obj = (new EntityPaidObject($this->payment))->build();
         $mail_obj->from = [$this->payment->user->email, $this->payment->user->present()->name()];

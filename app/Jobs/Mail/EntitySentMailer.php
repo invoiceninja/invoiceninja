@@ -42,6 +42,9 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
     public $entity_type;
 
     public $entity;
+
+    public $settings;
+
     /**
      * Create a new job instance.
      *
@@ -58,6 +61,8 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
         $this->entity = $invitation->{$entity_type};
 
         $this->entity_type = $entity_type;
+
+        $this->settings = $invitation->contact->client->getMergedSettings();
     }
 
     /**
@@ -71,7 +76,7 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         //if we need to set an email driver do it now
-        $this->setMailDriver($this->entity->client->getSetting('email_sending_method'));
+        $this->setMailDriver();
 
         $mail_obj = (new EntitySentObject($this->invitation, $this->entity_type))->build();
         $mail_obj->from = [$this->entity->user->email, $this->entity->user->present()->name()];
