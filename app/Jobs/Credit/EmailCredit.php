@@ -36,7 +36,7 @@ class EmailCredit extends BaseMailerJob implements ShouldQueue
 
     public $message_array = [];
     
-
+    public $settings;
     /**
      * Create a new job instance.
      *
@@ -45,6 +45,8 @@ class EmailCredit extends BaseMailerJob implements ShouldQueue
     public function __construct(Credit $credit)
     {
         $this->credit = $credit;
+
+        $this->settings = $credit->client->getMergedSettings();
     }
 
     /**
@@ -59,7 +61,7 @@ class EmailCredit extends BaseMailerJob implements ShouldQueue
 
         $template_style = $this->credit->client->getSetting('email_style');
         
-        $this->setMailDriver($this->credit->client->getSetting('email_sending_method'));
+        $this->setMailDriver();
 
         $this->credit->invitations->each(function ($invitation) use ($template_style) {
 
@@ -76,7 +78,8 @@ class EmailCredit extends BaseMailerJob implements ShouldQueue
                 if (count(Mail::failures()) > 0) {
                     event(new CreditWasEmailedAndFailed($this->credit, $this->credit->company, Mail::failures(), Ninja::eventVars()));
                     
-                    return $this->logMailError($errors);
+                    return $this->logMailError(Mail::failures(), $this->credit->client);
+
                 }
 
                 //fire any events

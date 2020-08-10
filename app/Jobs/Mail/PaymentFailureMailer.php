@@ -44,6 +44,8 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
 
     public $amount;
 
+    public $settings;
+
     /**
      * Create a new job instance.
      *
@@ -58,6 +60,8 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
         $this->client = $client;
 
         $this->amount = $amount;
+
+        $this->settings = $client->getMergedSettings();
     }
 
     /**
@@ -72,7 +76,7 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         //if we need to set an email driver do it now
-        $this->setMailDriver($this->client->getSetting('email_sending_method'));
+        $this->setMailDriver();
 
         //iterate through company_users
         $this->company->company_users->each(function ($company_user){
@@ -93,24 +97,13 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
 
                 //catch errors
                 if (count(Mail::failures()) > 0) {
-                    $this->logMailError(Mail::failures());
+                    return $this->logMailError(Mail::failures(), $this->client);
                 }
 
             }
 
         });
 
-    }
-
-    private function logMailError($errors)
-    {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->client
-        );
     }
 
 

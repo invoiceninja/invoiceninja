@@ -34,6 +34,7 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
 
     protected $company;
 
+    public $settings;
     /**
      * Create a new job instance.
      *
@@ -45,6 +46,8 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
         $this->new_email = $new_email;
         $this->old_email = $old_email;
         $this->company = $company;
+        $this->settings = $this->company->settings;
+
     }
 
      public function handle()
@@ -53,7 +56,7 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         //If we need to set an email driver do it now
-        $this->setMailDriver($this->company->settings->email_sending_method);
+        $this->setMailDriver();
 
         /*Build the object*/
         $mail_obj = new \stdClass;
@@ -72,7 +75,7 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
 
         //Catch errors and report.
         if (count(Mail::failures()) > 0) {
-            $this->logMailError(Mail::failures());
+            return $this->logMailError(Mail::failures(), $this->company);
         }
 
     }
@@ -92,17 +95,6 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
             'signature' => $this->company->owner()->signature,
             'logo' => $this->company->present()->logo(),
         ];
-    }
-
-    private function logMailError($errors)
-    {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->company
-        );
     }
 
 }

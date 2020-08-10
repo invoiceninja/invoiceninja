@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadInvoices;
@@ -27,7 +28,7 @@ use Illuminate\Support\Facades\Storage;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
 
-class ZipInvoices implements ShouldQueue
+class ZipInvoices extends BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -37,6 +38,7 @@ class ZipInvoices implements ShouldQueue
 
     private $email;
 
+    public $settings;
     /**
      * @deprecated confirm to be deleted
      * Create a new job instance.
@@ -50,6 +52,8 @@ class ZipInvoices implements ShouldQueue
         $this->company = $company;
 
         $this->email = $email;
+
+        $this->settings = $company->settings;
     }
 
     /**
@@ -81,6 +85,8 @@ class ZipInvoices implements ShouldQueue
         Storage::disk(config('filesystems.default'))->put($path . $file_name, $tempStream);
 
         fclose($tempStream);
+
+        $this->setMailDriver();
 
         Mail::to($this->email)
             ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path . $file_name), $this->company));

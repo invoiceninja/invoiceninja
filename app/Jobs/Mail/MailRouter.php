@@ -11,87 +11,73 @@
 
 namespace App\Jobs\Mail;
 
+use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\EntitySentObject;
+use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\SystemLog;
 use App\Models\User;
 use App\Providers\MailServiceProvider;
+use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Mail\Mailable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 
-/*Multi Mailer implemented*/
+/*Multi Mailer Router implemented*/
 
-class EntitySentMailer extends BaseMailerJob implements ShouldQueue
+class MailRouter extends BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $mailable;
+
     public $company;
 
-    public $user;
+    public $to_user; //User or ClientContact
 
-    public $invitation;
-
-    public $entity_type;
-
-    public $entity;
+    public $sending_method;
 
     public $settings;
 
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct($invitation, $entity_type, $user, $company)
+	public function __construct(Mailable $mailable, Company $company, $to_user, string $sending_method)
     {
+        $this->mailable = $mailable;
+
         $this->company = $company;
 
-        $this->user = $user;
+        $this->to_user = $to_user;
 
-        $this->invitation = $invitation;
+        $this->sending_method = $sending_method;
 
-        $this->entity = $invitation->{$entity_type};
-
-        $this->entity_type = $entity_type;
-
-        $this->settings = $invitation->contact->client->getMergedSettings();
+        if($to_user instanceof ClientContact)
+            $this->settings = $to_user->client->getMergedSettings();
+        else
+            $this->settings = $this->company->settings;
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
     public function handle()
     {
-        //Set DB
-        MultiDB::setDb($this->company->db);
-
+    	MultiDB::setDb($this->company->db);
+ 
         //if we need to set an email driver do it now
         $this->setMailDriver();
-
-        $mail_obj = (new EntitySentObject($this->invitation, $this->entity_type))->build();
-        $mail_obj->from = [$this->entity->user->email, $this->entity->user->present()->name()];
         
         //send email
-        Mail::to($this->user->email)
-            ->send(new EntityNotificationMailer($mail_obj));
+        Mail::to($this->to_user->email)
+            ->send($this->mailable);
 
         //catch errors
         if (count(Mail::failures()) > 0) {
-            return $this->logMailError(Mail::failures(), $this->entity->client);
+            $this->logMailError(Mail::failures(), $this->to_user);
         }
-
     }
-
-
-
 }

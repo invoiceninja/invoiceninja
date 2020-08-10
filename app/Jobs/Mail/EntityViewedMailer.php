@@ -42,6 +42,8 @@ class EntityViewedMailer extends BaseMailerJob implements ShouldQueue
     public $entity_type;
 
     public $entity;
+
+    public $settings;
     /**
      * Create a new job instance.
      *
@@ -58,6 +60,9 @@ class EntityViewedMailer extends BaseMailerJob implements ShouldQueue
         $this->entity = $invitation->{$entity_type};
 
         $this->entity_type = $entity_type;
+
+        $this->settings = $invitation->contact->client->getMergedSettings();
+
     }
 
     /**
@@ -72,7 +77,7 @@ class EntityViewedMailer extends BaseMailerJob implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         //if we need to set an email driver do it now
-        $this->setMailDriver($this->entity->client->getSetting('email_sending_method'));
+        $this->setMailDriver();
 
         $mail_obj = (new EntityViewedObject($this->invitation, $this->entity_type))->build();
         $mail_obj->from = [$this->entity->user->email, $this->entity->user->present()->name()];
@@ -83,21 +88,11 @@ class EntityViewedMailer extends BaseMailerJob implements ShouldQueue
 
         //catch errors
         if (count(Mail::failures()) > 0) {
-            $this->logMailError(Mail::failures());
+            return $this->logMailError(Mail::failures(), $this->invoice->client);
         }
 
     }
 
-    private function logMailError($errors)
-    {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->invoice->client
-        );
-    }
 
 
 }

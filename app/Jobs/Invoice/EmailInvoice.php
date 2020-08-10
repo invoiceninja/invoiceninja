@@ -41,6 +41,8 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
     public $email_builder;
 
     public $company;
+
+    public $settings;
     /**
      *
      * EmailInvoice constructor.
@@ -55,6 +57,9 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
         $this->invoice_invitation = $invoice_invitation;
 
         $this->email_builder = $email_builder;
+
+        $this->settings = $invoice_invitation->contact->client->getMergedSettings();
+
     }
 
     /**
@@ -68,7 +73,7 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
     {        
         MultiDB::setDB($this->company->db);
         
-        $this->setMailDriver($this->invoice_invitation->invoice->client->getSetting('email_sending_method'));
+        $this->setMailDriver();
 
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
             ->send(
@@ -80,18 +85,9 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
             );
 
         if (count(Mail::failures()) > 0) {
-            return $this->logMailError(Mail::failures());
+            return $this->logMailError(Mail::failures(), $this->invoice->client);
         }
     }
 
-    private function logMailError($errors)
-    {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->invoice->client
-        );
-    }
+
 }
