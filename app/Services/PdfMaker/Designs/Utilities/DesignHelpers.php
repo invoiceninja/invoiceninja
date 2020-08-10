@@ -12,7 +12,7 @@
 
 namespace App\Services\PdfMaker\Designs\Utilities;
 
-trait TableHelpers
+trait DesignHelpers
 {
     /**
      * This method will help us decide either we show

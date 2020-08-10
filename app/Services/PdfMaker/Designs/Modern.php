@@ -13,12 +13,12 @@
 namespace App\Services\PdfMaker\Designs;
 
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
-use App\Services\PdfMaker\Designs\Utilities\TableHelpers;
+use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Traits\MakesInvoiceValues;
 
 class Modern extends BaseDesign
 {
-    use MakesInvoiceValues, TableHelpers;
+    use MakesInvoiceValues, DesignHelpers;
 
     /** Global list of table elements, @var array */
     public $elements;
