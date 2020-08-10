@@ -7,15 +7,23 @@ use App\Services\PdfMaker\Designs\Playful;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesInvoiceValues;
+use Tests\MockAccountData;
 use Tests\TestCase;
 
 class ExampleIntegrationTest extends TestCase
 {
-    use MakesInvoiceValues;
+    use MakesInvoiceValues, MockAccountData;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->makeTestData();
+    }
 
     public function testExample()
     {
-        $invoice = Invoice::first();
+        $invoice = $this->invoice;
         $invitation = $invoice->invitations()->first();
 
         $engine = new HtmlEngine(null, $invitation, 'invoice');
