@@ -24,27 +24,30 @@ class PdfMakerDesignsTest extends TestCase
 
         $this->state = [
             'variables' => [
-                '$css' => asset('css/tailwindcss@1.4.6.css'),
-                '$global-margin' => 'm-12',
-                '$global-padding' => 'p-12',
+                'labels' => [],
+                'values' => [
+                    '$css' => asset('css/tailwindcss@1.4.6.css'),
+                    '$global-margin' => 'm-12',
+                    '$global-padding' => 'p-12',
 
-                '$company-logo' => 'https://invoiceninja-invoice-templates.netlify.app/assets/images/invoiceninja-logo.png',
-                '$company-name' => 'Invoice Ninja',
-                '$entity-number-label' => 'Invoice number',
-                '$entity-number' => '10000',
-                '$entity-date-label' => 'Invoice date',
-                '$entity-date' => '3th of June, 2025.',
-                '$due-date-label' => 'Due date',
-                '$due-date' => '5th of June, 2025.',
-                '$balance-due-label' => 'Balance due',
-                '$balance-due' => '$800.50',
+                    '$company-logo' => 'https://invoiceninja-invoice-templates.netlify.app/assets/images/invoiceninja-logo.png',
+                    '$company-name' => 'Invoice Ninja',
+                    '$entity-number-label' => 'Invoice number',
+                    '$entity-number' => '10000',
+                    '$entity-date-label' => 'Invoice date',
+                    '$entity-date' => '3th of June, 2025.',
+                    '$due-date-label' => 'Due date',
+                    '$due-date' => '5th of June, 2025.',
+                    '$balance-due-label' => 'Balance due',
+                    '$balance-due' => '$800.50',
 
-                '$terms-label' => 'Terms',
-                '$terms' => 'Trend and SEO report has been sent via email. This is really long text just to test the width of the elements.',
+                    '$terms-label' => 'Terms',
+                    '$terms' => 'Trend and SEO report has been sent via email. This is really long text just to test the width of the elements.',
 
-                '$invoice-issued-to' => 'Invoice issued to:',
+                    '$invoice-issued-to' => 'Invoice issued to:',
 
-                '$entity' => 'Invoice',
+                    '$entity' => 'Invoice',
+                ],
             ],
         ];
     }
@@ -707,7 +710,7 @@ class PdfMakerDesignsTest extends TestCase
         $this->assertTrue(true);
     }
 
-public function testElegant()
+    public function testElegant()
     {
         $state = [
             'template' => [
@@ -799,7 +802,7 @@ public function testElegant()
                                 ['element' => 'td', 'content' => '$2.00', 'properties' => ['class' => 'px-4 py-2 text-right']],
                             ]],
                             ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
-                            ['element' => 'td', 'content' => 'Balance due', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '4']],
+                                ['element' => 'td', 'content' => 'Balance due', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '4']],
                                 ['element' => 'td', 'content' => '$2.00', 'properties' => ['class' => 'px-4 py-2 text-right']],
                             ]],
                         ]],

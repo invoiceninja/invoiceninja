@@ -10,7 +10,10 @@ class PdfMakerTest extends TestCase
 {
     public $state = [
         'template' => [],
-        'variables' => [],
+        'variables' => [
+            'labels' => [],
+            'values' => [],
+        ],
     ];
 
     public function testDesignLoadsCorrectly()
@@ -63,7 +66,10 @@ class PdfMakerTest extends TestCase
                     ],
                 ],
             ],
-            'variables' => [],
+            'variables' => [
+                'labels' => [],
+                'values' => [],
+            ],
         ];
 
         $maker = new PdfMaker($state);
@@ -97,7 +103,10 @@ class PdfMakerTest extends TestCase
                 ],
             ],
             'variables' => [
-                '$title' => 'Invoice Ninja',
+                'labels' => [],
+                'values' => [
+                    '$title' => 'Invoice Ninja',
+                ],
             ],
         ];
 
@@ -139,9 +148,12 @@ class PdfMakerTest extends TestCase
                 ],
             ],
             'variables' => [
-                '$company' => 'Invoice Ninja',
-                '$email' => 'contact@invoiceninja.com',
-                '$country' => 'UK',
+                'labels' => [],
+                'values' => [
+                    '$company' => 'Invoice Ninja',
+                    '$email' => 'contact@invoiceninja.com',
+                    '$country' => 'UK',
+                ],
             ],
         ];
 
@@ -294,8 +306,11 @@ class PdfMakerTest extends TestCase
                     ],
                 ]
             ],
-            'variables' =>[
-                '$title' => 'Invoice Ninja',
+            'variables' => [
+                'labels' => [],
+                'values' => [
+                    '$title' => 'Invoice Ninja',
+                ],
             ]
         ];
 
