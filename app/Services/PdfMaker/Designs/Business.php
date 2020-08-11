@@ -71,6 +71,12 @@ class Business extends BaseDesign
                 'id' => 'product-table',
                 'elements' => $this->productTable(),
             ],
+            'footer-elements' => [
+                'id' => 'footer',
+                'elements' => [
+                    $this->sharedFooterElements(),
+                ],
+            ],
         ];
     }
 

@@ -71,6 +71,12 @@ class Modern extends BaseDesign
                 'id' => 'company-address',
                 'elements' => $this->companyAddress(),
             ],
+            'footer-elements' => [
+                'id' => 'footer',
+                'elements' => [
+                    $this->sharedFooterElements(),
+                ],
+            ],
         ];
     }
 
