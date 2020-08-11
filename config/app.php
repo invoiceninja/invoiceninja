@@ -180,6 +180,7 @@ return [
         App\Providers\ComposerServiceProvider::class,
         App\Providers\MultiDBProvider::class,
         App\Providers\ClientPortalServiceProvider::class,
+        App\Providers\NinjaTranslationServiceProvider::class,
     ],
 
     /*
