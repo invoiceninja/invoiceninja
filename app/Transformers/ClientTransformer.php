@@ -33,6 +33,7 @@ class ClientTransformer extends EntityTransformer
     protected $defaultIncludes = [
         'contacts',
         'documents',
+        'gateway_tokens',
     ];
 
     /**

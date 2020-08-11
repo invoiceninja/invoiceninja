@@ -29,7 +29,7 @@ class ContactSetDb
     {
         $error = [
                 'message' => 'Invalid Token',
-                'errors' => []
+                'errors' => new \stdClass
             ];
 
         if ($request->header('X-API-TOKEN') && config('ninja.db.multi_db_enabled')) {

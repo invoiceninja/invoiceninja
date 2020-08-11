@@ -34,7 +34,7 @@ class ProfileController extends BaseController
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
         if(!$company->enable_shop_api)
-            return response()->json(['message' => 'Shop is disabled', 'errors' => []],403);
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass],403);
 
         return $this->itemResponse($company);
     }

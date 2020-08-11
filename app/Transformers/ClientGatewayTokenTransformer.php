@@ -39,6 +39,7 @@ class ClientGatewayTokenTransformer extends EntityTransformer
             'created_at' => (int)$cgt->created_at,
             'updated_at' => (int)$cgt->updated_at,
             'archived_at' => (int)$cgt->deleted_at,
+            'is_deleted' => (bool) $cgt->is_deleted,
         ];
     }
 }

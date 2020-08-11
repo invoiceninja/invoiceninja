@@ -29,7 +29,7 @@ class SetDbByCompanyKey
     {
         $error = [
             'message' => 'Invalid Token',
-            'errors' => []
+            'errors' => new \stdClass
         ];
 
 

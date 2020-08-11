@@ -14,6 +14,7 @@ namespace App\Services\Payment;
 use App\Factory\PaymentFactory;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\Payment\ApplyNumber;
 use App\Services\Payment\DeletePayment;
 use App\Services\Payment\RefundPayment;
 use App\Services\Payment\UpdateInvoicePayment;
@@ -87,4 +88,12 @@ class PaymentService
     {
         return ((new UpdateInvoicePayment($this->payment)))->run();
     }
+
+    public function applyNumber()
+    {
+        $this->payment = (new ApplyNumber($this->payment))->run();
+
+        return $this;
+    }
+
 }

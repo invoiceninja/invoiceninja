@@ -28,7 +28,7 @@ class SetInviteDb
     {
         $error = [
                 'message' => 'Invalid URL',
-                'errors' => []
+                'errors' => new \stdClass
             ];
         /*
          * Use the host name to set the active DB
