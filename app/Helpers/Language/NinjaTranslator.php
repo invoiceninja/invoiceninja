@@ -30,51 +30,18 @@ class NinjaTranslator extends Translator
         Arr::set($this->loaded[$namespace][$group][$locale], $item, $value);
     }
 
-    /**
-     * Set multiple translations.
-     *
-     * @param  array   $items   Format: [group => [key => value]]
-     * @param  string  $locale
-     * @return void
-     */
-    public function add(array $items, $locale = null)
-    {
-        if(null === $locale)
-        {
-            $locale = $this->locale;
-        }
-
-        foreach($items as $group => $translations)
-        {
-            // Build key to parse
-            $key = $group.'.'.key($translations);
-
-            list($namespace, $group) = $this->parseKey($key);
-
-            // Load given group defaults if exists
-            $this->load($namespace, $group, $locale);
-
-            foreach($translations as $item => $value)
-            {
-                Arr::set($this->loaded[$namespace][$group][$locale], $item, $value);
-            }
-        }
-    }
-
     public function replace($items, $locale = null)
     {
 
         if(null === $locale)
-        {
             $locale = $this->locale;
-        }
-
-        // Load given group defaults if exists
-        $this->load($namespace, $group, $locale);
 
         foreach($items as $key => $value)
         {
-	        list($namespace, $group, $item) = $this->parseKey($key);
+
+            list($namespace, $group, $item) = $this->parseKey($key);
+        
+            $this->load($namespace, $group, $locale);
 
 	        Arr::set($this->loaded[$namespace][$group][$locale], $item, $value);
         }
