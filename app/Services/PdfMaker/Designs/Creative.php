@@ -189,8 +189,8 @@ class Creative extends BaseDesign
         return [
             ['element' => 'tr', 'content' => '', 'elements' => [
                 ['element' => 'td', 'content' => '$entity.public_notes', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(3)]],
-                ['element' => 'td', 'content' => '$subtotal_label', 'properties' => [$this->toggleHiddenProperty($this->entity->calc()->getSubTotal()), 'class' => 'px-4 py-4 text-right', 'colspan' => '2']],
-                ['element' => 'td', 'content' => '$subtotal', 'properties' => [$this->toggleHiddenProperty($this->entity->calc()->getSubTotal()), 'class' => 'px-4 py-2 text-right']],
+                ['element' => 'td', 'content' => '$subtotal_label', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->calc()->getSubTotal()), 'class' => 'px-4 py-4 text-right', 'colspan' => '2']],
+                ['element' => 'td', 'content' => '$subtotal', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->calc()->getSubTotal()), 'class' => 'px-4 py-2 text-right']],
             ]],
             ['element' => 'tr', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->calc()->getTotalDiscount()), 'class' => 'mt-8 px-4 py-2'], 'content' => '', 'elements' => [
                 ['element' => 'td', 'content' => '$discount_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
