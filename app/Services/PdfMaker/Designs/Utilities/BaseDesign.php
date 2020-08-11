@@ -14,14 +14,5 @@ namespace App\Services\PdfMaker\Designs\Utilities;
 
 class BaseDesign
 {
-    public function setup(): void
-    {
-        if (isset($this->context['client'])) {
-            $this->client = $this->context['client'];
-        }
-
-        if (isset($this->context['entity'])) {
-            $this->entity = $this->context['entity'];
-        }
-    }
+    // ..
 }

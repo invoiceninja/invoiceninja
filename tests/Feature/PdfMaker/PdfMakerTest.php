@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\PdfMaker;
 
+use App\Services\PdfMaker\Designs\Plain;
 use App\Services\PdfMaker\PdfMaker;
-use Spatie\Browsershot\Browsershot;
 use Tests\TestCase;
 
 class PdfMakerTest extends TestCase
@@ -321,5 +321,16 @@ class PdfMakerTest extends TestCase
             ->build();
 
         $this->assertTrue(true);
+    }
+
+    public function testGetSectionHTMLWorks()
+    {
+        $design = new ExampleDesign();
+
+        $html = $design
+            ->document()
+            ->getSectionHTML('product-table');
+
+        $this->assertStringContainsString('id="product-table"', $html);
     }
 }

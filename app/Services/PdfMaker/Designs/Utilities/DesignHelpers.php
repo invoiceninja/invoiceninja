@@ -12,8 +12,79 @@
 
 namespace App\Services\PdfMaker\Designs\Utilities;
 
+use DOMDocument;
+use DOMXPath;
+
 trait DesignHelpers
 {
+    public $document;
+
+    public $xpath;
+
+    public function setup(): self
+    {
+        if (isset($this->context['client'])) {
+            $this->client = $this->context['client'];
+        }
+
+        if (isset($this->context['entity'])) {
+            $this->entity = $this->context['entity'];
+        }
+
+        $this->document();
+
+        return $this;
+    }
+
+    /**
+     * Initialize local dom document instance. Used for getting raw HTML out of template.
+     * 
+     * @return $this 
+     */
+    public function document(): self
+    {
+        $document = new DOMDocument();
+
+        $document->validateOnParse = true;
+        @$document->loadHTML($this->html());
+
+        $this->document = $document;
+        $this->xpath = new DOMXPath($document);
+
+        return $this;
+    }
+
+    /**
+     * Get specific section HTML.
+     * 
+     * @param string $section 
+     * @param bool $id 
+     * @return null|string 
+     */
+    public function getSectionHTML(string $section, $id = true): ?string
+    {
+        if ($id) {
+            $element = $this->document->getElementById($section);
+        } else {
+            $elements = $this->document->getElementsByTagName($section);
+            $element = $elements[0];
+        }
+
+        $document = new DOMDocument();
+        $document->preserveWhiteSpace = false;
+        $document->formatOutput = true;
+
+        if ($element) {
+            $document->appendChild(
+                $document->importNode($element, true)
+            );
+
+            return $document->saveHTML();
+        }
+
+        return null;
+    }
+
     /**
      * This method will help us decide either we show
      * one "tax rate" column in the table or 3 custom tax rates.
