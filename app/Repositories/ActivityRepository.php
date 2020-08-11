@@ -16,7 +16,9 @@ use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
 use App\Models\CompanyToken;
+use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\Quote;
 use App\Models\User;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Support\Facades\Log;
@@ -64,14 +66,9 @@ class ActivityRepository extends BaseRepository
     {
         $backup = new Backup();
 
-        // if (get_class($entity) == Client::class) {
-        //     $entity->load('company');
-        // } elseif (get_class($entity) == User::class) {
-        // } else {
-        //     $entity->load('company', 'client');
-        // }
+        if (get_class($entity) == Invoice::class || get_class($entity) == Quote::class || get_class($entity) == Credit::class)
+            $backup->html_backup = $this->generateEntityHtml($entity->getEntityDesigner(), $entity);
 
-        $backup->html_backup = $this->generateEntityHtml($entity->getEntityDesigner(), $entity);
         $backup->activity_id = $activity->id;
         $backup->json_backup = '';
         //$backup->json_backup = $entity->toJson();

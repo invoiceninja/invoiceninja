@@ -32,7 +32,7 @@ class PasswordProtection
     {
         $error = [
             'message' => 'Invalid Password',
-            'errors' => []
+            'errors' => new \stdClass
         ];
 
         if ($request->header('X-API-PASSWORD')) {
@@ -47,7 +47,7 @@ class PasswordProtection
         } else {
             $error = [
                 'message' => 'Access denied',
-                'errors' => []
+                'errors' => new \stdClass
             ];
             return response()->json($error, 412);
         }

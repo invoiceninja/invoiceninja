@@ -34,7 +34,7 @@ class TokenAuth
 
             $error = [
                 'message' => 'User inactive',
-                'errors' => []
+                'errors' => new \stdClass
             ];
             //user who once existed, but has been soft deleted
             if (!$user) {
@@ -60,7 +60,7 @@ class TokenAuth
             if ($user->company_user->is_locked) {
                 $error = [
                     'message' => 'User access locked',
-                    'errors' => []
+                    'errors' => new \stdClass
                 ];
 
                 return response()->json($error, 403);
@@ -73,7 +73,7 @@ class TokenAuth
         } else {
             $error = [
                 'message' => 'Invalid token',
-                'errors' => []
+                'errors' => new \stdClass
             ];
 
             return response()->json($error, 403);
