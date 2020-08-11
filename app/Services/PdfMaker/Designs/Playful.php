@@ -45,7 +45,7 @@ class Playful extends BaseDesign
     public function elements(array $context, string $type = 'product'): array
     {
         $this->context = $context;
-        
+
         $this->type = $type;
 
         $this->setup();
@@ -70,6 +70,12 @@ class Playful extends BaseDesign
             'product-table' => [
                 'id' => 'product-table',
                 'elements' => $this->productTable(),
+            ],
+            'footer-elements' => [
+                'id' => 'footer',
+                'elements' => [
+                    $this->sharedFooterElements(),
+                ],
             ],
         ];
     }

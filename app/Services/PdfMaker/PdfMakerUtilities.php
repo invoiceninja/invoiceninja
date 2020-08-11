@@ -128,7 +128,7 @@ trait PdfMakerUtilities
 
         $html = strtr($html, $variables['values']);
 
-        $this->document->loadHTML($html);
+        @$this->document->loadHTML($html);
 
         $this->document->saveHTML();
     }
