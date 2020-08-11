@@ -1,69 +1,62 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
-        <link rel="stylesheet" href="$css" />
-    </head>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
-    <style>
-        #product-table tbody > tr > td:first-child {
-            color: #9b2c2c;
-        }
+    <link rel="stylesheet" href="$css" />
+</head>
 
-        #product-table tbody > tr > td:last-child {
-            color: #9b2c2c;
-            font-weight: bold;
-        }
-    </style>
+<style>
+    #product-table tbody>tr>td:first-child {
+        color: #9b2c2c;
+    }
 
-    <body class="$global-margin antialiased bg-white break-words">
-        <!-- Company logo, entity details -->
-        <div class="grid grid-cols-12 gap-4">
-            <div class="col-span-4">
-                <img
-                    src="$company.logo"
-                    alt="$company.name logo"
-                    class="w-24 col-span-4 sm:w-32"
-                />
-            </div>
-            <div class="col-span-6 col-start-7 p-5 bg-teal-600 rounded-lg">
-                <table id="entity-details" class="text-white"></table>
+    #product-table tbody>tr>td:last-child {
+        color: #9b2c2c;
+        font-weight: bold;
+    }
+</style>
+
+<body class="$global-margin antialiased bg-white break-words">
+    <!-- Company logo, entity details -->
+    <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-4">
+            <img src="$company.logo" alt="$company.name logo" class="w-24 col-span-4 sm:w-32" />
+        </div>
+        <div class="col-span-6 col-start-7 p-5 bg-teal-600 rounded-lg">
+            <table id="entity-details" class="text-white"></table>
+        </div>
+    </div>
+
+    <!-- Company details, client details -->
+    <div class="grid grid-cols-12 gap-12 mt-12">
+        <div class="col-span-12">
+            <p class="text-xl text-teal-600 font-semibold uppercase">
+                $your_entity_label
+            </p>
+        </div>
+        <div class="col-span-6">
+            <p class="px-4 font-semibold text-teal-600">$to_label:</p>
+            <div class="p-4 mt-4 border-t-4 border-b-4 border-teal-600 border-dashed">
+                <div id="client-details"></div>
             </div>
         </div>
-
-        <!-- Company details, client details -->
-        <div class="grid grid-cols-12 gap-12 mt-12">
-            <div class="col-span-12">
-                <p class="text-xl text-teal-600 font-semibold uppercase">
-                    $your_entity_label
-                </p>
-            </div>
-            <div class="col-span-6">
-                <p class="px-4 font-semibold text-teal-600">$to_label:</p>
-                <div
-                    class="p-4 mt-4 border-t-4 border-b-4 border-teal-600 border-dashed"
-                >
-                    <div id="client-details"></div>
-                </div>
-            </div>
-            <div class="col-span-6">
-                <p class="px-4 font-semibold text-teal-600">$from_label:</p>
-                <div
-                    class="flex p-4 mt-4 space-x-4 border-t-4 border-b-4 border-teal-600 border-dashed"
-                >
-                    <div id="company-details"></div>
-                    <div id="company-address"></div>
-                </div>
+        <div class="col-span-6">
+            <p class="px-4 font-semibold text-teal-600">$from_label:</p>
+            <div class="flex p-4 mt-4 space-x-4 border-t-4 border-b-4 border-teal-600 border-dashed">
+                <div id="company-details"></div>
+                <div id="company-address"></div>
             </div>
         </div>
+    </div>
 
-        <!-- Product table -->
-        <table id="product-table" class="w-full mt-10 table-auto"></table>
-    </body>
+    <!-- Product table -->
+    <table id="product-table" class="w-full mt-10 table-auto"></table>
+</body>
+
+<footer id="footer"></footer>
+
 </html>
