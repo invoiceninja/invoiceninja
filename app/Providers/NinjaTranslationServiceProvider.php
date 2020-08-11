@@ -18,8 +18,21 @@ class NinjaTranslationServiceProvider extends TranslationServiceProvider
 {
 	public function boot()
     {
-       //parent::boot();
 
+        /**
+         * To reset the translator instance we call
+         *
+         * App::forgetInstance('translator');
+         *
+         * Why? As the translator is a singleton it persists for its
+         * lifecycle
+         *
+         * We _must_ reset the singleton when shifting between
+         * clients/companies otherwise translations will
+         * persist.
+         * 
+         */
+        
         $this->app->singleton('translator', function($app)
         {
             $loader = $app['translation.loader'];
