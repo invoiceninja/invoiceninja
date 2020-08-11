@@ -245,8 +245,8 @@ class LoginController extends BaseController
         $company_token = CompanyToken::whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first();
 
         $cu = CompanyUser::query()
-                          ->where('user_id', $company_token->user_id)
-                          ->where('company_id', $company_token->company_id);
+                          ->where('user_id', $company_token->user_id);
+                          //->where('company_id', $company_token->company_id);
 
         //$ct = CompanyUser::whereUserId(auth()->user()->id);
         return $this->refreshResponse($cu);

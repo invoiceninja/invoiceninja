@@ -117,6 +117,8 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->invoices()->sync($invoices);
         $payment->save();
 
+        $payment->service()->applyNumber()->save();
+
         return $payment;
     }
 
