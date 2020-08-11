@@ -64,12 +64,6 @@ class ActivityRepository extends BaseRepository
     {
         $backup = new Backup();
 
-        // if(get_class($entity) == Client::class)
-        // 	$settings = $entity->getMergedSettings();
-        // else
-        // 	$settings = $entity->client->getMergedSettings();
-        //		$entity->clientMergedDettings = $settings;
-
         if (get_class($entity) == Client::class) {
             $entity->load('company');
         } elseif (get_class($entity) == User::class) {
@@ -77,15 +71,10 @@ class ActivityRepository extends BaseRepository
             $entity->load('company', 'client');
         }
 
-
-        if (get_class($entity) == Invoice::class && ($activity->activity_type_id == Activity::MARK_SENT_INVOICE || $activity->activity_type_id == Activity::PAID_INVOICE)) {
-            //$backup->html_backup = $this->generateInvoiceHtml($entity->design(), $entity);
-            $backup->html_backup = $this->generateEntityHtml($entity->getEntityDesigner(), $entity);
-        }
-
-
+        $backup->html_backup = $this->generateEntityHtml($entity->getEntityDesigner(), $entity);
         $backup->activity_id = $activity->id;
-        $backup->json_backup = $entity->toJson();
+        $backup->json_backup = '';
+        //$backup->json_backup = $entity->toJson();
         $backup->save();
     }
 

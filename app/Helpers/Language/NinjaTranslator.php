@@ -20,9 +20,7 @@ class NinjaTranslator extends Translator
         list($namespace, $group, $item) = $this->parseKey($key);
 
         if(null === $locale)
-        {
             $locale = $this->locale;
-        }
 
         // Load given group defaults if exists
         $this->load($namespace, $group, $locale);
