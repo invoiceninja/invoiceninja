@@ -64,12 +64,12 @@ class ActivityRepository extends BaseRepository
     {
         $backup = new Backup();
 
-        if (get_class($entity) == Client::class) {
-            $entity->load('company');
-        } elseif (get_class($entity) == User::class) {
-        } else {
-            $entity->load('company', 'client');
-        }
+        // if (get_class($entity) == Client::class) {
+        //     $entity->load('company');
+        // } elseif (get_class($entity) == User::class) {
+        // } else {
+        //     $entity->load('company', 'client');
+        // }
 
         $backup->html_backup = $this->generateEntityHtml($entity->getEntityDesigner(), $entity);
         $backup->activity_id = $activity->id;

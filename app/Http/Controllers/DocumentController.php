@@ -34,6 +34,8 @@ class DocumentController extends BaseController
     {
         parent::__construct();
 
+        $this->middleware('password_protected', ['only' => ['destroy']]);
+
         $this->document_repo = $document_repo;
     }
 
@@ -117,6 +119,7 @@ class DocumentController extends BaseController
      */
     public function destroy(DestroyDocumentRequest $request, Document $document)
     {
+
         $this->document_repo->delete($document);
 
         return response()->json(['message'=>'success']);
