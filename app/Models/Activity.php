@@ -11,10 +11,14 @@
 
 namespace App\Models;
 
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 
 class Activity extends StaticModel
 {
+
+    use MakesHash;
+    
     const CREATE_CLIENT=1; //
     const ARCHIVE_CLIENT=2; //
     const DELETE_CLIENT=3; //
@@ -143,5 +147,17 @@ class Activity extends StaticModel
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+
+    public function resolveRouteBinding($value)
+    {
+        if (is_numeric($value)) {
+            throw new ModelNotFoundException("Record with value {$value} not found");
+        }
+
+        return $this
+            //->withTrashed()
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 }

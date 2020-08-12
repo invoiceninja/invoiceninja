@@ -11,12 +11,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Activity\DownloadHistoricalInvoiceRequest;
 use App\Models\Activity;
 use App\Transformers\ActivityTransformer;
+use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Http\Request;
 
 class ActivityController extends BaseController
 {
+    use PdfMaker;
+
     protected $entity_type = Activity::class;
 
     protected $entity_transformer = ActivityTransformer::class;
@@ -78,7 +82,26 @@ class ActivityController extends BaseController
         $activities = Activity::orderBy('created_at', 'DESC')->company()
                                 ->take($default_activities);
 
-
         return $this->listResponse($activities);
     }
+
+    public function downloadHistoricalInvoice(DownloadHistoricalInvoiceRequest $request, Activity $activity)
+    {
+
+        $pdf = $this->makePdf(null, null, $activity->backup->html_backup);
+
+        if(isset($activity->invoice_id))
+            $filename = $activity->invoice->number . ".pdf";
+        elseif(isset($activity->quote_id))
+            $filename = $activity->quote->number . ".pdf";
+        elseif(isset($activity->credit_id))
+            $filename = $activity->credit->number . ".pdf";
+        else
+            $filename = "backup.pdf";
+
+        return response()->streamDownload(function () use($pdf) {
+            echo $pdf;
+        }, $filename);
+    }
+
 }
