@@ -84,7 +84,7 @@ class CreateQuotePdf implements ShouldQueue
         $designer   = new Designer($this->quote, $design, $this->quote->client->getSetting('pdf_variables'), 'quote');
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
-        Storage::makeDirectory($path, 0755);
+        Storage::makeDirectory($path, 0775);
         
         $html = (new HtmlEngine($designer, $this->invitation, 'quote'))->build();
 

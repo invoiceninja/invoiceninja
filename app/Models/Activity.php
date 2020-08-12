@@ -76,7 +76,7 @@ class Activity extends StaticModel
     const PAID_INVOICE=54; //
     const EMAIL_INVOICE_FAILED=57;
     const REVERSED_INVOICE=58; //
-    const CANCELLED_INVOICE=59;
+    const CANCELLED_INVOICE=59; //
     const VIEW_CREDIT=60; //
 
     protected $casts = [

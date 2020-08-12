@@ -49,7 +49,7 @@ class DocumentController extends Controller
     {
         $contact = auth()->user();
         
-        Storage::makeDirectory('public/' . $contact->client->client_hash, 0755);
+        Storage::makeDirectory('public/' . $contact->client->client_hash, 0775);
 
         $path = Storage::putFile('public/' . $contact->client->client_hash, $request->file('file'));
 

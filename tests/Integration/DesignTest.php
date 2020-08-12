@@ -65,7 +65,8 @@ class DesignTest extends TestCase
 
         $this->invoice->uses_inclusive_taxes = false;
 
-        $this->invoice->service()->createInvitations()->markSent()->save();
+        $this->invoice->service()->createInvitations()->markSent()->applyNumber()->save();
+
         $this->invoice->fresh();
         $this->invoice->load('invitations');
 
