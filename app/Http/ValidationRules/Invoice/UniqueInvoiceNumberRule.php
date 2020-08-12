@@ -60,7 +60,7 @@ class UniqueInvoiceNumberRule implements Rule
         $invoice = Invoice::where('client_id', $this->input['client_id'])
                         ->where('number', $this->input['number'])
                         ->withTrashed()
-                        ->first();
+                        ->exists();
 
         if($invoice)
             return false;
