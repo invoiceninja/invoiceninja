@@ -11,8 +11,10 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Events\Credit\CreditWasViewed;
 use App\Events\Invoice\InvoiceWasViewed;
 use App\Events\Misc\InvitationWasViewed;
+use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
 use App\Models\InvoiceInvitation;
 use App\Utils\Ninja;
@@ -70,7 +72,12 @@ class InvitationController extends Controller
             case 'invoice':
                 event(new InvoiceWasViewed($invitation, $invitation->company, Ninja::eventVars()));
                 break;
-            
+            case 'quote':
+                event(new QuoteWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+                break;
+            case 'credit':
+                event(new CreditWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+                break;              
             default:
                 # code...
                 break;

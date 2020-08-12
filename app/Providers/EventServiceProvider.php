@@ -28,6 +28,7 @@ use App\Events\Credit\CreditWasEmailedAndFailed;
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Events\Credit\CreditWasRestored;
 use App\Events\Credit\CreditWasUpdated;
+use App\Events\Credit\CreditWasViewed;
 use App\Events\Design\DesignWasArchived;
 use App\Events\Invoice\InvoiceWasArchived;
 use App\Events\Invoice\InvoiceWasCancelled;
@@ -76,18 +77,21 @@ use App\Listeners\Activity\RestoreClientActivity;
 use App\Listeners\Activity\UpdatedCreditActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Credit\CreditRestoredActivity;
+use App\Listeners\Credit\CreditViewedActivity;
 use App\Listeners\Document\DeleteCompanyDocuments;
 use App\Listeners\Invoice\CreateInvoiceActivity;
 use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Listeners\Invoice\CreateInvoicePdf;
 use App\Listeners\Invoice\InvoiceArchivedActivity;
+use App\Listeners\Invoice\InvoiceCancelledActivity;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Invoice\InvoiceRestoredActivity;
+use App\Listeners\Invoice\InvoiceReversedActivity;
 use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
@@ -195,6 +199,9 @@ class EventServiceProvider extends ServiceProvider
         CreditWasRestored::class => [
             CreditRestoredActivity::class,
         ],
+        CreditWasViewed::class => [
+            CreditViewedActivity::class
+        ],
         //Designs
         DesignWasArchived::class => [
         ],
@@ -239,8 +246,10 @@ class EventServiceProvider extends ServiceProvider
             InvoiceRestoredActivity::class,
         ],
         InvoiceWasReversed::class => [
+            InvoiceReversedActivity::class,
         ],
         InvoiceWasCancelled::class => [
+            InvoiceCancelledActivity::class,
         ],
         InvitationWasViewed::class => [
             InvitationViewedListener::class
