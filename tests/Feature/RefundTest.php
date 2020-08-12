@@ -155,6 +155,11 @@ class RefundTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
+        
+        $this->invoice->setRelation('client', $this->client);
+        $this->invoice->setRelation('company', $this->company);
+
+        $this->invoice->service()->createInvitations()->markSent();
 
         $data = [
             'amount' => 50,
