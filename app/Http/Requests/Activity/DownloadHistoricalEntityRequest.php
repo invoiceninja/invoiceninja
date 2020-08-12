@@ -14,7 +14,7 @@ namespace App\Http\Requests\Activity;
 use App\Http\Requests\Request;
 use App\Models\Activity;
 
-class DownloadHistoricalInvoiceRequest extends Request
+class DownloadHistoricalEntityRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.

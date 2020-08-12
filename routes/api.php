@@ -28,7 +28,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::get('activities', 'ActivityController@index');
 
-    Route::get('activities/download_invoice/{activity}', 'ActivityController@downloadHistoricalInvoice');
+    Route::get('activities/download_entity/{activity}', 'ActivityController@downloadHistoricalEntity');
 
     Route::resource('clients', 'ClientController');// name = (clients. index / create / show / update / destroy / edit
 

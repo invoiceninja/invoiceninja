@@ -11,7 +11,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Activity\DownloadHistoricalInvoiceRequest;
+use App\Http\Requests\Activity\DownloadHistoricalEntityRequest;
 use App\Models\Activity;
 use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\Pdf\PdfMaker;
@@ -85,7 +85,47 @@ class ActivityController extends BaseController
         return $this->listResponse($activities);
     }
 
-    public function downloadHistoricalInvoice(DownloadHistoricalInvoiceRequest $request, Activity $activity)
+    /**
+     *      @OA\Get(
+     *      path="/api/v1/actvities/download_entity/{activity_id}",
+     *      operationId="getActivityHistoricalEntityPdf",
+     *      tags={"actvities"},
+     *      summary="Gets a PDF for the given activity",
+     *      description="Gets a PDF for the given activity",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(
+     *          name="activity_id",
+     *          in="path",
+     *          description="The Activity Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="PDF File",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=404,
+     *          description="No file exists for the given record",
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     *
+     */
+    public function downloadHistoricalEntity(DownloadHistoricalEntityRequest $request, Activity $activity)
     {
         $backup = $activity->backup;
 
