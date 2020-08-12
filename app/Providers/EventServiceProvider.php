@@ -86,6 +86,7 @@ use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
+use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Invoice\InvoiceRestoredActivity;
 use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
@@ -216,7 +217,7 @@ class EventServiceProvider extends ServiceProvider
         //    CreateInvoicePdf::class,
         ],
         InvoiceWasPaid::class => [
-       //    CreateInvoiceHtmlBackup::class,
+           InvoicePaidActivity::class,
         ],
         InvoiceWasViewed::class => [
             InvoiceViewedActivity::class,

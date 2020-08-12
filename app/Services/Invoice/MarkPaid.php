@@ -11,6 +11,7 @@
 
 namespace App\Services\Invoice;
 
+use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Models\Invoice;
@@ -72,6 +73,7 @@ class MarkPaid extends AbstractService
 
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+        event(new InvoiceWasPaid($this->invoice, $payment->company, Ninja::eventVars()));
 
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount*-1);
