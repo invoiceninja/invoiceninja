@@ -153,13 +153,15 @@ trait MockAccountData
             ]);
 
 
-        factory(\App\Models\ClientContact::class, 1)->create([
+        $contact = factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
                 'send_email' => true,
             ]);
+
+        $this->client->setRelation('contacts', $contact);
 
         factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,

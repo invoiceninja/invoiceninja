@@ -63,7 +63,7 @@ class DownloadHistoricalInvoiceTest extends TestCase
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token
-            ])->get('/api/v1/activities/download_invoice/'.$this->encodePrimaryKey($this->invoice->activities->first()->id));
+            ])->get('/api/v1/activities/download_entity/'.$this->encodePrimaryKey($this->invoice->activities->first()->id));
 
         $response->assertStatus(200);
     }
@@ -78,7 +78,7 @@ class DownloadHistoricalInvoiceTest extends TestCase
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token
-            ])->get('/api/v1/activities/download_invoice/'.$this->encodePrimaryKey($this->invoice->activities->first()->id));
+            ])->get('/api/v1/activities/download_entity/'.$this->encodePrimaryKey($this->invoice->activities->first()->id));
 
         $response->assertStatus(404);
     }
