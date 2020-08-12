@@ -92,16 +92,13 @@ class CreateInvoicePdf implements ShouldQueue
 
         $design_class = new $design_namespace();
 
-        $product_table_columns = json_decode(
-            json_encode($this->invoice->company->settings->pdf_variables),
-            1
-        )['product_columns'];
+        $pdf_variables = json_decode(json_encode($this->invoice->company->settings->pdf_variables), 1);
 
         $state = [
             'template' => $design_class->elements([
                 'client' => $this->invoice->client,
                 'entity' => $this->invoice,
-                'product-table-columns' => $product_table_columns,
+                'product-table-columns' => $pdf_variables['product_columns'],
             ]),
             'variables' => $html->generateLabelsAndValues(),
         ];
@@ -112,7 +109,7 @@ class CreateInvoicePdf implements ShouldQueue
             ->design($design_namespace)
             ->build();
 
-        info('Done: ' . now());
+        info($maker->getCompiledHTML());
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
