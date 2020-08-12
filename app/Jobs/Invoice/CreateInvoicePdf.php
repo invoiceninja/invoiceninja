@@ -84,8 +84,6 @@ class CreateInvoicePdf implements ShouldQueue
 
         $design    = Design::find($invoice_design_id);
 
-        info('Start: ' . now());
-
         $html = new HtmlEngine(null, $this->invitation, 'invoice');
 
         $design_namespace = 'App\Services\PdfMaker\Designs\\' . $design->name;
@@ -108,8 +106,6 @@ class CreateInvoicePdf implements ShouldQueue
         $maker
             ->design($design_namespace)
             ->build();
-
-        info($maker->getCompiledHTML());
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
