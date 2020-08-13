@@ -77,18 +77,7 @@ class MigrationController extends BaseController
      */
     public function purgeCompany(Company $company)
     {
-        // $account = $company->account;
 
-        // if($account->default_company_id == $company->id)
-        // {
-        //     $companies = $account->companies;
-
-        //     if($companies->count() > 1)
-        //     {
-
-
-        //     }
-        // }
         $company->delete();
 
         return response()->json(['message' => 'Company purged'], 200);
