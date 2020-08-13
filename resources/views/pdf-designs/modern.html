@@ -8,7 +8,7 @@
         />
         <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
-        <link rel="stylesheet" href="$css" />
+        <link rel="stylesheet" href="$app_url/css/tailwindcss@1.4.6.css" />
     </head>
 
     <body class="antialiased break-words bg-white">
@@ -30,6 +30,11 @@
 
         <div class="$global-margin">
             <!-- Company logo, client details -->
+            <div class="col-span-12 mb-10">
+                <p class="text-xl text-orange-600 font-semibold uppercase">
+                    $your_entity_label
+                </p>
+            </div>
             <div class="grid grid-cols-12">
                 <img
                     src="$company.logo"
@@ -57,4 +62,6 @@
             </div>
         </div>
     </body>
+
+    <footer id="footer"></footer>
 </html>

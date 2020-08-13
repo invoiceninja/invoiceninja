@@ -8,7 +8,7 @@
         />
         <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
-        <link rel="stylesheet" href="$css" />
+        <link rel="stylesheet" href="$app_url/css/tailwindcss@1.4.6.css" />
     </head>
 
     <body class="$global-margin antialiased bg-white break-words">
@@ -23,6 +23,11 @@
             </div>
             <div class="flex flex-col items-end col-span-6">
                 <table id="entity-details"></table>
+            </div>
+            <div class="col-span-6">
+                <p class="text-xl font-semibold uppercase">
+                    $your_entity_label
+                </p>
             </div>
         </div>
 
@@ -42,7 +47,13 @@
         <table id="product-table" class="w-full mt-10 table-auto"></table>
 
         <!-- Thanks label -->
-        <p class="w-full pb-4 mt-10 text-2xl font-semibold text-center border-b-4 border-black">$thanks</p>
+        <p
+            class="w-full pb-4 mt-10 text-2xl font-semibold text-center border-b-4 border-black"
+        >
+            $thanks_label
+        </p>
         <div class="w-full border-black order-b wpy-1"></div>
     </body>
+
+    <footer id="footer"></footer>
 </html>

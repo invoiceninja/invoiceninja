@@ -8,14 +8,14 @@
         />
         <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
-        <link rel="stylesheet" href="$css" />
+        <link rel="stylesheet" href="$app_url/css/tailwindcss@1.4.6.css" />
     </head>
 
     <style>
         #product-table tbody > tr > td:first-child {
             color: #9b2c2c;
         }
-        
+
         #product-table tbody > tr > td:last-child {
             color: #9b2c2c;
             font-weight: bold;
@@ -39,8 +39,13 @@
 
         <!-- Company details, client details -->
         <div class="grid grid-cols-12 gap-12 mt-12">
+            <div class="col-span-12">
+                <p class="text-xl text-teal-600 font-semibold uppercase">
+                    $your_entity_label
+                </p>
+            </div>
             <div class="col-span-6">
-                <p class="px-4 font-semibold text-teal-600">$to:</p>
+                <p class="px-4 font-semibold text-teal-600">$to_label:</p>
                 <div
                     class="p-4 mt-4 border-t-4 border-b-4 border-teal-600 border-dashed"
                 >
@@ -48,7 +53,7 @@
                 </div>
             </div>
             <div class="col-span-6">
-                <p class="px-4 font-semibold text-teal-600">$from:</p>
+                <p class="px-4 font-semibold text-teal-600">$from_label:</p>
                 <div
                     class="flex p-4 mt-4 space-x-4 border-t-4 border-b-4 border-teal-600 border-dashed"
                 >
@@ -61,4 +66,6 @@
         <!-- Product table -->
         <table id="product-table" class="w-full mt-10 table-auto"></table>
     </body>
+
+    <footer id="footer"></footer>
 </html>

@@ -8,7 +8,7 @@
         />
         <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
-        <link rel="stylesheet" href="$css" />
+        <link rel="stylesheet" href="$app_url/css/tailwindcss@1.4.6.css" />
     </head>
 
     <body class="$global-margin antialiased break-words bg-white">
@@ -34,10 +34,17 @@
 
         <!-- Client details -->
         <div class="grid grid-cols-12 mt-12">
+            <div class="col-span-12 mb-10">
+                <p class="text-xl text-black font-semibold uppercase">
+                    $your_entity_label
+                </p>
+            </div>
             <div class="col-span-6" id="client-details"></div>
         </div>
 
         <!-- Product table -->
         <table id="product-table" class="w-full mt-8 table-auto"></table>
     </body>
+
+    <footer id="footer"></footer>
 </html>

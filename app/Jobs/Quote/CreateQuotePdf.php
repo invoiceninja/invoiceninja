@@ -19,6 +19,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
@@ -81,14 +82,33 @@ class CreateQuotePdf implements ShouldQueue
 
         $design     = Design::find($quote_design_id);
 
-        $designer   = new Designer($this->quote, $design, $this->quote->client->getSetting('pdf_variables'), 'quote');
+        $html = new HtmlEngine(null, $this->invitation, 'quote');
+
+        $design_namespace = 'App\Services\PdfMaker\Designs\\' . $design->name;
+
+        $design_class = new $design_namespace();
+
+        $pdf_variables = json_decode(json_encode($this->quote->company->settings->pdf_variables), 1);
+
+        $state = [
+            'template' => $design_class->elements([
+                'client' => $this->quote->client,
+                'entity' => $this->quote,
+                'product-table-columns' => $pdf_variables['product_columns'],
+            ]),
+            'variables' => $html->generateLabelsAndValues(),
+        ];
+
+        $maker = new PdfMakerService($state);
+
+        $maker
+            ->design($design_namespace)
+            ->build();
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0775);
         
-        $html = (new HtmlEngine($designer, $this->invitation, 'quote'))->build();
-
-        $pdf       = $this->makePdf(null, null, $html);
+        $pdf       = $this->makePdf(null, null, $maker->getCompiledHTML());
 
         $file_path = $path . $this->quote->number . '.pdf';
 

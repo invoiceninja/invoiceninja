@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -19,6 +20,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
@@ -68,8 +70,9 @@ class CreateInvoicePdf implements ShouldQueue
 
     public function handle()
     {
-        if(config('ninja.phantomjs_key'))
+        if (config('ninja.phantomjs_key')) {
             return (new Phantom)->generate($this->invitation);
+        }
 
         App::setLocale($this->contact->preferredLocale());
 
@@ -81,14 +84,33 @@ class CreateInvoicePdf implements ShouldQueue
 
         $design    = Design::find($invoice_design_id);
 
-        $designer  = new Designer($this->invoice, $design, $this->invoice->client->getSetting('pdf_variables'), 'invoice');
+        $html = new HtmlEngine(null, $this->invitation, 'invoice');
 
-        $html = (new HtmlEngine($designer, $this->invitation, 'invoice'))->build();
+        $design_namespace = 'App\Services\PdfMaker\Designs\\' . $design->name;
+
+        $design_class = new $design_namespace();
+
+        $pdf_variables = json_decode(json_encode($this->invoice->company->settings->pdf_variables), 1);
+
+        $state = [
+            'template' => $design_class->elements([
+                'client' => $this->invoice->client,
+                'entity' => $this->invoice,
+                'product-table-columns' => $pdf_variables['product_columns'],
+            ]),
+            'variables' => $html->generateLabelsAndValues(),
+        ];
+
+        $maker = new PdfMakerService($state);
+
+        $maker
+            ->design($design_namespace)
+            ->build();
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0775);
 
-        $pdf       = $this->makePdf(null, null, $html);
+        $pdf       = $this->makePdf(null, null, $maker->getCompiledHTML());
 
         $instance  = Storage::disk($this->disk)->put($file_path, $pdf);
 

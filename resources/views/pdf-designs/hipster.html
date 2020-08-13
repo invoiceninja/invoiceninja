@@ -8,7 +8,7 @@
         />
         <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
-        <link rel="stylesheet" href="$css" />
+        <link rel="stylesheet" href="$app_url/css/tailwindcss@1.4.6.css" />
     </head>
 
     <body class="$global-margin antialiased break-words bg-white">
@@ -17,7 +17,7 @@
             <div class="col-span-4 pl-4 border-l border-black">
                 <div id="company-details">
                     <p class="font-semibold text-yellow-600 uppercase">
-                        $from:
+                        $from_label:
                     </p>
                 </div>
                 <div id="company-address" class="mt-4"></div>
@@ -26,7 +26,9 @@
                 class="col-span-5 pl-4 border-l border-black"
                 id="client-details"
             >
-                <p class="font-semibold text-yellow-600 uppercase">$to:</p>
+                <p class="font-semibold text-yellow-600 uppercase">
+                    $to_label:
+                </p>
             </div>
             <div class="col-span-3">
                 <img
@@ -39,7 +41,7 @@
 
         <!-- Entity details -->
         <h1 class="mt-6 text-4xl font-semibold uppercase lg:text-5xl">
-            $entity
+            $entity_label
         </h1>
         <div
             id="entity-details"
@@ -49,4 +51,6 @@
         <!-- Product table -->
         <table id="product-table" class="w-full mt-10 table-auto"></table>
     </body>
+
+    <footer id="footer"></footer>
 </html>

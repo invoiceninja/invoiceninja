@@ -8,7 +8,7 @@
         />
         <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
-        <link rel="stylesheet" href="$css" />
+        <link rel="stylesheet" href="$app_url/css/tailwindcss@1.4.6.css" />
     </head>
 
     <style>
@@ -49,8 +49,8 @@
         <div class="grid grid-cols-12 mt-10">
             <!-- Entity number -->
             <div class="col-span-4 text-3xl font-semibold uppercase">
-                <span>$entity</span>
-                <i class="text-pink-700">#$entity-number</i>
+                <span>$entity_label</span>
+                <i class="text-pink-700">#$entity_number</i>
             </div>
 
             <!-- Entity labels -->
@@ -64,4 +64,6 @@
             class="w-full mt-10 border-t-4 border-pink-700 table-auto"
         ></table>
     </body>
+
+    <footer id="footer"></footer>
 </html>

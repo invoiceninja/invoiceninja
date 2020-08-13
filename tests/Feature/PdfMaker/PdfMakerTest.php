@@ -2,15 +2,18 @@
 
 namespace Tests\Feature\PdfMaker;
 
+use App\Services\PdfMaker\Designs\Plain;
 use App\Services\PdfMaker\PdfMaker;
-use Spatie\Browsershot\Browsershot;
 use Tests\TestCase;
 
 class PdfMakerTest extends TestCase
 {
     public $state = [
         'template' => [],
-        'variables' => [],
+        'variables' => [
+            'labels' => [],
+            'values' => [],
+        ],
     ];
 
     public function testDesignLoadsCorrectly()
@@ -71,7 +74,10 @@ class PdfMakerTest extends TestCase
                     ],
                 ],
             ],
-            'variables' => [],
+            'variables' => [
+                'labels' => [],
+                'values' => [],
+            ],
         ];
 
         $maker = new PdfMaker($state);
@@ -108,7 +114,10 @@ class PdfMakerTest extends TestCase
                 ],
             ],
             'variables' => [
-                '$title' => 'Invoice Ninja',
+                'labels' => [],
+                'values' => [
+                    '$title' => 'Invoice Ninja',
+                ],
             ],
         ];
 
@@ -153,9 +162,12 @@ class PdfMakerTest extends TestCase
                 ],
             ],
             'variables' => [
-                '$company' => 'Invoice Ninja',
-                '$email' => 'contact@invoiceninja.com',
-                '$country' => 'UK',
+                'labels' => [],
+                'values' => [
+                    '$company' => 'Invoice Ninja',
+                    '$email' => 'contact@invoiceninja.com',
+                    '$country' => 'UK',
+                ],
             ],
         ];
 
@@ -317,8 +329,11 @@ class PdfMakerTest extends TestCase
                     ],
                 ]
             ],
-            'variables' =>[
-                '$title' => 'Invoice Ninja',
+            'variables' => [
+                'labels' => [],
+                'values' => [
+                    '$title' => 'Invoice Ninja',
+                ],
             ]
         ];
 
@@ -329,5 +344,16 @@ class PdfMakerTest extends TestCase
             ->build();
 
         $this->assertTrue(true);
+    }
+
+    public function testGetSectionHTMLWorks()
+    {
+        $design = new ExampleDesign();
+
+        $html = $design
+            ->document()
+            ->getSectionHTML('product-table');
+
+        $this->assertStringContainsString('id="product-table"', $html);
     }
 }

@@ -13,12 +13,12 @@
 namespace App\Services\PdfMaker\Designs;
 
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
-use App\Services\PdfMaker\Designs\Utilities\BuildTableHeader;
+use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Traits\MakesInvoiceValues;
 
 class Playful extends BaseDesign
 {
-    use MakesInvoiceValues, BuildTableHeader;
+    use MakesInvoiceValues, DesignHelpers;
 
     /** Global list of table elements, @var array */
     public $elements;
@@ -32,7 +32,7 @@ class Playful extends BaseDesign
     /** Global state of the design, @var array */
     public $context;
 
-    /** Type of entity => invoice||quote */
+    /** Type of entity => product||task */
     public $type;
 
     public function html()
@@ -42,9 +42,10 @@ class Playful extends BaseDesign
         );
     }
 
-    public function elements(array $context, string $type = 'invoice'): array
+    public function elements(array $context, string $type = 'product'): array
     {
         $this->context = $context;
+
         $this->type = $type;
 
         $this->setup();
@@ -70,12 +71,22 @@ class Playful extends BaseDesign
                 'id' => 'product-table',
                 'elements' => $this->productTable(),
             ],
+            'footer-elements' => [
+                'id' => 'footer',
+                'elements' => [
+                    $this->sharedFooterElements(),
+                ],
+            ],
         ];
     }
 
     public function entityDetails(): array
     {
         $variables = $this->entity->company->settings->pdf_variables->invoice_details;
+
+        if ($this->entity instanceof \App\Models\Quote) {
+            $variables = $this->entity->company->settings->pdf_variables->quote_details;
+        }
 
         $elements = [];
 
@@ -133,21 +144,7 @@ class Playful extends BaseDesign
         return  [
             ['element' => 'thead', 'content' => '', 'properties' => ['class' => 'text-left bg-teal-600'], 'elements' => $this->buildTableHeader()],
             ['element' => 'tbody', 'content' => '', 'elements' => $this->buildTableBody()],
-            ['element' => 'tfoot', 'content' => '', 'elements' => [
-                ['element' => 'tr', 'content' => '', 'elements' => [
-                    ['element' => 'td', 'content' => '$entity.public_notes', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '4']],
-                    ['element' => 'td', 'content' => '$subtotal_label', 'properties' => ['class' => 'px-4 py-4 text-right', 'colspan' => '2']],
-                    ['element' => 'td', 'content' => '$subtotal', 'properties' => ['class' => 'px-4 py-2 text-right']],
-                ]],
-                ['element' => 'tr', 'content' => '', 'elements' => [
-                    ['element' => 'td', 'content' => '$discount_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '6']],
-                    ['element' => 'td', 'content' => '$discount', 'properties' => ['class' => 'px-4 py-2 text-right']],
-                ]],
-                ['element' => 'tr', 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
-                    ['element' => 'td', 'content' => '$balance_due_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right font-semibold text-teal-600', 'colspan' => '6']],
-                    ['element' => 'td', 'content' => '$balance_due', 'properties' => ['class' => 'px-4 py-2 text-right']],
-                ]],
-            ]],
+            ['element' => 'tfoot', 'content' => '', 'elements' => $this->tableFooter()],
         ];
     }
 
@@ -185,5 +182,32 @@ class Playful extends BaseDesign
         }
 
         return $elements;
+    }
+
+    public function tableFooter()
+    {
+        return [
+            ['element' => 'tr', 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$entity.public_notes', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(3)]],
+                ['element' => 'td', 'content' => '$subtotal_label', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->calc()->getSubTotal()), 'class' => 'px-4 py-4 text-right', 'colspan' => '2']],
+                ['element' => 'td', 'content' => '$subtotal', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->calc()->getSubTotal()), 'class' => 'px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->calc()->getTotalDiscount())], 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$discount_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
+                ['element' => 'td', 'content' => '$discount', 'properties' => ['class' => 'px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->partial), 'class' => 'mt-8 px-4 py-2'], 'elements' => [
+                ['element' => 'td', 'content' => '$partial_due_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
+                ['element' => 'td', 'content' => '$partial_due', 'properties' => ['class' => 'px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->calc()->getTotal())], 'content' => '', 'properties' => ['class' => 'mt-8 px-4 py-2'], 'elements' => [
+                ['element' => 'td', 'content' => '$total_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
+                ['element' => 'td', 'content' => '$total', 'properties' => ['class' => 'px-4 py-2 text-right']],
+            ]],
+            ['element' => 'tr', 'content' => '', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->balance), 'class' => 'mt-8 px-4 py-2'], 'elements' => [
+                ['element' => 'td', 'content' => '$balance_due_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right font-semibold text-teal-600', 'colspan' => $this->calculateColspan(1)]],
+                ['element' => 'td', 'content' => '$balance_due', 'properties' => ['class' => 'px-4 py-2 text-right']],
+            ]],
+        ];
     }
 }
