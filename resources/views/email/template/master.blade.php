@@ -23,7 +23,9 @@
   <div class="grid grid-cols-6">
     <div class="col-start-2 col-span-4">
       <div class="{{ $design == 'light' ? 'bg-white' : 'bg-gray-900' }} shadow border-t-2 {{ $design == 'light' ? 'border-green-500' : 'border-gray-800' }}">
-        {{ $header }}
+        <div class="px-10">
+          {{ $header }}
+        </div>
         <div id="text" class="px-10 py-6 flex flex-col">
           @isset($greeting)
             {{ $greeting }}
