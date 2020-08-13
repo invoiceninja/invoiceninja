@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Credit;
 
+use App\Http\ValidationRules\Credit\UniqueCreditNumberRule;
 use App\Models\Credit;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
@@ -42,6 +43,8 @@ class StoreCreditRequest extends FormRequest
         }
 
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+        
+        $rules['number'] = new UniqueCreditNumberRule($this->all());
 
         return $rules;
     }

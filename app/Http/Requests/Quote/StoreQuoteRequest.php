@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Quote;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Quote\UniqueQuoteNumberRule;
 use App\Models\Quote;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
@@ -92,6 +93,8 @@ class StoreQuoteRequest extends Request
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
+
+        $rules['number'] = new UniqueQuoteNumberRule($this->all());
 
         return $rules;
 

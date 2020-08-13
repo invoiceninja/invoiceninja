@@ -72,7 +72,7 @@ class CompanySettings extends BaseSettings
 
     public $translations;
 
-    public $counter_number_applied = 'when_saved';// when_saved , when_sent , when_paid
+    public $counter_number_applied = 'when_saved';// when_saved , when_sent 
     public $quote_number_applied   = 'when_saved';// when_saved , when_sent
 
     /* Counters */

@@ -104,7 +104,8 @@ class StorePaymentRequest extends Request
             'credits.*.credit_id' => new ValidCreditsRules($this->all()),
             'credits.*.amount' => 'required',
             'invoices' => new ValidPayableInvoicesRule(),
-            'number' => 'nullable',
+            'number' => 'nullable|unique:payments,number,' . $this->id . ',id,company_id,' . $this->company_id,
+            //'number' => 'nullable',
         ];
 
 
