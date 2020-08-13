@@ -163,6 +163,8 @@ class RefundTest extends TestCase
 
         $this->assertNotNull($this->invoice->invitations);
         
+        $this->assertNotNull($this->invoice->invitations->first()->contact);
+        
         $data = [
             'amount' => 50,
             'client_id' => $client->hashed_id,

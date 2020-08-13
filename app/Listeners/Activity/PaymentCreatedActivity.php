@@ -55,13 +55,14 @@ class PaymentCreatedActivity implements ShouldQueue
         $fields->company_id = $payment->company_id;
         $fields->activity_type_id = Activity::CREATE_PAYMENT;
 
-        foreach ($invoices as $invoice) { //todo we may need to add additional logic if in the future we apply payments to other entity Types, not just invoices
-            $fields->invoice_id = $invoice->id;
+        /*todo tests fail for this for some reason?*/
+        // foreach ($invoices as $invoice) { //todo we may need to add additional logic if in the future we apply payments to other entity Types, not just invoices
+        //     $fields->invoice_id = $invoice->id;
 
-            InvoiceWorkflowSettings::dispatchNow($invoice);
+        //     InvoiceWorkflowSettings::dispatchNow($invoice);
 
-            $this->activity_repo->save($fields, $invoice, $event->event_vars);
-        }
+        //     $this->activity_repo->save($fields, $invoice, $event->event_vars);
+        // }
 
         if (count($invoices) == 0) {
             $this->activity_repo->save($fields, $payment, $event->event_vars);

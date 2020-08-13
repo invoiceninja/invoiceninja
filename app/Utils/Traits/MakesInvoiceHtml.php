@@ -36,6 +36,7 @@ trait MakesInvoiceHtml
      */
     public function generateEntityHtml(Designer $designer, $entity, $contact = null) :string
     {
+
         $entity->load('client');
         
         $client = $entity->client;
