@@ -87,7 +87,7 @@ class CreateCreditPdf implements ShouldQueue
 
         $html = (new HtmlEngine($designer, $this->invitation, 'credit'))->build();
 
-        Storage::makeDirectory($path, 0755);
+        Storage::makeDirectory($path, 0775);
 
         $pdf       = $this->makePdf(null, null, $html);
 

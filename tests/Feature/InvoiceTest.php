@@ -145,4 +145,76 @@ class InvoiceTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function testUniqueNumberValidation()
+    {
+        /* stub a invoice in the DB that we will use to test against later */
+        $invoice = factory(\App\Models\Invoice::class)->create([
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'number' => 'test',
+        ]);
+
+        /* Test fire new invoice */
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'number' => 'dude'
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $data)
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('dude', $arr['data']['number']);
+
+        /*test validation fires*/
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'number' => 'test'
+        ];
+
+        try{
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/invoices/' . $arr['data']['id'], $data)
+            ->assertStatus(302);
+
+        } catch (ValidationException $e) {
+
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            info("inside update invoice validator");
+            info($message);
+            $this->assertNotNull($message);
+        }
+
+            $data = [
+                'client_id' => $this->client->hashed_id,
+                'number' => 'style'
+            ];
+
+            /* test number passed validation*/
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/invoices/' . $arr['data']['id'], $data)
+            ->assertStatus(200);
+
+            $data = [
+                'client_id' => $this->client->hashed_id,
+                'number' => 'style'
+            ];
+
+            /* Make sure we can UPDATE using the same number*/
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/invoices/' . $arr['data']['id'], $data)
+            ->assertStatus(200);
+    }
 }

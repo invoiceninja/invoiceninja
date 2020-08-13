@@ -13,11 +13,15 @@ namespace App\Listeners\Invoice;
 
 use App\Libraries\MultiDB;
 use App\Models\Activity;
+use App\Models\ClientContact;
+use App\Models\InvoiceInvitation;
 use App\Repositories\ActivityRepository;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 
-class CreateInvoiceHtmlBackup implements ShouldQueue
+class InvoicePaidActivity implements ShouldQueue
 {
     protected $activity_repo;
     /**
@@ -38,15 +42,14 @@ class CreateInvoiceHtmlBackup implements ShouldQueue
      */
     public function handle($event)
     {
-        MultiDB::setDB($event->company->db);
+        MultiDB::setDb($event->company->db);
 
         $fields = new \stdClass;
 
         $fields->invoice_id = $event->invoice->id;
-              $fields->client_id = $event->invoice->client_id;
-      $fields->user_id = $event->invoice->user_id;
+        $fields->user_id = $event->invoice->user_id;
         $fields->company_id = $event->invoice->company_id;
-        $fields->activity_type_id = Activity::MARK_SENT_INVOICE;
+        $fields->activity_type_id = Activity::PAID_INVOICE;
 
         $this->activity_repo->save($fields, $event->invoice, $event->event_vars);
     }

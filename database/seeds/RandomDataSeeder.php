@@ -3,7 +3,6 @@
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
-use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasCreated;
 use App\Helpers\Invoice\InvoiceSum;
@@ -199,8 +198,6 @@ class RandomDataSeeder extends Seeder
             $invoice->service()->createInvitations()->markSent()->save();
             
             $invoice->ledger()->updateInvoiceBalance($invoice->balance);
-
-            event(new InvoiceWasMarkedSent($invoice, $company, Ninja::eventVars()));
 
             if (rand(0, 1)) {
                 $payment = App\Models\Payment::create([

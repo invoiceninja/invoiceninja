@@ -725,10 +725,6 @@ class InvoiceController extends BaseController
 
                 });
 
-                if ($invoice->invitations->count() > 0) {
-                    event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
-                }
-
                 if (!$bulk) {
                     return response()->json(['message' => 'email sent'], 200);
                 }

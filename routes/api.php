@@ -26,7 +26,9 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::get('ping', 'PingController@index')->name('ping');
     Route::get('health_check', 'PingController@health')->name('health_check');
 
-    Route::resource('activities', 'ActivityController');// name = (clients. index / create / show / update / destroy / edit
+    Route::get('activities', 'ActivityController@index');
+
+    Route::get('activities/download_entity/{activity}', 'ActivityController@downloadHistoricalEntity');
 
     Route::resource('clients', 'ClientController');// name = (clients. index / create / show / update / destroy / edit
 

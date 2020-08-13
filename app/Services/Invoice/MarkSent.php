@@ -11,7 +11,7 @@
 
 namespace App\Services\Invoice;
 
-use App\Events\Invoice\InvoiceWasMarkedSent;
+use App\Events\Invoice\InvoiceWasUpdated;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Services\AbstractService;
@@ -41,8 +41,6 @@ class MarkSent extends AbstractService
 
         $this->invoice->setReminder();
 
-        event(new InvoiceWasMarkedSent($this->invoice, $this->invoice->company, Ninja::eventVars()));
-
         $this->invoice
              ->service()
              ->setStatus(Invoice::STATUS_SENT)
@@ -54,6 +52,8 @@ class MarkSent extends AbstractService
 
         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance);
 
+        event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars()));
+        
         return $this->invoice->fresh();
     }
 }

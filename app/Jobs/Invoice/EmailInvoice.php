@@ -22,6 +22,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\SystemLog;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -75,18 +76,30 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
         
         $this->setMailDriver();
 
-        Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
-            ->send(
-                new TemplateEmail(
-                    $this->email_builder,
-                    $this->invoice_invitation->contact->user,
-                    $this->invoice_invitation->contact->client
-                )
-            );
+        try {
+
+            Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
+                ->send(
+                    new TemplateEmail(
+                        $this->email_builder,
+                        $this->invoice_invitation->contact->user,
+                        $this->invoice_invitation->contact->client
+                    )
+                );
+
+        }
+        catch (\Swift_TransportException $e) {
+            
+            event(new InvoiceWasEmailedAndFailed($this->invoice_invitation->invoice, $this->company, $e->getMessage(), Ninja::eventVars()));
+        } 
 
         if (count(Mail::failures()) > 0) {
             return $this->logMailError(Mail::failures(), $this->invoice->client);
         }
+        else{
+            event(new InvoiceWasEmailed($this->invoice_invitation, $this->company, Ninja::eventVars()));
+        }
+
     }
 
 

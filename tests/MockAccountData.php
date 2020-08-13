@@ -25,6 +25,7 @@ use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\Credit;
@@ -153,7 +154,7 @@ trait MockAccountData
             ]);
 
 
-        factory(\App\Models\ClientContact::class, 1)->create([
+        $contact = factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
@@ -161,13 +162,17 @@ trait MockAccountData
                 'send_email' => true,
             ]);
 
-        factory(\App\Models\ClientContact::class, 1)->create([
+        $contact2 = factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
                 'send_email' => true
             ]);
-        
+
+         // $rels = collect($contact, $contact2);
+         // $this->client->setRelation('contacts', $rels);
+         // $this->client->save();
+
         $gs = new GroupSetting;
         $gs->name = 'Test';
         $gs->company_id = $this->client->company_id;

@@ -12,12 +12,14 @@
 
 namespace App\PaymentDrivers;
 
+use App\Events\Invoice\InvoiceWasPaid;
 use App\Models\Client;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\PaymentDrivers\AbstractPaymentDriver;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
 
@@ -118,6 +120,10 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->save();
 
         $payment->service()->applyNumber()->save();
+
+        $invoices->each(function ($invoice) use($payment){
+            event(new InvoiceWasPaid($invoice, $payment->company, Ninja::eventVars()));
+        });
 
         return $payment;
     }

@@ -54,6 +54,9 @@ class UpdateInvoiceRequest extends Request
 
         $rules['id'] = new LockedInvoiceRule($this->invoice);
 
+        if($this->input('number'))
+            $rules['number'] = 'unique:invoices,number,' . $this->id . ',id,company_id,' . $this->invoice->company_id;
+
         return $rules;
     }
 

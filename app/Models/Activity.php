@@ -11,10 +11,14 @@
 
 namespace App\Models;
 
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 
 class Activity extends StaticModel
 {
+
+    use MakesHash;
+    
     const CREATE_CLIENT=1; //
     const ARCHIVE_CLIENT=2; //
     const DELETE_CLIENT=3; //
@@ -52,8 +56,9 @@ class Activity extends StaticModel
     const ARCHIVE_EXPENSE=35;
     const DELETE_EXPENSE=36;
     const RESTORE_EXPENSE=37;
-    const VOIDED_PAYMENT=39;
-    const REFUNDED_PAYMENT=40;
+
+    const VOIDED_PAYMENT=39; //
+    const REFUNDED_PAYMENT=40; //
     const FAILED_PAYMENT=41;
     const CREATE_TASK=42;
     const UPDATE_TASK=43;
@@ -61,17 +66,19 @@ class Activity extends StaticModel
     const DELETE_TASK=45;
     const RESTORE_TASK=46;
     const UPDATE_EXPENSE=47;
-    const CREATE_USER=48;
-    const UPDATE_USER=49;
-    const ARCHIVE_USER=50;
-    const DELETE_USER=51;
-    const RESTORE_USER=52;
-    const MARK_SENT_INVOICE=53;
-    const PAID_INVOICE=54;
+
+    const CREATE_USER=48; // only used in CreateUser::job
+    const UPDATE_USER=49; // not needed?
+    const ARCHIVE_USER=50; // not needed?
+    const DELETE_USER=51; // not needed?
+    const RESTORE_USER=52; // not needed?
+    const MARK_SENT_INVOICE=53; // not needed?
+    const PAID_INVOICE=54; //
     const EMAIL_INVOICE_FAILED=57;
-    const REVERSED_INVOICE=58;
-    const CANCELLED_INVOICE=59;
-    
+    const REVERSED_INVOICE=58; //
+    const CANCELLED_INVOICE=59; //
+    const VIEW_CREDIT=60; //
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',
@@ -143,5 +150,17 @@ class Activity extends StaticModel
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+
+    public function resolveRouteBinding($value)
+    {
+        if (is_numeric($value)) {
+            throw new ModelNotFoundException("Record with value {$value} not found");
+        }
+
+        return $this
+            //->withTrashed()
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 }

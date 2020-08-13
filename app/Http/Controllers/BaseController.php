@@ -68,6 +68,7 @@ class BaseController extends Controller
           'company.groups',
           'company.company_gateways.gateway',
           'company.clients.contacts',
+          'company.clients.gateway_tokens',
           'company.products',
           'company.invoices.invitations.contact',
           'company.invoices.invitations.company',

@@ -96,4 +96,11 @@ class PaymentService
         return $this;
     }
 
+    public function save()
+    {
+        $this->payment->save();
+
+        return $this->payment->fresh();
+    }
+
 }
