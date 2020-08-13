@@ -108,8 +108,8 @@ class HtmlEngine
         $data['$date']                   = ['value' => $this->entity->date ?: '&nbsp;', 'label' => ctrans('texts.date')];
         //$data['$invoice_date']           = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
         $data['$invoice.date']           = &$data['$date'];
-        $data['$invoice.due_date']       = ['value' => $this->entity->due_date ?: '&nbsp;', 'label' => ctrans('texts.due_date')];
-        $data['$due_date']               = &$data['$invoice.due_date'];
+        $data['$due_date']               = ['value' => $this->entity->due_date ?: '&nbsp;', 'label' => ctrans('texts.' . $this->entity_string . '_due_date')];
+        $data['$invoice.due_date']       = &$data['$due_date'];
         $data['$invoice.number']         = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
         $data['$invoice.po_number']      = ['value' => $this->entity->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
         $data['$line_taxes']             = ['value' => $this->makeLineTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
@@ -150,6 +150,7 @@ class HtmlEngine
         $data['$invoice.subtotal']       = &$data['$subtotal'];
         $data['$balance_due']            = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
         $data['$quote.balance_due']      = &$data['$balance_due'];
+        $data['$invoice.balance_due']    = &$data['$balance_due'];
         $data['$balance_due']            = &$data['$balance_due'];
         $data['$outstanding']            = &$data['$balance_due'];
         $data['$partial_due']            = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
@@ -301,6 +302,10 @@ class HtmlEngine
         $data['$thanks']                             = ['value' => '', 'label' => ctrans('texts.thanks')];
         $data['$from']                               = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to']                                 = ['value' => '', 'label' => ctrans('texts.to')];
+
+        $data['_rate1']                              = ['value' => '', 'label' => ctrans('texts.tax')];
+        $data['_rate2']                              = ['value' => '', 'label' => ctrans('texts.tax')];
+        $data['_rate3']                              = ['value' => '', 'label' => ctrans('texts.tax')];
 
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];

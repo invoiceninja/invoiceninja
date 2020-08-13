@@ -160,8 +160,8 @@ trait DesignHelpers
     public function sharedFooterElements()
     {
         return ['element' => 'div', 'properties' => ['class' => 'flex items-center justify-between mt-10'], 'content' => '', 'elements' => [
-            ['element' => 'img', 'content' => '', 'properties' => ['src' => '$contact.signature', 'class' => 'h-40']],
-            ['element' => 'img', 'content' => '', 'properties' => ['src' => '$app_url/images/created-by-invoiceninja-new.png', 'class' => 'h-32', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false']],
+            ['element' => 'img', 'content' => '', 'properties' => ['src' => '$contact.signature', 'class' => 'h-32']],
+            ['element' => 'img', 'content' => '', 'properties' => ['src' => '$app_url/images/created-by-invoiceninja-new.png', 'class' => 'h-24', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false']],
         ]];
     }
 }
