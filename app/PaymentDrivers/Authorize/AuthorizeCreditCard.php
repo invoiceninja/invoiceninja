@@ -183,7 +183,7 @@ class AuthorizeCreditCard
         ];
 
         $logger_message = [
-            'server_response' => $response->getTransactionResponse()->getTransId(),
+            'server_response' => $data['response']->getTransactionResponse()->getTransId(),
             'data' => $this->formatGatewayResponse($data, $vars)
         ];
 
