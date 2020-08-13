@@ -126,7 +126,7 @@ class Handler extends ExceptionHandler
             return response()->json(['message' => $exception->getMessage()], 400);
         } elseif ($exception instanceof GenericPaymentDriverFailure) {
             $data['message'] = $exception->getMessage();
-            dd($data);
+            //dd($data);
            // return view('errors.layout', $data);
         }
 

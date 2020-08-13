@@ -194,7 +194,8 @@ class AuthorizeCreditCard
     }
 
     private function processFailedResponse($data, $request)
-    {   dd($data);
+    {   
+        //dd($data);
         info(print_r($data,1));
     }
 

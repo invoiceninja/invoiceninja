@@ -549,9 +549,11 @@ class CompanyController extends BaseController
 
         $company->delete();
       
+        /*Set New Company*/
         if($account->companies->count() >= 1)
             auth()->user()->setCompany($account->companies->first());
 
+        /*Update the new default company if necessary*/
         if($company_id == $account->default_company_id){
             
             $new_default_company = $account->companies->first();
@@ -563,6 +565,7 @@ class CompanyController extends BaseController
 
         }
 
+        /*Prep response*/
         $this->entity_type = CompanyUser::class;
         $this->entity_transformer = CompanyUserTransformer::class;
 
