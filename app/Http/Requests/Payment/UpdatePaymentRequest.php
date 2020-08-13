@@ -40,6 +40,7 @@ class UpdatePaymentRequest extends Request
             'invoices' => ['array',new PaymentAppliedValidAmount,new ValidCreditsPresentRule],
             'invoices.*.invoice_id' => 'distinct',
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
+            'number' = 'nullable|unique:payments,number,' . $this->id . ',id,company_id,' . $this->company_id,
         ];
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
