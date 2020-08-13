@@ -162,7 +162,7 @@ class DesignTest extends TestCase
             $this->quote->save();
 
 
-        for ($x=1; $x<=10; $x++) {
+        for ($x=1; $x<=9; $x++) {
 
             $settings = $this->invoice->client->settings;
             $settings->quote_design_id = (string)$this->encodePrimaryKey($x);
