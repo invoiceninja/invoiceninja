@@ -42,6 +42,9 @@ class UpdateCreditRequest extends FormRequest
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
+        if($this->input('number'))
+            $rules['number'] = 'unique:quotes,number,' . $this->id . ',id,company_id,' . $this->invoice->company_id;
+        
         return $rules;
     }
 
