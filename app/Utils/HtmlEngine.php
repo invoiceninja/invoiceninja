@@ -148,11 +148,11 @@ class HtmlEngine
         $data['$discount']               = &$data['$invoice.discount'];
         $data['$subtotal']               = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
         $data['$invoice.subtotal']       = &$data['$subtotal'];
-        $data['$invoice.balance_due']    = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
-        $data['$quote.balance_due']      = &$data['$invoice.balance_due'];
-        $data['$balance_due']            = &$data['$invoice.balance_due'];
+        $data['$balance_due']            = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+        $data['$quote.balance_due']      = &$data['$balance_due'];
+        $data['$balance_due']            = &$data['$balance_due'];
         $data['$outstanding']            = &$data['$balance_due'];
-        $data['$invoice.partial_due']    = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
+        $data['$partial_due']            = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         $data['$total']                  = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.total')];
         $data['$amount']                 = &$data['$total'];
         $data['$quote.total']            = &$data['$total'];

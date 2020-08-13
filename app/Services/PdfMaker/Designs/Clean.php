@@ -200,9 +200,9 @@ class Clean extends BaseDesign
                 ['element' => 'td', 'content' => '$partial_due_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
                 ['element' => 'td', 'content' => '$partial_due', 'properties' => ['class' => 'px-4 py-2 text-right']],
             ]],
-            ['element' => 'tr', 'content' => '', 'elements' => [
-                ['element' => 'td', 'content' => '$invoice_total_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
-                ['element' => 'td', 'content' => '$invoice_total', 'properties' => ['class' => 'px-4 py-2 text-right']],
+            ['element' => 'tr', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->calc()->getTotal())], 'content' => '', 'elements' => [
+                ['element' => 'td', 'content' => '$total_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
+                ['element' => 'td', 'content' => '$total', 'properties' => ['class' => 'px-4 py-2 text-right']],
             ]],
             ['element' => 'tr', 'content' => '', 'properties' => ['hidden' => $this->toggleHiddenProperty($this->entity->balance), 'class' => 'mt-8 px-4 py-2'], 'elements' => [
                 ['element' => 'td', 'content' => '$balance_due_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right font-semibold', 'colspan' => $this->calculateColspan(1)]],
