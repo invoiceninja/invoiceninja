@@ -94,11 +94,15 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
         } 
 
         if (count(Mail::failures()) > 0) {
-            return $this->logMailError(Mail::failures(), $this->invoice->client);
+            $this->logMailError(Mail::failures(), $this->invoice->client);
         }
         else{
             event(new InvoiceWasEmailed($this->invoice_invitation, $this->company, Ninja::eventVars()));
         }
+
+        /* Mark invoice sent */
+        $this->invoice_invitation->invoice->service()->markSent()->save();
+
 
     }
 

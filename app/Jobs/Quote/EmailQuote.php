@@ -59,6 +59,9 @@ class EmailQuote implements ShouldQueue
         if (count(Mail::failures()) > 0) {
             return $this->logMailError(Mail::failures());
         }
+
+        $this->quote_invitation->quote->markSent()->save();
+        
     }
 
     private function logMailError($errors)

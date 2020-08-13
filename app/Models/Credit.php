@@ -122,6 +122,11 @@ class Credit extends BaseModel
         return $this->belongsTo(User::class, 'assigned_user_id', 'id');
     }
 
+    public function history()
+    {
+        return $this->hasManyThrough(Backup::class, Activity::class);
+    }
+    
     public function company()
     {
         return $this->belongsTo(Company::class);
