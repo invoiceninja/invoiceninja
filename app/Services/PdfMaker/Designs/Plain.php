@@ -100,10 +100,12 @@ class Plain extends BaseDesign
         $elements = [];
 
         foreach ($variables as $variable) {
-            $elements[] = ['element' => 'tr', 'content' => '', 'elements' => [
+            $element = ['element' => 'tr', 'properties' => ['hidden' => $this->entityVariableCheck($variable)], 'content' => '', 'elements' => [
                 ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['class' => 'text-left pr-4 font-normal']],
                 ['element' => 'th', 'content' => $variable, 'properties' => ['class' => 'text-left pr-4 font-medium']],
             ]];
+
+            $elements[] = $element;
         }
 
         return $elements;

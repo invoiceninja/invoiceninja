@@ -250,4 +250,19 @@ class Quote extends BaseModel
 
         return false;
     }
+
+    public function getValidUntilAttribute()
+    {
+        return $this->due_date;
+    }
+
+    public function getBalanceDueAttribute()
+    {
+        return $this->balance;
+    }
+
+    public function getTotalAttribute()
+    {
+        return $this->calc()->getTotal();
+    }
 }

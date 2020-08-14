@@ -496,4 +496,14 @@ class Invoice extends BaseModel
     //         }
     //     }
     // }
+
+    public function getBalanceDueAttribute()
+    {
+        return $this->balance;
+    }
+
+    public function getTotalAttribute()
+    {
+        return $this->calc()->getTotal();
+    }
 }
