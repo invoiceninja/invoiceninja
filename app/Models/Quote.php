@@ -103,7 +103,6 @@ class Quote extends BaseModel
     public function getDateAttribute($value)
     {
         if (!empty($value)) {
-            info("parsing date");
             return (new Carbon($value))->format('Y-m-d');
         }
 
@@ -113,8 +112,6 @@ class Quote extends BaseModel
     public function getDueDateAttribute($value)
     {
         if (!empty($value)) {
-
-            info("parsing due date");
             return (new Carbon($value))->format('Y-m-d');
         }
         
@@ -124,8 +121,6 @@ class Quote extends BaseModel
     public function getPartialDueDateAttribute($value)
     {
         if (!empty($value)) {
-
-            info("parsing partial date");
             return (new Carbon($value))->format('Y-m-d');
         }
         
