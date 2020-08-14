@@ -130,7 +130,7 @@ class Hipster extends BaseDesign
         $elements = [];
 
         foreach ($variables as $variable) {
-            $elements[] = ['element' => 'div', 'properties' => ['class' => 'space-x-4'], 'content' => '', 'elements' => [
+            $elements[] = ['element' => 'div', 'properties' => ['hidden' => $this->entityVariableCheck($variable), 'class' => 'space-x-4'], 'content' => '', 'elements' => [
                 ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['class' => 'font-semibold uppercase text-yellow-600']],
                 ['element' => 'span', 'content' => $variable, 'properties' => ['class' => 'uppercase']],
             ]];
