@@ -51,7 +51,7 @@ class UpdateQuoteRequest extends Request
         }
         
         if($this->input('number'))
-            $rules['number'] = 'unique:quotes,number,' . $this->id . ',id,company_id,' . $this->invoice->company_id;
+            $rules['number'] = 'unique:quotes,number,' . $this->id . ',id,company_id,' . $this->quote->company_id;
 
 
         return $rules;

@@ -43,7 +43,7 @@ class UpdateCreditRequest extends FormRequest
         }
 
         if($this->input('number'))
-            $rules['number'] = 'unique:quotes,number,' . $this->id . ',id,company_id,' . $this->invoice->company_id;
+            $rules['number'] = 'unique:quotes,number,' . $this->id . ',id,company_id,' . $this->credit->company_id;
         
         return $rules;
     }
