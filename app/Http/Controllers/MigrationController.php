@@ -143,9 +143,10 @@ class MigrationController extends BaseController
      *       ),
      *     )
      */
-    public function purgeCompanySaveSettings(Company $company)
+    public function purgeCompanySaveSettings(Request $request, Company $company)
     {
-        $company->client->delete();
+
+        $company->clients()->delete();
         $company->save();
 
         return response()->json(['message' => 'Settings preserved'], 200);
