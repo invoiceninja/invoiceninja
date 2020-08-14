@@ -71,6 +71,9 @@ class Credit extends BaseModel
     ];
 
     protected $casts = [
+        // 'date' => 'date:Y-m-d',
+        // 'due_date' => 'date:Y-m-d',
+        // 'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
         'backup' => 'object',
         'updated_at' => 'timestamp',

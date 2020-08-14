@@ -107,6 +107,9 @@ class Invoice extends BaseModel
     ];
 
     protected $casts = [
+        // 'date' => 'date:Y-m-d',
+        // 'due_date' => 'date:Y-m-d',
+        // 'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
         'backup' => 'object',
         'updated_at' => 'timestamp',
@@ -114,18 +117,11 @@ class Invoice extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
-    protected $with = [
-        // 'company',
-        // 'client',
-    ];
+    protected $with = [];
 
     protected $appends = [
         'hashed_id',
         'status'
-    ];
-
-    protected $dates = [
-        'date',
     ];
 
     const STATUS_DRAFT = 1;

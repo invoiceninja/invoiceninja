@@ -43,7 +43,7 @@ class UpdateCreditRequest extends FormRequest
         }
 
         if($this->input('number'))
-            $rules['number'] = 'unique:quotes,number,' . $this->id . ',id,company_id,' . $this->credit->company_id;
+            $rules['number'] = 'unique:credits,number,' . $this->id . ',id,company_id,' . $this->credit->company_id;
         
         return $rules;
     }
@@ -82,6 +82,8 @@ class UpdateCreditRequest extends FormRequest
         }
         
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+
+        $input['id'] = $this->credit->id;
 
         $this->replace($input);
     }

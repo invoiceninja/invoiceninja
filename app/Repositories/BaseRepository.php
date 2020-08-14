@@ -194,6 +194,7 @@ class BaseRepository
      */
     protected function alternativeSave($data, $model)
     {
+// info(print_r($data,1));
 
         $class = new ReflectionClass($model);
 

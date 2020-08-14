@@ -77,6 +77,8 @@ class UpdateQuoteRequest extends Request
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
         
+        $input['id'] = $this->quote->id;
+
         $this->replace($input);
     }
 }
