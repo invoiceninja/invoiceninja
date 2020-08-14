@@ -67,6 +67,7 @@ class PortalComposer
         $data[] = [ 'title' => ctrans('texts.quotes'), 'url' => 'client.quotes.index', 'icon' => 'align-left'];
         $data[] = [ 'title' => ctrans('texts.credits'), 'url' => 'client.credits.index', 'icon' => 'credit-card'];
         $data[] = [ 'title' => ctrans('texts.payment_methods'), 'url' => 'client.payment_methods.index', 'icon' => 'shield'];
+        $data[] = [ 'title' => ctrans('texts.downloads'), 'url' => 'client.downloads.index', 'icon' => 'download'];
 
         return $data;
     }
