@@ -164,4 +164,29 @@ trait DesignHelpers
             ['element' => 'img', 'content' => '', 'properties' => ['src' => '$app_url/images/created-by-invoiceninja-new.png', 'class' => 'h-24', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false']],
         ]];
     }
+
+    public function entityVariableCheck(string $variable): bool
+    {
+        // Extract $invoice.date => date
+        // so we can append date as $entity->date and not $entity->$invoice.date;
+
+        try {
+            $_variable = explode('.', $variable)[1];
+        } catch (\Exception $e) {
+            throw new \Exception('Company settings seems to be broken. Missing $entity.variable type.');
+        }
+
+        if (is_null($this->entity->{$_variable})) {
+            info("{$this->entity->id} $_variable is null!");
+            return true;
+        }
+
+        if (empty($this->entity->{$_variable})) {
+            info("{$this->entity->id} $_variable is empty!");
+            return true;
+        }
+
+        info("{$this->entity->id} $_variable ALL GOOD!!");
+        return false;
+    }
 }
