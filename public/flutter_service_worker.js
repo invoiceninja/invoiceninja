@@ -3,21 +3,21 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "main.dart.js": "21b7fe2bf7ae694e2eeeb6761c069dcc",
+  "main.dart.js": "564de79cdab362daefe74d4a5967246e",
 "/": "e65799be52f7bbcaf39d78046726b95a",
-"favicon.ico": "51636d3a390451561744c42188ccd628",
-"assets/fonts/MaterialIcons-Regular.ttf": "56d3ffdef7a25659eab6a68a3fbfaf16",
-"assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
+"manifest.json": "77215c1737c7639764e64a192be2f7b8",
 "assets/FontManifest.json": "280b2f61f6810d59bd1bcd4cf01d3bf4",
+"assets/fonts/MaterialIcons-Regular.otf": "a68d2a28c526b3b070aefca4bac93d25",
+"assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
 "assets/packages/font_awesome_flutter/lib/fonts/fa-regular-400.ttf": "2bca5ec802e40d3f4b60343e346cedde",
-"assets/packages/font_awesome_flutter/lib/fonts/fa-solid-900.ttf": "2aa350bd2aeab88b601a593f793734c0",
 "assets/packages/font_awesome_flutter/lib/fonts/fa-brands-400.ttf": "5a37ae808cf9f652198acde612b5328d",
-"assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
-"assets/assets/images/logo.png": "090f69e23311a4b6d851b3880ae52541",
-"assets/NOTICES": "cf7278a783b9e716e04c275ecf12069f",
+"assets/packages/font_awesome_flutter/lib/fonts/fa-solid-900.ttf": "2aa350bd2aeab88b601a593f793734c0",
 "assets/AssetManifest.json": "43bc57fb55ca8ea2fc1975108be086c9",
+"assets/NOTICES": "5bde3198a977eb55f863a3cf1abfbce9",
+"assets/assets/images/logo.png": "090f69e23311a4b6d851b3880ae52541",
+"assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
 "assets/web/assets/fonts/Roboto-Regular.ttf": "3e1af3ef546b9e6ecef9f3ba197bf7d2",
-"manifest.json": "77215c1737c7639764e64a192be2f7b8"
+"favicon.ico": "51636d3a390451561744c42188ccd628"
 };
 
 // The application shell files that are downloaded before a service worker can
@@ -33,8 +33,8 @@ const CORE = [
 self.addEventListener("install", (event) => {
   return event.waitUntil(
     caches.open(TEMP).then((cache) => {
-      // Provide a no-cache param to ensure the latest version is downloaded.
-      return cache.addAll(CORE.map((value) => new Request(value, {'cache': 'no-cache'})));
+      // Provide a 'reload' param to ensure the latest version is downloaded.
+      return cache.addAll(CORE.map((value) => new Request(value, {'cache': 'reload'})));
     })
   );
 });
@@ -116,7 +116,7 @@ self.addEventListener("fetch", (event) => {
         // Either respond with the cached resource, or perform a fetch and
         // lazily populate the cache. Ensure the resources are not cached
         // by the browser for longer than the service worker expects.
-        var modifiedRequest = new Request(event.request, {'cache': 'no-cache'});
+        var modifiedRequest = new Request(event.request, {'cache': 'reload'});
         return response || fetch(modifiedRequest).then((response) => {
           cache.put(event.request, response.clone());
           return response;
