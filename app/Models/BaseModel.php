@@ -50,6 +50,15 @@ class BaseModel extends Model
         return $this->encodePrimaryKey($this->id);
     }
 
+    public function dateMutatorw($value)
+    {
+        if (!empty($value)) {
+            return (new Carbon($value))->format('Y-m-d');
+        }
+        
+        return $value;
+    }
+
     public function __call($method, $params)
     {
         $entity = strtolower(class_basename($this));

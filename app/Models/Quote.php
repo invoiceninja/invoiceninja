@@ -102,30 +102,19 @@ class Quote extends BaseModel
 
     public function getDateAttribute($value)
     {
-        if (!empty($value)) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-
-        return $value;
+        return $this->dateMutator($value);
     }
 
     public function getDueDateAttribute($value)
     {
-        if (!empty($value)) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        
-        return $value;
+        return $this->dateMutator($value);
     }
 
     public function getPartialDueDateAttribute($value)
     {
-        if (!empty($value)) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        
-        return $value;
+        return $this->dateMutator($value);
     }
+
 
     public function company()
     {
