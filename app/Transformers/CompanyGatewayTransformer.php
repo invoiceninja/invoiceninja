@@ -27,6 +27,7 @@ class CompanyGatewayTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
+        'gateway'
     ];
 
     /**
