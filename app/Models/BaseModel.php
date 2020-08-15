@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Carbon;
 
 class BaseModel extends Model
 {
@@ -50,7 +51,7 @@ class BaseModel extends Model
         return $this->encodePrimaryKey($this->id);
     }
 
-    public function dateMutatorw($value)
+    public function dateMutator($value)
     {
         if (!empty($value)) {
             return (new Carbon($value))->format('Y-m-d');
