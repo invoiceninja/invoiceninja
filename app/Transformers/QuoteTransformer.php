@@ -11,10 +11,12 @@
 
 namespace App\Transformers;
 
+use App\Models\Backup;
 use App\Models\Document;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Transformers\DocumentTransformer;
+use App\Transformers\InvoiceHistoryTransformer;
 use App\Transformers\QuoteInvitationTransformer;
 use App\Utils\Traits\MakesHash;
 
@@ -25,15 +27,24 @@ class QuoteTransformer extends EntityTransformer
     protected $defaultIncludes = [
             'invitations',
             'documents',
+            'history'
     ];
 
     protected $availableIncludes = [
         'invitations',
         'documents',
+        'history'
        //    'payments',
     //    'client',
     ];
 
+    public function includeHistory(Quote $quote)
+    {
+        $transformer = new InvoiceHistoryTransformer($this->serializer);
+
+        return $this->includeCollection($quote->history, $transformer, Backup::class);
+    }
+    
     public function includeInvitations(Quote $quote)
     {
         $transformer = new QuoteInvitationTransformer($this->serializer);
@@ -90,6 +101,10 @@ class QuoteTransformer extends EntityTransformer
             'date' => $quote->date ?: '',
             'last_sent_date' => $quote->last_sent_date ?: '',
             'next_send_date' => $quote->date ?: '',
+            'reminder1_sent' => $quote->reminder1_sent ?: '',
+            'reminder2_sent' => $quote->reminder2_sent ?: '',
+            'reminder3_sent' => $quote->reminder3_sent ?: '',
+            'reminder_last_sent' => $quote->reminder_last_sent ?: '',
             'due_date' => $quote->due_date ?: '',
             'terms' => $quote->terms ?: '',
             'public_notes' => $quote->public_notes ?: '',

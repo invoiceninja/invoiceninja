@@ -78,7 +78,23 @@ class MigrationController extends BaseController
     public function purgeCompany(Company $company)
     {
 
+        $account = $company->account;
+        $company_id = $company->id;
+
         $company->delete();
+
+        /*Update the new default company if necessary*/
+        if($company_id == $account->default_company_id && $account->companies->count() >= 1)
+        {
+            
+            $new_default_company = $account->companies->first();
+
+            if($new_default_company){
+                $account->default_company_id = $new_default_company->id;
+                $account->save();
+            }
+
+        }
 
         return response()->json(['message' => 'Company purged'], 200);
     }
@@ -127,9 +143,10 @@ class MigrationController extends BaseController
      *       ),
      *     )
      */
-    public function purgeCompanySaveSettings(Company $company)
+    public function purgeCompanySaveSettings(Request $request, Company $company)
     {
-        $company->client->delete();
+
+        $company->clients()->delete();
         $company->save();
 
         return response()->json(['message' => 'Settings preserved'], 200);

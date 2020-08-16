@@ -40,7 +40,7 @@ class InvoiceWasEmailedAndFailed
      *
      * @param Invoice $invoice
      */
-    public function __construct(Invoice $invoice, Company $company, array $errors, array $event_vars)
+    public function __construct(Invoice $invoice, Company $company, string $errors, array $event_vars)
     {
         $this->invoice = $invoice;
         
