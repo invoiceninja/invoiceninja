@@ -270,6 +270,8 @@ class CompanyGateway extends BaseModel
             info("fee after adding fee tax 3 = {$fee}");
         }
 
+        //TODO CALCULATE FEE CAP HERE
+        
         return $fee;
     }
 
