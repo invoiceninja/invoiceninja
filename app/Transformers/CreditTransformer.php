@@ -11,11 +11,13 @@
 
 namespace App\Transformers;
 
+use App\Models\Backup;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Document;
 use App\Transformers\CreditInvitationTransformer;
 use App\Transformers\DocumentTransformer;
+use App\Transformers\InvoiceHistoryTransformer;
 use App\Utils\Traits\MakesHash;
 
 class CreditTransformer extends EntityTransformer
@@ -25,14 +27,22 @@ class CreditTransformer extends EntityTransformer
     protected $defaultIncludes = [
         'invitations',
         'documents',
+        'history',
     ];
 
     protected $availableIncludes = [
         'invitations',
-    //    'payments',
+        'history',
     //    'client',
         'documents',
     ];
+
+    public function includeHistory(Credit $credit)
+    {
+        $transformer = new InvoiceHistoryTransformer($this->serializer);
+
+        return $this->includeCollection($credit->history, $transformer, Backup::class);
+    }
 
     public function includeInvitations(Credit $credit)
     {
@@ -90,6 +100,10 @@ class CreditTransformer extends EntityTransformer
             'date' => $credit->date ?: '',
             'last_sent_date' => $credit->last_sent_date ?: '',
             'next_send_date' => $credit->date ?: '',
+            'reminder1_sent' => $credit->reminder1_sent ?: '',
+            'reminder2_sent' => $credit->reminder2_sent ?: '',
+            'reminder3_sent' => $credit->reminder3_sent ?: '',
+            'reminder_last_sent' => $credit->reminder_last_sent ?: '',
             'due_date' => $credit->due_date ?: '',
             'terms' => $credit->terms ?: '',
             'public_notes' => $credit->public_notes ?: '',

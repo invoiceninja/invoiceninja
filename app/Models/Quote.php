@@ -77,15 +77,17 @@ class Quote extends BaseModel
     ];
 
     protected $casts = [
-        'date' => 'date:Y-m-d',
-        'due_date' => 'date:Y-m-d',
-        'partial_due_date' => 'date:Y-m-d',
+        // 'date' => 'date:Y-m-d',
+        // 'due_date' => 'date:Y-m-d',
+        // 'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
         'backup' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
+
+    protected $dates = [];
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT =  2;
@@ -100,33 +102,30 @@ class Quote extends BaseModel
 
     public function getDateAttribute($value)
     {
-        if (!empty($value)) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        return $value;
+        return $this->dateMutator($value);
     }
 
     public function getDueDateAttribute($value)
     {
-        if (!empty($value)) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        return $value;
+        return $this->dateMutator($value);
     }
 
     public function getPartialDueDateAttribute($value)
     {
-        if (!empty($value)) {
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        return $value;
+        return $this->dateMutator($value);
     }
+
 
     public function company()
     {
         return $this->belongsTo(Company::class);
     }
 
+    public function history()
+    {
+        return $this->hasManyThrough(Backup::class, Activity::class);
+    }
+    
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
@@ -249,5 +248,20 @@ class Quote extends BaseModel
         }
 
         return false;
+    }
+
+    public function getValidUntilAttribute()
+    {
+        return $this->due_date;
+    }
+
+    public function getBalanceDueAttribute()
+    {
+        return $this->balance;
+    }
+
+    public function getTotalAttribute()
+    {
+        return $this->calc()->getTotal();
     }
 }

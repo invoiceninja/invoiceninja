@@ -20,7 +20,6 @@ class CompanyGatewayFactory
         $company_gateway = new CompanyGateway;
         $company_gateway->company_id = $company_id;
         $company_gateway->user_id = $user_id;
-
         return $company_gateway;
     }
 }

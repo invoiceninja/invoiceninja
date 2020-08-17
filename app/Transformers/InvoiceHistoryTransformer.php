@@ -11,7 +11,9 @@
 
 namespace App\Transformers;
 
+use App\Models\Activity;
 use App\Models\Backup;
+use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\MakesHash;
 
 class InvoiceHistoryTransformer extends EntityTransformer
@@ -19,9 +21,11 @@ class InvoiceHistoryTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
+        'activity'
     ];
 
     protected $availableIncludes = [
+        'activity'
     ];
 
     public function transform(Backup $backup)
@@ -34,5 +38,12 @@ class InvoiceHistoryTransformer extends EntityTransformer
             'created_at' => (int)$backup->created_at,
             'updated_at' => (int)$backup->updated_at,
         ];
+    }
+
+    public function includeActivity(Backup $backup)
+    {
+        $transformer = new ActivityTransformer($this->serializer);
+
+        return $this->includeItem($backup->activity, $transformer, Activity::class);
     }
 }

@@ -71,6 +71,9 @@ class Credit extends BaseModel
     ];
 
     protected $casts = [
+        // 'date' => 'date:Y-m-d',
+        // 'due_date' => 'date:Y-m-d',
+        // 'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
         'backup' => 'object',
         'updated_at' => 'timestamp',
@@ -92,36 +95,30 @@ class Credit extends BaseModel
 
     public function getDateAttribute($value)
     {
-        if (!empty($value)) {
-            //$value format 'Y:m:d H:i:s' to 'Y-m-d H:i'
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        return $value;
+        return $this->dateMutator($value);
     }
 
     public function getDueDateAttribute($value)
     {
-        if (!empty($value)) {
-            //$value format 'Y:m:d H:i:s' to 'Y-m-d H:i'
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        return $value;
+        return $this->dateMutator($value);
     }
 
     public function getPartialDueDateAttribute($value)
     {
-        if (!empty($value)) {
-            //$value format 'Y:m:d H:i:s' to 'Y-m-d H:i'
-            return (new Carbon($value))->format('Y-m-d');
-        }
-        return $value;
+        return $this->dateMutator($value);
     }
+
 
     public function assigned_user()
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id');
     }
 
+    public function history()
+    {
+        return $this->hasManyThrough(Backup::class, Activity::class);
+    }
+    
     public function company()
     {
         return $this->belongsTo(Company::class);

@@ -411,8 +411,7 @@ class Company extends BaseModel
 
     public function resolveRouteBinding($value)
     {
-        return $this
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+        return $this->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
     public function domain()
@@ -445,4 +444,5 @@ class Company extends BaseModel
         }
         
     }
+
 }

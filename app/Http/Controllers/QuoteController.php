@@ -675,7 +675,7 @@ class QuoteController extends BaseController
                 return $this->listResponse($quote);
                 break;
             case 'email':
-                $this->quote->service()->sendEmail();
+                $quote->service()->sendEmail();
                 return response()->json(['message'=>'email sent'], 200);
                 break;
             case 'mark_sent':
