@@ -3243,4 +3243,8 @@ return [
     'node_status_not_found' => 'I could not find Node anywhere. Is it installed?',
     'npm_status_not_found' => 'I could not find NPM anywhere. Is it installed?',
     'locked_invoice'    => 'This invoice is locked and unable to be modified',
+
+    'common_codes' => 'Common codes and their meanings',
+
+    'payment_error_code_20087' => '20087: Bad Track Data (invalid CVV and/or expiry date)',  
 ];
