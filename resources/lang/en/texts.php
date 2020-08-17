@@ -3255,4 +3255,6 @@ return [
     'document_details' => 'Details about the document',
 
     'hash' => 'Hash',
+
+    'resources' => 'Resources',
 ];

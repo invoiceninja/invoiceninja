@@ -13,9 +13,32 @@ class DownloadsTable extends Component
 
     public $per_page = 10;
 
+    public $status = [
+        'resources',
+    ];
+
+    public function statusChange($status)
+    {
+        if (in_array($status, $this->status)) {
+            return $this->status = array_diff($this->status, [$status]);
+        }
+
+        array_push($this->status, $status);
+    }
+
     public function render()
     {
-        $query = Document::query()
+        $query = Document::query();
+
+        if (in_array('resources', $this->status) && !in_array('client', $this->status)) {
+            $query = $query->where('documentable_type', '!=', 'App\Models\Client');
+        }
+
+        if (in_array('client', $this->status) && !in_array('resources', $this->status)) {
+            $query = $query->where('documentable_type', 'App\Models\Client');
+        }
+
+        $query = $query
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);
 
