@@ -97,7 +97,6 @@ class InvoiceController extends Controller
 
         $invoices->map(function ($invoice) {
             $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
-            //$invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             return $invoice;
         });
 

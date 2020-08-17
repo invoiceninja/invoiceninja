@@ -8,6 +8,7 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\CompanyGateway;
 use App\Models\User;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
@@ -19,9 +20,9 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use PaymentLibrariesSeeder;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use PaymentLibrariesSeeder;
 
 /**
  * @test
@@ -177,5 +178,39 @@ class CompanyGatewayApiTest extends TestCase
 
         $this->assertEquals($arr['min_limit'], $new_arr['min_limit']);
         $this->assertTrue(array_key_exists('fee_amount', $new_arr));
+    }
+
+    public function testFeesAndLimitsFeeAmountCalcuation()
+    {
+        //{"1":{"min_limit":1,"max_limit":1000000,"fee_amount":10,"fee_percent":2,"fee_tax_name1":"","fee_tax_name2":"","fee_tax_name3":"","fee_tax_rate1":0,"fee_tax_rate2":0,"fee_tax_rate3":0,"fee_cap":10,"adjust_fee_percent":true}}
+        $fee = new FeesAndLimits;
+        $fee->fee_amount = 10;
+        // $fee->fee_percent = 2;
+        // $fee->fee_tax_name1 = 'GST';
+        // $fee->fee_tax_rate1 = '10.0';
+
+        $fee_arr[1] = (array)$fee; 
+
+        $data = [
+            'config' => 'random config',
+            'gateway_key' => '3b6621f970ab18887c4f6dca78d3f8bb',
+            'fees_and_limits' => $fee_arr,
+        ];
+
+        /* POST */
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token
+            ])->post('/api/v1/company_gateways', $data);
+
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        $id = $this->decodePrimaryKey($arr['data']['id']);
+
+        $company_gateway = CompanyGateway::find($id);
+
+        $this->assertEquals(10, $company_gateway->calcGatewayFee(10));
     }
 }
