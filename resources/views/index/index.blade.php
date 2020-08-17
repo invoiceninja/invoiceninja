@@ -73,6 +73,12 @@
   </style>
 
   <script>
+    @if (request()->clear)
+      window.onload = function() {
+        window.localStorage.clear();
+      }
+    @endif
+    
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
         navigator.serviceWorker.register('/flutter_service_worker.js?v={{ $hash }}');
