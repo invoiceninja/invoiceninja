@@ -36,7 +36,7 @@ class StoreSetupRequest extends Request
           'host' => 'required',
           'database' => 'required',
           'db_username' => 'required',
-          'db_password' => 'required',
+          'db_password' => '',
           /*Mail driver*/
           'mail_driver' => 'required',
           'encryption' => 'required',
