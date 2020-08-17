@@ -28,7 +28,7 @@ class DownloadsTable extends Component
 
     public function render()
     {
-        $query = Document::query();
+        $query = auth()->user()->client->documents();
 
         if (in_array('resources', $this->status) && !in_array('client', $this->status)) {
             $query = $query->where('documentable_type', '!=', 'App\Models\Client');
