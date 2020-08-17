@@ -3251,4 +3251,8 @@ return [
 
     'width' => 'Width',
     'height' => 'Height',
+
+    'document_details' => 'Details about the document',
+
+    'hash' => 'Hash',
 ];

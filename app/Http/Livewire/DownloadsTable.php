@@ -15,7 +15,7 @@ class DownloadsTable extends Component
 
     public function render()
     {
-        $query = auth()->user()->client->documents()
+        $query = Document::query()
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);
 

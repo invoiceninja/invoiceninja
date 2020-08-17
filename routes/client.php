@@ -60,7 +60,7 @@ Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', '
 
     Route::get('client/switch_company/{contact}', 'ClientPortal\SwitchCompanyController')->name('switch_company');
 
-    Route::resource('downloads', 'ClientPortal\DownloadController');
+    Route::resource('downloads', 'ClientPortal\DownloadController')->only(['index', 'show']);
 
     Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 });

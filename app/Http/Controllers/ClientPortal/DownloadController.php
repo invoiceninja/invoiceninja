@@ -12,13 +12,32 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Models\Document;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Document\ShowDocumentRequest;
+use App\Models\Document;
+use App\Utils\Traits\MakesHash;
 
 class DownloadController extends Controller
 {
+    use MakesHash;
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View 
+     */
     public function index()
     {
         return render('downloads.index');
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View 
+     */
+    public function show(ShowDocumentRequest $request, $document)
+    {
+        $document = Document::findOrFail($document);
+
+        return render('downloads.show', [
+            'document' => $document,
+        ]);
     }
 }
