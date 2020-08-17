@@ -1,5 +1,5 @@
 @extends('portal.ninja2020.layout.app')
-@section('meta_title', ctrans('texts.dashboard'))
+@section('meta_title', ctrans('texts.error_title'))
 
 @section('body')
     <span class="text-center text-xl text-center">
