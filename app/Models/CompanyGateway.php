@@ -236,26 +236,42 @@ class CompanyGateway extends BaseModel
 
     public function calcGatewayFee($amount)
     {
+        $fees_and_limits = new \stdClass;
+
+        foreach($this->fees_and_limits as $key => $value)
+            $fees_and_limits = $this->fees_and_limits->{$key};
+
         $fee = 0;
 
-        if ($this->fee_amount) {
-            $fee += $this->fee_amount;
+        if ($fees_and_limits->fee_amount) {
+            $fee += $fees_and_limits->fee_amount;
+            info("fee after adding fee amount = {$fee}");
         }
         
-        if ($this->fee_percent) {
-            $fee += $amount * $this->fee_percent / 100;
+        if ($fees_and_limits->fee_percent) {
+            $fee += $amount * $fees_and_limits->fee_percent / 100;
+            info("fee after adding fee percent = {$fee}");
         }
         
         $pre_tax_fee = $fee;
 
-        if ($this->fee_tax_rate1) {
-            $fee += $pre_tax_fee * $this->fee_tax_rate1 / 100;
+        if ($fees_and_limits->fee_tax_rate1) {
+            $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100;
+            info("fee after adding fee tax 1 = {$fee}");
         }
         
-        if ($this->fee_tax_rate2) {
-            $fee += $pre_tax_fee * $this->fee_tax_rate2 / 100;
+        if ($fees_and_limits->fee_tax_rate2) {
+            $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100;
+            info("fee after adding fee tax 2 = {$fee}");
         }
-            
+         
+        if ($fees_and_limits->fee_tax_rate3) {
+            $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100;
+            info("fee after adding fee tax 3 = {$fee}");
+        }
+
+        //TODO CALCULATE FEE CAP HERE
+        
         return $fee;
     }
 

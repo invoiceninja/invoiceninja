@@ -150,18 +150,11 @@ class AuthorizeCreditCard
         $response = $data['response'];
         //create a payment record 
 
-        $payment = PaymentFactory::create($this->authorize->client->company_id, $this->authorize->client->user_id);
-        $payment->client_id = $this->authorize->client->id;
-        $payment->company_gateway_id = $this->authorize->company_gateway->id;
-        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment = $this->authorize->createPayment($data['response']);
         $payment->gateway_type_id = GatewayType::CREDIT_CARD;
         $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
-        $payment->currency_id = $this->authorize->client->getSetting('currency_id');
-        $payment->date = Carbon::now();
         $payment->transaction_reference = $response->getTransactionResponse()->getTransId();
         $payment->amount = $amount; 
-        $payment->currency_id = $this->authorize->client->getSetting('currency_id');
-        $payment->client->getNextPaymentNumber($this->authorize->client);
         $payment->save();
 
         return $payment;

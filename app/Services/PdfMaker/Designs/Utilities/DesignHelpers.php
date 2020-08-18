@@ -177,16 +177,16 @@ trait DesignHelpers
         }
 
         if (is_null($this->entity->{$_variable})) {
-            info("{$this->entity->id} $_variable is null!");
+          //  info("{$this->entity->id} $_variable is null!");
             return true;
         }
 
         if (empty($this->entity->{$_variable})) {
-            info("{$this->entity->id} $_variable is empty!");
+         //   info("{$this->entity->id} $_variable is empty!");
             return true;
         }
 
-        info("{$this->entity->id} $_variable ALL GOOD!!");
+      //  info("{$this->entity->id} $_variable ALL GOOD!!");
         return false;
     }
 }

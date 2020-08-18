@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers;
 
 use App\Events\Invoice\InvoiceWasPaid;
+use App\Factory\PaymentFactory;
 use App\Models\Client;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
@@ -22,6 +23,7 @@ use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
+use Illuminate\Support\Carbon;
 
 /**
  * Class BaseDriver
@@ -126,6 +128,25 @@ class BaseDriver extends AbstractPaymentDriver
         });
 
         return $payment;
+    }
+
+    /**
+     * Create a payment from an online payment
+     * 
+     * @param  array $data     Payment data
+     * @param  int   $status   The payment status_id
+     * @return Payment         The payment object
+     */
+    public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
+    {
+        $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
+        $payment->client_id = $this->client->id;
+        $payment->company_gateway_id = $this->company_gateway->id;
+        $payment->status_id = $status;
+        $payment->currency_id = $this->client->getSetting('currency_id');
+        $payment->date = Carbon::now();
+
+        return $payment->service()->applyNumber()->save();
     }
 
     /**
