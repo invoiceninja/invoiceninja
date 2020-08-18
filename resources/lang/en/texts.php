@@ -3257,4 +3257,6 @@ return [
     'hash' => 'Hash',
 
     'resources' => 'Resources',
+
+    'allowed_file_types' => 'Allowed file types:',
 ];
