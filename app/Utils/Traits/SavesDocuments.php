@@ -17,7 +17,7 @@ use App\Models\Company;
 
 trait SavesDocuments
 {
-    public function saveDocuments($document_array, $entity)
+    public function saveDocuments($document_array, $entity, $is_public = false)
     {
         if ($entity instanceof Company) {
             $account = $entity->account;
@@ -37,7 +37,9 @@ trait SavesDocuments
                 UploadFile::DOCUMENT,
                 $entity->user,
                 $entity->company,
-                $entity
+                $entity,
+                null,
+                $is_public
             );
         }
     }

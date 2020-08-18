@@ -31,8 +31,6 @@ class InvoicesTable extends Component
 
     public function render()
     {
-        DB::enableQueryLog();
-
         $query = Invoice::query()
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 

@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="{{ App::getLocale() }}" class="bg-white">
+
 <head>
- 	<meta charset="utf-8">
+	<meta charset="utf-8">
 </head>
-<body>
+
+<body class="bg-white p-4">
 	{!! $body !!}
 </body>
-<footer>
+
+<footer class="p-4">
 	{!! $footer !!}
 </footer>
+
 </html>

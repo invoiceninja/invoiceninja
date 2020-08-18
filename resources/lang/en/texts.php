@@ -582,7 +582,7 @@ return [
     'hours' => 'Hours',
     'task_details' => 'Task Details',
     'duration' => 'Duration',
-    'time_log'=> 'Time Log',
+    'time_log' => 'Time Log',
     'end_time' => 'End Time',
     'end' => 'End',
     'invoiced' => 'Invoiced',
@@ -1824,7 +1824,7 @@ return [
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     'view_client_portal' => 'View client portal',
     'view_portal' => 'View Portal',
@@ -1910,7 +1910,7 @@ return [
     'toggle_history' => 'Toggle History',
     'unassigned' => 'Unassigned',
     'task' => 'Task',
-    'task_details'=>'Task Details',
+    'task_details' => 'Task Details',
     'contact_name' => 'Contact Name',
     'city_state_postal' => 'City/State/Postal',
     'custom_field' => 'Custom Field',
@@ -3243,4 +3243,23 @@ return [
     'node_status_not_found' => 'I could not find Node anywhere. Is it installed?',
     'npm_status_not_found' => 'I could not find NPM anywhere. Is it installed?',
     'locked_invoice'    => 'This invoice is locked and unable to be modified',
+
+    'downloads' => 'Downloads',
+    'resource' => 'Resource',
+
+    'document_details' => 'Details about the document.',
+
+    'width' => 'Width',
+    'height' => 'Height',
+
+    'document_details' => 'Details about the document',
+
+    'hash' => 'Hash',
+
+    'resources' => 'Resources',
+
+    'allowed_file_types' => 'Allowed file types:',
+    'common_codes' => 'Common codes and their meanings',
+
+    'payment_error_code_20087' => '20087: Bad Track Data (invalid CVV and/or expiry date)',  
 ];

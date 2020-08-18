@@ -229,7 +229,11 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
         SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client);
 
-        throw new \Exception('Failed to process the payment: ' . $state['payment_response']->response_summary, 1);
+        // throw new \Exception('Failed to process the payment: ' . $state['payment_response']->response_summary, 1);
+
+        return render('gateways.unsuccessful', [
+            'code' => $state['payment_response']->response_code
+        ]);
     }
 
     public function processInternallyFailedPayment($e, $state)
