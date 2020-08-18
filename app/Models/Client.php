@@ -460,7 +460,8 @@ class Client extends BaseModel implements HasLocalePreference
 
         $company_gateways = $this->getSetting('company_gateway_ids');
 
-        if ($company_gateways) {
+        if ($company_gateways || $company_gateways == "0") {
+            
             $transformed_ids = $this->transformKeys(explode(",", $company_gateways));
             $gateways = $this->company
                              ->company_gateways
