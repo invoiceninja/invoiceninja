@@ -270,8 +270,9 @@ class CompanyGateway extends BaseModel
             info("fee after adding fee tax 3 = {$fee}");
         }
 
-        //TODO CALCULATE FEE CAP HERE
-        
+        if($fees_and_limits->fee_cap > 0 && ($fee > $fees_and_limits->fee_cap))
+            $fee = $fees_and_limits->fee_cap;
+
         return $fee;
     }
 
