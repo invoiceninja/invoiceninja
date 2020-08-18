@@ -28,7 +28,7 @@ class DownloadsTable extends Component
 
     public function render()
     {
-        $query = auth()->user()->client->documents();
+        $query = auth('contact')->user()->client->documents();
 
         if (in_array('resources', $this->status) && !in_array('client', $this->status)) {
             $query = $query->where('documentable_type', '!=', 'App\Models\Client');
@@ -39,6 +39,7 @@ class DownloadsTable extends Component
         }
 
         $query = $query
+            ->where('is_public', true)
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);
 
