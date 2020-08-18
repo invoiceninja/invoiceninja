@@ -460,8 +460,8 @@ class Client extends BaseModel implements HasLocalePreference
 
         $company_gateways = $this->getSetting('company_gateway_ids');
 
-        if ($company_gateways || $company_gateways == "0") {
-            
+        if ($company_gateways || $company_gateways == "0") { //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
+
             $transformed_ids = $this->transformKeys(explode(",", $company_gateways));
             $gateways = $this->company
                              ->company_gateways
