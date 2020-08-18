@@ -72,7 +72,7 @@
                                 </a>
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                <a href="{{ route('client.downloads.show', $download->id) }}" class="button-link">
+                                <a href="{{ route('client.downloads.show', $download->hashed_id) }}" class="button-link">
                                     {{ ctrans('texts.view') }}
                                 </a>
                             </td>
