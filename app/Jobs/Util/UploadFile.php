@@ -44,10 +44,11 @@ class UploadFile implements ShouldQueue
     protected $user;
     protected $company;
     protected $type;
+    protected $is_public;
 
     public $entity;
 
-    public function __construct($file, $type, $user, $company, $entity, $disk = null)
+    public function __construct($file, $type, $user, $company, $entity, $disk = null, $is_public = false)
     {
         $this->file = $file;
         $this->type = $type;
@@ -55,6 +56,7 @@ class UploadFile implements ShouldQueue
         $this->company = $company;
         $this->entity = $entity;
         $this->disk = $disk ?? config('filesystems.default');
+        $this->is_public = $is_public;
 
         //MultiDB::setDB($this->company->db);
     }
@@ -96,6 +98,7 @@ class UploadFile implements ShouldQueue
         $document->size = $this->file->getSize();
         $document->width = isset($width) ? $width : null;
         $document->height = isset($height) ? $height : null;
+        $document->is_public = $this->is_public;
 
         // $preview_path = $this->encodePrimaryKey($this->company->id);
         // $document->preview = $this->generatePreview($preview_path);
