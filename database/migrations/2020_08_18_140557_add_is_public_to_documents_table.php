@@ -22,18 +22,6 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->decimal('amount', 16, 4);
         });
 
-        Schema::table('invoices', function (Blueprint $table) {
-            $table->decimal('exchange_rate', 16, 4);
-        });
-
-        Schema::table('quotes', function (Blueprint $table) {
-            $table->decimal('exchange_rate', 16, 4);
-        });
-
-        Schema::table('credits', function (Blueprint $table) {
-            $table->decimal('exchange_rate', 16, 4);
-        });
-        
     }
 
     /**

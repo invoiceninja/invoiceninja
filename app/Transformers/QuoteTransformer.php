@@ -134,7 +134,7 @@ class QuoteTransformer extends EntityTransformer
             'custom_surcharge_taxes' => (bool) $quote->custom_surcharge_taxes,
             'line_items' => $quote->line_items ?: (array)[],
             'entity_type' => 'quote',
-
+            'exchange_rate' => (float)$quote->exchange_rate,
         ];
     }
 }
