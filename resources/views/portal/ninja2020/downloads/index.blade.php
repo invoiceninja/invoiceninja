@@ -2,7 +2,6 @@
 @section('meta_title', ctrans('texts.downloads'))
 
 @section('header')
-    {{ dd(auth('contact')->user()->client) }}
     @if($client->getSetting('client_portal_enable_uploads'))
         @component('portal.ninja2020.upload.index') @endcomponent
     @endif

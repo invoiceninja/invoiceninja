@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Document\ShowDocumentRequest;
 use App\Models\Document;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Storage;
 
 class DownloadController extends Controller
 {
@@ -37,5 +38,15 @@ class DownloadController extends Controller
         return render('downloads.show', [
             'document' => $download,
         ]);
+    }
+
+    /**
+     * @param \App\Http\Requests\Document\ShowDocumentRequest $request 
+     * @param \App\Models\Document $download 
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse 
+     */
+    public function download(ShowDocumentRequest $request, Document $download)
+    {
+        return Storage::disk($download->disk)->download($download->url, $download->name);
     }
 }

@@ -60,6 +60,7 @@ Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', '
 
     Route::get('client/switch_company/{contact}', 'ClientPortal\SwitchCompanyController')->name('switch_company');
 
+    Route::get('downloads/{download}/download', 'ClientPortal\DownloadController@download')->name('downloads.download');
     Route::resource('downloads', 'ClientPortal\DownloadController')->only(['index', 'show']);
 
     Route::post('upload', 'ClientPortal\UploadController')->name('upload.store');
