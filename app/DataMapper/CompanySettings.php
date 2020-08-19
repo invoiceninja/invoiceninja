@@ -109,6 +109,8 @@ class CompanySettings extends BaseSettings
     public $reset_counter_date           = '';
     public $counter_padding              = 4;
 
+    public $auto_bill = 'off'; //off,always,optin,optout
+
     public $design = 'views/pdf/design1.blade.php';
 
     public $invoice_terms          = '';
@@ -237,6 +239,7 @@ class CompanySettings extends BaseSettings
     public $client_portal_privacy_policy = '';
 
     public static $casts = [
+        'auto_bill'                          => 'auto_bill',
         'lock_invoices'                      => 'string',
         'client_portal_terms'                => 'string',
         'client_portal_privacy_policy'       => 'string',
