@@ -393,9 +393,8 @@ class StripePaymentDriver extends BasePaymentDriver
         $payment->date = Carbon::now();
         $payment->transaction_reference = $data['transaction_reference'];
         $payment->amount = $amount; 
-        $payment->client->getNextPaymentNumber($this->client);
         $payment->save();
 
-        return $payment;
+        return $payment->service()->applyNumber()->save();
     }
 }
