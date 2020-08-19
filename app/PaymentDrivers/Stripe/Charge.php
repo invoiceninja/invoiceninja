@@ -160,7 +160,7 @@ class Charge
             return false;
 
         $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
-        info($payment_method_type);
+        //info($payment_method_type);
 
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,
