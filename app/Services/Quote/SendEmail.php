@@ -39,7 +39,7 @@ class SendEmail
      * @param string $this->reminder_template The template name ie reminder1
      * @return array
      */
-    public function run(): array
+    public function run()
     {
         if (!$this->reminder_template) {
             $this->reminder_template = $this->quote->calculateTemplate();
@@ -52,5 +52,7 @@ class SendEmail
                 EmailQuote::dispatchNow($email_builder, $invitation);
             }
         });
+
+        $this->quote->service()->markSent();
     }
 }
