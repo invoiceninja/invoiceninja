@@ -235,6 +235,7 @@ class CompanySettings extends BaseSettings
     public $client_can_register = false;
     public $client_portal_terms = '';
     public $client_portal_privacy_policy = '';
+    public $client_portal_enable_uploads = false; 
 
     public static $casts = [
         'lock_invoices'                      => 'string',
@@ -402,6 +403,7 @@ class CompanySettings extends BaseSettings
         'portal_custom_css'                  => 'string',
         'portal_custom_footer'               => 'string',
         'portal_custom_js'                   => 'string',
+        'client_portal_enable_uploads'       => 'bool',
     ];
 
 

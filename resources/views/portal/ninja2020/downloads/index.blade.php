@@ -2,7 +2,9 @@
 @section('meta_title', ctrans('texts.downloads'))
 
 @section('header')
-    @component('portal.ninja2020.upload.index')@endcomponent
+    @if($client->getSetting('client_portal_enable_uploads'))
+        @component('portal.ninja2020.upload.index') @endcomponent
+    @endif
 @endsection
 
 @section('body')

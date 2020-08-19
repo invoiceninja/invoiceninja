@@ -13,8 +13,7 @@ class StoreUploadRequest extends FormRequest
      */
     public function authorize()
     {
-        // TODO: Check for the setting to allow client uploads.
-        return true;
+        return (bool) auth('contact')->user()->client->getSetting('client_portal_enable_uploads');
     }
 
     /**
