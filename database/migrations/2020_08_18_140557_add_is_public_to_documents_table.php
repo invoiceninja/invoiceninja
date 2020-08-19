@@ -22,6 +22,9 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->decimal('amount', 16, 4);
         });
 
+        Schema::table('company_gateways', function (Blueprint $table) {
+            $table->string('token_billing')->default('off');
+        });
     }
 
     /**

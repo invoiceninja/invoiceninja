@@ -239,7 +239,7 @@ class CompanySettings extends BaseSettings
     public $client_portal_privacy_policy = '';
 
     public static $casts = [
-        'auto_bill'                          => 'auto_bill',
+        'auto_bill'                          => 'string',
         'lock_invoices'                      => 'string',
         'client_portal_terms'                => 'string',
         'client_portal_privacy_policy'       => 'string',
