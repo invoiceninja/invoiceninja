@@ -16,6 +16,10 @@ class AddIsPublicToDocumentsTable extends Migration
         Schema::table('documents', function (Blueprint $table) {
             $table->boolean('is_public')->default(false);
         });
+
+        Schema::table('backups', function (Blueprint $table) {
+            $table->decimal('amount', 16, 4);
+        });
     }
 
     /**
@@ -25,8 +29,6 @@ class AddIsPublicToDocumentsTable extends Migration
      */
     public function down()
     {
-        Schema::table('documents', function (Blueprint $table) {
-            $table->dropColumn('is_public');
-        });
+
     }
 }

@@ -27,7 +27,6 @@ class QuoteTransformer extends EntityTransformer
     protected $defaultIncludes = [
             'invitations',
             'documents',
-            'history'
     ];
 
     protected $availableIncludes = [
