@@ -204,7 +204,8 @@ class MultiDBUserTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/users?include=company_user', $data);
+                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+          ])->post('/api/v1/users?include=company_user', $data);
         } catch (ValidationException $e) {
             \Log::error('in the validator');
             $message = json_decode($e->validator->getMessageBag(), 1);
