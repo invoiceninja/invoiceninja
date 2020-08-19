@@ -15,7 +15,7 @@ class AddIsPublicToDocumentsTable extends Migration
     {
         
         Schema::table('documents', function (Blueprint $table) {
-            $table->boolean('is_public')->default(false);
+            $table->boolean('is_public')->default(true);
         });
 
         Schema::table('backups', function (Blueprint $table) {
