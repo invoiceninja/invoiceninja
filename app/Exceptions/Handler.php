@@ -37,6 +37,9 @@ class Handler extends ExceptionHandler
      */
     protected $dontReport = [
         \PDOException::class,
+        \Swift_TransportException::class,
+        \Illuminate\Queue\MaxAttemptsExceededException::class,
+        \Symfony\Component\Console\Exception\CommandNotFoundException::class
     ];
 
     /**
