@@ -13,6 +13,7 @@ class AddIsPublicToDocumentsTable extends Migration
      */
     public function up()
     {
+        
         Schema::table('documents', function (Blueprint $table) {
             $table->boolean('is_public')->default(false);
         });
@@ -20,6 +21,19 @@ class AddIsPublicToDocumentsTable extends Migration
         Schema::table('backups', function (Blueprint $table) {
             $table->decimal('amount', 16, 4);
         });
+
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->decimal('exchange_rate', 16, 4);
+        });
+
+        Schema::table('quotes', function (Blueprint $table) {
+            $table->decimal('exchange_rate', 16, 4);
+        });
+
+        Schema::table('credits', function (Blueprint $table) {
+            $table->decimal('exchange_rate', 16, 4);
+        });
+        
     }
 
     /**
