@@ -154,7 +154,7 @@ trait MockAccountData
             ]);
 
 
-        $contact = factory(\App\Models\ClientContact::class, 1)->create([
+        $contact = factory(\App\Models\ClientContact::class)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
@@ -162,12 +162,13 @@ trait MockAccountData
                 'send_email' => true,
             ]);
 
-        $contact2 = factory(\App\Models\ClientContact::class, 1)->create([
+        $contact2 = factory(\App\Models\ClientContact::class)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
                 'send_email' => true
             ]);
+        
 
          // $rels = collect($contact, $contact2);
          // $this->client->setRelation('contacts', $rels);
@@ -211,7 +212,24 @@ trait MockAccountData
 
         $this->invoice->save();
 
-        $this->invoice->service()->createInvitations()->markSent();
+        //$this->invoice->service()->createInvitations()->markSent();
+        //$this->invoice->service()->createInvitations();
+
+            factory(\App\Models\InvoiceInvitation::class)->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact->id,
+                'invoice_id' => $this->invoice->id,
+            ]);
+
+            factory(\App\Models\InvoiceInvitation::class)->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact2->id,
+                'invoice_id' => $this->invoice->id,
+            ]);
+
+        $this->invoice->service()->markSent();
 
         $this->quote = factory(\App\Models\Quote::class)->create([
                 'user_id' => $this->user->id,
@@ -229,8 +247,24 @@ trait MockAccountData
 
         $this->quote = $this->quote_calc->getQuote();
         
+        $this->quote->status_id = Quote::STATUS_SENT;
         $this->quote->number = $this->getNextQuoteNumber($this->client);
-        $this->quote->service()->createInvitations()->markSent();
+
+        //$this->quote->service()->createInvitations()->markSent();
+
+            factory(\App\Models\QuoteInvitation::class)->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact->id,
+                'quote_id' => $this->quote->id,
+            ]);
+
+            factory(\App\Models\QuoteInvitation::class)->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact2->id,
+                'quote_id' => $this->quote->id,
+            ]);
 
         $this->quote->setRelation('client', $this->client);
         $this->quote->setRelation('company', $this->company);

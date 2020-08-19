@@ -268,7 +268,7 @@ class BasePaymentDriver
         $payment->currency_id = $this->client->getSetting('currency_id');
         $payment->date = Carbon::now();
 
-        return $payment;
+        return $payment->service()->applyNumber()->save();
     }
 
 

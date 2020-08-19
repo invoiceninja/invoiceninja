@@ -82,12 +82,12 @@ class SystemHealth
             exec('node -v', $foo, $exitCode);
 
             if ($exitCode === 0) {
-              return $foo[0];
+              return empty($foo[0]) ?  'Found node, but no version information' : $foo[0];
             }
         
         } catch (\Exception $e) {
            
-                return false;
+            return false;
         }
         
     }
@@ -98,12 +98,11 @@ class SystemHealth
             exec('npm -v', $foo, $exitCode);
 
             if ($exitCode === 0) {
-              return $foo[0];
+              return empty($foo[0]) ? 'Found npm, but no version information' : $foo[0];
             } 
 
         }catch (\Exception $e) {
-           
-                return false;
+            return false;
         }
         
     }

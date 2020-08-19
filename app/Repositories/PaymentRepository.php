@@ -71,8 +71,6 @@ class PaymentRepository extends BaseRepository
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
 
-info(print_r($data,1));
-
         //check currencies here and fill the exchange rate data if necessary
         if (!$payment->id) {
             $this->processExchangeRates($data, $payment);
@@ -149,10 +147,10 @@ info(print_r($data,1));
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-/*info("invoice totals = {$invoice_totals}");
-info("credit totals = {$credit_totals}");
-info("applied totals = " . array_sum(array_column($data['invoices'], 'amount')));
-*/
+        /*info("invoice totals = {$invoice_totals}");
+        info("credit totals = {$credit_totals}");
+        info("applied totals = " . array_sum(array_column($data['invoices'], 'amount')));
+        */
         //$invoice_totals -= $credit_totals;
 
         ////$payment->amount = $invoice_totals; //creates problems when setting amount like this.

@@ -60,7 +60,7 @@ class EmailQuote implements ShouldQueue
             return $this->logMailError(Mail::failures());
         }
 
-        $this->quote_invitation->quote->markSent()->save();
+        $this->quote_invitation->quote->service()->markSent()->save();
         
     }
 

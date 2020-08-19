@@ -135,6 +135,7 @@ class InvoiceTransformer extends EntityTransformer
             'custom_surcharge2' => (float)$invoice->custom_surcharge2,
             'custom_surcharge3' => (float)$invoice->custom_surcharge3,
             'custom_surcharge4' => (float)$invoice->custom_surcharge4,
+            'exchange_rate' => (float)$invoice->exchange_rate,
             'custom_surcharge_tax1' => (bool) $invoice->custom_surcharge_tax1,
             'custom_surcharge_tax2' => (bool) $invoice->custom_surcharge_tax2,
             'custom_surcharge_tax3' => (bool) $invoice->custom_surcharge_tax3,

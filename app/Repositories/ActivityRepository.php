@@ -69,6 +69,7 @@ class ActivityRepository extends BaseRepository
         if (get_class($entity) == Invoice::class || get_class($entity) == Quote::class || get_class($entity) == Credit::class){
             $contact = $entity->client->primary_contact()->first();
             $backup->html_backup = $this->generateEntityHtml($entity->getEntityDesigner(), $entity, $contact);
+            $backup->amount = $entity->amount;
         }
 
         $backup->activity_id = $activity->id;

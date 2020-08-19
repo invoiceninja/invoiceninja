@@ -43,6 +43,7 @@ class CompanyGateway extends BaseModel
         'custom_value2',
         'custom_value3',
         'custom_value4',
+        'token_billing',
     ];
 
     public static $credit_cards = [
@@ -270,8 +271,9 @@ class CompanyGateway extends BaseModel
             info("fee after adding fee tax 3 = {$fee}");
         }
 
-        //TODO CALCULATE FEE CAP HERE
-        
+        if($fees_and_limits->fee_cap > 0 && ($fee > $fees_and_limits->fee_cap))
+            $fee = $fees_and_limits->fee_cap;
+
         return $fee;
     }
 
