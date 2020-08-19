@@ -26,6 +26,7 @@ class Document extends BaseModel
      */
     protected $fillable = [
         'is_default',
+        'is_public',
     ];
 
 
