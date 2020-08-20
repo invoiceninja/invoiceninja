@@ -123,4 +123,9 @@ class Document extends BaseModel
     {
         Storage::disk($this->disk)->delete($this->url);
     }
+
+    public function filePath()
+    {
+        return Storage::disk($this->disk)->url($this->url);
+    }
 }
