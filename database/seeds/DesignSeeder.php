@@ -36,16 +36,17 @@ class DesignSeeder extends Seeder
         }
 
         foreach (Design::all() as $design) {
-            $class = 'App\Designs\\'.$design->name;
+            $class = 'App\Services\PdfMaker\Designs\\'.$design->name;
             $invoice_design = new $class();
+            $invoice_design->document();
 
             $design_object = new \stdClass;
-            $design_object->includes = $invoice_design->includes() ?: '';
-            $design_object->header = $invoice_design->header() ?: '';
-            $design_object->body = $invoice_design->body() ?: '';
-            $design_object->product = $invoice_design->product() ?: '';
-            $design_object->task = $invoice_design->task() ?: '';
-            $design_object->footer = $invoice_design->footer() ?: '';
+            $design_object->includes = $invoice_design->getSectionHTML('includes');
+            $design_object->header = $invoice_design->getSectionHTML('head', false);
+            $design_object->body = $invoice_design->getSectionHTML('body', false);
+            $design_object->product = $invoice_design->getSectionHTML('product-table');
+            $design_object->task = $invoice_design->getSectionHTML('task-table');
+            $design_object->footer = $invoice_design->getSectionHTML('footer', false);
 
             $design->design = $design_object;
             $design->save();
