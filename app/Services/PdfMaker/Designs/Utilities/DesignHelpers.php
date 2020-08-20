@@ -79,10 +79,10 @@ trait DesignHelpers
                 $document->importNode($element, true)
             );
 
-            return $document->saveHTML();
+            return $document->saveXML();
         }
 
-        return null;
+        return '';
     }
 
     /**
