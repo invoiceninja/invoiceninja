@@ -13,8 +13,7 @@ class DownloadMultipleDocumentsRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
-        // return auth()->user()->can('view', $this->document);
+        return auth()->user()->can('view', $this->document);
     }
 
     /**
