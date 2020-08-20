@@ -22,8 +22,7 @@ class ShowDocumentRequest extends Request
      */
     public function authorize() : bool
     {
-        return true;
-        // return auth()->user()->can('view', $this->document);
+        return auth()->user()->can('view', $this->document);
     }
 
     /**

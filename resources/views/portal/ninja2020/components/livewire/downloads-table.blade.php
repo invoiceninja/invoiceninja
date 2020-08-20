@@ -8,6 +8,12 @@
                 <option>15</option>
                 <option>20</option>
             </select>
+            <button x-on:click="document.getElementById('multiple-downloads').submit()" class="button button-primary py-2 ml-2">
+                <span class="hidden md:block">
+                    {{ ctrans('texts.download_selected') }}
+                </span>
+                <svg class="md:hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"></path></svg>
+            </button>
         </div>
         <div class="flex items-center">
             <div class="mr-3">
@@ -25,6 +31,7 @@
             <table class="min-w-full shadow rounded border border-gray-200 mt-4 credits-table">
                 <thead>
                     <tr>
+                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider" />
                         <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('name')" class="cursor-pointer">
                                 {{ ctrans('texts.name') }}
@@ -54,6 +61,9 @@
                 <tbody>
                     @forelse($downloads as $download)
                         <tr class="bg-white group hover:bg-gray-100">
+                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                                <input type="checkbox" class="form-checkbox cursor-pointer" onchange="appendToElement('multiple-downloads', '{{ $download->hashed_id }}')" />
+                            </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {{ Illuminate\Support\Str::limit($download->name, 20) }}
                             </td>
