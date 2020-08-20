@@ -30,7 +30,7 @@ return [
     'phantomjs_key' => env('PHANTOMJS_KEY', false),
     'phantomjs_secret' => env('PHANTOMJS_SECRET', false),
 
-    'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://b36c3ae4f26b45689bc3d4e3774fb303@sentry.invoicing.co/4'),
+    'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://9b4e15e575214354a7d666489783904a@sentry.invoicing.co/6'),
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 
     // Settings used by invoiceninja.com
