@@ -151,7 +151,14 @@ class EmailTemplateDefaults
 
     public static function emailPaymentTemplate()
     {
-        return Parsedown::instance()->line(self::transformText('payment_message'));
+        $converter = new CommonMarkConverter([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+
+        return $converter->convertToHtml(self::transformText('payment_message'));
+
+        // return Parsedown::instance()->line(self::transformText('payment_message'));
     }
 
     public static function emailReminder1Subject()
