@@ -282,7 +282,7 @@ class DemoMode extends Command
                 'company_id' => $company->id
             ]);
 
-        factory(\App\Models\ClientContact::class, 1)->create([
+        factory(\App\Models\ClientContact::class)->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
                     'company_id' => $company->id,
@@ -326,7 +326,7 @@ class DemoMode extends Command
             ]);
 
 
-        factory(\App\Models\VendorContact::class, 1)->create([
+        factory(\App\Models\VendorContact::class)->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company_id,
