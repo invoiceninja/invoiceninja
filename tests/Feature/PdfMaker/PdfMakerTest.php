@@ -18,8 +18,6 @@ class PdfMakerTest extends TestCase
 
     public function testDesignLoadsCorrectly()
     {
-                $this->markTestSkipped('STUB broken tests');
-
         $maker = new PdfMaker($this->state);
 
         $maker->design(ExampleDesign::class);
@@ -29,8 +27,6 @@ class PdfMakerTest extends TestCase
 
     public function testHtmlDesignLoadsCorrectly()
     {
-                $this->markTestSkipped('STUB broken tests');
-
         $maker = new PdfMaker($this->state);
 
         $maker
@@ -42,8 +38,6 @@ class PdfMakerTest extends TestCase
 
     public function testGetSectionUtility()
     {
-                $this->markTestSkipped('STUB broken tests');
-
         $maker = new PdfMaker($this->state);
 
         $maker
@@ -55,8 +49,6 @@ class PdfMakerTest extends TestCase
 
     public function testTableAttributesAreInjected()
     {
-                $this->markTestSkipped('STUB broken tests');
-
         $state = [
             'template' => [
                 'product-table' => [
@@ -93,8 +85,6 @@ class PdfMakerTest extends TestCase
 
     public function testVariablesAreReplaced()
     {
-                $this->markTestSkipped('STUB broken tests');
-
 
         $state = [
             'template' => [
@@ -133,8 +123,6 @@ class PdfMakerTest extends TestCase
 
     public function testElementContentIsGenerated()
     {
-                $this->markTestSkipped('STUB broken tests');
-
 
         $state = [
             'template' => [
@@ -184,8 +172,6 @@ class PdfMakerTest extends TestCase
 
     public function testConditionalRenderingOfElements()
     {
-                $this->markTestSkipped('STUB broken tests');
-
 
         $maker1 = new PdfMaker([
             'template' => [
@@ -226,8 +212,6 @@ class PdfMakerTest extends TestCase
 
     public function testOrderingElements()
     {
-                $this->markTestSkipped('STUB broken tests');
-
 
         $maker = new PdfMaker([
             'template' => [
@@ -286,8 +270,6 @@ class PdfMakerTest extends TestCase
 
     public function testGeneratingPdf()
     {
-                $this->markTestSkipped('STUB broken tests');
-
 
         $state = [
             'template' => [

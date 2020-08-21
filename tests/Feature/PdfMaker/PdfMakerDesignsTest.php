@@ -137,7 +137,6 @@ class PdfMakerDesignsTest extends TestCase
             ], $this->state['variables']),
         ];
 
-        $this->markTestSkipped('STUB broken tests');
 
 
         $maker = new PdfMaker($state);
@@ -250,7 +249,6 @@ class PdfMakerDesignsTest extends TestCase
             ],
             'variables' => array_merge([], $this->state['variables']),
         ];
-        $this->markTestSkipped('STUB broken tests');
 
         $maker = new PdfMaker($state);
 
@@ -366,7 +364,6 @@ class PdfMakerDesignsTest extends TestCase
             ],
             'variables' => array_merge([], $this->state['variables']),
         ];
-        $this->markTestSkipped('STUB broken tests');
 
         $maker = new PdfMaker($state);
 
@@ -483,7 +480,6 @@ class PdfMakerDesignsTest extends TestCase
             ],
             'variables' => array_merge([], $this->state['variables']),
         ];
-        $this->markTestSkipped('STUB broken tests');
 
         $maker = new PdfMaker($state);
 
@@ -593,7 +589,6 @@ class PdfMakerDesignsTest extends TestCase
             ],
             'variables' => array_merge([], $this->state['variables']),
         ];
-        $this->markTestSkipped('STUB broken tests');
 
         $maker = new PdfMaker($state);
 
@@ -707,7 +702,6 @@ class PdfMakerDesignsTest extends TestCase
             ],
             'variables' => array_merge([], $this->state['variables']),
         ];
-        $this->markTestSkipped('STUB broken tests');
 
         $maker = new PdfMaker($state);
 
@@ -824,7 +818,6 @@ class PdfMakerDesignsTest extends TestCase
             ],
             'variables' => array_merge([], $this->state['variables']),
         ];
-        $this->markTestSkipped('STUB broken tests');
 
         $maker = new PdfMaker($state);
 
@@ -941,7 +934,6 @@ class PdfMakerDesignsTest extends TestCase
             ],
             'variables' => array_merge([], $this->state['variables']),
         ];
-        $this->markTestSkipped('STUB broken tests');
 
         $maker = new PdfMaker($state);
 
@@ -1052,7 +1044,6 @@ class PdfMakerDesignsTest extends TestCase
             ],
             'variables' => array_merge([], $this->state['variables']),
         ];
-        $this->markTestSkipped('STUB broken tests');
 
         $maker = new PdfMaker($state);
 
