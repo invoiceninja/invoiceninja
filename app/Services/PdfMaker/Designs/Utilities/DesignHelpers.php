@@ -96,7 +96,7 @@ trait DesignHelpers
      */
     public function processTaxColumns(): void
     {
-        if (in_array('$product.tax', $this->context['product-table-columns'])) {
+        if (in_array('$product.tax', (array)$this->context['pdf_variables']['product_columns'])) {
             $line_items = collect($this->entity->line_items);
 
             $tax1 = $line_items->where('tax_name1', '<>', '')->where('type_id', 1)->count();
@@ -116,10 +116,10 @@ trait DesignHelpers
                 array_push($taxes, '$product.tax_rate3');
             }
 
-            $key = array_search('$product.tax', $this->context['product-table-columns'], true);
+            $key = array_search('$product.tax', $this->context['pdf_variables']['product_columns'], true);
 
             if ($key) {
-                array_splice($this->context['product-table-columns'], $key, 1, $taxes);
+                array_splice($this->context['pdf_variables']['product_columns'], $key, 1, $taxes);
             }
         }
     }
@@ -132,7 +132,7 @@ trait DesignHelpers
      */
     public function calculateColspan(int $taken): int
     {
-        $total = (int) count($this->context['product-table-columns']);
+        $total = (int) count($this->context['pdf_variables']['product_columns']);
 
         return (int)$total - $taken;
     }
@@ -177,16 +177,16 @@ trait DesignHelpers
         }
 
         if (is_null($this->entity->{$_variable})) {
-          //  info("{$this->entity->id} $_variable is null!");
+            //  info("{$this->entity->id} $_variable is null!");
             return true;
         }
 
         if (empty($this->entity->{$_variable})) {
-         //   info("{$this->entity->id} $_variable is empty!");
+            //   info("{$this->entity->id} $_variable is empty!");
             return true;
         }
 
-      //  info("{$this->entity->id} $_variable ALL GOOD!!");
+        //  info("{$this->entity->id} $_variable ALL GOOD!!");
         return false;
     }
 }

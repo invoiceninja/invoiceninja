@@ -29,16 +29,11 @@ class ExampleIntegrationTest extends TestCase
         $engine = new HtmlEngine(null, $invitation, 'invoice');
         $design = new Playful();
 
-        $product_table_columns = json_decode(
-            json_encode($invoice->company->settings->pdf_variables),
-            1
-        )['product_columns'];
-
         $state = [
             'template' => $design->elements([
                 'client' => $invoice->client,
                 'entity' => $invoice,
-                'product-table-columns' => $product_table_columns,
+                'pdf_variables' => (array)$invoice->company->settings->pdf_variables,
             ]),
             'variables' => $engine->generateLabelsAndValues(),
         ];

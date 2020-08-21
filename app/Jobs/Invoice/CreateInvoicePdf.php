@@ -90,13 +90,11 @@ class CreateInvoicePdf implements ShouldQueue
 
         $design_class = new $design_namespace();
 
-        $pdf_variables = json_decode(json_encode($this->invoice->company->settings->pdf_variables), 1);
-
         $state = [
             'template' => $design_class->elements([
                 'client' => $this->invoice->client,
                 'entity' => $this->invoice,
-                'product-table-columns' => $pdf_variables['product_columns'],
+                'pdf_variables' => (array)$this->invoice->company->settings->pdf_variables,
             ]),
             'variables' => $html->generateLabelsAndValues(),
         ];
