@@ -82,7 +82,7 @@ class Business extends BaseDesign
 
     public function companyDetails()
     {
-        $variables = $this->entity->company->settings->pdf_variables->company_details;
+        $variables = $this->context['pdf_variables']['company_details'];
 
         $elements = [];
 
@@ -95,7 +95,7 @@ class Business extends BaseDesign
 
     public function companyAddress(): array
     {
-        $variables = $this->entity->company->settings->pdf_variables->company_address;
+        $variables = $this->context['pdf_variables']['company_address'];
 
         $elements = [];
 
@@ -108,7 +108,7 @@ class Business extends BaseDesign
 
     public function clientDetails(): array
     {
-        $variables = $this->entity->company->settings->pdf_variables->client_details;
+        $variables = $this->context['pdf_variables']['client_details'];
 
         $elements = [];
 
@@ -121,10 +121,10 @@ class Business extends BaseDesign
 
     public function entityDetails(): array
     {
-        $variables = $this->entity->company->settings->pdf_variables->invoice_details;
+        $variables = $this->context['pdf_variables']['invoice_details'];
 
         if ($this->entity instanceof \App\Models\Quote) {
-            $variables = $this->entity->company->settings->pdf_variables->quote_details;
+            $variables = $this->context['pdf_variables']['quote_details'];
         }
 
         $elements = [];
@@ -154,7 +154,7 @@ class Business extends BaseDesign
 
         $elements = [];
 
-        foreach ($this->context['product-table-columns'] as $column) {
+        foreach ($this->context['pdf_variables']['product_columns'] as $column) {
             $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['class' => 'font-semibold text-white px-4 bg-blue-900 py-5']];
         }
 
@@ -174,7 +174,7 @@ class Business extends BaseDesign
         foreach ($items as $row) {
             $element = ['element' => 'tr', 'content' => '', 'elements' => []];
 
-            foreach ($this->context['product-table-columns'] as $key => $cell) {
+            foreach ($this->context['pdf_variables']['product_columns'] as $key => $cell) {
                 $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['class' => 'border-4 border-white px-4 py-4 bg-gray-200']];
             }
 
