@@ -3261,5 +3261,7 @@ return [
     'allowed_file_types' => 'Allowed file types:',
     'common_codes' => 'Common codes and their meanings',
 
-    'payment_error_code_20087' => '20087: Bad Track Data (invalid CVV and/or expiry date)',  
+    'payment_error_code_20087' => '20087: Bad Track Data (invalid CVV and/or expiry date)',
+
+    'download_selected' => 'Download selected',
 ];

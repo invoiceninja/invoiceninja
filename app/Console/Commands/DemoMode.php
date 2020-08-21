@@ -70,6 +70,31 @@ class DemoMode extends Command
     {
         set_time_limit(0);
 
+        $cached_tables = config('ninja.cached_tables');
+        
+        foreach ($cached_tables as $name => $class) {
+            if (! Cache::has($name)) {
+                // check that the table exists in case the migration is pending
+                if (! Schema::hasTable((new $class())->getTable())) {
+                    continue;
+                }
+                if ($name == 'payment_terms') {
+                    $orderBy = 'num_days';
+                } elseif ($name == 'fonts') {
+                    $orderBy = 'sort_order';
+                } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
+                    $orderBy = 'name';
+                } else {
+                    $orderBy = 'id';
+                }
+                $tableData = $class::orderBy($orderBy)->get();
+                if ($tableData->count()) {
+                    Cache::forever($name, $tableData);
+                }
+            }
+        }
+
+
         $this->info("Migrating");
         Artisan::call('migrate:fresh --force');
 
@@ -257,7 +282,7 @@ class DemoMode extends Command
                 'company_id' => $company->id
             ]);
 
-        factory(\App\Models\ClientContact::class, 1)->create([
+        factory(\App\Models\ClientContact::class)->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
                     'company_id' => $company->id,
@@ -301,7 +326,7 @@ class DemoMode extends Command
             ]);
 
 
-        factory(\App\Models\VendorContact::class, 1)->create([
+        factory(\App\Models\VendorContact::class)->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company_id,

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com)
  *
@@ -11,16 +12,16 @@
 
 namespace App\Http\Requests\Document;
 
-use App\Http\Requests\Request;
+use Illuminate\Foundation\Http\FormRequest;
 
-class ShowDocumentRequest extends Request
+class DownloadMultipleDocumentsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize()
     {
         return auth()->user()->can('view', $this->document);
     }
@@ -33,7 +34,7 @@ class ShowDocumentRequest extends Request
     public function rules()
     {
         return [
-            //
+            'file_hash' => ['required'],
         ];
     }
 }
