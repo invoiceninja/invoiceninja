@@ -26,6 +26,11 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->enum('token_billing', ['off', 'always','optin','optout'])->default('off');
             $table->string('label', 255)->nullable();
         });
+
+        Schema::table('payments', function (Blueprint $table) {
+            $table->text('meta')->nullable();
+        });
+        
     }
 
     /**
