@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\CompanyGateway;
+use App\Models\CompanyGateway;
 
 class CompanyGatewayObserver
 {
