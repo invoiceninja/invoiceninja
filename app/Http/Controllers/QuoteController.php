@@ -667,7 +667,7 @@ class QuoteController extends BaseController
                     //return response()->download(TempFile::path($quote->pdf_file_path()), basename($quote->pdf_file_path()));
                 break;
             case 'archive':
-                $this->invoice_repo->archive($quote);
+                $this->quote_repo->archive($quote);
                 return $this->listResponse($quote);
                 break;
             case 'delete':
