@@ -17,10 +17,12 @@ use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyLedger;
 use App\Models\Document;
+use App\Models\SystemLog;
 use App\Transformers\ActivityTransformer;
 use App\Transformers\ClientGatewayTokenTransformer;
 use App\Transformers\CompanyLedgerTransformer;
 use App\Transformers\DocumentTransformer;
+use App\Transformers\SystemLogTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -44,6 +46,7 @@ class ClientTransformer extends EntityTransformer
         'gateway_tokens',
         'activities',
         'ledger',
+        'system_logs',
     ];
 
 
@@ -91,6 +94,14 @@ class ClientTransformer extends EntityTransformer
 
         return $this->includeCollection($client->ledger, $transformer, CompanyLedger::class);
     }
+
+    public function includeSystemLogs(Client $client)
+    {
+        $transformer = new SystemLogTransformer($this->serializer);
+
+        return $this->includeCollection($client->system_logs, $transformer, SystemLog::class);
+    }
+
     /**
      * @param Client $client
      *
