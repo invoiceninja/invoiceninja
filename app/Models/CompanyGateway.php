@@ -237,10 +237,15 @@ class CompanyGateway extends BaseModel
 
     public function calcGatewayFee($amount)
     {
+        if (is_null($this->fees_and_limits)) {
+            return 0;
+        }
+
         $fees_and_limits = new \stdClass;
 
-        foreach($this->fees_and_limits as $key => $value)
+        foreach($this->fees_and_limits as $key => $value) {
             $fees_and_limits = $this->fees_and_limits->{$key};
+        }
 
         $fee = 0;
 
