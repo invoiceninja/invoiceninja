@@ -22,7 +22,7 @@
             </div>
 
             <div class="mx-auto px-4 sm:px-6 md:px-8">
-                <div class="pt-4">
+                <div class="pt-4 py-6">
                     @includeWhen(session()->has('success'), 'portal.ninja2020.components.general.messages.success')
                     {{ $slot }}
                 </div>

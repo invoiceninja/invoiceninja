@@ -69,6 +69,7 @@
     </head>
 
     <body class="antialiased">
+        @include('portal.ninja2020.components.processing')
         @component('portal.ninja2020.components.general.sidebar.main')
             @yield('body')
         @endcomponent

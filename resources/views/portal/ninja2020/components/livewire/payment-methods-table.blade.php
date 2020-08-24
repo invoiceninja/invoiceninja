@@ -10,22 +10,24 @@
             </select>
         </div>
         <div class="relative" x-data="{ open: false }" x-on:click.away="open = false">
-            <button x-on:click="open = !open" class="button button-primary">{{ ctrans('texts.add_payment_method') }}</button>
-            <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
-                <div class="py-1 rounded-md bg-white shadow-xs">
-                    @if($client->getCreditCardGateway())
-                        <a href="{{ route('client.payment_methods.create', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
-                            {{ ctrans('texts.credit_card') }}
-                        </a>
-                    @endif
-                    
-                    @if($client->getBankTransferGateway())
-                        <a href="{{ route('client.payment_methods.create', ['method' => $client->getBankTransferMethodType()]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
-                            {{ ctrans('texts.bank_account') }}
-                        </a>
-                    @endif
+            <!-- Add payment method button -->
+            @if($client->getCreditCardGateway() || $client->getBankTransferGateway())
+                <button x-on:click="open = !open" class="button button-primary">{{ ctrans('texts.add_payment_method') }}</button>
+                <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
+                    <div class="py-1 rounded-md bg-white shadow-xs">
+                        @if($client->getCreditCardGateway())
+                            <a href="{{ route('client.payment_methods.create', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
+                                {{ ctrans('texts.credit_card') }}
+                            </a>
+                        @endif
+                        @if($client->getBankTransferGateway())
+                            <a href="{{ route('client.payment_methods.create', ['method' => $client->getBankTransferMethodType()]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
+                                {{ ctrans('texts.bank_account') }}
+                            </a>
+                        @endif
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
     <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">

@@ -31,6 +31,11 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->text('meta')->nullable();
         });
         
+        Schema::table('system_logs', function (Blueprint $table) {
+            $table->softDeletes('deleted_at', 6);
+        });
+        
+
     }
 
     /**
