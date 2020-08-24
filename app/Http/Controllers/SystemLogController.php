@@ -8,7 +8,7 @@ use App\Transformers\SystemLogTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
-class SystemLogController extends Controller
+class SystemLogController extends BaseController
 {
 
     use MakesHash;

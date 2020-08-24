@@ -11,10 +11,26 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SystemLog extends Model
 {
+    use Filterable;
+    use SoftDeletes;
+    use MakesHash;
+    
+    protected $casts = [
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+        'log' => 'array'
+    ];
+
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
     /* Category IDs */
     const CATEGORY_GATEWAY_RESPONSE = 1;
     const CATEGORY_MAIL = 2;
@@ -51,10 +67,6 @@ class SystemLog extends Model
         'type_id',
     ];
 
-    protected $casts = [
-        'log' => 'array'
-    ];
-
     public function resolveRouteBinding($value)
     {
         if (is_numeric($value)) {
@@ -63,5 +75,15 @@ class SystemLog extends Model
 
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
+
+        /*
+    V2 type of scope
+     */
+    public function scopeCompany($query)
+    {
+        $query->where('company_id', auth()->user()->companyId());
+        
+        return $query;
     }
 }
