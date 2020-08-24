@@ -64,7 +64,6 @@ class WebhookHandler implements ShouldQueue
         // generate JSON data
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());
-       // $manager->parseIncludes($include);
 
         $transformer = new $this->getTransformerClassName();
 
@@ -101,7 +100,8 @@ class WebhookHandler implements ShouldQueue
 
     public function failed($exception)
     {
-        $exception->getMessage();
-        // etc...
+
+        info(print_r($exception->getMessage(),1));
+        
     }
 }
