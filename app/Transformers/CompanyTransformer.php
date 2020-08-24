@@ -31,12 +31,7 @@ use App\Models\Project;
 use App\Models\Quote;
 use App\Models\SystemLog;
 use App\Models\Task;
-use App\Models\TaxRate;    public function includeSystemLogs(Company $company)
-    {
-        $transformer = new SystemLogTransformer($this->serializer);
-
-        return $this->includeCollection($company->system_logs, $transformer, SystemLog::class);
-    }
+use App\Models\TaxRate;  
 use App\Models\User;
 use App\Models\Webhook;
 use App\Transformers\CompanyLedgerTransformer;
