@@ -63,6 +63,8 @@ class PaymentMethodController extends Controller
      */
     public function store(Request $request)
     {
+        return $request->all();
+
         $gateway = $this->getClientGateway();
 
         return $gateway
