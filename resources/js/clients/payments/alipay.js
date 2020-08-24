@@ -33,11 +33,16 @@ class ProcessAlipay {
 
         document.getElementById('pay-now').addEventListener('submit', (e) => {
             e.preventDefault();
+            processingOverlay(true);
+            document.getElementById('pay-now').disabled = true;
 
             this.stripe.createSource(data).then(function(result) {
                 if (result.hasOwnProperty('source')) {
                     return (window.location = result.source.redirect.url);
                 }
+
+                processingOverlay(false);
+                document.getElementById('pay-now').disabled = false;
 
                 this.errors.textContent = '';
                 this.errors.textContent = result.error.message;

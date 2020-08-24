@@ -104,7 +104,7 @@
                                     </span>
                                 </div>
                                 <div class="bg-white px-4 py-5 flex justify-end">
-                                    <button type="submit" class="button button-primary">
+                                    <button type="submit" class="button button-primary" id="save-button">
                                         {{ ctrans('texts.save') }}
                                     </button>
                                 </div>

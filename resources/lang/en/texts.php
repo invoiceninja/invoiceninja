@@ -3266,5 +3266,5 @@ return [
     'download_selected' => 'Download selected',
 
     'to_pay_invoices' => 'To pay invoices, you have to',
-    'add_payment_method_first' => 'add payment method, first',
+    'add_payment_method_first' => 'add payment method',
 ];
