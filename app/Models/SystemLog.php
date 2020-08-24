@@ -54,4 +54,14 @@ class SystemLog extends Model
     protected $casts = [
         'log' => 'array'
     ];
+
+    public function resolveRouteBinding($value)
+    {
+        if (is_numeric($value)) {
+            throw new ModelNotFoundException("Record with value {$value} not found");
+        }
+
+        return $this
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
 }

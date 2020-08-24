@@ -10,7 +10,7 @@
  *       @OA\Property(property="event_id", type="int", example="1", description="The Log Type ID"),
  *       @OA\Property(property="category_id", type="int", example="1", description="The Category Type ID"),
  *       @OA\Property(property="type_id", type="int", example="1", description="The Type Type ID"),
- *       @OA\Property(property="log", type="object", example="{"key":"value"}", description="The json object of the error"),
+ *       @OA\Property(property="log", type="object", example="{'key':'value'}", description="The json object of the error"),
  *       @OA\Property(property="updated_at", type="string", example="2", description="______"),
  *       @OA\Property(property="created_at", type="string", example="2", description="______"),
  * )
