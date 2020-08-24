@@ -5,7 +5,6 @@
     <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
     <meta name="require-invoice-signature" content="{{ $settings->require_invoice_signature ? true : false }}">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
-    <meta name="turbolinks-visit-control" content="reload">
 @endpush
 
 @section('body')
@@ -23,36 +22,44 @@
             <div class="col-span-6 md:col-start-2 md:col-span-4">
                 <div class="flex justify-end">
                     <div class="flex justify-end mb-2">
-                        <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.away="open = false"
-                             class="relative inline-block text-left">
-                            <div>
-                                <div class="rounded-md shadow-sm">
-                                    <button @click="open = !open" type="button"
-                                            class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-sm leading-5 font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150">
-                                        {{ ctrans('texts.pay_now') }}
-                                        <svg class="-mr-1 ml-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                  clip-rule="evenodd"/>
-                                        </svg>
-                                    </button>
+                        <!-- Pay now button -->
+                        @if(count($payment_methods) > 0)
+                            <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.away="open = false"
+                                class="relative inline-block text-left">
+                                <div>
+                                    <div class="rounded-md shadow-sm">
+                                        <button @click="open = !open" type="button"
+                                                class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-sm leading-5 font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150">
+                                            {{ ctrans('texts.pay_now') }}
+                                            <svg class="-mr-1 ml-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd"/>
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div x-show="open" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg">
-                                <div class="rounded-md bg-white shadow-xs">
-                                    <div class="py-1">
-                                        @foreach($payment_methods as $payment_method)
-                                            <a data-turbolinks="false" href="#" @click="{ open = false }"
-                                               data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}"
-                                               data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}"
-                                               class="dropdown-gateway-button block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">
-                                                {{ $payment_method['label'] }}
-                                            </a>
-                                        @endforeach
+                                <div x-show="open" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg">
+                                    <div class="rounded-md bg-white shadow-xs">
+                                        <div class="py-1">
+                                            @foreach($payment_methods as $payment_method)
+                                                <a data-turbolinks="false" href="#" @click="{ open = false }"
+                                                data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}"
+                                                data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}"
+                                                class="dropdown-gateway-button block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">
+                                                    {{ $payment_method['label'] }}
+                                                </a>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @else
+                            <span class="inline-flex items-center text-sm">
+                                <span>{{ ctrans('texts.to_pay_invoices') }} &nbsp;</span>
+                                <a class="button-link" href="{{ route('client.payment_methods.index') }}">{{ ctrans('texts.add_payment_method_first') }}.</a>
+                            </span>
+                        @endif
                     </div>
                 </div>
 

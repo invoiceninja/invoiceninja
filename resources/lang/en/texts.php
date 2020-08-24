@@ -3264,4 +3264,7 @@ return [
     'payment_error_code_20087' => '20087: Bad Track Data (invalid CVV and/or expiry date)',
 
     'download_selected' => 'Download selected',
+
+    'to_pay_invoices' => 'To pay invoices, you have to',
+    'add_payment_method_first' => 'add payment method, first',
 ];
