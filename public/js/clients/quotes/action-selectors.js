@@ -1,2 +1,240 @@
-/*! For license information please see action-selectors.js.LICENSE.txt */
-!function(e){var t={};function n(r){if(t[r])return t[r].exports;var o=t[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,n),o.l=!0,o.exports}n.m=e,n.c=t,n.d=function(e,t,r){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:r})},n.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var r=Object.create(null);if(n.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)n.d(r,o,function(t){return e[t]}.bind(null,o));return r},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,"a",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p="/",n(n.s=10)}({10:function(e,t,n){e.exports=n("ydWM")},ydWM:function(e,t){function n(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}(new(function(){function e(){!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),this.parentElement=document.querySelector(".form-check-parent"),this.parentForm=document.getElementById("bulkActions")}var t,r,o;return t=e,(r=[{key:"watchCheckboxes",value:function(e){var t=this;document.querySelectorAll(".child-hidden-input").forEach((function(e){return e.remove()})),document.querySelectorAll(".form-check-child").forEach((function(n){e.checked?(n.checked=e.checked,t.processChildItem(n,document.getElementById("bulkActions"))):(n.checked=!1,document.querySelectorAll(".child-hidden-input").forEach((function(e){return e.remove()})))}))}},{key:"processChildItem",value:function(e,t){var n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};if(n.hasOwnProperty("single")&&document.querySelectorAll(".child-hidden-input").forEach((function(e){return e.remove()})),!1!==e.checked){var r=document.createElement("INPUT");r.setAttribute("name","invoices[]"),r.setAttribute("value",e.dataset.value),r.setAttribute("class","child-hidden-input"),r.hidden=!0,t.append(r)}else{var o=document.querySelectorAll("input.child-hidden-input"),c=!0,u=!1,l=void 0;try{for(var i,a=o[Symbol.iterator]();!(c=(i=a.next()).done);c=!0){var d=i.value;d.value==e.dataset.value&&d.remove()}}catch(e){u=!0,l=e}finally{try{c||null==a.return||a.return()}finally{if(u)throw l}}}}},{key:"handle",value:function(){var e=this;this.parentElement.addEventListener("click",(function(){e.watchCheckboxes(e.parentElement)}));var t=!0,n=!1,r=void 0;try{for(var o,c=function(){var t=o.value;t.addEventListener("click",(function(){e.processChildItem(t,e.parentForm)}))},u=document.querySelectorAll(".form-check-child")[Symbol.iterator]();!(t=(o=u.next()).done);t=!0)c()}catch(e){n=!0,r=e}finally{try{t||null==u.return||u.return()}finally{if(n)throw r}}}}])&&n(t.prototype,r),o&&n(t,o),e}())).handle()}});
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "/";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./resources/js/clients/quotes/action-selectors.js":
+/*!*********************************************************!*\
+  !*** ./resources/js/clients/quotes/action-selectors.js ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+var ActionSelectors = /*#__PURE__*/function () {
+  function ActionSelectors() {
+    _classCallCheck(this, ActionSelectors);
+
+    this.parentElement = document.querySelector('.form-check-parent');
+    this.parentForm = document.getElementById('bulkActions');
+  }
+
+  _createClass(ActionSelectors, [{
+    key: "watchCheckboxes",
+    value: function watchCheckboxes(parentElement) {
+      var _this = this;
+
+      document.querySelectorAll('.child-hidden-input').forEach(function (element) {
+        return element.remove();
+      });
+      document.querySelectorAll('.form-check-child').forEach(function (child) {
+        if (parentElement.checked) {
+          child.checked = parentElement.checked;
+
+          _this.processChildItem(child, document.getElementById('bulkActions'));
+        } else {
+          child.checked = false;
+          document.querySelectorAll('.child-hidden-input').forEach(function (element) {
+            return element.remove();
+          });
+        }
+      });
+    }
+  }, {
+    key: "processChildItem",
+    value: function processChildItem(element, parent) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      if (options.hasOwnProperty('single')) {
+        document.querySelectorAll('.child-hidden-input').forEach(function (element) {
+          return element.remove();
+        });
+      }
+
+      if (element.checked === false) {
+        var inputs = document.querySelectorAll('input.child-hidden-input');
+
+        var _iterator = _createForOfIteratorHelper(inputs),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var i = _step.value;
+            if (i.value == element.dataset.value) i.remove();
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+
+        return;
+      }
+
+      var _temp = document.createElement('INPUT');
+
+      _temp.setAttribute('name', 'invoices[]');
+
+      _temp.setAttribute('value', element.dataset.value);
+
+      _temp.setAttribute('class', 'child-hidden-input');
+
+      _temp.hidden = true;
+      parent.append(_temp);
+    }
+  }, {
+    key: "handle",
+    value: function handle() {
+      var _this2 = this;
+
+      this.parentElement.addEventListener('click', function () {
+        _this2.watchCheckboxes(_this2.parentElement);
+      });
+
+      var _iterator2 = _createForOfIteratorHelper(document.querySelectorAll('.form-check-child')),
+          _step2;
+
+      try {
+        var _loop = function _loop() {
+          var child = _step2.value;
+          child.addEventListener('click', function () {
+            _this2.processChildItem(child, _this2.parentForm);
+          });
+        };
+
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          _loop();
+        }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
+      }
+    }
+  }]);
+
+  return ActionSelectors;
+}();
+/** @handle **/
+
+
+new ActionSelectors().handle();
+
+/***/ }),
+
+/***/ 10:
+/*!***************************************************************!*\
+  !*** multi ./resources/js/clients/quotes/action-selectors.js ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(/*! /home/benjamin/Code/invoiceninja/resources/js/clients/quotes/action-selectors.js */"./resources/js/clients/quotes/action-selectors.js");
+
+
+/***/ })
+
+/******/ });
