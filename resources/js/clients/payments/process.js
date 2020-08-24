@@ -34,7 +34,11 @@ class ProcessStripePayment {
     }
 
     completePaymentUsingToken() {
-        let payNowButton = document.getElementById("pay-now-with-token");
+        let payNowButton = document.getElementById('pay-now-with-token');
+        this.payNowButton = payNowButton;
+
+        payNowButton.querySelector('svg').classList.remove('hidden');
+        payNowButton.disabled = true;
 
         this.stripe
             .handleCardPayment(payNowButton.dataset.secret, {
@@ -82,6 +86,8 @@ class ProcessStripePayment {
                 tokenBillingCheckbox.checked;
         }
 
+        this.payNowButton.querySelector('svg').classList.add('hidden');
+
         document.getElementById("server-response").submit();
     }
 
@@ -91,6 +97,9 @@ class ProcessStripePayment {
         errors.textContent = "";
         errors.textContent = message;
         errors.hidden = false;
+
+        this.payNowButton.querySelector('svg').classList.add('hidden');
+        this.payNowButton.disabled = false;
     }
 
     handle() {
