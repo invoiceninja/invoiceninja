@@ -391,6 +391,11 @@ class Company extends BaseModel
         return $this->hasMany(CompanyToken::class);
     }
 
+    public function system_logs()
+    {
+        return $this->hasMany(SystemLog::class);
+    }
+
     public function tokens_hashed()
     {
         return $this->hasMany(CompanyToken::class);

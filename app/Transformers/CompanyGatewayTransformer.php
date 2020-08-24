@@ -27,7 +27,6 @@ class CompanyGatewayTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
-        'gateway'
     ];
 
     /**
@@ -63,6 +62,8 @@ class CompanyGatewayTransformer extends EntityTransformer
             'custom_value2' => $company_gateway->custom_value2 ?: '',
             'custom_value3' => $company_gateway->custom_value3 ?: '',
             'custom_value4' => $company_gateway->custom_value4 ?: '',
+            'label' => (string)$company_gateway->label ?: '',
+            'token_billing' => (string)$company_gateway->token_billing,
         ];
     }
 

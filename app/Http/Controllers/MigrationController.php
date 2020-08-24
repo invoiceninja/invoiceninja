@@ -146,8 +146,8 @@ class MigrationController extends BaseController
     public function purgeCompanySaveSettings(Request $request, Company $company)
     {
 
-        $company->clients()->delete();
-        $company->products()->delete();
+        $company->clients()->forceDelete();
+        $company->products()->forceDelete();
         
         $company->save();
 

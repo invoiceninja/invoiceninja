@@ -29,8 +29,9 @@ use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\SystemLog;
 use App\Models\Task;
-use App\Models\TaxRate;
+use App\Models\TaxRate;  
 use App\Models\User;
 use App\Models\Webhook;
 use App\Transformers\CompanyLedgerTransformer;
@@ -39,6 +40,7 @@ use App\Transformers\CompanyTokenTransformer;
 use App\Transformers\CreditTransformer;
 use App\Transformers\DocumentTransformer;
 use App\Transformers\PaymentTermTransformer;
+use App\Transformers\SystemLogTransformer;
 use App\Transformers\TaskTransformer;
 use App\Transformers\WebhookTransformer;
 use App\Utils\Traits\MakesHash;
@@ -88,7 +90,8 @@ class CompanyTransformer extends EntityTransformer
         'ledger',
         'webhooks',
         'tokens',
-        'tokens_hashed'
+        'tokens_hashed',
+        'system_logs',
     ];
 
 
@@ -306,5 +309,12 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new PaymentTermTransformer($this->serializer);
 
         return $this->includeCollection($company->payment_terms()->get(), $transformer, PaymentTerm::class);      
+    }
+
+    public function includeSystemLogs(Company $company)
+    {
+        $transformer = new SystemLogTransformer($this->serializer);
+
+        return $this->includeCollection($company->system_logs, $transformer, SystemLog::class);
     }
 }

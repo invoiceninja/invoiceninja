@@ -202,6 +202,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->belongsTo(Country::class, 'shipping_country_id', 'id');
     }
 
+    public function system_logs()
+    {
+        return $this->hasMany(SystemLog::class);
+    }
+    
     public function timezone()
     {
         return Timezone::find($this->getSetting('timezone_id'));
