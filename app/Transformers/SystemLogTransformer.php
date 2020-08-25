@@ -31,7 +31,7 @@ class SystemLogTransformer extends EntityTransformer
             'event_id' => (int) $system_log->event_id,
             'category_id' => (int) $system_log->category_id,
             'type_id' => (int) $system_log->type_id,
-            'log' => $system_log->log,
+            'log' => json_encode($system_log->log),
             'updated_at' => (int)$system_log->updated_at,
             'created_at' => (int)$system_log->created_at,
         ];
