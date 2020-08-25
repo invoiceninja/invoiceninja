@@ -49,6 +49,7 @@ class CompanyGatewayTest extends TestCase
         $data[1]['fee_tax_rate2'] = '';
         $data[1]['fee_tax_name3'] = '';
         $data[1]['fee_tax_rate3'] = 0;
+        $data[1]['fee_cap'] = 0;
 
         $cg = new CompanyGateway;
         $cg->company_id = $this->company->id;
@@ -106,5 +107,43 @@ class CompanyGatewayTest extends TestCase
             $passes = true;
 
         return $passes;
+    }
+
+    public function testFeesAreAppendedToInvoice()
+    {
+
+        $data = [];
+        $data[1]['min_limit'] = -1;
+        $data[1]['max_limit'] = -1;
+        $data[1]['fee_amount'] = 1.00;
+        $data[1]['fee_percent'] = 0.000;
+        $data[1]['fee_tax_name1'] = '';
+        $data[1]['fee_tax_rate1'] = 0;
+        $data[1]['fee_tax_name2'] = '';
+        $data[1]['fee_tax_rate2'] = 0;
+        $data[1]['fee_tax_name3'] = '';
+        $data[1]['fee_tax_rate3'] = 0;
+        $data[1]['fee_cap'] = 0;
+
+        $cg = new CompanyGateway;
+        $cg->company_id = $this->company->id;
+        $cg->user_id = $this->user->id;
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->require_cvv = true;
+        $cg->show_billing_address = true;
+        $cg->show_shipping_address = true;
+        $cg->update_details = true;
+        $cg->config = encrypt(config('ninja.testvars.stripe'));
+        $cg->fees_and_limits = $data;
+        $cg->save();
+
+        $balance = $this->invoice->balance;
+
+        $this->invoice = $this->invoice->service()->addGatewayFee($cg, $this->invoice->balance)->save();
+        $this->invoice = $this->invoice->calc()->getInvoice();
+
+        $items = $this->invoice->line_items;
+
+        $this->assertEquals(($balance+1), $this->invoice->balance);
     }
 }

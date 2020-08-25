@@ -117,10 +117,10 @@ class PaymentController extends Controller
                         });
 
             if($invoice)
-                $invoice->service()->addGatewayFee($payable_invoice['amount']);
+                $invoice->service()->addGatewayFee($payable_invoice['amount'])->save();
         }
 
-        /*Format invoices*/
+        /*Format invoices we need to use fresh() here to bring in the gateway fees*/
         $invoices->fresh()->map(function ($invoice) {
             $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
             $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());

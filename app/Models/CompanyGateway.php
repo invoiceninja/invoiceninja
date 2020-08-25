@@ -211,6 +211,20 @@ class CompanyGateway extends BaseModel
         return $this->getConfigField('publishableKey');
     }
 
+    public function getFeesAndLimits()
+    {
+        if (is_null($this->fees_and_limits)) 
+            return false;
+
+        $fees_and_limits = new \stdClass;
+
+        foreach($this->fees_and_limits as $key => $value) {
+            $fees_and_limits = $this->fees_and_limits->{$key};
+        }
+
+        return $fees_and_limits;
+    }
+
     /**
      * Returns the formatted fee amount for the gateway
      *
@@ -238,15 +252,11 @@ class CompanyGateway extends BaseModel
 
     public function calcGatewayFee($amount)
     {
-        if (is_null($this->fees_and_limits)) {
+
+        $fees_and_limits = $this->getFeesAndLimits();
+
+        if(!$fees_and_limits)
             return 0;
-        }
-
-        $fees_and_limits = new \stdClass;
-
-        foreach($this->fees_and_limits as $key => $value) {
-            $fees_and_limits = $this->fees_and_limits->{$key};
-        }
 
         $fee = 0;
 
