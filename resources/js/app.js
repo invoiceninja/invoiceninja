@@ -28,3 +28,12 @@ window.processingOverlay = (show) => {
         .getElementById('processing-overlay')
         .classList.add('hidden');
 };
+
+/**
+ * Remove flashing message div after 3 seconds.
+ */
+document.querySelectorAll('.disposable-alert').forEach((element) => {
+    setTimeout(() => {
+        element.remove();
+    }, 3000);
+});
