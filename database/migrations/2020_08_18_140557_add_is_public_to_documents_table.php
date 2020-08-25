@@ -35,6 +35,12 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->softDeletes('deleted_at', 6);
         });
         
+        Schema::create('payment_hashes', function ($table) {
+            $table->increments('id');
+            $table->string('hash', 255);
+            $table->mediumText('data');
+            $table->timestamps(6);
+        });
 
     }
 

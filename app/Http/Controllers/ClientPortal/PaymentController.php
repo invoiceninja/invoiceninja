@@ -72,11 +72,29 @@ class PaymentController extends Controller
      */
     public function process()
     {
-        $invoices = Invoice::whereIn('id', $this->transformKeys(request()->invoices))
-            ->where('company_id', auth('contact')->user()->company->id)
-            ->get();
+        //REFACTOR - Here the request will contain an array of invoices and the amount to be charged for the invoice
+        //REFACTOR - At this point, we will also need to modify the invoice to include a line item for a gateway fee if applicable
+        //           This is tagged with a type_id of 3 which is for a pending gateway fee.
+        //REFACTOR - In order to preserve state we should save the array of invoices and amounts and store it in db/cache and use a HASH
+        //           to rehydrate these values in the payment response.
+        //  [
+        //   'invoices' => 
+        //   [
+        //     'invoice_id' => 'xx',
+        //     'amount' => 'yy',
+        //   ]             
+        // ]
+        
+                            //old
+                            // $invoices = Invoice::whereIn('id', $this->transformKeys(request()->invoices))
+                            //     ->where('company_id', auth('contact')->user()->company->id)
+                            //     ->get();
 
-        $amount = $invoices->sum('balance');
+        
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($request()->invoices, 'invoice_id')))->get();
+
+                            //old
+                            // $amount = $invoices->sum('balance');
 
         $invoices = $invoices->filter(function ($invoice) {
             return $invoice->isPayable();
@@ -87,6 +105,14 @@ class PaymentController extends Controller
                 ->route('client.invoices.index')
                 ->with(['warning' => 'No payable invoices selected.']);
         }
+
+        foreach(request()->invoices as $payable_invoice)
+        {
+            $invoice = Invoice::find($this->decodePrimaryKey($payable_invoice['invoice_id']));
+
+            $invoice->service()->addGatewayFee($payable_invoice['amount']);
+        }
+
 
         $invoices->map(function ($invoice) {
             $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
@@ -127,6 +153,21 @@ class PaymentController extends Controller
     {
         $gateway = CompanyGateway::find($request->input('company_gateway_id'));
 
+        //REFACTOR - Entry point for the gateway response - we don't need to do anything at this point.
+        //
+        // - Inside each gateway driver, we should use have a generic code path (in BaseDriver.php)for successful/failed payment
+        // 
+        //   Success workflow
+        //   
+        // - Rehydrate the hash and iterate through the invoices and update the balances
+        // - Update the type_id of the gateway fee to type_id 4
+        // - Link invoices to payment
+        // 
+        //   Failure workflow
+        // 
+        // - Rehydrate hash, iterate through invoices and remove type_id 3's
+        // - Recalcuate invoice totals
+        
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->input('payment_method_id'))

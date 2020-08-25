@@ -11,6 +11,7 @@
 
 namespace App\Services\Invoice;
 
+use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\Client\ClientService;
@@ -76,6 +77,12 @@ class InvoiceService
         return $this;
     }
 
+    public function addGatewayFee(CompanyGateway $company_gateway, float $amount)
+    {
+        $this->invoice = (new AddGatewayFee($company_gateway, $this->invoice, $amoun))->run();
+
+        return $this;
+    }
     /**
      * Update an invoice balance
      * @param  float $balance_adjustment The amount to adjust the invoice by

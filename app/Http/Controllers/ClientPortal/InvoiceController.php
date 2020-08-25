@@ -113,6 +113,8 @@ class InvoiceController extends Controller
             'total' =>  $total,
         ];
 
+        //REFACTOR entry point for online payments starts here
+
         return $this->render('invoices.payment', $data);
     }
 
