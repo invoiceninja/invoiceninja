@@ -90,31 +90,38 @@ class PaymentController extends Controller
                             //     ->where('company_id', auth('contact')->user()->company->id)
                             //     ->get();
 
-        
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($request()->invoices, 'invoice_id')))->get();
+        /*find invoices*/
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column(request()->invoices, 'invoice_id')))->get();
 
                             //old
                             // $amount = $invoices->sum('balance');
 
+        /*filter only payable invoices*/
         $invoices = $invoices->filter(function ($invoice) {
             return $invoice->isPayable();
         });
 
+
+        /*return early if no invoices*/
         if ($invoices->count() == 0) {
             return redirect()
                 ->route('client.invoices.index')
                 ->with(['warning' => 'No payable invoices selected.']);
         }
 
+        /*iterate through invoices and add gateway fees*/
         foreach(request()->invoices as $payable_invoice)
         {
-            $invoice = Invoice::find($this->decodePrimaryKey($payable_invoice['invoice_id']));
+            $invoice = $invoices->first(function ($inv) use($payable_invoice) {
+                            return $payable_invoice['invoice_id'] == $inv->hashed_id;
+                        });
 
-            $invoice->service()->addGatewayFee($payable_invoice['amount']);
+            if($invoice)
+                $invoice->service()->addGatewayFee($payable_invoice['amount']);
         }
 
-
-        $invoices->map(function ($invoice) {
+        /*Format invoices*/
+        $invoices->fresh()->map(function ($invoice) {
             $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
             $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             
