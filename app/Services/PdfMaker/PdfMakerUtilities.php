@@ -47,7 +47,11 @@ trait PdfMakerUtilities
     public function updateElementProperties(array $elements)
     {
         foreach ($elements as $element) {
-            $node = $this->document->getElementById($element['id']);
+            if (isset($element['tag'])) {
+                $node = $this->document->getElementsByTagName($element['tag'])->item(0);
+            } else {
+                $node = $this->document->getElementById($element['id']);
+            }
 
             if (isset($element['properties'])) {
                 foreach ($element['properties'] as $property => $value) {
@@ -104,7 +108,6 @@ trait PdfMakerUtilities
     public function createElementContent($element, $children)
     {
         foreach ($children as $child) {
-
             $_child = $this->document->createElement($child['element'], $child['content']);
             $element->appendChild($_child);
 
@@ -148,5 +151,33 @@ trait PdfMakerUtilities
         );
 
         return $element;
+    }
+
+    public function processOptions()
+    {
+        if (isset($this->options['print_css']) && $this->options['print_css']) {
+            $this->insertPrintCSS();
+        }
+    }
+
+    public function insertPrintCSS()
+    {
+        $css = '.page-header,.page-header-space{height:100px}.page-footer,.page-footer-space{height:50px}.page-footer{position:fixed;bottom:0;width:100%;border-top:1px solid #000;background:#ff0}.page-header{position:fixed;top:0;width:100%;border-bottom:1px solid #000;background:#ff0}.page{page-break-after:always}@page{margin:20mm}@media print{thead{display:table-header-group}tfoot{display:table-footer-group}button{display:none}body{margin:0}}';
+
+        $css_node = $this->document->createTextNode($css);
+
+        $style = $this->document->getElementsByTagName('style')->item(0);
+
+        if ($style) {
+            return $style->appendChild($css_node);
+        }
+
+        $head = $this->document->getElementsByTagName('head')->item(0);
+
+        if ($head) {
+            $style_node = $this->document->createElement('style', $css);
+
+            return $head->appendChild($style_node);
+        }
     }
 }

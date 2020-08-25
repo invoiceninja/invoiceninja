@@ -18,7 +18,7 @@ class PdfMakerTest extends TestCase
 
     public function testDesignLoadsCorrectly()
     {
-                $this->markTestSkipped('STUB broken tests');
+        $this->markTestSkipped('STUB broken tests');
 
         $maker = new PdfMaker($this->state);
 
@@ -29,7 +29,7 @@ class PdfMakerTest extends TestCase
 
     public function testHtmlDesignLoadsCorrectly()
     {
-                $this->markTestSkipped('STUB broken tests');
+        $this->markTestSkipped('STUB broken tests');
 
         $maker = new PdfMaker($this->state);
 
@@ -42,7 +42,7 @@ class PdfMakerTest extends TestCase
 
     public function testGetSectionUtility()
     {
-                $this->markTestSkipped('STUB broken tests');
+        $this->markTestSkipped('STUB broken tests');
 
         $maker = new PdfMaker($this->state);
 
@@ -55,7 +55,7 @@ class PdfMakerTest extends TestCase
 
     public function testTableAttributesAreInjected()
     {
-                $this->markTestSkipped('STUB broken tests');
+        $this->markTestSkipped('STUB broken tests');
 
         $state = [
             'template' => [
@@ -93,7 +93,7 @@ class PdfMakerTest extends TestCase
 
     public function testVariablesAreReplaced()
     {
-                $this->markTestSkipped('STUB broken tests');
+        $this->markTestSkipped('STUB broken tests');
 
 
         $state = [
@@ -133,7 +133,7 @@ class PdfMakerTest extends TestCase
 
     public function testElementContentIsGenerated()
     {
-                $this->markTestSkipped('STUB broken tests');
+        $this->markTestSkipped('STUB broken tests');
 
 
         $state = [
@@ -184,7 +184,7 @@ class PdfMakerTest extends TestCase
 
     public function testConditionalRenderingOfElements()
     {
-                $this->markTestSkipped('STUB broken tests');
+        $this->markTestSkipped('STUB broken tests');
 
 
         $maker1 = new PdfMaker([
@@ -226,7 +226,7 @@ class PdfMakerTest extends TestCase
 
     public function testOrderingElements()
     {
-                $this->markTestSkipped('STUB broken tests');
+        $this->markTestSkipped('STUB broken tests');
 
 
         $maker = new PdfMaker([
@@ -286,7 +286,7 @@ class PdfMakerTest extends TestCase
 
     public function testGeneratingPdf()
     {
-                $this->markTestSkipped('STUB broken tests');
+        $this->markTestSkipped('STUB broken tests');
 
 
         $state = [
@@ -355,5 +355,35 @@ class PdfMakerTest extends TestCase
             ->getSectionHTML('product-table');
 
         $this->assertStringContainsString('id="product-table"', $html);
+    }
+
+    public function testWrapperHTMLWorks()
+    {
+        $design = new ExampleDesign();
+
+        $html = $design
+            ->document()
+            ->getSectionHTML('product-table');
+
+        $state = [
+            'template' => [],
+            'variables' => [
+                'labels' => [],
+                'values' => [],
+            ],
+            'options' => [
+                'print_css' => true,
+            ],
+        ];
+
+        $maker = new PdfMaker($state);
+
+        $maker
+            ->design(ExampleDesign::class)
+            ->build();
+
+        exec('echo "" > storage/logs/laravel.log');
+
+        info($maker->getCompiledHTML(true));
     }
 }
