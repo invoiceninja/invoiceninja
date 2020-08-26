@@ -13,7 +13,7 @@
 
     <body class="$global-margin antialiased bg-white break-words">
         <!-- Company logo, entity details -->
-        <div class="grid grid-cols-12 gap-4 pb-6 border-b-4 border-black">
+        <div class="grid grid-cols-12 gap-4 pb-6 border-b-4 border-black" id="header">
             <div class="col-span-6">
                 <img
                     src="$company.logo"
@@ -24,7 +24,10 @@
             <div class="flex flex-col items-end col-span-6">
                 <table id="entity-details"></table>
             </div>
-            <div class="col-span-6">
+        </div>
+
+        <div class="grid grid-cols-12">
+            <div class="col-span-6 py-6">
                 <p class="text-xl font-semibold uppercase">
                     $your_entity_label
                 </p>
