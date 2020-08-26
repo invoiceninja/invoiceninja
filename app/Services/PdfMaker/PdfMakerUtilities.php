@@ -228,33 +228,48 @@ trait PdfMakerUtilities
 
         $table = $document->getElementById('page-container');
 
-        $this->document->getElementsByTagName('body')
-            ->item(0)
-            ->appendChild($this->document->importNode($table, true));
+        $body = $this->document->getElementsByTagName('body')
+            ->item(0);
 
-        foreach ($this->data['template'] as $element) {
-            if ($element['id'] == 'header' || $element['id'] == 'footer') {
+        $body->appendChild(
+            $this->document->importNode($table, true)
+        );
+
+        for ($i = 0; $i < $body->childNodes->length; $i++) {
+            $element = $body->childNodes->item($i);
+
+            if ($element->nodeType !== 1) {
                 continue;
             }
 
-            $node = $this->document->getElementById($element['id']);
-            $node->parentNode->removeChild($node);
+            if (
+                $element->getAttribute('id') == 'header' ||
+                $element->getAttribute('id') == 'footer' ||
+                $element->getAttribute('id') === 'page-container'
+            ) {
+                continue;
+            }
 
-            $this->document->getElementById('repeat-content')->appendChild($node);
+            $clone = $element->cloneNode(true);
+            $element->parentNode->removeChild($element);
+
+            $this->document->getElementById('repeat-content')->appendChild($clone);
         }
 
         if ($header = $this->document->getElementById('header')) {
             $header = $this->document->getElementById('header');
-            $header->parentNode->removeChild($header);
+            $clone = $header->cloneNode(true);
 
-            $this->document->getElementById('repeat-header')->appendChild($header);
+            $header->parentNode->removeChild($header);
+            $this->document->getElementById('repeat-header')->appendChild($clone);
         }
 
         if ($footer = $this->document->getElementById('footer')) {
             $footer = $this->document->getElementById('footer');
-            $footer->parentNode->removeChild($footer);
+            $clone = $footer->cloneNode(true);
 
-            $this->document->getElementById('repeat-footer')->appendChild($footer);
+            $footer->parentNode->removeChild($footer);
+            $this->document->getElementById('repeat-footer')->appendChild($clone);
         }
     }
 }
