@@ -62,13 +62,13 @@ class PdfMaker
             $this->updateVariables($this->data['variables']);
         }
 
+        $this->processOptions();
+
         return $this;
     }
 
     public function getCompiledHTML($final = false)
     {
-        $this->processOptions();
-
         if ($final) {
             $html = $this->document->saveXML();
             

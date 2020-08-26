@@ -361,18 +361,21 @@ class PdfMakerTest extends TestCase
     {
         $design = new ExampleDesign();
 
-        $html = $design
-            ->document()
-            ->getSectionHTML('product-table');
-
         $state = [
-            'template' => [],
+            'template' => [
+                'product-table' => [
+                    'id' => 'product-table',
+                    'elements' => [
+                        ['element' => 'p', 'content' => 'Example paragraph'],
+                    ],
+                ],
+            ],
             'variables' => [
                 'labels' => [],
                 'values' => [],
             ],
             'options' => [
-                'print_css' => true,
+                'repeat_header_and_footer' => true,
             ],
         ];
 
@@ -381,8 +384,6 @@ class PdfMakerTest extends TestCase
         $maker
             ->design(ExampleDesign::class)
             ->build();
-
-        exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML(true));
     }
