@@ -96,7 +96,8 @@ class InvoiceController extends Controller
         }
 
         $invoices->map(function ($invoice) {
-            $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
+            $invoice->balance = Number::formatValue($invoice->balance, $invoice->client->currency());
+            $invoice->partial = Number::formatValue($invoice->partial, $invoice->client->currency());
             return $invoice;
         });
 

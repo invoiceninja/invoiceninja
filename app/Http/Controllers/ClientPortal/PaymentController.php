@@ -18,12 +18,14 @@ use App\Jobs\Invoice\InjectSignature;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
 /**
@@ -77,24 +79,12 @@ class PaymentController extends Controller
         //           This is tagged with a type_id of 3 which is for a pending gateway fee.
         //REFACTOR - In order to preserve state we should save the array of invoices and amounts and store it in db/cache and use a HASH
         //           to rehydrate these values in the payment response.
-        //  [
-        //   'invoices' => 
-        //   [
-        //     'invoice_id' => 'xx',
-        //     'amount' => 'yy',
-        //   ]             
-        // ]
-        
-                            //old
-                            // $invoices = Invoice::whereIn('id', $this->transformKeys(request()->invoices))
-                            //     ->where('company_id', auth('contact')->user()->company->id)
-                            //     ->get();
+// dd(request()->all());
 
+        $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
         /*find invoices*/
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column(request()->invoices, 'invoice_id')))->get();
-
-                            //old
-                            // $amount = $invoices->sum('balance');
+        $payable_invoices = request()->payable_invoices;
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payable_invoices, 'invoice_id')))->get();
 
         /*filter only payable invoices*/
         $invoices = $invoices->filter(function ($invoice) {
@@ -109,24 +99,37 @@ class PaymentController extends Controller
                 ->with(['warning' => 'No payable invoices selected.']);
         }
 
-        /*iterate through invoices and add gateway fees*/
-        foreach(request()->invoices as $payable_invoice)
+        /*iterate through invoices and add gateway fees and other payment metadata*/
+        
+        foreach($payable_invoices as $key => $payable_invoice)
         {
+            $payable_invoice[$key]['amount'] = Number::parseFloat($payable_invoice[$key]['amount']);
+
             $invoice = $invoices->first(function ($inv) use($payable_invoice) {
-                            return $payable_invoice['invoice_id'] == $inv->hashed_id;
+                            return $payable_invoice[$key]['invoice_id'] == $inv->hashed_id;
                         });
 
             if($invoice)
-                $invoice->service()->addGatewayFee($payable_invoice['amount'])->save();
-        }
+                $invoice->service()->addGatewayFee($gateway, $payable_invoice[$key]['amount'])->save();
 
-        /*Format invoices we need to use fresh() here to bring in the gateway fees*/
-        $invoices->fresh()->map(function ($invoice) {
-            $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
-            $invoice->due_date = $this->formatDate($invoice->due_date, $invoice->client->date_format());
-            
-            return $invoice;
-        });
+            /*Update the payable amount to include the fee*/
+            $gateway_fee = $gateway->calcGatewayFee($payable_invoice[$key]['amount']);
+
+            $payable_invoice[$key]['amount_with_fee'] += $gateway_fee;
+            $payable_invoice[$key]['fee'] = $gateway_fee;
+            $payable_invoice[$key]['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
+            $payable_invoice[$key]['invoice_number'] = $invoice->number;
+
+            if(isset($invoice->po_number))
+                $additional_info = $invoice->po_number;
+            elseif(isset($invoice->public_notes))
+                $additional_info = $invoice->public_notes;
+            else
+                $additional_info = $invoice->date;
+
+            $payable_invoice[$key]['additional_info'] = $additional_info;
+
+        }
 
         if ((bool) request()->signature) {
             $invoices->each(function ($invoice) {
@@ -135,19 +138,25 @@ class PaymentController extends Controller
         }
 
         $payment_methods = auth()->user()->client->getPaymentMethods($amount);
-        $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
         $payment_method_id = request()->input('payment_method_id');
 
-        // Place to calculate gateway fee.
+        $payment_hash = new PaymentHash;
+        $payment_hash->hash = Str::random(128);
+        $payment_hash->data = $payable_invoices;
+        $payment_hash->save();
+
+        $totals = [
+            'invoice_totals' => array_sum(array_column($payable_invoices,'amount')),
+            'fee_totals' => array_sum(array_column($payable_invoices, 'fee')),
+            'amount_with_fee' => array_sum(array_column($payable_invoices, 'amount_with_fee')),
+        ];
 
         $data = [
-            'invoices' => $invoices,
-            'amount' => $amount,
-            'fee' => $gateway->calcGatewayFee($amount),
-            'amount_with_fee' => $amount + $gateway->calcGatewayFee($amount),
+            'payment_hash' => $payment_hash->hash,
+            'total' => $totals,
+            'invoices' => $payable_invoices,
             'token' => auth()->user()->client->gateway_token($gateway->id, $payment_method_id),
             'payment_method_id' => $payment_method_id,
-            'hashed_ids' => request()->invoices,
         ];
 
         return $gateway

@@ -33,12 +33,12 @@ class Number
     /**
      * Formats a given value based on the clients currency
      *
-     * @param  float $value    The number to be formatted
+     * @param  float  $value    The number to be formatted
      * @param  object $currency The client currency object
      *
-     * @return float           The formatted value
+     * @return string           The formatted value
      */
-    public static function formatValue($value, $currency) : float
+    public static function formatValue($value, $currency) :string
     {
         $value = floatval($value);
 
@@ -47,6 +47,30 @@ class Number
         $precision = $currency->precision;
 
         return number_format($value, $precision, $decimal, $thousand);
+    }
+
+    /**
+     * Formats a given value based on the clients currency
+     * BACK to a float
+     *
+     * @param  string $value    The formatted number to be converted back to float
+     * @param  object $currency The client currency object
+     *
+     * @return float            The formatted value
+     */
+    public static function parseFloat($value)
+    {
+        // convert "," to "."
+        $s = str_replace(',', '.', $value);
+
+        // remove everything except numbers and dot "."
+        $s = preg_replace("/[^0-9\.]/", "", $s);
+
+        // remove all seperators from first part and keep the end
+        $s = str_replace('.', '',substr($s, 0, -3)) . substr($s, -3);
+
+        // return float
+        return (float) $s;
     }
 
     /**
