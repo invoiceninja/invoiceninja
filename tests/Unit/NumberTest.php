@@ -42,13 +42,7 @@ class NumberTest extends TestCase
 
             $formatted_amount = Number::formatValue($amount, $currency);
 
-            info($formatted_amount);
-
             $float_amount = Number::parseFloat($formatted_amount);
-
-            info($float_amount);
-            info($currency->id);
-            info($currency->code);
 
             if($currency->precision == 0){
                 $this->assertEquals(123456789, $float_amount);

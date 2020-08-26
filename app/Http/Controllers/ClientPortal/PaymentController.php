@@ -103,19 +103,21 @@ class PaymentController extends Controller
         
         foreach($payable_invoices as $key => $payable_invoice)
         {
-            $payable_invoice[$key]['amount'] = Number::parseFloat($payable_invoice[$key]['amount']);
+
+            $payable_invoice[$key]['amount'] = Number::parseFloat($payable_invoice['amount']);
+            $payable_invoice['amount'] = $payable_invoice[$key]['amount'];
 
             $invoice = $invoices->first(function ($inv) use($payable_invoice) {
-                            return $payable_invoice[$key]['invoice_id'] == $inv->hashed_id;
+                            return $payable_invoice['invoice_id'] == $inv->hashed_id;
                         });
 
             if($invoice)
-                $invoice->service()->addGatewayFee($gateway, $payable_invoice[$key]['amount'])->save();
+                $invoice->service()->addGatewayFee($gateway, $payable_invoice['amount'])->save();
 
             /*Update the payable amount to include the fee*/
-            $gateway_fee = $gateway->calcGatewayFee($payable_invoice[$key]['amount']);
+            $gateway_fee = $gateway->calcGatewayFee($payable_invoice['amount']);
 
-            $payable_invoice[$key]['amount_with_fee'] += $gateway_fee;
+            $payable_invoice[$key]['amount_with_fee'] = $payable_invoice['amount'] + $gateway_fee;
             $payable_invoice[$key]['fee'] = $gateway_fee;
             $payable_invoice[$key]['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             $payable_invoice[$key]['invoice_number'] = $invoice->number;
