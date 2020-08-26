@@ -44,6 +44,7 @@ class CompanyGateway extends BaseModel
         'custom_value3',
         'custom_value4',
         'token_billing',
+        'label',
     ];
 
     public static $credit_cards = [
