@@ -104,23 +104,23 @@ class PaymentController extends Controller
         foreach($payable_invoices as $key => $payable_invoice)
         {
 
-            $payable_invoice[$key]['amount'] = Number::parseFloat($payable_invoice['amount']);
-            $payable_invoice['amount'] = $payable_invoice[$key]['amount'];
+            $payable_invoices[$key]['amount'] = Number::parseFloat($payable_invoice['amount']);
+            $payable_invoice['amount'] = $payable_invoices[$key]['amount'];
 
             $invoice = $invoices->first(function ($inv) use($payable_invoice) {
                             return $payable_invoice['invoice_id'] == $inv->hashed_id;
                         });
 
-            if($invoice)
-                $invoice->service()->addGatewayFee($gateway, $payable_invoice['amount'])->save();
+            // if($invoice)
+            //     $invoice->service()->addGatewayFee($gateway, $payable_invoice['amount'])->save();
 
             /*Update the payable amount to include the fee*/
-            $gateway_fee = $gateway->calcGatewayFee($payable_invoice['amount']);
+            // $gateway_fee = $gateway->calcGatewayFee($payable_invoice['amount']);
 
-            $payable_invoice[$key]['amount_with_fee'] = $payable_invoice['amount'] + $gateway_fee;
-            $payable_invoice[$key]['fee'] = $gateway_fee;
-            $payable_invoice[$key]['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
-            $payable_invoice[$key]['invoice_number'] = $invoice->number;
+            // $payable_invoices[$key]['amount_with_fee'] = $payable_invoice['amount'] + $gateway_fee;
+            // $payable_invoices[$key]['fee'] = $gateway_fee;
+            $payable_invoices[$key]['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
+            $payable_invoices[$key]['invoice_number'] = $invoice->number;
 
             if(isset($invoice->po_number))
                 $additional_info = $invoice->po_number;
@@ -129,7 +129,7 @@ class PaymentController extends Controller
             else
                 $additional_info = $invoice->date;
 
-            $payable_invoice[$key]['additional_info'] = $additional_info;
+            $payable_invoices[$key]['additional_info'] = $additional_info;
 
         }
 
@@ -139,7 +139,7 @@ class PaymentController extends Controller
             });
         }
 
-        $payment_methods = auth()->user()->client->getPaymentMethods($amount);
+        $payment_methods = auth()->user()->client->getPaymentMethods(array_sum(array_column($payable_invoices, 'amount_with_fee')));
         $payment_method_id = request()->input('payment_method_id');
 
         $payment_hash = new PaymentHash;
@@ -147,10 +147,13 @@ class PaymentController extends Controller
         $payment_hash->data = $payable_invoices;
         $payment_hash->save();
 
+        $invoice_totals = array_sum(array_column($payable_invoices,'amount'));
+        $fee_totals = $gateway->calcGatewayFee($invoice_totals);
+
         $totals = [
-            'invoice_totals' => array_sum(array_column($payable_invoices,'amount')),
-            'fee_totals' => array_sum(array_column($payable_invoices, 'fee')),
-            'amount_with_fee' => array_sum(array_column($payable_invoices, 'amount_with_fee')),
+            'invoice_totals' => $invoice_totals,
+            'fee_totals' => $fee_totals,
+            'amount_with_fee' => $invoice_totals + $fee_totals,
         ];
 
         $data = [
