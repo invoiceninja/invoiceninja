@@ -98,8 +98,8 @@ class CreateQuotePdf implements ShouldQueue
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'options' => [
-                'all_pages_header' => $this->invoice->client->getSetting('all_pages_header'),
-                'all_pages_footer' => $this->invoice->client->getSetting('all_pages_footer'),
+                'all_pages_header' => $this->quote->client->getSetting('all_pages_header'),
+                'all_pages_footer' => $this->quote->client->getSetting('all_pages_footer'),
             ],
         ];
 
