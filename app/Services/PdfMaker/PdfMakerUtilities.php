@@ -156,10 +156,12 @@ trait PdfMakerUtilities
 
     public function processOptions()
     {
-        if (isset($this->options['repeat_header_and_footer']) && $this->options['repeat_header_and_footer']) {
-            $this->insertPrintCSS();
-            $this->wrapIntoTable();
+        if (!isset($this->options['all_page_header']) && !isset($this->options['all_page_footer'])) {
+            return;
         }
+
+        $this->insertPrintCSS();
+        $this->wrapIntoTable();
     }
 
     public function insertPrintCSS()
@@ -256,7 +258,12 @@ trait PdfMakerUtilities
             $this->document->getElementById('repeat-content')->appendChild($clone);
         }
 
-        if ($header = $this->document->getElementById('header')) {
+        if (
+            $header = $this->document->getElementById('header') && 
+            isset($this->data['options']['all_page_header']) &&
+            $this->data['options']['all_page_header']
+        ) {
+
             $header = $this->document->getElementById('header');
             $clone = $header->cloneNode(true);
 
@@ -264,7 +271,11 @@ trait PdfMakerUtilities
             $this->document->getElementById('repeat-header')->appendChild($clone);
         }
 
-        if ($footer = $this->document->getElementById('footer')) {
+        if (
+            $footer = $this->document->getElementById('footer') &&
+            isset($this->data['options']['all_page_footer']) &&
+            $this->data['options']['all_page_footer']
+        ) {
             $footer = $this->document->getElementById('footer');
             $clone = $footer->cloneNode(true);
 
