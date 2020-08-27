@@ -32,9 +32,15 @@ class PdfMaker
         '<?xml version="1.0" encoding="utf-8" standalone="yes"??>' => '',
     ];
 
+    private $options;
+
     public function __construct(array $data)
     {
         $this->data = $data;
+
+        if (array_key_exists('options', $data)) {
+            $this->options = $data['options'];
+        }
     }
 
     public function design(string $design)
@@ -56,6 +62,8 @@ class PdfMaker
             $this->updateVariables($this->data['variables']);
         }
 
+        $this->processOptions();
+
         return $this;
     }
 
@@ -63,12 +71,12 @@ class PdfMaker
     {
         if ($final) {
             $html = $this->document->saveXML();
-
+            
             $filtered = strtr($html, $this->filters);
-
+            
             return $filtered;
         }
-
+        
         return $this->document->saveXML();
     }
 }
