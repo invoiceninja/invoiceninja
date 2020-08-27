@@ -64,6 +64,7 @@ To use a local PhantomJS install add ``PHANTOMJS_BIN_PATH=/usr/local/bin/phantom
 Troubleshooting
 ---------------
 
+- Check a company name is set on Settings > Company Details
 - Check storage/logs/laravel-error.log for relevant errors.
 - To determine the path you can run ``which phantomjs`` from the command line.
 - We suggest using PhantomJS version >= 2.1.1, users have reported seeing 'Error: 0' with older versions.
