@@ -357,7 +357,7 @@ class PdfMakerTest extends TestCase
                 'values' => [],
             ],
             'options' => [
-                'all_page_footer' => true,
+                'all_pages_footer' => true,
             ],
         ];
 

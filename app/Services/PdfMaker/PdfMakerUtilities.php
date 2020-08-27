@@ -156,7 +156,7 @@ trait PdfMakerUtilities
 
     public function processOptions()
     {
-        if (!isset($this->options['all_page_header']) && !isset($this->options['all_page_footer'])) {
+        if (!isset($this->options['all_pages_header']) && !isset($this->options['all_pages_footer'])) {
             return;
         }
 
@@ -260,8 +260,8 @@ trait PdfMakerUtilities
 
         if (
             $header = $this->document->getElementById('header') && 
-            isset($this->data['options']['all_page_header']) &&
-            $this->data['options']['all_page_header']
+            isset($this->data['options']['all_pages_header']) &&
+            $this->data['options']['all_pages_header']
         ) {
 
             $header = $this->document->getElementById('header');
@@ -273,8 +273,8 @@ trait PdfMakerUtilities
 
         if (
             $footer = $this->document->getElementById('footer') &&
-            isset($this->data['options']['all_page_footer']) &&
-            $this->data['options']['all_page_footer']
+            isset($this->data['options']['all_pages_footer']) &&
+            $this->data['options']['all_pages_footer']
         ) {
             $footer = $this->document->getElementById('footer');
             $clone = $footer->cloneNode(true);

@@ -99,6 +99,10 @@ class CreateInvoicePdf implements ShouldQueue
                 'product-table-columns' => $pdf_variables['product_columns'],
             ]),
             'variables' => $html->generateLabelsAndValues(),
+            'options' => [
+                'all_pages_header' => $this->invoice->client->getSetting('all_pages_header'),
+                'all_pages_footer' => $this->invoice->client->getSetting('all_pages_footer'),
+            ],
         ];
 
         $maker = new PdfMakerService($state);
@@ -109,6 +113,8 @@ class CreateInvoicePdf implements ShouldQueue
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0775);
+
+        info($maker->getCompiledHTML());
 
         $pdf       = $this->makePdf(null, null, $maker->getCompiledHTML());
 
