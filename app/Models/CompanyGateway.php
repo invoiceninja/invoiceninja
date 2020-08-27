@@ -293,7 +293,12 @@ class CompanyGateway extends BaseModel
         return $fee;
     }
 
-
+    /**
+      * we need to average out the gateway fees across all the invoices
+      * so lets iterate.
+      *
+      * we MAY need to adjust the final fee to ensure our rounding makes sense!
+     */
     public function calcGatewayFeeObject($amount, $invoice_count)
     {
         $total_gateway_fee = $this->calcGatewayFee($amount);
