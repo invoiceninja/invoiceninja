@@ -38,6 +38,7 @@ class AddIsPublicToDocumentsTable extends Migration
         Schema::create('payment_hashes', function ($table) {
             $table->increments('id');
             $table->string('hash', 255);
+            $table->decimal('fee_total', 16, 4);
             $table->mediumText('data');
             $table->timestamps(6);
         });

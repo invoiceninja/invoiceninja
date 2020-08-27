@@ -11,6 +11,11 @@
 
   <style>
 
+    /* fix for blurry fonts */
+    flt-glass-pane {
+        image-rendering: pixelated;
+    }
+
     /* https://projects.lukehaas.me/css-loaders/ */
     .loader,
     .loader:before,

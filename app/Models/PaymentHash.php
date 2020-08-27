@@ -20,7 +20,6 @@ class PaymentHash extends Model
         'data' => 'object'
     ];
 
-
     public function invoices()
     {
     	return $this->data->invoices;

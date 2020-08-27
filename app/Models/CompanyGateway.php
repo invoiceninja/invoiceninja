@@ -293,6 +293,34 @@ class CompanyGateway extends BaseModel
         return $fee;
     }
 
+
+    public function calcGatewayFeeObject($amount, $invoice_count)
+    {
+        $total_gateway_fee = $this->calcGatewayFee($amount);
+
+        $fee_object = new \stdClass;
+
+        $fees_and_limits = $this->getFeesAndLimits();
+
+        if(!$fees_and_limits)
+            return $fee_object;
+
+        $fee_component_amount  = $fees_and_limits->fee_amount ?: 0;
+        $fee_component_percent = $fees_and_limits->fee_percent ? ($amount * $fees_and_limits->fee_percent / 100) : 0;
+
+        $combined_fee_component = $fee_component_amount + $fee_component_percent;
+
+        $fee_component_tax_name1 = $fees_and_limits->fee_tax_name1 ?: '';
+        $fee_component_tax_rate1 = $fees_and_limits->fee_tax_rate1 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate1 / 100) : 0;
+
+        $fee_component_tax_name2 = $fees_and_limits->fee_tax_name2 ?: '';
+        $fee_component_tax_rate2 = $fees_and_limits->fee_tax_rate2 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate2 / 100) : 0;
+
+        $fee_component_tax_name3 = $fees_and_limits->fee_tax_name3 ?: '';
+        $fee_component_tax_rate3 = $fees_and_limits->fee_tax_rate3 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate3 / 100) : 0;
+
+    }
+
     public function resolveRouteBinding($value)
     {
         return $this

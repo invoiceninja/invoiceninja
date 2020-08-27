@@ -14,6 +14,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Filters\PaymentFilters;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Invoice\InjectSignature;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
@@ -142,17 +143,18 @@ class PaymentController extends Controller
         $payment_methods = auth()->user()->client->getPaymentMethods(array_sum(array_column($payable_invoices, 'amount_with_fee')));
         $payment_method_id = request()->input('payment_method_id');
 
-        $payment_hash = new PaymentHash;
-        $payment_hash->hash = Str::random(128);
-        $payment_hash->data = $payable_invoices;
-        $payment_hash->save();
-
         $invoice_totals = array_sum(array_column($payable_invoices,'amount'));
         $fee_totals = $gateway->calcGatewayFee($invoice_totals);
 
+        $payment_hash = new PaymentHash;
+        $payment_hash->hash = Str::random(128);
+        $payment_hash->data = $payable_invoices;
+        $payment_hash->fees = $fee_totals;
+        $payment_hash->save();
+
         $totals = [
             'invoice_totals' => $invoice_totals,
-            'fee_totals' => $fee_totals,
+            'fee_total' => $fee_totals,
             'amount_with_fee' => $invoice_totals + $fee_totals,
         ];
 
@@ -170,10 +172,17 @@ class PaymentController extends Controller
             ->processPaymentView($data);
     }
 
-    public function response(Request $request)
+    public function response(PaymentResponseRequest $request)
     {
-        $gateway = CompanyGateway::find($request->input('company_gateway_id'));
+        $gateway = CompanyGateway::find($request->input('company_gateway_id'))->firstOrFail();
 
+        $payment_hash = $request->getPaymentHash();
+        $payment_invoices = $payment_hash->invoices();
+        $fee_total = $payment_hash->fee_total;
+
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payable_invoices, 'invoice_id')))->get();
+
+        $invoice_count = $invoices->count();
         //REFACTOR - Entry point for the gateway response - we don't need to do anything at this point.
         //
         // - Inside each gateway driver, we should use have a generic code path (in BaseDriver.php)for successful/failed payment
