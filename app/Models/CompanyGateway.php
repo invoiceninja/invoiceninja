@@ -201,6 +201,18 @@ class CompanyGateway extends BaseModel
         return floatval($this->fee_amount) || floatval($this->fee_percent);
     }
 
+    public function isTestMode()
+    {
+        $config = $this->getConfig();
+
+        if($this->gateway->provider == 'Stripe' && strpos($config->publishableKey, 'test'))
+            return true;
+
+        if(property_exists($config, 'testMode') && $config->testMode)
+            return true;
+
+        return false;
+    }
     /**
      * Get Publishable Key
      * Only works for STRIPE and PAYMILL
