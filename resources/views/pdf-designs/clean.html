@@ -15,6 +15,14 @@
         #product-table tbody > tr:nth-child(even) {
             background-color: #f7fafc;
         }
+
+        /** Required for proper margins on print **/
+        @page {
+            margin-top: 8.5mm;
+            margin-bottom: 8.5mm;
+        }
+
+        /** Custom CSS goes here.. */
     </style>
 
     <body class="$global-margin bg-white break-words antialiased">
@@ -34,7 +42,7 @@
         </div>
 
         <!-- Entity labels, client details -->
-        <p class="mt-10 px-2 text-xl text-blue-500 uppercase">$entity_label</p>
+        <p class="px-2 mt-10 text-xl text-blue-500 uppercase">$entity_label</p>
         <div class="grid grid-cols-12 px-2 py-3 mt-4 border-t border-b">
             <div class="col-span-6">
                 <table id="entity-details"></table>
@@ -43,7 +51,10 @@
         </div>
 
         <!-- Product table -->
-        <table id="product-table" class="table-auto mt-12 w-full"></table>
+        <table
+            id="product-table"
+            class="table-auto w-full mt-12 $table-padding"
+        ></table>
     </body>
 
     <footer id="footer"></footer>

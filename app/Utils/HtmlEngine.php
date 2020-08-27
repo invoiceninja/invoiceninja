@@ -95,8 +95,8 @@ class HtmlEngine
         }
 
         $data = [];
-        $data['$global-margin']          = ['value' => 'm-12', 'label' => ''];
-        $data['$global-padding']         = ['value' => 'p-12', 'label' => ''];
+        $data['$global-margin']          = ['value' => 'm-8', 'label' => ''];
+        $data['$global-padding']         = ['value' => 'p-8', 'label' => ''];
         $data['$tax']                    = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$app_url']                = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from']                   = ['value' => '', 'label' => ctrans('texts.from')];
