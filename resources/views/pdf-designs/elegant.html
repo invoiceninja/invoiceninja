@@ -11,6 +11,16 @@
         <link rel="stylesheet" href="$app_url/css/tailwindcss@1.4.6.css" />
     </head>
 
+    <style>
+        /** Required for proper margins on print **/
+        @page {
+            margin-top: 8.5mm;
+            margin-bottom: 8.5mm;
+        }
+
+        /** Custom CSS goes here.. */
+    </style>
+
     <body class="$global-margin antialiased bg-white break-words">
         <!-- Company logo, entity details -->
         <div class="grid grid-cols-12 gap-4 pb-6 border-b-4 border-black">
@@ -44,16 +54,19 @@
         </div>
 
         <!-- Product table -->
-        <table id="product-table" class="w-full mt-10 table-auto"></table>
+        <table
+            id="product-table"
+            class="w-full mt-10 table-auto $table-padding"
+        ></table>
 
         <!-- Thanks label -->
-        <p
-            class="w-full pb-4 mt-10 text-2xl font-semibold text-center border-b-4 border-black"
-        >
-            $thanks_label
-        </p>
-        <div class="w-full border-black order-b wpy-1"></div>
+        <div id="footer">
+            <p
+                class="w-full pb-4 mt-10 text-2xl font-semibold text-center border-b-4 border-black"
+            >
+                $thanks_label
+            </p>
+            <div class="w-full border-black order-b wpy-1"></div>
+        </div>
     </body>
-
-    <footer id="footer"></footer>
 </html>
