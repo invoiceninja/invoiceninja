@@ -94,8 +94,6 @@ class PreviewController extends BaseController
 
             $entity_obj->load('client');
 
-            info($entity_obj);
-
             $html = new HtmlEngine(null, $entity_obj->invitations()->first(), request()->entity_type);
 
             $design_namespace = 'App\Services\PdfMaker\Designs\\' . request()->design['name'];
@@ -171,17 +169,40 @@ class PreviewController extends BaseController
             return response()->json(['message' => 'Invalid custom design object'], 400);
         }
 
-        $designer = new Designer($invoice, $design_object, auth()->user()->company()->settings->pdf_variables, lcfirst(request()->input('entity')));
+        $html = new HtmlEngine(null, $invoice->invitations()->first(), 'invoice');
 
-        $html = $this->generateEntityHtml($designer, $invoice, $contact);
-info($html);
-        $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
+        /** TODO: This request() does not contain design string - making it impossible to update its content. */
+        $design_namespace = 'App\Services\PdfMaker\Designs\\' . request()->design['name'];
+
+        $design_class = new $design_namespace();
+
+        // $designer = new Designer($entity_obj, $design_object, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
+        // $html = $this->generateEntityHtml($designer, $entity_obj);
+
+        $state = [
+            'template' => $design_class->elements([
+                'client' => $invoice->client,
+                'entity' => $invoice,
+                'pdf_variables' => (array) $invoice->company->settings->pdf_variables,
+            ]),
+            'variables' => $html->generateLabelsAndValues(),
+        ];
+
+        $maker = new PdfMaker($state);
+
+        $maker
+            ->design($design_namespace)
+            ->build();
+
+        $maker->getCompiledHTML();
+
+        $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(), auth()->user()->company());
 
         DB::rollBack();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
-        return $response;
 
+        return $response;
     }
 }
