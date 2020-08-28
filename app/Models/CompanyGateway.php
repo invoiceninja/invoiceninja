@@ -201,7 +201,12 @@ class CompanyGateway extends BaseModel
         return floatval($this->fee_amount) || floatval($this->fee_percent);
     }
 
-    public function isTestMode()
+    /**
+     * Returns the current test mode of the gateway
+     * 
+     * @return boolean whether the gateway is in testmode or not.
+     */
+    public function isTestMode() :bool
     {
         $config = $this->getConfig();
 
