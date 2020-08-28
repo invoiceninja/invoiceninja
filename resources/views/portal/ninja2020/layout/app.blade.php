@@ -69,6 +69,13 @@
     </head>
 
     <body class="antialiased">
+        @if(session()->has('message'))
+            <div class="bg-blue-800 text-sm py-1 text-white text-center disposable-alert">
+                {{ session('message') }}
+            </div>
+        @endif
+
+        @include('portal.ninja2020.components.processing')
         @component('portal.ninja2020.components.general.sidebar.main')
             @yield('body')
         @endcomponent

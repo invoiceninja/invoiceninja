@@ -48,8 +48,14 @@
                                     {{ ctrans('texts.save_as_default') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    <input type="checkbox" class="form-checkbox" name="proxy_is_default"
-                                           id="proxy_is_default"/>
+                                    <label for="yes" class="mr-4">
+                                        <input type="radio" class="form-radio cursor-pointer" name="proxy_is_default" {{ $client->getSetting('auto_bill') == 'on' ? 'checked': '' }} id="proxy_is_default" value="true">
+                                        <span class="ml-1">{{ ctrans('texts.yes') }}</span>
+                                    </label>
+                                    <label for="no">
+                                        <input type="radio" class="form-radio cursor-pointer" name="proxy_is_default" {{ $client->getSetting('auto_bill') == 'off' ? 'checked': '' }} id="proxy_is_default" value="false">
+                                        <span class="ml-1">{{ ctrans('texts.no') }}</span>
+                                    </label>
                                 </dd>
                             </div>
                             <div class="bg-white px-4 py-5 flex justify-end">

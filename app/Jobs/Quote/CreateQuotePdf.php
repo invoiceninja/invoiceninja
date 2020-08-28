@@ -97,6 +97,10 @@ class CreateQuotePdf implements ShouldQueue
                 'pdf_variables' => (array)$this->quote->company->settings->pdf_variables,
             ]),
             'variables' => $html->generateLabelsAndValues(),
+            'options' => [
+                'all_pages_header' => $this->quote->client->getSetting('all_pages_header'),
+                'all_pages_footer' => $this->quote->client->getSetting('all_pages_footer'),
+            ],
         ];
 
         $maker = new PdfMakerService($state);

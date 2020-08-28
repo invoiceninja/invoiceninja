@@ -338,4 +338,39 @@ class PdfMakerTest extends TestCase
 
         $this->assertStringContainsString('id="product-table"', $html);
     }
+
+    public function testWrapperHTMLWorks()
+    {
+        $design = new ExampleDesign();
+
+        $state = [
+            'template' => [
+                'product-table' => [
+                    'id' => 'product-table',
+                    'elements' => [
+                        ['element' => 'p', 'content' => 'Example paragraph'],
+                    ],
+                ],
+            ],
+            'variables' => [
+                'labels' => [],
+                'values' => [],
+            ],
+            'options' => [
+                'all_pages_footer' => true,
+            ],
+        ];
+
+        $maker = new PdfMaker($state);
+
+        $maker
+            ->design(ExampleDesign::class)
+            ->build();
+
+        exec('echo "" > storage/logs/laravel.log');
+
+        info($maker->getCompiledHTML(true));
+
+        $this->assertTrue(true);
+    }
 }

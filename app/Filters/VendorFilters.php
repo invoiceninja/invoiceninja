@@ -24,32 +24,6 @@ class VendorFilters extends QueryFilters
 {
 
     /**
-     * Filter by balance
-     *
-     * @param  string $balance
-     * @return Illuminate\Database\Query\Builder
-     */
-    public function balance(string $balance): Builder
-    {
-        $parts = $this->split($balance);
-
-        return $this->builder->where('balance', $parts->operator, $parts->value);
-    }
-
-    /**
-     * Filter between balances
-     *
-     * @param  string balance
-     * @return Illuminate\Database\Query\Builder
-     */
-    public function between_balance(string $balance): Builder
-    {
-        $parts = explode(":", $balance);
-
-        return $this->builder->whereBetween('balance', [$parts[0], $parts[1]]);
-    }
-
-    /**
      * Filter based on search text
      *
      * @param  string query filter

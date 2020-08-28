@@ -13,7 +13,7 @@
 
     <body class="antialiased break-words bg-white">
         <!-- Company name, entity details -->
-        <div class="bg-orange-600">
+        <div class="bg-orange-600" id="header">
             <div class="$global-padding">
                 <div class="grid grid-cols-12">
                     <div class="col-span-4">
@@ -30,8 +30,8 @@
 
         <div class="$global-margin">
             <!-- Company logo, client details -->
-            <div class="col-span-12 mb-10">
-                <p class="text-xl text-orange-600 font-semibold uppercase">
+            <div class="col-span-12 mt-6 mb-10">
+                <p class="text-xl font-semibold text-orange-600 uppercase">
                     $your_entity_label
                 </p>
             </div>
@@ -45,11 +45,14 @@
             </div>
 
             <!-- Product table -->
-            <table id="product-table" class="w-full mt-8 table-auto"></table>
+            <table
+                id="product-table"
+                class="w-full mt-8 mb-10 table-auto $table-padding"
+            ></table>
         </div>
 
         <!-- Company details -->
-        <div class="bg-orange-600">
+        <footer id="footer" class="fixed bottom-0 w-full bg-orange-600">
             <div class="$global-padding">
                 <div class="grid grid-cols-12">
                     <div
@@ -60,8 +63,6 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </footer>
     </body>
-
-    <footer id="footer"></footer>
 </html>

@@ -131,7 +131,7 @@ class InvoiceController extends Controller
 
         //generate pdf's of invoices locally
         if (!$invoices || $invoices->count() == 0) {
-            return;
+            return back()->with(['message' => ctrans('texts.no_items_selected')]);
         }
 
         //if only 1 pdf, output to buffer for download

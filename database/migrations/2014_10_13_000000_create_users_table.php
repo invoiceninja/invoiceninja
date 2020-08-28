@@ -481,7 +481,7 @@ class CreateUsersTable extends Migration
             $t->boolean('custom_surcharge_tax3')->default(false);
             $t->boolean('custom_surcharge_tax4')->default(false);
 
-            $t->decimal('exchange_rate', 16, 4);
+            $t->decimal('exchange_rate', 13, 6)->default(1);
             $t->decimal('amount', 16, 4);
             $t->decimal('balance', 16, 4);
             $t->decimal('partial', 16, 4)->nullable();
@@ -559,7 +559,7 @@ class CreateUsersTable extends Migration
             $t->boolean('custom_surcharge_tax3')->default(false);
             $t->boolean('custom_surcharge_tax4')->default(false);
 
-            $t->decimal('exchange_rate', 16, 4);
+            $t->decimal('exchange_rate', 13, 6)->default(1);
             $t->decimal('amount', 16, 4);
             $t->decimal('balance', 16, 4);
             $t->decimal('partial', 16, 4)->nullable();
@@ -803,7 +803,7 @@ class CreateUsersTable extends Migration
             $t->boolean('custom_surcharge_tax3')->default(false);
             $t->boolean('custom_surcharge_tax4')->default(false);
 
-            $t->decimal('exchange_rate', 16, 4);
+            $t->decimal('exchange_rate', 13, 6)->default(1);
             $t->decimal('amount', 16, 4);
             $t->decimal('balance', 16, 4);
             $t->decimal('partial', 16, 4)->nullable();
@@ -964,7 +964,7 @@ class CreateUsersTable extends Migration
             $t->softDeletes('deleted_at', 6);
             $t->boolean('is_deleted')->default(false);
             $t->boolean('is_manual')->default(false);
-            $t->decimal('exchange_rate', 16, 6)->default(1);
+            $t->decimal('exchange_rate', 13, 6)->default(1);
             $t->unsignedInteger('currency_id');
             $t->unsignedInteger('exchange_currency_id');
 
@@ -1297,7 +1297,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_deleted')->default(false);
             $table->decimal('amount', 13, 2);
             $table->decimal('foreign_amount', 13, 2);
-            $table->decimal('exchange_rate', 13, 4);
+            $table->decimal('exchange_rate', 13, 6)->default(1);
             $table->string('tax_name1')->nullable();
             $table->decimal('tax_rate1', 13, 3)->default(0);
             $table->string('tax_name2')->nullable();

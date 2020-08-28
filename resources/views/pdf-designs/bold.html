@@ -12,14 +12,21 @@
     </head>
 
     <style>
-        #product-table tbody > tr:nth-child(even) {
+        tbody > tr:nth-child(even) {
             background-color: #edf2f7;
         }
+
+        /** Required for proper margins on print **/
+        @page {
+            margin-bottom: 8.5mm;
+        }
+
+        /** Custom CSS goes here.. */
     </style>
 
     <body class="antialiased break-words bg-white">
         <!-- Company logo, company details -->
-        <div class="$global-padding static bg-gray-800">
+        <div class="$global-padding static bg-gray-800" id="header">
             <div class="grid grid-cols-12">
                 <div class="absolute col-span-4 p-6 pb-10 bg-white">
                     <img
@@ -36,7 +43,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
         <!-- Client details, entity details -->
         <div class="grid grid-cols-12 gap-4 my-12 ml-12">
@@ -60,7 +66,10 @@
 
         <!-- Product table -->
         <div class="$global-margin">
-            <table id="product-table" class="w-full mt-8 table-auto"></table>
+            <table
+                id="product-table"
+                class="w-full table-auto mt-8 $table-padding"
+            ></table>
         </div>
     </body>
 

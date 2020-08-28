@@ -20,11 +20,19 @@
             color: #9b2c2c;
             font-weight: bold;
         }
+
+        /** Required for proper margins on print **/
+        @page {
+            margin-top: 8.5mm;
+            margin-bottom: 8.5mm;
+        }
+
+        /** Custom CSS goes here.. */
     </style>
 
     <body class="$global-margin antialiased bg-white break-words">
         <!-- Company logo, entity details -->
-        <div class="grid grid-cols-12 gap-4">
+        <div class="grid grid-cols-12 gap-4" id="header">
             <div class="col-span-4">
                 <img
                     src="$company.logo"
@@ -40,7 +48,7 @@
         <!-- Company details, client details -->
         <div class="grid grid-cols-12 gap-12 mt-12">
             <div class="col-span-12">
-                <p class="text-xl text-teal-600 font-semibold uppercase">
+                <p class="text-xl font-semibold text-teal-600 uppercase">
                     $your_entity_label
                 </p>
             </div>
@@ -64,7 +72,10 @@
         </div>
 
         <!-- Product table -->
-        <table id="product-table" class="w-full mt-10 table-auto"></table>
+        <table
+            id="product-table"
+            class="w-full mt-10 table-auto $table-padding"
+        ></table>
     </body>
 
     <footer id="footer"></footer>

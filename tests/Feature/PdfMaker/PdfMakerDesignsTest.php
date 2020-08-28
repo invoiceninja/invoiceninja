@@ -50,6 +50,8 @@ class PdfMakerDesignsTest extends TestCase
                 ],
             ],
         ];
+
+        exec('echo "" > storage/logs/laravel.log');
     }
 
     public function testBusiness()
@@ -136,16 +138,14 @@ class PdfMakerDesignsTest extends TestCase
                 '#invoice-issued-to' => 'Invoice issued to',
             ], $this->state['variables']),
         ];
-
-
-
+      
         $maker = new PdfMaker($state);
 
         $maker
             ->design(Business::class)
             ->build();
 
-        //exec('echo "" > storage/logs/laravel.log');
+        exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML());
 
@@ -255,8 +255,6 @@ class PdfMakerDesignsTest extends TestCase
         $maker
             ->design(Clean::class)
             ->build();
-
-        //exec('echo "" > storage/logs/laravel.log');
 
         info($maker->getCompiledHTML(true));
 
@@ -371,13 +369,14 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Modern::class)
             ->build();
 
+        info($maker->getCompiledHTML());
+
         //exec('echo "" > storage/logs/laravel.log');
 
         //info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }
-
 
     public function testBold()
     {
@@ -487,11 +486,7 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Bold::class)
             ->build();
 
-        //exec('echo "" > storage/logs/laravel.log');
-
-        //info($maker->getCompiledHTML(true));
-
-
+        info($maker->getCompiledHTML());
 
         $this->assertTrue(true);
     }
@@ -596,11 +591,9 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Plain::class)
             ->build();
 
-        // exec('echo "" > storage/logs/laravel.log');
+        exec('echo "" > storage/logs/laravel.log');
 
-        // info($maker->getCompiledHTML(true));
-
-
+        info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }
@@ -709,10 +702,7 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Hipster::class)
             ->build();
 
-        // exec('echo "" > storage/logs/laravel.log');
-
-        // info($maker->getCompiledHTML(true));
-
+        info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }
@@ -825,10 +815,7 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Elegant::class)
             ->build();
 
-        // exec('echo "" > storage/logs/laravel.log');
-
-        // info($maker->getCompiledHTML(true));
-
+        info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }
@@ -941,11 +928,8 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Creative::class)
             ->build();
 
-        // exec('echo "" > storage/logs/laravel.log');
 
-        // info($maker->getCompiledHTML(true));
-
-
+        info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }
@@ -1051,11 +1035,7 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Playful::class)
             ->build();
 
-        // exec('echo "" > storage/logs/laravel.log');
-
-        // info($maker->getCompiledHTML(true));
-
-
+        info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }

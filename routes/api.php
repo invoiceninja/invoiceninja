@@ -146,6 +146,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     // Route::delete('hooks/{subscription_id}', 'SubscriptionController@unsubscribe')->name('hooks.unsubscribe');
 
     Route::resource('webhooks', 'WebhookController');
+    Route::resource('system_logs', 'SystemLogController');
+    
     Route::post('webhooks/bulk', 'WebhookController@bulk')->name('webhooks.bulk');
 
     /*Company Ledger */

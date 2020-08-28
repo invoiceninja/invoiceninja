@@ -2,6 +2,10 @@
     @apply rounded py-3 px-4 text-sm leading-4 transition duration-150 ease-in-out font-semibold;
 }
 
+button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+}
+
 .button-primary {
     @apply bg-blue-500 text-white;
 

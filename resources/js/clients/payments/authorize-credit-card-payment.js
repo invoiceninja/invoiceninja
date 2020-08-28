@@ -39,6 +39,7 @@ class AuthorizeAuthorizeCard {
         // send the bankData object instead of the cardData object.
         //
         // secureData.bankData = bankData;
+        processingOverlay(true);
 
 		Accept.dispatchData(secureData, this.responseHandler);
         
@@ -54,7 +55,7 @@ class AuthorizeAuthorizeCard {
     }
 
     responseHandler(response) {
-
+        processingOverlay(false);
 
 	    if (response.messages.resultCode === "Error") {
 	        var i = 0;

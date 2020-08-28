@@ -37,6 +37,9 @@ class AuthorizeACH {
     };
 
     handleError = (message) => {
+        processingOverlay(false);
+        document.getElementById('save-button').disabled = false;
+
         this.errors.textContent = '';
         this.errors.textContent = message;
         this.errors.hidden = false;
@@ -51,6 +54,9 @@ class AuthorizeACH {
     };
 
     handleSubmit = (e) => {
+        processingOverlay(true);
+        document.getElementById('save-button').disabled = true;
+
         e.preventDefault();
         this.errors.textContent = '';
         this.errors.hidden = true;
