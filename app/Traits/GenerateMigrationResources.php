@@ -24,7 +24,9 @@ trait GenerateMigrationResources
     protected function getCompany()
     {
         return [
+            'referral_code' => $this->account->referral_code ?: '',
             'account_id' => $this->account->id,
+            'google_analytics_key' => $this->account->analytics_key ?: '',
             'industry_id' => $this->account->industry_id,
             'ip' => $this->account->ip,
             'company_key' => $this->account->account_key,
