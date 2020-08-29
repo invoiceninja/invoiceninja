@@ -213,7 +213,7 @@ class CompanyGateway extends BaseModel
         if($this->gateway->provider == 'Stripe' && strpos($config->publishableKey, 'test'))
             return true;
 
-        if(property_exists($config, 'testMode') && $config->testMode)
+        if($config && property_exists($config, 'testMode') && $config->testMode)
             return true;
 
         return false;
