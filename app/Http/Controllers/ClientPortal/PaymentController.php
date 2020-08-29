@@ -80,7 +80,7 @@ class PaymentController extends Controller
         //           This is tagged with a type_id of 3 which is for a pending gateway fee.
         //REFACTOR - In order to preserve state we should save the array of invoices and amounts and store it in db/cache and use a HASH
         //           to rehydrate these values in the payment response.
-// dd(request()->all());
+        // dd(request()->all());
 
         $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
         /*find invoices*/
@@ -111,15 +111,7 @@ class PaymentController extends Controller
             $invoice = $invoices->first(function ($inv) use($payable_invoice) {
                             return $payable_invoice['invoice_id'] == $inv->hashed_id;
                         });
-
-            // if($invoice)
-            //     $invoice->service()->addGatewayFee($gateway, $payable_invoice['amount'])->save();
-
-            /*Update the payable amount to include the fee*/
-            // $gateway_fee = $gateway->calcGatewayFee($payable_invoice['amount']);
-
-            // $payable_invoices[$key]['amount_with_fee'] = $payable_invoice['amount'] + $gateway_fee;
-            // $payable_invoices[$key]['fee'] = $gateway_fee;
+            
             $payable_invoices[$key]['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             $payable_invoices[$key]['invoice_number'] = $invoice->number;
 
@@ -174,15 +166,9 @@ class PaymentController extends Controller
 
     public function response(PaymentResponseRequest $request)
     {
+        /*Payment Gateway*/
         $gateway = CompanyGateway::find($request->input('company_gateway_id'))->firstOrFail();
 
-        $payment_hash = $request->getPaymentHash();
-        $payment_invoices = $payment_hash->invoices();
-        $fee_total = $payment_hash->fee_total;
-
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payable_invoices, 'invoice_id')))->get();
-
-        $invoice_count = $invoices->count();
         //REFACTOR - Entry point for the gateway response - we don't need to do anything at this point.
         //
         // - Inside each gateway driver, we should use have a generic code path (in BaseDriver.php)for successful/failed payment

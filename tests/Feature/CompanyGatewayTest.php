@@ -109,7 +109,7 @@ class CompanyGatewayTest extends TestCase
         return $passes;
     }
 
-    public function testFeesAreAppendedToInvoice()
+    public function testFeesAreAppendedToInvoice() //after refactor this may be redundant
     {
 
         $data = [];
