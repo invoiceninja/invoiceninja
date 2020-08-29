@@ -64,7 +64,7 @@ class CompanyGatewayTransformer extends EntityTransformer
             'custom_value4' => $company_gateway->custom_value4 ?: '',
             'label' => (string)$company_gateway->label ?: '',
             'token_billing' => (string)$company_gateway->token_billing,
-            'test_mode' => (bool) $company_gateway->isTestMode(),
+            'test_mode' => (bool)$company_gateway->isTestMode(),
         ];
     }
 

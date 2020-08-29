@@ -202,6 +202,23 @@ class CompanyGateway extends BaseModel
     }
 
     /**
+     * Returns the current test mode of the gateway
+     * 
+     * @return boolean whether the gateway is in testmode or not.
+     */
+    public function isTestMode() :bool
+    {
+        $config = $this->getConfig();
+
+        if($this->gateway->provider == 'Stripe' && strpos($config->publishableKey, 'test'))
+            return true;
+
+        if(property_exists($config, 'testMode') && $config->testMode)
+            return true;
+
+        return false;
+    }
+    /**
      * Get Publishable Key
      * Only works for STRIPE and PAYMILL
      * @return string The Publishable key

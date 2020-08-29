@@ -227,6 +227,14 @@ class Import implements ShouldQueue
             unset($data['account_id']);
         }
 
+        if(isset($data['referral_code'])) {
+            $account = $this->company->account;
+            $account->referral_code = $data['referral_code'];
+            $account->save();
+
+            unset($data['referral_code']);
+        }
+
         $company_repository = new CompanyRepository();
         $company_repository->save($data, $this->company);
 

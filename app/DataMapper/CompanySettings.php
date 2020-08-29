@@ -238,8 +238,13 @@ class CompanySettings extends BaseSettings
     public $client_portal_terms = '';
     public $client_portal_privacy_policy = '';
     public $client_portal_enable_uploads = false; 
+    public $client_portal_allow_under_payment = false;
+    public $client_portal_allow_over_payment = false;
+
 
     public static $casts = [
+        'client_portal_allow_under_payment'  => 'bool',
+        'client_portal_allow_over_payment'   => 'bool',
         'auto_bill'                          => 'string',
         'lock_invoices'                      => 'string',
         'client_portal_terms'                => 'string',
