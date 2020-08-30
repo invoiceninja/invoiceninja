@@ -16,12 +16,14 @@ use Illuminate\Database\Eloquent\Model;
 class PaymentHash extends Model
 {
 
+	protected $guarded = ['id'];
+
     protected $casts = [
         'data' => 'object'
     ];
 
     public function invoices()
     {
-    	return $this->data->invoices;
+    	return $this->data;
     }
 }

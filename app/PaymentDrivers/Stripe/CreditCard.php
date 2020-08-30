@@ -19,6 +19,7 @@ use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
@@ -92,7 +93,7 @@ class CreditCard
             'amount' => $this->stripe->convertToStripeAmount($data['amount_with_fee'], $this->stripe->client->currency()->precision),
             'currency' => $this->stripe->client->getCurrencyCode(),
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $data['invoices']->pluck('id'), //todo more meaningful description here:
+            'description' => collect($data['invoices'])->pluck('id'), //todo more meaningful description here:
         ];
 
         if ($data['token']) {
@@ -113,6 +114,8 @@ class CreditCard
     {
         $server_response = json_decode($request->input('gateway_response'));
 
+        $payment_hash = PaymentHash::whereRaw("BINARY `hash`= ?", [$request->input('payment_hash')])->firstOrFail();
+
         $state = [
             'payment_method' => $server_response->payment_method,
             'payment_status' => $server_response->status,
@@ -122,7 +125,7 @@ class CreditCard
             'server_response' => $server_response,
         ];
 
-        $invoices = Invoice::whereIn('id', $this->stripe->transformKeys($state['hashed_ids']))
+        $invoices = Invoice::whereIn('id', $this->stripe->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))
             ->whereClientId($this->stripe->client->id)
             ->get();
 
@@ -138,6 +141,10 @@ class CreditCard
         $state['customer'] = $state['payment_intent']->customer;
 
         if ($state['payment_status'] == 'succeeded') {
+
+            /* Add gateway fees if needed! */
+            $this->stripe->appendGatewayFeeToInvoice($request);
+
             return $this->processSuccessfulPayment($state);
         }
 

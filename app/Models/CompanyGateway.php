@@ -289,20 +289,22 @@ class CompanyGateway extends BaseModel
         
         $pre_tax_fee = $fee;
 
-        if ($fees_and_limits->fee_tax_rate1) {
-            $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100;
-            info("fee after adding fee tax 1 = {$fee}");
-        }
+        //we shouldn't calculate the taxes - they'll be done when we re-process the invoice
+
+        // if ($fees_and_limits->fee_tax_rate1) {
+        //     $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100;
+        //     info("fee after adding fee tax 1 = {$fee}");
+        // }
         
-        if ($fees_and_limits->fee_tax_rate2) {
-            $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100;
-            info("fee after adding fee tax 2 = {$fee}");
-        }
+        // if ($fees_and_limits->fee_tax_rate2) {
+        //     $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100;
+        //     info("fee after adding fee tax 2 = {$fee}");
+        // }
          
-        if ($fees_and_limits->fee_tax_rate3) {
-            $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100;
-            info("fee after adding fee tax 3 = {$fee}");
-        }
+        // if ($fees_and_limits->fee_tax_rate3) {
+        //     $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100;
+        //     info("fee after adding fee tax 3 = {$fee}");
+        // }
 
         if($fees_and_limits->fee_cap > 0 && ($fee > $fees_and_limits->fee_cap))
             $fee = $fees_and_limits->fee_cap;

@@ -43,7 +43,7 @@ class AddGatewayFee extends AbstractService
 
     public function run()
     {
-        $gateway_fee = $this->company_gateway->calcGatewayFee($this->amount);
+        $gateway_fee = round($this->company_gateway->calcGatewayFee($this->amount), $this->invoice->client->currency()->precision);
 
         $this->cleanPendingGatewayFees();
 
@@ -71,7 +71,7 @@ class AddGatewayFee extends AbstractService
     private function processGatewayFee($gateway_fee)
     {
         $invoice_item = new InvoiceItem;
-        $invoice_item->type_id = 4;
+        $invoice_item->type_id = '4';
         $invoice_item->product_key = ctrans('texts.surcharge');
         $invoice_item->notes = ctrans('texts.online_payment_surcharge');
         $invoice_item->quantity = 1;

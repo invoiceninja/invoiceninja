@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers;
 
 use App\Factory\PaymentFactory;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\CompanyGateway;
@@ -286,4 +287,39 @@ class BasePaymentDriver
 
         return $payment;
     }
+
+    /**
+     * When a successful payment is made, we need to append the gateway fee
+     * to an invoice
+     *    
+     * @param  PaymentResponseRequest $request The incoming payment request
+     * @return void                            Success/Failure
+     */
+    public function appendGatewayFeeToInvoice(PaymentResponseRequest $request) :void
+    {
+        /*Payment meta data*/
+        $payment_hash = $request->getPaymentHash();
+
+        /*Payment invoices*/
+        $payment_invoices = $payment_hash->invoices();
+        
+        /*Fee charged at gateway*/
+        $fee_total = $payment_hash->fee_total;
+
+        /*Sum of invoice amounts*/
+        $invoice_totals = array_sum(array_column($payment_invoices,'amount'));
+        
+        /*Hydrate invoices*/
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->get();
+
+        /*Append gateway fee to invoice line item of first invoice*/
+        if($fee_total != 0){
+            $invoices->first()->service()->addGatewayFee($this->company_gateway, $invoice_totals)->save();
+
+            //We need to update invoice balance / client balance at this point so
+            //that payment record sanity is preserved //todo
+        }
+
+    }
 }
+

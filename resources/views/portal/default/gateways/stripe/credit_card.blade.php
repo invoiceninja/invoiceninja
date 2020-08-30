@@ -11,7 +11,7 @@
 
 {!! Former::hidden('gateway_response')->id('gateway_response') !!}
 {!! Former::hidden('store_card')->id('store_card') !!}
-{!! Former::hidden('hashed_ids')->value($hashed_ids) !!}
+{!! Former::hidden('payment_hash')->value($payment_hash) !!}
 {!! Former::hidden('company_gateway_id')->value($payment_method_id) !!}
 {!! Former::hidden('payment_method_id')->value($gateway->getCompanyGatewayId()) !!}
 {!! Former::close() !!}

@@ -171,7 +171,7 @@ class BaseDriver extends AbstractPaymentDriver
     {
         /*Payment meta data*/
         $payment_hash = $request->getPaymentHash();
-        
+
         /*Payment invoices*/
         $payment_invoices = $payment_hash->invoices();
         
@@ -179,10 +179,10 @@ class BaseDriver extends AbstractPaymentDriver
         $fee_total = $payment_hash->fee_total;
 
         /*Sum of invoice amounts*/
-        $invoice_totals = array_sum(array_column($payable_invoices,'amount'));
+        $invoice_totals = array_sum(array_column($payment_invoices,'amount'));
         
         /*Hydrate invoices*/
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payable_invoices, 'invoice_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->get();
 
         /*Append gateway fee to invoice line item of first invoice*/
         if($fee_total != 0){

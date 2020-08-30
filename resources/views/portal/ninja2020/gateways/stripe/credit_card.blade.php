@@ -11,9 +11,8 @@
         @csrf
         <input type="hidden" name="gateway_response">
         <input type="hidden" name="store_card">
-        @foreach($invoices as $invoice)
-            <input type="hidden" name="hashed_ids[]" value="{{ $invoice->hashed_id }}">
-        @endforeach
+        <input type="hidden" name="payment_hash" value="{{$payment_hash}}">
+
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
     </form>

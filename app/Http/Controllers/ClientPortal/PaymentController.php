@@ -136,12 +136,12 @@ class PaymentController extends Controller
         $payment_method_id = request()->input('payment_method_id');
 
         $invoice_totals = array_sum(array_column($payable_invoices,'amount'));
-        $fee_totals = $gateway->calcGatewayFee($invoice_totals);
+        $fee_totals = round($gateway->calcGatewayFee($invoice_totals), $invoices->first()->client->currency()->precision);
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);
         $payment_hash->data = $payable_invoices;
-        $payment_hash->fees = $fee_totals;
+        $payment_hash->fee_total = $fee_totals;
         $payment_hash->save();
 
         $totals = [
@@ -156,6 +156,7 @@ class PaymentController extends Controller
             'invoices' => $payable_invoices,
             'token' => auth()->user()->client->gateway_token($gateway->id, $payment_method_id),
             'payment_method_id' => $payment_method_id,
+            'amount_with_fee' => $invoice_totals + $fee_totals,
         ];
 
         return $gateway
