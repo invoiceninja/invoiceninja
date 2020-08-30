@@ -56,6 +56,10 @@ class TriggeredActions extends AbstractService
             $this->sendEmail();
         }
 
+        if($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true'){
+            $this->invoice = $this->invoice->service()->markSent()->save();
+        }
+
         return $this->invoice;
     }
 

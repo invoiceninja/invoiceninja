@@ -79,15 +79,18 @@ class InvoiceService
 
     public function addGatewayFee(CompanyGateway $company_gateway, float $amount)
     {
+
         $this->invoice = (new AddGatewayFee($company_gateway, $this->invoice, $amount))->run();
 
         return $this;
     }
     /**
      * Update an invoice balance
+     * 
      * @param  float $balance_adjustment The amount to adjust the invoice by
      * a negative amount will REDUCE the invoice balance, a positive amount will INCREASE
      * the invoice balance
+     * 
      * @return InvoiceService                     Parent class object
      */
     public function updateBalance($balance_adjustment)

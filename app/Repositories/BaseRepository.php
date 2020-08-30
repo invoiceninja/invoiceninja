@@ -347,9 +347,6 @@ class BaseRepository
 
         }
 
-        if(isset($data['mark_sent']) && $data['mark_sent'] == true)
-            $model->service()->markSent()->save();
-
         $model->save();
 
         return $model->fresh();

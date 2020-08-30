@@ -37,8 +37,6 @@ class UpdateBalance extends AbstractService
 
         if ($this->invoice->balance == 0) {
             $this->invoice->status_id = Invoice::STATUS_PAID;
-            // $this->save();
-            // event(new InvoiceWasPaid($this, $this->company));
         }
 
         return $this->invoice;
