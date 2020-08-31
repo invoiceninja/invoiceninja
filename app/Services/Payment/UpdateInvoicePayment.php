@@ -47,26 +47,32 @@ class UpdateInvoicePayment
         collect($paid_invoices)->each(function ($paid_invoice) use($invoices) {
 
             $invoice = $invoices->first(function ($inv) use($paid_invoice) {
-                return $paid_invoice['invoice_id'] == $inv->hashed_id;
+                return $paid_invoice->invoice_id == $inv->hashed_id;
             });
+
+            if($invoice->id == $this->payment_hash->fee_invoice_id)
+                $paid_amount = $paid_invoice->amount + $this->payment_hash->fee_total;
+            else
+                $paid_amount = $paid_invoice->amount;
 
             $this->payment
                  ->ledger()
-                 ->updatePaymentBalance($paid_invoice->amount*-1);
+                 ->updatePaymentBalance($paid_amount*-1);
 
             $this->payment
                 ->client
                 ->service()
-                ->updateBalance($paid_invoice->amount*-1)
-                ->updatePaidToDate($paid_invoice->amount)
+                ->updateBalance($paid_amount*-1)
+                ->updatePaidToDate($paid_amount)
                 ->save();
 
-                $invoice->pivot->amount = $paid_invoice->amount;
-                $invoice->pivot->save();
+                /*i think to interact with this correct - we need to do this form $payment->invoice()->pivot*/
+                // $invoice->pivot->amount = $paid_amount;
+                // $invoice->pivot->save();
 
                 $invoice->service() //caution what if we amount paid was less than partial - we wipe it! 
                     ->clearPartial()
-                    ->updateBalance($paid_invoice->amount*-1)
+                    ->updateBalance($paid_amount*-1)
                     ->save();
 
         });
@@ -93,7 +99,7 @@ class UpdateInvoicePayment
             //     $this->payment->save();
             //     $this->payment->delete();
             // }
-        }
+        
 
         return $this->payment;
     }

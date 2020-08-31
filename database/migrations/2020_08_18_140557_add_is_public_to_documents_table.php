@@ -39,6 +39,7 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->increments('id');
             $table->string('hash', 255);
             $table->decimal('fee_total', 16, 4);
+            $table->unsignedInteger('fee_invoice_id')->nullable();
             $table->mediumText('data');
             $table->timestamps(6);
         });
