@@ -76,6 +76,7 @@ class Payment extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'is_deleted' => 'bool',
+        'meta' => 'object',
     ];
 
     protected $with = [
