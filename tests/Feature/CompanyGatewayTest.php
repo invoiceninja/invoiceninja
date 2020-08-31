@@ -178,7 +178,7 @@ class CompanyGatewayTest extends TestCase
 
         $total = 10.93;
         $total_invoice_count = 5;
-        $total_gateway_fee = round($cg->calcGatewayFee($total),2);
+        $total_gateway_fee = round($cg->calcGatewayFee($total,true),2);
 
         $this->assertEquals(1.58, $total_gateway_fee);
 
