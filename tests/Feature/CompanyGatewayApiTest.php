@@ -423,6 +423,6 @@ class CompanyGatewayApiTest extends TestCase
 
         $company_gateway = CompanyGateway::find($id);
 
-        $this->assertEquals(1, $company_gateway->calcGatewayFee(10,true));
+        $this->assertEquals(1.2, $company_gateway->calcGatewayFee(10,true));
     }
 }
