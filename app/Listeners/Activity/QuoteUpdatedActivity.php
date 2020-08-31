@@ -44,28 +44,17 @@ class QuoteUpdatedActivity implements ShouldQueue
         MultiDB::setDb($event->company->db);
 
         $quote = $event->quote;
-
-        $invoices = $payment->invoices;
         
         $fields = new \stdClass;
 
-        $fields->payment_id = $quote->id;
-             $fields->client_id = $quote->client_id;
-      $fields->user_id = $quote->user_id;
+        $fields->quote_id = $quote->id;
+        $fields->client_id = $quote->client_id;
+        $fields->user_id = $quote->user_id;
         $fields->company_id = $quote->company_id;
         $fields->activity_type_id = Activity::UPDATE_QUOTE;
 
         $this->activity_repo->save($fields, $quote, $event->event_vars);
 
-        // foreach ($invoices as $invoice) { 
-        // //todo we may need to add additional logic if in the future we apply payments to other entity Types, not just invoices
-        //     $fields->invoice_id = $invoice->id;
 
-        //     $this->activity_repo->save($fields, $invoice, $event->event_vars);
-        // }
-
-        // if (count($invoices) == 0) {
-        //     $this->activity_repo->save($fields, $payment, $event->event_vars);
-        // }
     }
 }
