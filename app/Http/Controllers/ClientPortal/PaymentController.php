@@ -136,7 +136,21 @@ class PaymentController extends Controller
         $payment_method_id = request()->input('payment_method_id');
 
         $invoice_totals = array_sum(array_column($payable_invoices,'amount'));
-        $fee_totals = round($gateway->calcGatewayFee($invoice_totals), $invoices->first()->client->currency()->precision);
+
+        $first_invoice = $invoices->first();
+        $fee_totals = round($gateway->calcGatewayFee($invoice_totals, true), $first_invoice->client->currency()->precision);
+
+        if(!$first_invoice->uses_inclusive_taxes) {
+
+            $fee_tax = 0;
+            $fee_tax += round(($first_invoice->tax_rate1/100)*$fee_totals, $first_invoice->client->currency()->precision);
+            $fee_tax += round(($first_invoice->tax_rate2/100)*$fee_totals, $first_invoice->client->currency()->precision);
+            $fee_tax += round(($first_invoice->tax_rate3/100)*$fee_totals, $first_invoice->client->currency()->precision);
+
+            $fee_totals += $fee_tax;
+        }
+
+        $first_invoice->service()->addGatewayFee($gateway, $invoice_totals)->save();
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);

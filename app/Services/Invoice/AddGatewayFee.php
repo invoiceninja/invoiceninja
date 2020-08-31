@@ -60,7 +60,7 @@ class AddGatewayFee extends AbstractService
         $invoice_items = $this->invoice->line_items;
 
         $invoice_items = collect($invoice_items)->filter(function ($item){
-            return $item->type_id != 3;
+            return $item->type_id != '3';
         });
 
         $this->invoice->line_items = $invoice_items;
@@ -71,7 +71,7 @@ class AddGatewayFee extends AbstractService
     private function processGatewayFee($gateway_fee)
     {
         $invoice_item = new InvoiceItem;
-        $invoice_item->type_id = '4';
+        $invoice_item->type_id = '3';
         $invoice_item->product_key = ctrans('texts.surcharge');
         $invoice_item->notes = ctrans('texts.online_payment_surcharge');
         $invoice_item->quantity = 1;
@@ -92,10 +92,9 @@ class AddGatewayFee extends AbstractService
         /**Refresh Invoice values*/
         $this->invoice = $this->invoice->calc()->getInvoice();
 
-        /*Update client balance*/
-        $this->invoice->client->service()->updateBalance($gateway_fee)->save();
-
-        $this->invoice->ledger()->updateInvoiceBalance($gateway_fee, $notes = 'Gateway fee adjustment');
+        /*Update client balance*/ // don't increment until we have process the payment!
+        //$this->invoice->client->service()->updateBalance($gateway_fee)->save();
+        //$this->invoice->ledger()->updateInvoiceBalance($gateway_fee, $notes = 'Gateway fee adjustment');
 
         return $this->invoice;
          
@@ -104,7 +103,7 @@ class AddGatewayFee extends AbstractService
     private function processGatewayDiscount($gateway_fee)
     {
         $invoice_item = new InvoiceItem;
-        $invoice_item->type_id = 3;
+        $invoice_item->type_id = '3';
         $invoice_item->product_key = ctrans('texts.discount');
         $invoice_item->notes = ctrans('texts.online_payment_discount');
         $invoice_item->quantity = 1;
@@ -124,9 +123,9 @@ class AddGatewayFee extends AbstractService
 
         $this->invoice = $this->invoice->calc()->getInvoice();
 
-        $this->invoice->client->service()->updateBalance($gateway_fee)->save();
+        // $this->invoice->client->service()->updateBalance($gateway_fee)->save();
 
-        $this->invoice->ledger()->updateInvoiceBalance($gateway_fee, $notes = 'Discount fee adjustment');
+        // $this->invoice->ledger()->updateInvoiceBalance($gateway_fee, $notes = 'Discount fee adjustment');
 
         return $this->invoice;
     }

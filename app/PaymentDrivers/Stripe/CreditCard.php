@@ -123,6 +123,7 @@ class CreditCard
             'gateway_type_id' => $request->payment_method_id,
             'hashed_ids' => $request->hashed_ids,
             'server_response' => $server_response,
+            'payment_hash' => $payment_hash,
         ];
 
         $invoices = Invoice::whereIn('id', $this->stripe->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))
@@ -143,7 +144,7 @@ class CreditCard
         if ($state['payment_status'] == 'succeeded') {
 
             /* Add gateway fees if needed! */
-            $this->stripe->appendGatewayFeeToInvoice($request);
+            $this->stripe->confirmGatewayFee($request);
 
             return $this->processSuccessfulPayment($state);
         }
@@ -190,7 +191,7 @@ class CreditCard
 
         $this->stripe->attachInvoices($payment, $state['hashed_ids']);
 
-        $payment->service()->updateInvoicePayment();
+        $payment->service()->updateInvoicePayment($state['payment_hash']);
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 

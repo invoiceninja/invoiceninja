@@ -295,7 +295,7 @@ class BasePaymentDriver
      * @param  PaymentResponseRequest $request The incoming payment request
      * @return void                            Success/Failure
      */
-    public function appendGatewayFeeToInvoice(PaymentResponseRequest $request) :void
+    public function confirmGatewayFee(PaymentResponseRequest $request) :void
     {
         /*Payment meta data*/
         $payment_hash = $request->getPaymentHash();
@@ -303,22 +303,24 @@ class BasePaymentDriver
         /*Payment invoices*/
         $payment_invoices = $payment_hash->invoices();
         
-        /*Fee charged at gateway*/
+        // /*Fee charged at gateway*/
         $fee_total = $payment_hash->fee_total;
 
-        /*Sum of invoice amounts*/
-        $invoice_totals = array_sum(array_column($payment_invoices,'amount'));
+        // Sum of invoice amounts
+        // $invoice_totals = array_sum(array_column($payment_invoices,'amount'));
         
         /*Hydrate invoices*/
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->get();
 
-        /*Append gateway fee to invoice line item of first invoice*/
-        if($fee_total != 0){
-            $invoices->first()->service()->addGatewayFee($this->company_gateway, $invoice_totals)->save();
+        $invoices->each(function($invoice) use($fee_total){
 
-            //We need to update invoice balance / client balance at this point so
-            //that payment record sanity is preserved //todo
-        }
+            if(collect($invoice->line_items)->contains('type_id', '3')){
+                $invoice->service()->toggleFeesPaid()->save();
+                $invoice->client->service()->updateBalance($fee_total)->save();
+                $invoice->ledger()->updateInvoiceBalance($fee_total, $notes = 'Gateway fee adjustment');
+            }
+            
+        });
 
     }
 }
