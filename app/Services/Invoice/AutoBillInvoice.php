@@ -62,17 +62,16 @@ class AutoBillInvoice extends AbstractService
             $amount = $this->invoice->balance + $fee;
         }
 
-        /* Make sure we remove any stale fees*/
-        $this->purgeStaleGatewayFees();
-
-        if($fee > 0)
-            $this->addFeeToInvoice($fee);
-
         $payment = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $amount, $this->invoice);
 
         if($payment){
-            
-            $this->invoice = $this->invoice->service()->toggleFeesPaid()->save();
+
+            if($this->invoice->partial > 0)
+                $amount = $this->invoice->partial;
+            else
+                $amount = $this->invoice->balance;
+
+            $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $amount)->save();
 
         }
         else
@@ -144,34 +143,34 @@ class AutoBillInvoice extends AbstractService
      * 
      * @return $this
      */
-    private function purgeStaleGatewayFees()
-    {
-        $starting_amount = $this->invoice->amount;
+    // private function purgeStaleGatewayFees()
+    // {
+    //     $starting_amount = $this->invoice->amount;
 
-        $line_items = $this->invoice->line_items;
+    //     $line_items = $this->invoice->line_items;
 
-        $new_items = [];
+    //     $new_items = [];
 
-        foreach($line_items as $item)
-        {
+    //     foreach($line_items as $item)
+    //     {
 
-          if($item->type_id != 3)
-            $new_items[] = $item;
+    //       if($item->type_id != 3)
+    //         $new_items[] = $item;
           
-        }
+    //     }
 
-        $this->invoice->line_items = $new_items;
-        $this->invoice->save();
+    //     $this->invoice->line_items = $new_items;
+    //     $this->invoice->save();
 
-        $this->invoice = $this->invoice->calc()->getInvoice();
+    //     $this->invoice = $this->invoice->calc()->getInvoice();
 
-        if($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT){
-            $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
-            $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, 'Invoice balance updated after stale gateway fee removed')->save();
-        }
+    //     if($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT){
+    //         $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
+    //         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, 'Invoice balance updated after stale gateway fee removed')->save();
+    //     }
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
     /**
      * Checks whether a given gateway token is able

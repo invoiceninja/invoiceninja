@@ -91,6 +91,7 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
         catch (\Swift_TransportException $e) {
             
             event(new InvoiceWasEmailedAndFailed($this->invoice_invitation->invoice, $this->company, $e->getMessage(), Ninja::eventVars()));
+            
         } 
 
         if (count(Mail::failures()) > 0) {

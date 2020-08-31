@@ -10,13 +10,10 @@
 @section('body')
     <form action="{{ route('client.payments.process') }}" method="post" id="payment-form">
         @csrf
-        @foreach($invoices as $invoice)
-            <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
-        @endforeach
         <input type="hidden" name="company_gateway_id" id="company_gateway_id">
         <input type="hidden" name="payment_method_id" id="payment_method_id">
         <input type="hidden" name="signature">
-    </form>
+    
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">
             <div class="col-span-6 md:col-start-2 md:col-span-4">
@@ -63,7 +60,8 @@
                     </div>
                 </div>
 
-                @foreach($invoices as $invoice)
+                @foreach($invoices as $key => $invoice)
+                    <input type="hidden" name="payable_invoices[{{$key}}][invoice_id]" value="{{ $invoice->hashed_id }}">
                     <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
                         <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">
@@ -104,7 +102,7 @@
                                         @elseif($invoice->public_notes)
                                             {{ $invoice->public_notes }}
                                         @else
-                                            {{ $invoice->invoice_date}}
+                                            {{ $invoice->date}}
                                         @endif
                                     </dd>
                                 </div>
@@ -113,7 +111,8 @@
                                         {{ ctrans('texts.amount') }}
                                     </dt>
                                     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                        {{ App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}
+                                        <!-- App\Utils\Number::formatMoney($invoice->amount, $invoice->client) -->
+                                        <input type="text" name="payable_invoices[{{$key}}][amount]" value="{{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}">
                                     </dd>
                                 </div>
                             </dl>
@@ -123,7 +122,7 @@
             </div>
         </div>
     </div>
-
+    </form>
     @include('portal.ninja2020.invoices.includes.terms')
     @include('portal.ninja2020.invoices.includes.signature')
 @endsection

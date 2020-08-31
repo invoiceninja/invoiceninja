@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\Currency;
 use App\Utils\Number;
 use Tests\TestCase;
 
@@ -30,5 +31,26 @@ class NumberTest extends TestCase
         $rounded = Number::roundValue(2.145);
 
         $this->assertEquals(2.15, $rounded);
+    }
+
+    public function testParsingFloats()
+    {
+
+        Currency::all()->each(function ($currency){
+
+            $amount = 123456789.12;
+
+            $formatted_amount = Number::formatValue($amount, $currency);
+
+            $float_amount = Number::parseFloat($formatted_amount);
+
+            if($currency->precision == 0){
+                $this->assertEquals(123456789, $float_amount);
+            }
+            else
+                $this->assertEquals($amount, $float_amount);
+
+        });
+
     }
 }

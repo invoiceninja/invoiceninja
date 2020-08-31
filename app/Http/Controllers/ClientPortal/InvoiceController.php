@@ -96,7 +96,8 @@ class InvoiceController extends Controller
         }
 
         $invoices->map(function ($invoice) {
-            $invoice->balance = Number::formatMoney($invoice->balance, $invoice->client);
+            $invoice->balance = Number::formatValue($invoice->balance, $invoice->client->currency());
+            $invoice->partial = Number::formatValue($invoice->partial, $invoice->client->currency());
             return $invoice;
         });
 
@@ -112,6 +113,8 @@ class InvoiceController extends Controller
             'hashed_ids' => $invoices->pluck('hashed_id'),
             'total' =>  $total,
         ];
+
+        //REFACTOR entry point for online payments starts here
 
         return $this->render('invoices.payment', $data);
     }

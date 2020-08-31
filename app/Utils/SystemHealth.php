@@ -71,8 +71,8 @@ class SystemHealth
             'env_writable' => self::checkEnvWritable(),
             //'mail' => self::testMailServer(),
             'simple_db_check' => (bool) self::simpleDbCheck(),
-            'npm_status' => self::checkNpm(),
-            'node_status' => self::checkNode(),
+            //'npm_status' => self::checkNpm(),
+            //'node_status' => self::checkNode(),
         ];
     }
 
