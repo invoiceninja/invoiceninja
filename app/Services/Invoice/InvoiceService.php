@@ -192,8 +192,8 @@ class InvoiceService
         $this->invoice->line_items = collect($this->invoice->line_items)
                                      ->map(function ($item) {
 
-                                            if($item->type_id == 3)
-                                                $item->type_id = 4;
+                                            if($item->type_id == '3')
+                                                $item->type_id = '4';
                                             
                                             return $item;
 
@@ -208,7 +208,7 @@ class InvoiceService
         $this->invoice->line_items = collect($this->invoice->line_items)
                                      ->reject(function ($item) {
 
-                                            return $item->type_id == 3;
+                                            return $item->type_id == '3';
 
                                       })->toArray();
 
