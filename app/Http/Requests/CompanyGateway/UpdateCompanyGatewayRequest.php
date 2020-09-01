@@ -14,6 +14,7 @@ namespace App\Http\Requests\CompanyGateway;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Models\Company;
+use App\Models\Gateway;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 
 class UpdateCompanyGatewayRequest extends Request
@@ -43,6 +44,21 @@ class UpdateCompanyGatewayRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
+
+        /*Force gateway properties */
+        if(isset($input['config']) && $input['gateway_key'])
+        {
+            $gateway = Gateway::where('key', $input['gateway_key'])->first();
+            $default_gateway_fields = json_decode($gateway->fields);
+
+            foreach(json_decode($input['config']) as $key => $value) {
+
+                $default_gateway_fields->{$key} = $value;
+
+            }
+
+            $input['config'] = json_encode($default_gateway_fields);
+        }
 
         $input['config'] = encrypt($input['config']);
 
