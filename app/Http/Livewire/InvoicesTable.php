@@ -42,6 +42,10 @@ class InvoicesTable extends Component
             $query = $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
         }
 
+        if (in_array('gateway-fees', $this->status)) {
+            $query = $query->orWhere('status_id', Invoice::STATUS_PAID); // Update this to correct status id (4).
+        }
+
         if (in_array('overdue', $this->status)) {
             $query = $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                 ->where(function ($query) {

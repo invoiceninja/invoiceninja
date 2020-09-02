@@ -1,8 +1,8 @@
 <div>
     <div class="flex items-center justify-between">
         <div class="flex items-center">
-            <span class="mr-2 text-sm hidden md:block">{{ ctrans('texts.per_page') }}</span>
-            <select wire:model="per_page" class="form-select py-1 text-sm">
+            <span class="hidden mr-2 text-sm md:block">{{ ctrans('texts.per_page') }}</span>
+            <select wire:model="per_page" class="py-1 text-sm form-select">
                 <option>5</option>
                 <option selected>10</option>
                 <option>15</option>
@@ -11,50 +11,54 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:click="statusChange('paid')" type="checkbox" class="form-checkbox cursor-pointer" id="paid-checkbox">
+                <input wire:click="statusChange('paid')" type="checkbox" class="cursor-pointer form-checkbox" id="paid-checkbox">
                 <label for="paid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_paid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('unpaid')" type="checkbox" class="form-checkbox cursor-pointer" id="unpaid-checkbox">
+                <input wire:click="statusChange('unpaid')" type="checkbox" class="cursor-pointer form-checkbox" id="unpaid-checkbox">
                 <label for="unpaid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_unpaid') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('overdue')" type="checkbox" class="form-checkbox cursor-pointer" id="overdue-checkbox">
+                <input wire:click="statusChange('overdue')" type="checkbox" class="cursor-pointer form-checkbox" id="overdue-checkbox">
                 <label for="overdue-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.overdue') }}</label>
+            </div>
+            <div class="mr-3">
+                <input wire:click="statusChange('gateway-fees')" type="checkbox" class="cursor-pointer form-checkbox" id="gateway-fees-checkbox">
+                <label for="gateway-fees-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.gateway_fees') }}</label>
             </div>
         </div>
     </div>
-    <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <div class="align-middle inline-block min-w-full overflow-hidden rounded">
-            <table class="min-w-full shadow rounded border border-gray-200 mt-4 invoices-table">
+    <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div class="inline-block min-w-full overflow-hidden align-middle rounded">
+            <table class="min-w-full mt-4 border border-gray-200 rounded shadow invoices-table">
                 <thead>
                     <tr>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <label>
                                 <input type="checkbox" class="form-check form-check-parent">
                             </label>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <span role="button" wire:click="sortBy('number')" class="cursor-pointer">
                                 {{ ctrans('texts.invoice_number') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <span role="button" wire:click="sortBy('date')" class="cursor-pointer">
                                 {{ ctrans('texts.invoice_date') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <span role="button" wire:click="sortBy('balance')" class="cursor-pointer">
                                 {{ ctrans('texts.balance') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <span role="button" wire:click="sortBy('due_date')" class="cursor-pointer">
                                 {{ ctrans('texts.due_date') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                             <span role="button" wire:click="sortBy('status_id')" class="cursor-pointer">
                                 {{ ctrans('texts.status') }}
                             </span>
@@ -65,33 +69,33 @@
                 <tbody>
                     @forelse($invoices as $invoice)
                         <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
+                            <td class="px-6 py-4 text-sm font-medium leading-5 text-gray-900 whitespace-no-wrap">
                                 <label>
                                     <input type="checkbox" class="form-check form-check-child" data-value="{{ $invoice->hashed_id }}">
                                 </label>
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {{ $invoice->number }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {{ $invoice->formatDate($invoice->date, $invoice->client->date_format()) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {{ App\Utils\Number::formatMoney($invoice->balance, $invoice->client) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {{ $invoice->formatDate($invoice->due_date, $invoice->client->date_format()) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {!! App\Models\Invoice::badgeForStatus($invoice->status) !!}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap flex items-center justify-end text-sm leading-5 font-medium">
+                            <td class="flex items-center justify-end px-6 py-4 text-sm font-medium leading-5 whitespace-no-wrap">
                                 @if($invoice->isPayable())
                                     <form action="{{ route('client.invoices.bulk') }}" method="post">
                                         @csrf
                                         <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
                                         <input type="hidden" name="action" value="payment">
-                                        <button class="button button-primary py-1 px-2 text-xs uppercase mr-3">
+                                        <button class="px-2 py-1 mr-3 text-xs uppercase button button-primary">
                                             @lang('texts.pay_now')
                                         </button>
                                     </form>
@@ -103,7 +107,7 @@
                         </tr>
                     @empty
                         <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500" colspan="100%">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap" colspan="100%">
                                 {{ ctrans('texts.no_results') }}
                             </td>
                         </tr>
@@ -112,9 +116,9 @@
             </table>
         </div>
     </div>
-    <div class="flex justify-center md:justify-between mt-6 mb-6">
+    <div class="flex justify-center mt-6 mb-6 md:justify-between">
         @if($invoices->total() > 0)
-            <span class="text-gray-700 text-sm hidden md:block">
+            <span class="hidden text-sm text-gray-700 md:block">
                 {{ ctrans('texts.showing_x_of', ['first' => $invoices->firstItem(), 'last' => $invoices->lastItem(), 'total' => $invoices->total()]) }}
             </span>
         @endif
