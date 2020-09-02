@@ -192,8 +192,8 @@ class InvoiceService
         $this->invoice->line_items = collect($this->invoice->line_items)
                                      ->map(function ($item) {
 
-                                            if($item->type_id == 3)
-                                                $item->type_id = 4;
+                                            if($item->type_id == '3')
+                                                $item->type_id = '4';
                                             
                                             return $item;
 
@@ -208,13 +208,14 @@ class InvoiceService
         $this->invoice->line_items = collect($this->invoice->line_items)
                                      ->reject(function ($item) {
 
-                                            return $item->type_id == 3;
+                                            return $item->type_id == '3';
 
                                       })->toArray();
 
         return $this;
     }
 
+    /*Set partial value and due date to null*/
     public function clearPartial()
     {
         $this->invoice->partial = null;
@@ -223,10 +224,36 @@ class InvoiceService
         return $this;
     }
 
+    /*Update the partial amount of a invoice*/
     public function updatePartial($amount)
     {
         $this->invoice->partial += $amount;
 
+        return $this;
+    }
+
+    /*When a reminder is sent we want to touch the dates they were sent*/
+    public function touchReminder(string $reminder_template)
+    {
+        switch ($reminder_template) {
+            case 'reminder1':
+                $this->invoice->reminder1_sent = now()->format('Y-m-d');
+                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                break;
+            case 'reminder2':
+                $this->invoice->reminder2_sent = now()->format('Y-m-d');
+                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                break;
+            case 'reminder3':
+                $this->invoice->reminder3_sent = now()->format('Y-m-d');
+                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                break;
+
+            default:
+                # code...
+                break;
+        }
+    
         return $this;
     }
 

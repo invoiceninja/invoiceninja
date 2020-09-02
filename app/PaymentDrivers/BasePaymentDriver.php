@@ -20,6 +20,7 @@ use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
 use Illuminate\Support\Carbon;
@@ -241,14 +242,13 @@ class BasePaymentDriver
     {
         $this->gateway();
 
-        $response =        $this->gateway
-            ->purchase($data)
-            ->setItems($items)
-            ->send();
+        $response = $this->gateway
+                        ->purchase($data)
+                        ->setItems($items)
+                        ->send();
 
         return $response;
-        /*
-        $this->purchaseResponse = (array)$response->getData();*/
+        
     }
 
     public function completePurchase($data)
@@ -273,15 +273,11 @@ class BasePaymentDriver
     }
 
 
-    public function attachInvoices(Payment $payment, $hashed_ids): Payment
+    public function attachInvoices(Payment $payment, PaymentHash $payment_hash): Payment
     {
-        $transformed = $this->transformKeys($hashed_ids);
-        $array = is_array($transformed) ? $transformed : [$transformed];
 
-        $invoices = Invoice::whereIn('id', $array)
-            ->whereClientId($this->client->id)
-            ->get();
-
+        $paid_invoices = $payment_hash->invoices();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
         $payment->invoices()->sync($invoices);
         $payment->save();
 

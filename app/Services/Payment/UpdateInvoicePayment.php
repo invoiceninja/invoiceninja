@@ -38,9 +38,6 @@ class UpdateInvoicePayment
 
     public function run()
     {
-        // $invoices = $this->payment->invoices()->get();
-        // $invoices_total = $invoices->sum('balance');
-
         $paid_invoices = $this->payment_hash->invoices();
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
 
@@ -66,14 +63,19 @@ class UpdateInvoicePayment
                 ->updatePaidToDate($paid_amount)
                 ->save();
 
-                /*i think to interact with this correct - we need to do this form $payment->invoice()->pivot*/
-                // $invoice->pivot->amount = $paid_amount;
-                // $invoice->pivot->save();
+            $pivot_invoice = $this->payment->invoices->first(function ($inv) use($paid_invoice){
+                    return $inv->hashed_id == $paid_invoice->invoice_id;
+            });
 
-                $invoice->service() //caution what if we amount paid was less than partial - we wipe it! 
-                    ->clearPartial()
-                    ->updateBalance($paid_amount*-1)
-                    ->save();
+            /*update paymentable record*/
+            $pivot_invoice->pivot->amount = $paid_amount;
+            $pivot_invoice->save();
+
+
+            $invoice->service() //caution what if we amount paid was less than partial - we wipe it! 
+                ->clearPartial()
+                ->updateBalance($paid_amount*-1)
+                ->save();
 
         });
 

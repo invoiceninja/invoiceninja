@@ -20,6 +20,7 @@ use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -110,25 +111,19 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  array  $hashed_ids  The array of invoice hashed_ids
      * @return Payment             The payment object
      */
-    public function attachInvoices(Payment $payment, $hashed_ids): Payment
+    
+    public function attachInvoices(Payment $payment, PaymentHash $payment_hash): Payment
     {
-        $transformed = $this->transformKeys($hashed_ids);
-        $array = is_array($transformed) ? $transformed : [$transformed];
 
-        $invoices = Invoice::whereIn('id', $array)
-            ->whereClientId($this->client->id)
-            ->get();
-
+        $paid_invoices = $payment_hash->invoices();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
         $payment->invoices()->sync($invoices);
-        $payment->save();
-
-        $payment->service()->applyNumber()->save();
 
         $invoices->each(function ($invoice) use($payment){
             event(new InvoiceWasPaid($invoice, $payment->company, Ninja::eventVars()));
         });
 
-        return $payment;
+        return $payment->service()->applyNumber()->save();
     }
 
     /**

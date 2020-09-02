@@ -19,6 +19,7 @@ use App\Models\GatewayType;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\Quote;
 use App\Models\User;
@@ -30,6 +31,7 @@ use App\Utils\Ninja;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class RandomDataSeeder extends Seeder
 {
@@ -213,9 +215,16 @@ class RandomDataSeeder extends Seeder
 
                 $payment->invoices()->save($invoice);
 
+                    $payment_hash = new PaymentHash;
+                    $payment_hash->hash = Str::random(128);
+                    $payment_hash->data = [['invoice_id' => $invoice->hashed_id, 'amount' => $invoice->balance]];
+                    $payment_hash->fee_total = 0;
+                    $payment_hash->fee_invoice_id = $invoice->id;
+                    $payment_hash->save();
+
                 event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-                $payment->service()->updateInvoicePayment();
+                $payment->service()->updateInvoicePayment($payment_hash);
 
                 //            UpdateInvoicePayment::dispatchNow($payment, $payment->company);
             }

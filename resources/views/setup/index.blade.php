@@ -34,13 +34,13 @@
                     @include('setup._issues')
                 @else
 
-                    @if(!$check['npm_status'])
+                    @if(isset($check['npm_status']) && !$check['npm_status'])
                     <div class="alert alert-success mt-4">
                         <p>NPM Version => {{$check['npm_status']}}</p>
                     </div>
                     @endif
 
-                    @if(!$check['node_status'])
+                    @if(isset($check['node_status']) && !$check['node_status'])
                     <div class="alert alert-success mt-4">
                         <p>Node Version => {{$check['node_status']}}</p>
                     </div>
