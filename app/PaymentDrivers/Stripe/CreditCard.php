@@ -126,6 +126,7 @@ class CreditCard
             'payment_hash' => $payment_hash,
         ];
 
+        /*Hydrate the invoices from the payment hash*/
         $invoices = Invoice::whereIn('id', $this->stripe->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))
             ->whereClientId($this->stripe->client->id)
             ->get();

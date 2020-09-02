@@ -18,6 +18,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\AuthorizePaymentDriver;
@@ -71,14 +72,14 @@ class AuthorizeCreditCard
 
         $gateway_customer_reference = $authorise_create_customer->create($data);
         
-        info($gateway_customer_reference);
+        //info($gateway_customer_reference);
 
         $authorise_payment_method = new AuthorizePaymentMethod($this->authorize);
 
         $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
         $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
 
-        info($request->input('store_card'));
+        //info($request->input('store_card'));
         
         if($request->has('store_card') && $request->input('store_card') === 'true'){
             $authorise_payment_method->payment_method = GatewayType::CREDIT_CARD;
@@ -162,7 +163,16 @@ class AuthorizeCreditCard
 
     private function processSuccessfulResponse($data, $request)
     {
+        $payment_hash = PaymentHash::whereRaw("BINARY `hash`= ?", [$request->input('payment_hash')])->firstOrFail();
+
+
+
+
+
         $payment = $this->createPaymentRecord($data, $request->input('amount_with_fee'));
+
+
+
 
         $this->authorize->attachInvoices($payment, $request->hashed_ids);
 

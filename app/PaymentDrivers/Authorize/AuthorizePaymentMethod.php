@@ -122,7 +122,7 @@ class AuthorizePaymentMethod
 
     public function createClientGatewayToken($payment_profile, $gateway_customer_reference)
     {
-        info(print_r($payment_profile,1));
+      //  info(print_r($payment_profile,1));
 
         $client_gateway_token = new ClientGatewayToken();
         $client_gateway_token->company_id = $this->authorize->client->company_id;
