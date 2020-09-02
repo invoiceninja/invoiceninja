@@ -46,7 +46,7 @@ class UpdateCompanyGatewayRequest extends Request
         $input = $this->all();
 
         /*Force gateway properties */
-        if(isset($input['config']) && $input['gateway_key'])
+        if(isset($input['config']) && is_object(json_decode($input['config'])) && array_key_exists('gateway_key', $input))
         {
             $gateway = Gateway::where('key', $input['gateway_key'])->first();
             $default_gateway_fields = json_decode($gateway->fields);

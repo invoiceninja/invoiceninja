@@ -43,12 +43,12 @@ class StoreCompanyGatewayRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-
         $gateway = Gateway::where('key', $input['gateway_key'])->first();
+     
         $default_gateway_fields = json_decode($gateway->fields);
         
         /*Force gateway properties */
-        if(isset($input['config']))
+        if(isset($input['config']) && is_object(json_decode($input['config'])))
         {
             foreach(json_decode($input['config']) as $key => $value) {
 

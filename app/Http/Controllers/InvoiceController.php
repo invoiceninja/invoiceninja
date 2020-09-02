@@ -717,6 +717,10 @@ class InvoiceController extends BaseController
                 else
                     $this->reminder_template = $invoice->calculateTemplate();
 
+                //touch reminder1,2,3_sent + last_sent here if the email is a reminder.
+                
+                $invoice->service()->touchReminder($this->reminder_template)->save();
+                
                 $invoice->invitations->load('contact.client.country','invoice.client.country','invoice.company')->each(function ($invitation) use ($invoice) {
 
                     $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
