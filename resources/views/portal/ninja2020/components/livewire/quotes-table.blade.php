@@ -11,19 +11,19 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:click="statusChange('draft')" type="checkbox" class="cursor-pointer form-checkbox" id="draft-checkbox">
+                <input wire:model="status" value="{{ App\Models\Quote::STATUS_DRAFT }}" type="checkbox" class="cursor-pointer form-checkbox" id="draft-checkbox">
                 <label for="draft-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_draft') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('sent')" value="sent" type="checkbox" class="cursor-pointer form-checkbox" id="sent-checkbox">
+                <input wire:model="status" value="{{ App\Models\Quote::STATUS_SENT }}" value="sent" type="checkbox" class="cursor-pointer form-checkbox" id="sent-checkbox">
                 <label for="sent-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_pending') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('approved')" value="approved" type="checkbox" class="cursor-pointer form-checkbox" id="approved-checkbox">
+                <input wire:model="status" value="{{ App\Models\Quote::STATUS_APPROVED }}" value="approved" type="checkbox" class="cursor-pointer form-checkbox" id="approved-checkbox">
                 <label for="approved-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.approved') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:click="statusChange('expired')" value="expired" type="checkbox" class="cursor-pointer form-checkbox" id="expired-checkbox">
+                <input wire:model="status" value="{{ App\Models\Quote::STATUS_EXPIRED }}" value="expired" type="checkbox" class="cursor-pointer form-checkbox" id="expired-checkbox">
                 <label for="expired-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.expired') }}</label>
             </div>
         </div>
