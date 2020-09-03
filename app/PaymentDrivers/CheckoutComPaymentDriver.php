@@ -18,6 +18,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\CheckoutCom\Utilities;
@@ -109,6 +110,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
             'value' => $request->value,
             'raw_value' => $request->raw_value,
             'currency' => $request->currency,
+            'payment_hash' =>$request->payment_hash,
         ];
 
         $state = array_merge($state, $request->all());
@@ -163,10 +165,9 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         ];
 
         $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
-
-        $this->attachInvoices($payment, $state['hashed_ids']);
-
-        $payment->service()->updateInvoicePayment();
+        $payment_hash = PaymentHash::whereRaw("BINARY `hash`= ?", [$state['payment_hash']])->firstOrFail();
+        $this->attachInvoices($payment, $payment_hash);
+        $payment->service()->updateInvoicePayment($payment_hash);
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
