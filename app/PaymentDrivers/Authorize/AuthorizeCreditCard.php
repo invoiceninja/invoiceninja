@@ -101,17 +101,22 @@ class AuthorizeCreditCard
     
     }
 
-    private function tokenBilling($cgt, $amount, $invoice)
+    private function tokenBilling($cgt, $payment_hash)
     {
-    
-        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amounts);
+
+        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+
+        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amount);
 
         if($data['response'] != null && $data['response']->getMessages()->getResultCode() == "Ok") {
 
             $payment = $this->createPaymentRecord($data, $amount);
+            $payment->meta = $cgt->meta;
+            $payment->save();
 
-            $this->authorize->attachInvoices($payment, $invoice->hashed_id);
-            
+            $this->authorize->attachInvoices($payment, $payment_hash);
+            $payment->service()->updateInvoicePayment($payment_hash);
+
             event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
             $vars = [

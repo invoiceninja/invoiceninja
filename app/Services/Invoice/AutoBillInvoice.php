@@ -17,10 +17,12 @@ use App\Factory\PaymentFactory;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Support\Str;
 
 class AutoBillInvoice extends AbstractService
 {
@@ -55,30 +57,39 @@ class AutoBillInvoice extends AbstractService
 
         if($this->invoice->partial > 0){
             $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->partial);
-            $amount = $this->invoice->partial + $fee;
+            // $amount = $this->invoice->partial + $fee;
+            $amount = $this->invoice->partial;
         }
         else{
             $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->balance);
-            $amount = $this->invoice->balance + $fee;
+            // $amount = $this->invoice->balance + $fee;
+            $amount = $this->invoice->balance;
         }
 
-        $payment = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $amount, $this->invoice);
+        $payment_hash = PaymentHash::create([
+            'hash' => Str::random(128),
+            'data' => ['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount],
+            'fee_total' => $fee,
+            'fee_invoice_id' => $this->invoice->id,
+        ]);
 
-        if($payment){
+        $payment = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $payment_hash);
 
-            if($this->invoice->partial > 0)
-                $amount = $this->invoice->partial;
-            else
-                $amount = $this->invoice->balance;
+        //this is redundant - taken care of much further down.
+        // if($payment){
 
-            $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $amount)->save();
+        //     if($this->invoice->partial > 0)
+        //         $amount = $this->invoice->partial;
+        //     else
+        //         $amount = $this->invoice->balance;
 
-        }
-        else
-        {
-            //TODO autobill failed
-        }
+        //     $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $amount)->save();
 
+        // }
+        // else
+        // {
+        //     //TODO autobill failed
+        // }
 
         return $this->invoice;
     }

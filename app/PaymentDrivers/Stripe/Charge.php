@@ -16,6 +16,7 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\Invoice;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
@@ -35,8 +36,11 @@ class Charge
      * Create a charge against a payment method
      * @return bool success/failure
      */
-    public function tokenBilling(ClientGatewayToken $cgt, $amount, ?Invoice $invoice)
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
+
+        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+        $invoice = sInvoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->first();
 
         if($invoice)
             $description = "Invoice {$invoice->number} for {$amount} for client {$this->stripe->client->present()->name()}";
@@ -169,11 +173,12 @@ class Charge
         ];
 
         $payment = $this->stripe->createPaymentRecord($data, $amount);
+        $payment->meta = $cgt->meta;
+        $payment->save();
 
-        if($invoice)
-            $this->stripe->attachInvoices($payment, $invoice->hashed_id);
+        $this->stripe->attachInvoices($payment, $payment_hash);
 
-        $payment->service()->updateInvoicePayment();
+        $payment->service()->updateInvoicePayment($payment_hash);
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 

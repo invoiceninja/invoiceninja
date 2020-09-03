@@ -318,6 +318,6 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         }
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, float $amount) {}
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) {}
 
 }
