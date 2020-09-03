@@ -145,9 +145,9 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Business::class)
             ->build();
 
-        exec('echo "" > storage/logs/laravel.log');
+        // exec('echo "" > storage/logs/laravel.log');
 
-        info($maker->getCompiledHTML());
+        // info($maker->getCompiledHTML());
 
         $this->assertTrue(true);
     }
@@ -256,7 +256,7 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Clean::class)
             ->build();
 
-        info($maker->getCompiledHTML(true));
+        // info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }
@@ -369,7 +369,7 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Modern::class)
             ->build();
 
-        info($maker->getCompiledHTML());
+        // info($maker->getCompiledHTML());
 
         //exec('echo "" > storage/logs/laravel.log');
 
@@ -486,7 +486,7 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Bold::class)
             ->build();
 
-        info($maker->getCompiledHTML());
+        // info($maker->getCompiledHTML());
 
         $this->assertTrue(true);
     }
@@ -591,9 +591,9 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Plain::class)
             ->build();
 
-        exec('echo "" > storage/logs/laravel.log');
+        // exec('echo "" > storage/logs/laravel.log');
 
-        info($maker->getCompiledHTML(true));
+        // info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }
@@ -702,7 +702,7 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Hipster::class)
             ->build();
 
-        info($maker->getCompiledHTML(true));
+        // info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }
@@ -815,7 +815,7 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Elegant::class)
             ->build();
 
-        info($maker->getCompiledHTML(true));
+        // info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }
@@ -929,7 +929,7 @@ class PdfMakerDesignsTest extends TestCase
             ->build();
 
 
-        info($maker->getCompiledHTML(true));
+        // info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }
@@ -1035,7 +1035,7 @@ class PdfMakerDesignsTest extends TestCase
             ->design(Playful::class)
             ->build();
 
-        info($maker->getCompiledHTML(true));
+        // info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }

@@ -49,9 +49,9 @@ class ExampleIntegrationTest extends TestCase
             ->design(Playful::class)
             ->build();
 
-        exec('echo "" > storage/logs/laravel.log');
+  //      exec('echo "" > storage/logs/laravel.log');
 
-        info($maker->getCompiledHTML(true));
+//        info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }

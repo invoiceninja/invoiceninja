@@ -226,7 +226,7 @@ class CompanyLedgerTest extends TestCase
 
         $payment_ledger = $payment->company_ledger->sortByDesc('id')->first();
 
-info($payment->client->balance);
+        //info($payment->client->balance);
 
         $this->assertEquals($payment->client->balance, $payment_ledger->balance);
         $this->assertEquals($payment->client->paid_to_date, 10);
