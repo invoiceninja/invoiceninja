@@ -20,45 +20,64 @@ class InvoicesTable extends Component
 
     public $status = [];
 
-    public function statusChange($status)
-    {
-        if (in_array($status, $this->status)) {
-            return $this->status = array_diff($this->status, [$status]);
-        }
-
-        array_push($this->status, $status);
-    }
-
     public function render()
     {
+        $local_status = [];
+
         $query = Invoice::query()
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
         if (in_array('paid', $this->status)) {
-            $query = $query->orWhere('status_id', Invoice::STATUS_PAID);
+            $local_status[] = Invoice::STATUS_PAID;
         }
 
         if (in_array('unpaid', $this->status)) {
-            $query = $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
-        }
-
-        if (in_array('gateway-fees', $this->status)) {
-            $query = $query->orWhere('status_id', Invoice::STATUS_PAID); // Update this to correct status id (4).
+            $local_status[] = Invoice::STATUS_SENT;
+            $local_status[] = Invoice::STATUS_PARTIAL;
         }
 
         if (in_array('overdue', $this->status)) {
-            $query = $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                ->where(function ($query) {
-                    $query
-                        ->orWhere('due_date', '<', Carbon::now())
-                        ->orWhere('partial_due_date', '<', Carbon::now());
-                });
+            $local_status[] = Invoice::STATUS_SENT;
+            $local_status[] = Invoice::STATUS_PARTIAL;
+        }
+
+        if (count($local_status) > 0) {
+            $query = $query->whereIn('status_id', array_unique($local_status));
+        }
+
+        if (in_array('overdue', $this->status)) {
+            $query = $query->where(function ($query) {
+                $query
+                    ->orWhere('due_date', '<', Carbon::now())
+                    ->orWhere('partial_due_date', '<', Carbon::now());
+            });
         }
 
         $query = $query
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('status_id', '<>', Invoice::STATUS_DRAFT)
             ->paginate($this->per_page);
+
+        if (in_array('gateway_fees', $this->status)) {
+            $transformed = $query
+                ->getCollection()
+                ->filter(function ($invoice) {
+                    $invoice['line_items'] = collect($invoice->line_items)
+                        ->filter(function ($item) {
+                            return $item->type_id == "4" || $item->type_id == 4;
+                        });
+
+                    return count($invoice['line_items']);
+                });
+
+            $query = new \Illuminate\Pagination\LengthAwarePaginator(
+                $transformed,
+                $transformed->count(),
+                $query->perPage(),
+                $query->currentPage(),
+                ['path' => request()->url(), 'query' => ['page' => $query->currentPage()]]
+            );
+        }
 
         return render('components.livewire.invoices-table', [
             'invoices' => $query,
