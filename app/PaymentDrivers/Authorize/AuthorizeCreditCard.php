@@ -72,14 +72,10 @@ class AuthorizeCreditCard
 
         $gateway_customer_reference = $authorise_create_customer->create($data);
         
-        //info($gateway_customer_reference);
-
         $authorise_payment_method = new AuthorizePaymentMethod($this->authorize);
 
         $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
         $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
-
-        //info($request->input('store_card'));
         
         if($request->has('store_card') && $request->input('store_card') === 'true'){
             $authorise_payment_method->payment_method = GatewayType::CREDIT_CARD;
@@ -145,6 +141,21 @@ class AuthorizeCreditCard
         return $this->processFailedResponse($data, $request);
     }
 
+    private function storePayment($payment_hash, $data)
+    {
+        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+
+        $payment = $this->createPaymentRecord($data, $amount);
+
+        $this->authorize->attachInvoices($payment, $payment_hash);
+
+        $payment->service()->updateInvoicePayment($payment_hash);
+
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+
+        return $payment;
+    }
+
     private function createPaymentRecord($data, $amount) :?Payment
     {
 
@@ -164,21 +175,7 @@ class AuthorizeCreditCard
     private function processSuccessfulResponse($data, $request)
     {
         $payment_hash = PaymentHash::whereRaw("BINARY `hash`= ?", [$request->input('payment_hash')])->firstOrFail();
-
-
-
-
-
-        $payment = $this->createPaymentRecord($data, $request->input('amount_with_fee'));
-
-
-
-
-        $this->authorize->attachInvoices($payment, $request->hashed_ids);
-
-        $payment->service()->updateInvoicePayment();
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+        $payment = $this->storePayment($payment_hash, $data);
 
         $vars = [
             'hashed_ids' => $request->input('hashed_ids'),
