@@ -189,7 +189,7 @@ class AuthorizeCreditCard
         $payment = $this->storePayment($payment_hash, $data);
 
         $vars = [
-            'invoices' => $payment_hash->invoice(),
+            'invoices' => $payment_hash->invoices(),
             'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total
         ];
 
