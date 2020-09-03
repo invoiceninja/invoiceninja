@@ -12,11 +12,13 @@
 
 namespace App\Services\Payment;
 
+use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Email\PaymentEmail;
 use App\Jobs\Payment\EmailPayment;
 use App\Jobs\Util\SystemLogger;
 use App\Models\Invoice;
 use App\Models\SystemLog;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
 class UpdateInvoicePayment
@@ -38,7 +40,9 @@ class UpdateInvoicePayment
 
     public function run()
     {
+
         $paid_invoices = $this->payment_hash->invoices();
+        
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
 
         collect($paid_invoices)->each(function ($paid_invoice) use($invoices) {
@@ -71,11 +75,12 @@ class UpdateInvoicePayment
             $pivot_invoice->pivot->amount = $paid_amount;
             $pivot_invoice->save();
 
-
             $invoice->service() //caution what if we amount paid was less than partial - we wipe it! 
                 ->clearPartial()
                 ->updateBalance($paid_amount*-1)
                 ->save();
+
+            event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
 
         });
 
