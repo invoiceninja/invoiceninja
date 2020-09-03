@@ -23,6 +23,7 @@ use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\ACH;
@@ -367,9 +368,9 @@ class StripePaymentDriver extends BasePaymentDriver
         return response([], 200);
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, float $amount, ?Invoice $invoice = null) 
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) 
     {
-        return (new Charge($this))->tokenBilling($cgt, $amount, $invoice);
+        return (new Charge($this))->tokenBilling($cgt, $payment_hash);
     }
 
     /**

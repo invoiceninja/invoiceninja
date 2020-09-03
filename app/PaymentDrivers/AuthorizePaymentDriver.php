@@ -16,6 +16,7 @@ use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
 use App\PaymentDrivers\Authorize\ChargePaymentProfile;
@@ -143,11 +144,11 @@ class AuthorizePaymentDriver extends BaseDriver
                                  ->first();
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, float $amount, ?Invoice $invoice = null) 
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) 
     {
         $this->setPaymentMethod($cgt->gateway_type_id);
 
-        return $this->payment_method->tokenBilling($cgt, $amount, $invoice);
+        return $this->payment_method->tokenBilling($cgt, $payment_hash);
     }
 
 }

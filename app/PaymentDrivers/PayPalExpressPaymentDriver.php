@@ -18,6 +18,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Utils\Ninja;
@@ -91,7 +92,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
      * @var $data['amount_with_fee']
      * @var $data['token']
      * @var $data['payment_method_id']
-     * @var $data['hashed_ids']
+     * @var $data['payment_hash']
      *
      * @param  array  $data variables required to build payment page
      * @return view   Gateway and payment method specific view
@@ -163,10 +164,9 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         }
 
         $payment = $this->createPayment($response->getData());
-
-        $this->attachInvoices($payment, $request->input('hashed_ids'));
-
-        $payment->service()->UpdateInvoicePayment();
+        $payment_hash = PaymentHash::whereRaw("BINARY `hash`= ?", [$request->input('payment_hash')])->firstOrFail();
+        $this->attachInvoices($payment, $payment_hash);
+        $payment->service()->updateInvoicePayment($payment_hash);
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
@@ -194,7 +194,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     {
         $url = $this->client->company->domain() . "/client/payments/process/response";
         $url .= "?company_gateway_id={$this->company_gateway->id}&gateway_type_id=" . GatewayType::PAYPAL;
-        $url .= "&hashed_ids=" . implode(",", $input['hashed_ids']);
+        $url .= "&payment_hash=" . $input['payment_hash'];
         $url .= "&amount=" . $input['amount'];
         $url .= "&fee=" . $input['fee'];
 
