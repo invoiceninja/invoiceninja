@@ -47,6 +47,7 @@ class AuthorizeCreditCard
 
     public function processPaymentView($data)
     {
+
     	$tokens = ClientGatewayToken::where('client_id', $this->authorize->client->id)
     								->where('company_gateway_id', $this->authorize->company_gateway->id)
     								->where('gateway_type_id', GatewayType::CREDIT_CARD)
@@ -63,6 +64,7 @@ class AuthorizeCreditCard
 
     public function processPaymentResponse($request)
     {
+
         if($request->token)
             return $this->processTokenPayment($request);
 
@@ -72,14 +74,10 @@ class AuthorizeCreditCard
 
         $gateway_customer_reference = $authorise_create_customer->create($data);
         
-        //info($gateway_customer_reference);
-
         $authorise_payment_method = new AuthorizePaymentMethod($this->authorize);
 
         $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
         $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
-
-        //info($request->input('store_card'));
         
         if($request->has('store_card') && $request->input('store_card') === 'true'){
             $authorise_payment_method->payment_method = GatewayType::CREDIT_CARD;
@@ -94,15 +92,18 @@ class AuthorizeCreditCard
 
     private function processTokenPayment($request)
     {
+
         $client_gateway_token = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
 
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($client_gateway_token->gateway_customer_reference, $client_gateway_token->token, $request->input('amount_with_fee'));
 
         return $this->handleResponse($data, $request);
+    
     }
 
     private function tokenBilling($cgt, $amount, $invoice)
     {
+    
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amounts);
 
         if($data['response'] != null && $data['response']->getMessages()->getResultCode() == "Ok") {
@@ -137,12 +138,31 @@ class AuthorizeCreditCard
     
     private function handleResponse($data, $request)
     {        
+    
         $response = $data['response'];
 
         if($response != null && $response->getMessages()->getResultCode() == "Ok")
             return $this->processSuccessfulResponse($data, $request);
 
         return $this->processFailedResponse($data, $request);
+    
+    }
+
+    private function storePayment($payment_hash, $data)
+    {
+    
+        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+
+        $payment = $this->createPaymentRecord($data, $amount);
+
+        $this->authorize->attachInvoices($payment, $payment_hash);
+
+        $payment->service()->updateInvoicePayment($payment_hash);
+
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+
+        return $payment;
+    
     }
 
     private function createPaymentRecord($data, $amount) :?Payment
@@ -159,30 +179,18 @@ class AuthorizeCreditCard
         $payment->save();
 
         return $payment;
+    
     }
 
     private function processSuccessfulResponse($data, $request)
     {
+    
         $payment_hash = PaymentHash::whereRaw("BINARY `hash`= ?", [$request->input('payment_hash')])->firstOrFail();
-
-
-
-
-
-        $payment = $this->createPaymentRecord($data, $request->input('amount_with_fee'));
-
-
-
-
-        $this->authorize->attachInvoices($payment, $request->hashed_ids);
-
-        $payment->service()->updateInvoicePayment();
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+        $payment = $this->storePayment($payment_hash, $data);
 
         $vars = [
-            'hashed_ids' => $request->input('hashed_ids'),
-            'amount' => $request->input('amount')
+            'invoices' => $payment_hash->invoice(),
+            'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total
         ];
 
         $logger_message = [
@@ -204,6 +212,7 @@ class AuthorizeCreditCard
 
     private function formatGatewayResponse($data, $vars)
     {
+    
         $response = $data['response'];
 
         return [
@@ -212,8 +221,9 @@ class AuthorizeCreditCard
             'auth_code' => $response->getTransactionResponse()->getAuthCode(),
             'code' => $response->getTransactionResponse()->getMessages()[0]->getCode(),
             'description' => $response->getTransactionResponse()->getMessages()[0]->getDescription(),
-            'invoices' => $vars['hashed_ids'],
+            'invoices' => $vars['invoices'],
         ];
+    
     }
 
 }
