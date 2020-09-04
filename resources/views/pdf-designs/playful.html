@@ -1,82 +1,173 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+<html lang="en">
+    <head id="head">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link rel="stylesheet" href="$app_url/css/tailwindcss@1.4.6.css" />
+        <style id="style">
+            * {
+                margin: 0;
+                padding: 0;
+                font-size: 14px;
+            }
+
+            body {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            @media print {
+                body {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+            body {
+                margin: 2rem;
+            }
+
+            .header-wrapper {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+            .header-wrapper .company-logo {
+                height: 5rem;
+            }
+            .header-wrapper .entity-details-wrapper {
+                background-color: #009e90;
+                padding: 1rem;
+                border-radius: 10px;
+            }
+            .header-wrapper #entity-details {
+                width: 100%;
+                color: white;
+                text-align: left;
+            }
+            .header-wrapper #entity-details > tr,
+            .header-wrapper #entity-details th {
+                font-weight: normal;
+            }
+
+            .contacts-wrapper {
+                margin-top: 3rem;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+            .contacts-wrapper .contact-label {
+                font-weight: bold;
+                color: #009e90;
+                margin-left: 1rem;
+            }
+            .contacts-wrapper #company-address,
+            .contacts-wrapper #company-details,
+            .contacts-wrapper #client-details {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 1rem;
+            }
+            .contacts-wrapper .company-info {
+                margin-top: 1rem;
+                padding: 1rem;
+                border-top: 1px solid #009e90;
+                border-bottom: 1px solid #009e90;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .contacts-wrapper #client-details {
+                margin-top: 1rem;
+                padding: 1rem;
+                border-top: 1px solid #009e90;
+                border-bottom: 1px solid #009e90;
+            }
+
+            #product-table {
+                margin-top: 3rem;
+                min-width: 100%;
+                table-layout: fixed;
+                overflow-wrap: break-word;
+            }
+            #product-table > thead {
+                text-align: left;
+            }
+            #product-table > thead > tr > th {
+                font-size: 1.2rem;
+                padding: 1rem;
+                background: #009e90;
+                color: white;
+            }
+            #product-table > thead tr > th:first-child {
+                border-top-left-radius: 10px;
+                border-bottom-left-radius: 10px;
+            }
+            #product-table > thead tr > th:last-child {
+                border-top-right-radius: 10px;
+                border-bottom-right-radius: 10px;
+            }
+            #product-table > tbody > tr > td {
+                border-bottom: 1px solid #009e90;
+                padding: 1rem;
+            }
+            #product-table > tbody > tr > td:first-child {
+                color: #bb3a24;
+            }
+            #product-table > tfoot > tr > td {
+                padding: 1rem;
+            }
+            #product-table
+                > tfoot
+                [data-element='product-table-balance-due-label'] {
+                background-color: #009e90;
+                color: white;
+                border-top-left-radius: 10px;
+                border-bottom-left-radius: 10px;
+            }
+            #product-table > tfoot [data-element='product-table-balance-due'] {
+                background-color: #009e90;
+                color: white;
+                border-top-right-radius: 10px;
+                border-bottom-right-radius: 10px;
+            }
+        </style>
     </head>
 
-    <style>
-        #product-table tbody > tr > td:first-child {
-            color: #9b2c2c;
-        }
+    <body id="body">
+        <div class="header-wrapper" id="header">
+            <img
+                class="company-logo"
+                src="$company.logo"
+                alt="$company.name logo"
+            />
 
-        #product-table tbody > tr > td:last-child {
-            color: #9b2c2c;
-            font-weight: bold;
-        }
-
-        /** Required for proper margins on print **/
-        @page {
-            margin-top: 8.5mm;
-            margin-bottom: 8.5mm;
-        }
-
-        /** Custom CSS goes here.. */
-    </style>
-
-    <body class="$global-margin antialiased bg-white break-words">
-        <!-- Company logo, entity details -->
-        <div class="grid grid-cols-12 gap-4" id="header">
-            <div class="col-span-4">
-                <img
-                    src="$company.logo"
-                    alt="$company.name logo"
-                    class="w-24 col-span-4 sm:w-32"
-                />
+            <div>
+                <!-- Placeholder for empty space -->
             </div>
-            <div class="col-span-6 col-start-7 p-5 bg-teal-600 rounded-lg">
-                <table id="entity-details" class="text-white"></table>
+
+            <div class="entity-details-wrapper">
+                <table id="entity-details" cellspacing="0"></table>
             </div>
         </div>
 
-        <!-- Company details, client details -->
-        <div class="grid grid-cols-12 gap-12 mt-12">
-            <div class="col-span-12">
-                <p class="text-xl font-semibold text-teal-600 uppercase">
-                    $your_entity_label
-                </p>
-            </div>
-            <div class="col-span-6">
-                <p class="px-4 font-semibold text-teal-600">$to_label:</p>
-                <div
-                    class="p-4 mt-4 border-t-4 border-b-4 border-teal-600 border-dashed"
-                >
-                    <div id="client-details"></div>
-                </div>
-            </div>
-            <div class="col-span-6">
-                <p class="px-4 font-semibold text-teal-600">$from_label:</p>
-                <div
-                    class="flex p-4 mt-4 space-x-4 border-t-4 border-b-4 border-teal-600 border-dashed"
-                >
+        <div class="contacts-wrapper">
+            <div>
+                <p class="contact-label">$to_label:</p>
+                <div class="company-info">
                     <div id="company-details"></div>
                     <div id="company-address"></div>
                 </div>
             </div>
+
+            <div>
+                <p class="contact-label">$from_label:</p>
+
+                <div id="client-details"></div>
+            </div>
         </div>
 
-        <!-- Product table -->
-        <table
-            id="product-table"
-            class="w-full mt-10 table-auto $table-padding"
-        ></table>
-    </body>
+        <table id="product-table" cellspacing="0"></table>
 
-    <footer id="footer"></footer>
+        <footer id="footer"></footer>
+    </body>
 </html>

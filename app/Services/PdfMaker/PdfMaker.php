@@ -28,6 +28,8 @@ class PdfMaker
 
     private $filters = [
         '<![CDATA[' => '',
+        '<![CDATA[<![CDATA[' => '',
+        ']]]]><![CDATA[>]]>' => '',
         ']]>' => '',
         '<?xml version="1.0" encoding="utf-8" standalone="yes"??>' => '',
     ];
@@ -43,9 +45,9 @@ class PdfMaker
         }
     }
 
-    public function design(string $design)
+    public function design(Design $design)
     {
-        $this->design = new $design();
+        $this->design = $design;
 
         $this->initializeDomDocument();
 
@@ -71,12 +73,12 @@ class PdfMaker
     {
         if ($final) {
             $html = $this->document->saveXML();
-            
+
             $filtered = strtr($html, $this->filters);
-            
+
             return $filtered;
         }
-        
+
         return $this->document->saveXML();
     }
 }

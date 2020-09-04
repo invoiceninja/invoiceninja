@@ -16,6 +16,9 @@ use App\Designs\Designer;
 use App\Factory\InvoiceFactory;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Util\PreviewPdf;
+use App\Services\PdfMaker\Design;
+use App\Services\PdfMaker\PdfMaker;
+use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Support\Facades\DB;
@@ -92,11 +95,32 @@ class PreviewController extends BaseController
 
             $entity_obj->load('client');
 
-            $designer = new Designer($entity_obj, $design_object, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
+            $html = new HtmlEngine(null, $entity_obj->invitations()->first(), request()->entity_type);
 
-            $html = $this->generateEntityHtml($designer, $entity_obj);
+            $design_namespace = 'App\Services\PdfMaker\Designs\\' . request()->design['name'];
 
-            $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
+            $design_class = new $design_namespace();
+
+            // $designer = new Designer($entity_obj, $design_object, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
+            // $html = $this->generateEntityHtml($designer, $entity_obj);
+
+            $state = [
+                'template' => $design_class->elements([
+                    'client' => $entity_obj->client,
+                    'entity' => $entity_obj,
+                    'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
+                ]),
+                'variables' => $html->generateLabelsAndValues(),
+            ];
+
+            $design = new Design(request()->design['name']);
+            $maker = new PdfMaker($state);
+
+            $maker
+                ->design($design)
+                ->build();
+
+            $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
             return response()->download($file_path)->deleteFileAfterSend(true);
         }
@@ -147,17 +171,37 @@ class PreviewController extends BaseController
             return response()->json(['message' => 'Invalid custom design object'], 400);
         }
 
-        $designer = new Designer($invoice, $design_object, auth()->user()->company()->settings->pdf_variables, lcfirst(request()->input('entity')));
+        $html = new HtmlEngine(null, $invoice->invitations()->first(), 'invoice');
 
-        $html = $this->generateEntityHtml($designer, $invoice, $contact);
-info($html);
-        $file_path = PreviewPdf::dispatchNow($html, auth()->user()->company());
+        $design = new Design(strtolower(request()->design['name']));
+
+        // $designer = new Designer($entity_obj, $design_object, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
+        // $html = $this->generateEntityHtml($designer, $entity_obj);
+
+        $state = [
+            'template' => $design->elements([
+                'client' => $invoice->client,
+                'entity' => $invoice,
+                'pdf_variables' => (array) $invoice->company->settings->pdf_variables,
+            ]),
+            'variables' => $html->generateLabelsAndValues(),
+        ];
+
+        $maker = new PdfMaker($state);
+
+        $maker
+            ->design($design)
+            ->build();
+
+        info($maker->getCompiledHTML(true));
+
+        $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
         DB::rollBack();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
-        return $response;
 
+        return $response;
     }
 }

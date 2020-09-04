@@ -3,6 +3,7 @@
 namespace Tests\Feature\PdfMaker;
 
 use App\Models\Invoice;
+use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\Designs\Playful;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HtmlEngine;
@@ -23,22 +24,22 @@ class ExampleIntegrationTest extends TestCase
 
     public function testExample()
     {
+        $this->markTestIncomplete();
+
         $invoice = $this->invoice;
         $invitation = $invoice->invitations()->first();
 
         $engine = new HtmlEngine(null, $invitation, 'invoice');
-        $design = new Playful();
 
-        $product_table_columns = json_decode(
-            json_encode($invoice->company->settings->pdf_variables),
-            1
-        )['product_columns'];
+        $design = new Design(
+            Design::CLEAN
+        );
 
         $state = [
             'template' => $design->elements([
                 'client' => $invoice->client,
                 'entity' => $invoice,
-                'product-table-columns' => $product_table_columns,
+                'pdf_variables' => (array)$invoice->company->settings->pdf_variables,
             ]),
             'variables' => $engine->generateLabelsAndValues(),
         ];
@@ -46,7 +47,7 @@ class ExampleIntegrationTest extends TestCase
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(Playful::class)
+            ->design($design)
             ->build();
 
   //      exec('echo "" > storage/logs/laravel.log');

@@ -483,7 +483,8 @@ class HtmlEngine
         }
 
         foreach ($this->entity_calc->getTotalTaxMap() as $tax) {
-            $data .= '<tr class="total_taxes">';
+            $data .= '<tr>';
+            $data .= '<td colspan="{ count($this->entity->company->settings->pdf_variables->total_columns) - 2 }"></td>';
             $data .= '<td>'. $tax['name'] .'</td>';
             $data .= '<td>'. Number::formatMoney($tax['total'], $this->client) .'</td></tr>';
         }

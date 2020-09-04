@@ -128,5 +128,8 @@ return [
     'system' => [
         'node_path' => env('NODE_PATH', false),
         'npm_path' => env('NPM_PATH', false)
-    ]
+    ],
+    'designs' => [
+        'base_path' => resource_path('views/pdf-designs/'),
+    ],
 ];

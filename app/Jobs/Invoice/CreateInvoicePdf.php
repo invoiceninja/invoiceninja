@@ -20,6 +20,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
@@ -86,17 +87,13 @@ class CreateInvoicePdf implements ShouldQueue
 
         $html = new HtmlEngine(null, $this->invitation, 'invoice');
 
-        $design_namespace = 'App\Services\PdfMaker\Designs\\' . $design->name;
-
-        $design_class = new $design_namespace();
-
-        $pdf_variables = json_decode(json_encode($this->invoice->company->settings->pdf_variables), 1);
+        $template = new PdfMakerDesign(strtolower($design->name));
 
         $state = [
-            'template' => $design_class->elements([
+            'template' => $template->elements([
                 'client' => $this->invoice->client,
                 'entity' => $this->invoice,
-                'product-table-columns' => $pdf_variables['product_columns'],
+                'pdf_variables' => (array)$this->invoice->company->settings->pdf_variables,
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'options' => [
@@ -108,15 +105,15 @@ class CreateInvoicePdf implements ShouldQueue
         $maker = new PdfMakerService($state);
 
         $maker
-            ->design($design_namespace)
+            ->design($template)
             ->build();
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0775);
 
-        info($maker->getCompiledHTML());
+        info($maker->getCompiledHTML(true));
 
-        $pdf       = $this->makePdf(null, null, $maker->getCompiledHTML());
+        $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
 
         $instance  = Storage::disk($this->disk)->put($file_path, $pdf);
 

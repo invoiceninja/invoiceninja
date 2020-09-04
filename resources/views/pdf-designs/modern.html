@@ -1,68 +1,159 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+<html lang="en">
+    <head id="head">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link rel="stylesheet" href="$app_url/css/tailwindcss@1.4.6.css" />
+        <style id="style">
+            * {
+                margin: 0;
+                padding: 0;
+                font-size: 14px;
+            }
+
+            body {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            @media print {
+                body {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+            .header-container {
+                background-color: #f46521;
+                color: white;
+                display: grid;
+                grid-template-columns: 1.5fr 1fr;
+                padding: 1.5rem;
+            }
+            .header-container .company-name {
+                font-size: 2.5rem;
+            }
+
+            #entity-details {
+                text-align: left;
+                color: #fff4e9 !important;
+            }
+            #entity-details > tr,
+            #entity-details th {
+                font-weight: normal;
+                padding-bottom: 0.5rem;
+            }
+
+            .company-logo {
+                height: 5rem;
+            }
+
+            .logo-client-wrapper {
+                margin: 3rem 1.5rem;
+                display: grid;
+                grid-template-columns: 1.5fr 1fr;
+            }
+
+            #client-details {
+                display: flex;
+                flex-direction: column;
+            }
+            #client-details > * {
+                margin-bottom: 0.5rem;
+            }
+
+            .table-wrapper {
+                margin: 3rem 1.5rem;
+            }
+
+            #product-table {
+                min-width: 100%;
+                table-layout: fixed;
+                overflow-wrap: break-word;
+            }
+            #product-table > thead {
+                text-align: left;
+            }
+            #product-table > thead > tr > th {
+                padding: 0.8rem;
+                background-color: #3f3e3c;
+                color: white;
+            }
+            #product-table > tbody > tr > td {
+                border-bottom: 1px solid #3f3e3c;
+                padding: 1rem;
+            }
+            #product-table > tbody > tr > td:first-child {
+                font-weight: bold;
+            }
+            #product-table > tfoot > tr > td {
+                padding: 1rem;
+            }
+            #product-table > tfoot [data-element='balance-due-row'] > td {
+                background-color: #3f3e3c;
+                color: white;
+            }
+            #product-table > tfoot [data-element='balance-due-label'] {
+                font-weight: bold;
+                font-size: 1.2rem;
+            }
+            #product-table > tfoot [data-element='balance-due'] {
+                font-size: 1.2rem;
+            }
+
+            .footer-wrapper {
+                display: grid;
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                padding: 1.5rem;
+                grid-template-columns: 2fr 1fr 1fr;
+                background-color: #f46521;
+                color: #fff4e9;
+            }
+
+            #company-address,
+            #company-details {
+                display: flex;
+                flex-direction: column;
+            }
+            #company-address > *,
+            #company-details > * {
+                margin-bottom: 0.5rem;
+            }
+        </style>
     </head>
 
-    <body class="antialiased break-words bg-white">
-        <!-- Company name, entity details -->
-        <div class="bg-orange-600" id="header">
-            <div class="$global-padding">
-                <div class="grid grid-cols-12">
-                    <div class="col-span-4">
-                        <h1 class="text-3xl font-bold text-white lg:text-4xl">
-                            $company.name
-                        </h1>
-                    </div>
-                    <div class="col-span-7 col-start-6 lg:col-start-7">
-                        <table id="entity-details" class="text-white"></table>
-                    </div>
-                </div>
-            </div>
+    <body id="body">
+        <div class="header-container" id="header">
+            <h1 class="company-name">$company.name</h1>
+
+            <table id="entity-details" cellspacing="0"></table>
         </div>
 
-        <div class="$global-margin">
-            <!-- Company logo, client details -->
-            <div class="col-span-12 mt-6 mb-10">
-                <p class="text-xl font-semibold text-orange-600 uppercase">
-                    $your_entity_label
-                </p>
-            </div>
-            <div class="grid grid-cols-12">
-                <img
-                    src="$company.logo"
-                    alt="$company.name logo"
-                    class="grid w-24 col-span-4 sm:w-32"
-                />
-                <div id="client-details" class="col-span-8 col-start-6"></div>
-            </div>
+        <div class="logo-client-wrapper">
+            <img
+                class="company-logo"
+                src="$company.logo"
+                alt="$company.name logo"
+            />
 
-            <!-- Product table -->
-            <table
-                id="product-table"
-                class="w-full mt-8 mb-10 table-auto $table-padding"
-            ></table>
+            <div id="client-details"></div>
         </div>
 
-        <!-- Company details -->
-        <footer id="footer" class="fixed bottom-0 w-full bg-orange-600">
-            <div class="$global-padding">
-                <div class="grid grid-cols-12">
-                    <div
-                        class="flex justify-between col-span-8 col-start-6 lg:col-span-6 lg:col-start-8"
-                    >
-                        <div id="company-details" class="text-white"></div>
-                        <div id="company-address" class="text-white"></div>
-                    </div>
-                </div>
+        <div class="table-wrapper">
+            <table id="product-table" cellspacing="0"></table>
+        </div>
+        
+        <div class="footer-wrapper">
+            <div>
+                <!-- Placeholder for offset -->
             </div>
-        </footer>
+            
+            <div id="company-details"></div>
+            <div id="company-address"></div>
+        </div>
+        
+        <footer id="footer"></footer>
     </body>
 </html>

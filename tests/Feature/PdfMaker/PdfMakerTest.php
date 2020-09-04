@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\PdfMaker;
 
-use App\Services\PdfMaker\Designs\Plain;
+use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use Tests\TestCase;
 
@@ -18,30 +18,35 @@ class PdfMakerTest extends TestCase
 
     public function testDesignLoadsCorrectly()
     {
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker = new PdfMaker($this->state);
 
-        $maker->design(ExampleDesign::class);
+        $maker->design($design);
 
-        $this->assertInstanceOf(ExampleDesign::class, $maker->design);
+        $this->assertInstanceOf(Design::class, $maker->design);
     }
 
     public function testHtmlDesignLoadsCorrectly()
     {
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+
         $maker = new PdfMaker($this->state);
 
         $maker
-            ->design(ExampleDesign::class)
+            ->design($design)
             ->build();
 
-        $this->assertStringContainsString('<!-- Business -->', $maker->getCompiledHTML());
+        $this->assertStringContainsString('Template: Example', $maker->getCompiledHTML());
     }
 
     public function testGetSectionUtility()
     {
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+
         $maker = new PdfMaker($this->state);
 
         $maker
-            ->design(ExampleDesign::class)
+            ->design($design)
             ->build();
 
         $this->assertEquals('table', $maker->getSectionNode('product-table')->nodeName);
@@ -59,12 +64,6 @@ class PdfMakerTest extends TestCase
                         'script' => 'console.log(1)',
                     ],
                 ],
-                'header' => [
-                    'id' => 'header',
-                    'properties' => [
-                        'class' => 'header-class',
-                    ],
-                ],
             ],
             'variables' => [
                 'labels' => [],
@@ -72,10 +71,11 @@ class PdfMakerTest extends TestCase
             ],
         ];
 
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(ExampleDesign::class)
+            ->design($design)
             ->build();
 
         $this->assertStringContainsString('my-awesome-class', $maker->getSection('product-table', 'class'));
@@ -85,36 +85,25 @@ class PdfMakerTest extends TestCase
 
     public function testVariablesAreReplaced()
     {
-
         $state = [
             'template' => [
                 'product-table' => [
                     'id' => 'product-table',
-                    'properties' => [
-                        'class' => 'my-awesome-class',
-                        'style' => 'margin-top: 10px;',
-                        'script' => 'console.log(1)',
-                    ],
-                ],
-                'header' => [
-                    'id' => 'header',
-                    'properties' => [
-                        'class' => 'header-class',
-                    ],
                 ],
             ],
             'variables' => [
                 'labels' => [],
                 'values' => [
-                    '$title' => 'Invoice Ninja',
+                    '$company.name' => 'Invoice Ninja',
                 ],
             ],
         ];
 
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(ExampleDesign::class)
+            ->design($design)
             ->build();
 
         $this->assertStringContainsString('Invoice Ninja', $maker->getCompiledHTML());
@@ -123,7 +112,6 @@ class PdfMakerTest extends TestCase
 
     public function testElementContentIsGenerated()
     {
-
         $state = [
             'template' => [
                 'product-table' => [
@@ -159,10 +147,11 @@ class PdfMakerTest extends TestCase
             ],
         ];
 
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(ExampleDesign::class)
+            ->design($design)
             ->build();
 
         $compiled = 'contact@invoiceninja.com';
@@ -172,6 +161,7 @@ class PdfMakerTest extends TestCase
 
     public function testConditionalRenderingOfElements()
     {
+        $design1 = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
 
         $maker1 = new PdfMaker([
             'template' => [
@@ -183,13 +173,14 @@ class PdfMakerTest extends TestCase
         ]);
 
         $maker1
-            ->design(ExampleDesign::class)
+            ->design($design1)
             ->build();
 
         $output1 = $maker1->getCompiledHTML();
 
-        $this->assertStringContainsString('<div id="header">$title</div>', $output1);
+        $this->assertStringContainsString('<div id="header">', $output1);
 
+        $design2 = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker2 = new PdfMaker([
             'template' => [
                 'header' => [
@@ -200,18 +191,19 @@ class PdfMakerTest extends TestCase
         ]);
 
         $maker2
-            ->design(ExampleDesign::class)
+            ->design($design2)
             ->build();
 
         $output2 = $maker2->getCompiledHTML();
 
-        $this->assertStringContainsString('<div id="header" hidden="true">$title</div>', $output2);
+        $this->assertStringContainsString('<div id="header" hidden="true">$company.name</div>', $output2);
 
         $this->assertNotSame($output1, $output2);
     }
 
     public function testOrderingElements()
     {
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
 
         $maker = new PdfMaker([
             'template' => [
@@ -227,7 +219,7 @@ class PdfMakerTest extends TestCase
         ]);
 
         $maker
-            ->design(ExampleDesign::class)
+            ->design($design)
             ->build();
 
         $node = $maker->getSectionNode('header');
@@ -254,7 +246,7 @@ class PdfMakerTest extends TestCase
         ]);
 
         $maker
-            ->design(ExampleDesign::class)
+            ->design($design)
             ->build();
 
         $node = $maker->getSectionNode('header');
@@ -270,7 +262,6 @@ class PdfMakerTest extends TestCase
 
     public function testGeneratingPdf()
     {
-
         $state = [
             'template' => [
                 'header' => [
@@ -319,10 +310,11 @@ class PdfMakerTest extends TestCase
             ]
         ];
 
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(ExampleDesign::class)
+            ->design($design)
             ->build();
 
         $this->assertTrue(true);
@@ -330,7 +322,7 @@ class PdfMakerTest extends TestCase
 
     public function testGetSectionHTMLWorks()
     {
-        $design = new ExampleDesign();
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
 
         $html = $design
             ->document()
@@ -341,7 +333,7 @@ class PdfMakerTest extends TestCase
 
     public function testWrapperHTMLWorks()
     {
-        $design = new ExampleDesign();
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
 
         $state = [
             'template' => [
@@ -357,6 +349,7 @@ class PdfMakerTest extends TestCase
                 'values' => [],
             ],
             'options' => [
+                'all_pages_header' => true,
                 'all_pages_footer' => true,
             ],
         ];
@@ -364,7 +357,7 @@ class PdfMakerTest extends TestCase
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(ExampleDesign::class)
+            ->design($design)
             ->build();
 
         // exec('echo "" > storage/logs/laravel.log');

@@ -10,21 +10,16 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Services\PdfMaker\Designs;
+namespace App\Services\PdfMaker;
 
+use Illuminate\Support\Str;
+use App\Utils\Traits\MakesInvoiceValues;
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
-use App\Utils\Traits\MakesInvoiceValues;
 
-class Creative extends BaseDesign
+class Design extends BaseDesign
 {
     use MakesInvoiceValues, DesignHelpers;
-
-    /** Global list of table elements, @var array */
-    public $elements;
-
-    /** @var App\Models\Client */
-    public $client;
 
     /** @var App\Models\Invoice || @var App\Models\Quote */
     public $entity;
@@ -35,17 +30,44 @@ class Creative extends BaseDesign
     /** Type of entity => product||task */
     public $type;
 
-    public function html()
+    /** Design string */
+    public $design;
+
+    /** Construct options */
+    public $options;
+
+    const BOLD = 'bold';
+    const BUSINESS = 'business';
+    const CLEAN = 'clean';
+    const CREATIVE = 'creative';
+    const ELEGANT = 'elegant';
+    const HIPSTER = 'hipster';
+    const MODERN = 'modern';
+    const PLAIN = 'plain';
+    const PLAYFUL = 'playful';
+
+    public function __construct(string $design = null, array $options = [])
     {
+        Str::endsWith('.html', $design) ? $this->design = $design : $this->design = "{$design}.html";
+
+        $this->options = $options;
+    }
+
+    public function html(): ?string
+    {
+        $path = isset($this->options['custom_path'])
+            ? $this->options['custom_path']
+            : config('ninja.designs.base_path');
+
         return file_get_contents(
-            base_path('resources/views/pdf-designs/creative.html')
+            $path . $this->design
         );
     }
 
     public function elements(array $context, string $type = 'product'): array
     {
         $this->context = $context;
-        
+
         $this->type = $type;
 
         $this->setup();
@@ -82,7 +104,7 @@ class Creative extends BaseDesign
 
     public function companyDetails()
     {
-        $variables = $this->entity->company->settings->pdf_variables->company_details;
+        $variables = $this->context['pdf_variables']['company_details'];
 
         $elements = [];
 
@@ -95,7 +117,7 @@ class Creative extends BaseDesign
 
     public function companyAddress(): array
     {
-        $variables = $this->entity->company->settings->pdf_variables->company_address;
+        $variables = $this->context['pdf_variables']['company_address'];
 
         $elements = [];
 
@@ -108,7 +130,7 @@ class Creative extends BaseDesign
 
     public function clientDetails(): array
     {
-        $variables = $this->entity->company->settings->pdf_variables->client_details;
+        $variables = $this->context['pdf_variables']['client_details'];
 
         $elements = [];
 
@@ -121,18 +143,18 @@ class Creative extends BaseDesign
 
     public function entityDetails(): array
     {
-        $variables = $this->entity->company->settings->pdf_variables->invoice_details;
+        $variables = $this->context['pdf_variables']['invoice_details'];
 
         if ($this->entity instanceof \App\Models\Quote) {
-            $variables = $this->entity->company->settings->pdf_variables->quote_details;
+            $variables = $this->context['pdf_variables']['quote_details'];
         }
 
         $elements = [];
 
         foreach ($variables as $variable) {
-            $elements[] = ['element' => 'tr', 'properties' => ['hidden' => $this->entityVariableCheck($variable)], 'content' => '', 'elements' => [
-                ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['class' => 'text-left pr-4 font-normal']],
-                ['element' => 'th', 'content' => $variable, 'properties' => ['class' => 'text-left pr-4 font-normal']],
+            $elements[] = ['element' => 'tr', 'properties' => ['hidden' => $this->entityVariableCheck($variable)], 'elements' => [
+                ['element' => 'th', 'content' => $variable . '_label'],
+                ['element' => 'th', 'content' => $variable],
             ]];
         }
 
@@ -142,9 +164,9 @@ class Creative extends BaseDesign
     public function productTable(): array
     {
         return  [
-            ['element' => 'thead', 'content' => '', 'properties' => ['class' => 'text-left'], 'elements' => $this->buildTableHeader()],
-            ['element' => 'tbody', 'content' => '', 'elements' => $this->buildTableBody()],
-            ['element' => 'tfoot', 'content' => '', 'elements' => $this->tableFooter()],
+            ['element' => 'thead', 'elements' => $this->buildTableHeader()],
+            ['element' => 'tbody', 'elements' => $this->buildTableBody()],
+            ['element' => 'tfoot', 'elements' => $this->tableFooter()],
         ];
     }
 
@@ -154,8 +176,8 @@ class Creative extends BaseDesign
 
         $elements = [];
 
-        foreach ($this->context['product-table-columns'] as $column) {
-            $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['class' => 'font-medium uppercase text-pink-700 text-xl px-4 py-5']];
+        foreach ($this->context['pdf_variables']["{$this->type}_columns"] as $column) {
+            $elements[] = ['element' => 'th', 'content' => $column . '_label'];
         }
 
         return $elements;
@@ -172,10 +194,10 @@ class Creative extends BaseDesign
         }
 
         foreach ($items as $row) {
-            $element = ['element' => 'tr', 'content' => '', 'elements' => []];
+            $element = ['element' => 'tr', 'elements' => []];
 
-            foreach ($this->context['product-table-columns'] as $key => $cell) {
-                $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['class' => 'px-4 py-4']];
+            foreach ($this->context['pdf_variables']["{$this->type}_columns"] as $key => $cell) {
+                $element['elements'][] = ['element' => 'td', 'content' => $row[$cell]];
             }
 
             $elements[] = $element;
@@ -186,18 +208,23 @@ class Creative extends BaseDesign
 
     public function tableFooter()
     {
-        $variables = $this->entity->company->settings->pdf_variables->total_columns;
-        
+        $variables = $this->context['pdf_variables']['total_columns'];
+
         $elements = [
-            ['element' => 'tr', 'content' => '', 'elements' => [
-                ['element' => 'td', 'content' => '$entity.public_notes', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => '100%']],
+            ['element' => 'tr', 'elements' => [
+                ['element' => 'td', 'content' => '$entity.public_notes', 'properties' => ['colspan' => '100%']],
             ]],
         ];
 
         foreach ($variables as $variable) {
-            ['element' => 'tr', 'properties' => ['hidden' => 'false'], 'content' => '', 'elements' => [
-                ['element' => 'td', 'content' => $variable . '_label', 'properties' => ['class' => 'border-l-4 border-white px-4 text-right', 'colspan' => $this->calculateColspan(1)]],
-                ['element' => 'td', 'content' => $variable, 'properties' => ['class' => 'px-4 py-2 text-right']],
+            if ($variable == '$total_taxes' || $variable == '$line_taxes') {
+                continue;
+            }
+
+            $elements[] = ['element' => 'tr', 'elements' => [
+                ['element' => 'td', 'properties' => ['colspan' => $this->calculateColspan(2)]],
+                ['element' => 'td', 'content' => $variable . '_label'],
+                ['element' => 'td', 'content' => $variable],
             ]];
         }
 

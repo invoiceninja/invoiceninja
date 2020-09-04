@@ -94,7 +94,7 @@ class CreateQuotePdf implements ShouldQueue
             'template' => $design_class->elements([
                 'client' => $this->quote->client,
                 'entity' => $this->quote,
-                'product-table-columns' => $pdf_variables['product_columns'],
+                'pdf_variables' => (array)$this->quote->company->settings->pdf_variables,
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'options' => [

@@ -1,75 +1,162 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+<html lang="en">
+    <head id="head">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link rel="stylesheet" href="$app_url/css/tailwindcss@1.4.6.css" />
+        <style id="style">
+            * {
+                margin: 0;
+                padding: 0;
+                font-size: 14px;
+            }
+
+            body {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            @media print {
+                body {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+            body {
+                margin: 2rem;
+            }
+
+            .company-logo-wrapper {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                padding-bottom: 2.5rem;
+                border-bottom: 4px solid;
+            }
+            .company-logo-wrapper .company-logo {
+                height: 5rem;
+            }
+
+            .double-border {
+                margin-top: 3px;
+                border-color: black;
+            }
+
+            .client-entity-wrapper {
+                display: grid;
+                grid-template-columns: 1.8fr 1.2fr;
+                margin-top: 3rem;
+                gap: 10px;
+            }
+            .client-entity-wrapper .wrapper-info-text {
+                display: block;
+                font-size: 1.5rem;
+                font-weight: normal;
+            }
+            .client-entity-wrapper .wrapper-left-side {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+            .client-entity-wrapper .wrapper-left-side #client-details,
+            .client-entity-wrapper .wrapper-left-side #company-details,
+            .client-entity-wrapper .wrapper-left-side #company-address {
+                display: flex;
+                flex-direction: column;
+                margin-top: 0.5rem;
+            }
+            .client-entity-wrapper .wrapper-left-side .company-info {
+                border-left: 1px solid;
+                padding-left: 1rem;
+            }
+            .client-entity-wrapper #entity-details {
+                text-align: left;
+                margin-top: 0.5rem;
+                min-width: 100%;
+            }
+            .client-entity-wrapper #entity-details > tr,
+            .client-entity-wrapper #entity-details th {
+                font-weight: normal;
+            }
+
+            #product-table {
+                margin-top: 3rem;
+                min-width: 100%;
+                table-layout: fixed;
+                overflow-wrap: break-word;
+            }
+            #product-table > thead {
+                text-align: left;
+            }
+            #product-table > thead > tr > th {
+                font-size: 1.1rem;
+                padding-bottom: 1.5rem;
+                padding-left: 1rem;
+                color: #396d49;
+                font-weight: medium;
+            }
+            #product-table > tbody > tr > td {
+                border-bottom: 1px solid;
+                padding: 1rem;
+            }
+            #product-table > tfoot > tr > td {
+                padding: 1rem;
+            }
+            #product-table
+                > tfoot
+                [data-element='product-table-balance-due-label'],
+            #product-table > tfoot [data-element='product-table-balance-due'] {
+                border-top: 1px solid;
+                border-bottom: 1px solid;
+            }
+
+            .thanks-label {
+                text-align: center;
+                margin-top: 6rem;
+                font-size: 1.5rem;
+                font-weight: bold;
+                padding-bottom: 1rem;
+                border-bottom: 4px solid;
+            }
+        </style>
     </head>
 
-    <style>
-        /** Required for proper margins on print **/
-        @page {
-            margin-top: 8.5mm;
-            margin-bottom: 8.5mm;
-        }
-
-        /** Custom CSS goes here.. */
-    </style>
-
-    <body class="$global-margin antialiased bg-white break-words">
-        <!-- Company logo, entity details -->
-        <div class="grid grid-cols-12 gap-4 pb-6 border-b-4 border-black" id="header">
-            <div class="col-span-6">
-                <img
-                    src="$company.logo"
-                    alt="$company.name logo"
-                    class="w-24 col-span-4 sm:w-32"
-                />
-            </div>
-            <div class="flex flex-col items-end col-span-6">
-                <table id="entity-details"></table>
-            </div>
+    <body id="body">
+        <div class="company-logo-wrapper" id="header">
+            <img
+                class="company-logo"
+                src="$company.logo"
+                alt="$company.name logo"
+            />
         </div>
 
-        <div class="grid grid-cols-12">
-            <div class="col-span-6 py-6">
-                <p class="text-xl font-semibold uppercase">
-                    $your_entity_label
-                </p>
+        <hr class="double-border" />
+
+        <div class="client-entity-wrapper">
+            <div class="wrapper-left-side">
+                <div class="text-with-client">
+                    <h2 class="wrapper-info-text">$balance_due_label</h2>
+
+                    <div id="client-details"></div>
+                </div>
+
+                <div class="company-info">
+                    <div id="company-details"></div>
+                    <div id="company-address"></div>
+                </div>
+            </div>
+
+            <div class="wrapper-right-side">
+                <h2 class="wrapper-info-text">$details_label</h2>
+                <table id="entity-details" cellspacing="0"></table>
             </div>
         </div>
 
-        <!-- Client details, company details -->
-        <div class="grid grid-cols-12 gap-4 pt-6 mt-1 border-t border-black">
-            <div
-                class="col-span-5 border-r border-black border-dashed"
-                id="client-details"
-            ></div>
-            <div class="flex col-span-7 space-x-8">
-                <div id="company-details"></div>
-                <div id="company-address"></div>
-            </div>
-        </div>
+        <table id="product-table" cellspacing="0"></table>
 
-        <!-- Product table -->
-        <table
-            id="product-table"
-            class="w-full mt-10 table-auto $table-padding"
-        ></table>
-
-        <!-- Thanks label -->
-        <div id="footer">
-            <p
-                class="w-full pb-4 mt-10 text-2xl font-semibold text-center border-b-4 border-black"
-            >
-                $thanks_label
-            </p>
-            <div class="w-full border-black order-b wpy-1"></div>
-        </div>
+        <footer id="footer">
+            <p class="thanks-label">$thanks_label!</p>
+            <hr class="double-border" />
+        </footer>
     </body>
 </html>
