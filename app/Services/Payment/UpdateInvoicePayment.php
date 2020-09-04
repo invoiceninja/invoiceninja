@@ -9,7 +9,6 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-
 namespace App\Services\Payment;
 
 use App\Events\Invoice\InvoiceWasUpdated;
@@ -25,9 +24,6 @@ class UpdateInvoicePayment
 {
     use MakesHash;
 
-    /**
-     * @deprecated This is bad logic, assumes too much.
-     */
     public $payment;
 
     public $payment_hash;
@@ -83,30 +79,6 @@ class UpdateInvoicePayment
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
 
         });
-
-            // } else {
-            //     SystemLogger::dispatch(
-            //         [
-            //             'payment' => $this->payment,
-            //             'invoices' => $invoices,
-            //             'invoices_total' => $invoices_total,
-            //             'payment_amount' => $this->payment->amount,
-            //             'partial_check_amount' => $total,
-            //         ],
-            //         SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            //         SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE,
-            //         SystemLog::TYPE_LEDGER,
-            //         $this->payment->client
-            //     );
-
-            //     throw new \Exception("payment amount {$this->payment->amount} does not match invoice totals {$invoices_total} reversing payment");
-
-            //     $this->payment->invoice()->delete();
-            //     $this->payment->is_deleted=true;
-            //     $this->payment->save();
-            //     $this->payment->delete();
-            // }
-        
 
         return $this->payment;
     }
