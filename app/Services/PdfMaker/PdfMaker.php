@@ -28,6 +28,8 @@ class PdfMaker
 
     private $filters = [
         '<![CDATA[' => '',
+        '<![CDATA[<![CDATA[' => '',
+        ']]]]><![CDATA[>]]>' => '',
         ']]>' => '',
         '<?xml version="1.0" encoding="utf-8" standalone="yes"??>' => '',
     ];

@@ -16,6 +16,7 @@ use App\Designs\Designer;
 use App\Factory\InvoiceFactory;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Util\PreviewPdf;
+use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
@@ -112,13 +113,14 @@ class PreviewController extends BaseController
                 'variables' => $html->generateLabelsAndValues(),
             ];
 
+            $design = new Design(request()->design['name']);
             $maker = new PdfMaker($state);
 
             $maker
-                ->design($design_namespace)
+                ->design($design)
                 ->build();
 
-            $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(), auth()->user()->company());
+            $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
             return response()->download($file_path)->deleteFileAfterSend(true);
         }
@@ -171,16 +173,13 @@ class PreviewController extends BaseController
 
         $html = new HtmlEngine(null, $invoice->invitations()->first(), 'invoice');
 
-        /** TODO: This request() does not contain design string - making it impossible to update its content. */
-        $design_namespace = 'App\Services\PdfMaker\Designs\\' . request()->design['name'];
-
-        $design_class = new $design_namespace();
+        $design = new Design(strtolower(request()->design['name']));
 
         // $designer = new Designer($entity_obj, $design_object, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
         // $html = $this->generateEntityHtml($designer, $entity_obj);
 
         $state = [
-            'template' => $design_class->elements([
+            'template' => $design->elements([
                 'client' => $invoice->client,
                 'entity' => $invoice,
                 'pdf_variables' => (array) $invoice->company->settings->pdf_variables,
@@ -191,12 +190,12 @@ class PreviewController extends BaseController
         $maker = new PdfMaker($state);
 
         $maker
-            ->design($design_namespace)
+            ->design($design)
             ->build();
 
-        $maker->getCompiledHTML();
+        info($maker->getCompiledHTML(true));
 
-        $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(), auth()->user()->company());
+        $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
         DB::rollBack();
 

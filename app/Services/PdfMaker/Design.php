@@ -12,9 +12,10 @@
 
 namespace App\Services\PdfMaker;
 
+use Illuminate\Support\Str;
+use App\Utils\Traits\MakesInvoiceValues;
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
-use App\Utils\Traits\MakesInvoiceValues;
 
 class Design extends BaseDesign
 {
@@ -35,19 +36,19 @@ class Design extends BaseDesign
     /** Construct options */
     public $options;
 
-    const BOLD = 'bold.html';
-    const BUSINESS = 'business.html';
-    const CLEAN = 'clean.html';
-    const CREATIVE = 'creative.html';
-    const ELEGANT = 'elegant.html';
-    const HIPSTER = 'hipster.html';
-    const MODERN = 'modern.html';
-    const PLAIN = 'plain.html';
-    const PLAYFUL = 'playful.html';
+    const BOLD = 'bold';
+    const BUSINESS = 'business';
+    const CLEAN = 'clean';
+    const CREATIVE = 'creative';
+    const ELEGANT = 'elegant';
+    const HIPSTER = 'hipster';
+    const MODERN = 'modern';
+    const PLAIN = 'plain';
+    const PLAYFUL = 'playful';
 
     public function __construct(string $design = null, array $options = [])
     {
-        $this->design = $design;
+        Str::endsWith('.html', $design) ? $this->design = $design : $this->design = "{$design}.html";
 
         $this->options = $options;
     }
@@ -216,8 +217,13 @@ class Design extends BaseDesign
         ];
 
         foreach ($variables as $variable) {
-            ['element' => 'tr', 'properties' => ['hidden' => 'false'], 'elements' => [
-                ['element' => 'td', 'content' => $variable . '_label', 'properties' => ['colspan' => $this->calculateColspan(1)]],
+            if ($variable == '$total_taxes' || $variable == '$line_taxes') {
+                continue;
+            }
+
+            $elements[] = ['element' => 'tr', 'elements' => [
+                ['element' => 'td', 'properties' => ['colspan' => $this->calculateColspan(2)]],
+                ['element' => 'td', 'content' => $variable . '_label'],
                 ['element' => 'td', 'content' => $variable],
             ]];
         }

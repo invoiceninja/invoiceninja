@@ -18,7 +18,7 @@ class PdfMakerTest extends TestCase
 
     public function testDesignLoadsCorrectly()
     {
-        $design = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker = new PdfMaker($this->state);
 
         $maker->design($design);
@@ -28,7 +28,7 @@ class PdfMakerTest extends TestCase
 
     public function testHtmlDesignLoadsCorrectly()
     {
-        $design = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
 
         $maker = new PdfMaker($this->state);
 
@@ -41,7 +41,7 @@ class PdfMakerTest extends TestCase
 
     public function testGetSectionUtility()
     {
-        $design = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
 
         $maker = new PdfMaker($this->state);
 
@@ -71,7 +71,7 @@ class PdfMakerTest extends TestCase
             ],
         ];
 
-        $design = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker = new PdfMaker($state);
 
         $maker
@@ -99,7 +99,7 @@ class PdfMakerTest extends TestCase
             ],
         ];
 
-        $design = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker = new PdfMaker($state);
 
         $maker
@@ -147,7 +147,7 @@ class PdfMakerTest extends TestCase
             ],
         ];
 
-        $design = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker = new PdfMaker($state);
 
         $maker
@@ -161,7 +161,7 @@ class PdfMakerTest extends TestCase
 
     public function testConditionalRenderingOfElements()
     {
-        $design1 = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design1 = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
 
         $maker1 = new PdfMaker([
             'template' => [
@@ -180,7 +180,7 @@ class PdfMakerTest extends TestCase
 
         $this->assertStringContainsString('<div id="header">', $output1);
 
-        $design2 = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design2 = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker2 = new PdfMaker([
             'template' => [
                 'header' => [
@@ -203,7 +203,7 @@ class PdfMakerTest extends TestCase
 
     public function testOrderingElements()
     {
-        $design = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
 
         $maker = new PdfMaker([
             'template' => [
@@ -310,7 +310,7 @@ class PdfMakerTest extends TestCase
             ]
         ];
 
-        $design = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
         $maker = new PdfMaker($state);
 
         $maker
@@ -322,7 +322,7 @@ class PdfMakerTest extends TestCase
 
     public function testGetSectionHTMLWorks()
     {
-        $design = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
 
         $html = $design
             ->document()
@@ -333,7 +333,7 @@ class PdfMakerTest extends TestCase
 
     public function testWrapperHTMLWorks()
     {
-        $design = new Design('example.html', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
+        $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);
 
         $state = [
             'template' => [

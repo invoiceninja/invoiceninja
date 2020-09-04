@@ -2,6 +2,7 @@
 
 use App\Models\Bank;
 use App\Models\Design;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
 use Illuminate\Database\Seeder;
 
 class DesignSeeder extends Seeder
@@ -36,17 +37,16 @@ class DesignSeeder extends Seeder
         }
 
         foreach (Design::all() as $design) {
-            $class = 'App\Services\PdfMaker\Designs\\'.$design->name;
-            $invoice_design = new $class();
-            $invoice_design->document();
+            $template =  new PdfMakerDesign(strtolower($design->name));
+            $template->document();
 
             $design_object = new \stdClass;
-            $design_object->includes = $invoice_design->getSectionHTML('includes');
-            $design_object->header = $invoice_design->getSectionHTML('head', false);
-            $design_object->body = $invoice_design->getSectionHTML('body', false);
-            $design_object->product = $invoice_design->getSectionHTML('product-table');
-            $design_object->task = $invoice_design->getSectionHTML('task-table');
-            $design_object->footer = $invoice_design->getSectionHTML('footer', false);
+            $design_object->includes = $template->getSectionHTML('includes');
+            $design_object->header = $template->getSectionHTML('head', false);
+            $design_object->body = $template->getSectionHTML('body', false);
+            $design_object->product = $template->getSectionHTML('product-table');
+            $design_object->task = $template->getSectionHTML('task-table');
+            $design_object->footer = $template->getSectionHTML('footer', false);
 
             $design->design = $design_object;
             $design->save();
