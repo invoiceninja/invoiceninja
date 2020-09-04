@@ -130,6 +130,6 @@ return [
         'npm_path' => env('NPM_PATH', false)
     ],
     'designs' => [
-        'base_path' => resource_path('views/pdf-designs/new/'),
+        'base_path' => resource_path('views/pdf-designs/'),
     ],
 ];

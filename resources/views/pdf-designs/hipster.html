@@ -1,69 +1,186 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+<html lang="en">
+    <head id="head">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link rel="stylesheet" href="$app_url/css/tailwindcss@1.4.6.css" />
+        <style id="style">
+            * {
+                margin: 0;
+                padding: 0;
+                font-size: 14px;
+            }
+
+            body {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            @media print {
+                body {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+            body {
+                margin: 2rem;
+            }
+
+            .header-wrapper {
+                display: grid;
+                grid-template-columns: 1.2fr 1.8fr;
+                gap: 20px;
+            }
+            .header-wrapper .header-text-label {
+                font-size: 1.1rem;
+                color: #bba238;
+                text-transform: uppercase;
+                font-weight: bold;
+            }
+            .header-wrapper .header-left-side-wrapper {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                border-left: 1px solid #303030;
+                padding-left: 1rem;
+            }
+            .header-wrapper .header-left-side-wrapper > * {
+                margin-bottom: 0.8rem;
+            }
+            .header-wrapper .header-left-side-wrapper #company-details,
+            .header-wrapper .header-left-side-wrapper #company-address {
+                display: flex;
+                flex-direction: column;
+            }
+            .header-wrapper .header-right-side-wrapper {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                border-left: 1px solid #303030;
+                padding-left: 1rem;
+            }
+            .header-wrapper .header-right-side-wrapper #client-details {
+                display: flex;
+                flex-direction: column;
+                margin-top: 0.8rem;
+            }
+            .header-wrapper .company-logo {
+                height: 5rem;
+            }
+
+            .entity-label {
+                font-size: 3rem;
+                text-transform: uppercase;
+                margin: 2rem 1rem;
+            }
+
+            .entity-details-wrapper {
+                margin: 1rem;
+            }
+            .entity-details-wrapper > * {
+                margin-right: 1.5rem;
+            }
+            .entity-details-wrapper .entity-property-label {
+                text-transform: uppercase;
+            }
+            .entity-details-wrapper
+                [data-element='entity-details-wrapper-invoice-number-label'],
+            .entity-details-wrapper
+                [data-element='entity-details-wrapper-amount-due'] {
+                color: #bba238;
+                font-weight: bold;
+            }
+
+            #product-table {
+                margin-top: 3rem;
+                min-width: 100%;
+                table-layout: fixed;
+                overflow-wrap: break-word;
+            }
+            #product-table > thead {
+                text-align: left;
+                text-transform: uppercase;
+                font-weight: bold;
+            }
+            #product-table > thead > tr > th {
+                font-size: 1.1rem;
+                padding-bottom: 1.5rem;
+                padding-left: 1rem;
+                border-left: 1px solid;
+            }
+            #product-table > tbody > tr > td {
+                padding: 1rem;
+                border-left: 1px solid;
+            }
+            #product-table > tfoot > tr > td {
+                padding: 1rem;
+            }
+            #product-table > tfoot > tr > td:nth-last-child(1),
+            #product-table > tfoot > tr td:nth-last-child(2) {
+                border-left: 1px solid;
+            }
+            #product-table
+                > tfoot
+                [data-element='product-table-balance-due-label'],
+            #product-table > tfoot [data-element='product-table-balance-due'] {
+                font-weight: bold;
+            }
+        </style>
     </head>
 
-    <style>
-        /** Required for proper margins on print **/
-        @page {
-            margin-top: 8.5mm;
-            margin-bottom: 8.5mm;
-        }
+    <body id="body">
+        <div class="header-wrapper" id="header">
+            <div class="header-left-side-wrapper">
+                <p class="header-text-label">$from_label:</p>
 
-        /** Custom CSS goes here.. */
-    </style>
+                <div id="company-details"></div>
+                <div id="company-address"></div>
+            </div>
 
-    <body class="$global-margin antialiased break-words bg-white">
-        <!-- Company details, address, client details, company logo -->
-        <div class="grid grid-cols-12 gap-4" id="header">
-            <div class="col-span-4 pl-4 border-l border-black">
-                <div id="company-details">
-                    <p class="font-semibold text-yellow-600 uppercase">
-                        $from_label:
-                    </p>
+            <div class="header-right-side-wrapper">
+                <div>
+                    <p class="header-text-label">$to_label:</p>
+                    <div id="client-details"></div>
                 </div>
-                <div id="company-address" class="mt-4"></div>
-            </div>
-            <div
-                class="col-span-5 pl-4 border-l border-black"
-                id="client-details"
-            >
-                <p class="font-semibold text-yellow-600 uppercase">
-                    $to_label:
-                </p>
-            </div>
-            <div class="col-span-3">
+
                 <img
+                    class="company-logo"
                     src="$company.logo"
                     alt="$company.name logo"
-                    class="w-24 col-span-4 sm:w-32"
                 />
             </div>
         </div>
 
-        <!-- Entity details -->
-        <h1 class="mt-6 text-4xl font-semibold uppercase lg:text-5xl">
-            $entity_label
-        </h1>
-        <div
-            id="entity-details"
-            class="flex flex-wrap items-center space-x-4"
-        ></div>
+        <h1 class="entity-label">$entity_label</h1>
+        <div class="entity-details-wrapper">
+            <span>
+                <span
+                    class="entity-property-label"
+                    data-element="entity-details-wrapper-invoice-number-label"
+                    >$entity_number_label:</span
+                >
+                <span class="entity-property-value">$entity_number</span>
+            </span>
+            <span>
+                <span class="entity-property-label">$entity_date_label:</span>
+                <span class="entity-property-value">$entity_date</span>
+            </span>
+            <span>
+                <span class="entity-property-label">$payment_due_label:</span>
+                <span class="entity-property-value">$payment_due</span>
+            </span>
+            <span>
+                <span class="entity-property-label">$amount_due_label:</span>
+                <span
+                    class="entity-property-value"
+                    data-element="entity-details-wrapper-amount-due"
+                    >$amount_due</span
+                >
+            </span>
+        </div>
 
-        <!-- Product table -->
-        <table
-            id="product-table"
-            class="w-full mt-10 table-auto $table-padding"
-        ></table>
+        <table id="product-table" cellspacing="0"></table>
+
+        <footer id="footer"></footer>
     </body>
-
-    <footer id="footer"></footer>
 </html>
