@@ -35,6 +35,26 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->softDeletes('deleted_at', 6);
         });
         
+        Schema::create('payment_hashes', function ($table) {
+            $table->increments('id');
+            $table->string('hash', 255);
+            $table->decimal('fee_total', 16, 4);
+            $table->unsignedInteger('fee_invoice_id')->nullable();
+            $table->mediumText('data');
+            $table->timestamps(6);
+        });
+
+        Schema::table('recurring_invoices', function ($table) {
+            $table->string('auto_bill');
+        });
+
+        // Schema::table('recurring_expenses', function ($table) {
+        //     $table->string('auto_bill');
+        // });
+
+        Schema::table('companies', function ($table) {
+            $table->enum('default_auto_bill', ['off', 'always','optin','optout'])->default('off');            
+        });
 
     }
 

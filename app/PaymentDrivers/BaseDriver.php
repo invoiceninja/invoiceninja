@@ -14,11 +14,13 @@ namespace App\PaymentDrivers;
 
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Factory\PaymentFactory;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Models\Client;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -109,25 +111,19 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  array  $hashed_ids  The array of invoice hashed_ids
      * @return Payment             The payment object
      */
-    public function attachInvoices(Payment $payment, $hashed_ids): Payment
+    
+    public function attachInvoices(Payment $payment, PaymentHash $payment_hash): Payment
     {
-        $transformed = $this->transformKeys($hashed_ids);
-        $array = is_array($transformed) ? $transformed : [$transformed];
 
-        $invoices = Invoice::whereIn('id', $array)
-            ->whereClientId($this->client->id)
-            ->get();
-
+        $paid_invoices = $payment_hash->invoices();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
         $payment->invoices()->sync($invoices);
-        $payment->save();
-
-        $payment->service()->applyNumber()->save();
 
         $invoices->each(function ($invoice) use($payment){
             event(new InvoiceWasPaid($invoice, $payment->company, Ninja::eventVars()));
         });
 
-        return $payment;
+        return $payment->service()->applyNumber()->save();
     }
 
     /**
@@ -152,10 +148,45 @@ class BaseDriver extends AbstractPaymentDriver
     /**
      * Process an unattended payment
      * 
-     * @param  ClientGatewayToken $cgt      The client gateway token object
-     * @param  float              $amount   The amount to bill
-     * @param  Invoice            $invoice  Optional Invoice object being paid
-     * @return Response                     The payment response
+     * @param  ClientGatewayToken $cgt           The client gateway token object
+     * @param  PaymentHash        $payment_hash  The Payment hash containing the payment meta data
+     * @return Response                          The payment response
      */
-    public function tokenBilling(ClientGatewayToken $cgt, float $amount, ?Invoice $invoice = null) {}
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) {}
+
+    /**
+     * When a successful payment is made, we need to append the gateway fee
+     * to an invoice
+     *    
+     * @param  PaymentResponseRequest $request The incoming payment request
+     * @return void                            Success/Failure
+     */
+    public function confirmGatewayFee(PaymentResponseRequest $request) :void
+    {
+        /*Payment meta data*/
+        $payment_hash = $request->getPaymentHash();
+
+        /*Payment invoices*/
+        $payment_invoices = $payment_hash->invoices();
+        
+        // /*Fee charged at gateway*/
+        $fee_total = $payment_hash->fee_total;
+
+        // Sum of invoice amounts
+        // $invoice_totals = array_sum(array_column($payment_invoices,'amount'));
+        
+        /*Hydrate invoices*/
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->get();
+
+        $invoices->each(function($invoice) use($fee_total){
+
+            if(collect($invoice->line_items)->contains('type_id', '3')){
+                $invoice->service()->toggleFeesPaid()->save();
+                $invoice->client->service()->updateBalance($fee_total)->save();
+                $invoice->ledger()->updateInvoiceBalance($fee_total, $notes = 'Gateway fee adjustment');
+            }
+            
+        });
+
+    }
 }

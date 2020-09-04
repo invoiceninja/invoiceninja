@@ -31,7 +31,6 @@ class MigrationController extends BaseController
         parent::__construct();
     }
 
-
     /**
      *
      * Purge Company

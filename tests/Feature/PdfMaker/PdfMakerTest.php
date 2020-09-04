@@ -360,9 +360,9 @@ class PdfMakerTest extends TestCase
             ->design($design)
             ->build();
 
-        exec('echo "" > storage/logs/laravel.log');
+        // exec('echo "" > storage/logs/laravel.log');
 
-        info($maker->getCompiledHTML(true));
+        // info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }

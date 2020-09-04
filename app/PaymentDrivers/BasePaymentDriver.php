@@ -13,12 +13,14 @@
 namespace App\PaymentDrivers;
 
 use App\Factory\PaymentFactory;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
 use Illuminate\Support\Carbon;
@@ -240,14 +242,13 @@ class BasePaymentDriver
     {
         $this->gateway();
 
-        $response =        $this->gateway
-            ->purchase($data)
-            ->setItems($items)
-            ->send();
+        $response = $this->gateway
+                        ->purchase($data)
+                        ->setItems($items)
+                        ->send();
 
         return $response;
-        /*
-        $this->purchaseResponse = (array)$response->getData();*/
+        
     }
 
     public function completePurchase($data)
@@ -272,18 +273,51 @@ class BasePaymentDriver
     }
 
 
-    public function attachInvoices(Payment $payment, $hashed_ids): Payment
+    public function attachInvoices(Payment $payment, PaymentHash $payment_hash): Payment
     {
-        $transformed = $this->transformKeys($hashed_ids);
-        $array = is_array($transformed) ? $transformed : [$transformed];
 
-        $invoices = Invoice::whereIn('id', $array)
-            ->whereClientId($this->client->id)
-            ->get();
-
+        $paid_invoices = $payment_hash->invoices();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
         $payment->invoices()->sync($invoices);
         $payment->save();
 
         return $payment;
     }
+
+    /**
+     * When a successful payment is made, we need to append the gateway fee
+     * to an invoice
+     *    
+     * @param  PaymentResponseRequest $request The incoming payment request
+     * @return void                            Success/Failure
+     */
+    public function confirmGatewayFee(PaymentResponseRequest $request) :void
+    {
+        /*Payment meta data*/
+        $payment_hash = $request->getPaymentHash();
+
+        /*Payment invoices*/
+        $payment_invoices = $payment_hash->invoices();
+        
+        // /*Fee charged at gateway*/
+        $fee_total = $payment_hash->fee_total;
+
+        // Sum of invoice amounts
+        // $invoice_totals = array_sum(array_column($payment_invoices,'amount'));
+        
+        /*Hydrate invoices*/
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->get();
+
+        $invoices->each(function($invoice) use($fee_total){
+
+            if(collect($invoice->line_items)->contains('type_id', '3')){
+                $invoice->service()->toggleFeesPaid()->save();
+                $invoice->client->service()->updateBalance($fee_total)->save();
+                $invoice->ledger()->updateInvoiceBalance($fee_total, $notes = 'Gateway fee adjustment');
+            }
+            
+        });
+
+    }
 }
+

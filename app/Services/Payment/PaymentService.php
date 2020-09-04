@@ -84,9 +84,9 @@ class PaymentService
         return (new DeletePayment($this->payment))->run();
     }
 
-    public function updateInvoicePayment() :?Payment
+    public function updateInvoicePayment($payment_hash = null) :?Payment
     {
-        return ((new UpdateInvoicePayment($this->payment)))->run();
+        return ((new UpdateInvoicePayment($this->payment, $payment_hash)))->run();
     }
 
     public function applyNumber()

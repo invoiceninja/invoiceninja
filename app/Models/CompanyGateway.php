@@ -202,6 +202,23 @@ class CompanyGateway extends BaseModel
     }
 
     /**
+     * Returns the current test mode of the gateway
+     * 
+     * @return boolean whether the gateway is in testmode or not.
+     */
+    public function isTestMode() :bool
+    {
+        $config = $this->getConfig();
+
+        if($this->gateway->provider == 'Stripe' && strpos($config->publishableKey, 'test'))
+            return true;
+
+        if($config && property_exists($config, 'testMode') && $config->testMode)
+            return true;
+
+        return false;
+    }
+    /**
      * Get Publishable Key
      * Only works for STRIPE and PAYMILL
      * @return string The Publishable key
@@ -209,6 +226,20 @@ class CompanyGateway extends BaseModel
     public function getPublishableKey() :string
     {
         return $this->getConfigField('publishableKey');
+    }
+
+    public function getFeesAndLimits()
+    {
+        if (is_null($this->fees_and_limits)) 
+            return false;
+
+        $fees_and_limits = new \stdClass;
+
+        foreach($this->fees_and_limits as $key => $value) {
+            $fees_and_limits = $this->fees_and_limits->{$key};
+        }
+
+        return $fees_and_limits;
     }
 
     /**
@@ -236,17 +267,13 @@ class CompanyGateway extends BaseModel
         return $label;
     }
 
-    public function calcGatewayFee($amount)
+    public function calcGatewayFee($amount, $include_taxes = false)
     {
-        if (is_null($this->fees_and_limits)) {
+
+        $fees_and_limits = $this->getFeesAndLimits();
+
+        if(!$fees_and_limits)
             return 0;
-        }
-
-        $fees_and_limits = new \stdClass;
-
-        foreach($this->fees_and_limits as $key => $value) {
-            $fees_and_limits = $this->fees_and_limits->{$key};
-        }
 
         $fee = 0;
 
@@ -259,28 +286,66 @@ class CompanyGateway extends BaseModel
             $fee += $amount * $fees_and_limits->fee_percent / 100;
             info("fee after adding fee percent = {$fee}");
         }
-        
-        $pre_tax_fee = $fee;
 
-        if ($fees_and_limits->fee_tax_rate1) {
-            $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100;
-            info("fee after adding fee tax 1 = {$fee}");
-        }
-        
-        if ($fees_and_limits->fee_tax_rate2) {
-            $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100;
-            info("fee after adding fee tax 2 = {$fee}");
-        }
-         
-        if ($fees_and_limits->fee_tax_rate3) {
-            $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100;
-            info("fee after adding fee tax 3 = {$fee}");
-        }
-
+        /* Cap fee if we have to here. */        
         if($fees_and_limits->fee_cap > 0 && ($fee > $fees_and_limits->fee_cap))
             $fee = $fees_and_limits->fee_cap;
 
+        $pre_tax_fee = $fee;
+
+        /**/
+        if($include_taxes)
+        {
+            if ($fees_and_limits->fee_tax_rate1) {
+                $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100;
+                info("fee after adding fee tax 1 = {$fee}");
+            }
+            
+            if ($fees_and_limits->fee_tax_rate2) {
+                $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100;
+                info("fee after adding fee tax 2 = {$fee}");
+            }
+             
+            if ($fees_and_limits->fee_tax_rate3) {
+                $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100;
+                info("fee after adding fee tax 3 = {$fee}");
+            }
+        }
+
         return $fee;
+    }
+
+    /**
+      * we need to average out the gateway fees across all the invoices
+      * so lets iterate.
+      *
+      * we MAY need to adjust the final fee to ensure our rounding makes sense!
+     */
+    public function calcGatewayFeeObject($amount, $invoice_count)
+    {
+        $total_gateway_fee = $this->calcGatewayFee($amount);
+
+        $fee_object = new \stdClass;
+
+        $fees_and_limits = $this->getFeesAndLimits();
+
+        if(!$fees_and_limits)
+            return $fee_object;
+
+        $fee_component_amount  = $fees_and_limits->fee_amount ?: 0;
+        $fee_component_percent = $fees_and_limits->fee_percent ? ($amount * $fees_and_limits->fee_percent / 100) : 0;
+
+        $combined_fee_component = $fee_component_amount + $fee_component_percent;
+
+        $fee_component_tax_name1 = $fees_and_limits->fee_tax_name1 ?: '';
+        $fee_component_tax_rate1 = $fees_and_limits->fee_tax_rate1 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate1 / 100) : 0;
+
+        $fee_component_tax_name2 = $fees_and_limits->fee_tax_name2 ?: '';
+        $fee_component_tax_rate2 = $fees_and_limits->fee_tax_rate2 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate2 / 100) : 0;
+
+        $fee_component_tax_name3 = $fees_and_limits->fee_tax_name3 ?: '';
+        $fee_component_tax_rate3 = $fees_and_limits->fee_tax_rate3 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate3 / 100) : 0;
+
     }
 
     public function resolveRouteBinding($value)
