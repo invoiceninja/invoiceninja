@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
+    <head id="head">
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <style>
+        <style id="style">
             * {
                 margin: 0;
                 padding: 0;
@@ -128,25 +128,21 @@
         </style>
     </head>
 
-    <body>
-        <div class="header-wrapper">
+    <body id="body">
+        <div class="header-wrapper" id="header">
             <div class="header-left-side-wrapper">
                 <p class="header-text-label">$from_label:</p>
-                <!-- company_details -->
-                <div id="company-details"></div>
 
-                <!-- company_address -->
+                <div id="company-details"></div>
                 <div id="company-address"></div>
             </div>
 
             <div class="header-right-side-wrapper">
-                <!-- client_details -->
                 <div>
                     <p class="header-text-label">$to_label:</p>
                     <div id="client-details"></div>
                 </div>
 
-                <!-- company_logo -->
                 <img
                     class="company-logo"
                     src="$company.logo"

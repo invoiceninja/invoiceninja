@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
+    <head id="head">
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <style>
+        <style id="style">
             * {
                 margin: 0;
                 padding: 0;
@@ -124,8 +124,8 @@
         </style>
     </head>
 
-    <body>
-        <div class="header-container">
+    <body id="body">
+        <div class="header-container" id="header">
             <h1 class="company-name">$company.name</h1>
 
             <table id="entity-details" cellspacing="0"></table>
@@ -144,16 +144,16 @@
         <div class="table-wrapper">
             <table id="product-table" cellspacing="0"></table>
         </div>
-
-        <footer id="footer"></footer>
-
+        
         <div class="footer-wrapper">
             <div>
                 <!-- Placeholder for offset -->
             </div>
-
+            
             <div id="company-details"></div>
             <div id="company-address"></div>
         </div>
+        
+        <footer id="footer"></footer>
     </body>
 </html>
