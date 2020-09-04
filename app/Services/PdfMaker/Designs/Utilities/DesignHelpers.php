@@ -159,9 +159,9 @@ trait DesignHelpers
 
     public function sharedFooterElements()
     {
-        return ['element' => 'div', 'properties' => ['class' => 'flex items-center justify-between mt-10'], 'content' => '', 'elements' => [
-            ['element' => 'img', 'content' => '', 'properties' => ['src' => '$contact.signature', 'class' => 'h-32']],
-            ['element' => 'img', 'content' => '', 'properties' => ['src' => '$app_url/images/created-by-invoiceninja-new.png', 'class' => 'h-24', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false']],
+        return ['element' => 'div', 'properties' => ['style' => 'display: flex; justify-content: space-between'], 'elements' => [
+            ['element' => 'img', 'properties' => ['src' => '$contact.signature', 'style' => 'height: 5rem;']],
+            ['element' => 'img', 'properties' => ['src' => '$app_url/images/created-by-invoiceninja-new.png', 'style' => 'height: 5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false']],
         ]];
     }
 
@@ -177,16 +177,13 @@ trait DesignHelpers
         }
 
         if (is_null($this->entity->{$_variable})) {
-            //  info("{$this->entity->id} $_variable is null!");
             return true;
         }
 
         if (empty($this->entity->{$_variable})) {
-            //   info("{$this->entity->id} $_variable is empty!");
             return true;
         }
 
-        //  info("{$this->entity->id} $_variable ALL GOOD!!");
         return false;
     }
 }

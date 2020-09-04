@@ -48,10 +48,17 @@ trait PdfMakerUtilities
     public function updateElementProperties(array $elements)
     {
         foreach ($elements as $element) {
+
+            // if (!isset($element['tag']) || !isset($element['id']) || is_null($this->document->getElementById($element['id']))) {
+            //     continue;
+            // }
+
             if (isset($element['tag'])) {
                 $node = $this->document->getElementsByTagName($element['tag'])->item(0);
-            } else {
+            } elseif(!is_null($this->document->getElementById($element['id']))) {
                 $node = $this->document->getElementById($element['id']);
+            } else {
+                continue;
             }
 
             if (isset($element['properties'])) {
@@ -109,7 +116,7 @@ trait PdfMakerUtilities
     public function createElementContent($element, $children)
     {
         foreach ($children as $child) {
-            $_child = $this->document->createElement($child['element'], $child['content']);
+            $_child = $this->document->createElement($child['element'], isset($child['content']) ? $child['content'] : '');
             $element->appendChild($_child);
 
             if (isset($child['properties'])) {
@@ -259,7 +266,7 @@ trait PdfMakerUtilities
         }
 
         if (
-            $header = $this->document->getElementById('header') && 
+            $header = $this->document->getElementById('header') &&
             isset($this->data['options']['all_pages_header']) &&
             $this->data['options']['all_pages_header']
         ) {

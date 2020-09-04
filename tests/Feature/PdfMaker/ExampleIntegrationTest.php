@@ -3,6 +3,7 @@
 namespace Tests\Feature\PdfMaker;
 
 use App\Models\Invoice;
+use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\Designs\Playful;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HtmlEngine;
@@ -27,7 +28,10 @@ class ExampleIntegrationTest extends TestCase
         $invitation = $invoice->invitations()->first();
 
         $engine = new HtmlEngine(null, $invitation, 'invoice');
-        $design = new Playful();
+
+        $design = new Design(
+            Design::CLEAN
+        );
 
         $state = [
             'template' => $design->elements([
@@ -41,12 +45,12 @@ class ExampleIntegrationTest extends TestCase
         $maker = new PdfMaker($state);
 
         $maker
-            ->design(Playful::class)
+            ->design($design)
             ->build();
 
         // exec('echo "" > storage/logs/laravel.log');
 
-        info($maker->getCompiledHTML(true));
+        // info($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }

@@ -130,7 +130,6 @@ return [
         'npm_path' => env('NPM_PATH', false)
     ],
     'designs' => [
-        'base_path' => resource_path('views/pdf-designs'),
-        'templates' => ['bold', 'business', 'clean', 'creative', 'elegant', 'hipster', 'modern', 'plain', 'playful'],
+        'base_path' => resource_path('views/pdf-designs/new/'),
     ],
 ];
