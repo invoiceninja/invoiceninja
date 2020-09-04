@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    </head>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        @media print {
+            body {
+                margin-top: 0;
+                margin-right: 0;
+            }
+        }
+        .header-wrapper {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            background-color: #2d2c2a;
+            padding: 3rem;
+            color: white;
+        }
+
+        .company-logo {
+            height: 6rem;
+            padding: 2rem;
+            background-color: white;
+            margin: 2rem;
+            margin-top: -4rem;
+        }
+
+        #company-details,
+        #company-address {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #client-details {
+            margin: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+        #client-details > :first-child {
+            font-weight: bold;
+        }
+
+        .client-entity-wrapper {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+        }
+
+        .entity-details-wrapper {
+            background-color: #35a39a;
+            padding: 1rem;
+        }
+
+        #entity-details {
+            width: 100%;
+            text-align: left;
+            color: white !important;
+        }
+        #entity-details > tr,
+        #entity-details th {
+            font-weight: normal;
+            padding-bottom: 0.5rem;
+        }
+
+        #product-table {
+            min-width: 100%;
+            table-layout: fixed;
+            overflow-wrap: break-word;
+            margin-top: 3rem;
+        }
+        #product-table > thead {
+            text-align: left;
+        }
+        #product-table > thead > tr > th {
+            padding: 2rem;
+            font-size: 1.5rem;
+        }
+        #product-table > tbody > tr > td {
+            padding: 1.5rem;
+        }
+        #product-table > tbody > tr > td:first-child {
+            font-weight: bold;
+        }
+        #product-table > tbody > tr:nth-child(odd) {
+            background-color: #ebebeb;
+        }
+        #product-table > tfoot > tr > td {
+            padding: 1.5rem;
+        }
+        #product-table > tfoot [data-element='balance-due-label'],
+        #product-table > tfoot [data-element='balance-due'] {
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+        #product-table > tfoot [data-element='balance-due'] {
+            color: #35a39a;
+        }
+    </style>
+
+    <body>
+        <div class="header-wrapper">
+            <div> <!-- Empty space placeholder--> </div>
+
+            <div id="company-details"></div>
+            <div id="company-address"></div>
+        </div>
+
+        <img
+            class="company-logo"
+            src="$company.logo"
+            alt="$company.name logo"
+        />
+
+        <div class="client-entity-wrapper">
+            <div id="client-details" cellspacing="0"></div>
+
+            <div class="entity-details-wrapper">
+                <table id="entity-details"></table>
+            </div>
+        </div>
+
+        <table id="product-table" cellspacing="0"></table>
+    </body>
+</html>

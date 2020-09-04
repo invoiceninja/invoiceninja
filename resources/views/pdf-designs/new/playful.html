@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                font-size: 14px;
+            }
+
+            body {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            @media print {
+                body {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+            body {
+                margin: 2rem;
+            }
+
+            .header-wrapper {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+            .header-wrapper .company-logo {
+                height: 5rem;
+            }
+            .header-wrapper .entity-details-wrapper {
+                background-color: #009e90;
+                padding: 1rem;
+                border-radius: 10px;
+            }
+            .header-wrapper #entity-details {
+                width: 100%;
+                color: white;
+                text-align: left;
+            }
+            .header-wrapper #entity-details > tr,
+            .header-wrapper #entity-details th {
+                font-weight: normal;
+            }
+
+            .contacts-wrapper {
+                margin-top: 3rem;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+            .contacts-wrapper .contact-label {
+                font-weight: bold;
+                color: #009e90;
+                margin-left: 1rem;
+            }
+            .contacts-wrapper #company-address,
+            .contacts-wrapper #company-details,
+            .contacts-wrapper #client-details {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 1rem;
+            }
+            .contacts-wrapper .company-info {
+                margin-top: 1rem;
+                padding: 1rem;
+                border-top: 1px solid #009e90;
+                border-bottom: 1px solid #009e90;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .contacts-wrapper #client-details {
+                margin-top: 1rem;
+                padding: 1rem;
+                border-top: 1px solid #009e90;
+                border-bottom: 1px solid #009e90;
+            }
+
+            #product-table {
+                margin-top: 3rem;
+                min-width: 100%;
+                table-layout: fixed;
+                overflow-wrap: break-word;
+            }
+            #product-table > thead {
+                text-align: left;
+            }
+            #product-table > thead > tr > th {
+                font-size: 1.2rem;
+                padding: 1rem;
+                background: #009e90;
+                color: white;
+            }
+            #product-table > thead tr > th:first-child {
+                border-top-left-radius: 10px;
+                border-bottom-left-radius: 10px;
+            }
+            #product-table > thead tr > th:last-child {
+                border-top-right-radius: 10px;
+                border-bottom-right-radius: 10px;
+            }
+            #product-table > tbody > tr > td {
+                border-bottom: 1px solid #009e90;
+                padding: 1rem;
+            }
+            #product-table > tbody > tr > td:first-child {
+                color: #bb3a24;
+            }
+            #product-table > tfoot > tr > td {
+                padding: 1rem;
+            }
+            #product-table
+                > tfoot
+                [data-element='product-table-balance-due-label'] {
+                background-color: #009e90;
+                color: white;
+                border-top-left-radius: 10px;
+                border-bottom-left-radius: 10px;
+            }
+            #product-table > tfoot [data-element='product-table-balance-due'] {
+                background-color: #009e90;
+                color: white;
+                border-top-right-radius: 10px;
+                border-bottom-right-radius: 10px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="header-wrapper">
+            <img
+                class="company-logo"
+                src="$company.logo"
+                alt="$company.name logo"
+            />
+
+            <div>
+                <!-- Placeholder for empty space -->
+            </div>
+
+            <div class="entity-details-wrapper">
+                <table id="entity-details" cellspacing="0"></table>
+            </div>
+        </div>
+
+        <div class="contacts-wrapper">
+            <div>
+                <p class="contact-label">$to_label:</p>
+                <div class="company-info">
+                    <div id="company-details"></div>
+                    <div id="company-address"></div>
+                </div>
+            </div>
+
+            <div>
+                <p class="contact-label">$from_label:</p>
+
+                <div id="client-details"></div>
+            </div>
+        </div>
+
+        <table id="product-table" cellspacing="0"></table>
+    </body>
+</html>

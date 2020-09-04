@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                font-size: 14px;
+            }
+
+            body {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            @media print {
+                body {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+            body {
+                margin: 2rem;
+            }
+
+            .header-wrapper {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 20px;
+            }
+            .header-wrapper .company-logo {
+                height: 5rem;
+            }
+            .header-wrapper #client-details,
+            .header-wrapper #company-details,
+            .header-wrapper #company-address {
+                display: flex;
+                flex-direction: column;
+            }
+            .header-wrapper #client-details > *:first-child {
+                font-weight: bold;
+            }
+            .header-wrapper .company-info-wrapper > * {
+                margin-bottom: 1rem;
+            }
+
+            .entity-label-wrapper {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                margin-top: 3rem;
+            }
+            .entity-label-wrapper .entity-label > * {
+                font-size: 3rem;
+            }
+            .entity-label-wrapper .entity-label > *:first-child {
+                text-transform: uppercase;
+            }
+            .entity-label-wrapper .entity-label > *:last-child {
+                color: #b21c53;
+                font-style: italic;
+            }
+            .entity-label-wrapper #entity-details {
+                text-align: left;
+            }
+            .entity-label-wrapper #entity-details > tr,
+            .entity-label-wrapper #entity-details th {
+                font-weight: normal;
+            }
+
+            #product-table {
+                margin-top: 3rem;
+                min-width: 100%;
+                table-layout: fixed;
+                overflow-wrap: break-word;
+                border-top: 5px solid #b21c53;
+            }
+            #product-table > thead {
+                text-align: left;
+            }
+            #product-table > thead > tr > th {
+                font-size: 1.1rem;
+                padding: 1rem;
+            }
+            #product-table > tbody > tr > td {
+                padding: 1rem;
+            }
+            #product-table > tbody > tr:nth-child(odd) {
+                background-color: #e8e8e8;
+            }
+            #product-table > tfoot > tr > td {
+                padding: 1rem;
+            }
+            #product-table > tfoot > tr:last-child > td {
+                border-top: 5px solid #b21c53;
+            }
+            #product-table > tfoot [data-element='product-table-balance-due'] {
+                color: #b21c53;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+
+    <body class="background">
+        <div class="header-wrapper">
+            <div id="client-details"></div>
+
+            <div class="company-info-wrapper">
+                <div id="company-details"></div>
+                <div id="company-address"></div>
+            </div>
+
+            <img
+                class="company-logo"
+                src="$company.logo"
+                alt="$company.name logo"
+            />
+        </div>
+
+        <div class="entity-label-wrapper">
+            <h1 class="entity-label">
+                <span>$entity_label</span>&nbsp;
+                <span>#$entity_number</span>
+            </h1>
+
+            <table id="entity-details" cellspacing="0"></table>
+        </div>
+
+        <table id="product-table" cellspacing="0"></table>
+    </body>
+</html>

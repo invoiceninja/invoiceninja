@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                font-size: 14px;
+            }
+
+            body {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            @media print {
+                body {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+            .header-container {
+                background-color: #f46521;
+                color: white;
+                display: grid;
+                grid-template-columns: 1.5fr 1fr;
+                padding: 1.5rem;
+            }
+            .header-container .company-name {
+                font-size: 2.5rem;
+            }
+
+            #entity-details {
+                text-align: left;
+                color: #fff4e9 !important;
+            }
+            #entity-details > tr,
+            #entity-details th {
+                font-weight: normal;
+                padding-bottom: 0.5rem;
+            }
+
+            .company-logo {
+                height: 5rem;
+            }
+
+            .logo-client-wrapper {
+                margin: 3rem 1.5rem;
+                display: grid;
+                grid-template-columns: 1.5fr 1fr;
+            }
+
+            #client-details {
+                display: flex;
+                flex-direction: column;
+            }
+            #client-details > * {
+                margin-bottom: 0.5rem;
+            }
+
+            .table-wrapper {
+                margin: 3rem 1.5rem;
+            }
+
+            #product-table {
+                min-width: 100%;
+                table-layout: fixed;
+                overflow-wrap: break-word;
+            }
+            #product-table > thead {
+                text-align: left;
+            }
+            #product-table > thead > tr > th {
+                padding: 0.8rem;
+                background-color: #3f3e3c;
+                color: white;
+            }
+            #product-table > tbody > tr > td {
+                border-bottom: 1px solid #3f3e3c;
+                padding: 1rem;
+            }
+            #product-table > tbody > tr > td:first-child {
+                font-weight: bold;
+            }
+            #product-table > tfoot > tr > td {
+                padding: 1rem;
+            }
+            #product-table > tfoot [data-element='balance-due-row'] > td {
+                background-color: #3f3e3c;
+                color: white;
+            }
+            #product-table > tfoot [data-element='balance-due-label'] {
+                font-weight: bold;
+                font-size: 1.2rem;
+            }
+            #product-table > tfoot [data-element='balance-due'] {
+                font-size: 1.2rem;
+            }
+
+            .footer-wrapper {
+                display: grid;
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                padding: 1.5rem;
+                grid-template-columns: 2fr 1fr 1fr;
+                background-color: #f46521;
+                color: #fff4e9;
+            }
+
+            #company-address,
+            #company-details {
+                display: flex;
+                flex-direction: column;
+            }
+            #company-address > *,
+            #company-details > * {
+                margin-bottom: 0.5rem;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="header-container">
+            <h1 class="company-name">$company.name</h1>
+
+            <table id="entity-details" cellspacing="0"></table>
+        </div>
+
+        <div class="logo-client-wrapper">
+            <img
+                class="company-logo"
+                src="$company.logo"
+                alt="$company.name logo"
+            />
+
+            <div id="client-details"></div>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="product-table" cellspacing="0"></table>
+        </div>
+
+        <div class="footer-wrapper">
+            <div>
+                <!-- Placeholder for offset -->
+            </div>
+
+            <div id="company-details"></div>
+            <div id="company-address"></div>
+        </div>
+    </body>
+</html>
