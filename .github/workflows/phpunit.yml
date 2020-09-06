@@ -30,7 +30,7 @@ jobs:
       MULTI_DB_ENABLED: false
       NINJA_LICENSE: 123456
       TRAVIS: true
-      MAIL_DRIVER: log
+      MAIL_MAILER: log
 
     services:
       mariadb:
