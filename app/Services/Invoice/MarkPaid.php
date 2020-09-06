@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -44,8 +44,9 @@ class MarkPaid extends AbstractService
         }
 
         /*Don't double pay*/
-        if($this->invoice->statud_id == Invoice::STATUS_PAID)
+        if ($this->invoice->statud_id == Invoice::STATUS_PAID) {
             return $this->invoice;
+        }
 
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
@@ -62,11 +63,11 @@ class MarkPaid extends AbstractService
         $payment->save();
 
         $payment->invoices()->attach($this->invoice->id, [
-            'amount' => $payment->amount
+            'amount' => $payment->amount,
         ]);
 
         $this->invoice->service()
-                ->updateBalance($payment->amount*-1)
+                ->updateBalance($payment->amount * -1)
                 ->setStatus(Invoice::STATUS_PAID)
                 ->applyNumber()
                 ->save();
@@ -76,10 +77,10 @@ class MarkPaid extends AbstractService
         event(new InvoiceWasPaid($this->invoice, $payment->company, Ninja::eventVars()));
 
         $payment->ledger()
-                ->updatePaymentBalance($payment->amount*-1);
+                ->updatePaymentBalance($payment->amount * -1);
 
         $this->client_service
-            ->updateBalance($payment->amount*-1)
+            ->updateBalance($payment->amount * -1)
             ->updatePaidToDate($payment->amount)
             ->save();
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,19 +14,19 @@ namespace App\Mail\Admin;
 use App\Models\User;
 use App\Utils\Number;
 
-class EntitySentObject 
+class EntitySentObject
 {
-	public $invitation;
+    public $invitation;
 
-	public $entity_type;
+    public $entity_type;
 
-	public $entity;
+    public $entity;
 
-	public $contact;
+    public $contact;
 
-	public $company;
+    public $company;
 
-	public $settings;
+    public $settings;
 
     public function __construct($invitation, $entity_type)
     {
@@ -39,39 +39,38 @@ class EntitySentObject
 
     public function build()
     {
-    	$mail_obj = new \stdClass;
-    	$mail_obj->amount = $this->getAmount();
-    	$mail_obj->subject = $this->getSubject();
-    	$mail_obj->data = $this->getData();
-    	$mail_obj->markdown = 'email.admin.generic';
-    	$mail_obj->tag = $this->company->company_key;
-    	
-    	return $mail_obj;
+        $mail_obj = new \stdClass;
+        $mail_obj->amount = $this->getAmount();
+        $mail_obj->subject = $this->getSubject();
+        $mail_obj->data = $this->getData();
+        $mail_obj->markdown = 'email.admin.generic';
+        $mail_obj->tag = $this->company->company_key;
+
+        return $mail_obj;
     }
 
     private function getAmount()
     {
-    	return Number::formatMoney($this->entity->amount, $this->entity->client);
+        return Number::formatMoney($this->entity->amount, $this->entity->client);
     }
 
     private function getSubject()
     {
-    	return
-	    	ctrans(
-	            "texts.notification_{$this->entity_type}_sent_subject",
-	            [
-	                    'client' => $this->contact->present()->name(),
-	                    'invoice' => $this->entity->number,
-	                ]
-	        );
+        return
+            ctrans(
+                "texts.notification_{$this->entity_type}_sent_subject",
+                [
+                        'client' => $this->contact->present()->name(),
+                        'invoice' => $this->entity->number,
+                    ]
+            );
     }
 
     private function getData()
     {
+        $settings = $this->entity->client->getMergedSettings();
 
-      $settings = $this->entity->client->getMergedSettings();
-
-    	return [
+        return [
             'title' => $this->getSubject(),
             'message' => ctrans(
                 "texts.notification_{$this->entity_type}_sent",
@@ -86,6 +85,5 @@ class EntitySentObject
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
         ];
-
     }
-} 
+}

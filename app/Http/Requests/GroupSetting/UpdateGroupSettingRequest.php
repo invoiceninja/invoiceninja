@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -25,7 +25,6 @@ class UpdateGroupSettingRequest extends Request
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('edit', $this->group_setting);
@@ -34,7 +33,7 @@ class UpdateGroupSettingRequest extends Request
     public function rules()
     {
         $rules['settings'] = new ValidClientGroupSettingsRule();
-        
+
         return $rules;
     }
 
@@ -42,19 +41,20 @@ class UpdateGroupSettingRequest extends Request
     {
         $input = $this->all();
 
-            if(array_key_exists('settings', $input))
-                $input['settings'] = $this->filterSaveableSettings($input['settings']);
-            
+        if (array_key_exists('settings', $input)) {
+            $input['settings'] = $this->filterSaveableSettings($input['settings']);
+        }
+
         $this->replace($input);
     }
 
     /**
      * For the hosted platform, we restrict the feature settings.
      *
-     * This method will trim the company settings object 
-     * down to the free plan setting properties which 
+     * This method will trim the company settings object
+     * down to the free plan setting properties which
      * are saveable
-     * 
+     *
      * @param  object $settings
      * @return object $settings
      */
@@ -62,20 +62,18 @@ class UpdateGroupSettingRequest extends Request
     {
         $account = $this->group_setting->company->account;
 
-        if(!$account->isFreeHostedClient())
+        if (! $account->isFreeHostedClient()) {
             return $settings;
+        }
 
         $saveable_casts = CompanySettings::$free_plan_casts;
 
-        foreach($settings as $key => $value){
-
-            if(!array_key_exists($key, $saveable_casts))
+        foreach ($settings as $key => $value) {
+            if (! array_key_exists($key, $saveable_casts)) {
                 unset($settings->{$key});
-
+            }
         }
-        
+
         return $settings;
-
     }
-
 }

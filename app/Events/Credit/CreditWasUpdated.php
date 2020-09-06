@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,8 +24,9 @@ class CreditWasUpdated
     public $credit;
 
     public $company;
-    
+
     public $event_vars;
+
     /**
      * Create a new event instance.
      *

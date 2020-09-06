@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,7 +21,7 @@ trait CleanLineItems
 {
     public function cleanItems($items) :array
     {
-        if (!isset($items)) {
+        if (! isset($items)) {
             return [];
         }
 
@@ -35,25 +35,24 @@ trait CleanLineItems
     }
 
     /**
-     * Sets default values for the line_items
+     * Sets default values for the line_items.
      * @return $this
      */
     private function cleanLineItem($item)
     {
-        $invoice_item = (object)get_class_vars(InvoiceItem::class);
+        $invoice_item = (object) get_class_vars(InvoiceItem::class);
         unset($invoice_item->casts);
 
         foreach ($invoice_item as $key => $value) {
-            if (!array_key_exists($key, $item) || !isset($item[$key])) {
+            if (! array_key_exists($key, $item) || ! isset($item[$key])) {
                 $item[$key] = $value;
                 $item[$key] = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $value);
             }
         }
 
-        if (array_key_exists("id", $item)) {
+        if (array_key_exists('id', $item)) {
             unset($item['id']);
         }
-
 
         return $item;
     }

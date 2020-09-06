@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,17 +14,17 @@ namespace App\Mail\Admin;
 use App\Models\User;
 use App\Utils\Number;
 
-class EntityPaidObject 
+class EntityPaidObject
 {
-	public $invitation;
+    public $invitation;
 
-	public $entity;
+    public $entity;
 
-	public $contact;
+    public $contact;
 
-	public $company;
+    public $company;
 
-	public $settings;
+    public $settings;
 
     public function __construct($payment)
     {
@@ -34,19 +34,19 @@ class EntityPaidObject
 
     public function build()
     {
-    	$mail_obj = new \stdClass;
-    	$mail_obj->amount = $this->getAmount();
-    	$mail_obj->subject = $this->getSubject();
-    	$mail_obj->data = $this->getData();
-    	$mail_obj->markdown = 'email.admin.generic';
-    	$mail_obj->tag = $this->company->company_key;
-    	
-    	return $mail_obj;
+        $mail_obj = new \stdClass;
+        $mail_obj->amount = $this->getAmount();
+        $mail_obj->subject = $this->getSubject();
+        $mail_obj->data = $this->getData();
+        $mail_obj->markdown = 'email.admin.generic';
+        $mail_obj->tag = $this->company->company_key;
+
+        return $mail_obj;
     }
 
     private function getAmount()
     {
-    	return Number::formatMoney($this->payment->amount, $this->payment->client);
+        return Number::formatMoney($this->payment->amount, $this->payment->client);
     }
 
     private function getSubject()
@@ -60,20 +60,19 @@ class EntityPaidObject
 
     private function getData()
     {
-
         $settings = $this->payment->client->getMergedSettings();
 
         $amount = Number::formatMoney($this->payment->amount, $this->payment->client);
-        
+
         $invoice_texts = ctrans('texts.invoice_number_short');
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_texts .= $invoice->number . ',';
+            $invoice_texts .= $invoice->number.',';
         }
 
         $invoice_texts = substr($invoice_texts, 0, -1);
 
-    	$data = [
+        $data = [
             'title' => ctrans(
                 'texts.notification_payment_paid_subject',
                 ['client' => $this->payment->client->present()->name()]
@@ -94,4 +93,4 @@ class EntityPaidObject
 
         return $data;
     }
-} 
+}

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,20 +24,18 @@ class SetDbByCompanyKey
      * @param  \Closure  $next
      * @return mixed
      */
-    
     public function handle($request, Closure $next)
     {
         $error = [
             'message' => 'Invalid Token',
-            'errors' => new \stdClass
+            'errors' => new \stdClass,
         ];
-
 
         if ($request->header('X-API-COMPANY-KEY') && config('ninja.db.multi_db_enabled')) {
             if (! MultiDB::findAndSetDbByCompanyKey($request->header('X-API-COMPANY-KEY'))) {
                 return response()->json($error, 403);
             }
-        } elseif (!config('ninja.db.multi_db_enabled')) {
+        } elseif (! config('ninja.db.multi_db_enabled')) {
             return $next($request);
         } else {
             return response()->json($error, 403);

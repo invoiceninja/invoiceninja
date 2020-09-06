@@ -140,7 +140,7 @@ class ConstantsSeeder extends Seeder
         $timezones[] = ['name'=>'Pacific/Auckland', 'location' => '(GMT+12:00) Auckland', 'utc_offset' => 43200];
         $timezones[] = ['name'=>'Pacific/Fiji', 'location' => '(GMT+12:00) Fiji', 'utc_offset' => 43200];
 
-        $x=1;
+        $x = 1;
         foreach ($timezones as $timezone) {
             Timezone::create([
                 'id' => $x,

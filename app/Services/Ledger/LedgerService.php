@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -33,7 +33,7 @@ class LedgerService
         if ($company_ledger) {
             $balance = $company_ledger->balance;
         }
-        
+
         $company_ledger = CompanyLedgerFactory::create($this->entity->company_id, $this->entity->user_id);
         $company_ledger->client_id = $this->entity->client_id;
         $company_ledger->adjustment = $adjustment;
@@ -50,7 +50,7 @@ class LedgerService
     public function updatePaymentBalance($adjustment)
     {
         $balance = 0;
-        
+
         /* Get the last record for the client and set the current balance*/
         $company_ledger = $this->ledger();
 

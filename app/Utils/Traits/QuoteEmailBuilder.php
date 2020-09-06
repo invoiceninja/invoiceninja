@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,15 +18,12 @@ use League\CommonMark\CommonMarkConverter;
 use Parsedown;
 
 /**
- * Class QuoteEmailBuilder
- * @package App\Utils\Traits
+ * Class QuoteEmailBuilder.
  */
 trait QuoteEmailBuilder
 {
-
-
     /**
-     * Builds the correct template to send
+     * Builds the correct template to send.
      * @param  string $reminder_template The template name ie reminder1
      * @return array
      */
@@ -35,7 +32,7 @@ trait QuoteEmailBuilder
         //client
         //$client = $this->client;
 
-        if (!$reminder_template) {
+        if (! $reminder_template) {
             $reminder_template = $this->calculateTemplate();
         }
 
@@ -53,16 +50,16 @@ trait QuoteEmailBuilder
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
-            $body_template = trans('texts.quote_message', ['amount'=>$this->present()->amount(),'account'=>$this->company->present()->name()], null, $this->client->locale());
+            $body_template = trans('texts.quote_message', ['amount'=>$this->present()->amount(), 'account'=>$this->company->present()->name()], null, $this->client->locale());
         }
 
         $subject_template = $client->getSetting('email_subject_'.$reminder_template);
 
         if (iconv_strlen($subject_template) == 0) {
             if ($reminder_template == 'quote') {
-                $subject_template = trans('texts.quote_subject', ['number'=>$this->present()->invoice_number(),'account'=>$this->company->present()->name()], null, $this->client->locale());
+                $subject_template = trans('texts.quote_subject', ['number'=>$this->present()->invoice_number(), 'account'=>$this->company->present()->name()], null, $this->client->locale());
             } else {
-                $subject_template = trans('texts.reminder_subject', ['number'=>$this->present()->invoice_number(),'account'=>$this->company->present()->name()], null, $this->client->locale());
+                $subject_template = trans('texts.reminder_subject', ['number'=>$this->present()->invoice_number(), 'account'=>$this->company->present()->name()], null, $this->client->locale());
             }
         }
 
@@ -76,7 +73,7 @@ trait QuoteEmailBuilder
         return $data;
     }
 
-    private function parseTemplate(string $template_data, bool $is_markdown = true, $contact) :string
+    private function parseTemplate(string $template_data, bool $is_markdown, $contact) :string
     {
         $quote_variables = $this->makeValues($contact);
 
@@ -133,7 +130,7 @@ trait QuoteEmailBuilder
                 return Carbon::parse($this->due_date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
                 break;
             default:
-                # code...
+                // code...
                 break;
         }
     }

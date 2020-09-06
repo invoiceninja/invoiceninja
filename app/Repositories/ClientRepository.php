@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -19,7 +19,7 @@ use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 
 /**
- * ClientRepository
+ * ClientRepository.
  */
 class ClientRepository extends BaseRepository
 {
@@ -51,7 +51,7 @@ class ClientRepository extends BaseRepository
     }
 
     /**
-     * Saves the client and its contacts
+     * Saves the client and its contacts.
      *
      * @param      array                           $data    The data
      * @param      \App\Models\Client              $client  The client
@@ -66,7 +66,7 @@ class ClientRepository extends BaseRepository
 
         $client->save();
 
-        if ($client->id_number == "" || !$client->id_number) {
+        if ($client->id_number == '' || ! $client->id_number) {
             $client->id_number = $this->getNextClientNumber($client);
         }
 

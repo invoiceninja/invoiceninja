@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -31,7 +31,7 @@ use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
 
 /**
- * Class BaseController
+ * Class BaseController.
  */
 class BaseController extends Controller
 {
@@ -47,13 +47,13 @@ class BaseController extends Controller
 
     /**
      * Passed from the parent when we need to force
-     * the key of the response object
+     * the key of the response object.
      * @var string
      */
     public $forced_index;
 
     /**
-     * Fractal manager
+     * Fractal manager.
      * @var object
      */
     protected $manager;
@@ -87,7 +87,7 @@ class BaseController extends Controller
           'company.projects',
           'company.designs',
           'company.webhooks',
-          'company.tokens_hashed'
+          'company.tokens_hashed',
         ];
 
     private $mini_load = [
@@ -115,17 +115,17 @@ class BaseController extends Controller
         $include = '';
 
         if (request()->has('first_load') && request()->input('first_load') == 'true') {
-            $include = implode(",", array_merge($this->forced_includes, $this->getRequestIncludes([])));
+            $include = implode(',', array_merge($this->forced_includes, $this->getRequestIncludes([])));
         } elseif (request()->input('include') !== null) {
-            $include = array_merge($this->forced_includes, explode(",", request()->input('include')));
+            $include = array_merge($this->forced_includes, explode(',', request()->input('include')));
 
-            $include = implode(",", $include);
+            $include = implode(',', $include);
         } elseif (count($this->forced_includes) >= 1) {
-            $include = implode(",", $this->forced_includes);
+            $include = implode(',', $this->forced_includes);
         }
 
         $this->manager->parseIncludes($include);
-        
+
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 
         if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) {
@@ -137,7 +137,7 @@ class BaseController extends Controller
 
     /**
      * Catch all fallback route
-     * for non-existant route
+     * for non-existant route.
      */
     public function notFound()
     {
@@ -147,7 +147,7 @@ class BaseController extends Controller
     }
 
     /**
-     * 404 for the client portal
+     * 404 for the client portal.
      * @return Response 404 response
      */
     public function notFoundClient()
@@ -156,9 +156,9 @@ class BaseController extends Controller
     }
 
     /**
-     * API Error response
+     * API Error response.
      * @param  string  $message       The return error message
-     * @param  integer $httpErrorCode 404/401/403 etc
+     * @param  int $httpErrorCode 404/401/403 etc
      * @return Response               The JSON response
      */
     protected function errorResponse($message, $httpErrorCode = 400)
@@ -174,7 +174,6 @@ class BaseController extends Controller
 
     protected function refreshResponse($query)
     {
-
         $this->manager->parseIncludes($this->first_load);
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
@@ -188,64 +187,64 @@ class BaseController extends Controller
         $transformer = new $this->entity_transformer($this->serializer);
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
 
-        if(auth()->user()->getCompany()->is_large && !request()->has('updated_at'))
-          return response()->json(['message' => 'Cannot load a large account without a updated_at parameter','errors' =>[]],401);
+        if (auth()->user()->getCompany()->is_large && ! request()->has('updated_at')) {
+            return response()->json(['message' => 'Cannot load a large account without a updated_at parameter', 'errors' =>[]], 401);
+        }
 
         $updated_at = date('Y-m-d H:i:s', $updated_at);
 
         $query->with(
           [
-            'company' => function ($query) use($updated_at){
-              $query->whereNotNull('updated_at');
+            'company' => function ($query) use ($updated_at) {
+                $query->whereNotNull('updated_at');
             },
-            'company.clients' => function ($query) use($updated_at){
-              $query->where('clients.updated_at', '>=', $updated_at)->with('contacts');
+            'company.clients' => function ($query) use ($updated_at) {
+                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts');
             },
-            'company.tax_rates' => function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at);
+            'company.tax_rates' => function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
             },
-            'company.groups' => function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at);
+            'company.groups' => function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
             },
-            'company.company_gateways' => function ($query){
-              $query->whereNotNull('updated_at');
+            'company.company_gateways' => function ($query) {
+                $query->whereNotNull('updated_at');
             },
-            'company.products' => function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at);
+            'company.products' => function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
             },
-            'company.invoices'=> function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at)->with('invitations','company','documents');
+            'company.invoices'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'company', 'documents');
             },
-            'company.payments'=> function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at)->with('paymentables');
+            'company.payments'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('paymentables');
             },
-            'company.quotes'=> function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at)->with('invitations','documents');
+            'company.quotes'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
             },
-            'company.credits'=> function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at)->with('invitations','documents');
+            'company.credits'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
             },
-            'company.payment_terms'=> function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at);
+            'company.payment_terms'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
             },
-            'company.vendors'=> function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at)->with('contacts');
+            'company.vendors'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('contacts');
             },
-            'company.expenses'=> function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at);
+            'company.expenses'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
             },
-            'company.tasks'=> function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at);
+            'company.tasks'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
             },
-            'company.projects'=> function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at);
+            'company.projects'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
             },
-            'company.designs'=> function ($query) use($updated_at){
-              $query->where('updated_at', '>=', $updated_at);
+            'company.designs'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
             },
           ]
         );
-
 
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
             $limit = Input::get('per_page', 20);
@@ -259,8 +258,6 @@ class BaseController extends Controller
         }
 
         return $this->response($this->manager->createData($resource)->toArray());
-
-
     }
 
     protected function listResponse($query)
@@ -275,7 +272,7 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        if (auth()->user() && !auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
+        if (auth()->user() && ! auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
             $query->where('user_id', '=', auth()->user()->id);
         }
 
@@ -296,7 +293,6 @@ class BaseController extends Controller
         if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
             $entity_type = null;
         }
-        
 
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
             $limit = Input::get('per_page', 20);
@@ -333,13 +329,13 @@ class BaseController extends Controller
                 $response['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
             }
         }
-        
+
         ksort($response);
 
         $response = json_encode($response, JSON_PRETTY_PRINT);
 
         $headers = self::getApiHeaders();
-        
+
         return response()->make($response, 200, $headers);
     }
 
@@ -354,7 +350,7 @@ class BaseController extends Controller
         if (auth()->user() && request()->include_static) {
             $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
         }
-        
+
         return $this->response($data);
     }
 
@@ -363,7 +359,7 @@ class BaseController extends Controller
         if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
             $entity_type = null;
         }
-      
+
         $resource = new Item($data, $transformer, $entity_type);
 
         return $this->manager->createData($resource)->toArray();
@@ -378,11 +374,10 @@ class BaseController extends Controller
         ];
     }
 
-
     protected function getRequestIncludes($data)
     {
 
-        /**
+        /*
          * Thresholds for displaying large account on first load
          */
         if (request()->has('first_load') && request()->input('first_load') == 'true') {
@@ -406,15 +401,13 @@ class BaseController extends Controller
 
         return $data;
     }
-    
+
     public function flutterRoute()
     {
-      
-        if ((bool)$this->checkAppSetup() !== false && Schema::hasTable('accounts') && $account = Account::first()) {
-     
-          if (config('ninja.require_https') && !request()->isSecure()) {  
-              return redirect()->secure(request()->getRequestUri());
-          }
+        if ((bool) $this->checkAppSetup() !== false && Schema::hasTable('accounts') && $account = Account::first()) {
+            if (config('ninja.require_https') && ! request()->isSecure()) {
+                return redirect()->secure(request()->getRequestUri());
+            }
 
             $data = [];
 

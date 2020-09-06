@@ -31,8 +31,8 @@ class StoreUploadRequest extends FormRequest
     /**
      * Since saveDocuments() expects an array of uploaded files,
      * we need to convert it to an array before uploading.
-     * 
-     * @return mixed 
+     *
+     * @return mixed
      */
     public function getFile()
     {

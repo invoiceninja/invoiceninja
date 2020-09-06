@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -47,7 +47,7 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->user_id = $recurring_invoice->user_id;
         $invoice->company_id = $recurring_invoice->company_id;
         $invoice->recurring_id = $recurring_invoice->id;
-        
+
         return $invoice;
     }
 }

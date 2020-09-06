@@ -15,7 +15,7 @@ class PdfVariablesTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-        
+
         $this->settings = CompanySettings::defaults();
     }
 

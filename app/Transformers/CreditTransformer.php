@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -49,6 +49,7 @@ class CreditTransformer extends EntityTransformer
 
         return $this->includeCollection($credit->invitations, $transformer, CreditInvitation::class);
     }
+
     /*
         public function includePayments(quote $credit)
         {
@@ -74,6 +75,7 @@ class CreditTransformer extends EntityTransformer
     public function includeDocuments(Credit $credit)
     {
         $transformer = new DocumentTransformer($this->serializer);
+
         return $this->includeCollection($credit->documents, $transformer, Document::class);
     }
 
@@ -89,9 +91,9 @@ class CreditTransformer extends EntityTransformer
             'vendor_id' => (string) $this->encodePrimaryKey($credit->vendor_id),
             'status_id' => (string) ($credit->status_id ?: 1),
             'design_id' => (string) $this->encodePrimaryKey($credit->design_id),
-            'created_at' => (int)$credit->created_at,
-            'updated_at' => (int)$credit->updated_at,
-            'archived_at' => (int)$credit->deleted_at,
+            'created_at' => (int) $credit->created_at,
+            'updated_at' => (int) $credit->updated_at,
+            'archived_at' => (int) $credit->deleted_at,
             'is_deleted' => (bool) $credit->is_deleted,
             'number' => $credit->number ?: '',
             'discount' => (float) $credit->discount,
@@ -125,17 +127,17 @@ class CreditTransformer extends EntityTransformer
             'custom_value4' => (string) $credit->custom_value4 ?: '',
             'has_tasks' => (bool) $credit->has_tasks,
             'has_expenses' => (bool) $credit->has_expenses,
-            'custom_surcharge1' => (float)$credit->custom_surcharge1,
-            'custom_surcharge2' => (float)$credit->custom_surcharge2,
-            'custom_surcharge3' => (float)$credit->custom_surcharge3,
-            'custom_surcharge4' => (float)$credit->custom_surcharge4,
+            'custom_surcharge1' => (float) $credit->custom_surcharge1,
+            'custom_surcharge2' => (float) $credit->custom_surcharge2,
+            'custom_surcharge3' => (float) $credit->custom_surcharge3,
+            'custom_surcharge4' => (float) $credit->custom_surcharge4,
             'custom_surcharge_tax1' => (bool) $credit->custom_surcharge_tax1,
             'custom_surcharge_tax2' => (bool) $credit->custom_surcharge_tax2,
             'custom_surcharge_tax3' => (bool) $credit->custom_surcharge_tax3,
             'custom_surcharge_tax4' => (bool) $credit->custom_surcharge_tax4,
-            'line_items' => $credit->line_items ?: (array)[],
+            'line_items' => $credit->line_items ?: (array) [],
             'entity_type' => 'credit',
-            'exchange_rate' => (float)$credit->exchange_rate,
+            'exchange_rate' => (float) $credit->exchange_rate,
         ];
     }
 }

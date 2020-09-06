@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,14 +14,12 @@ namespace App\Utils\Traits;
 use Nwidart\Modules\Facades\Module;
 
 /**
- * Class MakesMenu
- * @package App\Utils\Traits
+ * Class MakesMenu.
  */
 trait MakesMenu
 {
-    
     /**
-     * Builds an array of available modules for this view
+     * Builds an array of available modules for this view.
      * @param  string $entity Class name
      * @return array of modules
      */
@@ -30,7 +28,7 @@ trait MakesMenu
         $tabs = [];
 
         foreach (Module::getCached() as $module) {
-            if (!$module['sidebar']
+            if (! $module['sidebar']
                 && $module['active'] == 1
                 && in_array(strtolower(class_basename($entity)), $module['views'])) {
                 $tabs[] = $module;
@@ -41,7 +39,7 @@ trait MakesMenu
     }
 
     /**
-     * Builds an array items to be presented on the sidebar
+     * Builds an array items to be presented on the sidebar.
      * @return array menu items
      */
     public function makeSideBarMenu()

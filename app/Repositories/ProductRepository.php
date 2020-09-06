@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,13 +15,10 @@ use App\Models\Product;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 
-/**
- *
- */
 class ProductRepository extends BaseRepository
 {
     use SavesDocuments;
-    
+
     public function getClassName()
     {
         return Product::class;

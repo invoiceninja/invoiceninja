@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Log;
 class InvoiceReversedActivity implements ShouldQueue
 {
     protected $activity_repo;
+
     /**
      * Create the event listener.
      *
@@ -47,8 +48,8 @@ class InvoiceReversedActivity implements ShouldQueue
         $fields = new \stdClass;
 
         $fields->invoice_id = $event->invoice->id;
-              $fields->client_id = $event->invoice->client_id;
-      $fields->user_id = $event->invoice->user_id;
+        $fields->client_id = $event->invoice->client_id;
+        $fields->user_id = $event->invoice->user_id;
         $fields->company_id = $event->invoice->company_id;
         $fields->activity_type_id = Activity::REVERSED_INVOICE;
 

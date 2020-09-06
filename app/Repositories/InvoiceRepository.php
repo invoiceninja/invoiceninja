@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,9 +21,8 @@ use App\Models\InvoiceInvitation;
 use App\Utils\Traits\MakesHash;
 
 /**
- * InvoiceRepository
+ * InvoiceRepository.
  */
-
 class InvoiceRepository extends BaseRepository
 {
     use MakesHash;
@@ -39,7 +38,7 @@ class InvoiceRepository extends BaseRepository
     }
 
     /**
-     * Saves the invoices
+     * Saves the invoices.
      *
      * @param      array.                                        $data     The invoice data
      * @param      InvoiceSum|\App\Models\Invoice               $invoice  The invoice
@@ -65,7 +64,7 @@ class InvoiceRepository extends BaseRepository
 
     public function getInvitationByKey($key) :?InvoiceInvitation
     {
-        return InvoiceInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
+        return InvoiceInvitation::whereRaw('BINARY `key`= ?', [$key])->first();
     }
 
     /**
@@ -85,7 +84,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         $invoice->service()->handleCancellation()->save();
-        
+
         $invoice = parent::delete($invoice);
 
         return $invoice;

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,7 +18,7 @@ use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Http\Request;
 
 /**
- * ExpenseRepository
+ * ExpenseRepository.
  */
 class ExpenseRepository extends BaseRepository
 {
@@ -39,7 +39,7 @@ class ExpenseRepository extends BaseRepository
     }
 
     /**
-     * Saves the expense and its contacts
+     * Saves the expense and its contacts.
      *
      * @param      array                           $data    The data
      * @param      \App\Models\expense              $expense  The expense

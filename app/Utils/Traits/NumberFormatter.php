@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,8 +12,7 @@
 namespace App\Utils\Traits;
 
 /**
- * Class NumberFormatter
- * @package App\Utils\Traits
+ * Class NumberFormatter.
  */
 trait NumberFormatter
 {
@@ -22,9 +21,8 @@ trait NumberFormatter
         return number_format($this->parseFloat($value), $precision, '.', '');
     }
 
-
     /**
-     * Parse a float value that may be delimited with either a comma or decimal point
+     * Parse a float value that may be delimited with either a comma or decimal point.
      *
      * @param      string $value  The value
      *

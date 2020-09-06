@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -30,8 +30,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class VendorController
- * @package App\Http\Controllers
+ * Class VendorController.
  * @covers App\Http\Controllers\VendorController
  */
 class VendorController extends BaseController
@@ -94,7 +93,6 @@ class VendorController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(VendorFilters $filters)
     {
@@ -151,7 +149,6 @@ class VendorController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowVendorRequest $request, Vendor $vendor)
     {
@@ -206,7 +203,6 @@ class VendorController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditVendorRequest $request, Vendor $vendor)
     {
@@ -263,7 +259,6 @@ class VendorController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateVendorRequest $request, Vendor $vendor)
     {
@@ -315,7 +310,6 @@ class VendorController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateVendorRequest $request)
     {
@@ -362,7 +356,6 @@ class VendorController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreVendorRequest $request)
     {
@@ -422,7 +415,6 @@ class VendorController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyVendorRequest $request, Vendor $vendor)
     {
@@ -433,7 +425,7 @@ class VendorController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @param BulkVendorRequest $request
      * @return \Illuminate\Http\Response
@@ -487,21 +479,21 @@ class VendorController extends BaseController
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
         $vendors = Vendor::withTrashed()->find($this->transformKeys($ids));
-        
+
         $vendors->each(function ($vendor, $key) use ($action) {
             if (auth()->user()->can('edit', $vendor)) {
                 $this->client_repo->{$action}($vendor);
             }
         });
-        
+
         return $this->listResponse(Vendor::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 
     /**
-     * Returns a client statement
+     * Returns a client statement.
      *
      * @return [type] [description]
      */

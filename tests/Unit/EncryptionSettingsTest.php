@@ -15,7 +15,7 @@ class EncryptionSettingsTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-        
+
         $this->settings = '{"publishable_key":"publish","23_apiKey":"client","enable_ach":"1","enable_sofort":"1","enable_apple_pay":"1","enable_alipay":"1"}';
     }
 
@@ -28,9 +28,6 @@ class EncryptionSettingsTest extends TestCase
         $this->assertEquals(1, $this->getConfigField('enable_ach'));
         $this->assertEquals(1, $this->getConfigField('enable_sofort'));
     }
-
-
-
 
     /**
      * @return mixed

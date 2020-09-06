@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,8 +18,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class PaymentAppliedValidAmount
- * @package App\Http\ValidationRules
+ * Class PaymentAppliedValidAmount.
  */
 class PaymentAppliedValidAmount implements Rule
 {
@@ -47,10 +46,10 @@ class PaymentAppliedValidAmount implements Rule
     {
         $payment = Payment::whereId($this->decodePrimaryKey(request()->segment(4)))->company()->first();
 
-        if (!$payment) {
+        if (! $payment) {
             return false;
         }
-        
+
         $payment_amounts = 0;
         $invoice_amounts = 0;
 

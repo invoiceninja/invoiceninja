@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -218,13 +218,13 @@ class MultiDatabaseUserProvider implements UserProvider
     }
 
     /**
-     * Sets correct database by variable
+     * Sets correct database by variable.
      */
     private function setDefaultDatabase($id = false, $email = false, $token = false) : void
     {
         foreach (MultiDB::getDbs() as $database) {
             $this->setDB($database);
-          
+
             /** Make sure we hook into the correct guard class */
             $query = $this->conn->table((new $this->model)->getTable());
 
@@ -245,7 +245,7 @@ class MultiDatabaseUserProvider implements UserProvider
             $query = $this->conn->table('company_tokens');
 
             if ($token) {
-                $query->whereRaw("BINARY `token`= ?", $token);
+                $query->whereRaw('BINARY `token`= ?', $token);
 
                 $token = $query->get();
 
@@ -257,7 +257,7 @@ class MultiDatabaseUserProvider implements UserProvider
     }
 
     /**
-     * Sets the database at runtime
+     * Sets the database at runtime.
      */
     private function setDB($database)
     {

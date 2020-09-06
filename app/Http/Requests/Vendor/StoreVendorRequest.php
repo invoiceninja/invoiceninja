@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,7 +28,6 @@ class StoreVendorRequest extends Request
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('create', Vendor::class);
@@ -39,7 +38,7 @@ class StoreVendorRequest extends Request
 
         /* Ensure we have a client name, and that all emails are unique*/
         //$rules['name'] = 'required|min:1';
-        $rules['id_number'] = 'unique:vendors,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
+        $rules['id_number'] = 'unique:vendors,id_number,'.$this->id.',id,company_id,'.$this->company_id;
         //$rules['settings'] = new ValidVendorGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
 
@@ -55,15 +54,13 @@ class StoreVendorRequest extends Request
         return $rules;
     }
 
-
     protected function prepareForValidation()
     {
         $input = $this->all();
 
-        if (!isset($input['settings'])) {
+        if (! isset($input['settings'])) {
             $input['settings'] = VendorSettings::defaults();
         }
-
 
         $this->replace($input);
     }

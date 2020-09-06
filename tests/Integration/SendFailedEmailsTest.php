@@ -20,7 +20,7 @@ use Tests\TestCase;
 class SendFailedEmailsTest extends TestCase
 {
     use MockAccountData;
-	use DatabaseTransactions;
+    use DatabaseTransactions;
 
     public function setUp() :void
     {
@@ -29,14 +29,13 @@ class SendFailedEmailsTest extends TestCase
         $this->makeTestData();
     }
 
-
     public function testReminderFires()
     {
-    	$invitation = $this->invoice->invitations->first();
+        $invitation = $this->invoice->invitations->first();
         $reminder_template = $this->invoice->calculateTemplate();
 
         $sl = [
-            'entity_name' => 'App\Models\InvoiceInvitation',
+            'entity_name' => \App\Models\InvoiceInvitation::class,
             'invitation_key' => $invitation->key,
             'reminder_template' => $reminder_template,
             'subject' => '',
@@ -56,13 +55,11 @@ class SendFailedEmailsTest extends TestCase
 
         $this->assertNotNull($sys_log);
 
-       // Queue::fake();
-		SendFailedEmails::dispatch();
+        // Queue::fake();
+        SendFailedEmails::dispatch();
 
- 		//Queue::assertPushed(SendFailedEmails::class);
- 		//Queue::assertPushed(EmailInvoice::class);
-		//$this->expectsJobs(EmailInvoice::class);
-
+        //Queue::assertPushed(SendFailedEmails::class);
+        //Queue::assertPushed(EmailInvoice::class);
+        //$this->expectsJobs(EmailInvoice::class);
     }
-
 }

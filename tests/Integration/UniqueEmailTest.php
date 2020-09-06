@@ -44,9 +44,8 @@ class UniqueEmailTest extends TestCase
         ]);
 
         $company->setHidden(['settings', 'settings_object', 'hashed_id']);
-        
-        Company::on('db-ninja-01')->create($company->toArray());
 
+        Company::on('db-ninja-01')->create($company->toArray());
 
         $ac2 = factory(\App\Models\Account::class)->make();
         $ac2->setHidden(['hashed_id']);
@@ -59,7 +58,6 @@ class UniqueEmailTest extends TestCase
         $company2->setHidden(['settings', 'settings_object', 'hashed_id']);
 
         Company::on('db-ninja-02')->create($company2->toArray());
-
 
         $user = [
             'first_name' => 'user_db_1',
@@ -77,13 +75,15 @@ class UniqueEmailTest extends TestCase
 
         $user_find = User::on('db-ninja-01')->where('email', 'user@example.com')->first();
 
-        if(!$user_find)
+        if (! $user_find) {
             User::on('db-ninja-01')->create($user);
-        
+        }
+
         $user_find = User::on('db-ninja-02')->where('email', 'user@example.com')->first();
 
-        if(!$user_find)
+        if (! $user_find) {
             User::on('db-ninja-02')->create($user2);
+        }
     }
 
     public function test_unique_emails_detected_on_database()

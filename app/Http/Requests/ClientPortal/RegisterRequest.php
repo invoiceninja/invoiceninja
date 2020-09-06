@@ -38,7 +38,7 @@ class RegisterRequest extends FormRequest
         if ($this->subdomain) {
             return Company::where('subdomain', $this->subdomain)->firstOrFail();
         }
-    
+
         if ($this->company_key) {
             return Company::where('company_key', $this->company_key)->firstOrFail();
         }

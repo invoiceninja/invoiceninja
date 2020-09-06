@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -39,10 +39,9 @@ class InvoiceInvitation extends BaseModel
 
     protected $touches = ['invoice'];
 
-
     public function getEntityType()
     {
-        return InvoiceInvitation::class;
+        return self::class;
     }
 
     // public function getSignatureDateAttribute($value)
@@ -76,10 +75,10 @@ class InvoiceInvitation extends BaseModel
     //     }
     //     return $value;
     // }
-    
+
     public function entityType()
     {
-        return Invoice::class ;
+        return Invoice::class;
     }
 
     /**
@@ -116,7 +115,7 @@ class InvoiceInvitation extends BaseModel
 
     public function signatureDiv()
     {
-        if (!$this->signature_base64) {
+        if (! $this->signature_base64) {
             return false;
         }
 
@@ -142,14 +141,13 @@ class InvoiceInvitation extends BaseModel
 
     public function pdf_file_path()
     {
-        $storage_path = Storage::url($this->invoice->client->invoice_filepath() . $this->invoice->number . '.pdf');
+        $storage_path = Storage::url($this->invoice->client->invoice_filepath().$this->invoice->number.'.pdf');
 
-        if (!Storage::exists($this->invoice->client->invoice_filepath() . $this->invoice->number . '.pdf')) {
+        if (! Storage::exists($this->invoice->client->invoice_filepath().$this->invoice->number.'.pdf')) {
             event(new InvoiceWasUpdated($this->invoice, $this->company, Ninja::eventVars()));
             CreateInvoicePdf::dispatchNow($this);
         }
 
         return $storage_path;
     }
-
 }

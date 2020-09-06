@@ -20,20 +20,18 @@ class CompanyGatewayTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-        
+
         $this->makeTestData();
 
-        if (!config('ninja.testvars.stripe')) {
+        if (! config('ninja.testvars.stripe')) {
             $this->markTestSkipped('Skip test no company gateways installed');
         }
     }
 
     public function testGatewayExists()
     {
-
         $company_gateway = CompanyGateway::first();
         $this->assertNotNull($company_gateway);
-
     }
 
     public function testFeesAndLimitsExists()
@@ -70,48 +68,44 @@ class CompanyGatewayTest extends TestCase
 
         $this->assertNotNull($fees_and_limits);
 
-
         //confirm amount filtering works
-            $amount = 100;
+        $amount = 100;
 
-            $this->assertFalse($this->checkSieve($cg, $amount));
+        $this->assertFalse($this->checkSieve($cg, $amount));
 
-            $amount = 235;
+        $amount = 235;
 
-            $this->assertTrue($this->checkSieve($cg, $amount));
+        $this->assertTrue($this->checkSieve($cg, $amount));
 
-            $amount = 70000;
+        $amount = 70000;
 
-            $this->assertFalse($this->checkSieve($cg, $amount));
-
+        $this->assertFalse($this->checkSieve($cg, $amount));
     }
 
     public function checkSieve($cg, $amount)
     {
-        if(isset($cg->fees_and_limits)){
+        if (isset($cg->fees_and_limits)) {
             $properties = array_keys(get_object_vars($cg->fees_and_limits));
             $fees_and_limits = $cg->fees_and_limits->{$properties[0]};
-        }
-        else
+        } else {
             $passes = true;
+        }
 
-        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) {
-            info("amount {$amount} less than ". $fees_and_limits->min_limit);
-            $passes = false;   
-        }
-        else if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->max_limit){ 
-            info("amount {$amount} greater than ". $fees_and_limits->max_limit);
+        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $amount < $fees_and_limits->min_limit) {
+            info("amount {$amount} less than ".$fees_and_limits->min_limit);
             $passes = false;
-        }
-        else
+        } elseif ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $amount > $fees_and_limits->max_limit) {
+            info("amount {$amount} greater than ".$fees_and_limits->max_limit);
+            $passes = false;
+        } else {
             $passes = true;
+        }
 
         return $passes;
     }
 
     public function testFeesAreAppendedToInvoice() //after refactor this may be redundant
     {
-
         $data = [];
         $data[1]['min_limit'] = -1;
         $data[1]['max_limit'] = -1;
@@ -144,12 +138,11 @@ class CompanyGatewayTest extends TestCase
 
         $items = $this->invoice->line_items;
 
-        $this->assertEquals(($balance+1), $this->invoice->balance);
+        $this->assertEquals(($balance + 1), $this->invoice->balance);
     }
 
     public function testProRataGatewayFees()
     {
-
         $data = [];
         $data[1]['min_limit'] = -1;
         $data[1]['max_limit'] = -1;
@@ -175,16 +168,14 @@ class CompanyGatewayTest extends TestCase
         $cg->fees_and_limits = $data;
         $cg->save();
 
-
         $total = 10.93;
         $total_invoice_count = 5;
-        $total_gateway_fee = round($cg->calcGatewayFee($total,true),2);
+        $total_gateway_fee = round($cg->calcGatewayFee($total, true), 2);
 
         $this->assertEquals(1.58, $total_gateway_fee);
 
         /*simple pro rata*/
         $fees_and_limits = $cg->getFeesAndLimits();
-
 
         /*Calculate all subcomponents of the fee*/
 
@@ -202,12 +193,7 @@ class CompanyGatewayTest extends TestCase
         // $fee_component_tax_name3 = $fees_and_limits->fee_tax_name3 ?: '';
         // $fee_component_tax_rate3 = $fees_and_limits->fee_tax_rate3 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate3 / 100) : 0;
 
-
-
-
-
         // $pro_rata_fee = round($total_gateway_fee / $total_invoice_count,2);
-
 
         // while($pro_rata_fee * $total_invoice_count != $total_gateway_fee) {
 
@@ -215,7 +201,7 @@ class CompanyGatewayTest extends TestCase
         //     $sub_total_fees = ($pro_rata_fee*($total_invoice_count--));
 
         //     //work out if we have to nudge up or down
-            
+
         //     if($pro_rata_fee*$total_invoice_count  > $total_gateway_fee) {
         //         //nudge DOWN
         //         $pro_rata_fee - 0.01; //this will break if the currency doesn't have decimals
@@ -223,10 +209,9 @@ class CompanyGatewayTest extends TestCase
         //     else {
         //         //nudge UP
         //     }
-            
+
         // }
 
         // $this->assertEquals(1.56, $pro_rata_fee*$total_invoice_count);
-
     }
 }

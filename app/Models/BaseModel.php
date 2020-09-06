@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,8 +22,8 @@ use Hashids\Hashids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class BaseModel extends Model
 {
@@ -35,7 +35,7 @@ class BaseModel extends Model
     //const UPDATED_AT = 'last_update';
 
     protected $appends = [
-        'hashed_id'
+        'hashed_id',
     ];
 
     protected $casts = [
@@ -43,9 +43,9 @@ class BaseModel extends Model
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-    
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
-    
+
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
@@ -53,10 +53,10 @@ class BaseModel extends Model
 
     public function dateMutator($value)
     {
-        if (!empty($value)) {
+        if (! empty($value)) {
             return (new Carbon($value))->format('Y-m-d');
         }
-        
+
         return $value;
     }
 
@@ -70,7 +70,7 @@ class BaseModel extends Model
             if (config()->has($configPath)) {
                 $function = config()->get($configPath);
 
-                return call_user_func_array(array($this, $function[0]), $function[1]);
+                return call_user_func_array([$this, $function[0]], $function[1]);
             }
         }
 
@@ -83,7 +83,7 @@ class BaseModel extends Model
     public function scopeCompany($query)
     {
         $query->where('company_id', auth()->user()->companyId());
-        
+
         return $query;
     }
 
@@ -92,7 +92,7 @@ class BaseModel extends Model
      */
     public function scopeScope($query)
     {
-        $query->where($this->getTable() .'.company_id', '=', auth()->user()->company()->id);
+        $query->where($this->getTable().'.company_id', '=', auth()->user()->company()->id);
 
         return $query;
     }
@@ -123,7 +123,6 @@ class BaseModel extends Model
         }
     }
 
-
     public function setSettingsByEntity($entity, $settings)
     {
         switch ($entity) {
@@ -145,7 +144,7 @@ class BaseModel extends Model
                 break;
         }
     }
-    
+
     /**
      * Gets the settings.
      *
@@ -164,7 +163,7 @@ class BaseModel extends Model
      * @param  mixed  $value
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function resolveRouteBinding($value)
+    public function resolveRouteBinding($value, $field = NULL)
     {
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");
@@ -189,6 +188,6 @@ class BaseModel extends Model
      */
     public function getFileName($extension = 'pdf')
     {
-        return $this->number . '.' . $extension;
+        return $this->number.'.'.$extension;
     }
 }

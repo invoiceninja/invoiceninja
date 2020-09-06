@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -29,8 +29,8 @@ use App\Services\Ledger\LedgerService;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\Archivable;
-use App\Utils\Traits\InvoiceEmailBuilder;
 use App\Utils\Traits\Invoice\ActionsInvoice;
+use App\Utils\Traits\InvoiceEmailBuilder;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\MakesReminders;
@@ -54,7 +54,7 @@ class Invoice extends BaseModel
     use MakesReminders;
     use ActionsInvoice;
 
-    protected $presenter = 'App\Models\Presenters\InvoicePresenter';
+    protected $presenter = \App\Models\Presenters\InvoicePresenter::class;
 
     protected $touches = [];
 
@@ -103,7 +103,7 @@ class Invoice extends BaseModel
         'custom_surcharge_tax4',
         'design_id',
         'assigned_user_id',
-        'exchange_rate'
+        'exchange_rate',
     ];
 
     protected $casts = [
@@ -121,7 +121,7 @@ class Invoice extends BaseModel
 
     protected $appends = [
         'hashed_id',
-        'status'
+        'status',
     ];
 
     const STATUS_DRAFT = 1;
@@ -136,7 +136,7 @@ class Invoice extends BaseModel
 
     public function getEntityType()
     {
-        return Invoice::class;
+        return self::class;
     }
 
     public function getDateAttribute($value)
@@ -153,7 +153,6 @@ class Invoice extends BaseModel
     {
         return $this->dateMutator($value);
     }
-
 
     public function company()
     {
@@ -214,6 +213,7 @@ class Invoice extends BaseModel
     {
         return $this->hasMany(Credit::class);
     }
+
     // public function credits()
     // {
     //     return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot(
@@ -223,7 +223,7 @@ class Invoice extends BaseModel
     // }
 
     /**
-     * Service entry points
+     * Service entry points.
      */
     public function service() :InvoiceService
     {
@@ -241,14 +241,14 @@ class Invoice extends BaseModel
 
     public function getStatusAttribute()
     {
-        if ($this->status_id == Invoice::STATUS_SENT && $this->due_date > Carbon::now()) {
-            return Invoice::STATUS_UNPAID;
-        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date > Carbon::now()) {
-            return Invoice::STATUS_UNPAID;
-        } elseif ($this->status_id == Invoice::STATUS_SENT && $this->due_date < Carbon::now()) {
-            return Invoice::STATUS_OVERDUE;
-        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->partial_due_date < Carbon::now()) {
-            return Invoice::STATUS_OVERDUE;
+        if ($this->status_id == self::STATUS_SENT && $this->due_date > Carbon::now()) {
+            return self::STATUS_UNPAID;
+        } elseif ($this->status_id == self::STATUS_PARTIAL && $this->partial_due_date > Carbon::now()) {
+            return self::STATUS_UNPAID;
+        } elseif ($this->status_id == self::STATUS_SENT && $this->due_date < Carbon::now()) {
+            return self::STATUS_OVERDUE;
+        } elseif ($this->status_id == self::STATUS_PARTIAL && $this->partial_due_date < Carbon::now()) {
+            return self::STATUS_OVERDUE;
         } else {
             return $this->status_id;
         }
@@ -256,15 +256,15 @@ class Invoice extends BaseModel
 
     public function isPayable(): bool
     {
-        if($this->status_id == Invoice::STATUS_DRAFT && $this->is_deleted == false){
+        if ($this->status_id == self::STATUS_DRAFT && $this->is_deleted == false) {
             return true;
-        }else if ($this->status_id == Invoice::STATUS_SENT && $this->is_deleted == false) {
+        } elseif ($this->status_id == self::STATUS_SENT && $this->is_deleted == false) {
             return true;
-        } elseif ($this->status_id == Invoice::STATUS_PARTIAL && $this->is_deleted == false) {
+        } elseif ($this->status_id == self::STATUS_PARTIAL && $this->is_deleted == false) {
             return true;
-        } elseif ($this->status_id == Invoice::STATUS_SENT && $this->is_deleted == false) {
+        } elseif ($this->status_id == self::STATUS_SENT && $this->is_deleted == false) {
             return true;
-        } elseif ($this->status_id == Invoice::STATUS_DRAFT && $this->is_deleted == false) {
+        } elseif ($this->status_id == self::STATUS_DRAFT && $this->is_deleted == false) {
             return true;
         } else {
             return false;
@@ -303,32 +303,32 @@ class Invoice extends BaseModel
     public static function badgeForStatus(int $status)
     {
         switch ($status) {
-            case Invoice::STATUS_DRAFT:
-                return '<h5><span class="badge badge-light">' . ctrans('texts.draft') . '</span></h5>';
+            case self::STATUS_DRAFT:
+                return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
                 break;
-            case Invoice::STATUS_SENT:
-                return '<h5><span class="badge badge-primary">' . ctrans('texts.sent') . '</span></h5>';
+            case self::STATUS_SENT:
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
                 break;
-            case Invoice::STATUS_PARTIAL:
-                return '<h5><span class="badge badge-primary">' . ctrans('texts.partial') . '</span></h5>';
+            case self::STATUS_PARTIAL:
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.partial').'</span></h5>';
                 break;
-            case Invoice::STATUS_PAID:
-                return '<h5><span class="badge badge-success">' . ctrans('texts.paid') . '</span></h5>';
+            case self::STATUS_PAID:
+                return '<h5><span class="badge badge-success">'.ctrans('texts.paid').'</span></h5>';
                 break;
-            case Invoice::STATUS_CANCELLED:
-                return '<h5><span class="badge badge-secondary">' . ctrans('texts.cancelled') . '</span></h5>';
+            case self::STATUS_CANCELLED:
+                return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
                 break;
-            case Invoice::STATUS_OVERDUE:
-                return '<h5><span class="badge badge-danger">' . ctrans('texts.overdue') . '</span></h5>';
+            case self::STATUS_OVERDUE:
+                return '<h5><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h5>';
                 break;
-            case Invoice::STATUS_UNPAID:
-                return '<h5><span class="badge badge-warning">' . ctrans('texts.unpaid') . '</span></h5>';
+            case self::STATUS_UNPAID:
+                return '<h5><span class="badge badge-warning">'.ctrans('texts.unpaid').'</span></h5>';
                 break;
-            case Invoice::STATUS_REVERSED:
-                return '<h5><span class="badge badge-info">' . ctrans('texts.reversed') . '</span></h5>';
+            case self::STATUS_REVERSED:
+                return '<h5><span class="badge badge-info">'.ctrans('texts.reversed').'</span></h5>';
                 break;
             default:
-                # code...
+                // code...
                 break;
         }
     }
@@ -336,38 +336,38 @@ class Invoice extends BaseModel
     public static function stringStatus(int $status)
     {
         switch ($status) {
-            case Invoice::STATUS_DRAFT:
+            case self::STATUS_DRAFT:
                 return ctrans('texts.draft');
                 break;
-            case Invoice::STATUS_SENT:
+            case self::STATUS_SENT:
                 return ctrans('texts.sent');
                 break;
-            case Invoice::STATUS_PARTIAL:
+            case self::STATUS_PARTIAL:
                 return ctrans('texts.partial');
                 break;
-            case Invoice::STATUS_PAID:
+            case self::STATUS_PAID:
                 return ctrans('texts.paid');
                 break;
-            case Invoice::STATUS_CANCELLED:
+            case self::STATUS_CANCELLED:
                 return ctrans('texts.cancelled');
                 break;
-            case Invoice::STATUS_OVERDUE:
+            case self::STATUS_OVERDUE:
                 return ctrans('texts.overdue');
                 break;
-            case Invoice::STATUS_UNPAID:
+            case self::STATUS_UNPAID:
                 return ctrans('texts.unpaid');
                 break;
-            case Invoice::STATUS_REVERSED:
+            case self::STATUS_REVERSED:
                 return ctrans('texts.reversed');
                 break;
             default:
-                # code...
+                // code...
                 break;
         }
     }
 
     /**
-     * Access the invoice calculator object
+     * Access the invoice calculator object.
      *
      * @return object The invoice calculator object getters
      */
@@ -386,12 +386,13 @@ class Invoice extends BaseModel
 
     public function pdf_file_path($invitation = null)
     {
-        if(!$invitation)
+        if (! $invitation) {
             $invitation = $this->invitations->first();
+        }
 
-        $storage_path = Storage::url($this->client->invoice_filepath() . $this->number . '.pdf');
+        $storage_path = Storage::url($this->client->invoice_filepath().$this->number.'.pdf');
 
-        if (!Storage::exists($this->client->invoice_filepath() . $this->number . '.pdf')) {
+        if (! Storage::exists($this->client->invoice_filepath().$this->number.'.pdf')) {
             event(new InvoiceWasUpdated($this, $this->company, Ninja::eventVars()));
             CreateInvoicePdf::dispatchNow($invitation);
         }
@@ -399,15 +400,13 @@ class Invoice extends BaseModel
         return $storage_path;
     }
 
-
     /**
-     * Updates Invites to SENT
-     *
+     * Updates Invites to SENT.
      */
     public function markInvitationsSent()
     {
         $this->invitations->each(function ($invitation) {
-            if (!isset($invitation->sent_date)) {
+            if (! isset($invitation->sent_date)) {
                 $invitation->sent_date = Carbon::now();
                 $invitation->save();
             }
@@ -416,9 +415,9 @@ class Invoice extends BaseModel
 
     /**
      * Filtering logic to determine
-     * whether an invoice is locked 
-     * based on the current status of the invoice
-     * @return boolean [description]
+     * whether an invoice is locked
+     * based on the current status of the invoice.
+     * @return bool [description]
      */
     public function isLocked() :bool
     {
@@ -433,7 +432,7 @@ class Invoice extends BaseModel
                 break;
             case 'when_paid':
                 return $this->status_id == self::STATUS_PAID || $this->status_id == self::STATUS_PARTIAL;
-                break;            
+                break;
             default:
                 return false;
                 break;
@@ -459,7 +458,6 @@ class Invoice extends BaseModel
 //        // it isn't considered overdue until the end of the day
 //        return strtotime($this->createClientDate(date(), $this->client->timezone()->name)) > (strtotime($due_date) + (60 * 60 * 24));
 //    }
-
 
     /**
      * @param bool $save

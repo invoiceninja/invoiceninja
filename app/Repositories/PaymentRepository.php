@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -27,7 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 /**
- * PaymentRepository
+ * PaymentRepository.
  */
 class PaymentRepository extends BaseRepository
 {
@@ -63,7 +63,7 @@ class PaymentRepository extends BaseRepository
     }
 
     /**
-     * Handles a positive payment request
+     * Handles a positive payment request.
      * @param  array $data      The data object
      * @param  Payment $payment The $payment entity
      * @return Payment          The updated/created payment object
@@ -72,19 +72,18 @@ class PaymentRepository extends BaseRepository
     {
 
         //check currencies here and fill the exchange rate data if necessary
-        if (!$payment->id) {
+        if (! $payment->id) {
             $this->processExchangeRates($data, $payment);
 
             /*We only update the paid to date ONCE per payment*/
             if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
-
-                if($data['amount'] == '')
+                if ($data['amount'] == '') {
                     $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
-                
+                }
+
                 $client = Client::find($data['client_id']);
 
                 $client->service()->updatePaidToDate($data['amount'])->save();
-
             }
         }
 
@@ -99,7 +98,7 @@ class PaymentRepository extends BaseRepository
         }
 
         /*Ensure payment number generated*/
-        if (!$payment->number || strlen($payment->number) == 0) {
+        if (! $payment->number || strlen($payment->number) == 0) {
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
         }
 
@@ -112,23 +111,21 @@ class PaymentRepository extends BaseRepository
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
-            
+
             $payment->invoices()->saveMany($invoices);
 
             foreach ($data['invoices'] as $paid_invoice) {
-
                 $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
 
-                if ($invoice) 
+                if ($invoice) {
                     $invoice = $invoice->service()->markSent()->applyPayment($payment, $paid_invoice['amount'])->save();
-                
+                }
             }
         } else {
             //payment is made, but not to any invoice, therefore we are applying the payment to the clients paid_to_date only
             //01-07-2020 i think we were duplicating the paid to date here.
-            //$payment->client->service()->updatePaidToDate($payment->amount)->save(); 
+            //$payment->client->service()->updatePaidToDate($payment->amount)->save();
         }
-
 
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
@@ -170,14 +167,12 @@ class PaymentRepository extends BaseRepository
         return $payment->fresh();
     }
 
-
     /**
      * If the client is paying in a currency other than
-     * the company currency, we need to set a record
+     * the company currency, we need to set a record.
      */
     private function processExchangeRates($data, $payment)
     {
-
         $client = Client::find($data['client_id']);
 
         $client_currency = $client->getSetting('currency_id');
@@ -198,20 +193,21 @@ class PaymentRepository extends BaseRepository
     public function delete($payment)
     {
         //cannot double delete a payment
-        if($payment->is_deleted)
+        if ($payment->is_deleted) {
             return;
+        }
 
         $payment->service()->deletePayment();
 
         return parent::delete($payment);
-
     }
 
     public function restore($payment)
     {
         //we cannot restore a deleted payment.
-        if($payment->is_deleted)
+        if ($payment->is_deleted) {
             return;
+        }
 
         return parent::restore($payment);
     }

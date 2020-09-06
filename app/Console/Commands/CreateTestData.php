@@ -81,7 +81,6 @@ class CreateTestData extends Command
         $this->createLargeAccount();
     }
 
-
     private function createSmallAccount()
     {
         $this->info('Creating Small Account and Company');
@@ -92,20 +91,19 @@ class CreateTestData extends Command
             'slack_webhook_url' => config('ninja.notification.slack'),
         ]);
 
-
         $account->default_company_id = $company->id;
         $account->save();
 
         $user = User::whereEmail('small@example.com')->first();
 
-        if (!$user) {
+        if (! $user) {
             $user = factory(\App\Models\User::class)->create([
                 'account_id' => $account->id,
                 'email' => 'small@example.com',
-                'confirmation_code' => $this->createDbHash(config('database.default'))
+                'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
         }
-        
+
         $company_token = new CompanyToken;
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
@@ -131,17 +129,16 @@ class CreateTestData extends Command
                 'company_id' => $company->id,
             ]);
 
-        $this->info('Creating '.$this->count. ' clients');
+        $this->info('Creating '.$this->count.' clients');
 
-        for ($x=0; $x<$this->count; $x++) {
-            $z = $x+1;
-            $this->info("Creating client # ".$z);
+        for ($x = 0; $x < $this->count; $x++) {
+            $z = $x + 1;
+            $this->info('Creating client # '.$z);
 
             $this->createClient($company, $user);
         }
 
-        for($x=0; $x<$this->count; $x++)
-        {
+        for ($x = 0; $x < $this->count; $x++) {
             $client = $company->clients->random();
 
             $this->info('creating invoice for client #'.$client->id);
@@ -177,7 +174,6 @@ class CreateTestData extends Command
             $this->info('creating project for client #'.$client->id);
             $this->createProject($client);
         }
-
     }
 
     private function createMediumAccount()
@@ -195,11 +191,11 @@ class CreateTestData extends Command
 
         $user = User::whereEmail('medium@example.com')->first();
 
-        if (!$user) {
+        if (! $user) {
             $user = factory(\App\Models\User::class)->create([
                 'account_id' => $account->id,
                 'email' => 'medium@example.com',
-                'confirmation_code' => $this->createDbHash(config('database.default'))
+                'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
         }
 
@@ -222,25 +218,23 @@ class CreateTestData extends Command
             'settings' => null,
         ]);
 
-
         factory(\App\Models\Product::class, 50)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
 
-        $this->count = $this->count*10;
+        $this->count = $this->count * 10;
 
-        $this->info('Creating '.$this->count. ' clients');
+        $this->info('Creating '.$this->count.' clients');
 
-        for ($x=0; $x<$this->count; $x++) {
-            $z = $x+1;
-            $this->info("Creating client # ".$z);
+        for ($x = 0; $x < $this->count; $x++) {
+            $z = $x + 1;
+            $this->info('Creating client # '.$z);
 
             $this->createClient($company, $user);
         }
 
-        for($x=0; $x<$this->count*100; $x++)
-        {
+        for ($x = 0; $x < $this->count * 100; $x++) {
             $client = $company->clients->random();
 
             $this->info('creating invoice for client #'.$client->id);
@@ -294,11 +288,11 @@ class CreateTestData extends Command
 
         $user = User::whereEmail('large@example.com')->first();
 
-        if (!$user) {
+        if (! $user) {
             $user = factory(\App\Models\User::class)->create([
                 'account_id' => $account->id,
                 'email' => 'large@example.com',
-                'confirmation_code' => $this->createDbHash(config('database.default'))
+                'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
         }
 
@@ -321,26 +315,23 @@ class CreateTestData extends Command
             'settings' => null,
         ]);
 
-
         factory(\App\Models\Product::class, 15000)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
 
-        $this->count = $this->count*100;
+        $this->count = $this->count * 100;
 
-        $this->info('Creating '.$this->count. ' clients');
+        $this->info('Creating '.$this->count.' clients');
 
-
-        for ($x=0; $x<$this->count*500; $x++) {
-            $z = $x+1;
-            $this->info("Creating client # ".$z);
+        for ($x = 0; $x < $this->count * 500; $x++) {
+            $z = $x + 1;
+            $this->info('Creating client # '.$z);
 
             $this->createClient($company, $user);
         }
 
-        for($x=0; $x<$this->count; $x++)
-        {
+        for ($x = 0; $x < $this->count; $x++) {
             $client = $company->clients->random();
 
             $this->info('creating invoice for client #'.$client->id);
@@ -382,37 +373,36 @@ class CreateTestData extends Command
     {
 
         // dispatch(function () use ($company, $user) {
-   
+
         // });
         $client = factory(\App\Models\Client::class)->create([
                 'user_id' => $user->id,
-                'company_id' => $company->id
+                'company_id' => $company->id,
             ]);
 
         factory(\App\Models\ClientContact::class, 1)->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
                     'company_id' => $company->id,
-                    'is_primary' => 1
+                    'is_primary' => 1,
                 ]);
 
         factory(\App\Models\ClientContact::class, rand(1, 5))->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
-                    'company_id' => $company->id
+                    'company_id' => $company->id,
                 ]);
 
         $client->id_number = $this->getNextClientNumber($client);
 
         $settings = $client->settings;
-        $settings->currency_id = (string)rand(1,79);
+        $settings->currency_id = (string) rand(1, 79);
         $client->settings = $settings;
 
         $country = Country::all()->random();
 
         $client->country_id = $country->id;
         $client->save();
-
     }
 
     private function createExpense($client)
@@ -420,7 +410,7 @@ class CreateTestData extends Command
         factory(\App\Models\Expense::class, rand(1, 5))->create([
                 'user_id' => $client->user->id,
                 'client_id' => $client->id,
-                'company_id' => $client->company->id
+                'company_id' => $client->company->id,
             ]);
     }
 
@@ -428,22 +418,21 @@ class CreateTestData extends Command
     {
         $vendor = factory(\App\Models\Vendor::class)->create([
                 'user_id' => $client->user->id,
-                'company_id' => $client->company->id
+                'company_id' => $client->company->id,
             ]);
-
 
         factory(\App\Models\VendorContact::class, 1)->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company->id,
-                'is_primary' => 1
+                'is_primary' => 1,
             ]);
 
         factory(\App\Models\VendorContact::class, rand(1, 5))->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company->id,
-                'is_primary' => 0
+                'is_primary' => 0,
             ]);
     }
 
@@ -451,7 +440,7 @@ class CreateTestData extends Command
     {
         $vendor = factory(\App\Models\Task::class)->create([
                 'user_id' => $client->user->id,
-                'company_id' => $client->company->id
+                'company_id' => $client->company->id,
             ]);
     }
 
@@ -459,7 +448,7 @@ class CreateTestData extends Command
     {
         $vendor = factory(\App\Models\Project::class)->create([
                 'user_id' => $client->user->id,
-                'company_id' => $client->company->id
+                'company_id' => $client->company->id,
             ]);
     }
 
@@ -471,7 +460,7 @@ class CreateTestData extends Command
 
         $faker = \Faker\Factory::create();
 
-        $invoice = InvoiceFactory::create($client->company->id, $client->user->id);//stub the company and user_id
+        $invoice = InvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
 //        $invoice->date = $faker->date();
         $dateable = Carbon::now()->subDays(rand(0, 90));
@@ -511,9 +500,7 @@ class CreateTestData extends Command
         $this->invoice_repo->markSent($invoice);
 
         if (rand(0, 1)) {
-
             $invoice = $invoice->service()->markPaid()->save();
-
         }
         //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
@@ -572,10 +559,10 @@ class CreateTestData extends Command
         $faker = \Faker\Factory::create();
 
         //$quote = QuoteFactory::create($client->company->id, $client->user->id);//stub the company and user_id
-        $quote =factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
+        $quote = factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
         $quote->date = $faker->date();
         $quote->client_id = $client->id;
-        
+
         $quote->setRelation('client', $client);
 
         $quote->line_items = $this->buildLineItems(rand(1, 10));
@@ -613,7 +600,7 @@ class CreateTestData extends Command
     {
         $line_items = [];
 
-        for ($x=0; $x<$count; $x++) {
+        for ($x = 0; $x < $count; $x++) {
             $item = InvoiceItemFactory::create();
             $item->quantity = 1;
             //$item->cost = 10;
@@ -635,15 +622,13 @@ class CreateTestData extends Command
 
             $product = Product::all()->random();
 
-            $item->cost = (float)$product->cost;
+            $item->cost = (float) $product->cost;
             $item->product_key = $product->product_key;
             $item->notes = $product->notes;
             $item->custom_value1 = $product->custom_value1;
             $item->custom_value2 = $product->custom_value2;
             $item->custom_value3 = $product->custom_value3;
             $item->custom_value4 = $product->custom_value4;
-
-
 
             $line_items[] = $item;
         }

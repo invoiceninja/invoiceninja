@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -33,7 +33,7 @@ class ExpenseFactory
         $expense->tax_rate3 = 0;
         $expense->expense_date = null;
         $expense->payment_date = null;
-        
+
         return $expense;
     }
 }

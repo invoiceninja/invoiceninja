@@ -31,7 +31,7 @@ class Project extends BaseModel
         'custom_value1',
         'custom_value2',
     ];
-    
+
     protected $casts = [
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
@@ -39,7 +39,7 @@ class Project extends BaseModel
 
     public function getEntityType()
     {
-        return Project::class;
+        return self::class;
     }
 
     protected $touches = [];

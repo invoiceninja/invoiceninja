@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -45,7 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $dates = ['deleted_at'];
 
-    protected $presenter = 'App\Models\Presenters\UserPresenter';
+    protected $presenter = \App\Models\Presenters\UserPresenter::class;
 
     protected $with = []; // ? companies also
 
@@ -54,9 +54,9 @@ class User extends Authenticatable implements MustVerifyEmail
     public $company;
 
     protected $appends = [
-        'hashed_id'
+        'hashed_id',
     ];
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -104,7 +104,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getEntityType()
     {
-        return User::class;
+        return self::class;
     }
 
     public function getHashedIdAttribute()
@@ -143,21 +143,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-    *
-    * As we are authenticating on CompanyToken,
-    * we need to link the company to the user manually. This allows
-    * us to decouple a $user and their attached companies.
-    *
-    */
+     * As we are authenticating on CompanyToken,
+     * we need to link the company to the user manually. This allows
+     * us to decouple a $user and their attached companies.
+     */
     public function setCompany($company)
     {
         config(['ninja.company_id' => $company->id]);
-        
+
         $this->company = $company;
     }
 
     /**
-     * Returns the currently set Company
+     * Returns the currently set Company.
      */
     public function getCompany()
     {
@@ -169,7 +167,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns the current company
+     * Returns the current company.
      *
      * @return Collection
      */
@@ -192,11 +190,11 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function company_user()
     {
-        if (!$this->id && auth()->user()) {
+        if (! $this->id && auth()->user()) {
             $this->id = auth()->user()->id;
         }
 
-          return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
+        return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
             ->where('company_user.user_id', $this->id)
             ->withTrashed();
 
@@ -214,7 +212,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns the currently set company id for the user
+     * Returns the currently set company id for the user.
      *
      * @return int
      */
@@ -229,7 +227,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns a comma separated list of user permissions
+     * Returns a comma separated list of user permissions.
      *
      * @return comma separated list
      */
@@ -239,7 +237,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns a object of User Settings
+     * Returns a object of User Settings.
      *
      * @return stdClass
      */
@@ -249,7 +247,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns a boolean of the administrator status of the user
+     * Returns a boolean of the administrator status of the user.
      *
      * @return bool
      */
@@ -264,7 +262,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns all user created contacts
+     * Returns all user created contacts.
      *
      * @return Collection
      */
@@ -274,7 +272,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns a boolean value if the user owns the current Entity
+     * Returns a boolean value if the user owns the current Entity.
      *
      * @param  string Entity
      * @return bool
@@ -285,7 +283,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Returns a boolean value if the user is assigned to the current Entity
+     * Returns a boolean value if the user is assigned to the current Entity.
      *
      * @param  string Entity
      * @return bool
@@ -295,20 +293,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return ! empty($entity->assigned_user_id) && $entity->assigned_user_id == $this->id;
     }
 
-
     /**
-     * Returns true if permissions exist in the map
+     * Returns true if permissions exist in the map.
      *
      * @param  string permission
-     * @return boolean
+     * @return bool
      */
     public function hasPermission($permission) : bool
     {
-        $parts = explode("_", $permission);
+        $parts = explode('_', $permission);
         $all_permission = '';
 
         if (count($parts) > 1) {
-            $all_permission = $parts[0] . '_all';
+            $all_permission = $parts[0].'_all';
         }
 
         return  $this->isOwner() ||
@@ -338,7 +335,6 @@ class User extends Authenticatable implements MustVerifyEmail
         }
     }
 
-
     public function routeNotificationForMail($notification)
     {
         return $this->email;
@@ -350,7 +346,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  mixed  $value
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function resolveRouteBinding($value)
+    public function resolveRouteBinding($value, $field = NULL)
     {
         return $this
             ->withTrashed()

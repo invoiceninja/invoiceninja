@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -53,7 +53,7 @@ class MarkSent extends AbstractService
         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance);
 
         event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars()));
-        
+
         return $this->invoice->fresh();
     }
 }

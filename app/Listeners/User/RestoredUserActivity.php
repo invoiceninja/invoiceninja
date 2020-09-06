@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,6 +20,7 @@ use Illuminate\Queue\InteractsWithQueue;
 class RestoredUserActivity implements ShouldQueue
 {
     protected $activityRepo;
+
     /**
      * Create the event listener.
      *
@@ -47,7 +48,7 @@ class RestoredUserActivity implements ShouldQueue
         } else {
             $fields->user_id = $event->user->id;
         }
-        
+
         $fields->company_id = $event->user->company_id;
         $fields->activity_type_id = Activity::RESTORE_USER;
 

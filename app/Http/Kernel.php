@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -29,6 +29,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\TrustProxies::class,
+        \Fruitcake\Cors\HandleCors::class,
              \App\Http\Middleware\Cors::class,
 
     ];
@@ -55,7 +56,7 @@ class Kernel extends HttpKernel
             'bindings',
             'query_logging',
             \App\Http\Middleware\StartupCheck::class,
-#            \App\Http\Middleware\Cors::class,
+//            \App\Http\Middleware\Cors::class,
         ],
         'contact' => [
             'throttle:60,1',

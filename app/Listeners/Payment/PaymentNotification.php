@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Notification;
 class PaymentNotification implements ShouldQueue
 {
     use UserNotifies;
+
     /**
      * Create the event listener.
      *
@@ -44,16 +45,16 @@ class PaymentNotification implements ShouldQueue
      */
     public function handle($event)
     {
-         MultiDB::setDb($event->company->db);
+        MultiDB::setDb($event->company->db);
 
-       $payment = $event->payment;
+        $payment = $event->payment;
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
-
-            if($company_user->is_migrating)
+            if ($company_user->is_migrating) {
                 return true;
-            
+            }
+
             $user = $company_user->user;
 
             $methods = $this->findUserEntityNotificationType($payment, $company_user, ['all_notifications']);
@@ -65,7 +66,7 @@ class PaymentNotification implements ShouldQueue
                 //This allows us better control of how we
                 //handle the mailer
 
-                EntityPaidMailer::dispatch($payment, $user, $payment->company); 
+                EntityPaidMailer::dispatch($payment, $user, $payment->company);
             }
 
             $notification = new NewPaymentNotification($payment, $payment->company);
@@ -99,7 +100,7 @@ class PaymentNotification implements ShouldQueue
 
         $client = $payment->client;
         $amount = $payment->amount;
-        
+
         if ($invoice) {
             $items = $invoice->line_items;
             $item = end($items)->product_key;
@@ -117,10 +118,10 @@ class PaymentNotification implements ShouldQueue
 
         $base = "v=1&tid={$analytics_id}&cid={$client->id}&cu={$currency_code}&ti={$entity_number}";
 
-        $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
+        $url = $base."&t=transaction&ta=ninja&tr={$amount}";
         $this->sendAnalytics($url);
 
-        $url = $base . "&t=item&in={$item}&ip={$amount}&iq=1";
+        $url = $base."&t=item&in={$item}&ip={$amount}&iq=1";
         $this->sendAnalytics($url);
     }
 

@@ -119,7 +119,7 @@ class PdfMakerTest extends TestCase
                     'properties' => [],
                     'elements' => [
                         ['element' => 'thead', 'content' => '', 'elements' => [
-                            ['element' => 'th', 'content' => 'Company',],
+                            ['element' => 'th', 'content' => 'Company'],
                             ['element' => 'th', 'content' => 'Contact'],
                             ['element' => 'th', 'content' => 'Country', 'properties' => [
                                 'colspan' => 3,
@@ -185,7 +185,7 @@ class PdfMakerTest extends TestCase
             'template' => [
                 'header' => [
                     'id' => 'header',
-                    'properties' => ['hidden' => "true"],
+                    'properties' => ['hidden' => 'true'],
                 ],
             ],
         ]);
@@ -213,7 +213,7 @@ class PdfMakerTest extends TestCase
                     'elements' => [
                         ['element' => 'h1', 'content' => 'h1-element'],
                         ['element' => 'span', 'content' => 'span-element'],
-                    ]
+                    ],
                 ],
             ],
         ]);
@@ -240,7 +240,7 @@ class PdfMakerTest extends TestCase
                     'elements' => [
                         ['element' => 'h1', 'content' => 'h1-element', 'order' => 1],
                         ['element' => 'span', 'content' => 'span-element', 'order' => 0],
-                    ]
+                    ],
                 ],
             ],
         ]);
@@ -277,7 +277,7 @@ class PdfMakerTest extends TestCase
                                 ['element' => 'th', 'content' => 'Title', 'properties' => ['class' => 'px-4 py-2']],
                                 ['element' => 'th', 'content' => 'Author', 'properties' => ['class' => 'px-4 py-2']],
                                 ['element' => 'th', 'content' => 'Views', 'properties' => ['class' => 'px-4 py-2']],
-                            ]]
+                            ]],
                         ]],
                         ['element' => 'tbody', 'content' => '', 'elements' => [
                             ['element' => 'tr', 'content' => '', 'elements' => [
@@ -300,14 +300,14 @@ class PdfMakerTest extends TestCase
                             ]],
                         ]],
                     ],
-                ]
+                ],
             ],
             'variables' => [
                 'labels' => [],
                 'values' => [
                     '$title' => 'Invoice Ninja',
                 ],
-            ]
+            ],
         ];
 
         $design = new Design('example', ['custom_path' => base_path('tests/Feature/PdfMaker/')]);

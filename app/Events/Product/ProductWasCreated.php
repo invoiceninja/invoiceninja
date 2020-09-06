@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -29,12 +29,13 @@ class ProductWasCreated
     public $company;
 
     public $event_vars;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Product $product, $input = null, Company $company, array $event_vars)
+    public function __construct(Product $product, $input, Company $company, array $event_vars)
     {
         $this->product = $product;
         $this->input = $input;

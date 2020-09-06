@@ -29,7 +29,7 @@ $factory->define(App\Models\RecurringInvoice::class, function (Faker $faker) {
         'last_sent_date' => $faker->date(),
         'next_send_date' => $faker->date(),
         'remaining_cycles' => $faker->numberBetween(1, 10),
-        'amount' => $faker->randomFloat(2, $min = 1, $max = 1000) // 48.8932
+        'amount' => $faker->randomFloat(2, $min = 1, $max = 1000), // 48.8932
 
     ];
 });

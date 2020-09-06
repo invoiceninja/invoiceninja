@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,7 +20,7 @@ class CompanyLedger extends Model
     protected $guarded = [
         'id',
     ];
-    
+
     protected $casts = [
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
@@ -31,7 +31,7 @@ class CompanyLedger extends Model
 
     public function getEntityType()
     {
-        return CompanyLedger::class;
+        return self::class;
     }
 
     public function user()

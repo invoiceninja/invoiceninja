@@ -21,9 +21,8 @@ class EntitySentNotification extends Notification implements ShouldQueue
      *
      * @return void
      */
-    
     protected $invitation;
-    
+
     protected $entity;
 
     protected $entity_name;
@@ -95,13 +94,12 @@ class EntitySentNotification extends Notification implements ShouldQueue
             'logo' => $this->company->present()->logo(),
         ];
 
-
         return (new MailMessage)
                     ->subject($subject)
                     ->markdown('email.admin.generic', $data)
                     ->withSwiftMessage(function ($message) {
-                            $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
-                        });
+                        $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
+                    });
     }
 
     /**
@@ -131,7 +129,7 @@ class EntitySentNotification extends Notification implements ShouldQueue
                         [
                         'amount' => $amount,
                         'client' => $this->contact->present()->name(),
-                        'invoice' => $this->entity->number
+                        'invoice' => $this->entity->number,
                     ]
                     ))
                     ->attachment(function ($attachment) use ($amount) {

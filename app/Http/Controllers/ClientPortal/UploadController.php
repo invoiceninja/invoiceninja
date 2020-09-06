@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,9 +22,9 @@ class UploadController extends Controller
 
     /**
      * Main logic behind uploading the files.
-     * 
-     * @param \App\Http\Requests\ClientPortal\Uploads\StoreUploadRequest $request 
-     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory 
+     *
+     * @param \App\Http\Requests\ClientPortal\Uploads\StoreUploadRequest $request
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
      */
     public function __invoke(StoreUploadRequest $request)
     {

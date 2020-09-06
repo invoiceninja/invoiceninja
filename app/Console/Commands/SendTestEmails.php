@@ -70,8 +70,7 @@ class SendTestEmails extends Command
 
         $user = User::whereEmail('user@example.com')->first();
 
-
-        if (!$user) {
+        if (! $user) {
             $account = factory(\App\Models\Account::class)->create();
 
             $user = factory(\App\Models\User::class)->create([
@@ -81,8 +80,6 @@ class SendTestEmails extends Command
                 'first_name' => 'John',
                 'last_name' => 'Doe',
             ]);
-
-
 
             $company = factory(\App\Models\Company::class)->create([
                 'account_id' => $account->id,
@@ -103,12 +100,9 @@ class SendTestEmails extends Command
             $account = $company->account;
         }
 
-
-
         $client = Client::all()->first();
 
-
-        if (!$client) {
+        if (! $client) {
             $client = ClientFactory::create($company->id, $user->id);
             $client->save();
 

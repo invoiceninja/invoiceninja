@@ -22,7 +22,7 @@ class PaymentWebhookRequest extends FormRequest
 
     public function company()
     {
-        if (!$this->company_key) {
+        if (! $this->company_key) {
             return false;
         }
 
@@ -33,7 +33,7 @@ class PaymentWebhookRequest extends FormRequest
 
     public function companyGateway()
     {
-        if (!$this->gateway_key || !$this->company_key) {
+        if (! $this->gateway_key || ! $this->company_key) {
             return false;
         }
 

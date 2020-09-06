@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,9 +28,7 @@ use App\Utils\Traits\SystemLogTrait;
 use Illuminate\Support\Carbon;
 
 /**
- * Class BaseDriver
- * @package App\PaymentDrivers
- *
+ * Class BaseDriver.
  */
 class BaseDriver extends AbstractPaymentDriver
 {
@@ -76,50 +74,56 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  const $payment_method the GatewayType::constant
      * @return view                 Return a view for collecting payment method information
      */
-    public function authorize($payment_method) {}
-    
-    /**
-     * Executes purchase attempt for a given amount
-     * 
-     * @param  float   $amount                 The amount to be collected
-     * @param  boolean $return_client_response Whether the method needs to return a response (otherwise we assume an unattended payment)
-     * @return mixed                          
-     */
-    public function purchase($amount, $return_client_response = false) {}
+    public function authorize($payment_method)
+    {
+    }
 
     /**
-     * Executes a refund attempt for a given amount with a transaction_reference
-     * 
+     * Executes purchase attempt for a given amount.
+     *
+     * @param  float   $amount                 The amount to be collected
+     * @param  bool $return_client_response Whether the method needs to return a response (otherwise we assume an unattended payment)
+     * @return mixed
+     */
+    public function purchase($amount, $return_client_response = false)
+    {
+    }
+
+    /**
+     * Executes a refund attempt for a given amount with a transaction_reference.
+     *
      * @param  Payment $payment                The Payment Object
      * @param  float   $amount                 The amount to be refunded
-     * @param  boolean $return_client_response Whether the method needs to return a response (otherwise we assume an unattended payment)
-     * @return mixed                          
+     * @param  bool $return_client_response Whether the method needs to return a response (otherwise we assume an unattended payment)
+     * @return mixed
      */
-    public function refund(Payment $payment, $amount, $return_client_response = false) {}
+    public function refund(Payment $payment, $amount, $return_client_response = false)
+    {
+    }
 
     /**
      * Set the inbound request payment method type for access.
-     * 
+     *
      * @param int $payment_method_id The Payment Method ID
      */
-    public function setPaymentMethod($payment_method_id){}
+    public function setPaymentMethod($payment_method_id)
+    {
+    }
 
     /**
-     * Helper method to attach invoices to a payment
-     * 
+     * Helper method to attach invoices to a payment.
+     *
      * @param  Payment $payment    The payment
      * @param  array  $hashed_ids  The array of invoice hashed_ids
      * @return Payment             The payment object
      */
-    
     public function attachInvoices(Payment $payment, PaymentHash $payment_hash): Payment
     {
-
         $paid_invoices = $payment_hash->invoices();
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
         $payment->invoices()->sync($invoices);
 
-        $invoices->each(function ($invoice) use($payment){
+        $invoices->each(function ($invoice) use ($payment) {
             event(new InvoiceWasPaid($invoice, $payment->company, Ninja::eventVars()));
         });
 
@@ -127,8 +131,8 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     /**
-     * Create a payment from an online payment
-     * 
+     * Create a payment from an online payment.
+     *
      * @param  array $data     Payment data
      * @param  int   $status   The payment status_id
      * @return Payment         The payment object
@@ -146,18 +150,20 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     /**
-     * Process an unattended payment
-     * 
+     * Process an unattended payment.
+     *
      * @param  ClientGatewayToken $cgt           The client gateway token object
      * @param  PaymentHash        $payment_hash  The Payment hash containing the payment meta data
      * @return Response                          The payment response
      */
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) {}
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    {
+    }
 
     /**
      * When a successful payment is made, we need to append the gateway fee
-     * to an invoice
-     *    
+     * to an invoice.
+     *
      * @param  PaymentResponseRequest $request The incoming payment request
      * @return void                            Success/Failure
      */
@@ -168,25 +174,22 @@ class BaseDriver extends AbstractPaymentDriver
 
         /*Payment invoices*/
         $payment_invoices = $payment_hash->invoices();
-        
+
         // /*Fee charged at gateway*/
         $fee_total = $payment_hash->fee_total;
 
         // Sum of invoice amounts
         // $invoice_totals = array_sum(array_column($payment_invoices,'amount'));
-        
+
         /*Hydrate invoices*/
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->get();
 
-        $invoices->each(function($invoice) use($fee_total){
-
-            if(collect($invoice->line_items)->contains('type_id', '3')){
+        $invoices->each(function ($invoice) use ($fee_total) {
+            if (collect($invoice->line_items)->contains('type_id', '3')) {
                 $invoice->service()->toggleFeesPaid()->save();
                 $invoice->client->service()->updateBalance($fee_total)->save();
                 $invoice->ledger()->updateInvoiceBalance($fee_total, $notes = 'Gateway fee adjustment');
             }
-            
         });
-
     }
 }

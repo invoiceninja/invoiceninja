@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -17,7 +17,7 @@ use App\Models\Client;
 use App\Utils\TranslationHelper;
 
 /**
- * ClientSettings
+ * ClientSettings.
  *
  * Client settings are built as a superset of Company Settings
  *
@@ -25,13 +25,11 @@ use App\Utils\TranslationHelper;
  *
  * Client settings are passed down to the entity level where they can be further customized and then saved
  * into the settings column of the entity, so there is no need to create additional entity level settings handlers.
- *
  */
 class ClientSettings extends BaseSettings
 {
-
     /**
-     * Settings which which are unique to client settings
+     * Settings which which are unique to client settings.
      */
     public $industry_id;
     public $size_id;
@@ -40,11 +38,11 @@ class ClientSettings extends BaseSettings
         'industry_id' => 'string',
         'size_id' => 'string',
     ];
-    
+
     /**
      * Cast object values and return entire class
      * prevents missing properties from not being returned
-     * and always ensure an up to date class is returned
+     * and always ensure an up to date class is returned.
      *
      * @return \stdClass
      */
@@ -54,16 +52,14 @@ class ClientSettings extends BaseSettings
     }
 
     /**
-     *
-     * Default Client Settings scaffold
+     * Default Client Settings scaffold.
      *
      * @return \stdClass
-     *
      */
     public static function defaults() : \stdClass
     {
-        $data = (object)[
-            'entity' => (string)Client::class,
+        $data = (object) [
+            'entity' => (string) Client::class,
             'industry_id' => '',
             'size_id' => '',
         ];
@@ -71,9 +67,8 @@ class ClientSettings extends BaseSettings
         return self::setCasts($data, self::$casts);
     }
 
-
     /**
-     * Merges settings from Company to Client
+     * Merges settings from Company to Client.
      *
      * @param  \stdClass $company_settings
      * @param  \stdClass $client_settings
@@ -81,21 +76,21 @@ class ClientSettings extends BaseSettings
      */
     public static function buildClientSettings($company_settings, $client_settings)
     {
-        if (!$client_settings) {
+        if (! $client_settings) {
             return $company_settings;
         }
-        
+
         foreach ($company_settings as $key => $value) {
             /* pseudo code
                 if the property exists and is a string BUT has no length, treat it as TRUE
             */
-            if (((property_exists($client_settings, $key) && is_string($client_settings->{$key}) && (iconv_strlen($client_settings->{$key}) <1)))
-                || !isset($client_settings->{$key})
+            if (((property_exists($client_settings, $key) && is_string($client_settings->{$key}) && (iconv_strlen($client_settings->{$key}) < 1)))
+                || ! isset($client_settings->{$key})
                 && property_exists($company_settings, $key)) {
                 $client_settings->{$key} = $company_settings->{$key};
             }
         }
-        
+
         return $client_settings;
     }
 }

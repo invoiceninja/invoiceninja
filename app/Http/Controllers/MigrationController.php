@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -11,16 +11,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
-use App\Models\CompanyToken;
+use App\Console\Commands\ImportMigrations;
 use App\DataMapper\CompanySettings;
 use App\Jobs\Util\StartMigration;
 use App\Mail\ExistingMigration;
-use Illuminate\Support\Str;
+use App\Models\Company;
+use App\Models\CompanyToken;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use App\Console\Commands\ImportMigrations;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Str;
 
 class MigrationController extends BaseController
 {
@@ -32,8 +32,7 @@ class MigrationController extends BaseController
     }
 
     /**
-     *
-     * Purge Company
+     * Purge Company.
      *
      * @OA\Post(
      *      path="/api/v1/migration/purge/{company}",
@@ -76,32 +75,26 @@ class MigrationController extends BaseController
      */
     public function purgeCompany(Company $company)
     {
-
         $account = $company->account;
         $company_id = $company->id;
 
         $company->delete();
 
         /*Update the new default company if necessary*/
-        if($company_id == $account->default_company_id && $account->companies->count() >= 1)
-        {
-            
+        if ($company_id == $account->default_company_id && $account->companies->count() >= 1) {
             $new_default_company = $account->companies->first();
 
-            if($new_default_company){
+            if ($new_default_company) {
                 $account->default_company_id = $new_default_company->id;
                 $account->save();
             }
-
         }
 
         return response()->json(['message' => 'Company purged'], 200);
     }
 
-
     /**
-     *
-     * Purge Company but save settings
+     * Purge Company but save settings.
      *
      * @OA\Post(
      *      path="/api/v1/migration/purge_save_settings/{company}",
@@ -144,18 +137,16 @@ class MigrationController extends BaseController
      */
     public function purgeCompanySaveSettings(Request $request, Company $company)
     {
-
         $company->clients()->forceDelete();
         $company->products()->forceDelete();
-        
+
         $company->save();
 
         return response()->json(['message' => 'Settings preserved'], 200);
     }
 
     /**
-     *
-     * Start the migration from V1
+     * Start the migration from V1.
      *
      * @OA\Post(
      *      path="/api/v1/migration/start",
@@ -213,15 +204,16 @@ class MigrationController extends BaseController
         $checks = [
             'same_keys' => $request->company_key == $company->company_key,
             'existing_company' => (bool) $existing_company,
-            'with_force' => (bool) ($request->has('force') && !empty($request->force)),
+            'with_force' => (bool) ($request->has('force') && ! empty($request->force)),
         ];
 
         // If same company keys, and force provided.
-        if ($checks['same_keys'] && $checks['with_force']) { 
+        if ($checks['same_keys'] && $checks['with_force']) {
             info('Migrating: Same company keys, with force.');
 
-            if($company)
+            if ($company) {
                 $this->purgeCompany($company);
+            }
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
@@ -250,7 +242,7 @@ class MigrationController extends BaseController
         }
 
         // If keys are same and no force has been provided.
-        if ($checks['same_keys'] && !$checks['with_force']) {
+        if ($checks['same_keys'] && ! $checks['with_force']) {
             info('Migrating: Same company keys, no force provided.');
 
             Mail::to($user)->send(new ExistingMigration());
@@ -263,7 +255,7 @@ class MigrationController extends BaseController
         }
 
         // If keys ain't same, but existing company without force.
-        if (!$checks['same_keys'] && $checks['existing_company'] && !$checks['with_force']) {
+        if (! $checks['same_keys'] && $checks['existing_company'] && ! $checks['with_force']) {
             info('Migrating: Different keys, existing company with the key without the force option.');
 
             Mail::to($user)->send(new ExistingMigration());
@@ -276,18 +268,18 @@ class MigrationController extends BaseController
         }
 
         // If keys ain't same, but existing company with force.
-        if (!$checks['same_keys'] && $checks['existing_company'] && $checks['with_force']) {
+        if (! $checks['same_keys'] && $checks['existing_company'] && $checks['with_force']) {
             info('Migrating: Different keys, exisiting company with force option.');
 
-            if($company)
+            if ($company) {
                 $this->purgeCompany($company);
+            }
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
 
             $account->default_company_id = $company->id;
             $account->save();
-            
 
             $company_token = new CompanyToken();
             $company_token->user_id = $user->id;
@@ -295,7 +287,7 @@ class MigrationController extends BaseController
             $company_token->account_id = $account->id;
             $company_token->name = $request->token_name ?? Str::random(12);
             $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
-                    $company_token->is_system = true;
+            $company_token->is_system = true;
 
             $company_token->save();
 
@@ -311,26 +303,26 @@ class MigrationController extends BaseController
         }
 
         // If keys ain't same, but with force.
-        if (!$checks['same_keys'] && $checks['with_force']) {
+        if (! $checks['same_keys'] && $checks['with_force']) {
             info('Migrating: Different keys with force.');
 
-            if($existing_company)
+            if ($existing_company) {
                 $this->purgeCompany($existing_company);
+            }
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
 
             $account->default_company_id = $company->id;
             $account->save();
-            
-            
+
             $company_token = new CompanyToken();
             $company_token->user_id = $user->id;
             $company_token->company_id = $company->id;
             $company_token->account_id = $account->id;
             $company_token->name = $request->token_name ?? Str::random(12);
             $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
-                    $company_token->is_system = true;
+            $company_token->is_system = true;
 
             $company_token->save();
 
@@ -346,7 +338,7 @@ class MigrationController extends BaseController
         }
 
         // If keys ain't same, fresh migrate.
-        if (!$checks['same_keys'] && !$checks['with_force']) {
+        if (! $checks['same_keys'] && ! $checks['with_force']) {
             info('Migrating: Vanilla, fresh migrate.');
 
             $account = auth()->user()->account;
@@ -358,7 +350,7 @@ class MigrationController extends BaseController
             $company_token->account_id = $account->id;
             $company_token->name = $request->token_name ?? Str::random(12);
             $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
-                    $company_token->is_system = true;
+            $company_token->is_system = true;
 
             $company_token->save();
 
@@ -379,7 +371,7 @@ class MigrationController extends BaseController
         if (app()->environment() == 'testing') {
             return;
         }
-        
+
         StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $company)->delay(now()->addSeconds(60));
 
         return response()->json([

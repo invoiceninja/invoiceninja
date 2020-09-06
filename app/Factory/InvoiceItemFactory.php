@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -43,7 +43,7 @@ class InvoiceItemFactory
     }
 
     /**
-     * Generates an array of dummy data for invoice items
+     * Generates an array of dummy data for invoice items.
      * @param  int    $items Number of line items to create
      * @return array        array of objects
      */
@@ -53,7 +53,7 @@ class InvoiceItemFactory
 
         $data = [];
 
-        for ($x=0; $x<$items; $x++) {
+        for ($x = 0; $x < $items; $x++) {
             $item = self::create();
             $item->quantity = $faker->numberBetween(1, 10);
             $item->cost = $faker->randomFloat(2, 1, 1000);
@@ -68,15 +68,15 @@ class InvoiceItemFactory
             $item->custom_value4 = $faker->realText(10);
             $item->tax_name1 = 'GST';
             $item->tax_rate1 = 10.00;
-            
+
             $data[] = $item;
         }
-        
+
         return $data;
     }
 
     /**
-     * Generates an array of dummy data for invoice items
+     * Generates an array of dummy data for invoice items.
      * @param  int    $items Number of line items to create
      * @return array        array of objects
      */
@@ -86,7 +86,7 @@ class InvoiceItemFactory
 
         $data = [];
 
-        for ($x=0; $x<$items; $x++) {
+        for ($x = 0; $x < $items; $x++) {
             $item = self::create();
             $item->quantity = $faker->numberBetween(-1, -10);
             $item->cost = $faker->randomFloat(2, -1, -1000);
@@ -101,10 +101,10 @@ class InvoiceItemFactory
             $item->custom_value4 = $faker->realText(10);
             $item->tax_name1 = 'GST';
             $item->tax_rate1 = 10.00;
-            
+
             $data[] = $item;
         }
-        
+
         return $data;
     }
 }

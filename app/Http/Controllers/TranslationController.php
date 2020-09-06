@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,8 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Class TranslationController
- * @package App\Http\Controllers
+ * Class TranslationController.
  */
 class TranslationController extends BaseController
 {
@@ -24,7 +23,7 @@ class TranslationController extends BaseController
     {
         parent::__construct();
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -35,11 +34,11 @@ class TranslationController extends BaseController
         $strings = Cache::rememberForever('lang.js', function () {
             $lang = config('app.locale');
 
-            $files   = glob(resource_path('lang/' . $lang . '/*.php'));
+            $files = glob(resource_path('lang/'.$lang.'/*.php'));
             $strings = [];
 
             foreach ($files as $file) {
-                $name           = basename($file, '.php');
+                $name = basename($file, '.php');
                 $strings[$name] = require $file;
             }
 
@@ -47,13 +46,13 @@ class TranslationController extends BaseController
         });
 
         header('Content-Type: text/javascript');
-        echo('i18n = ' . $this->easyMinify(json_encode($strings)) . ';');
+        echo 'i18n = '.$this->easyMinify(json_encode($strings)).';';
         exit();
     }
 
     private function easyMinify($javascript)
     {
-        return preg_replace(array("/\s+\n/", "/\n\s+/", "/ +/"), array("\n", "\n ", " "), $javascript);
+        return preg_replace(["/\s+\n/", "/\n\s+/", '/ +/'], ["\n", "\n ", ' '], $javascript);
     }
 
     /**

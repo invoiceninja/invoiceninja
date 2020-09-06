@@ -9,7 +9,7 @@ $factory->define(App\Models\Credit::class, function (Faker $faker) {
     return [
         'status_id' => App\Models\Credit::STATUS_DRAFT,
         'discount' => $faker->numberBetween(1, 10),
-        'is_amount_discount' => (bool)random_int(0, 1),
+        'is_amount_discount' => (bool) random_int(0, 1),
         'tax_name1' => 'GST',
         'tax_rate1' => 10,
         'tax_name2' => 'VAT',

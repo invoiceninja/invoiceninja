@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,7 +21,7 @@ use App\Transformers\VendorGatewayTokenTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
- * class VendorTransformer
+ * class VendorTransformer.
  */
 class VendorTransformer extends EntityTransformer
 {
@@ -37,7 +37,6 @@ class VendorTransformer extends EntityTransformer
     protected $availableIncludes = [
         'activities',
     ];
-
 
     /**
      * @param Vendor $vendor
@@ -77,14 +76,14 @@ class VendorTransformer extends EntityTransformer
             'name' => $vendor->name ?: '',
             'website' => $vendor->website ?: '',
             'private_notes' => $vendor->private_notes ?: '',
-            'last_login' => (int)$vendor->last_login,
+            'last_login' => (int) $vendor->last_login,
             'address1' => $vendor->address1 ?: '',
             'address2' => $vendor->address2 ?: '',
             'phone' => $vendor->phone ?: '',
             'city' => $vendor->city ?: '',
             'state' => $vendor->state ?: '',
             'postal_code' => $vendor->postal_code ?: '',
-            'country_id' => (string)$vendor->country_id ?: '',
+            'country_id' => (string) $vendor->country_id ?: '',
             'custom_value1' => $vendor->custom_value1 ?: '',
             'custom_value2' => $vendor->custom_value2 ?: '',
             'custom_value3' => $vendor->custom_value3 ?: '',
@@ -92,9 +91,9 @@ class VendorTransformer extends EntityTransformer
             'is_deleted' => (bool) $vendor->is_deleted,
             'vat_number' => $vendor->vat_number ?: '',
             'id_number' => $vendor->id_number ?: '',
-            'updated_at' => (int)$vendor->updated_at,
-            'archived_at' => (int)$vendor->deleted_at,
-            'created_at' => (int)$vendor->created_at,
+            'updated_at' => (int) $vendor->updated_at,
+            'archived_at' => (int) $vendor->deleted_at,
+            'created_at' => (int) $vendor->created_at,
         ];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,13 +15,12 @@ use App\Models\Expense;
 use App\Models\User;
 
 /**
- * Class ExpensePolicy
- * @package App\Policies
+ * Class ExpensePolicy.
  */
 class ExpensePolicy extends EntityPolicy
 {
     /**
-     *  Checks if the user has create permissions
+     *  Checks if the user has create permissions.
      *
      * @param  User $user
      * @return bool

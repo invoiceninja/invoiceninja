@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
 class Document extends BaseModel
 {
     use SoftDeletes;
-    
+
     const DOCUMENT_PREVIEW_SIZE = 300; // pixels
 
     /**
@@ -28,7 +28,6 @@ class Document extends BaseModel
         'is_default',
         'is_public',
     ];
-
 
     /**
      * @var array
@@ -91,7 +90,7 @@ class Document extends BaseModel
 
     public function getEntityType()
     {
-        return Document::class;
+        return self::class;
     }
 
     public function documentable()
@@ -116,7 +115,7 @@ class Document extends BaseModel
 
     public function generateRoute($absolute = false)
     {
-        return route('api.documents.show', ['document' => $this->hashed_id]) . '/download';
+        return route('api.documents.show', ['document' => $this->hashed_id]).'/download';
     }
 
     public function deleteFile()

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -31,8 +31,9 @@ class MethodDeleted
     private $payment_method;
 
     public $company;
-    
+
     public $event_vars;
+
     /**
      * Create a new event instance.
      *
@@ -42,7 +43,7 @@ class MethodDeleted
     {
         $this->payment_method = $payment_method;
         $this->company = $company;
-        $this->event_vars  = $event_vars;
+        $this->event_vars = $event_vars;
     }
 
     /**

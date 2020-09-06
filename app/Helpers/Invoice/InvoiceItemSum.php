@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -58,8 +58,9 @@ class InvoiceItemSum
 
     public function process()
     {
-        if (!$this->invoice->line_items || !isset($this->invoice->line_items) || !is_array($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
+        if (! $this->invoice->line_items || ! isset($this->invoice->line_items) || ! is_array($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
             $this->items = [];
+
             return $this;
         }
 
@@ -93,6 +94,7 @@ class InvoiceItemSum
     private function sumLineItem()
     {   //todo need to support quantities less than the precision amount
         $this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
+
         return $this;
     }
 
@@ -113,7 +115,7 @@ class InvoiceItemSum
     {
         $item_tax = 0;
 
-        $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/100));
+        $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
         $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 
         $item_tax += $item_tax_rate1_total;
@@ -121,7 +123,7 @@ class InvoiceItemSum
         if ($item_tax_rate1_total > 0) {
             $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
         }
-        
+
         $item_tax_rate2_total = $this->calcAmountLineTax($this->item->tax_rate2, $amount);
 
         $item_tax += $item_tax_rate2_total;
@@ -138,7 +140,6 @@ class InvoiceItemSum
             $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
         }
 
-
         $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
         return $this;
@@ -148,9 +149,9 @@ class InvoiceItemSum
     {
         $group_tax = [];
 
-        $key = str_replace(" ", "", $tax_name.$tax_rate);
+        $key = str_replace(' ', '', $tax_name.$tax_rate);
 
-        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . $tax_rate.'%'];
+        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name.' '.$tax_rate.'%'];
 
         $this->tax_collection->push(collect($group_tax));
     }
@@ -204,12 +205,12 @@ class InvoiceItemSum
     public function setSubTotal($value)
     {
         $this->sub_total = $value;
+
         return $this;
     }
 
-
     /**
-     * Invoice Amount Discount
+     * Invoice Amount Discount.
      *
      * The problem, when calculating invoice level discounts,
      * the tax collected changes.
@@ -218,7 +219,6 @@ class InvoiceItemSum
      * and recalculate the taxes and then pass back
      * the updated map
      */
-    
     public function calcTaxesWithAmountDiscount()
     {
         $this->setGroupedTaxes(collect([]));
@@ -230,7 +230,7 @@ class InvoiceItemSum
                 continue;
             }
 
-            $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/$this->sub_total));
+            $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
             $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 
             $item_tax += $item_tax_rate1_total;
@@ -238,7 +238,7 @@ class InvoiceItemSum
             if ($item_tax_rate1_total > 0) {
                 $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
             }
-        
+
             $item_tax_rate2_total = $this->calcAmountLineTax($this->item->tax_rate2, $amount);
 
             $item_tax += $item_tax_rate2_total;
@@ -260,21 +260,20 @@ class InvoiceItemSum
     }
 
     /**
-     * Sets default values for the line_items
+     * Sets default values for the line_items.
      * @return $this
      */
     private function cleanLineItem()
     {
-        $invoice_item = (object)get_class_vars(InvoiceItem::class);
+        $invoice_item = (object) get_class_vars(InvoiceItem::class);
         unset($invoice_item->casts);
 
         foreach ($invoice_item as $key => $value) {
-            if (!property_exists($this->item, $key) || !isset($this->item->{$key})) {
+            if (! property_exists($this->item, $key) || ! isset($this->item->{$key})) {
                 $this->item->{$key} = $value;
                 $this->item->{$key} = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $value);
             }
         }
-
 
         return $this;
     }

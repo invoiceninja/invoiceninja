@@ -2,8 +2,8 @@
 
 namespace App\Jobs\Util;
 
-use GuzzleHttp\RequestOptions;
 use App\Transformers\ArraySerializer;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -25,7 +25,6 @@ class WebhookHandler implements ShouldQueue
      *
      * @return void
      */
-
     public function __construct($event_id, $entity)
     {
         $this->event_id = $event_id;
@@ -39,24 +38,25 @@ class WebhookHandler implements ShouldQueue
      */
     public function handle() :bool
     {
-
-        if(!$this->entity->company || $this->entity->company->company_users->first()->is_migrating == true)
+        if (! $this->entity->company || $this->entity->company->company_users->first()->is_migrating == true) {
             return true;
+        }
 
         $subscriptions = \App\Models\Webhook::where('company_id', $this->entity->company_id)
                                     ->where('event_id', $this->event_id)
                                     ->get();
 
-        if(!$subscriptions || $subscriptions->count() == 0)
+        if (! $subscriptions || $subscriptions->count() == 0) {
             return true;
+        }
 
-        $subscriptions->each(function($subscription) {
+        $subscriptions->each(function ($subscription) {
             $this->process($subscription);
         });
 
         return true;
-
     }
+
     private function process($subscription)
     {
         // generate JSON data
@@ -75,16 +75,15 @@ class WebhookHandler implements ShouldQueue
 
     private function postData($subscription, $data, $headers = [])
     {
-
         $base_headers = [
             'Content-Length' => strlen(json_encode($data)),
-            'Accept'         => 'application/json'
+            'Accept'         => 'application/json',
         ];
 
         $client = new \GuzzleHttp\Client(['headers' => array_merge($base_headers, $headers)]);
 
         $response = $client->post($subscription->target_url, [
-                        RequestOptions::JSON => $data // or 'json' => [...]
+                        RequestOptions::JSON => $data, // or 'json' => [...]
                     ]);
 
         if ($response->getStatusCode() == 410 || $response->getStatusCode() == 200) {
@@ -94,9 +93,6 @@ class WebhookHandler implements ShouldQueue
 
     public function failed($exception)
     {
-
-        info(print_r($exception->getMessage(),1));
-
+        info(print_r($exception->getMessage(), 1));
     }
 }
-                             

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://creditninja.com)
+ * Invoice Ninja (https://creditninja.com).
  *
  * @link https://github.com/creditninja/creditninja source repository
  *
@@ -47,12 +47,12 @@ class CreateCreditInvitation implements ShouldQueue
                                         ->whereCreditId($credit->id)
                                         ->first();
 
-            if (!$invitation && $contact->send_credit) {
+            if (! $invitation && $contact->send_credit) {
                 $ii = CreditInvitationFactory::create($credit->company_id, $credit->user_id);
                 $ii->credit_id = $credit->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send_credit) {
+            } elseif ($invitation && ! $contact->send_credit) {
                 $invitation->delete();
             }
         });

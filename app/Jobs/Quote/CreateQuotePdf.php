@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -69,22 +69,23 @@ class CreateQuotePdf implements ShouldQueue
 
     public function handle()
     {
-        if(config('ninja.phantomjs_key'))
+        if (config('ninja.phantomjs_key')) {
             return (new Phantom)->generate($this->invitation);
+        }
 
         $this->quote->load('client');
 
         App::setLocale($this->contact->preferredLocale());
 
-        $path       = $this->quote->client->quote_filepath();
+        $path = $this->quote->client->quote_filepath();
 
         $quote_design_id = $this->quote->design_id ? $this->quote->design_id : $this->decodePrimaryKey($this->quote->client->getSetting('quote_design_id'));
 
-        $design     = Design::find($quote_design_id);
+        $design = Design::find($quote_design_id);
 
         $html = new HtmlEngine(null, $this->invitation, 'quote');
 
-        $design_namespace = 'App\Services\PdfMaker\Designs\\' . $design->name;
+        $design_namespace = 'App\Services\PdfMaker\Designs\\'.$design->name;
 
         $design_class = new $design_namespace();
 
@@ -94,7 +95,7 @@ class CreateQuotePdf implements ShouldQueue
             'template' => $design_class->elements([
                 'client' => $this->quote->client,
                 'entity' => $this->quote,
-                'pdf_variables' => (array)$this->quote->company->settings->pdf_variables,
+                'pdf_variables' => (array) $this->quote->company->settings->pdf_variables,
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'options' => [
@@ -111,10 +112,10 @@ class CreateQuotePdf implements ShouldQueue
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0775);
-        
-        $pdf       = $this->makePdf(null, null, $maker->getCompiledHTML());
 
-        $file_path = $path . $this->quote->number . '.pdf';
+        $pdf = $this->makePdf(null, null, $maker->getCompiledHTML());
+
+        $file_path = $path.$this->quote->number.'.pdf';
 
         $instance = Storage::disk($this->disk)->put($file_path, $pdf);
 

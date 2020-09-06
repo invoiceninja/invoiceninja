@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -17,8 +17,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class ValidRefundableInvoices
- * @package App\Http\ValidationRules
+ * Class ValidRefundableInvoices.
  */
 class ValidRefundableInvoices implements Rule
 {
@@ -29,7 +28,6 @@ class ValidRefundableInvoices implements Rule
      * @param mixed $value
      * @return bool
      */
-    
     private $error_msg;
 
     private $input;
@@ -39,19 +37,19 @@ class ValidRefundableInvoices implements Rule
         $this->input = $input;
     }
 
-
-
     public function passes($attribute, $value)
     {
-        if (!array_key_exists('id', $this->input)) {
-            $this->error_msg = "Payment `id` required.";
+        if (! array_key_exists('id', $this->input)) {
+            $this->error_msg = 'Payment `id` required.';
+
             return false;
         }
 
         $payment = Payment::whereId($this->input['id'])->first();
 
-        if (!$payment) {
+        if (! $payment) {
             $this->error_msg = "Payment couldn't be retrieved cannot be refunded ";
+
             return false;
         }
 
@@ -72,10 +70,10 @@ class ValidRefundableInvoices implements Rule
 
         foreach ($invoices as $invoice) {
             if (! $invoice->isRefundable()) {
-                $this->error_msg = "Invoice id ".$invoice->hashed_id ." cannot be refunded";
+                $this->error_msg = 'Invoice id '.$invoice->hashed_id.' cannot be refunded';
+
                 return false;
             }
-
 
             foreach ($this->input['invoices'] as $val) {
                 if ($val['invoice_id'] == $invoice->id) {
@@ -84,7 +82,8 @@ class ValidRefundableInvoices implements Rule
                     $pivot_record = $payment->paymentables->where('paymentable_id', $invoice->id)->first();
 
                     if ($val['amount'] > ($pivot_record->amount - $pivot_record->refunded)) {
-                        $this->error_msg = "Attempting to refund ". $val['amount'] ." only ".($pivot_record->amount - $pivot_record->refunded)." available for refund";
+                        $this->error_msg = 'Attempting to refund '.$val['amount'].' only '.($pivot_record->amount - $pivot_record->refunded).' available for refund';
+
                         return false;
                     }
                 }

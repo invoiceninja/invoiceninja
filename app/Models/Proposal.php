@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -26,7 +26,7 @@ class Proposal extends BaseModel
 
     public function getEntityType()
     {
-        return Proposal::class;
+        return self::class;
     }
 
     protected $appends = ['proposal_id'];

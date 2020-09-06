@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,12 +14,10 @@ namespace App\Http\ValidationRules\Company;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class ValidCompanyQuantity
- * @package App\Http\ValidationRules\Company
+ * Class ValidCompanyQuantity.
  */
 class ValidCompanyQuantity implements Rule
 {
-
     /**
      * @param string $attribute
      * @param mixed $value
@@ -35,6 +33,6 @@ class ValidCompanyQuantity implements Rule
      */
     public function message()
     {
-        return "Limit of 10 companies per account.";
+        return 'Limit of 10 companies per account.';
     }
 }

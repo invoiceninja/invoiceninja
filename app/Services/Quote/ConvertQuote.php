@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -38,7 +38,7 @@ class ConvertQuote
 
         $invoice->fresh();
 
-            $invoice->service()
+        $invoice->service()
                 ->markSent()
                 ->createInvitations()
                 ->save();
@@ -46,7 +46,7 @@ class ConvertQuote
         $quote->invoice_id = $invoice->id;
         $quote->status_id = Quote::STATUS_CONVERTED;
         $quote->save();
-        
+
         // maybe should return invoice here
         return $invoice;
     }

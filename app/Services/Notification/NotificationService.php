@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -54,7 +54,7 @@ class NotificationService extends AbstractService
     public function run($is_system = false)
     {
         $this->company->owner()->notify($this->notification);
-    
+
         if ($is_system) {
             $this->notification->is_system = true;
 
@@ -64,7 +64,7 @@ class NotificationService extends AbstractService
     }
 
     /**
-     * Hosted notifications
+     * Hosted notifications.
      * @return void
      */
     public function ninja()

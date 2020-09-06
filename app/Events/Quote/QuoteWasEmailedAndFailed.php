@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -32,6 +32,7 @@ class QuoteWasEmailedAndFailed
     public $errors;
 
     public $event_vars;
+
     /**
      * QuoteWasEmailedAndFailed constructor.
      * @param Quote $quote

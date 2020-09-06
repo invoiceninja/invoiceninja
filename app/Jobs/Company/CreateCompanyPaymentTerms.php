@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -33,7 +33,6 @@ class CreateCompanyPaymentTerms
      *
      * @return void
      */
-
     public function __construct($company, $user)
     {
         $this->company = $company;
@@ -48,7 +47,6 @@ class CreateCompanyPaymentTerms
      */
     public function handle()
     {
-
         $paymentTerms = [
             ['num_days' => 0, 'name' => 'Net 0', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
             ['num_days' => 7,  'name'  => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
@@ -59,8 +57,7 @@ class CreateCompanyPaymentTerms
             ['num_days' => 60, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
             ['num_days' => 90, 'name' => '', 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
         ];
-        
-        PaymentTerm::insert($paymentTerms);
 
+        PaymentTerm::insert($paymentTerms);
     }
 }

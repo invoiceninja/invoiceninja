@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -42,15 +42,15 @@ class ContactForgotPasswordController extends Controller
     }
 
     /**
-    * Show the reset email form.
-    *
-    * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-    */
+     * Show the reset email form.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function showLinkRequestForm()
     {
         return $this->render('auth.passwords.request', [
             'title' => 'Client Password Reset',
-            'passwordEmailRoute' => 'client.password.email'
+            'passwordEmailRoute' => 'client.password.email',
         ]);
     }
 

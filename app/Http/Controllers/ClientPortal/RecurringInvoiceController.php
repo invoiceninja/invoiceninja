@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -11,19 +11,17 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use Illuminate\Http\Request;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesDates;
-use App\Models\RecurringInvoice;
 use App\Http\Controllers\Controller;
-use App\Notifications\ClientContactRequestCancellation;
 use App\Http\Requests\ClientPortal\ShowRecurringInvoiceRequest;
+use App\Models\RecurringInvoice;
+use App\Notifications\ClientContactRequestCancellation;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Request;
 
 /**
- * Class InvoiceController
- * @package App\Http\Controllers\ClientPortal\InvoiceController
+ * Class InvoiceController.
  */
-
 class RecurringInvoiceController extends Controller
 {
     use MakesHash;

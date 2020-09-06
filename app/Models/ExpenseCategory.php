@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -25,7 +25,7 @@ class ExpenseCategory extends BaseModel
 
     public function getEntityType()
     {
-        return ExpenseCategory::class;
+        return self::class;
     }
 
     /**
@@ -33,6 +33,6 @@ class ExpenseCategory extends BaseModel
      */
     public function expense()
     {
-        return $this->belongsTo('App\Models\Expense');
+        return $this->belongsTo(\App\Models\Expense::class);
     }
 }

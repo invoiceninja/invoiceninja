@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -27,32 +27,32 @@ class PasswordProtection
      * @param  \Closure  $next
      * @return mixed
      */
-    
     public function handle($request, Closure $next)
     {
         $error = [
             'message' => 'Invalid Password',
-            'errors' => new \stdClass
+            'errors' => new \stdClass,
         ];
 
         if ($request->header('X-API-PASSWORD')) {
-            if (!Hash::check($request->header('X-API-PASSWORD'), auth()->user()->password)) {
+            if (! Hash::check($request->header('X-API-PASSWORD'), auth()->user()->password)) {
                 return response()->json($error, 403);
             }
-        } elseif (Cache::get(auth()->user()->email."_logged_in")) {
-            Cache::pull(auth()->user()->email."_logged_in");
-            Cache::add(auth()->user()->email."_logged_in", Str::random(64), now()->addMinutes(30));
+        } elseif (Cache::get(auth()->user()->email.'_logged_in')) {
+            Cache::pull(auth()->user()->email.'_logged_in');
+            Cache::add(auth()->user()->email.'_logged_in', Str::random(64), now()->addMinutes(30));
 
             return $next($request);
         } else {
             $error = [
                 'message' => 'Access denied',
-                'errors' => new \stdClass
+                'errors' => new \stdClass,
             ];
+
             return response()->json($error, 412);
         }
 
-        Cache::add(auth()->user()->email."_logged_in", Str::random(64), now()->addMinutes(30));
+        Cache::add(auth()->user()->email.'_logged_in', Str::random(64), now()->addMinutes(30));
 
         return $next($request);
     }

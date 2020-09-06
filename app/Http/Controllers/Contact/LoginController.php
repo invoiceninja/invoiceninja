@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -58,7 +58,7 @@ class LoginController extends BaseController
     }
 
     /**
-     * Login via API
+     * Login via API.
      *
      * @param      \Illuminate\Http\Request  $request  The request
      *
@@ -86,7 +86,7 @@ class LoginController extends BaseController
     }
 
     /**
-     * Redirect the user to the provider authentication page
+     * Redirect the user to the provider authentication page.
      *
      * @return void
      */
@@ -101,10 +101,9 @@ class LoginController extends BaseController
         }
     }
 
-
     public function redirectToProviderAndCreate(string $provider)
     {
-        $redirect_url = config('services.' . $provider . '.redirect') . '/create';
+        $redirect_url = config('services.'.$provider.'.redirect').'/create';
 
         if (request()->has('code')) {
             return $this->handleProviderCallbackAndCreate($provider);
@@ -112,7 +111,6 @@ class LoginController extends BaseController
             return Socialite::driver($provider)->redirectUrl($redirect_url)->redirect();
         }
     }
-
 
     /*
     public function handleProviderCallbackAndCreate(string $provider)
@@ -157,9 +155,9 @@ class LoginController extends BaseController
 
     }
     */
-   
+
     /**
-     * We use this function when OAUTHING via the web interface
+     * We use this function when OAUTHING via the web interface.
      *
      * @return redirect
 
@@ -204,7 +202,8 @@ class LoginController extends BaseController
         }
 
     }
-    */
+     */
+
     /**
      * A client side authentication has taken place.
      * We now digest the token and confirm authentication with
@@ -232,8 +231,7 @@ class LoginController extends BaseController
         }
     }
 
-
-    /**
+    /*
      * Received the returning object from the provider
      * which we will use to resolve the user, we return the response in JSON format
      *

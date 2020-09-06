@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -108,7 +108,7 @@ class Login
         $ofxRequest =
             "OFXHEADER:100\n".
             "DATA:OFXSGML\n".
-            "VERSION:" . $this->ofxVersion . "\n".
+            'VERSION:'.$this->ofxVersion."\n".
             "SECURITY:NONE\n".
             "ENCODING:USASCII\n".
             "CHARSET:1252\n".
@@ -129,7 +129,7 @@ class Login
             '<FID>'.$this->bank->fid."\n".
             "</FI>\n".
             "<APPID>QWIN\n".
-            "<APPVER>" . $this->appVersion . "\n".
+            '<APPVER>'.$this->appVersion."\n".
             "</SONRQ>\n".
             "</SIGNONMSGSRQV1>\n".
             "<SIGNUPMSGSRQV1>\n".
@@ -178,7 +178,7 @@ class Account
         $ofxRequest =
             "OFXHEADER:100\n".
             "DATA:OFXSGML\n".
-            "VERSION:" . $this->login->ofxVersion . "\n".
+            'VERSION:'.$this->login->ofxVersion."\n".
             "SECURITY:NONE\n".
             "ENCODING:USASCII\n".
             "CHARSET:1252\n".
@@ -198,7 +198,7 @@ class Account
             '<FID>'.$this->login->bank->fid."\n".
             "</FI>\n".
             "<APPID>QWIN\n".
-            "<APPVER>" . $this->login->appVersion . "\n".
+            '<APPVER>'.$this->login->appVersion."\n".
             "</SONRQ>\n".
             "</SIGNONMSGSRQV1>\n";
         if ($this->type == 'BANK') {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -80,7 +80,7 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
 
         $mail_obj = (new EntitySentObject($this->invitation, $this->entity_type))->build();
         $mail_obj->from = [$this->entity->user->email, $this->entity->user->present()->name()];
-        
+
         //send email
         Mail::to($this->user->email)
             ->send(new EntityNotificationMailer($mail_obj));
@@ -89,9 +89,5 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
         if (count(Mail::failures()) > 0) {
             return $this->logMailError(Mail::failures(), $this->entity->client);
         }
-
     }
-
-
-
 }

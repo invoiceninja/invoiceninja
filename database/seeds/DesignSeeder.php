@@ -31,13 +31,13 @@ class DesignSeeder extends Seeder
         foreach ($designs as $design) {
             $d = Design::find($design['id']);
 
-            if (!$d) {
+            if (! $d) {
                 Design::create($design);
             }
         }
 
         foreach (Design::all() as $design) {
-            $template =  new PdfMakerDesign(strtolower($design->name));
+            $template = new PdfMakerDesign(strtolower($design->name));
             $template->document();
 
             $design_object = new \stdClass;

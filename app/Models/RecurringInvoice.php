@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,7 +28,7 @@ class RecurringInvoice extends BaseModel
     use Filterable;
     use MakesDates;
     /**
-     * Invoice Statuses
+     * Invoice Statuses.
      */
     const STATUS_DRAFT = 2;
     const STATUS_ACTIVE = 3;
@@ -36,11 +36,10 @@ class RecurringInvoice extends BaseModel
     const STATUS_PENDING = -1;
     const STATUS_COMPLETED = -2;
 
-
     /**
-     * Recurring intervals //todo MAP WHEN WE MIGRATE
+     * Recurring intervals //todo MAP WHEN WE MIGRATE.
      */
-    
+
     /* Make sure we support overflow!!!!!!!!!!
     $start = Carbon::today();
     $subscription = Carbon::parse('2017-12-31');
@@ -51,7 +50,6 @@ class RecurringInvoice extends BaseModel
         echo "You will be billed on {$day} in month {$month}\n";
     }
      */
-
 
     const FREQUENCY_DAILY = 1;
     const FREQUENCY_WEEKLY = 2;
@@ -67,7 +65,7 @@ class RecurringInvoice extends BaseModel
     const FREQUENCY_THREE_YEARS = 12;
 
     const RECURS_INDEFINITELY = -1;
-    
+
     protected $fillable = [
         'client_id',
         'number',
@@ -109,40 +107,43 @@ class RecurringInvoice extends BaseModel
 
     protected $appends = [
         'hashed_id',
-        'status'
+        'status',
     ];
 
     protected $touches = [];
 
     public function getEntityType()
     {
-        return RecurringInvoice::class;
+        return self::class;
     }
 
     public function getDateAttribute($value)
     {
-        if (!empty($value)) {
+        if (! empty($value)) {
             return (new Carbon($value))->format('Y-m-d');
         }
+
         return $value;
     }
 
     public function getDueDateAttribute($value)
     {
-        if (!empty($value)) {
+        if (! empty($value)) {
             return (new Carbon($value))->format('Y-m-d');
         }
+
         return $value;
     }
 
     public function getPartialDueDateAttribute($value)
     {
-        if (!empty($value)) {
+        if (! empty($value)) {
             return (new Carbon($value))->format('Y-m-d');
         }
+
         return $value;
     }
-    
+
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -162,10 +163,10 @@ class RecurringInvoice extends BaseModel
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
-    
+
     public function invoices()
     {
-        return $this->hasMany(Invoice::class, "id", "recurring_id")->withTrashed();
+        return $this->hasMany(Invoice::class, 'id', 'recurring_id')->withTrashed();
     }
 
     public function invitations()
@@ -175,10 +176,10 @@ class RecurringInvoice extends BaseModel
 
     public function getStatusAttribute()
     {
-        if ($this->status_id == RecurringInvoice::STATUS_ACTIVE && $this->start_date > Carbon::now()) { //marked as active, but yet to fire first cycle
-            return RecurringInvoice::STATUS_PENDING;
-        } elseif ($this->status_id == RecurringInvoice::STATUS_ACTIVE && $this->next_send_date > Carbon::now()) {
-            return RecurringInvoice::STATUS_COMPLETED;
+        if ($this->status_id == self::STATUS_ACTIVE && $this->start_date > Carbon::now()) { //marked as active, but yet to fire first cycle
+            return self::STATUS_PENDING;
+        } elseif ($this->status_id == self::STATUS_ACTIVE && $this->next_send_date > Carbon::now()) {
+            return self::STATUS_COMPLETED;
         } else {
             return $this->status_id;
         }
@@ -187,27 +188,27 @@ class RecurringInvoice extends BaseModel
     public function nextSendDate() :?Carbon
     {
         switch ($this->frequency_id) {
-            case RecurringInvoice::FREQUENCY_WEEKLY:
+            case self::FREQUENCY_WEEKLY:
                 return Carbon::parse($this->next_send_date->addWeek());
-            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+            case self::FREQUENCY_TWO_WEEKS:
                 return Carbon::parse($this->next_send_date->addWeeks(2));
-            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+            case self::FREQUENCY_FOUR_WEEKS:
                 return Carbon::parse($this->next_send_date->addWeeks(4));
-            case RecurringInvoice::FREQUENCY_MONTHLY:
+            case self::FREQUENCY_MONTHLY:
                 return Carbon::parse($this->next_send_date->addMonthNoOverflow());
-            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+            case self::FREQUENCY_TWO_MONTHS:
                 return Carbon::parse($this->next_send_date->addMonthsNoOverflow(2));
-            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+            case self::FREQUENCY_THREE_MONTHS:
                 return Carbon::parse($this->next_send_date->addMonthsNoOverflow(3));
-            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+            case self::FREQUENCY_FOUR_MONTHS:
                 return Carbon::parse($this->next_send_date->addMonthsNoOverflow(4));
-            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+            case self::FREQUENCY_SIX_MONTHS:
                 return Carbon::parse($this->next_send_date->addMonthsNoOverflow(6));
-            case RecurringInvoice::FREQUENCY_ANNUALLY:
+            case self::FREQUENCY_ANNUALLY:
                 return Carbon::parse($this->next_send_date->addYear());
-            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+            case self::FREQUENCY_TWO_YEARS:
                 return Carbon::parse($this->next_send_date->addYears(2));
-            case RecurringInvoice::FREQUENCY_THREE_YEARS:
+            case self::FREQUENCY_THREE_YEARS:
                 return Carbon::parse($this->next_send_date->addYears(3));
             default:
                 return null;
@@ -234,23 +235,23 @@ class RecurringInvoice extends BaseModel
     public static function badgeForStatus(int $status)
     {
         switch ($status) {
-            case RecurringInvoice::STATUS_DRAFT:
+            case self::STATUS_DRAFT:
                 return '<h4><span class="badge badge-light">'.ctrans('texts.draft').'</span></h4>';
                 break;
-            case RecurringInvoice::STATUS_PENDING:
+            case self::STATUS_PENDING:
                 return '<h4><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h4>';
                 break;
-            case RecurringInvoice::STATUS_ACTIVE:
+            case self::STATUS_ACTIVE:
                 return '<h4><span class="badge badge-primary">'.ctrans('texts.partial').'</span></h4>';
                 break;
-            case RecurringInvoice::STATUS_COMPLETED:
+            case self::STATUS_COMPLETED:
                 return '<h4><span class="badge badge-success">'.ctrans('texts.status_completed').'</span></h4>';
                 break;
-            case RecurringInvoice::STATUS_CANCELLED:
+            case self::STATUS_CANCELLED:
                 return '<h4><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h4>';
                 break;
             default:
-                # code...
+                // code...
                 break;
         }
     }
@@ -258,38 +259,38 @@ class RecurringInvoice extends BaseModel
     public static function frequencyForKey(int $frequency_id) :string
     {
         switch ($frequency_id) {
-            case RecurringInvoice::FREQUENCY_WEEKLY:
+            case self::FREQUENCY_WEEKLY:
                 return ctrans('texts.freq_weekly');
                 break;
-            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+            case self::FREQUENCY_TWO_WEEKS:
                 return ctrans('texts.freq_two_weeks');
                 break;
-            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+            case self::FREQUENCY_FOUR_WEEKS:
                 return ctrans('texts.freq_four_weeks');
                 break;
-            case RecurringInvoice::FREQUENCY_MONTHLY:
+            case self::FREQUENCY_MONTHLY:
                 return ctrans('texts.freq_monthly');
                 break;
-            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+            case self::FREQUENCY_TWO_MONTHS:
                 return ctrans('texts.freq_two_months');
                 break;
-            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+            case self::FREQUENCY_THREE_MONTHS:
                 return ctrans('texts.freq_three_months');
                 break;
-            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+            case self::FREQUENCY_FOUR_MONTHS:
                 return ctrans('texts.freq_four_months');
                 break;
-            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+            case self::FREQUENCY_SIX_MONTHS:
                 return ctrans('texts.freq_six_months');
                 break;
-            case RecurringInvoice::FREQUENCY_ANNUALLY:
+            case self::FREQUENCY_ANNUALLY:
                 return ctrans('texts.freq_annually');
                 break;
-            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+            case self::FREQUENCY_TWO_YEARS:
                 return ctrans('texts.freq_two_years');
                 break;
             default:
-                # code...
+                // code...
                 break;
         }
     }
@@ -298,5 +299,4 @@ class RecurringInvoice extends BaseModel
     {
         //todo send back a list of the next send dates and due dates
     }
-
 }

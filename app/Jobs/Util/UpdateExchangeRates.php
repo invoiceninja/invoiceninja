@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -35,28 +35,23 @@ class UpdateExchangeRates implements ShouldQueue
      */
     public function handle()
     {
-        
-        if(config('ninja.db.multi_db_enabled')) 
-        {
-
+        if (config('ninja.db.multi_db_enabled')) {
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
                 $this->updateCurrencies();
             }
-
-
-        }
-        else
+        } else {
             $this->updateCurrencies();
-        
+        }
     }
 
     private function updateCurrencies()
     {
-        info("updating currencies");
-        
-        if(empty(config('ninja.currency_converter_api_key')))
+        info('updating currencies');
+
+        if (empty(config('ninja.currency_converter_api_key'))) {
             return;
+        }
 
         $cc_endpoint = sprintf('https://openexchangerates.org/api/latest.json?app_id=%s', config('ninja.currency_converter_api_key'));
 
@@ -66,11 +61,9 @@ class UpdateExchangeRates implements ShouldQueue
         $currency_api = json_decode($response->getBody());
 
         /* Update all currencies */
-        Currency::all()->each(function ($currency) use($currency_api){
-
+        Currency::all()->each(function ($currency) use ($currency_api) {
             $currency->exchange_rate = $currency_api->rates->{$currency->code};
             $currency->save();
-
         });
 
         /* Rebuild the cache */

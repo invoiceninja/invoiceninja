@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -89,14 +89,14 @@ class RouteServiceProvider extends ServiceProvider
              ->namespace($this->namespace)
              ->group(base_path('routes/api.php'));
     }
-    
+
     /**
-      * Define the "api" routes for the application.
-      *
-      * These routes are typically stateless.
-      *
-      * @return void
-      */
+     * Define the "api" routes for the application.
+     *
+     * These routes are typically stateless.
+     *
+     * @return void
+     */
     protected function mapContactApiRoutes()
     {
         Route::prefix('')
@@ -122,9 +122,9 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function mapShopApiRoutes()
     {
-          Route::prefix('')
+        Route::prefix('')
              ->middleware('shop')
              ->namespace($this->namespace)
-             ->group(base_path('routes/shop.php'));      
+             ->group(base_path('routes/shop.php'));
     }
 }

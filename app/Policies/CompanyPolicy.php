@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,13 +16,12 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class CompanyPolicy
- * @package App\Policies
+ * Class CompanyPolicy.
  */
 class CompanyPolicy extends EntityPolicy
 {
     /**
-     *  Checks if the user has create permissions
+     *  Checks if the user has create permissions.
      *
      * @param  User $user
      * @return bool
@@ -33,7 +32,7 @@ class CompanyPolicy extends EntityPolicy
     }
 
     /**
-     *  Checks if the user has view permissions
+     *  Checks if the user has view permissions.
      *
      * We MUST also check that the user can both view a entity and also check the entity belongs to the users company!!!!!!
      * @param  User $user
@@ -43,14 +42,13 @@ class CompanyPolicy extends EntityPolicy
     public function view(User $user, $entity) : bool
     {
         return ($user->isAdmin() && $entity->id == $user->companyId())
-            || ($user->hasPermission('view_' . strtolower(class_basename($entity))) && $entity->id == $user->companyId())
+            || ($user->hasPermission('view_'.strtolower(class_basename($entity))) && $entity->id == $user->companyId())
             || ($user->hasPermission('view_all') && $entity->id == $user->companyId())
             || $user->owns($entity);
     }
 
-
     /**
-     * Checks if the user has edit permissions
+     * Checks if the user has edit permissions.
      *
      * We MUST also check that the user can both edit a entity and also check the entity belongs to the users company!!!!!!
      *
@@ -61,7 +59,7 @@ class CompanyPolicy extends EntityPolicy
     public function edit(User $user, $entity) : bool
     {
         return ($user->isAdmin() && $entity->id == $user->companyId())
-            || ($user->hasPermission('edit_' . strtolower(class_basename($entity))) && $entity->id == $user->companyId())
+            || ($user->hasPermission('edit_'.strtolower(class_basename($entity))) && $entity->id == $user->companyId())
             || ($user->hasPermission('edit_all') && $entity->id == $user->companyId())
             || $user->owns($entity);
     }

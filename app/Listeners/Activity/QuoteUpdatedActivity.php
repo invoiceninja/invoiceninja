@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -44,7 +44,7 @@ class QuoteUpdatedActivity implements ShouldQueue
         MultiDB::setDb($event->company->db);
 
         $quote = $event->quote;
-        
+
         $fields = new \stdClass;
 
         $fields->quote_id = $quote->id;
@@ -54,7 +54,5 @@ class QuoteUpdatedActivity implements ShouldQueue
         $fields->activity_type_id = Activity::UPDATE_QUOTE;
 
         $this->activity_repo->save($fields, $quote, $event->event_vars);
-
-
     }
 }

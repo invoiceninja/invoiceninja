@@ -39,7 +39,7 @@ class SetupController extends Controller
     {
         $check = SystemHealth::check(false);
 
-        if($check['system_health'] == true && $check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::all()->first()) {
+        if ($check['system_health'] == true && $check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::all()->first()) {
             return redirect('/');
         }
 
@@ -53,19 +53,20 @@ class SetupController extends Controller
         if ($check['system_health'] === false) {
             info($check);
 
-            return response('Oops, something went wrong. Check your logs.'); /** We should never reach this block, but jic. */
+            return response('Oops, something went wrong. Check your logs.'); /* We should never reach this block, but jic. */
         }
 
         $mail_driver = $request->input('mail_driver');
 
-        if (!$this->failsafeMailCheck($request)) {
+        if (! $this->failsafeMailCheck($request)) {
             $mail_driver = 'log';
         }
 
         $url = $request->input('url');
 
-        if(substr($url, -1) != '/')
-            $url = $url . '/';
+        if (substr($url, -1) != '/') {
+            $url = $url.'/';
+        }
 
         $_ENV['APP_KEY'] = config('app.key');
         $_ENV['APP_URL'] = $url;
@@ -76,7 +77,7 @@ class SetupController extends Controller
         $_ENV['DB_DATABASE1'] = $request->input('database');
         $_ENV['DB_USERNAME1'] = $request->input('db_username');
         $_ENV['DB_PASSWORD1'] = $request->input('db_password');
-        $_ENV['MAIL_DRIVER'] = $mail_driver;
+        $_ENV['MAIL_MAILER'] = $mail_driver;
         $_ENV['MAIL_PORT'] = $request->input('mail_port');
         $_ENV['MAIL_ENCRYPTION'] = $request->input('encryption');
         $_ENV['MAIL_HOST'] = $request->input('mail_host');
@@ -123,7 +124,6 @@ class SetupController extends Controller
             Artisan::call('db:seed', ['--force' => true]);
 
             Storage::disk('local')->delete('test.pdf');
-
 
             /* Create the first account. */
             if (Account::count() == 0) {
@@ -185,7 +185,6 @@ class SetupController extends Controller
         if ($response_array instanceof Response) {
             return true;
         }
-        
 
         return false;
     }
@@ -193,11 +192,9 @@ class SetupController extends Controller
     public function checkPdf(Request $request)
     {
         try {
-        
-            if(config('ninja.phantomjs_key')){
+            if (config('ninja.phantomjs_key')) {
                 return $this->testPhantom();
             }
-
 
             Browsershot::url('https://www.invoiceninja.com')->savePdf(
      //       Browsershot::html('If you see this text, generating PDF works! Thanks for using Invoice Ninja!')->savePdf(
@@ -214,9 +211,7 @@ class SetupController extends Controller
 
     private function testPhantom()
     {
-
         try {
-        
             $key = config('ninja.phantomjs_key');
             $url = 'https://www.invoiceninja.org/';
 
@@ -227,14 +222,8 @@ class SetupController extends Controller
             Storage::disk('local')->put('test.pdf', $pdf);
 
             return response(['url' => Storage::disk('local')->url('test.pdf')], 200);
-        
-        }
-        catch(\Exception $e){
-        
+        } catch (\Exception $e) {
             return response([], 500);
-
         }
-
     }
-    
 }

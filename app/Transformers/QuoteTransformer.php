@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -32,7 +32,7 @@ class QuoteTransformer extends EntityTransformer
     protected $availableIncludes = [
         'invitations',
         'documents',
-        'history'
+        'history',
        //    'payments',
     //    'client',
     ];
@@ -43,13 +43,14 @@ class QuoteTransformer extends EntityTransformer
 
         return $this->includeCollection($quote->history, $transformer, Backup::class);
     }
-    
+
     public function includeInvitations(Quote $quote)
     {
         $transformer = new QuoteInvitationTransformer($this->serializer);
 
         return $this->includeCollection($quote->invitations, $transformer, QuoteInvitation::class);
     }
+
     /*
         public function includePayments(quote $quote)
         {
@@ -76,9 +77,10 @@ class QuoteTransformer extends EntityTransformer
     public function includeDocuments(Quote $quote)
     {
         $transformer = new DocumentTransformer($this->serializer);
+
         return $this->includeCollection($quote->documents, $transformer, Document::class);
     }
-    
+
     public function transform(Quote $quote)
     {
         return [
@@ -88,12 +90,12 @@ class QuoteTransformer extends EntityTransformer
             'amount' => (float) $quote->amount,
             'balance' => (float) $quote->balance,
             'client_id' => (string) $this->encodePrimaryKey($quote->client_id),
-            'status_id' => (string)$quote->status_id,
+            'status_id' => (string) $quote->status_id,
             'design_id' => (string) $this->encodePrimaryKey($quote->design_id),
-            'invoice_id' => (string)$this->encodePrimaryKey($quote->invoice_id),
-            'updated_at' => (int)$quote->updated_at,
-            'archived_at' => (int)$quote->deleted_at,
-            'created_at' => (int)$quote->created_at,
+            'invoice_id' => (string) $this->encodePrimaryKey($quote->invoice_id),
+            'updated_at' => (int) $quote->updated_at,
+            'archived_at' => (int) $quote->deleted_at,
+            'created_at' => (int) $quote->created_at,
             'number' => $quote->number ?: '',
             'discount' => (float) $quote->discount,
             'po_number' => $quote->po_number ?: '',
@@ -127,14 +129,14 @@ class QuoteTransformer extends EntityTransformer
             'custom_value4' => (string) $quote->custom_value4 ?: '',
             'has_tasks' => (bool) $quote->has_tasks,
             'has_expenses' => (bool) $quote->has_expenses,
-            'custom_surcharge1' => (float)$quote->custom_surcharge1,
-            'custom_surcharge2' => (float)$quote->custom_surcharge2,
-            'custom_surcharge3' => (float)$quote->custom_surcharge3,
-            'custom_surcharge4' => (float)$quote->custom_surcharge4,
+            'custom_surcharge1' => (float) $quote->custom_surcharge1,
+            'custom_surcharge2' => (float) $quote->custom_surcharge2,
+            'custom_surcharge3' => (float) $quote->custom_surcharge3,
+            'custom_surcharge4' => (float) $quote->custom_surcharge4,
             'custom_surcharge_taxes' => (bool) $quote->custom_surcharge_taxes,
-            'line_items' => $quote->line_items ?: (array)[],
+            'line_items' => $quote->line_items ?: (array) [],
             'entity_type' => 'quote',
-            'exchange_rate' => (float)$quote->exchange_rate,
+            'exchange_rate' => (float) $quote->exchange_rate,
         ];
     }
 }

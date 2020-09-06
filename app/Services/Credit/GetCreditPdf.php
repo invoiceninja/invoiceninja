@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -8,7 +8,6 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-
 
 namespace App\Services\Credit;
 
@@ -33,19 +32,19 @@ class GetCreditPdf extends AbstractService
 
     public function run()
     {
-        if (!$this->contact) {
+        if (! $this->contact) {
             $this->contact = $this->credit->client->primary_contact()->first();
         }
 
-        $path      = $this->credit->client->credit_filepath();
+        $path = $this->credit->client->credit_filepath();
 
-        $file_path = $path . $this->credit->number . '.pdf';
-        
+        $file_path = $path.$this->credit->number.'.pdf';
+
         $disk = config('filesystems.default');
-        
+
         $file = Storage::disk($disk)->exists($file_path);
 
-        if (!$file) {
+        if (! $file) {
             $file_path = CreateCreditPdf::dispatchNow($this->credit, $this->credit->company, $this->contact);
         }
 

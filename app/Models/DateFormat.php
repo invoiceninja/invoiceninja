@@ -32,7 +32,6 @@ class DateFormat extends StaticModel
       11 => 'december',
     ];
 
-
     /**
      * @var bool
      */

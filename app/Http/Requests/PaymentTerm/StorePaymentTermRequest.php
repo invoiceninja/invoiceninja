@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,7 +24,6 @@ class StorePaymentTermRequest extends Request
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->isAdmin();
@@ -33,7 +32,7 @@ class StorePaymentTermRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-        
+
         $this->replace($input);
     }
 

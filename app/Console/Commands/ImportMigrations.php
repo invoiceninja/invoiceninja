@@ -58,7 +58,7 @@ class ImportMigrations extends Command
 
         foreach ($directory as $file) {
             if ($file->getExtension() === 'zip') {
-                $this->info('Started processing: ' . $file->getBasename() . ' at ' . now());
+                $this->info('Started processing: '.$file->getBasename().' at '.now());
                 StartMigration::dispatch($file->getRealPath(), $this->getUser(), $this->getUser()->companies()->first());
             }
         }
@@ -72,7 +72,7 @@ class ImportMigrations extends Command
         $user = factory(\App\Models\User::class)->create([
             'account_id' => $account->id,
             'email' => $this->faker->email,
-            'confirmation_code' => $this->createDbHash(config('database.default'))
+            'confirmation_code' => $this->createDbHash(config('database.default')),
         ]);
 
         $company_token = CompanyToken::create([
@@ -107,8 +107,8 @@ class ImportMigrations extends Command
             'account_id' => $account->id,
         ]);
 
-        if(!$account->default_company_id){
-            $account->default_company_id = $company->id;    
+        if (! $account->default_company_id) {
+            $account->default_company_id = $company->id;
             $account->save();
         }
 

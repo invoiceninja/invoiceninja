@@ -59,7 +59,7 @@ class PaymentTypesSeeder extends Seeder
             ['name' => 'Crypto', 'gateway_type_id' => self::GATEWAY_TYPE_CRYPTO],
         ];
 
-        $x=1;
+        $x = 1;
         foreach ($paymentTypes as $paymentType) {
             $record = PaymentType::where('name', '=', $paymentType['name'])->first();
 

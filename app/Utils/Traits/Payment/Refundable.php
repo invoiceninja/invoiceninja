@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,9 +24,8 @@ use App\Utils\Ninja;
 
 trait Refundable
 {
-
     /**
-     * Entry point for processing of refunds
+     * Entry point for processing of refunds.
      */
     public function processRefund(array $data)
     {
@@ -64,7 +63,7 @@ trait Refundable
         $credit_note->save();
         $credit_note->number = $this->client->getNextCreditNumber($this->client);
         $credit_note->save();
-        
+
         $this->createActivity($data, $credit_note->id);
 
         //determine if we need to refund via gateway
@@ -79,7 +78,6 @@ trait Refundable
 
         return $this->fresh();
     }
-
 
     private function refundPaymentWithInvoices($data)
     {
@@ -116,7 +114,7 @@ trait Refundable
             $credit_line_item->line_total = $invoice['amount'];
             $credit_line_item->date = $data['date'];
 
-            $ledger_string .= $credit_line_item->notes . ' ';
+            $ledger_string .= $credit_line_item->notes.' ';
 
             $line_items[] = $credit_line_item;
         }
@@ -172,7 +170,7 @@ trait Refundable
             if ($gateway) {
                 $response = $gateway->driver($this->client)->refund($this, $total_refund);
 
-                if (!$response) {
+                if (! $response) {
                     throw new PaymentRefundFailed();
                 }
             }
@@ -191,7 +189,6 @@ trait Refundable
         $this->client->paid_to_date -= $data['amount'];
         $this->client->save();
 
-
         return $this;
     }
 
@@ -209,14 +206,13 @@ trait Refundable
         if (isset($data['invoices'])) {
             foreach ($data['invoices'] as $invoice) {
                 $fields->invoice_id = $invoice->id;
-                
+
                 $activity_repo->save($fields, $this, Ninja::eventVars());
             }
         } else {
             $activity_repo->save($fields, $this, Ninja::eventVars());
         }
     }
-
 
     private function buildCreditNote(array $data) :?Credit
     {

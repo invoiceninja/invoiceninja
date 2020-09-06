@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,7 +21,6 @@ class EditUserRequest extends Request
      *
      * @return bool
      */
-
     public function authorize()
     {
         return auth()->user()->can('edit', $this->user);
@@ -30,7 +29,7 @@ class EditUserRequest extends Request
     public function rules()
     {
         $rules = [];
-        
+
         return $rules;
     }
 }

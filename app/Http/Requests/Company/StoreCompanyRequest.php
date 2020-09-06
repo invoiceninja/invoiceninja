@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,12 +22,12 @@ use App\Utils\Traits\MakesHash;
 class StoreCompanyRequest extends Request
 {
     use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('create', Company::class);
@@ -40,13 +40,13 @@ class StoreCompanyRequest extends Request
         $rules['name'] = new ValidCompanyQuantity();
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb
         $rules['settings'] = new ValidSettingsRule();
-    
+
         if (isset($rules['portal_mode']) && ($rules['portal_mode'] == 'domain' || $rules['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'sometimes|url';
         } else {
             $rules['portal_domain'] = 'nullable|alpha_num';
         }
-        
+
         return $rules;
     }
 
@@ -60,12 +60,12 @@ class StoreCompanyRequest extends Request
 
         $company_settings = CompanySettings::defaults();
 
-        if (array_key_exists('settings', $input) && !empty($input['settings'])) {
+        if (array_key_exists('settings', $input) && ! empty($input['settings'])) {
             foreach ($input['settings'] as $key => $value) {
                 $company_settings->{$key} = $value;
             }
         }
-        
+
         $this->replace($input);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -36,7 +36,7 @@ class PreviewController extends BaseController
     }
 
     /**
-     * Returns a template filled with entity variables
+     * Returns a template filled with entity variables.
      *
      * @return \Illuminate\Http\Response
      *
@@ -72,12 +72,12 @@ class PreviewController extends BaseController
     {
         if (request()->has('entity') &&
             request()->has('entity_id') &&
-            !empty(request()->input('entity')) &&
-            !empty(request()->input('entity_id')) &&
+            ! empty(request()->input('entity')) &&
+            ! empty(request()->input('entity_id')) &&
             request()->has('body')) {
             $design_object = json_decode(json_encode(request()->input('design')));
 
-            if (!is_object($design_object)) {
+            if (! is_object($design_object)) {
                 return response()->json(['message' => 'Invalid custom design object'], 400);
             }
 
@@ -89,7 +89,7 @@ class PreviewController extends BaseController
 
             $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
 
-            if (!$entity_obj) {
+            if (! $entity_obj) {
                 return $this->blankEntity();
             }
 
@@ -97,7 +97,7 @@ class PreviewController extends BaseController
 
             $html = new HtmlEngine(null, $entity_obj->invitations()->first(), request()->entity_type);
 
-            $design_namespace = 'App\Services\PdfMaker\Designs\\' . request()->design['name'];
+            $design_namespace = 'App\Services\PdfMaker\Designs\\'.request()->design['name'];
 
             $design_class = new $design_namespace();
 
@@ -163,11 +163,11 @@ class PreviewController extends BaseController
         $invoice->setRelation('company', auth()->user()->company());
         $invoice->load('client');
 
-// info(print_r($invoice->toArray(),1));
+        // info(print_r($invoice->toArray(),1));
 
         $design_object = json_decode(json_encode(request()->input('design')));
 
-        if (!is_object($design_object)) {
+        if (! is_object($design_object)) {
             return response()->json(['message' => 'Invalid custom design object'], 400);
         }
 

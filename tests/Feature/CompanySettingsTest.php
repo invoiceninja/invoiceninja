@@ -31,7 +31,6 @@ class CompanySettingsTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-
     public function setUp() :void
     {
         parent::setUp();
@@ -56,7 +55,7 @@ class CompanySettingsTest extends TestCase
         //$this->withoutExceptionHandling();
 
         $response = false;
-         
+
         try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -88,11 +87,10 @@ class CompanySettingsTest extends TestCase
                 'X-API-Token' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
 
-
         $response->assertStatus(200);
 
         $arr = $response->json();
-        
+
         $this->assertEquals($arr['data']['settings']['reset_counter_date'], '');
     }
 
@@ -100,7 +98,7 @@ class CompanySettingsTest extends TestCase
     {
         $settings = $this->company->settings;
 
-        $settings->client_number_counter = "a";
+        $settings->client_number_counter = 'a';
         $settings->invoice_number_counter = 1000;
         $settings->quote_number_counter = 1.2;
         $settings->credit_number_counter = 10.1;
@@ -126,10 +124,10 @@ class CompanySettingsTest extends TestCase
     {
         $settings = $this->company->settings;
 
-        $settings->default_task_rate = "a";
+        $settings->default_task_rate = 'a';
         $settings->tax_rate1 = 10.0;
-        $settings->tax_rate2 = "10.0";
-        $settings->tax_rate3 = "10.5";
+        $settings->tax_rate2 = '10.0';
+        $settings->tax_rate3 = '10.5';
 
         $this->company->saveSettings($settings, $this->company);
 
@@ -155,8 +153,8 @@ class CompanySettingsTest extends TestCase
         $settings->require_invoice_signature = true;
         $settings->require_quote_signature = true;
         $settings->show_accept_quote_terms = false;
-        $settings->show_accept_invoice_terms = "TRUE";
-        $settings->enable_client_portal_tasks = "FALSE";
+        $settings->show_accept_invoice_terms = 'TRUE';
+        $settings->enable_client_portal_tasks = 'FALSE';
 
         $this->company->saveSettings($settings, $this->company);
 
@@ -175,13 +173,11 @@ class CompanySettingsTest extends TestCase
         $this->assertTrue($arr['data']['settings']['show_accept_invoice_terms']);
         $this->assertFalse($arr['data']['settings']['enable_client_portal_tasks']);
     }
-    
 
     public function testCompanyNullValueMatrixPOST()
     {
         $settings = CompanySettings::defaults();
         $settings->reset_counter_date = null;
-
 
         $this->company->saveSettings($settings, $this->company);
 
@@ -213,7 +209,6 @@ class CompanySettingsTest extends TestCase
 
         $this->assertEquals($arr['data'][0]['company']['settings']['reset_counter_date'], '');
     }
-
 
     public function testCompanyWrong2ValueMatrixPOST()
     {

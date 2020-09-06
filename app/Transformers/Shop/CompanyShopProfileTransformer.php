@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -61,7 +61,6 @@ class CompanyShopProfileTransformer extends EntityTransformer
     protected $availableIncludes = [
     ];
 
-
     /**
      * @param Company $company
      *
@@ -72,7 +71,7 @@ class CompanyShopProfileTransformer extends EntityTransformer
         $std = new \stdClass;
 
         return [
-            'company_key' => (string)$company->company_key ?: '',
+            'company_key' => (string) $company->company_key ?: '',
             'settings' => $this->trimCompany($company),
         ];
     }
@@ -103,8 +102,9 @@ class CompanyShopProfileTransformer extends EntityTransformer
 
         $new_settings = new \stdClass;
 
-        foreach($trimmed_company_settings as $key => $value)
+        foreach ($trimmed_company_settings as $key => $value) {
             $new_settings->{$key} = $value;
+        }
 
         return $new_settings;
     }

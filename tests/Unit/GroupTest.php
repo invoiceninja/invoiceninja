@@ -15,7 +15,7 @@ class GroupTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-    
+
         $this->settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults());
     }
 
@@ -27,7 +27,7 @@ class GroupTest extends TestCase
     public function testPropertyValueAccessors()
     {
         $this->settings->translations = (object) ['hello' => 'world'];
-    
+
         $this->assertEquals('world', $this->settings->translations->hello);
     }
 

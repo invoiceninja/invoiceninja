@@ -22,7 +22,6 @@ class NewPaymentNotification extends Notification implements ShouldQueue
      *
      * @return void
      */
-    
     protected $payment;
 
     protected $company;
@@ -48,11 +47,11 @@ class NewPaymentNotification extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return array
      */
-
     public function via($notifiable)
     {
         return $this->method ?: [];
     }
+
     /**
      * Get the mail representation of the notification.
      *
@@ -61,17 +60,16 @@ class NewPaymentNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-                //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
-
+        //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
 
         $amount = Number::formatMoney($this->payment->amount, $this->payment->client);
-        
+
         $invoice_texts = ctrans('texts.invoice_number_short');
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_texts .= $invoice->number . ',';
+            $invoice_texts .= $invoice->number.',';
         }
-        
+
         $invoice_texts = substr($invoice_texts, 0, -1);
 
         $data = [
@@ -86,23 +84,22 @@ class NewPaymentNotification extends Notification implements ShouldQueue
                 'invoice' => $invoice_texts,
             ]
             ),
-            'url' => config('ninja.app_url') . 'payments/' . $this->payment->hashed_id,
+            'url' => config('ninja.app_url').'payments/'.$this->payment->hashed_id,
             'button' => ctrans('texts.view_payment'),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),
         ];
 
-
         return (new MailMessage)
                     ->subject(
                         ctrans(
                             'texts.notification_payment_paid_subject',
-                            ['client' => $this->payment->client->present()->name(),]
+                            ['client' => $this->payment->client->present()->name()]
                         )
                     )->markdown('email.admin.generic', $data)
                     ->withSwiftMessage(function ($message) {
-                            $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
-                        });
+                        $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
+                    });
     }
 
     /**
@@ -125,21 +122,21 @@ class NewPaymentNotification extends Notification implements ShouldQueue
         $invoice_texts = ctrans('texts.invoice_number_short');
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_texts .= $invoice->number . ',';
+            $invoice_texts .= $invoice->number.',';
         }
-        
+
         $invoice_texts = substr($invoice_texts, 0, -1);
 
         return (new SlackMessage)
                 ->success()
                 //->to("#devv2")
-                ->from("System")
+                ->from('System')
                 ->image($logo)
                 ->content(ctrans(
                     'texts.notification_payment_paid',
                     ['amount' => $amount,
                     'client' => $this->payment->client->present()->name(),
-                    'invoice' => $invoice_texts]
+                    'invoice' => $invoice_texts, ]
                 ));
     }
 }

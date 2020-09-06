@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,7 +16,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * class ExpenseTransformer
+ * class ExpenseTransformer.
  */
 class ExpenseTransformer extends EntityTransformer
 {
@@ -46,18 +46,18 @@ class ExpenseTransformer extends EntityTransformer
             'vendor_id' => $this->encodePrimaryKey($expense->vendor_id),
             'invoice_id' => $this->encodePrimaryKey($expense->invoice_id),
             'client_id' => $this->encodePrimaryKey($expense->client_id),
-            'bank_id' => (string)$expense->bank_id ?: '',
-            'invoice_currency_id' => (string)$expense->invoice_currency_id ?: '',
-            'expense_currency_id' => (string)$expense->expense_currency_id ?: '',
-            'invoice_category_id' => (string)$expense->invoice_category_id ?: '',
-            'payment_type_id' => (string)$expense->payment_type_id ?: '',
-            'recurring_expense_id' => (string)$expense->recurring_expense_id ?: '',
+            'bank_id' => (string) $expense->bank_id ?: '',
+            'invoice_currency_id' => (string) $expense->invoice_currency_id ?: '',
+            'expense_currency_id' => (string) $expense->expense_currency_id ?: '',
+            'invoice_category_id' => (string) $expense->invoice_category_id ?: '',
+            'payment_type_id' => (string) $expense->payment_type_id ?: '',
+            'recurring_expense_id' => (string) $expense->recurring_expense_id ?: '',
             'is_deleted' => (bool) $expense->is_deleted,
             'should_be_invoiced' => (bool) $expense->should_be_invoiced,
             'invoice_documents' => (bool) $expense->invoice_documents,
-            'amount' => (float)$expense->amount ?: 0,
-            'foreign_amount' => (float)$expense->foreign_amount ?: 0,
-            'exchange_rate' => (float)$expense->exchange_rate ?: 0,
+            'amount' => (float) $expense->amount ?: 0,
+            'foreign_amount' => (float) $expense->foreign_amount ?: 0,
+            'exchange_rate' => (float) $expense->exchange_rate ?: 0,
             'tax_name1' => $expense->tax_name1 ? $expense->tax_name1 : '',
             'tax_rate1' => (float) $expense->tax_rate1,
             'tax_name2' => $expense->tax_name2 ? $expense->tax_name2 : '',
@@ -74,9 +74,9 @@ class ExpenseTransformer extends EntityTransformer
             'custom_value2' => $expense->custom_value2 ?: '',
             'custom_value3' => $expense->custom_value3 ?: '',
             'custom_value4' => $expense->custom_value4 ?: '',
-            'updated_at' => (int)$expense->updated_at,
-            'archived_at' => (int)$expense->deleted_at,
-            'created_at' => (int)$expense->created_at,
+            'updated_at' => (int) $expense->updated_at,
+            'archived_at' => (int) $expense->deleted_at,
+            'created_at' => (int) $expense->created_at,
         ];
     }
 }

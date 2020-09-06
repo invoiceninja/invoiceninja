@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -32,7 +32,7 @@ class ApplyNumber extends AbstractService
     public function __construct(Client $client, Invoice $invoice)
     {
         $this->client = $client;
-        
+
         $this->invoice = $invoice;
     }
 
@@ -53,7 +53,7 @@ class ApplyNumber extends AbstractService
                 break;
 
             default:
-                # code...
+                // code...
                 break;
         }
 

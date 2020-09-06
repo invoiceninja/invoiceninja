@@ -14,7 +14,7 @@ class CompanySettingsTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-    
+
         $this->company_settings = CompanySettings::defaults();
     }
 

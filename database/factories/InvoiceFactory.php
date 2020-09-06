@@ -10,7 +10,7 @@ $factory->define(App\Models\Invoice::class, function (Faker $faker) {
         'status_id' => App\Models\Invoice::STATUS_SENT,
         'number' => $faker->ean13(),
         'discount' => $faker->numberBetween(1, 10),
-        'is_amount_discount' => (bool)random_int(0, 1),
+        'is_amount_discount' => (bool) random_int(0, 1),
         'tax_name1' => 'GST',
         'tax_rate1' => 10,
         'tax_name2' => 'VAT',

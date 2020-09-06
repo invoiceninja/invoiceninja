@@ -17,7 +17,6 @@ class SystemHealthTest extends TestCase
         parent::setUp();
     }
 
-
     public function testVariables()
     {
         $results = SystemHealth::check();
@@ -26,7 +25,7 @@ class SystemHealthTest extends TestCase
 
         $this->assertTrue(count($results) > 1);
 
-        $this->assertTrue((bool)$results['system_health']);
+        $this->assertTrue((bool) $results['system_health']);
 
         $this->assertTrue($results['extensions'][0]['mysqli']);
         $this->assertTrue($results['extensions'][1]['gd']);

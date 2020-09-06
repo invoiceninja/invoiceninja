@@ -10,18 +10,17 @@ class Cors
 {
     public function handle($request, Closure $next)
     {
-        if ($request->getMethod() == "OPTIONS") {
-            header("Access-Control-Allow-Origin: *");
+        if ($request->getMethod() == 'OPTIONS') {
+            header('Access-Control-Allow-Origin: *');
 
             // ALLOW OPTIONS METHOD
             $headers = [
                 'Access-Control-Allow-Methods'=> 'POST, GET, OPTIONS, PUT, DELETE',
-                'Access-Control-Allow-Headers'=> 'X-API-COMPANY-KEY,X-API-SECRET,X-API-TOKEN,X-API-PASSWORD,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range'
+                'Access-Control-Allow-Headers'=> 'X-API-COMPANY-KEY,X-API-SECRET,X-API-TOKEN,X-API-PASSWORD,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range',
             ];
 
             return Response::make('OK', 200, $headers);
         }
-
 
         /* Work around for file downloads where the response cannot contain have headers set */
         // if($request instanceOf BinaryFileResponse)
@@ -40,7 +39,7 @@ class Cors
         $response->headers->set('Access-Control-Expose-Headers', 'X-APP-VERSION,X-MINIMUM-CLIENT-VERSION');
         $response->headers->set('X-APP-VERSION', config('ninja.app_version'));
         $response->headers->set('X-MINIMUM-CLIENT-VERSION', config('ninja.minimum_client_version'));
-        
+
         return $response;
     }
 }

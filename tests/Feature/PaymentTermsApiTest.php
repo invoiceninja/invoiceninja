@@ -32,7 +32,6 @@ class PaymentTermsApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-
     public function setUp() :void
     {
         parent::setUp();
@@ -46,26 +45,22 @@ class PaymentTermsApiTest extends TestCase
         Model::reguard();
     }
 
-
     public function testPaymentTermsGet()
     {
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/payment_terms');
-
 
         $response->assertStatus(200);
     }
 
     public function testPostPaymentTerm()
     {
-
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token
-        ])->post('/api/v1/payment_terms', ['num_days' => 50 ]);
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payment_terms', ['num_days' => 50]);
 
         $response->assertStatus(200);
 
@@ -76,38 +71,33 @@ class PaymentTermsApiTest extends TestCase
 
     public function testPutPaymentTerms()
     {
-
-        $payment_term = PaymentTermFactory::create($this->company->id, $this->user->id); 
+        $payment_term = PaymentTermFactory::create($this->company->id, $this->user->id);
         $payment_term->num_days = 500;
         $payment_term->save();
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token
-        ])->put('/api/v1/payment_terms/' . $this->encodePrimaryKey($payment_term->id), ['num_days' => 5000 ]);
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/payment_terms/'.$this->encodePrimaryKey($payment_term->id), ['num_days' => 5000]);
 
         $response->assertStatus(200);
-
     }
 
     public function testDeletePaymentTerm()
     {
-
-        $payment_term = PaymentTermFactory::create($this->company->id, $this->user->id); 
+        $payment_term = PaymentTermFactory::create($this->company->id, $this->user->id);
         $payment_term->num_days = 500;
         $payment_term->save();
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token
-        ])->delete('/api/v1/payment_terms/' . $this->encodePrimaryKey($payment_term->id));
+            'X-API-TOKEN' => $this->token,
+        ])->delete('/api/v1/payment_terms/'.$this->encodePrimaryKey($payment_term->id));
 
-       $response->assertStatus(200);
+        $response->assertStatus(200);
 
-       $payment_term = PaymentTerm::find($payment_term->id);
+        $payment_term = PaymentTerm::find($payment_term->id);
 
-       $this->assertNull($payment_term);
-
+        $this->assertNull($payment_term);
     }
-
 }

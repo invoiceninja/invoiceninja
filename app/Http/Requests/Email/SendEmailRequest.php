@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -36,11 +36,11 @@ class SendEmailRequest extends Request
     public function rules()
     {
         return [
-            "template" => "required",
-            "entity" => "required",
-            "entity_id" => "required",
-            "subject" => "required",
-            "body" => "required",
+            'template' => 'required',
+            'entity' => 'required',
+            'entity_id' => 'required',
+            'subject' => 'required',
+            'body' => 'required',
         ];
     }
 
@@ -54,12 +54,12 @@ class SendEmailRequest extends Request
             $input['template'] = '';
         }
 
-        if (!property_exists($settings, $input['template'])) {
+        if (! property_exists($settings, $input['template'])) {
             unset($input['template']);
         }
 
         $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
-        $input['entity'] = "App\Models\\". ucfirst($input['entity']);
+        $input['entity'] = "App\Models\\".ucfirst($input['entity']);
 
         $this->replace($input);
     }

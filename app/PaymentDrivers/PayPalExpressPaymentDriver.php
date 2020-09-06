@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -27,7 +27,7 @@ use Omnipay\Common\Item;
 
 /**
  * Response array
- * (
+ * (.
   'TOKEN' => 'EC-50V302605X606694D',
   'SUCCESSPAGEREDIRECTREQUESTED' => 'false',
   'TIMESTAMP' => '2019-09-30T22:21:21Z',
@@ -58,7 +58,6 @@ use Omnipay\Common\Item;
   'PAYMENTINFO_0_ACK' => 'Success',
 )
  */
-
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
     use MakesHash;
@@ -84,15 +83,15 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     }
 
     /**
-     * Processes the payment with this gateway
+     * Processes the payment with this gateway.
      *
-     * @var $data['invoices']
-     * @var $data['amount']
-     * @var $data['fee']
-     * @var $data['amount_with_fee']
-     * @var $data['token']
-     * @var $data['payment_method_id']
-     * @var $data['payment_hash']
+     * @var['invoices']
+     * @var['amount']
+     * @var['fee']
+     * @var['amount_with_fee']
+     * @var['token']
+     * @var['payment_method_id']
+     * @var['payment_hash']
      *
      * @param  array  $data variables required to build payment page
      * @return view   Gateway and payment method specific view
@@ -100,7 +99,6 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     public function processPaymentView(array $data)
     {
         $response = $this->purchase($this->paymentDetails($data), $this->paymentItems($data));
-
 
         if ($response->isRedirect()) {
             // redirect to offsite payment gateway
@@ -114,7 +112,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             SystemLogger::dispatch(
                 [
                     'server_response' => $response->getData(),
-                    'data' => $data
+                    'data' => $data,
                 ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
@@ -122,7 +120,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
                 $this->client
             );
 
-            throw new \Exception("Error Processing Payment", 1);
+            throw new \Exception('Error Processing Payment', 1);
         }
     }
 
@@ -138,21 +136,20 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             SystemLogger::dispatch(
                 [
                     'server_response' => $response->getData(),
-                    'data' => $request->all()
+                    'data' => $request->all(),
                 ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_PAYPAL,
                 $this->client
             );
-        } elseif (!$response->isSuccessful()) {
-
+        } elseif (! $response->isSuccessful()) {
             PaymentFailureMailer::dispatch($this->client, $response->getMessage, $this->client->company, $response['PAYMENTINFO_0_AMT']);
 
             SystemLogger::dispatch(
                 [
                     'data' => $request->all(),
-                    'server_response' => $response->getData()
+                    'server_response' => $response->getData(),
                 ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
@@ -164,7 +161,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         }
 
         $payment = $this->createPayment($response->getData());
-        $payment_hash = PaymentHash::whereRaw("BINARY `hash`= ?", [$request->input('payment_hash')])->firstOrFail();
+        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
         $this->attachInvoices($payment, $payment_hash);
         $payment->service()->updateInvoicePayment($payment_hash);
 
@@ -185,43 +182,43 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         $data['ButtonSource'] = 'InvoiceNinja_SP';
         $data['solutionType'] = 'Sole'; // show 'Pay with credit card' option
-        $data['transactionId'] = $data['transactionId'] . '-' . time();
+        $data['transactionId'] = $data['transactionId'].'-'.time();
 
         return $data;
     }
 
     private function buildReturnUrl($input): string
     {
-        $url = $this->client->company->domain() . "/client/payments/process/response";
-        $url .= "?company_gateway_id={$this->company_gateway->id}&gateway_type_id=" . GatewayType::PAYPAL;
-        $url .= "&payment_hash=" . $input['payment_hash'];
-        $url .= "&amount=" . $input['amount'];
-        $url .= "&fee=" . $input['fee'];
+        $url = $this->client->company->domain().'/client/payments/process/response';
+        $url .= "?company_gateway_id={$this->company_gateway->id}&gateway_type_id=".GatewayType::PAYPAL;
+        $url .= '&payment_hash='.$input['payment_hash'];
+        $url .= '&amount='.$input['amount'];
+        $url .= '&fee='.$input['fee'];
 
         return $url;
     }
 
     private function buildCancelUrl($input): string
     {
-        $url = $this->client->company->domain() . '/client/invoices';
+        $url = $this->client->company->domain().'/client/invoices';
 
         return $url;
     }
 
     private function buildDescription($input): string
     {
-        $invoice_numbers = "";
+        $invoice_numbers = '';
 
         foreach ($input['invoices'] as $invoice) {
-            $invoice_numbers .= $invoice->number . " ";
+            $invoice_numbers .= $invoice->number.' ';
         }
 
-        return ctrans('texts.invoice_number') . ": {$invoice_numbers}";
+        return ctrans('texts.invoice_number').": {$invoice_numbers}";
     }
 
     private function buildTransactionId($input): string
     {
-        return implode(",", $input['hashed_ids']);
+        return implode(',', $input['hashed_ids']);
     }
 
     private function paymentItems($input): array

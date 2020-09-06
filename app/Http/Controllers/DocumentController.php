@@ -83,7 +83,7 @@ class DocumentController extends BaseController
 
     public function download(ShowDocumentRequest $request, Document $document)
     {
-        return response()->streamDownload(function () use($document) {
+        return response()->streamDownload(function () use ($document) {
             echo file_get_contents($document->generateUrl());
         }, basename($document->generateUrl()));
     }
@@ -119,7 +119,6 @@ class DocumentController extends BaseController
      */
     public function destroy(DestroyDocumentRequest $request, Document $document)
     {
-
         $this->document_repo->delete($document);
 
         return response()->json(['message'=>'success']);
@@ -127,14 +126,13 @@ class DocumentController extends BaseController
 
     public function bulk()
     {
-
         $action = request()->input('action');
 
         $ids = request()->input('ids');
 
         $documents = Document::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (!$invoices) {
+        if (! $invoices) {
             return response()->json(['message' => 'No Documents Found']);
         }
 

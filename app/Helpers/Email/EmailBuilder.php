@@ -23,7 +23,7 @@ class EmailBuilder
     private function parseTemplate(string $data, bool $is_markdown = true, $contact = null): string
     {
         //process variables
-        if (!empty($this->variables)) {
+        if (! empty($this->variables)) {
             $data = str_replace(array_keys($this->variables), array_values($this->variables), $data);
         }
 
@@ -47,12 +47,14 @@ class EmailBuilder
     public function setFooter($footer)
     {
         $this->footer = $footer;
+
         return $this;
     }
 
     public function setVariables($variables)
     {
         $this->variables = $variables;
+
         return $this;
     }
 
@@ -63,6 +65,7 @@ class EmailBuilder
     public function setContact($contact)
     {
         $this->contact = $contact;
+
         return $this;
     }
 
@@ -73,12 +76,13 @@ class EmailBuilder
     public function setSubject($subject)
     {
         //$this->subject = $this->parseTemplate($subject, false, $this->contact);
-        
-        if (!empty($this->variables)) {
+
+        if (! empty($this->variables)) {
             $subject = str_replace(array_keys($this->variables), array_values($this->variables), $subject);
         }
 
         $this->subject = $subject;
+
         return $this;
     }
 
@@ -89,13 +93,13 @@ class EmailBuilder
     public function setBody($body)
     {
         //$this->body = $this->parseTemplate($body, true);
-        
-        if (!empty($this->variables)) {
+
+        if (! empty($this->variables)) {
             $body = str_replace(array_keys($this->variables), array_values($this->variables), $body);
         }
 
-
         $this->body = $body;
+
         return $this;
     }
 
@@ -106,24 +110,28 @@ class EmailBuilder
     public function setTemplate($template_style)
     {
         $this->template_style = $template_style;
+
         return $this;
     }
-    
+
     public function setAttachments($attachments)
     {
         $this->attachments[] = $attachments;
+
         return $this;
     }
 
     public function setViewLink($link)
     {
         $this->view_link = $link;
+
         return $this;
     }
 
     public function setViewText($text)
     {
         $this->view_text = $text;
+
         return $this;
     }
 

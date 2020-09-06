@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -42,7 +42,7 @@ class ForgotPasswordController extends Controller
     }
 
     /**
-     * Password Reset
+     * Password Reset.
      *
      *
      * @OA\Post(
@@ -97,7 +97,6 @@ class ForgotPasswordController extends Controller
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function sendResetLinkEmail(Request $request)
     {

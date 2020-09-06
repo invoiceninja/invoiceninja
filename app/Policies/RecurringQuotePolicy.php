@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,13 +15,12 @@ use App\Models\RecurringQuote;
 use App\Models\User;
 
 /**
- * Class RecurringQuotePolicy
- * @package App\Policies
+ * Class RecurringQuotePolicy.
  */
 class RecurringQuotePolicy extends EntityPolicy
 {
     /**
-     *  Checks if the user has create permissions
+     *  Checks if the user has create permissions.
      *
      * @param  User $user
      * @return bool

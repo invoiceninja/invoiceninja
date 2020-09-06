@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -17,8 +17,7 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class UniqueInvoiceNumberRule
- * @package App\Http\ValidationRules
+ * Class UniqueInvoiceNumberRule.
  */
 class UniqueInvoiceNumberRule implements Rule
 {
@@ -29,7 +28,7 @@ class UniqueInvoiceNumberRule implements Rule
         $this->input = $input;
     }
 
-     /**
+    /**
      * @param string $attribute
      * @param mixed $value
      * @return bool
@@ -44,26 +43,26 @@ class UniqueInvoiceNumberRule implements Rule
      */
     public function message()
     {
-        return "Invoice number already taken";
+        return 'Invoice number already taken';
     }
 
     /**
      * @param $email
      *
      * //off,when_sent,when_paid
-     * 
+     *
      * @return bool
      */
     private function checkIfInvoiceNumberUnique() : bool
     {
-
         $invoice = Invoice::where('client_id', $this->input['client_id'])
                         ->where('number', $this->input['number'])
                         ->withTrashed()
                         ->exists();
 
-        if($invoice)
+        if ($invoice) {
             return false;
+        }
 
         return true;
     }

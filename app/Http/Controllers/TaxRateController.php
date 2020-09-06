@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -25,8 +25,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 /**
- * Class TaxRateController
- * @package App\Http\Controllers
+ * Class TaxRateController.
  */
 class TaxRateController extends BaseController
 {
@@ -44,7 +43,7 @@ class TaxRateController extends BaseController
 
         $this->base_repo = $base_repo;
     }
-    
+
     /**
      *      @OA\Get(
      *      path="/api/v1/tax_rates",
@@ -122,11 +121,11 @@ class TaxRateController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateTaxRateRequest $request)
     {
         $tax_rate = TaxRateFactory::create(auth()->user()->company()->id, auth()->user()->id);
+
         return $this->itemResponse($tax_rate);
     }
 
@@ -141,7 +140,7 @@ class TaxRateController extends BaseController
         $tax_rate = TaxRateFactory::create(auth()->user()->company()->id, auth()->user()->id);
         $tax_rate->fill($request->all());
         $tax_rate->save();
-        
+
         return $this->itemResponse($tax_rate);
     }
 
@@ -192,7 +191,6 @@ class TaxRateController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowTaxRateRequest $request, TaxRate $tax_rate)
     {
@@ -246,7 +244,6 @@ class TaxRateController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditTaxRateRequest $request, TaxRate $tax_rate)
     {
@@ -302,7 +299,6 @@ class TaxRateController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateTaxRateRequest $request, TaxRate $tax_rate)
     {
@@ -358,7 +354,6 @@ class TaxRateController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyTaxRateRequest $request, TaxRate $tax_rate)
     {
@@ -369,9 +364,8 @@ class TaxRateController extends BaseController
         return $this->itemResponse($tax_rate);
     }
 
-
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @param BulkTaxRateRequest $request
      * @return \Illuminate\Http\Response
@@ -430,7 +424,6 @@ class TaxRateController extends BaseController
 
         $tax_rates = TaxRate::withTrashed()->find($this->transformKeys($ids));
 
-
         $tax_rates->each(function ($tax_rate, $key) use ($action) {
             if (auth()->user()->can('edit', $tax_rate)) {
                 $this->base_repo->{$action}($tax_rate);
@@ -439,5 +432,4 @@ class TaxRateController extends BaseController
 
         return $this->listResponse(TaxRate::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
-
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -32,7 +32,7 @@ class SystemLogger implements ShouldQueue
     protected $category_id;
 
     protected $event_id;
-    
+
     protected $type_id;
 
     protected $client;

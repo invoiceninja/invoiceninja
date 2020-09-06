@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
-
     /**
      * Display a listing of the resource.
      *
@@ -48,19 +47,18 @@ class DocumentController extends Controller
     public function store(StoreDocumentRequest $request)
     {
         $contact = auth()->user();
-        
-        Storage::makeDirectory('public/' . $contact->client->client_hash, 0775);
 
-        $path = Storage::putFile('public/' . $contact->client->client_hash, $request->file('file'));
+        Storage::makeDirectory('public/'.$contact->client->client_hash, 0775);
+
+        $path = Storage::putFile('public/'.$contact->client->client_hash, $request->file('file'));
 
         $contact = auth()->user();
         $contact->avatar_size = $request->file('file')->getSize();
         $contact->avatar_type = $request->file('file')->getClientOriginalExtension();
         $contact->avatar = Storage::url($path);
         $contact->save();
-        
-        return response()->json($contact);
 
+        return response()->json($contact);
 
         /*
         [2019-08-07 05:50:23] local.ERROR: array (
@@ -123,10 +121,10 @@ class DocumentController extends Controller
         $contact = auth()->user();
 
         $file = basename($contact->avatar);
-        $image_path = 'public/' . $contact->client->client_hash . '/' . $file;
+        $image_path = 'public/'.$contact->client->client_hash.'/'.$file;
 
         Storage::delete($image_path);
-        
+
         $contact->avatar = '';
         $contact->avatar_type = '';
         $contact->avatar_size = '';

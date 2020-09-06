@@ -13,7 +13,6 @@ class AddIsPublicToDocumentsTable extends Migration
      */
     public function up()
     {
-        
         Schema::table('documents', function (Blueprint $table) {
             $table->boolean('is_public')->default(true);
         });
@@ -23,18 +22,18 @@ class AddIsPublicToDocumentsTable extends Migration
         });
 
         Schema::table('company_gateways', function (Blueprint $table) {
-            $table->enum('token_billing', ['off', 'always','optin','optout'])->default('off');
+            $table->enum('token_billing', ['off', 'always', 'optin', 'optout'])->default('off');
             $table->string('label', 255)->nullable();
         });
 
         Schema::table('payments', function (Blueprint $table) {
             $table->text('meta')->nullable();
         });
-        
+
         Schema::table('system_logs', function (Blueprint $table) {
             $table->softDeletes('deleted_at', 6);
         });
-        
+
         Schema::create('payment_hashes', function ($table) {
             $table->increments('id');
             $table->string('hash', 255);
@@ -53,9 +52,8 @@ class AddIsPublicToDocumentsTable extends Migration
         // });
 
         Schema::table('companies', function ($table) {
-            $table->enum('default_auto_bill', ['off', 'always','optin','optout'])->default('off');            
+            $table->enum('default_auto_bill', ['off', 'always', 'optin', 'optout'])->default('off');
         });
-
     }
 
     /**
@@ -65,6 +63,5 @@ class AddIsPublicToDocumentsTable extends Migration
      */
     public function down()
     {
-
     }
 }

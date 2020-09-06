@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,8 +14,7 @@ namespace App\Utils\Traits;
 use App\DataMapper\CompanySettings;
 
 /**
- * Class SettingsSaver
- * @package App\Utils\Traits
+ * Class SettingsSaver.
  */
 trait SettingsSaver
 {
@@ -30,17 +29,17 @@ trait SettingsSaver
      */
     public function validateSettings($settings)
     {
-        $settings = (object)$settings;
+        $settings = (object) $settings;
         $casts = CompanySettings::$casts;
 
         ksort($casts);
 
         foreach ($casts as $key => $value) {
             if (in_array($key, CompanySettings::$string_casts)) {
-                $value = "string";
-                if (!property_exists($settings, $key)) {
+                $value = 'string';
+                if (! property_exists($settings, $key)) {
                     continue;
-                } elseif (!$this->checkAttribute($value, $settings->{$key})) {
+                } elseif (! $this->checkAttribute($value, $settings->{$key})) {
                     return [$key, $value, $settings->{$key}];
                 }
 
@@ -48,10 +47,10 @@ trait SettingsSaver
             }
             /*Separate loop if it is a _id field which is an integer cast as a string*/
             elseif (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
-                $value = "integer";
-                if (!property_exists($settings, $key)) {
+                $value = 'integer';
+                if (! property_exists($settings, $key)) {
                     continue;
-                } elseif (!$this->checkAttribute($value, $settings->{$key})) {
+                } elseif (! $this->checkAttribute($value, $settings->{$key})) {
                     return [$key, $value, $settings->{$key}];
                 }
 
@@ -61,13 +60,12 @@ trait SettingsSaver
             }
 
             /* Handles unset settings or blank strings */
-            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') {
+            if (! property_exists($settings, $key) || is_null($settings->{$key}) || ! isset($settings->{$key}) || $settings->{$key} == '') {
                 continue;
             }
-            
 
             /*Catch all filter */
-            if (!$this->checkAttribute($value, $settings->{$key})) {
+            if (! $this->checkAttribute($value, $settings->{$key})) {
                 return [$key, $value, $settings->{$key}];
             }
         }
@@ -102,7 +100,8 @@ trait SettingsSaver
                 return is_array($value);
             case 'json':
                 json_decode($string);
-                    return (json_last_error() == JSON_ERROR_NONE);
+
+                    return json_last_error() == JSON_ERROR_NONE;
             default:
                 return false;
         }

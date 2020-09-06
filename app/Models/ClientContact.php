@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,8 +14,8 @@ namespace App\Models;
 use App\Models\Company;
 use App\Models\Language;
 use App\Models\User;
-use App\Notifications\ClientContactResetPassword as ResetPasswordNotification;
 use App\Notifications\ClientContactResetPassword;
+use App\Notifications\ClientContactResetPassword as ResetPasswordNotification;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -42,14 +42,14 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     /* Allow microtime timestamps */
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
-    protected $presenter = 'App\Models\Presenters\ClientContactPresenter';
+    protected $presenter = \App\Models\Presenters\ClientContactPresenter::class;
 
     protected $dates = [
-        'deleted_at'
+        'deleted_at',
     ];
 
     protected $appends = [
-        'hashed_id'
+        'hashed_id',
     ];
 
     protected $with = [
@@ -91,7 +91,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function getEntityType()
     {
-        return ClientContact::class;
+        return self::class;
     }
 
     public function getHashedIdAttribute()
@@ -112,8 +112,8 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function setAvatarAttribute($value)
     {
-        if (!filter_var($value, FILTER_VALIDATE_URL) && $value) {
-            $this->attributes['avatar'] = url('/') . $value;
+        if (! filter_var($value, FILTER_VALIDATE_URL) && $value) {
+            $this->attributes['avatar'] = url('/').$value;
         } else {
             $this->attributes['avatar'] = $value;
         }
@@ -161,13 +161,11 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function preferredLocale()
     {
-        
         $languages = Cache::get('languages');
 
         return $languages->filter(function ($item) {
             return $item->id == $this->client->getSetting('language_id');
         })->first()->locale;
-
     }
 
     public function routeNotificationForMail($notification)
@@ -181,7 +179,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
      * @param  mixed  $value
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function resolveRouteBinding($value)
+    public function resolveRouteBinding($value, $field = NULL)
     {
         return $this
             ->withTrashed()

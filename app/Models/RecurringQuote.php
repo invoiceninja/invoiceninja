@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -27,7 +27,7 @@ class RecurringQuote extends BaseModel
     use Filterable;
 
     /**
-     * Invoice Statuses
+     * Invoice Statuses.
      */
     const STATUS_DRAFT = 2;
     const STATUS_ACTIVE = 3;
@@ -35,9 +35,8 @@ class RecurringQuote extends BaseModel
     const STATUS_COMPLETED = -2;
     const STATUS_CANCELLED = -3;
 
-
     /**
-     * Recurring intervals
+     * Recurring intervals.
      */
     const FREQUENCY_WEEKLY = 1;
     const FREQUENCY_TWO_WEEKS = 2;
@@ -51,7 +50,7 @@ class RecurringQuote extends BaseModel
     const FREQUENCY_TWO_YEARS = 10;
 
     const RECURS_INDEFINITELY = -1;
-    
+
     protected $fillable = [
         'client_id',
         'quote_number',
@@ -99,33 +98,36 @@ class RecurringQuote extends BaseModel
 
     public function getEntityType()
     {
-        return RecurringQuote::class;
+        return self::class;
     }
 
     public function getDateAttribute($value)
     {
-        if (!empty($value)) {
+        if (! empty($value)) {
             return (new Carbon($value))->format('Y-m-d');
         }
+
         return $value;
     }
 
     public function getDueDateAttribute($value)
     {
-        if (!empty($value)) {
+        if (! empty($value)) {
             return (new Carbon($value))->format('Y-m-d');
         }
+
         return $value;
     }
 
     public function getPartialDueDateAttribute($value)
     {
-        if (!empty($value)) {
+        if (! empty($value)) {
             return (new Carbon($value))->format('Y-m-d');
         }
+
         return $value;
     }
-    
+
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -145,7 +147,7 @@ class RecurringQuote extends BaseModel
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
-    
+
     public function invitations()
     {
         $this->morphMany(RecurringQuoteInvitation::class);

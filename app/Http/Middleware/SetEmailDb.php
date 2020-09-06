@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,12 +24,11 @@ class SetEmailDb
      * @param  \Closure  $next
      * @return mixed
      */
-    
     public function handle($request, Closure $next)
     {
         $error = [
             'message' => 'Email not set or not found',
-            'errors' => new \stdClass
+            'errors' => new \stdClass,
         ];
 
         if ($request->input('email') && config('ninja.db.multi_db_enabled')) {

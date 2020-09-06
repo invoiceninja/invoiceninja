@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -87,9 +87,9 @@ class RecurringQuoteTransformer extends EntityTransformer
             'balance' => (float) $quote->balance ?: '',
             'client_id' => (string) $quote->client_id,
             'status_id' => (string) ($quote->status_id ?: 1),
-            'created_at' => (int)$quote->created_at,
-            'updated_at' => (int)$quote->updated_at,
-            'archived_at' => (int)$quote->deleted_at,
+            'created_at' => (int) $quote->created_at,
+            'updated_at' => (int) $quote->updated_at,
+            'archived_at' => (int) $quote->deleted_at,
             'discount' => (float) $quote->discount ?: '',
             'po_number' => $quote->po_number ?: '',
             'quote_date' => $quote->quote_date ?: '',

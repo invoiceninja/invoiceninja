@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,7 +22,6 @@ class PaymentWasUpdated
 {
     use SerializesModels;
 
-
     /**
      * @var Payment
      */
@@ -31,6 +30,7 @@ class PaymentWasUpdated
     public $company;
 
     public $event_vars;
+
     /**
      * Create a new event instance.
      *

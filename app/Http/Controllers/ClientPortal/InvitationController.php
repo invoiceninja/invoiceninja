@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,10 +24,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Class InvitationController
- * @package App\Http\Controllers\ClientPortal\InvitationController
+ * Class InvitationController.
  */
-
 class InvitationController extends Controller
 {
     use MakesHash;
@@ -39,19 +37,18 @@ class InvitationController extends Controller
 
         $entity_obj = 'App\Models\\'.ucfirst($entity).'Invitation';
 
-        $invitation = $entity_obj::whereRaw("BINARY `key`= ?", [$invitation_key])->first();
+        $invitation = $entity_obj::whereRaw('BINARY `key`= ?', [$invitation_key])->first();
 
         if ($invitation) {
-
-            if ((bool)$invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
+            if ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
                 $this->middleware('auth:contact');
             } else {
                 auth()->guard('contact')->login($invitation->contact, true);
             }
 
-            if (!request()->has('silent') && !$invitation->viewed_date) {
+            if (! request()->has('silent') && ! $invitation->viewed_date) {
 //            if (!request()->has('silent')) {
-                
+
                 $invitation->markViewed();
 
                 event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
@@ -67,7 +64,6 @@ class InvitationController extends Controller
 
     private function fireEntityViewedEvent($invitation, $entity_string)
     {
-
         switch ($entity_string) {
             case 'invoice':
                 event(new InvoiceWasViewed($invitation, $invitation->company, Ninja::eventVars()));
@@ -77,9 +73,9 @@ class InvitationController extends Controller
                 break;
             case 'credit':
                 event(new CreditWasViewed($invitation, $invitation->company, Ninja::eventVars()));
-                break;              
+                break;
             default:
-                # code...
+                // code...
                 break;
         }
     }

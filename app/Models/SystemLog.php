@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,12 +21,12 @@ class SystemLog extends Model
     use Filterable;
     use SoftDeletes;
     use MakesHash;
-    
+
     protected $casts = [
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
-        'log' => 'array'
+        'log' => 'array',
     ];
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
@@ -38,7 +38,7 @@ class SystemLog extends Model
     /* Event IDs*/
     const EVENT_PAYMENT_RECONCILIATION_FAILURE = 10;
     const EVENT_PAYMENT_RECONCILIATION_SUCCESS = 11;
-    
+
     const EVENT_GATEWAY_SUCCESS = 21;
     const EVENT_GATEWAY_FAILURE = 22;
     const EVENT_GATEWAY_ERROR = 23;
@@ -67,7 +67,7 @@ class SystemLog extends Model
         'type_id',
     ];
 
-    public function resolveRouteBinding($value)
+    public function resolveRouteBinding($value, $field = NULL)
     {
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");
@@ -77,13 +77,13 @@ class SystemLog extends Model
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
-        /*
+    /*
     V2 type of scope
      */
     public function scopeCompany($query)
     {
         $query->where('company_id', auth()->user()->companyId());
-        
+
         return $query;
     }
 }

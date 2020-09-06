@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -48,7 +48,7 @@ class MailRouter extends BaseMailerJob implements ShouldQueue
 
     public $settings;
 
-	public function __construct(Mailable $mailable, Company $company, $to_user, string $sending_method)
+    public function __construct(Mailable $mailable, Company $company, $to_user, string $sending_method)
     {
         $this->mailable = $mailable;
 
@@ -58,19 +58,20 @@ class MailRouter extends BaseMailerJob implements ShouldQueue
 
         $this->sending_method = $sending_method;
 
-        if($to_user instanceof ClientContact)
+        if ($to_user instanceof ClientContact) {
             $this->settings = $to_user->client->getMergedSettings();
-        else
+        } else {
             $this->settings = $this->company->settings;
+        }
     }
 
     public function handle()
     {
-    	MultiDB::setDb($this->company->db);
- 
+        MultiDB::setDb($this->company->db);
+
         //if we need to set an email driver do it now
         $this->setMailDriver();
-        
+
         //send email
         Mail::to($this->to_user->email)
             ->send($this->mailable);

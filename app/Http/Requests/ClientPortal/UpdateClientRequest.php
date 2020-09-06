@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -23,7 +23,6 @@ class UpdateClientRequest extends Request
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return $this->encodePrimaryKey(auth()->user()->id) === request()->segment(3);
@@ -33,7 +32,7 @@ class UpdateClientRequest extends Request
     {
         return [
             'name' => 'sometimes|required',
-            'file' => 'sometimes|nullable|max:100000|mimes:png,svg,jpeg,gif,jpg,bmp'
+            'file' => 'sometimes|nullable|max:100000|mimes:png,svg,jpeg,gif,jpg,bmp',
         ];
     }
 }

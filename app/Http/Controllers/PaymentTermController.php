@@ -27,7 +27,6 @@ class PaymentTermController extends BaseController
      */
     protected $payment_term_repo;
 
-
     /**
      * PaymentTermController constructor.
      *
@@ -72,14 +71,13 @@ class PaymentTermController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index()
     {
         $payment_terms = PaymentTerm::whereCompanyId(auth()->user()->company()->id)->orWhere('company_id', null);
 
         return $this->listResponse($payment_terms);
-    }    
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -120,7 +118,6 @@ class PaymentTermController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreatePaymentTermRequest $request)
     {
@@ -173,7 +170,6 @@ class PaymentTermController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StorePaymentTermRequest $request)
     {
@@ -226,13 +222,11 @@ class PaymentTermController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowPaymentTermRequest $request, PaymentTerm $payment_term)
     {
         return $this->itemResponse($payment_term);
     }
-
 
     /**
      * @OA\Get(
@@ -276,7 +270,6 @@ class PaymentTermController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditPaymentRequest $request, Payment $payment)
     {
@@ -333,7 +326,6 @@ class PaymentTermController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdatePaymentTermRequest $request, PaymentTerm $payment_term)
     {
@@ -392,19 +384,16 @@ class PaymentTermController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyPaymentTermRequest $request, PaymentTerm $payment_term)
     {
-
         $payment_term->delete();
 
         return response()->json([], 200);
     }
 
-
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @return Collection
      *
@@ -454,7 +443,6 @@ class PaymentTermController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
@@ -472,6 +460,4 @@ class PaymentTermController extends BaseController
 
         return $this->listResponse(PaymentTerm::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
-
-
 }

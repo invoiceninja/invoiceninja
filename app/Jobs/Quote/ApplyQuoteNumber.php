@@ -1,6 +1,6 @@
 <?php
 /**
- * Quote Ninja (https://invoiceninja.com)
+ * Quote Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -35,6 +35,7 @@ class ApplyQuoteNumber implements ShouldQueue
     private $settings;
 
     private $company;
+
     /**
      * Create a new job instance.
      *
@@ -73,14 +74,14 @@ class ApplyQuoteNumber implements ShouldQueue
                     $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
                 }
                 break;
-            
+
             default:
-                # code...
+                // code...
                 break;
         }
-   
+
         $this->quote->save();
-            
+
         return $this->quote;
     }
 }

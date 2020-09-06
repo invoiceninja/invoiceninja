@@ -5,7 +5,6 @@ use App\DataMapper\CompanySettings;
 use Faker\Generator as Faker;
 
 $factory->define(App\Models\Client::class, function (Faker $faker) {
-
     return [
         'name' => $faker->company(),
         'website' => $faker->url,

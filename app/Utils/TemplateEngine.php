@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -65,7 +65,7 @@ class TemplateEngine
 
     private function setEntity()
     {
-        if (strlen($this->entity) > 1 && strlen($this->entity_id) >1) {
+        if (strlen($this->entity) > 1 && strlen($this->entity_id) > 1) {
             $class = 'App\Models\\'.ucfirst($this->entity);
             $this->entity_obj = $class::whereId($this->decodePrimaryKey($this->entity_id))->company()->first();
         }
@@ -88,7 +88,7 @@ class TemplateEngine
     private function setTemplates()
     {
         if (strlen($this->subject) == 0 && strlen($this->template) > 1) {
-            $subject_template = str_replace("template", "subject", $this->template);
+            $subject_template = str_replace('template', 'subject', $this->template);
             $this->subject = EmailTemplateDefaults::getDefaultTemplate($subject_template, $this->settings_entity->locale());
         }
 
@@ -126,12 +126,10 @@ class TemplateEngine
         ]);
 
         $this->body = $converter->convertToHtml($this->body);
-
     }
 
     private function entityValues($contact)
     {
-
         $data = $this->entity_obj->buildLabelsAndValues($contact);
 
         $this->body = strtr($this->body, $data['labels']);
@@ -139,7 +137,7 @@ class TemplateEngine
 
         $this->subject = strtr($this->subject, $data['labels']);
         $this->subject = strtr($this->subject, $data['values']);
-        
+
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,
         ]);
@@ -169,7 +167,7 @@ class TemplateEngine
         } else {
             $wrapper = view($this->getTemplatePath($email_style), $data)->render();
             $injection = '<head><link rel="stylesheet" type="text/css" property="stylesheet" href="'.config('ninja.app_url').'/css/tailwind-1.2.0.css">';
-            $wrapper = str_replace('<head>',$injection ,$wrapper);
+            $wrapper = str_replace('<head>', $injection, $wrapper);
         }
 
         $data = [

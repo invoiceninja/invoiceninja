@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
 
     /*
     |--------------------------------------------------------------------------
@@ -13,12 +13,12 @@ return array(
     |
     */
 
-    "password" => "Hasło musi mieć conajmniej sześć znaków i być takie samo jak potwierdzające.",
+    'password' => 'Hasło musi mieć conajmniej sześć znaków i być takie samo jak potwierdzające.',
 
-    "user" => "Użytkownik o podanym adresie e-mail nie istnieje.",
+    'user' => 'Użytkownik o podanym adresie e-mail nie istnieje.',
 
-    "token" => "Wprowadzony token jest nieprawidłowy.",
+    'token' => 'Wprowadzony token jest nieprawidłowy.',
 
-    "sent" => "Przypomnienie hasła zostało wysłane!",
+    'sent' => 'Przypomnienie hasła zostało wysłane!',
 
-);
+];

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,16 +28,15 @@ class TokenAuth
      */
     public function handle($request, Closure $next)
     {
-        if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user','company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first())) {
-
+        if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user', 'company'])->whereRaw('BINARY `token`= ?', [$request->header('X-API-TOKEN')])->first())) {
             $user = $company_token->user;
 
             $error = [
                 'message' => 'User inactive',
-                'errors' => new \stdClass
+                'errors' => new \stdClass,
             ];
             //user who once existed, but has been soft deleted
-            if (!$user) {
+            if (! $user) {
                 return response()->json($error, 403);
             }
 
@@ -49,7 +48,7 @@ class TokenAuth
             |
             */
             $user->setCompany($company_token->company);
-            
+
             config(['ninja.company_id' => $company_token->company->id]);
 
             app('queue')->createPayloadUsing(function () use ($company_token) {
@@ -60,12 +59,12 @@ class TokenAuth
             if ($user->company_user->is_locked) {
                 $error = [
                     'message' => 'User access locked',
-                    'errors' => new \stdClass
+                    'errors' => new \stdClass,
                 ];
 
                 return response()->json($error, 403);
             }
-   
+
             //stateless, don't remember the user.
             auth()->login($user, false);
 
@@ -73,7 +72,7 @@ class TokenAuth
         } else {
             $error = [
                 'message' => 'Invalid token',
-                'errors' => new \stdClass
+                'errors' => new \stdClass,
             ];
 
             return response()->json($error, 403);

@@ -15,10 +15,10 @@ class ClientContactResetPassword extends Notification
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     /**
-        * The password reset token.
-        *
-        * @var string
-        */
+     * The password reset token.
+     *
+     * @var string
+     */
     public $token;
 
     /**

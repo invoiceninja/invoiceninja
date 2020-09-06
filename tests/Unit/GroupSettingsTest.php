@@ -23,13 +23,12 @@ class GroupSettingsTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-        
+
         $this->makeTestData();
 
         $this->company_settings = CompanySettings::defaults();
         $this->client_settings = ClientSettings::buildClientSettings($this->company_settings, ClientSettings::defaults());
     }
-
 
     public function testCompanyDefaults()
     {
@@ -44,10 +43,9 @@ class GroupSettingsTest extends TestCase
         $this->assertEquals($this->client->settings->timezone_id, '1');
         $this->assertEquals($this->client->getSetting('timezone_id'), '1');
         $this->assertEquals($this->client->getMergedSettings()->timezone_id, '1');
-            
+
         $this->assertEquals($this->company->settings->timezone_id, 'fluffy');
     }
-
 
     public function testGroupDefaults()
     {
@@ -75,8 +73,6 @@ class GroupSettingsTest extends TestCase
         $this->assertEquals($this->client->getSetting('timezone_id'), 'SPOCK');
         $this->assertEquals($this->client->getMergedSettings()->timezone_id, 'SPOCK');
     }
-
-
 
     public function testClientDefaults()
     {
@@ -106,7 +102,6 @@ class GroupSettingsTest extends TestCase
         $this->assertEquals($this->client->getSetting('timezone_id'), 'SCOTTY');
         $this->assertEquals($this->client->getMergedSettings()->timezone_id, 'SCOTTY');
     }
-
 
     public function testClientPriority()
     {
@@ -198,7 +193,7 @@ class GroupSettingsTest extends TestCase
     public function testDiscardingUnsetProperties()
     {
         $this->settings = $this->company->settings;
-        
+
         $this->assertTrue($this->validateSettings($this->settings));
 
         $new_settings = $this->saveSettings($this->settings, $this->client);

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -30,7 +30,7 @@ use Illuminate\Http\Request;
 class InvoiceController extends BaseController
 {
     use MakesHash;
-    
+
     protected $entity_type = Invoice::class;
 
     protected $entity_transformer = InvoiceTransformer::class;
@@ -56,30 +56,30 @@ class InvoiceController extends BaseController
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
-        if(!$company->enable_shop_api)
-            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass],403);
+        if (! $company->enable_shop_api) {
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass], 403);
+        }
 
         $invitation = InvoiceInvitation::with(['invoice'])
                                         ->where('company_id', $company->id)
-                                        ->where('key',$invitation_key)
+                                        ->where('key', $invitation_key)
                                         ->firstOrFail();
 
         return $this->itemResponse($invitation->invoice);
     }
 
-
     public function store(StoreShopInvoiceRequest $request)
     {
-                
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
-        if(!$company->enable_shop_api)
-            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass],403);
+        if (! $company->enable_shop_api) {
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass], 403);
+        }
 
         app('queue')->createPayloadUsing(function () use ($company) {
             return ['db' => $company->db];
         });
-        
+
         $client = Client::find($request->input('client_id'));
 
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create($company->id, $company->owner()->id));
@@ -87,8 +87,7 @@ class InvoiceController extends BaseController
         event(new InvoiceWasCreated($invoice, $company, Ninja::eventVars()));
 
         $invoice = $invoice->service()->triggeredActions($request)->save();
-        
+
         return $this->itemResponse($invoice);
     }
-
 }

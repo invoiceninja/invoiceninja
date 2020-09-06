@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
 
     'organization' => 'Organizata',
     'name' => 'Emri',
@@ -1013,7 +1013,6 @@ $LANG = array(
     'trial_success' => 'Periudha provuese dyjavore për pro planin është aktivizuar me sukses',
     'overdue' => 'E vonuar',
 
-
     'white_label_text' => 'Bli nje license vjecare me cmimin $:price per te hequr logot dhe tekstet e Invoice Ninja nga fatura dhe portali i klientit. ',
     'user_email_footer' => 'Për të ndryshuar lajmërimet tuaja me email vizitoni :link',
     'reset_password_footer' => 'Nëse nuk keni kërkuar resetimin e fjalëkalimit ju lutem na shkruani në emailin tonë : :email',
@@ -1194,7 +1193,6 @@ Fushat e njësive në faturë',
     'enterprise_plan_features' => 'Plani Enterprise shton përkrahje për shumë përdorues dhe bashkangjithjen e fajllave, :link për të parë listën e të gjitha veçorive.',
     'return_to_app' => 'Return To App',
 
-
     // Payment updates
     'refund_payment' => 'Rimburso pagesën',
     'refund_max' => 'Maksimumi:',
@@ -1303,7 +1301,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'braintree_paypal_help_link_text' => 'lidh PayPal me llogarinë tuaj në BrainTree',
     'token_billing_braintree_paypal' => 'Ruaj detajet e pagesës',
     'add_paypal_account' => 'Shto llogari PayPal',
-
 
     'no_payment_method_specified' => 'Nuk është caktuar metoda e pagesës',
     'chart_type' => 'Lloji i grafikonit',
@@ -2863,6 +2860,6 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
     'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
-);
+];
 
 return $LANG;

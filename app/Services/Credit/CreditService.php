@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -30,7 +30,7 @@ class CreditService
     }
 
     /**
-     * Applies the invoice number
+     * Applies the invoice number.
      * @return $this InvoiceService object
      */
     public function applyNumber()
@@ -62,7 +62,7 @@ class CreditService
     }
 
     /**
-     * Saves the credit
+     * Saves the credit.
      * @return Credit object
      */
     public function save() : ?Credit

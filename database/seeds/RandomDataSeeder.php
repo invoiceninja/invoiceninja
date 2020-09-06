@@ -36,6 +36,7 @@ use Illuminate\Support\Str;
 class RandomDataSeeder extends Seeder
 {
     use \App\Utils\Traits\MakesHash;
+
     /**
      * Run the database seeds.
      *
@@ -69,7 +70,6 @@ class RandomDataSeeder extends Seeder
             }
         }
 
-
         $this->command->info('Running RandomDataSeeder');
 
         Eloquent::unguard();
@@ -87,7 +87,7 @@ class RandomDataSeeder extends Seeder
         $user = factory(\App\Models\User::class)->create([
             'email'             => $faker->email,
             'account_id' => $account->id,
-            'confirmation_code' => $this->createDbHash(config('database.default'))
+            'confirmation_code' => $this->createDbHash(config('database.default')),
         ]);
 
         $company_token = CompanyToken::create([
@@ -110,13 +110,12 @@ class RandomDataSeeder extends Seeder
 
         $u2 = User::where('email', 'demo@invoiceninja.com')->first();
 
-        if(!$u2){
-
+        if (! $u2) {
             $u2 = factory(\App\Models\User::class)->create([
                 'email'             => 'demo@invoiceninja.com',
                 'password'          => Hash::make('demo'),
                 'account_id' => $account->id,
-                'confirmation_code' => $this->createDbHash(config('database.default'))
+                'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
 
             $company_token = CompanyToken::create([
@@ -140,9 +139,8 @@ class RandomDataSeeder extends Seeder
 
         $client = factory(\App\Models\Client::class)->create([
             'user_id' => $user->id,
-            'company_id' => $company->id
+            'company_id' => $company->id,
         ]);
-
 
         ClientContact::create([
             'first_name' => $faker->firstName,
@@ -157,26 +155,25 @@ class RandomDataSeeder extends Seeder
             'contact_key' => \Illuminate\Support\Str::random(40),
         ]);
 
-
         factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
-                'is_primary' => 1
+                'is_primary' => 1,
             ]);
 
             factory(\App\Models\ClientContact::class, 5)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
-                'company_id' => $company->id
+                'company_id' => $company->id,
             ]);
         });
 
-        /** Product Factory */
+        /* Product Factory */
         factory(\App\Models\Product::class, 2)->create(['user_id' => $user->id, 'company_id' => $company->id]);
 
-        /** Invoice Factory */
+        /* Invoice Factory */
         factory(\App\Models\Invoice::class, 2)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $invoices = Invoice::all();
@@ -198,7 +195,7 @@ class RandomDataSeeder extends Seeder
             //event(new CreateInvoiceInvitation($invoice));
 
             $invoice->service()->createInvitations()->markSent()->save();
-            
+
             $invoice->ledger()->updateInvoiceBalance($invoice->balance);
 
             if (rand(0, 1)) {
@@ -215,12 +212,12 @@ class RandomDataSeeder extends Seeder
 
                 $payment->invoices()->save($invoice);
 
-                    $payment_hash = new PaymentHash;
-                    $payment_hash->hash = Str::random(128);
-                    $payment_hash->data = [['invoice_id' => $invoice->hashed_id, 'amount' => $invoice->balance]];
-                    $payment_hash->fee_total = 0;
-                    $payment_hash->fee_invoice_id = $invoice->id;
-                    $payment_hash->save();
+                $payment_hash = new PaymentHash;
+                $payment_hash->hash = Str::random(128);
+                $payment_hash->data = [['invoice_id' => $invoice->hashed_id, 'amount' => $invoice->balance]];
+                $payment_hash->fee_total = 0;
+                $payment_hash->fee_invoice_id = $invoice->id;
+                $payment_hash->save();
 
                 event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
@@ -255,7 +252,7 @@ class RandomDataSeeder extends Seeder
             //$invoice->markSent()->save();
         });
 
-        /** Recurring Invoice Factory */
+        /* Recurring Invoice Factory */
         factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         // factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
@@ -284,7 +281,6 @@ class RandomDataSeeder extends Seeder
             //$invoice->markSent()->save();
         });
 
-
         $clients = Client::all();
 
         foreach ($clients as $client) {
@@ -293,14 +289,12 @@ class RandomDataSeeder extends Seeder
             $client->save();
         }
 
-
         GroupSetting::create([
             'company_id' => $company->id,
             'user_id' => $user->id,
             'settings' =>  ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults()),
             'name' => 'Default Client Settings',
         ]);
-
 
         if (config('ninja.testvars.stripe')) {
             $cg = new CompanyGateway;
@@ -339,7 +333,7 @@ class RandomDataSeeder extends Seeder
             $cg->save();
         }
 
-        if(config('ninja.testvars.checkout')) {
+        if (config('ninja.testvars.checkout')) {
             $cg = new CompanyGateway;
             $cg->company_id = $company->id;
             $cg->user_id = $user->id;
@@ -352,7 +346,7 @@ class RandomDataSeeder extends Seeder
             $cg->save();
         }
 
-        if(config('ninja.testvars.authorize')) {
+        if (config('ninja.testvars.authorize')) {
             $cg = new CompanyGateway;
             $cg->company_id = $company->id;
             $cg->user_id = $user->id;
@@ -364,6 +358,5 @@ class RandomDataSeeder extends Seeder
             $cg->config = encrypt(config('ninja.testvars.authorize'));
             $cg->save();
         }
-        
     }
 }

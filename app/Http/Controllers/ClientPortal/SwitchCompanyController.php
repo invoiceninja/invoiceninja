@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -23,7 +23,6 @@ class SwitchCompanyController extends Controller
 
     public function __invoke(string $contact)
     {
-
         $client_contact = ClientContact::where('email', auth()->user()->email)
             ->where('id', $this->transformKeys($contact))
             ->first();

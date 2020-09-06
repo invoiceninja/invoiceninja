@@ -26,7 +26,6 @@ use Tests\TestCase;
  * @test
  * @covers App\Services\Invoice\HandleCancellation
  */
-    
 class CancelInvoiceTest extends TestCase
 {
     use MakesHash;

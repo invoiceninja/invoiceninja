@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,15 +18,12 @@ use League\CommonMark\CommonMarkConverter;
 use Parsedown;
 
 /**
- * Class PaymentEmailBuilder
- * @package App\Utils\Traits
+ * Class PaymentEmailBuilder.
  */
 trait PaymentEmailBuilder
 {
-
-
     /**
-     * Builds the correct template to send
+     * Builds the correct template to send.
      * @param  string $reminder_template The template name ie reminder1
      * @return array
      */
@@ -34,8 +31,6 @@ trait PaymentEmailBuilder
     {
         //client
         //$client = $this->client;
-
-
 
         //Need to determine which email template we are producing
         return $this->generateTemplateData($reminder_template, $contact);
@@ -51,13 +46,13 @@ trait PaymentEmailBuilder
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
-            $body_template = trans('texts.payment_message', ['amount'=>$this->present()->amount(),'account'=>$this->company->present()->name()], null, $this->client->locale());
+            $body_template = trans('texts.payment_message', ['amount'=>$this->present()->amount(), 'account'=>$this->company->present()->name()], null, $this->client->locale());
         }
 
         $subject_template = $client->getSetting('payment_subject');
 
         if (iconv_strlen($subject_template) == 0) {
-            $subject_template = trans('texts.invoice_subject', ['number'=>$this->present()->invoice_number(),'account'=>$this->company->present()->name()], null, $this->client->locale());
+            $subject_template = trans('texts.invoice_subject', ['number'=>$this->present()->invoice_number(), 'account'=>$this->company->present()->name()], null, $this->client->locale());
         }
 
         $data['body'] = $this->parseTemplate($body_template, false, $contact);
@@ -70,7 +65,7 @@ trait PaymentEmailBuilder
         return $data;
     }
 
-    private function parseTemplate(string $template_data, bool $is_markdown = true, $contact) :string
+    private function parseTemplate(string $template_data, bool $is_markdown, $contact) :string
     {
         $invoice_variables = $this->makeValues($contact);
 

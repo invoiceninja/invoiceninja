@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,12 +18,11 @@ use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyTokenTransformer;
-use App\Transformers\UserTransformer;
 use App\Transformers\CompanyTransformer;
+use App\Transformers\UserTransformer;
 
 class CompanyUserTransformer extends EntityTransformer
 {
-    
     /**
      * @var array
      */
@@ -44,20 +43,19 @@ class CompanyUserTransformer extends EntityTransformer
         'account',
     ];
 
-
     public function transform(CompanyUser $company_user)
     {
         return [
             'permissions' => $company_user->permissions ?: '',
-            'notifications' => (object)$company_user->notifications,
-            'settings' => (object)$company_user->settings,
+            'notifications' => (object) $company_user->notifications,
+            'settings' => (object) $company_user->settings,
             'is_owner' => (bool) $company_user->is_owner,
             'is_admin' => (bool) $company_user->is_admin,
             'is_locked' => (bool) $company_user->is_locked,
-            'updated_at' => (int)$company_user->updated_at,
-            'archived_at' => (int)$company_user->deleted_at,
-            'created_at' => (int)$company_user->created_at,
-            
+            'updated_at' => (int) $company_user->updated_at,
+            'archived_at' => (int) $company_user->deleted_at,
+            'created_at' => (int) $company_user->created_at,
+
         ];
     }
 

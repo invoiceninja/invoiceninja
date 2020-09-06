@@ -43,7 +43,6 @@ class GeneratesCounterTest extends TestCase
         $this->makeTestData();
     }
 
-
     public function testHasSharedCounter()
     {
         $this->assertFalse($this->hasSharedCounter($this->client));
@@ -56,7 +55,7 @@ class GeneratesCounterTest extends TestCase
         $settings->invoice_number_pattern = '{$year}-{$counter}';
         $settings->shared_invoice_quote_counter = 1;
         $this->company->settings = $settings;
-        
+
         $this->company->save();
 
         $this->client->settings = $settings;
@@ -178,7 +177,7 @@ class GeneratesCounterTest extends TestCase
         $invoice_number = $this->getNextClientNumber($this->client);
 
         $this->assertEquals($invoice_number, date('Y').'-0001');
-        
+
         $invoice_number = $this->getNextClientNumber($this->client);
         $this->assertEquals($invoice_number, date('Y').'-0002');
     }
@@ -205,7 +204,7 @@ class GeneratesCounterTest extends TestCase
         $settings->counter_padding = 10;
         $this->company->settings = $settings;
         $this->company->save();
-        
+
         $cliz = ClientFactory::create($this->company->id, $this->user->id);
         $cliz->settings = ClientSettings::defaults();
         $cliz->save();
@@ -228,7 +227,7 @@ class GeneratesCounterTest extends TestCase
         $cliz->save();
 
         $invoice_number = $this->getNextInvoiceNumber($cliz);
-    
+
         $this->assertEquals($invoice_number, '0008');
 
         $invoice_number = $this->getNextInvoiceNumber($cliz);
@@ -247,7 +246,6 @@ class GeneratesCounterTest extends TestCase
         $this->assertEquals($client_number, '0002');
     }
 
-
     public function testClientNumberPrefix()
     {
         $settings = $this->company->settings;
@@ -259,7 +257,7 @@ class GeneratesCounterTest extends TestCase
         $cliz->save();
 
         $client_number = $this->getNextClientNumber($cliz);
-    
+
         $this->assertEquals($client_number, '0001');
 
         $client_number = $this->getNextClientNumber($cliz);
@@ -279,13 +277,14 @@ class GeneratesCounterTest extends TestCase
         $cliz->save();
 
         $client_number = $this->getNextClientNumber($cliz);
-    
-        $this->assertEquals($client_number, date('Y') . '-' . str_pad($this->client->user_id, 2, '0', STR_PAD_LEFT) . '-0001');
+
+        $this->assertEquals($client_number, date('Y').'-'.str_pad($this->client->user_id, 2, '0', STR_PAD_LEFT).'-0001');
 
         $client_number = $this->getNextClientNumber($cliz);
-    
-        $this->assertEquals($client_number, date('Y') . '-' . str_pad($this->client->user_id, 2, '0', STR_PAD_LEFT) . '-0002');
+
+        $this->assertEquals($client_number, date('Y').'-'.str_pad($this->client->user_id, 2, '0', STR_PAD_LEFT).'-0002');
     }
+
     /*
 
         public function testClientNextNumber()

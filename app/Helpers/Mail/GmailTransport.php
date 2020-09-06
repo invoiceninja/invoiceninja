@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,7 +18,7 @@ use Illuminate\Mail\Transport\Transport;
 use Swift_Mime_SimpleMessage;
 
 /**
- * GmailTransport
+ * GmailTransport.
  */
 class GmailTransport extends Transport
 {
@@ -30,10 +30,11 @@ class GmailTransport extends Transport
     protected $gmail;
 
     /**
-     * The GMail OAuth Token
+     * The GMail OAuth Token.
      * @var string token
      */
     protected $token;
+
     /**
      * Create a new Gmail transport instance.
      *
@@ -46,11 +47,10 @@ class GmailTransport extends Transport
         $this->token = $token;
     }
 
-
     public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
         /*We should nest the token in the message and then discard it as needed*/
-        
+
         $this->beforeSendPerformed($message);
 
         $this->gmail->using($this->token);
@@ -62,13 +62,13 @@ class GmailTransport extends Transport
         $this->gmail->cc($message->getCc());
         $this->gmail->bcc($message->getBcc());
 
-\Log::error(print_r($message->getChildren(),1));
+        \Log::error(print_r($message->getChildren(), 1));
 
-        foreach($message->getChildren() as $child)
-            $this->gmail->attach($child); //todo this should 'just work'
+        foreach ($message->getChildren() as $child) {
+            $this->gmail->attach($child);
+        } //todo this should 'just work'
 
         $this->gmail->send();
-
 
         $this->sendPerformed($message);
 

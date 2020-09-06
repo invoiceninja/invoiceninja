@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -44,8 +44,8 @@ class LoginController extends BaseController
     | to conveniently provide its functionality to your applications.
     |
     */
-   
-    /**
+
+    /*
       * @OA\Tag(
       *     name="login",
       *     description="Authentication",
@@ -58,7 +58,7 @@ class LoginController extends BaseController
 
     use AuthenticatesUsers;
     use UserSessionAttributes;
-    
+
     protected $entity_type = CompanyUser::class;
 
     protected $entity_transformer = CompanyUserTransformer::class;
@@ -82,7 +82,7 @@ class LoginController extends BaseController
 
     /**
      * Once the user is authenticated, we need to set
-     * the default company into a session variable
+     * the default company into a session variable.
      *
      * @return void
      * deprecated .1 API ONLY we don't need to set any session variables
@@ -92,9 +92,8 @@ class LoginController extends BaseController
         //$this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
     }
 
-
     /**
-     * Login via API
+     * Login via API.
      *
      * @param      \Illuminate\Http\Request  $request  The request
      *
@@ -154,9 +153,7 @@ class LoginController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
-
     public function apiLogin(Request $request)
     {
         $this->forced_includes = ['company_users'];
@@ -173,20 +170,18 @@ class LoginController extends BaseController
         }
 
         if ($this->attemptLogin($request)) {
-
             LightLogs::create(new LoginSuccess())
                 ->increment()
                 ->batch();
 
             $user = $this->guard()->user();
-            
+
             $user->setCompany($user->company_user->account->default_company);
 
             $ct = CompanyUser::whereUserId($user->id);
 
             return $this->listResponse($ct);
         } else {
-
             LightLogs::create(new LoginFailure())
                 ->increment()
                 ->batch();
@@ -201,7 +196,7 @@ class LoginController extends BaseController
     }
 
     /**
-     * Refreshes the data feed with the current Company User
+     * Refreshes the data feed with the current Company User.
      *
      * @return     CompanyUser Refresh Feed.
      *
@@ -238,15 +233,14 @@ class LoginController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function refresh(Request $request)
     {
-        $company_token = CompanyToken::whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first();
+        $company_token = CompanyToken::whereRaw('BINARY `token`= ?', [$request->header('X-API-TOKEN')])->first();
 
         $cu = CompanyUser::query()
                           ->where('user_id', $company_token->user_id);
-                          //->where('company_id', $company_token->company_id);
+        //->where('company_id', $company_token->company_id);
 
         //$ct = CompanyUser::whereUserId(auth()->user()->id);
         return $this->refreshResponse($cu);
@@ -266,9 +260,9 @@ class LoginController extends BaseController
      */
     public function oauthApiLogin()
     {
-
-        if(request()->input('provider') == 'google')
+        if (request()->input('provider') == 'google') {
             return $this->handleGoogleOauth();
+        }
 
         return response()
         ->json(['message' => 'Provider not supported'], 400)
@@ -284,42 +278,37 @@ class LoginController extends BaseController
 
         $user = $google->getTokenResponse(request()->input('id_token'));
 
-        if(is_array($user))
-        {
+        if (is_array($user)) {
             $query = [
                 'oauth_user_id' => $google->harvestSubField($user),
-                'oauth_provider_id'=> 'google'
+                'oauth_provider_id'=> 'google',
             ];
 
-            if ($existing_user = MultiDB::hasUser($query)) 
-            {
-
+            if ($existing_user = MultiDB::hasUser($query)) {
                 Auth::login($existing_user, true);
                 $existing_user->setCompany($existing_user->account->default_company);
 
                 $ct = CompanyUser::whereUserId(auth()->user()->id);
-                return $this->listResponse($ct);
 
+                return $this->listResponse($ct);
+            }
+        }
+
+        if ($user) {
+            $client = new \Google_Client();
+            $client->setClientId(config('ninja.auth.google.client_id'));
+            $client->setClientSecret(config('ninja.auth.google.client_secret'));
+
+            $token = $client->authenticate(request()->input('server_auth_code'));
+
+            $refresh_token = '';
+
+            if (array_key_exists('refresh_token', $token)) {
+                $refresh_token = $token['refresh_token'];
             }
 
-
-        }
-        
-        if($user){
-
-        $client = new \Google_Client();
-        $client->setClientId(config('ninja.auth.google.client_id'));
-        $client->setClientSecret(config('ninja.auth.google.client_secret'));
-
-        $token = $client->authenticate(request()->input('server_auth_code'));
-        
-        $refresh_token = '';
-
-        if(array_key_exists('refresh_token', $token))
-            $refresh_token = $token['refresh_token'];
-          
             //$access_token = $token['access_token'];
-          
+
             $name = OAuth::splitName($google->harvestName($user));
 
             $new_account = [
@@ -330,11 +319,11 @@ class LoginController extends BaseController
                 'oauth_user_id' => $google->harvestSubField($user),
                 'oauth_user_token' => $token,
                 'oauth_user_refresh_token' => $refresh_token,
-                'oauth_provider_id' => 'google'
+                'oauth_provider_id' => 'google',
             ];
 
             MultiDB::setDefaultDatabase();
-            
+
             $account = CreateAccount::dispatchNow($new_account);
 
             Auth::login($account->default_company->owner(), true);
@@ -343,16 +332,13 @@ class LoginController extends BaseController
             auth()->user()->save();
 
             $ct = CompanyUser::whereUserId(auth()->user()->id);
+
             return $this->listResponse($ct);
         }
-        
 
         return response()
         ->json(['message' => ctrans('texts.invalid_credentials')], 401)
         ->header('X-App-Version', config('ninja.app_version'))
         ->header('X-Api-Version', config('ninja.minimum_client_version'));
-        
-
     }
-
 }

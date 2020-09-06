@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -31,7 +31,7 @@ class Number
     }
 
     /**
-     * Formats a given value based on the clients currency
+     * Formats a given value based on the clients currency.
      *
      * @param  float  $value    The number to be formatted
      * @param  object $currency The client currency object
@@ -51,7 +51,7 @@ class Number
 
     /**
      * Formats a given value based on the clients currency
-     * BACK to a float
+     * BACK to a float.
      *
      * @param  string $value    The formatted number to be converted back to float
      * @param  object $currency The client currency object
@@ -64,17 +64,17 @@ class Number
         $s = str_replace(',', '.', $value);
 
         // remove everything except numbers and dot "."
-        $s = preg_replace("/[^0-9\.]/", "", $s);
+        $s = preg_replace("/[^0-9\.]/", '', $s);
 
         // remove all seperators from first part and keep the end
-        $s = str_replace('.', '',substr($s, 0, -3)) . substr($s, -3);
+        $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
 
         // return float
         return (float) $s;
     }
 
     /**
-     * Formats a given value based on the clients currency AND country
+     * Formats a given value based on the clients currency AND country.
      *
      * @param  floatval $value    The number to be formatted
      * @param  object $currency The client currency object
@@ -96,7 +96,7 @@ class Number
         if (isset($client->country->thousand_separator)) {
             $thousand = $client->country->thousand_separator;
         }
-            
+
         if (isset($client->country->decimal_separator)) {
             $decimal = $client->country->decimal_separator;
         }
@@ -107,11 +107,11 @@ class Number
 
         $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
-        
+
         if ($client->getSetting('show_currency_code') === true) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
-            return "{$value} " . trim($symbol);
+            return "{$value} ".trim($symbol);
         } elseif ($client->getSetting('show_currency_code') === false) {
             return "{$symbol}{$value}";
         } else {

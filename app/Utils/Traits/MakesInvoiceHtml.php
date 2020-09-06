@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,10 +22,9 @@ use Symfony\Component\Debug\Exception\FatalThrowableError;
  */
 trait MakesInvoiceHtml
 {
-
     /**
      * Generate the HTML invoice parsing variables
-     * and generating the final invoice HTML
+     * and generating the final invoice HTML.
      *
      * @param  string $design either the path to the design template, OR the full design template string
      * @param  Collection $invoice  The invoice object
@@ -36,15 +35,14 @@ trait MakesInvoiceHtml
      */
     public function generateEntityHtml(Designer $designer, $entity, $contact = null) :string
     {
-
         $entity->load('client');
-        
+
         $client = $entity->client;
 
         App::setLocale($client->preferredLocale());
 
         $values_and_labels = $entity->buildLabelsAndValues($contact);
-        
+
         $designer->build();
 
         $data = [];
@@ -56,16 +54,16 @@ trait MakesInvoiceHtml
         $data['footer'] = $designer->getFooter();
 
         $html = view('pdf.stub', $data)->render();
-        
+
         $html = $this->parseLabelsAndValues($values_and_labels['labels'], $values_and_labels['values'], $html);
-                
+
         return $html;
     }
 
     public function generateEmailEntityHtml($entity, $content, $contact = null) :string
     {
         $entity->load('client');
-        
+
         $client = $entity->client;
 
         App::setLocale($client->preferredLocale());
@@ -77,20 +75,18 @@ trait MakesInvoiceHtml
 
     private function parseLabelsAndValues($labels, $values, $section) :string
     {
-        
         $section = strtr($section, $labels);
         $section = strtr($section, $values);
-        
+
         return $section;
     }
 
     /**
-     * Parses the blade file string and processes the template variables
+     * Parses the blade file string and processes the template variables.
      *
      * @param  string $string The Blade file string
      * @param  array $data   The array of template variables
      * @return string         The return HTML string
-     *
      */
     public function renderView($string, $data = []) :string
     {
@@ -103,7 +99,7 @@ trait MakesInvoiceHtml
         extract($data, EXTR_SKIP);
 
         try {
-            eval('?' . '>' . $php);
+            eval('?'.'>'.$php);
         } catch (\Exception $e) {
             while (ob_get_level() > $obLevel) {
                 ob_end_clean();
@@ -126,11 +122,11 @@ trait MakesInvoiceHtml
      */
     public function getTemplate(string $template = 'plain')
     {
-        return File::get(resource_path('views/email/template/' . $template . '.blade.php'));
+        return File::get(resource_path('views/email/template/'.$template.'.blade.php'));
     }
 
     public function getTemplatePath(string $template = 'plain')
     {
-        return 'email.template.' . $template;
+        return 'email.template.'.$template;
     }
 }

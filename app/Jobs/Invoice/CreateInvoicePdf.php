@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -77,13 +77,13 @@ class CreateInvoicePdf implements ShouldQueue
 
         App::setLocale($this->contact->preferredLocale());
 
-        $path      = $this->invoice->client->invoice_filepath();
+        $path = $this->invoice->client->invoice_filepath();
 
-        $file_path = $path . $this->invoice->number . '.pdf';
+        $file_path = $path.$this->invoice->number.'.pdf';
 
         $invoice_design_id = $this->invoice->design_id ? $this->invoice->design_id : $this->decodePrimaryKey($this->invoice->client->getSetting('invoice_design_id'));
 
-        $design    = Design::find($invoice_design_id);
+        $design = Design::find($invoice_design_id);
 
         $html = new HtmlEngine(null, $this->invitation, 'invoice');
 
@@ -93,7 +93,7 @@ class CreateInvoicePdf implements ShouldQueue
             'template' => $template->elements([
                 'client' => $this->invoice->client,
                 'entity' => $this->invoice,
-                'pdf_variables' => (array)$this->invoice->company->settings->pdf_variables,
+                'pdf_variables' => (array) $this->invoice->company->settings->pdf_variables,
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'options' => [
@@ -115,7 +115,7 @@ class CreateInvoicePdf implements ShouldQueue
 
         $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
 
-        $instance  = Storage::disk($this->disk)->put($file_path, $pdf);
+        $instance = Storage::disk($this->disk)->put($file_path, $pdf);
 
         return $file_path;
     }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -53,8 +53,8 @@ class Client extends BaseModel implements HasLocalePreference
     use SoftDeletes;
     use Filterable;
     use GeneratesCounter;
-    
-    protected $presenter = 'App\Models\Presenters\ClientPresenter';
+
+    protected $presenter = \App\Models\Presenters\ClientPresenter::class;
 
     protected $hidden = [
         'id',
@@ -64,7 +64,7 @@ class Client extends BaseModel implements HasLocalePreference
 //        'settings',
         'last_login',
     ];
-   
+
     protected $fillable = [
         'assigned_user_id',
         'currency_id',
@@ -94,10 +94,9 @@ class Client extends BaseModel implements HasLocalePreference
         'vat_number',
         'id_number',
         'group_settings_id',
-        'public_notes'
+        'public_notes',
     ];
-    
-    
+
     protected $with = [
         //'currency',
         // 'primary_contact',
@@ -106,7 +105,7 @@ class Client extends BaseModel implements HasLocalePreference
         // 'shipping_country',
         // 'company',
     ];
-    
+
     protected $casts = [
         'is_deleted' => 'boolean',
         'country_id' => 'string',
@@ -120,7 +119,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function getEntityType()
     {
-        return Client::class;
+        return self::class;
     }
 
     public function ledger()
@@ -140,7 +139,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     /**
      * Retrieves the specific payment token per
-     * gateway - per payment method
+     * gateway - per payment method.
      *
      * Allows the storage of multiple tokens
      * per client per gateway per payment_method
@@ -206,7 +205,7 @@ class Client extends BaseModel implements HasLocalePreference
     {
         return $this->hasMany(SystemLog::class);
     }
-    
+
     public function timezone()
     {
         return Timezone::find($this->getSetting('timezone_id'));
@@ -217,7 +216,7 @@ class Client extends BaseModel implements HasLocalePreference
         //return Language::find($this->getSetting('language_id'));
 
         $languages = Cache::get('languages');
-        
+
         return $languages->filter(function ($item) {
             return $item->id == $this->getSetting('language_id');
         })->first();
@@ -225,13 +224,13 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function locale()
     {
-        return $this->language()->locale ?:  'en';
+        return $this->language()->locale ?: 'en';
     }
 
     public function date_format()
     {
         $date_formats = Cache::get('date_formats');
-        
+
         return $date_formats->filter(function ($item) {
             return $item->id == $this->getSetting('date_format_id');
         })->first()->format;
@@ -242,7 +241,7 @@ class Client extends BaseModel implements HasLocalePreference
     public function currency()
     {
         $currencies = Cache::get('currencies');
-        
+
         return $currencies->filter(function ($item) {
             return $item->id == $this->getSetting('currency_id');
         })->first();
@@ -261,7 +260,7 @@ class Client extends BaseModel implements HasLocalePreference
     /**
      * Adjusts client "balances" when a client
      * makes a payment that goes on file, but does
-     * not effect the client.balance record
+     * not effect the client.balance record.
      *
      * @param  float $amount Adjustment amount
      * @return Client
@@ -274,10 +273,9 @@ class Client extends BaseModel implements HasLocalePreference
     // }
 
     /**
-     *
      * Returns the entire filtered set
      * of settings which have been merged from
-     * Client > Group > Company levels
+     * Client > Group > Company levels.
      *
      * @return object stdClass object of settings
      */
@@ -293,10 +291,9 @@ class Client extends BaseModel implements HasLocalePreference
     }
 
     /**
-     *
      * Returns a single setting
      * which cascades from
-     * Client > Group > Company
+     * Client > Group > Company.
      *
      * @param  string $setting The Setting parameter
      * @return mixed          The setting requested
@@ -307,7 +304,7 @@ class Client extends BaseModel implements HasLocalePreference
         /*Client Settings*/
         if ($this->settings && property_exists($this->settings, $setting) && isset($this->settings->{$setting})) {
             /*need to catch empty string here*/
-            if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >=1)) {
+            if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >= 1)) {
                 return $this->settings->{$setting};
             }
         }
@@ -332,7 +329,7 @@ class Client extends BaseModel implements HasLocalePreference
         /*Client Settings*/
         if ($this->settings && (property_exists($this->settings, $setting) !== false) && (isset($this->settings->{$setting}) !== false)) {
             /*need to catch empty string here*/
-            if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >=1)) {
+            if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >= 1)) {
                 return $this;
             }
         }
@@ -347,7 +344,7 @@ class Client extends BaseModel implements HasLocalePreference
             return $this->company;
         }
 
-        throw new \Exception("Could not find a settings object", 1);
+        throw new \Exception('Could not find a settings object', 1);
     }
 
     public function documents()
@@ -361,25 +358,25 @@ class Client extends BaseModel implements HasLocalePreference
     }
 
     /**
-     * Returns the first Credit Card Gateway
+     * Returns the first Credit Card Gateway.
      *
-     * @return NULL|CompanyGateway The Priority Credit Card gateway
+     * @return null|CompanyGateway The Priority Credit Card gateway
      */
     public function getCreditCardGateway() :?CompanyGateway
     {
         $company_gateways = $this->getSetting('company_gateway_ids');
 
         /* It is very important to respect the order of the company_gateway_ids as they are ordered by priority*/
-        if (strlen($company_gateways)>=1) {
-            $transformed_ids = $this->transformKeys(explode(",", $company_gateways));
+        if (strlen($company_gateways) >= 1) {
+            $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
             $gateways = $this->company
                              ->company_gateways
                              ->whereIn('id', $transformed_ids)
-                             ->sortby(function($model) use ($transformed_ids){
-                               return array_search($model->id, $transformed_ids);
-                            });
+                             ->sortby(function ($model) use ($transformed_ids) {
+                                 return array_search($model->id, $transformed_ids);
+                             });
         } else {
-            $gateways = $this->company->company_gateways;//todo perhaps we can remove this or keep as a catch all.
+            $gateways = $this->company->company_gateways; //todo perhaps we can remove this or keep as a catch all.
         }
 
         foreach ($gateways as $gateway) {
@@ -395,14 +392,14 @@ class Client extends BaseModel implements HasLocalePreference
     {
         $company_gateways = $this->getSetting('company_gateway_ids');
 
-        if (strlen($company_gateways)>=1) {
-            $transformed_ids = $this->transformKeys(explode(",", $company_gateways));
+        if (strlen($company_gateways) >= 1) {
+            $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
             $gateways = $this->company
                              ->company_gateways
                              ->whereIn('id', $transformed_ids)
-                             ->sortby(function($model) use ($transformed_ids){
-                               return array_search($model->id, $transformed_ids);
-                            });
+                             ->sortby(function ($model) use ($transformed_ids) {
+                                 return array_search($model->id, $transformed_ids);
+                             });
         } else {
             $gateways = $this->company->company_gateways;
         }
@@ -465,39 +462,38 @@ class Client extends BaseModel implements HasLocalePreference
 
         $company_gateways = $this->getSetting('company_gateway_ids');
 
-        if ($company_gateways || $company_gateways == "0") { //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
+        if ($company_gateways || $company_gateways == '0') { //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
 
-            $transformed_ids = $this->transformKeys(explode(",", $company_gateways));
+            $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
             $gateways = $this->company
                              ->company_gateways
                              ->whereIn('id', $transformed_ids)
-                             ->sortby(function($model) use ($transformed_ids){
-                               return array_search($model->id, $transformed_ids);
-                            });
-
+                             ->sortby(function ($model) use ($transformed_ids) {
+                                 return array_search($model->id, $transformed_ids);
+                             });
         } else {
             $gateways = $this->company->company_gateways->where('is_deleted', false);
         }
 
         $valid_gateways = $gateways->filter(function ($method) use ($amount) {
-
-            if(isset($method->fees_and_limits)){
+            if (isset($method->fees_and_limits)) {
                 //sometimes the key value of the fees and limits object are not static,
                 //we have to harvest the key value as follows
                 $properties = array_keys(get_object_vars($method->fees_and_limits));
                 $fees_and_limits = $method->fees_and_limits->{$properties[0]};
-            }
-            else
+            } else {
                 return true;
+            }
 
-            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $fees_and_limits->min_limit != -1 && $amount < $fees_and_limits->min_limit) 
-                return false;   
-
-            if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $fees_and_limits->max_limit != -1 && $amount > $fees_and_limits->max_limit) 
+            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && $amount < $fees_and_limits->min_limit) {
                 return false;
+            }
+
+            if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $fees_and_limits->max_limit != -1 && $amount > $fees_and_limits->max_limit) {
+                return false;
+            }
 
             return true;
-
         })->all();
 
         $payment_methods = [];
@@ -507,7 +503,7 @@ class Client extends BaseModel implements HasLocalePreference
                 $payment_methods[] = [$gateway->id => $type];
             }
         }
-            
+
         $payment_methods_collections = collect($payment_methods);
 
         //** Plucks the remaining keys into its own collection
@@ -522,9 +518,9 @@ class Client extends BaseModel implements HasLocalePreference
                 $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
 
                 $payment_urls[] = [
-                    'label' => ctrans('texts.' . $gateway->getTypeAlias($gateway_type_id)) . $fee_label,
+                    'label' => ctrans('texts.'.$gateway->getTypeAlias($gateway_type_id)).$fee_label,
                     'company_gateway_id'  => $gateway_id,
-                    'gateway_type_id' => $gateway_type_id
+                    'gateway_type_id' => $gateway_type_id,
                             ];
             }
         }
@@ -535,7 +531,7 @@ class Client extends BaseModel implements HasLocalePreference
     public function preferredLocale()
     {
         $languages = Cache::get('languages');
-        
+
         return $languages->filter(function ($item) {
             return $item->id == $this->getSetting('language_id');
         })->first()->locale;
@@ -543,46 +539,46 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function invoice_filepath()
     {
-        return $this->company->company_key . '/' . $this->client_hash . '/invoices/';
+        return $this->company->company_key.'/'.$this->client_hash.'/invoices/';
     }
 
     public function quote_filepath()
     {
-        return $this->company->company_key . '/' . $this->client_hash . '/quotes/';
+        return $this->company->company_key.'/'.$this->client_hash.'/quotes/';
     }
 
     public function credit_filepath()
     {
-        return $this->company->company_key . '/' . $this->client_hash . '/credits/';
+        return $this->company->company_key.'/'.$this->client_hash.'/credits/';
     }
 
     public function company_filepath()
     {
-        return $this->company->company_key . '/';
+        return $this->company->company_key.'/';
     }
 
     public function document_filepath()
     {
-        return $this->company->company_key . '/documents/';
+        return $this->company->company_key.'/documents/';
     }
 
     public function setCompanyDefaults($data, $entity_name) :array
     {
         $defaults = [];
 
-        if (!(array_key_exists('terms', $data) && strlen($data['terms']) > 1)) {
+        if (! (array_key_exists('terms', $data) && strlen($data['terms']) > 1)) {
             $defaults['terms'] = $this->getSetting($entity_name.'_terms');
         } elseif (array_key_exists('terms', $data)) {
             $defaults['terms'] = $data['terms'];
         }
 
-        if (!(array_key_exists('footer', $data) && strlen($data['footer']) > 1)) {
+        if (! (array_key_exists('footer', $data) && strlen($data['footer']) > 1)) {
             $defaults['footer'] = $this->getSetting($entity_name.'_footer');
         } elseif (array_key_exists('footer', $data)) {
             $defaults['footer'] = $data['footer'];
         }
 
-        if (strlen($this->public_notes) >=1) {
+        if (strlen($this->public_notes) >= 1) {
             $defaults['public_notes'] = $this->public_notes;
         }
 

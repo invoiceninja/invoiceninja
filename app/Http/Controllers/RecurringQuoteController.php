@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -32,10 +32,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class RecurringQuoteController
- * @package App\Http\Controllers\RecurringQuoteController
+ * Class RecurringQuoteController.
  */
-
 class RecurringQuoteController extends BaseController
 {
     use MakesHash;
@@ -64,7 +62,7 @@ class RecurringQuoteController extends BaseController
     }
 
     /**
-     * Show the list of recurring_invoices
+     * Show the list of recurring_invoices.
      *
      * @param      \App\Filters\RecurringQuoteFilters  $filters  The filters
      *
@@ -103,12 +101,11 @@ class RecurringQuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(RecurringQuoteFilters $filters)
     {
         $recurring_quotes = RecurringQuote::filter($filters);
-      
+
         return $this->listResponse($recurring_quotes);
     }
 
@@ -150,7 +147,6 @@ class RecurringQuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateRecurringQuoteRequest $request)
     {
@@ -158,7 +154,6 @@ class RecurringQuoteController extends BaseController
 
         return $this->itemResponse($recurring_quote);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -198,7 +193,6 @@ class RecurringQuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreRecurringQuoteRequest $request)
     {
@@ -257,7 +251,6 @@ class RecurringQuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowRecurringQuoteRequest $request, RecurringQuote $recurring_quote)
     {
@@ -314,13 +307,12 @@ class RecurringQuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditRecurringQuoteRequest $request, RecurringQuote $recurring_quote)
     {
         return $this->itemResponse($recurring_quote);
     }
-    
+
     /**
      * Update the specified resource in storage.
      *
@@ -371,14 +363,13 @@ class RecurringQuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateRecurringQuoteRequest $request, RecurringQuote $recurring_quote)
     {
         if ($request->entityIsDeleted($recurring_quote)) {
             return $request->disallowUpdate();
         }
-        
+
         $recurring_quote = $this->recurring_quote_repo->save(request(), $recurring_quote);
 
         return $this->itemResponse($recurring_quote);
@@ -433,7 +424,6 @@ class RecurringQuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyRecurringQuoteRequest $request, RecurringQuote $recurring_quote)
     {
@@ -443,7 +433,7 @@ class RecurringQuoteController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @return Collection
      *
@@ -493,12 +483,11 @@ class RecurringQuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
 
         $recurring_quotes = RecurringQuote::withTrashed()->find($this->transformKeys($ids));
@@ -513,7 +502,7 @@ class RecurringQuoteController extends BaseController
     }
 
     /**
-     * Recurring Quote Actions
+     * Recurring Quote Actions.
      *
      *
      *
@@ -580,7 +569,6 @@ class RecurringQuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function action(ActionRecurringQuoteRequest $request, RecurringQuote $recurring_quote, $action)
     {
@@ -594,26 +582,26 @@ class RecurringQuoteController extends BaseController
                 // todo build the quote transformer and return response here
                 break;
             case 'history':
-                # code...
+                // code...
                 break;
             case 'delivery_note':
-                # code...
+                // code...
                 break;
             case 'mark_paid':
-                # code...
+                // code...
                 break;
             case 'archive':
-                # code...
+                // code...
                 break;
             case 'delete':
-                # code...
+                // code...
                 break;
             case 'email':
                 //dispatch email to queue
                 break;
 
             default:
-                # code...
+                // code...
                 break;
         }
     }

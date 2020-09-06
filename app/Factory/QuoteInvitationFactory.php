@@ -1,6 +1,6 @@
 <?php
 /**
- * Quote Ninja (https://invoiceninja.com)
+ * Quote Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *

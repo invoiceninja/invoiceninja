@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -40,9 +40,8 @@ class UserTransformer extends EntityTransformer
     protected $availableIncludes = [
         'companies',
         'company_users',
-        'company_user'
+        'company_user',
     ];
-
 
     public function transform(User $user)
     {
@@ -52,11 +51,11 @@ class UserTransformer extends EntityTransformer
             'last_name' => $user->last_name ?: '',
             'email' => $user->email ?: '',
             'last_login' => Carbon::parse($user->last_login)->timestamp,
-            'created_at' => (int)$user->created_at,
-            'updated_at' => (int)$user->updated_at,
-            'archived_at' => (int)$user->deleted_at,
-            'created_at' => (int)$user->created_at,
-            'is_deleted' => (bool)$user->is_deleted,
+            'created_at' => (int) $user->created_at,
+            'updated_at' => (int) $user->updated_at,
+            'archived_at' => (int) $user->deleted_at,
+            'created_at' => (int) $user->created_at,
+            'is_deleted' => (bool) $user->is_deleted,
             'phone' => $user->phone ?: '',
             'email_verified_at' => $user->getEmailVerifiedAt(),
             'signature' => $user->signature ?: '',
@@ -64,7 +63,7 @@ class UserTransformer extends EntityTransformer
             'custom_value2' => $user->custom_value2 ?: '',
             'custom_value3' => $user->custom_value3 ?: '',
             'custom_value4' => $user->custom_value4 ?: '',
-            'oauth_provider_id' => (string)$user->oauth_provider_id,
+            'oauth_provider_id' => (string) $user->oauth_provider_id,
         ];
     }
 

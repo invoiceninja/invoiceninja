@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -45,6 +45,7 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
     public $entity;
 
     public $settings;
+
     /**
      * Create a new job instance.
      *
@@ -59,7 +60,6 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
         $this->payment = $payment;
 
         $this->settings = $payment->client->getMergedSettings();
-
     }
 
     /**
@@ -73,15 +73,16 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         /*If we are migrating data we don't want to fire these notification*/
-        if($this->company->company_users->first()->is_migrating)
+        if ($this->company->company_users->first()->is_migrating) {
             return true;
-        
+        }
+
         //if we need to set an email driver do it now
         $this->setMailDriver();
 
         $mail_obj = (new EntityPaidObject($this->payment))->build();
         $mail_obj->from = [$this->payment->user->email, $this->payment->user->present()->name()];
-        
+
         //send email
         Mail::to($this->user->email)
             ->send(new EntityNotificationMailer($mail_obj));
@@ -90,10 +91,5 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
         if (count(Mail::failures()) > 0) {
             return $this->logMailError(Mail::failures(), $this->payment->client);
         }
-
     }
-
-
-
-
 }

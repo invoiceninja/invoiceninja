@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -30,6 +30,7 @@ class DesignWasUpdated
     public $company;
 
     public $event_vars;
+
     /**
      * Create a new event instance.
      *
@@ -43,6 +44,7 @@ class DesignWasUpdated
 
         $this->event_vars = $event_vars;
     }
+
     /**
      * Get the channels the event should broadcast on.
      *
@@ -52,5 +54,4 @@ class DesignWasUpdated
     {
         return new PrivateChannel('channel-name');
     }
-
 }

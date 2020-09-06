@@ -41,7 +41,6 @@ class MakesDatesTest extends TestCase
         $this->assertEquals($utc_date->format('Y-m-d'), '2007-04-19');
     }
 
-
     public function testConvertClientDateToUTCDateTimeTickOverNextDay()
     {
         $date_src = '2007-04-19 23:59';

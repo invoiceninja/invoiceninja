@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -11,18 +11,17 @@
 
 namespace App\Filters;
 
-use App\Models\Vendor;
 use App\Models\User;
+use App\Models\Vendor;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * SystemLogFilters
+ * SystemLogFilters.
  */
 class SystemLogFilters extends QueryFilters
 {
-
     public function type_id(int $type_id) :Builder
     {
         return $this->builder->where('type_id', $type_id);
@@ -44,12 +43,11 @@ class SystemLogFilters extends QueryFilters
     }
 
     /**
-     * Filter based on search text
+     * Filter based on search text.
      *
      * @param  string query filter
      * @return Illuminate\Database\Query\Builder
      * @deprecated
-     *
      */
     public function filter(string $filter = '') : Builder
     {
@@ -73,19 +71,20 @@ class SystemLogFilters extends QueryFilters
     }
 
     /**
-     * Sorts the list based on $sort
+     * Sorts the list based on $sort.
      *
      * @param  string sort formatted as column|asc
      * @return Illuminate\Database\Query\Builder
      */
     public function sort(string $sort) : Builder
     {
-        $sort_col = explode("|", $sort);
+        $sort_col = explode('|', $sort);
+
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
     /**
-     * Returns the base query
+     * Returns the base query.
      *
      * @param  int company_id
      * @return Illuminate\Database\Query\Builder
@@ -96,14 +95,14 @@ class SystemLogFilters extends QueryFilters
     }
 
     /**
-     * Filters the query by the users company ID
+     * Filters the query by the users company ID.
      *
      * @param $company_id The company Id
      * @return Illuminate\Database\Query\Builder
      */
     public function entityFilter()
     {
-        
+
         //return $this->builder->whereCompanyId(auth()->user()->company()->id);
         return $this->builder->company();
     }

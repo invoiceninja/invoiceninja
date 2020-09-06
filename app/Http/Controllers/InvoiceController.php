@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -45,10 +45,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Class InvoiceController
- * @package App\Http\Controllers\InvoiceController
+ * Class InvoiceController.
  */
-
 class InvoiceController extends BaseController
 {
     use MakesHash;
@@ -75,7 +73,7 @@ class InvoiceController extends BaseController
     }
 
     /**
-     * Show the list of Invoices
+     * Show the list of Invoices.
      *
      * @param      \App\Filters\InvoiceFilters  $filters  The filters
      *
@@ -113,7 +111,6 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(InvoiceFilters $filters)
     {
@@ -160,7 +157,6 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateInvoiceRequest $request)
     {
@@ -207,7 +203,6 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreInvoiceRequest $request)
     {
@@ -218,7 +213,7 @@ class InvoiceController extends BaseController
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
 
         $invoice = $invoice->service()->triggeredActions($request)->save();
-        
+
         return $this->itemResponse($invoice);
     }
 
@@ -272,7 +267,6 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowInvoiceRequest $request, Invoice $invoice)
     {
@@ -328,7 +322,6 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditInvoiceRequest $request, Invoice $invoice)
     {
@@ -385,7 +378,6 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
@@ -393,8 +385,9 @@ class InvoiceController extends BaseController
             return $request->disallowUpdate();
         }
 
-        if($invoice->isLocked())
+        if ($invoice->isLocked()) {
             return response()->json(['message' => 'Invoice is locked, no modifications allowed']);
+        }
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
@@ -451,7 +444,6 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyInvoiceRequest $request, Invoice $invoice)
     {
@@ -461,7 +453,7 @@ class InvoiceController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @return Collection
      *
@@ -509,7 +501,6 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
@@ -523,7 +514,7 @@ class InvoiceController extends BaseController
 
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (!$invoices) {
+        if (! $invoices) {
             return response()->json(['message' => 'No Invoices Found']);
         }
 
@@ -534,7 +525,7 @@ class InvoiceController extends BaseController
         if ($action == 'download' && $invoices->count() > 1) {
             $invoices->each(function ($invoice) {
                 if (auth()->user()->cannot('view', $invoice)) {
-                    return response()->json(['message' => 'Insufficient privileges to access invoice ' . $invoice->number]);
+                    return response()->json(['message' => 'Insufficient privileges to access invoice '.$invoice->number]);
                 }
             });
 
@@ -557,9 +548,7 @@ class InvoiceController extends BaseController
         return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
     }
 
-
     /**
-     *
      * @OA\Get(
      *      path="/api/v1/invoices/{id}/{action}",
      *      operationId="actionInvoice",
@@ -623,7 +612,6 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function action(ActionInvoiceRequest $request, Invoice $invoice, $action)
     {
@@ -636,6 +624,7 @@ class InvoiceController extends BaseController
         switch ($action) {
             case 'clone_to_invoice':
                 $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
+
                 return $this->itemResponse($invoice);
                 break;
             case 'clone_to_quote':
@@ -643,10 +632,10 @@ class InvoiceController extends BaseController
                 // todo build the quote transformer and return response here
                 break;
             case 'history':
-                # code...
+                // code...
                 break;
             case 'delivery_note':
-                # code...
+                // code...
                 break;
             case 'mark_paid':
                 if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
@@ -655,19 +644,19 @@ class InvoiceController extends BaseController
 
                 $invoice = $invoice->service()->markPaid();
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->itemResponse($invoice);
                 }
                 break;
             case 'mark_sent':
                 $invoice->service()->markSent()->save();
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->itemResponse($invoice);
                 }
                 break;
             case 'download':
-                    return response()->streamDownload(function () use($invoice) {
+                    return response()->streamDownload(function () use ($invoice) {
                         echo file_get_contents($invoice->pdf_file_path());
                     }, basename($invoice->pdf_file_path()));
                     //return response()->download(TempFile::path($invoice->pdf_file_path()), basename($invoice->pdf_file_path()));
@@ -675,61 +664,60 @@ class InvoiceController extends BaseController
             case 'restore':
                 $this->invoice_repo->restore($invoice);
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->listResponse($invoice);
                 }
                 break;
             case 'archive':
                 $this->invoice_repo->archive($invoice);
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->listResponse($invoice);
                 }
                 break;
             case 'delete':
                 //need to make sure the invoice is cancelled first!!
                 $invoice->service()->handleCancellation()->save();
-                
+
                 $this->invoice_repo->delete($invoice);
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->listResponse($invoice);
                 }
                 break;
             case 'cancel':
                 $invoice = $invoice->service()->handleCancellation()->save();
 
-                if (!$bulk) {
+                if (! $bulk) {
                     $this->itemResponse($invoice);
                 }
                 break;
             case 'reverse':
                 $invoice = $invoice->service()->handleReversal()->save();
 
-                if (!$bulk) {
+                if (! $bulk) {
                     $this->itemResponse($invoice);
                 }
                 break;
             case 'email':
                 //check query paramater for email_type and set the template else use calculateTemplate
-                if(request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type')))
+                if (request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type'))) {
                     $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
-                else
+                } else {
                     $this->reminder_template = $invoice->calculateTemplate();
+                }
 
                 //touch reminder1,2,3_sent + last_sent here if the email is a reminder.
-                
-                $invoice->service()->touchReminder($this->reminder_template)->save();
-                
-                $invoice->invitations->load('contact.client.country','invoice.client.country','invoice.company')->each(function ($invitation) use ($invoice) {
 
+                $invoice->service()->touchReminder($this->reminder_template)->save();
+
+                $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
                     $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
 
                     EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
-
                 });
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return response()->json(['message' => 'email sent'], 200);
                 }
                 break;
@@ -741,7 +729,6 @@ class InvoiceController extends BaseController
     }
 
     /**
-     *
      * @OA\Get(
      *      path="/api/v1/invoice/{invitation_key}/download",
      *      operationId="downloadInvoice",
@@ -782,13 +769,12 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function downloadPdf($invitation_key)
     {
         $invitation = $this->invoice_repo->getInvitationByKey($invitation_key);
-        $contact    = $invitation->contact;
-        $invoice    = $invitation->invoice;
+        $contact = $invitation->contact;
+        $invoice = $invitation->invoice;
 
         $file_path = $invoice->service()->getInvoicePdf($contact);
 

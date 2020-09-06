@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -43,7 +43,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        
+
         //$schedule->job(new RecurringInvoicesCron)->hourly();
         $schedule->job(new VersionCheck)->daily();
 
@@ -54,9 +54,9 @@ class Kernel extends ConsoleKernel
         $schedule->job(new CompanySizeCheck)->daily();
 
         $schedule->job(new UpdateExchangeRates)->daily();
-        
+
         /* Run hosted specific jobs */
-        if(Ninja::isHosted()) {
+        if (Ninja::isHosted()) {
             $schedule->job(new AdjustEmailQuota())->daily();
             $schedule->job(new SendFailedEmails())->daily();
         }

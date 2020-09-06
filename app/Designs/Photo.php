@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,7 +16,6 @@ class Photo extends AbstractDesign
     public function __construct()
     {
     }
-
 
     public function includes()
     {
@@ -42,8 +41,6 @@ body {font-size:90%}
 $custom_css
 </style>';
     }
-
-
 
     public function header()
     {

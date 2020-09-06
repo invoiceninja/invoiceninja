@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -46,7 +46,6 @@ class AccountTransformer extends EntityTransformer
         'companies',
     ];
 
-
     /**
      * @param Account $account
      *
@@ -57,7 +56,7 @@ class AccountTransformer extends EntityTransformer
     public function transform(Account $account)
     {
         return [
-            'id' => (string)$this->encodePrimaryKey($account->id),
+            'id' => (string) $this->encodePrimaryKey($account->id),
             'default_url' => config('ninja.app_url'),
             'plan' => $account->getPlan(),
             'plan_term' => (string) $account->plan_terms,
@@ -75,11 +74,11 @@ class AccountTransformer extends EntityTransformer
             'utm_content' => (string) $account->utm_content,
             'utm_term' => (string) $account->utm_term,
             'referral_code' => (string) $account->referral_code,
-            'latest_version' => (string)$account->latest_version,
-            'current_version' => (string)config('ninja.app_version'),
-            'updated_at' => (int)$account->updated_at,
-            'archived_at' => (int)$account->deleted_at,
-            'report_errors' => (bool)$account->report_errors,
+            'latest_version' => (string) $account->latest_version,
+            'current_version' => (string) config('ninja.app_version'),
+            'updated_at' => (int) $account->updated_at,
+            'archived_at' => (int) $account->deleted_at,
+            'report_errors' => (bool) $account->report_errors,
         ];
     }
 
@@ -100,6 +99,7 @@ class AccountTransformer extends EntityTransformer
     public function includeUser(Account $account)
     {
         $transformer = new UserTransformer($this->serializer);
+
         return $this->includeItem(auth()->user(), $transformer, User::class);
 
 //        return $this->includeItem($account->default_company->owner(), $transformer, User::class);

@@ -31,7 +31,6 @@ class EmailPayment implements ShouldQueue
 
     private $contact;
 
-
     /**
      * Create a new job instance.
      *
@@ -43,7 +42,6 @@ class EmailPayment implements ShouldQueue
         $this->email_builder = $email_builder;
         $this->contact = $contact;
     }
-
 
     /**
      * Execute the job.

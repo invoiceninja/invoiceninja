@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,8 +20,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class ValidRefundableRequest
- * @package App\Http\ValidationRules\Payment
+ * Class ValidRefundableRequest.
  */
 class ValidRefundableRequest implements Rule
 {
@@ -36,7 +35,6 @@ class ValidRefundableRequest implements Rule
 
     private $input;
 
-
     public function __construct($input)
     {
         $this->input = $input;
@@ -44,15 +42,17 @@ class ValidRefundableRequest implements Rule
 
     public function passes($attribute, $value)
     {
-        if (!array_key_exists('id', $this->input)) {
-            $this->error_msg = "Payment `id` required.";
+        if (! array_key_exists('id', $this->input)) {
+            $this->error_msg = 'Payment `id` required.';
+
             return false;
         }
 
         $payment = Payment::whereId($this->input['id'])->first();
 
-        if (!$payment) {
-            $this->error_msg = "Unable to retrieve specified payment";
+        if (! $payment) {
+            $this->error_msg = 'Unable to retrieve specified payment';
+
             return false;
         }
 
@@ -64,7 +64,6 @@ class ValidRefundableRequest implements Rule
 
         // foreach($request_credits as $key => $value)
         //     $request_credits[$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
-
 
         if ($payment->invoices()->exists()) {
             foreach ($payment->invoices as $paymentable_invoice) {
@@ -99,12 +98,14 @@ class ValidRefundableRequest implements Rule
         if ($payment->invoices()->exists()) {
             $paymentable_invoice = $payment->invoices->where('id', $invoice->id)->first();
 
-            if (!$paymentable_invoice) {
-                $this->error_msg = "Invoice id ".$invoice->hashed_id." is not related to this payment";
+            if (! $paymentable_invoice) {
+                $this->error_msg = 'Invoice id '.$invoice->hashed_id.' is not related to this payment';
+
                 return false;
             }
         } else {
-            $this->error_msg = "Invoice id ".$invoice->hashed_id." is not related to this payment";
+            $this->error_msg = 'Invoice id '.$invoice->hashed_id.' is not related to this payment';
+
             return false;
         }
     }
@@ -116,12 +117,14 @@ class ValidRefundableRequest implements Rule
         if ($payment->credits()->exists()) {
             $paymentable_credit = $payment->credits->where('id', $credit->id)->first();
 
-            if (!$paymentable_invoice) {
-                $this->error_msg = "Credit id ".$credit->hashed_id." is not related to this payment";
+            if (! $paymentable_invoice) {
+                $this->error_msg = 'Credit id '.$credit->hashed_id.' is not related to this payment';
+
                 return false;
             }
         } else {
-            $this->error_msg = "Credit id ".$credit->hashed_id." is not related to this payment";
+            $this->error_msg = 'Credit id '.$credit->hashed_id.' is not related to this payment';
+
             return false;
         }
     }
@@ -139,18 +142,19 @@ class ValidRefundableRequest implements Rule
                 if ($request_invoice['amount'] > $refundable_amount) {
                     $invoice = $paymentable;
 
-                    $this->error_msg = "Attempting to refund more than allowed for invoice id ".$invoice->hashed_id.", maximum refundable amount is ". $refundable_amount;
+                    $this->error_msg = 'Attempting to refund more than allowed for invoice id '.$invoice->hashed_id.', maximum refundable amount is '.$refundable_amount;
+
                     return false;
                 }
             }
         }
 
-        if (!$record_found) {
-            $this->error_msg = "Attempting to refund a payment with invoices attached, please specify valid invoice/s to be refunded.";
+        if (! $record_found) {
+            $this->error_msg = 'Attempting to refund a payment with invoices attached, please specify valid invoice/s to be refunded.';
+
             return false;
         }
     }
-
 
     private function checkCredit($paymentable, $request_credits)
     {
@@ -165,14 +169,16 @@ class ValidRefundableRequest implements Rule
                 if ($request_credit['amount'] > $refundable_amount) {
                     $credit = $paymentable;
 
-                    $this->error_msg = "Attempting to refund more than allowed for credit ".$credit->number.", maximum refundable amount is ". $refundable_amount;
+                    $this->error_msg = 'Attempting to refund more than allowed for credit '.$credit->number.', maximum refundable amount is '.$refundable_amount;
+
                     return false;
                 }
             }
         }
 
-        if (!$record_found) {
-            $this->error_msg = "Attempting to refund a payment with credits attached, please specify valid credit/s to be refunded.";
+        if (! $record_found) {
+            $this->error_msg = 'Attempting to refund a payment with credits attached, please specify valid credit/s to be refunded.';
+
             return false;
         }
     }

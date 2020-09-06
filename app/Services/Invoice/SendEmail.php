@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -25,7 +25,7 @@ class SendEmail extends AbstractService
     protected $reminder_template;
 
     protected $contact;
-    
+
     public function __construct(Invoice $invoice, $reminder_template = null, ClientContact $contact = null)
     {
         $this->invoice = $invoice;
@@ -35,15 +35,14 @@ class SendEmail extends AbstractService
         $this->contact = $contact;
     }
 
-
     /**
-     * Builds the correct template to send
+     * Builds the correct template to send.
      * @param string $reminder_template The template name ie reminder1
      * @return array
      */
     public function run()
     {
-        if (!$this->reminder_template) {
+        if (! $this->reminder_template) {
             $this->reminder_template = $this->invoice->calculateTemplate();
         }
 

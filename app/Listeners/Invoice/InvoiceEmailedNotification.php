@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -47,7 +47,6 @@ class InvoiceEmailedNotification implements ShouldQueue
         $first_notification_sent = true;
 
         foreach ($event->invitation->company->company_users as $company_user) {
-
             $user = $company_user->user;
 
             $notification = new EntitySentNotification($event->invitation, 'invoice');
@@ -61,16 +60,13 @@ class InvoiceEmailedNotification implements ShouldQueue
                 //This allows us better control of how we
                 //handle the mailer
 
-                EntitySentMailer::dispatch($event->invitation, 'invoice', $user, $event->invitation->company); 
+                EntitySentMailer::dispatch($event->invitation, 'invoice', $user, $event->invitation->company);
                 $first_notification_sent = false;
-
             }
 
             $notification->method = $methods;
 
             $user->notify($notification);
         }
-
-
     }
 }

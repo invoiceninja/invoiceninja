@@ -6,11 +6,11 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Database\Eloquent\Model;
 
 class CreditTest extends TestCase
 {
@@ -33,26 +33,24 @@ class CreditTest extends TestCase
 
     public function testCreditsList()
     {
-
         factory(Client::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
-                'is_primary' => 1
+                'is_primary' => 1,
             ]);
 
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
-                'company_id' => $this->company->id
+                'company_id' => $this->company->id,
             ]);
         });
 
         $client = Client::all()->first();
 
         factory(Credit::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
-
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -67,14 +65,14 @@ class CreditTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/credits/' . $this->encodePrimaryKey($this->credit->id));
+        ])->get('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id));
 
         $response->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/credits/' . $this->encodePrimaryKey($this->credit->id) . '/edit');
+        ])->get('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id).'/edit');
 
         $response->assertStatus(200);
 
@@ -87,7 +85,7 @@ class CreditTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/credits/' . $this->encodePrimaryKey($this->credit->id), $credit_update)
+        ])->put('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $credit_update)
             ->assertStatus(200);
     }
 

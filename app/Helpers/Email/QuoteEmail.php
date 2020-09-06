@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: michael.hampton
  * Date: 14/02/2020
- * Time: 19:51
+ * Time: 19:51.
  */
 
 namespace App\Helpers\Email;
@@ -21,7 +21,7 @@ class QuoteEmail extends EmailBuilder
 
         $this->template_style = $client->getSetting('email_style');
 
-        $body_template = $client->getSetting('email_template_' . $reminder_template);
+        $body_template = $client->getSetting('email_template_'.$reminder_template);
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
@@ -33,7 +33,7 @@ class QuoteEmail extends EmailBuilder
             );
         }
 
-        $subject_template = $client->getSetting('email_subject_' . $reminder_template);
+        $subject_template = $client->getSetting('email_subject_'.$reminder_template);
 
         if (iconv_strlen($subject_template) == 0) {
             if ($reminder_template == 'quote') {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,8 +16,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class ValidPayableInvoicesRule
- * @package App\Http\ValidationRules
+ * Class ValidPayableInvoicesRule.
  */
 class ValidPayableInvoicesRule implements Rule
 {
@@ -28,7 +27,6 @@ class ValidPayableInvoicesRule implements Rule
      * @param mixed $value
      * @return bool
      */
-    
     private $error_msg;
 
     public function passes($attribute, $value)
@@ -42,7 +40,8 @@ class ValidPayableInvoicesRule implements Rule
 
         foreach ($invoices as $invoice) {
             if (! $invoice->isPayable()) {
-                $this->error_msg = "One or more of these invoices have been paid";
+                $this->error_msg = 'One or more of these invoices have been paid';
+
                 return false;
             }
         }

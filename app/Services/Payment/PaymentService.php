@@ -1,6 +1,6 @@
 <?php
 /**
- * payment Ninja (https://paymentninja.com)
+ * payment Ninja (https://paymentninja.com).
  *
  * @link https://github.com/paymentninja/paymentninja source repository
  *
@@ -42,12 +42,12 @@ class PaymentService
         $payment->save();
 
         $payment->invoices()->attach($invoice->id, [
-            'amount' => $payment->amount
+            'amount' => $payment->amount,
         ]);
 
         return $payment;
     }
-    
+
     public function sendEmail($contact = null)
     {
         return (new SendEmail($this->payment, $contact))->run();
@@ -70,7 +70,7 @@ class PaymentService
 
         $client->service()
             ->updateBalance($this->payment->amount)
-            ->updatePaidToDate($this->payment->amount*-1)
+            ->updatePaidToDate($this->payment->amount * -1)
             ->save();
     }
 
@@ -102,5 +102,4 @@ class PaymentService
 
         return $this->payment->fresh();
     }
-
 }

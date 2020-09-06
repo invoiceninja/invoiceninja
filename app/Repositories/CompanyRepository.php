@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,7 +15,7 @@ use App\Models\Company;
 use Illuminate\Http\Request;
 
 /**
- * CompanyRepository
+ * CompanyRepository.
  */
 class CompanyRepository extends BaseRepository
 {
@@ -34,7 +34,7 @@ class CompanyRepository extends BaseRepository
     }
 
     /**
-     * Saves the client and its contacts
+     * Saves the client and its contacts.
      *
      * @param      array                           $data    The data
      * @param      \App\Models\Company              $client  The Company
@@ -61,7 +61,7 @@ class CompanyRepository extends BaseRepository
     private function parseCustomFields($fields) :array
     {
         foreach ($fields as &$value) {
-            $value = (string)$value;
+            $value = (string) $value;
         }
 
         return $fields;

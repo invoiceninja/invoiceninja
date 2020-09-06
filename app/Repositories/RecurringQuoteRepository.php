@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,7 +16,7 @@ use App\Models\RecurringQuote;
 use Illuminate\Http\Request;
 
 /**
- * RecurringQuoteRepository
+ * RecurringQuoteRepository.
  */
 class RecurringQuoteRepository extends BaseRepository
 {
@@ -24,13 +24,12 @@ class RecurringQuoteRepository extends BaseRepository
     {
         return RecurringQuote::class;
     }
-    
+
     public function save(Request $request, RecurringQuote $quote) : ?RecurringQuote
     {
         $quote->fill($request->input());
-        
-        $quote->save();
 
+        $quote->save();
 
         $quote_calc = new InvoiceSum($quote, $quote->settings);
 
@@ -38,7 +37,7 @@ class RecurringQuoteRepository extends BaseRepository
 
         //fire events here that cascading from the saving of an Quote
         //ie. client balance update...
-        
+
         return $quote;
     }
 }

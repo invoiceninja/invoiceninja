@@ -56,7 +56,7 @@ class ContactRegisterController extends Controller
         $client_contact->client_id = $client->id;
         $client_contact->is_primary = true;
         $client_contact->password = Hash::make($data['password']);
-        
+
         $client_contact->save();
 
         return $client_contact;

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -44,13 +44,13 @@ class Ninja
 
     public static function getDebugInfo()
     {
-        $mysql_version = DB::select(DB::raw("select version() as version"))[0]->version;
-        
-        $info = "App Version: v" . config('ninja.app_version') . "\\n" .
-            "White Label: " . "\\n" . // TODO: Implement white label with hasFeature.
-            "Server OS: " . php_uname('s') . ' ' . php_uname('r') . "\\n" .
-            "PHP Version: " . phpversion() . "\\n" .
-            "MySQL Version: " . $mysql_version;
+        $mysql_version = DB::select(DB::raw('select version() as version'))[0]->version;
+
+        $info = 'App Version: v'.config('ninja.app_version').'\\n'.
+            'White Label: '.'\\n'. // TODO: Implement white label with hasFeature.
+            'Server OS: '.php_uname('s').' '.php_uname('r').'\\n'.
+            'PHP Version: '.phpversion().'\\n'.
+            'MySQL Version: '.$mysql_version;
 
         return $info;
     }
@@ -60,7 +60,7 @@ class Ninja
         if (self::isNinjaDev()) {
             return true;
         }
-        
+
         $data = [
             'license' => config('ninja.license'),
         ];
@@ -91,7 +91,7 @@ class Ninja
             return false;
         }
 
-        $url = config('ninja.license_url') . '/signup/register';
+        $url = config('ninja.license_url').'/signup/register';
         $data = '';
         $fields = [
             'first_name' => urlencode($user->first_name),

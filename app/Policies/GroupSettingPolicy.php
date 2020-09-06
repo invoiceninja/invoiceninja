@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,13 +14,12 @@ namespace App\Policies;
 use App\Models\User;
 
 /**
- * Class ClientPolicy
- * @package App\Policies
+ * Class ClientPolicy.
  */
 class GroupSettingPolicy extends EntityPolicy
 {
     /**
-     *  Checks if the user has create permissions
+     *  Checks if the user has create permissions.
      *
      * @param  User $user
      * @return bool

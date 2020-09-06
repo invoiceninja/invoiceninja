@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -19,17 +19,17 @@ class TaxRate extends BaseModel
 {
     use MakesHash;
     use SoftDeletes;
-    
+
     protected $fillable = [
         'name',
-        'rate'
+        'rate',
     ];
 
     protected $appends = ['tax_rate_id'];
 
     public function getEntityType()
     {
-        return TaxRate::class;
+        return self::class;
     }
 
     public function getRouteKeyName()

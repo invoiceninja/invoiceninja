@@ -28,7 +28,6 @@ class QuoteController extends Controller
         return $this->render('quotes.index');
     }
 
-
     /**
      * Display the specified resource.
      *
@@ -54,11 +53,11 @@ class QuoteController extends Controller
         $transformed_ids = $this->transformKeys($request->quotes);
 
         if ($request->action == 'download') {
-            return $this->downloadQuotePdf((array)$transformed_ids);
+            return $this->downloadQuotePdf((array) $transformed_ids);
         }
 
         if ($request->action = 'approve') {
-            return $this->approve((array)$transformed_ids, $request->has('process'));
+            return $this->approve((array) $transformed_ids, $request->has('process'));
         }
 
         return back();
@@ -70,29 +69,29 @@ class QuoteController extends Controller
             ->whereClientId(auth()->user()->client->id)
             ->get();
 
-        if (!$quotes || $quotes->count() == 0) {
+        if (! $quotes || $quotes->count() == 0) {
             return;
         }
 
         if ($quotes->count() == 1) {
-            return response()->streamDownload(function () use($invoices) {
+            return response()->streamDownload(function () use ($invoices) {
                 echo file_get_contents($invoices->first()->pdf_file_path());
             }, basename($invoices->first()->pdf_file_path()));
             //return response()->download(TempFile::path($invoices->first()->pdf_file_path()), basename($quotes->first()->pdf_file_path()));
         }
 
-        # enable output of HTTP headers
+        // enable output of HTTP headers
         $options = new Archive();
         $options->setSendHttpHeaders(true);
 
-        # create a new zipstream object
-        $zip = new ZipStream(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')) . ".zip", $options);
+        // create a new zipstream object
+        $zip = new ZipStream(date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip', $options);
 
         foreach ($quotes as $quote) {
             $zip->addFileFromPath(basename($quote->pdf_file_path()), TempFile::path($quote->pdf_file_path()));
         }
 
-        # finish the zip stream
+        // finish the zip stream
         $zip->finish();
     }
 
@@ -102,7 +101,7 @@ class QuoteController extends Controller
             ->whereClientId(auth()->user()->client->id)
             ->get();
 
-        if (!$quotes || $quotes->count() == 0) {
+        if (! $quotes || $quotes->count() == 0) {
             return redirect()->route('client.quotes.index');
         }
 

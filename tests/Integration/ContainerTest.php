@@ -14,32 +14,23 @@ use Tests\TestCase;
  */
 class ContainerTest extends TestCase
 {
-
     use MockAccountData;
 
     public function setUp() :void
     {
-        
         parent::setUp();
 
         $this->makeTestData();
 
         app()->instance(Company::class, $this->company);
-
-
     }
 
     public function testBindingWorks()
     {
-
-
         $resolved_company = resolve(Company::class);
 
         $this->assertNotNull($resolved_company);
 
         $this->assertEquals($this->account->id, $resolved_company->account_id);
-        
-
     }
-
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -33,19 +33,19 @@ class Charge
     }
 
     /**
-     * Create a charge against a payment method
+     * Create a charge against a payment method.
      * @return bool success/failure
      */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
         $invoice = sInvoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->first();
 
-        if($invoice)
+        if ($invoice) {
             $description = "Invoice {$invoice->number} for {$amount} for client {$this->stripe->client->present()->name()}";
-        else
+        } else {
             $description = "Payment with no invoice for amount {$amount} for client {$this->stripe->client->present()->name()}";
+        }
 
         $this->stripe->init();
 
@@ -56,7 +56,6 @@ class Charge
         $response = null;
 
         try {
-
             $response = $local_stripe->paymentIntents->create([
               'amount' => $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision),
               'currency' => $this->stripe->client->getCurrencyCode(),
@@ -67,89 +66,80 @@ class Charge
             ]);
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client);
+        } catch (\Stripe\Exception\CardException $e) {
+            // Since it's a decline, \Stripe\Exception\CardException will be caught
 
-
-        } catch(\Stripe\Exception\CardException $e) {
-          // Since it's a decline, \Stripe\Exception\CardException will be caught
-          
-          $data = [
+            $data = [
             'status' => $e->getHttpStatus(),
             'error_type' => $e->getError()->type,
             'error_code' => $e->getError()->code,
             'param' => $e->getError()->param,
-            'message' => $e->getError()->message
+            'message' => $e->getError()->message,
           ];
 
-          SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (\Stripe\Exception\RateLimitException $e) {
-          // Too many requests made to the API too quickly
- 
-          $data = [
+            // Too many requests made to the API too quickly
+
+            $data = [
             'status' => '',
             'error_type' => '',
             'error_code' => '',
             'param' => '',
-            'message' => 'Too many requests made to the API too quickly'
+            'message' => 'Too many requests made to the API too quickly',
           ];
 
-          SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (\Stripe\Exception\InvalidRequestException $e) {
-          // Invalid parameters were supplied to Stripe's API
-          // 
-          $data = [
+            // Invalid parameters were supplied to Stripe's API
+            //
+            $data = [
             'status' => '',
             'error_type' => '',
             'error_code' => '',
             'param' => '',
-            'message' => 'Invalid parameters were supplied to Stripe\'s API'
+            'message' => 'Invalid parameters were supplied to Stripe\'s API',
           ];
 
-          SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (\Stripe\Exception\AuthenticationException $e) {
-          // Authentication with Stripe's API failed
-          
-          $data = [
+            // Authentication with Stripe's API failed
+
+            $data = [
             'status' => '',
             'error_type' => '',
             'error_code' => '',
             'param' => '',
-            'message' => 'Authentication with Stripe\'s API failed'
+            'message' => 'Authentication with Stripe\'s API failed',
           ];
 
-          SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (\Stripe\Exception\ApiConnectionException $e) {
-          // Network communication with Stripe failed
-          
-          $data = [
+            // Network communication with Stripe failed
+
+            $data = [
             'status' => '',
             'error_type' => '',
             'error_code' => '',
             'param' => '',
-            'message' => 'Network communication with Stripe failed'
+            'message' => 'Network communication with Stripe failed',
           ];
 
-          SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (\Stripe\Exception\ApiErrorException $e) {
-          
-          $data = [
+            $data = [
             'status' => '',
             'error_type' => '',
             'error_code' => '',
             'param' => '',
-            'message' => 'API Error'
+            'message' => 'API Error',
           ];
 
-          SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (Exception $e) {
-          // Something else happened, completely unrelated to Stripe
-          // 
-         $data = [
+            // Something else happened, completely unrelated to Stripe
+            //
+            $data = [
             'status' => '',
             'error_type' => '',
             'error_code' => '',
@@ -157,11 +147,12 @@ class Charge
             'message' => $e->getMessage(),
           ];
 
-          SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-        } 
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
+        }
 
-        if(!$response)
+        if (! $response) {
             return false;
+        }
 
         $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
         //info($payment_method_type);
@@ -184,7 +175,6 @@ class Charge
 
         return $payment;
     }
-
 
     private function formatGatewayResponse($data, $vars)
     {
@@ -214,7 +204,6 @@ class Charge
                 break;
         }
     }
-
 }
 
     // const CREDIT = 1;
@@ -323,8 +312,8 @@ class Charge
 //   "transfer_group": null,
 //   "source": "tok_visa"
 // }
-// 
-// 
+//
+//
 // [2020-07-14 23:06:47] local.INFO: Stripe\PaymentIntent Object
 // (
 //     [id] => pi_1H4xD0Kmol8YQE9DKhrvV6Nc
@@ -337,10 +326,10 @@ class Charge
 //     [amount] => 1000
 //     [amount_capturable] => 0
 //     [amount_received] => 1000
-//     [application] => 
-//     [application_fee_amount] => 
-//     [canceled_at] => 
-//     [cancellation_reason] => 
+//     [application] =>
+//     [application_fee_amount] =>
+//     [canceled_at] =>
+//     [cancellation_reason] =>
 //     [capture_method] => automatic
 //     [charges] => Stripe\Collection Object
 //         (
@@ -353,25 +342,25 @@ class Charge
 //                             [object] => charge
 //                             [amount] => 1000
 //                             [amount_refunded] => 0
-//                             [application] => 
-//                             [application_fee] => 
-//                             [application_fee_amount] => 
+//                             [application] =>
+//                             [application_fee] =>
+//                             [application_fee_amount] =>
 //                             [balance_transaction] => txn_1H4xD1Kmol8YQE9DE9qFoO0R
 //                             [billing_details] => Stripe\StripeObject Object
 //                                 (
 //                                     [address] => Stripe\StripeObject Object
 //                                         (
-//                                             [city] => 
-//                                             [country] => 
-//                                             [line1] => 
-//                                             [line2] => 
+//                                             [city] =>
+//                                             [country] =>
+//                                             [line1] =>
+//                                             [line2] =>
 //                                             [postal_code] => 42334
-//                                             [state] => 
+//                                             [state] =>
 //                                         )
 
-//                                     [email] => 
+//                                     [email] =>
 //                                     [name] => sds
-//                                     [phone] => 
+//                                     [phone] =>
 //                                 )
 
 //                             [calculated_statement_descriptor] => NODDY
@@ -380,27 +369,27 @@ class Charge
 //                             [currency] => usd
 //                             [customer] => cus_He4VEiYldHJWqG
 //                             [description] => Invoice 0023 for 10 for client Corwin Group
-//                             [destination] => 
-//                             [dispute] => 
-//                             [disputed] => 
-//                             [failure_code] => 
-//                             [failure_message] => 
+//                             [destination] =>
+//                             [dispute] =>
+//                             [disputed] =>
+//                             [failure_code] =>
+//                             [failure_message] =>
 //                             [fraud_details] => Array
 //                                 (
 //                                 )
 
-//                             [invoice] => 
-//                             [livemode] => 
+//                             [invoice] =>
+//                             [livemode] =>
 //                             [metadata] => Stripe\StripeObject Object
 //                                 (
 //                                 )
 
-//                             [on_behalf_of] => 
-//                             [order] => 
+//                             [on_behalf_of] =>
+//                             [order] =>
 //                             [outcome] => Stripe\StripeObject Object
 //                                 (
 //                                     [network_status] => approved_by_network
-//                                     [reason] => 
+//                                     [reason] =>
 //                                     [risk_level] => normal
 //                                     [risk_score] => 13
 //                                     [seller_message] => Payment complete.
@@ -417,9 +406,9 @@ class Charge
 //                                             [brand] => visa
 //                                             [checks] => Stripe\StripeObject Object
 //                                                 (
-//                                                     [address_line1_check] => 
+//                                                     [address_line1_check] =>
 //                                                     [address_postal_code_check] => pass
-//                                                     [cvc_check] => 
+//                                                     [cvc_check] =>
 //                                                 )
 
 //                                             [country] => US
@@ -427,20 +416,20 @@ class Charge
 //                                             [exp_year] => 2024
 //                                             [fingerprint] => oCjEXlb4syFKwgbJ
 //                                             [funding] => credit
-//                                             [installments] => 
+//                                             [installments] =>
 //                                             [last4] => 4242
 //                                             [network] => visa
-//                                             [three_d_secure] => 
-//                                             [wallet] => 
+//                                             [three_d_secure] =>
+//                                             [wallet] =>
 //                                         )
 
 //                                     [type] => card
 //                                 )
 
-//                             [receipt_email] => 
-//                             [receipt_number] => 
+//                             [receipt_email] =>
+//                             [receipt_number] =>
 //                             [receipt_url] => https://pay.stripe.com/receipts/acct_19DXXPKmol8YQE9D/ch_1H4xD0Kmol8YQE9Ds9b1ZWjw/rcpt_HeFiiwzRZtnOpvHyohNN5JXtCYe8Rdc
-//                             [refunded] => 
+//                             [refunded] =>
 //                             [refunds] => Stripe\Collection Object
 //                                 (
 //                                     [object] => list
@@ -448,25 +437,25 @@ class Charge
 //                                         (
 //                                         )
 
-//                                     [has_more] => 
+//                                     [has_more] =>
 //                                     [total_count] => 0
 //                                     [url] => /v1/charges/ch_1H4xD0Kmol8YQE9Ds9b1ZWjw/refunds
 //                                 )
 
-//                             [review] => 
-//                             [shipping] => 
-//                             [source] => 
-//                             [source_transfer] => 
-//                             [statement_descriptor] => 
-//                             [statement_descriptor_suffix] => 
+//                             [review] =>
+//                             [shipping] =>
+//                             [source] =>
+//                             [source_transfer] =>
+//                             [statement_descriptor] =>
+//                             [statement_descriptor_suffix] =>
 //                             [status] => succeeded
-//                             [transfer_data] => 
-//                             [transfer_group] => 
+//                             [transfer_data] =>
+//                             [transfer_group] =>
 //                         )
 
 //                 )
 
-//             [has_more] => 
+//             [has_more] =>
 //             [total_count] => 1
 //             [url] => /v1/charges?payment_intent=pi_1H4xD0Kmol8YQE9DKhrvV6Nc
 //         )
@@ -477,23 +466,23 @@ class Charge
 //     [currency] => usd
 //     [customer] => cus_He4VEiYldHJWqG
 //     [description] => Invoice 0023 for 10 for client Corwin Group
-//     [invoice] => 
-//     [last_payment_error] => 
-//     [livemode] => 
+//     [invoice] =>
+//     [last_payment_error] =>
+//     [livemode] =>
 //     [metadata] => Stripe\StripeObject Object
 //         (
 //         )
 
-//     [next_action] => 
-//     [next_source_action] => 
-//     [on_behalf_of] => 
+//     [next_action] =>
+//     [next_source_action] =>
+//     [on_behalf_of] =>
 //     [payment_method] => pm_1H4mNAKmol8YQE9DUMRsuTXs
 //     [payment_method_options] => Stripe\StripeObject Object
 //         (
 //             [card] => Stripe\StripeObject Object
 //                 (
-//                     [installments] => 
-//                     [network] => 
+//                     [installments] =>
+//                     [network] =>
 //                     [request_three_d_secure] => automatic
 //                 )
 
@@ -504,14 +493,14 @@ class Charge
 //             [0] => card
 //         )
 
-//     [receipt_email] => 
-//     [review] => 
-//     [setup_future_usage] => 
-//     [shipping] => 
-//     [source] => 
-//     [statement_descriptor] => 
-//     [statement_descriptor_suffix] => 
+//     [receipt_email] =>
+//     [review] =>
+//     [setup_future_usage] =>
+//     [shipping] =>
+//     [source] =>
+//     [statement_descriptor] =>
+//     [statement_descriptor_suffix] =>
 //     [status] => succeeded
-//     [transfer_data] => 
-//     [transfer_group] => 
+//     [transfer_data] =>
+//     [transfer_group] =>
 // )

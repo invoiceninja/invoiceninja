@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,29 +16,27 @@ use App\DataMapper\CompanySettings;
 use App\DataMapper\FeesAndLimits;
 
 /**
- * Class CompanyGatewayFeesAndLimitsSaver
- * @package App\Utils\Traits
+ * Class CompanyGatewayFeesAndLimitsSaver.
  */
 trait CompanyGatewayFeesAndLimitsSaver
 {
     public function validateFeesAndLimits($fees_and_limits)
     {
-        $fees_and_limits = (object)$fees_and_limits;
+        $fees_and_limits = (object) $fees_and_limits;
         $casts = FeesAndLimits::$casts;
 
         foreach ($fees_and_limits as $fee_and_limit) {
-            $fee_and_limit = (object)$fee_and_limit;
+            $fee_and_limit = (object) $fee_and_limit;
 
             foreach ($casts as $key => $value) {
 
-
                 /* Handles unset settings or blank strings */
-                if (!property_exists($fee_and_limit, $key) || is_null($fee_and_limit->{$key}) || !isset($fee_and_limit->{$key}) || $fee_and_limit->{$key} == '') {
+                if (! property_exists($fee_and_limit, $key) || is_null($fee_and_limit->{$key}) || ! isset($fee_and_limit->{$key}) || $fee_and_limit->{$key} == '') {
                     continue;
                 }
-                
+
                 /*Catch all filter */
-                if (!$this->checkAttribute($value, $fee_and_limit->{$key})) {
+                if (! $this->checkAttribute($value, $fee_and_limit->{$key})) {
                     return [$key, $value];
                 }
             }
@@ -74,7 +72,8 @@ trait CompanyGatewayFeesAndLimitsSaver
                 return is_array($value);
             case 'json':
                 json_decode($string);
-                    return (json_last_error() == JSON_ERROR_NONE);
+
+                    return json_last_error() == JSON_ERROR_NONE;
             default:
                 return false;
         }
@@ -97,22 +96,21 @@ trait CompanyGatewayFeesAndLimitsSaver
 
     //     return $new_arr;
     // }
-    // 
+    //
     public function cleanFeesAndLimits($fees_and_limits)
     {
         $new_arr = [];
 
         foreach ($fees_and_limits as $key => $value) {
-             $fal = new FeesAndLimits;
+            $fal = new FeesAndLimits;
             // $fal->{$key} = $value;
 
             foreach ($value as $k => $v) {
-
                 $fal->{$k} = $v;
                 $fal->{$k} = BaseSettings::castAttribute(FeesAndLimits::$casts[$k], $v);
             }
 
-            $new_arr[$key] = (array)$fal;
+            $new_arr[$key] = (array) $fal;
         }
 
         return $new_arr;

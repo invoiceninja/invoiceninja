@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,21 +22,21 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class UserWasUpdated
- * @package App\Events\User
+ * Class UserWasUpdated.
  */
 class UserWasUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @var $user
+     * @var
      */
     public $user;
 
     public $company;
 
     public $event_vars;
+
     /**
      * Create a new event instance.
      *
@@ -48,6 +48,7 @@ class UserWasUpdated
         $this->company = $company;
         $this->event_vars = $event_vars;
     }
+
     /**
      * Get the channels the event should broadcast on.
      *

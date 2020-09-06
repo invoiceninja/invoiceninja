@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -23,19 +23,18 @@ class SetInviteDb
      * @param  \Closure  $next
      * @return mixed
      */
-    
     public function handle($request, Closure $next)
     {
         $error = [
                 'message' => 'Invalid URL',
-                'errors' => new \stdClass
+                'errors' => new \stdClass,
             ];
         /*
          * Use the host name to set the active DB
          **/
         $entity = null;
 
-        if (!$request->route('entity')) {
+        if (! $request->route('entity')) {
             $entity = $request->segment(2);
         } else {
             $entity = $request->route('entity');

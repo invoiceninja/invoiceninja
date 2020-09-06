@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -64,28 +64,21 @@ class ReminderJob implements ShouldQueue
 
         $invoices->each(function ($invoice) {
             if ($invoice->isPayable()) {
-
                 $invoice->invitations->each(function ($invitation) use ($invoice) {
                     $email_builder = (new InvoiceEmail())->build($invitation);
 
                     EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
 
                     info("Firing email for invoice {$invoice->number}");
-
                 });
 
                 if ($invoice->invitations->count() > 0) {
                     event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
                 }
-
             } else {
-
                 $invoice->next_send_date = null;
                 $invoice->save();
-                
             }
         });
     }
-
-
 }

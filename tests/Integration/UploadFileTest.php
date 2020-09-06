@@ -43,7 +43,6 @@ class UploadFileTest extends TestCase
         );
     }
 
-
     public function testFileUploadWorks()
     {
         $image = UploadedFile::fake()->image('avatar.jpg');
@@ -55,7 +54,7 @@ class UploadFileTest extends TestCase
             $this->invoice->company,
             $this->invoice
         );
- 
+
         $this->assertNotNull($document);
     }
 }

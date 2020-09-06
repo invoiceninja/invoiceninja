@@ -16,7 +16,7 @@ class BaseSettingsTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-        
+
         $this->settings = ClientSettings::defaults();
     }
 
@@ -41,7 +41,7 @@ class BaseSettingsTest extends TestCase
     public function migrate(\stdClass $object) : \stdClass
     {
         foreach ($this->settings as $property => $value) {
-            if (!property_exists($object, $property)) {
+            if (! property_exists($object, $property)) {
                 $object->{$property} = null;
             }
         }

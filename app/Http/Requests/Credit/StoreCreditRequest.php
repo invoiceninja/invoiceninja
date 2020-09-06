@@ -36,14 +36,14 @@ class StoreCreditRequest extends FormRequest
             $documents = count($this->input('documents'));
 
             foreach (range(0, $documents) as $index) {
-                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+                $rules['documents.'.$index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
-        
+
         $rules['number'] = new UniqueCreditNumberRule($this->all());
 
         return $rules;
@@ -67,7 +67,7 @@ class StoreCreditRequest extends FormRequest
 
         if (isset($input['client_contacts'])) {
             foreach ($input['client_contacts'] as $key => $contact) {
-                if (!array_key_exists('send_email', $contact) || !array_key_exists('id', $contact)) {
+                if (! array_key_exists('send_email', $contact) || ! array_key_exists('id', $contact)) {
                     unset($input['client_contacts'][$key]);
                 }
             }

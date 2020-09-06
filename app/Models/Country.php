@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -25,7 +25,7 @@ class Country extends StaticModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-    
+
     /**
      * Localizes the country name for the clients language.
      *
@@ -33,6 +33,6 @@ class Country extends StaticModel
      */
     public function getName() :string
     {
-        return trans('texts.country_' . $this->name);
+        return trans('texts.country_'.$this->name);
     }
 }

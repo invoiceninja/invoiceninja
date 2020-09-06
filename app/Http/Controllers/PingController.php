@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -17,7 +17,6 @@ use Illuminate\Http\Request;
 
 class PingController extends BaseController
 {
-    
     /**
      * Get a ping response from the system.
      *
@@ -43,13 +42,13 @@ class PingController extends BaseController
     public function index()
     {
         return response()->json(
-        	['company_name' => auth()->user()->getCompany()->present()->name(),
-        	 'user_name' => auth()->user()->present()->name(),
-        	], 200);
+            ['company_name' => auth()->user()->getCompany()->present()->name(),
+             'user_name' => auth()->user()->present()->name(),
+            ], 200);
     }
 
     /**
-     * Get a health check of the system
+     * Get a health check of the system.
      *
      * @return \Illuminate\Http\Response
      *
@@ -72,9 +71,10 @@ class PingController extends BaseController
      */
     public function health()
     {
-        if(Ninja::isNinja())
+        if (Ninja::isNinja()) {
             return response()->json(['message' => 'Route not available', 'errors'=>[]], 403);
+        }
 
-        return response()->json(SystemHealth::check(),200);
+        return response()->json(SystemHealth::check(), 200);
     }
 }

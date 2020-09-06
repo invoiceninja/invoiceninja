@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,13 +16,12 @@ use App\Libraries\MultiDB;
 use Hashids\Hashids;
 
 /**
- * Class MakesHash
- * @package App\Utils\Traits
+ * Class MakesHash.
  */
 trait MakesHash
 {
     /**
-     * Creates a simple alphanumeric Hash
+     * Creates a simple alphanumeric Hash.
      * @return string - asd89f7as89df6asf78as6fds
      */
     public function createHash() : string
@@ -31,14 +30,14 @@ trait MakesHash
     }
 
     /**
-     * Creates a simple alphanumeric Hash which is prepended with a encoded database prefix
+     * Creates a simple alphanumeric Hash which is prepended with a encoded database prefix.
      *
      * @param $db - Full database name
      * @return string 01-asfas8df76a78f6a78dfsdf
      */
     public function createDbHash($db) : string
     {
-        return  $this->getDbCode($db) . '-' . \Illuminate\Support\Str::random(config('ninja.key_length'));
+        return  $this->getDbCode($db).'-'.\Illuminate\Support\Str::random(config('ninja.key_length'));
     }
 
     /**
@@ -49,7 +48,7 @@ trait MakesHash
     {
         $hashids = new Hashids(config('ninja.hash_salt'), 10);
 
-        return $hashids->encode(str_replace(MultiDB::DB_PREFIX, "", $db));
+        return $hashids->encode(str_replace(MultiDB::DB_PREFIX, '', $db));
     }
 
     public function encodePrimaryKey($value) : string
@@ -64,12 +63,12 @@ trait MakesHash
         try {
             $hashids = new Hashids(config('ninja.hash_salt'), 10);
 
-            $decoded_array =  $hashids->decode($value);
+            $decoded_array = $hashids->decode($value);
 
-            if (!is_array($decoded_array)) {
-                throw new ModelNotFoundException("Resource not found", 1);
+            if (! is_array($decoded_array)) {
+                throw new ModelNotFoundException('Resource not found', 1);
             }
-              
+
             return $decoded_array[0];
         } catch (\Exception $e) {
             return response()->json(['error'=>'Invalid primary key'], 400);

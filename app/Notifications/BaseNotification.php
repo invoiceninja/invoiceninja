@@ -87,10 +87,9 @@ class BaseNotification extends Notification implements ShouldQueue
             $mail_message->attachData($ubl_string, $this->entity->getFileName('xml'));
         }
 
-
         return $mail_message->withSwiftMessage(function ($message) {
-                            $message->getHeaders()->addTextHeader('Tag', $this->invitation->company->company_key);
-                        });
+            $message->getHeaders()->addTextHeader('Tag', $this->invitation->company->company_key);
+        });
     }
 
     public function buildMailMessageData() :array
@@ -103,7 +102,7 @@ class BaseNotification extends Notification implements ShouldQueue
             $email_style_custom = $this->settings->email_style_custom;
             $body = strtr($email_style_custom, "$body", $body);
         }
-        
+
         $data = [
             'body' => $body,
             'design' => $design_style,
@@ -123,7 +122,6 @@ class BaseNotification extends Notification implements ShouldQueue
 
     public function getTemplateView()
     {
-
         switch ($this->settings->email_style) {
             case 'plain':
                 return 'email.template.plain';
@@ -141,7 +139,5 @@ class BaseNotification extends Notification implements ShouldQueue
                 return 'email.admin.generic_email';
                 break;
         }
-
     }
-    
 }

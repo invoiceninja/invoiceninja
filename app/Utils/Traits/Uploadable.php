@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,8 +14,7 @@ namespace App\Utils\Traits;
 use App\Jobs\Util\UploadAvatar;
 
 /**
- * Class Uploadable
- * @package App\Utils\Traits
+ * Class Uploadable.
  */
 trait Uploadable
 {
@@ -24,7 +23,7 @@ trait Uploadable
         if ($file) {
             $path = UploadAvatar::dispatchNow($file, $company->company_key);
 
-info("the path {$path}");
+            info("the path {$path}");
 
             if ($path) {
                 $settings = $entity->settings;

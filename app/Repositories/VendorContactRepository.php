@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,7 +16,7 @@ use App\Models\VendorContact;
 use Illuminate\Support\Str;
 
 /**
- * VendorContactRepository
+ * VendorContactRepository.
  */
 class VendorContactRepository extends BaseRepository
 {
@@ -36,6 +36,7 @@ class VendorContactRepository extends BaseRepository
         $contacts = $contacts->sortByDesc('is_primary')->map(function ($contact) {
             $contact['is_primary'] = $this->is_primary;
             $this->is_primary = false;
+
             return $contact;
         });
 
@@ -47,7 +48,7 @@ class VendorContactRepository extends BaseRepository
                 $update_contact = VendorContact::find($this->decodePrimaryKey($contact['id']));
             }
 
-            if (!$update_contact) {
+            if (! $update_contact) {
                 $update_contact = new VendorContact;
                 $update_contact->vendor_id = $vendor->id;
                 $update_contact->company_id = $vendor->company_id;
@@ -59,8 +60,6 @@ class VendorContactRepository extends BaseRepository
 
             $update_contact->save();
         });
-
-
 
         //always made sure we have one blank contact to maintain state
         if ($contacts->count() == 0) {

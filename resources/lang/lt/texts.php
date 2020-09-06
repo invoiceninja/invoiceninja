@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
 
     'organization' => 'Įmonė',
     'name' => 'Pavadinimas',
@@ -1016,7 +1016,6 @@ $LANG = array(
     'trial_success' => 'Successfully enabled two week free pro plan trial',
     'overdue' => 'Overdue',
 
-
     'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the invoice and client portal.',
     'user_email_footer' => 'To adjust your email notification settings please visit :link',
     'reset_password_footer' => 'If you did not request this password reset please email our support: :email',
@@ -1196,7 +1195,6 @@ $LANG = array(
     'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments, :link to see the full list of features.',
     'return_to_app' => 'Return To App',
 
-
     // Payment updates
     'refund_payment' => 'Grąžinti',
     'refund_max' => 'Maks.:',
@@ -1305,7 +1303,6 @@ $LANG = array(
     'braintree_paypal_help_link_text' => 'susieti PayPal su Braintree sąskaita',
     'token_billing_braintree_paypal' => 'Išsaugoti mokėjimo duomenis',
     'add_paypal_account' => 'Nauja Paypal sąskaita',
-
 
     'no_payment_method_specified' => 'Nėra nurodyta mokėjimo būdo',
     'chart_type' => 'Diagramos tipas',
@@ -2865,6 +2862,6 @@ $LANG = array(
     'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
     'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
-);
+];
 
 return $LANG;

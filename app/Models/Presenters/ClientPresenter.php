@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,36 +14,35 @@ namespace App\Models\Presenters;
 use App\Models\Country;
 
 /**
- * Class ClientPresenter
- * @package App\Models\Presenters
+ * Class ClientPresenter.
  */
 class ClientPresenter extends EntityPresenter
 {
-
     /**
      * @return string
      */
     public function name()
     {
-        if($this->entity->name)
+        if ($this->entity->name) {
             return $this->entity->name;
+        }
 
         $contact = $this->entity->primary_contact->first();
 
         $contact_name = 'No Contact Set';
 
-        if ($contact && (strlen($contact->first_name) >=1 || strlen($contact->last_name) >=1)) {
-            $contact_name = $contact->first_name. ' '. $contact->last_name;
-        }
-        elseif($contact && (strlen($contact->email)))
+        if ($contact && (strlen($contact->first_name) >= 1 || strlen($contact->last_name) >= 1)) {
+            $contact_name = $contact->first_name.' '.$contact->last_name;
+        } elseif ($contact && (strlen($contact->email))) {
             $contact_name = $contact->email;
+        }
 
         return $contact_name;
     }
 
     public function primary_contact_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name . ' '. $this->entity->primary_contact->first()->last_name : 'No primary contact set';
+        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name.' '.$this->entity->primary_contact->first()->last_name : 'No primary contact set';
     }
 
     public function email()
@@ -57,16 +56,16 @@ class ClientPresenter extends EntityPresenter
         $client = $this->entity;
 
         if ($address1 = $client->address1) {
-            $str .= e($address1) . '<br/>';
+            $str .= e($address1).'<br/>';
         }
         if ($address2 = $client->address2) {
-            $str .= e($address2) . '<br/>';
+            $str .= e($address2).'<br/>';
         }
         if ($cityState = $this->getCityState()) {
-            $str .= e($cityState) . '<br/>';
+            $str .= e($cityState).'<br/>';
         }
         if ($country = $client->country) {
-            $str .= e($country->name) . '<br/>';
+            $str .= e($country->name).'<br/>';
         }
 
         return $str;
@@ -78,16 +77,16 @@ class ClientPresenter extends EntityPresenter
         $client = $this->entity;
 
         if ($address1 = $client->shipping_address1) {
-            $str .= e($address1) . '<br/>';
+            $str .= e($address1).'<br/>';
         }
         if ($address2 = $client->shipping_address2) {
-            $str .= e($address2) . '<br/>';
+            $str .= e($address2).'<br/>';
         }
         if ($cityState = $this->getCityState()) {
-            $str .= e($cityState) . '<br/>';
+            $str .= e($cityState).'<br/>';
         }
         if ($country = $client->country) {
-            $str .= e($country->name) . '<br/>';
+            $str .= e($country->name).'<br/>';
         }
 
         return $str;
@@ -105,7 +104,7 @@ class ClientPresenter extends EntityPresenter
 
     /**
      * Calculated company data fields
-     * using settings
+     * using settings.
      */
     public function company_name()
     {
@@ -119,18 +118,18 @@ class ClientPresenter extends EntityPresenter
         $settings = $this->entity->getMergedSettings();
 
         $str = '';
-        
+
         if ($settings->address1) {
-            $str .= e($settings->address1) . '<br/>';
+            $str .= e($settings->address1).'<br/>';
         }
         if ($settings->address2) {
-            $str .= e($settings->address2) . '<br/>';
+            $str .= e($settings->address2).'<br/>';
         }
         if ($cityState = $this->getCityState()) {
-            $str .= e($cityState) . '<br/>';
+            $str .= e($cityState).'<br/>';
         }
         if ($country = Country::find($settings->country_id)) {
-            $str .= e($country->name) . '<br/>';
+            $str .= e($country->name).'<br/>';
         }
 
         return $str;

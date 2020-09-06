@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,13 +20,11 @@ use Illuminate\Support\Facades\Log;
 
 class RecurringInvoicesCron
 {
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-
     public function __construct()
     {
     }
@@ -39,11 +37,11 @@ class RecurringInvoicesCron
     public function handle() : void
     {
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
-        
+
         if (! config('ninja.db.multi_db_enabled')) {
             $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', Carbon::now()->addMinutes(30))->get();
 
-            Log::info(Carbon::now()->addMinutes(30) . ' Sending Recurring Invoices. Count = '. $recurring_invoices->count());
+            Log::info(Carbon::now()->addMinutes(30).' Sending Recurring Invoices. Count = '.$recurring_invoices->count());
 
             $recurring_invoices->each(function ($recurring_invoice, $key) {
                 SendRecurring::dispatch($recurring_invoice, $recurring_invoice->company->db);
@@ -55,7 +53,7 @@ class RecurringInvoicesCron
 
                 $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', Carbon::now()->addMinutes(30))->get();
 
-                Log::info(Carbon::now()->addMinutes(30) . ' Sending Recurring Invoices. Count = '. $recurring_invoices->count() . 'On Database # '. $db);
+                Log::info(Carbon::now()->addMinutes(30).' Sending Recurring Invoices. Count = '.$recurring_invoices->count().'On Database # '.$db);
 
                 $recurring_invoices->each(function ($recurring_invoice, $key) {
                     SendRecurring::dispatch($recurring_invoice, $recurring_invoice->company->db);

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -49,7 +49,7 @@ class QuoteFactory
         $quote->partial = 0;
         $quote->user_id = $user_id;
         $quote->company_id = $company_id;
-        
+
         return $quote;
     }
 }

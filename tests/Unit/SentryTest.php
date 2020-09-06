@@ -8,14 +8,11 @@ use Tests\TestCase;
 
 class SentryTest extends TestCase
 {
-   
     public function testSentryFiresAppropriately()
     {
-
-        $e = new \Exception("Test Fire");
+        $e = new \Exception('Test Fire');
         app('sentry')->captureException($e);
 
         $this->assertTrue(true);
-    
     }
 }

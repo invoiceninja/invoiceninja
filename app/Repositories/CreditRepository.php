@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -19,12 +19,12 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 /**
- * CreditRepository
+ * CreditRepository.
  */
 class CreditRepository extends BaseRepository
 {
     use MakesHash;
-    
+
     public function __construct()
     {
     }
@@ -40,7 +40,7 @@ class CreditRepository extends BaseRepository
     }
 
     /**
-     * Saves the client and its contacts
+     * Saves the client and its contacts.
      *
      * @param      array                           $data    The data
      * @param      \App\Models\Company              $client  The Company
@@ -54,6 +54,6 @@ class CreditRepository extends BaseRepository
 
     public function getInvitationByKey($key) :?CreditInvitation
     {
-        return CreditInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
+        return CreditInvitation::whereRaw('BINARY `key`= ?', [$key])->first();
     }
 }

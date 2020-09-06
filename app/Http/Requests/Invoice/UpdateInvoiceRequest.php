@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,29 +24,26 @@ class UpdateInvoiceRequest extends Request
     use MakesHash;
     use CleanLineItems;
     use ChecksEntityStatus;
-    
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('edit', $this->invoice);
     }
 
-
     public function rules()
     {
-
         $rules = [];
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
             $documents = count($this->input('documents'));
 
             foreach (range(0, $documents) as $index) {
-                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+                $rules['documents.'.$index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
@@ -54,8 +51,9 @@ class UpdateInvoiceRequest extends Request
 
         $rules['id'] = new LockedInvoiceRule($this->invoice);
 
-        if($this->input('number'))
-            $rules['number'] = 'unique:invoices,number,' . $this->id . ',id,company_id,' . $this->invoice->company_id;
+        if ($this->input('number')) {
+            $rules['number'] = 'unique:invoices,number,'.$this->id.',id,company_id,'.$this->invoice->company_id;
+        }
 
         return $rules;
     }
@@ -63,11 +61,11 @@ class UpdateInvoiceRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-        
+
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
-        
+
         if (isset($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }

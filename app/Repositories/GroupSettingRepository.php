@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -17,6 +17,7 @@ use App\Utils\Traits\MakesHash;
 class GroupSettingRepository extends BaseRepository
 {
     use MakesHash;
+
     /**
      * Gets the class name.
      *

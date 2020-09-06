@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -35,6 +35,7 @@ class InvoiceWasEmailedAndFailed
     public $company;
 
     public $event_vars;
+
     /**
      * Create a new event instance.
      *
@@ -43,9 +44,9 @@ class InvoiceWasEmailedAndFailed
     public function __construct(Invoice $invoice, Company $company, string $errors, array $event_vars)
     {
         $this->invoice = $invoice;
-        
+
         $this->company = $company;
-        
+
         $this->errors = $errors;
 
         $this->event_vars = $event_vars;

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,7 +15,7 @@ use App\Models\Project;
 use App\Utils\Traits\MakesHash;
 
 /**
- * class ProjectTransformer
+ * class ProjectTransformer.
  */
 class ProjectTransformer extends EntityTransformer
 {
@@ -36,9 +36,9 @@ class ProjectTransformer extends EntityTransformer
             'id' => (string) $this->encodePrimaryKey($project->id),
             'name' => $project->name ?: '',
             'client_id' => (string) $this->encodePrimaryKey($project->client_id),
-            'created_at' => (int)$project->created_at,
-            'updated_at' => (int)$project->updated_at,
-            'archived_at' => (int)$project->deleted_at,
+            'created_at' => (int) $project->created_at,
+            'updated_at' => (int) $project->updated_at,
+            'archived_at' => (int) $project->deleted_at,
             'is_deleted' => (bool) $project->is_deleted,
             'task_rate' => (float) $project->task_rate,
             'due_date' => $project->due_date ?: '',

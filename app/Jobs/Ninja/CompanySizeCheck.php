@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -43,35 +43,25 @@ class CompanySizeCheck implements ShouldQueue
      */
     public function handle()
     {
-
         if (! config('ninja.db.multi_db_enabled')) {
             $this->check();
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
-
                 MultiDB::setDB($db);
 
                 $this->check();
             }
         }
-
     }
 
     private function check()
     {
-
-    	Company::cursor()->each(function ($company)
-    	{
-
-    		if($company->invoices->count() > 1000 || $company->products->count() > 1000 || $company->clients->count() > 1000)
-    		{
-    			$company->is_large = true;
-    			$company->save();
-    		}
-
-    	});
-
+        Company::cursor()->each(function ($company) {
+            if ($company->invoices->count() > 1000 || $company->products->count() > 1000 || $company->clients->count() > 1000) {
+                $company->is_large = true;
+                $company->save();
+            }
+        });
     }
-
 }

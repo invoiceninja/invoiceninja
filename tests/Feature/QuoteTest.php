@@ -23,7 +23,6 @@ use Tests\TestCase;
  * @test
  * @covers App\Http\Controllers\QuoteController
  */
-    
 class QuoteTest extends TestCase
 {
     use MakesHash;
@@ -69,7 +68,7 @@ class QuoteTest extends TestCase
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
         }
-        
+
         if ($response) {
             $response->assertStatus(200);
         }
@@ -108,13 +107,12 @@ class QuoteTest extends TestCase
 
         $data = [
             'client_id' => $this->encodePrimaryKey($this->client->id),
-            'date' => "2019-12-14",
+            'date' => '2019-12-14',
             'line_items' => [],
             'invitations' => [
-                ['client_contact_id' => $this->encodePrimaryKey($client_contact->id)]
+                ['client_contact_id' => $this->encodePrimaryKey($client_contact->id)],
             ],
         ];
-
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

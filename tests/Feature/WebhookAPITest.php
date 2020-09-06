@@ -17,7 +17,6 @@ use Tests\TestCase;
  * @test
  * @covers App\Http\Controllers\WebhookController
  */
-    
 class WebhookAPITest extends TestCase
 {
     use MakesHash;
@@ -56,7 +55,7 @@ class WebhookAPITest extends TestCase
         $data = [
             'target_url' => 'http://hook.com',
             'event_id' => 1,
-            'format' => 'JSON'
+            'format' => 'JSON',
         ];
 
         $response = $this->withHeaders([
@@ -73,7 +72,7 @@ class WebhookAPITest extends TestCase
         $data = [
             'event_id' => 2,
         ];
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -94,25 +93,22 @@ class WebhookAPITest extends TestCase
 
         $this->assertNotNull($arr['data']['archived_at']);
 
-
         $data = [
             'ids' => [$arr['data']['id']],
         ];
 
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/webhooks/bulk?action=restore', $data);
 
         $arr = $response->json();
 
         $this->assertEquals(0, $arr['data'][0]['archived_at']);
 
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/webhooks/bulk?action=delete', $data);
 
         $arr = $response->json();

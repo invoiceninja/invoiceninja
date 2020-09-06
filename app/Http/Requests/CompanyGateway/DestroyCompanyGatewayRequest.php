@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,7 +21,6 @@ class DestroyCompanyGatewayRequest extends Request
      *
      * @return bool
      */
-
     public function authorize()
     {
         return auth()->user()->isAdmin();
@@ -30,10 +29,9 @@ class DestroyCompanyGatewayRequest extends Request
     public function rules()
     {
         $rules = [];
-        
+
         return $rules;
     }
-
 
     protected function prepareForValidation()
     {
