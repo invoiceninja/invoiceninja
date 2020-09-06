@@ -40,6 +40,7 @@ trait PdfMaker
                 ->showBackground()
                 ->deviceScaleFactor(1)
                 ->waitUntilNetworkIdle(true)
+                ->noSandbox()
                 ->pdf();
     }
 }

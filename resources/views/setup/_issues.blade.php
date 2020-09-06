@@ -61,42 +61,6 @@
                     @endif
                 </dd>
             </div>
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
-                <dt class="text-sm leading-5 font-medium text-gray-500">
-                    {{ ctrans('texts.npm_status') }}
-                </dt>
-                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    @if($check['npm_status'])
-                    <span class="alert alert-success block flex justify-between items-center">
-                        <span>{{ $check['npm_status'] }} => {{ strtoupper(ctrans('texts.ok')) }}</span>
-                        <span>✔</span>
-                    </span>
-                    @else
-                    <span class="alert alert-failure block flex justify-between items-center">
-                        <span>{{ ctrans('texts.npm_status_not_found') }}</span>
-                        <span>❌</span>
-                    </span>
-                    @endif
-                </dd>
-            </div>
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
-                <dt class="text-sm leading-5 font-medium text-gray-500">
-                    {{ ctrans('texts.node_status') }}
-                </dt>
-                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    @if($check['node_status'])
-                    <span class="alert alert-success block flex justify-between items-center">
-                        <span>{{ $check['node_status'] }} => {{ strtoupper(ctrans('texts.ok')) }}</span>
-                        <span>✔</span>
-                    </span>
-                    @else
-                    <span class="alert alert-failure block flex justify-between items-center">
-                        <span>{{ ctrans('texts.node_status_not_found') }}</span>
-                        <span>❌</span>
-                    </span>
-                    @endif
-                </dd>
-            </div>
         </dl>
     </div>
 </div>

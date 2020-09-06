@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -30,11 +31,6 @@ use Spatie\Browsershot\Browsershot;
  */
 class SetupController extends Controller
 {
-    /**
-     * Main setup view.
-     *
-     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
-     */
     public function index()
     {
         $check = SystemHealth::check(false);
@@ -64,9 +60,8 @@ class SetupController extends Controller
 
         $url = $request->input('url');
 
-        if (substr($url, -1) != '/') {
-            $url = $url.'/';
-        }
+        if (substr($url, -1) != '/')
+            $url = $url . '/';
 
         $_ENV['APP_KEY'] = config('app.key');
         $_ENV['APP_URL'] = $url;
@@ -107,7 +102,7 @@ class SetupController extends Controller
             }
 
             /* Write the .env file */
-            $filePath = base_path().'/.env';
+            $filePath = base_path() . '/.env';
             $fp = fopen($filePath, 'w');
             fwrite($fp, $config);
             fclose($fp);
@@ -196,10 +191,11 @@ class SetupController extends Controller
                 return $this->testPhantom();
             }
 
-            Browsershot::url('https://www.invoiceninja.com')->savePdf(
-     //       Browsershot::html('If you see this text, generating PDF works! Thanks for using Invoice Ninja!')->savePdf(
-                public_path('test.pdf')
-            );
+            Browsershot::url('https://www.invoiceninja.com')
+                ->noSandbox()
+                ->savePdf(
+                    public_path('test.pdf')
+                );
 
             return response(['url' => asset('test.pdf')], 200);
         } catch (\Exception $e) {
