@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,7 +20,7 @@ use App\Utils\Ninja;
 use Illuminate\Http\Request;
 
 /**
- * UserRepository
+ * UserRepository.
  */
 class UserRepository extends BaseRepository
 {
@@ -35,7 +35,7 @@ class UserRepository extends BaseRepository
     }
 
     /**
-     * Saves the user and its contacts
+     * Saves the user and its contacts.
      *
      * @param      array                         $data    The data
      * @param      \App\Models\user              $user  The user
@@ -46,7 +46,7 @@ class UserRepository extends BaseRepository
     {
         $details = $data;
 
-        /**
+        /*
          * Getting: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'company_user'
          * because of User::unguard().
          * Solution. Unset company_user per request.
@@ -57,10 +57,10 @@ class UserRepository extends BaseRepository
         }
 
         $company = auth()->user()->company();
-        $account = $company->account;;
+        $account = $company->account;
 
         /* If hosted and Enterprise we need to increment the num_users field on the accounts table*/
-        if(!$user->id && $account->isEnterpriseClient()){
+        if (! $user->id && $account->isEnterpriseClient()) {
             $account->num_users++;
             $account->save();
         }
@@ -73,7 +73,7 @@ class UserRepository extends BaseRepository
             $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->withTrashed()->first();
 
             /*No company user exists - attach the user*/
-            if (!$cu) {
+            if (! $cu) {
                 $data['company_user']['account_id'] = $account->id;
                 $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
                 $data['company_user']['is_migrating'] = $is_migrating;
@@ -112,7 +112,7 @@ class UserRepository extends BaseRepository
         }
 
         $user->delete();
-    
+
         event(new UserWasDeleted($user, $company, Ninja::eventVars()));
 
         return $user->fresh();
@@ -134,10 +134,10 @@ class UserRepository extends BaseRepository
             $cu->delete();
         }
 
-        $user->is_deleted=true;
+        $user->is_deleted = true;
         $user->save();
         $user->delete();
-    
+
         event(new UserWasDeleted($user, $company, Ninja::eventVars()));
 
         return $user->fresh();

@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  *     @OA\Parameter(
  *         name="X-Api-Secret",
  *         in="header",

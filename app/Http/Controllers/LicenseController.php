@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -87,13 +87,13 @@ class LicenseController extends BaseController
             $license_key = request()->input('license_key');
             $product_id = 3;
 
-            $url = config('ninja.license_url') . "/claim_license?license_key={$license_key}&product_id={$product_id}&get_date=true";
+            $url = config('ninja.license_url')."/claim_license?license_key={$license_key}&product_id={$product_id}&get_date=true";
             $data = trim(CurlUtils::get($url));
 
             if ($data == Account::RESULT_FAILURE) {
                 $error = [
                     'message' => trans('texts.invalid_white_label_license'),
-                    'errors' => new \stdClass
+                    'errors' => new \stdClass,
                 ];
 
                 return response()->json($error, 400);
@@ -103,7 +103,7 @@ class LicenseController extends BaseController
                 if ($date < date_create()) {
                     $error = [
                         'message' => trans('texts.invalid_white_label_license'),
-                        'errors' => new \stdClass
+                        'errors' => new \stdClass,
                     ];
 
                     return response()->json($error, 400);
@@ -118,7 +118,7 @@ class LicenseController extends BaseController
 
                     $error = [
                         'message' => trans('texts.bought_white_label'),
-                        'errors' => new \stdClass
+                        'errors' => new \stdClass,
                     ];
 
                     return response()->json($error, 200);
@@ -126,7 +126,7 @@ class LicenseController extends BaseController
             } else {
                 $error = [
                         'message' => trans('texts.white_label_license_error'),
-                        'errors' => new \stdClass
+                        'errors' => new \stdClass,
                     ];
 
                 return response()->json($error, 400);
@@ -134,8 +134,8 @@ class LicenseController extends BaseController
         }
 
         $error = [
-            'message' => "Invalid license, or invalid environment ".config('ninja.environment'),
-            'errors' => new \stdClass
+            'message' => 'Invalid license, or invalid environment '.config('ninja.environment'),
+            'errors' => new \stdClass,
         ];
 
         return response()->json($error, 400);

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -46,14 +46,14 @@ class CompanyUser extends Pivot
         'is_owner',
         'is_locked',
         'slack_webhook_url',
-        'shop_restricted'
+        'shop_restricted',
     ];
 
     protected $touches = [];
 
     public function getEntityType()
     {
-        return CompanyUser::class;
+        return self::class;
     }
 
     public function account()
@@ -113,11 +113,10 @@ class CompanyUser extends Pivot
         return $this->hasMany(CompanyToken::class, 'user_id', 'user_id');
     }
 
-
     public function scopeAuthCompany($query)
     {
         $query->where('company_id', auth()->user()->companyId());
-        
+
         return $query;
     }
 }

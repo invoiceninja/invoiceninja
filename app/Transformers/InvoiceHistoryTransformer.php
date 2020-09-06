@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,11 +21,11 @@ class InvoiceHistoryTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
-        'activity'
+        'activity',
     ];
 
     protected $availableIncludes = [
-        'activity'
+        'activity',
     ];
 
     public function transform(Backup $backup)
@@ -36,8 +36,8 @@ class InvoiceHistoryTransformer extends EntityTransformer
             'json_backup' => (string) $backup->json_backup ?: '',
             'html_backup' => (string) $backup->html_backup ?: '',
             'amount' => (float) $backup->amount,
-            'created_at' => (int)$backup->created_at,
-            'updated_at' => (int)$backup->updated_at,
+            'created_at' => (int) $backup->created_at,
+            'updated_at' => (int) $backup->updated_at,
         ];
     }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Quote Ninja (https://invoiceninja.com)
+ * Quote Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -55,12 +55,12 @@ class CreateQuoteInvitations implements ShouldQueue
                                         ->whereQuoteId($this->quote->id)
                                         ->first();
 
-            if (!$invitation && $contact->send) {
+            if (! $invitation && $contact->send) {
                 $ii = QuoteInvitationFactory::create($this->quote->company_id, $this->quote->user_id);
                 $ii->quote_id = $this->quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send) {
+            } elseif ($invitation && ! $contact->send) {
                 $invitation->delete();
             }
         });

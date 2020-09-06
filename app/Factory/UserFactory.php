@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,7 +28,7 @@ class UserFactory
         $user->failed_logins = 0;
         $user->signature = '';
         $user->theme_id = 0;
-        
+
         return $user;
     }
 }

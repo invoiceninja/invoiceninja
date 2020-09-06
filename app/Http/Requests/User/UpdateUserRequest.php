@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,12 +21,10 @@ class UpdateUserRequest extends Request
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->id === $this->id || auth()->user()->isAdmin();
     }
-
 
     public function rules()
     {
@@ -44,10 +42,9 @@ class UpdateUserRequest extends Request
     {
         $input = $this->all();
 
-        if (isset($input['company_user']) && !auth()->user()->isAdmin()) {
+        if (isset($input['company_user']) && ! auth()->user()->isAdmin()) {
             unset($input['company_user']);
         }
-        
 
         $this->replace($input);
     }

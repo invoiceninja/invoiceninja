@@ -27,13 +27,12 @@ class InvoiceTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-    
+
         $this->makeTestData();
 
         $this->invoice->line_items = $this->buildLineItems();
-        
-        $this->invoice->usesinclusive_taxes = true;
 
+        $this->invoice->usesinclusive_taxes = true;
 
         $this->invoice_calc = new InvoiceSum($this->invoice);
     }
@@ -44,13 +43,13 @@ class InvoiceTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
 
         $line_items[] = $item;
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
 
         $line_items[] = $item;
 
@@ -68,7 +67,7 @@ class InvoiceTest extends TestCase
     public function testInvoiceTotalsWithDiscount()
     {
         $this->invoice->discount = 5;
-            
+
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -80,7 +79,7 @@ class InvoiceTest extends TestCase
     {
         $this->invoice->discount = 5;
         $this->invoice->custom_value1 = 5;
-            
+
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -141,14 +140,13 @@ class InvoiceTest extends TestCase
         //$this->assertEquals($this->invoice_calc->getTotalTaxes(), 3);
     }
 
-
     public function testLineItemTaxRatesInclusiveTaxes()
     {
         $line_items = [];
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
 
@@ -156,7 +154,7 @@ class InvoiceTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
 
@@ -184,7 +182,7 @@ class InvoiceTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
 
@@ -192,7 +190,7 @@ class InvoiceTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
 

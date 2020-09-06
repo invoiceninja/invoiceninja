@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,7 +16,6 @@ class Modern extends AbstractDesign
     public function __construct()
     {
     }
-
 
     public function includes()
     {
@@ -35,7 +34,6 @@ $custom_css
 </head>
 <body>';
     }
-
 
     public function header()
     {

@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
 
 /*
 |--------------------------------------------------------------------------
@@ -13,12 +13,12 @@ return array(
 |
 */
 
-"password" => "As palavras-passe devem conter no mínimo seis caracteres e devem ser iguais.",
+'password' => 'As palavras-passe devem conter no mínimo seis caracteres e devem ser iguais.',
 
-"user" => "Não foi encontrado um utilizador com o endereço de email indicado.",
+'user' => 'Não foi encontrado um utilizador com o endereço de email indicado.',
 
-"token" => "Este token de redefinição de palavra-passe é inválido.",
+'token' => 'Este token de redefinição de palavra-passe é inválido.',
 
-"sent" => "Lembrete de palavra-passe enviado!",
+'sent' => 'Lembrete de palavra-passe enviado!',
 
-);
+];

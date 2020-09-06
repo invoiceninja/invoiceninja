@@ -28,11 +28,11 @@ class InvoiceInclusiveTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-    
+
         $this->makeTestData();
 
         $this->invoice->line_items = $this->buildLineItems();
-        
+
         $this->invoice->uses_inclusive_taxes = true;
 
         $this->invoice_calc = new InvoiceSumInclusive($this->invoice);
@@ -44,13 +44,13 @@ class InvoiceInclusiveTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
 
         $line_items[] = $item;
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
 
         $line_items[] = $item;
 
@@ -68,7 +68,7 @@ class InvoiceInclusiveTest extends TestCase
     public function testInvoiceTotalsWithDiscount()
     {
         $this->invoice->discount = 5;
-            
+
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -80,7 +80,7 @@ class InvoiceInclusiveTest extends TestCase
     {
         $this->invoice->discount = 5;
         $this->invoice->custom_surcharge1 = 5;
-            
+
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
@@ -154,14 +154,13 @@ class InvoiceInclusiveTest extends TestCase
         $this->assertEquals($this->invoice_calc->getTotalTaxes(), 2.72);
     }
 
-
     public function testLineItemTaxRatesInclusiveTaxes()
     {
         $line_items = [];
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
 
@@ -169,7 +168,7 @@ class InvoiceInclusiveTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
 
@@ -197,7 +196,7 @@ class InvoiceInclusiveTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
 
@@ -205,7 +204,7 @@ class InvoiceInclusiveTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
 
@@ -236,7 +235,7 @@ class InvoiceInclusiveTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
         $item->discount = 5;
@@ -245,7 +244,7 @@ class InvoiceInclusiveTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
         $item->discount = 5;
@@ -281,7 +280,7 @@ class InvoiceInclusiveTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
         $item->discount = 5;
@@ -290,7 +289,7 @@ class InvoiceInclusiveTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
         $item->discount = 5;
@@ -320,14 +319,13 @@ class InvoiceInclusiveTest extends TestCase
         $this->assertEquals($this->invoice_calc->getBalance(), 5);
     }
 
-
     public function testLineItemTaxRatesInclusiveTaxesWithInvoiceTaxesAndAmountDiscountsWithLargeCosts()
     {
         $line_items = [];
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =100;
+        $item->cost = 100;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
         $item->discount = 5;
@@ -336,7 +334,7 @@ class InvoiceInclusiveTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =100;
+        $item->cost = 100;
         $item->tax_rate1 = 10;
         $item->tax_name1 = 10;
         $item->discount = 5;

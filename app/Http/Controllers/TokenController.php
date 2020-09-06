@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -30,8 +30,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Class TokenController
- * @package App\Http\Controllers
+ * Class TokenController.
  */
 class TokenController extends BaseController
 {
@@ -89,7 +88,6 @@ class TokenController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(TokenFilters $filters)
     {
@@ -146,7 +144,6 @@ class TokenController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowTokenRequest $request, CompanyToken $token)
     {
@@ -201,7 +198,6 @@ class TokenController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditTokenRequest $request, CompanyToken $token)
     {
@@ -258,7 +254,6 @@ class TokenController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateTokenRequest $request, CompanyToken $token)
     {
@@ -308,7 +303,6 @@ class TokenController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateTokenRequest $request)
     {
@@ -355,7 +349,6 @@ class TokenController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreTokenRequest $request)
     {
@@ -413,7 +406,6 @@ class TokenController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyTokenRequest $request, CompanyToken $token)
     {
@@ -424,7 +416,7 @@ class TokenController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @param BulkTokenRequest $request
      * @return \Illuminate\Http\Response
@@ -478,16 +470,16 @@ class TokenController extends BaseController
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
         $tokens = CompanyToken::withTrashed()->find($this->transformKeys($ids));
-        
+
         $tokens->each(function ($token, $key) use ($action) {
             if (auth()->user()->can('edit', $token)) {
                 $this->token_repo->{$action}($token);
             }
         });
-        
+
         return $this->listResponse(CompanyToken::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -17,8 +17,7 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class LockedInvoiceRule
- * @package App\Http\ValidationRules
+ * Class LockedInvoiceRule.
  */
 class LockedInvoiceRule implements Rule
 {
@@ -51,7 +50,7 @@ class LockedInvoiceRule implements Rule
      * @param $email
      *
      * //off,when_sent,when_paid
-     * 
+     *
      * @return bool
      */
     private function checkIfInvoiceLocked() : bool
@@ -63,15 +62,17 @@ class LockedInvoiceRule implements Rule
                 return true;
                 break;
             case 'when_sent':
-                if($this->invoice->status_id == Invoice::STATUS_SENT)
+                if ($this->invoice->status_id == Invoice::STATUS_SENT) {
                     return false;
+                }
 
                 return true;
 
                 break;
             case 'when_paid':
-                if($this->invoice->status_id == Invoice::STATUS_PAID)
+                if ($this->invoice->status_id == Invoice::STATUS_PAID) {
                     return false;
+                }
 
                 return true;
                 break;
@@ -79,6 +80,5 @@ class LockedInvoiceRule implements Rule
                 return true;
                 break;
         }
-
     }
 }

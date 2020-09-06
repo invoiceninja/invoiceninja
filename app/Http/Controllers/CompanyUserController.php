@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -47,7 +47,6 @@ class CompanyUserController extends BaseController
     {
     }
 
-    
     public function store()
     {
     }
@@ -73,7 +72,6 @@ class CompanyUserController extends BaseController
     {
         //
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -110,13 +108,13 @@ class CompanyUserController extends BaseController
      */
     public function update(UpdateCompanyUserRequest $request, User $user)
     {
-
         $company = auth()->user()->company();
-            
+
         $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
-        if (!$company_user) {
-            throw new ModelNotFoundException("Company User record not found");
+        if (! $company_user) {
+            throw new ModelNotFoundException('Company User record not found');
+
             return;
         }
 
@@ -126,11 +124,10 @@ class CompanyUserController extends BaseController
             $company_user->fill($request->input('company_user')['settings']);
             $company_user->fill($request->input('company_user')['notifications']);
         }
-            
+
         $company_user->save();
 
         return $this->itemResponse($company_user->fresh());
-        
     }
 
     /**

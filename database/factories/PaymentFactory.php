@@ -12,6 +12,6 @@ $factory->define(App\Models\Payment::class, function (Faker $faker) {
         'date' => $faker->date(),
         'transaction_reference' => $faker->text(10),
         'type_id' => Payment::TYPE_CREDIT_CARD,
-        'status_id' => Payment::STATUS_COMPLETED
+        'status_id' => Payment::STATUS_COMPLETED,
     ];
 });

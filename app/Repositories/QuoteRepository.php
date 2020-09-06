@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -23,7 +23,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 /**
- * QuoteRepository
+ * QuoteRepository.
  */
 class QuoteRepository extends BaseRepository
 {
@@ -41,6 +41,6 @@ class QuoteRepository extends BaseRepository
 
     public function getInvitationByKey($key) :?QuoteInvitation
     {
-        return QuoteInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
+        return QuoteInvitation::whereRaw('BINARY `key`= ?', [$key])->first();
     }
 }

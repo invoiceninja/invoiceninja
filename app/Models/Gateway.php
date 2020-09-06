@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,7 +28,7 @@ class Gateway extends StaticModel
     ];
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
-    
+
     /**
      * @return mixed
      */
@@ -45,8 +45,8 @@ class Gateway extends StaticModel
     }
 
     /**
-     * Test if gateway is custom
-     * @return boolean TRUE|FALSE
+     * Test if gateway is custom.
+     * @return bool TRUE|FALSE
      */
     public function isCustom() :bool
     {

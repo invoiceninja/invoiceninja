@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -32,7 +32,7 @@ class InvoiceController extends BaseController
     }
 
     /**
-     * List Invoices
+     * List Invoices.
      *
      * @param  \App\Filters\InvoiceFilters  $filters  The filters
      *
@@ -41,7 +41,7 @@ class InvoiceController extends BaseController
     public function index(InvoiceFilters $filters)
     {
         $invoices = Invoice::filter($filters);
-      
+
         return $this->listResponse($invoices);
     }
 }

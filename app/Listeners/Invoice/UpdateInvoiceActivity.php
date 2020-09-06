@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Log;
 class UpdateInvoiceActivity implements ShouldQueue
 {
     protected $activity_repo;
+
     /**
      * Create the event listener.
      *
@@ -51,7 +52,7 @@ class UpdateInvoiceActivity implements ShouldQueue
         $fields->company_id = $event->invoice->company_id;
         $fields->activity_type_id = Activity::UPDATE_INVOICE;
         $fields->invoice_id = $event->invoice->id;
-        
+
         $this->activity_repo->save($fields, $event->invoice, $event->event_vars);
     }
 }

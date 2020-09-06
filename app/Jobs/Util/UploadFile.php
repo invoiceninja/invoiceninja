@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -11,18 +11,18 @@
 
 namespace App\Jobs\Util;
 
-use App\Models\Document;
 use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Bus\Queueable;
+use App\Models\Document;
 use App\Utils\Traits\MakesHash;
-use Intervention\Image\ImageManager;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Request;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
 
 class UploadFile implements ShouldQueue
 {
@@ -37,7 +37,7 @@ class UploadFile implements ShouldQueue
         ],
         self::DOCUMENT => [
             'path' => 'documents',
-        ]
+        ],
     ];
 
     protected $file;

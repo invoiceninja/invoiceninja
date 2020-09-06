@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,37 +22,35 @@ class UpdatePaymentRequest extends Request
 {
     use ChecksEntityStatus;
     use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('edit', $this->payment);
     }
 
-
     public function rules()
     {//min:1 removed, 'required'
         $rules = [
-            'invoices' => ['array',new PaymentAppliedValidAmount,new ValidCreditsPresentRule],
+            'invoices' => ['array', new PaymentAppliedValidAmount, new ValidCreditsPresentRule],
             'invoices.*.invoice_id' => 'distinct',
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
-            'number' => 'nullable|unique:payments,number,' . $this->id . ',id,company_id,' . $this->company_id,
+            'number' => 'nullable|unique:payments,number,'.$this->id.',id,company_id,'.$this->company_id,
         ];
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
             $documents = count($this->input('documents'));
 
             foreach (range(0, $documents) as $index) {
-                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+                $rules['documents.'.$index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
-
 
         return $rules;
     }
@@ -64,11 +62,11 @@ class UpdatePaymentRequest extends Request
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
-        
+
         if (isset($input['client_id'])) {
             unset($input['client_id']);
         }
-        
+
         if (isset($input['amount'])) {
             unset($input['amount']);
         }

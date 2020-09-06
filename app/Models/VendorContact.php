@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,8 +14,8 @@ namespace App\Models;
 use App\Models\Company;
 use App\Models\Language;
 use App\Models\User;
-use App\Notifications\ClientContactResetPassword as ResetPasswordNotification;
 use App\Notifications\ClientContactResetPassword;
+use App\Notifications\ClientContactResetPassword as ResetPasswordNotification;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -43,11 +43,11 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
     protected $dates = [
-        'deleted_at'
+        'deleted_at',
     ];
-    
+
     protected $appends = [
-        'hashed_id'
+        'hashed_id',
     ];
 
     protected $with = [
@@ -72,17 +72,17 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         'email',
         'is_primary',
     ];
-    
+
     public function getEntityType()
     {
-        return VendorContact::class;
+        return self::class;
     }
 
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
     }
-    
+
     public function getContactIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
@@ -116,7 +116,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     public function preferredLocale()
     {
         $languages = Cache::get('languages');
-        
+
         return $languages->filter(function ($item) {
             return $item->id == $this->client->getSetting('language_id');
         })->first()->locale;
@@ -126,14 +126,13 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         //return $lang->locale;
     }
 
-
     /**
      * Retrieve the model for a bound value.
      *
      * @param  mixed  $value
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function resolveRouteBinding($value)
+    public function resolveRouteBinding($value, $field = NULL)
     {
         return $this
             ->withTrashed()

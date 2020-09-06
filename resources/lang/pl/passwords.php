@@ -13,10 +13,10 @@ return [
     |
     */
 
-    "password" => "Hasło musi mieć conajmniej sześć znaków i być takie samo jak potwierdzające.",
-    "user" => "Użytkownik o podanym adresie e-mail nie istnieje.",
-    "token" => "Wprowadzony token jest nieprawidłowy.",
-    "sent" => "Link do resetowania hasła został wysłany.",
-    "reset" => "Twoje hasło zostało zresetowane!",
+    'password' => 'Hasło musi mieć conajmniej sześć znaków i być takie samo jak potwierdzające.',
+    'user' => 'Użytkownik o podanym adresie e-mail nie istnieje.',
+    'token' => 'Wprowadzony token jest nieprawidłowy.',
+    'sent' => 'Link do resetowania hasła został wysłany.',
+    'reset' => 'Twoje hasło zostało zresetowane!',
 
 ];

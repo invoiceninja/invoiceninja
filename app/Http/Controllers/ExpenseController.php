@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -30,8 +30,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class ExpenseController
- * @package App\Http\Controllers
+ * Class ExpenseController.
  * @covers App\Http\Controllers\ExpenseController
  */
 class ExpenseController extends BaseController
@@ -94,7 +93,6 @@ class ExpenseController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(ExpenseFilters $filters)
     {
@@ -151,7 +149,6 @@ class ExpenseController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowExpenseRequest $request, Expense $expense)
     {
@@ -206,7 +203,6 @@ class ExpenseController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditExpenseRequest $request, Expense $expense)
     {
@@ -263,7 +259,6 @@ class ExpenseController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateExpenseRequest $request, Expense $expense)
     {
@@ -315,7 +310,6 @@ class ExpenseController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateExpenseRequest $request)
     {
@@ -362,7 +356,6 @@ class ExpenseController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreExpenseRequest $request)
     {
@@ -422,7 +415,6 @@ class ExpenseController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyExpenseRequest $request, Expense $expense)
     {
@@ -433,7 +425,7 @@ class ExpenseController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @param BulkExpenseRequest $request
      * @return \Illuminate\Http\Response
@@ -487,21 +479,21 @@ class ExpenseController extends BaseController
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
         $expenses = Expense::withTrashed()->find($this->transformKeys($ids));
-        
+
         $expenses->each(function ($expense, $key) use ($action) {
             if (auth()->user()->can('edit', $expense)) {
                 $this->client_repo->{$action}($expense);
             }
         });
-        
+
         return $this->listResponse(Expense::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 
     /**
-     * Returns a client statement
+     * Returns a client statement.
      *
      * @return [type] [description]
      */

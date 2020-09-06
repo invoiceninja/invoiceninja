@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -23,7 +23,7 @@ class EmailTemplateDefaults
         switch ($template) {
 
             /* Template */
-            
+
             case 'email_template_invoice':
                 return self::emailInvoiceTemplate();
                 break;
@@ -62,7 +62,7 @@ class EmailTemplateDefaults
                 break;
 
             /* Subject */
-            
+
             case 'email_subject_invoice':
                 return self::emailInvoiceSubject();
                 break;
@@ -119,10 +119,10 @@ class EmailTemplateDefaults
             'allow_unsafe_links' => false,
         ]);
 
-        $invoice_message = '<p>' . self::transformText('invoice_message') . '</p><br><br><p>$view_link</p>';
+        $invoice_message = '<p>'.self::transformText('invoice_message').'</p><br><br><p>$view_link</p>';
+
         return $invoice_message;
         //return $converter->convertToHtml($invoice_message);
-
     }
 
     public static function emailQuoteSubject()
@@ -214,9 +214,8 @@ class EmailTemplateDefaults
         return Parsedown::instance()->line('Statement Templates needs texts record!');
     }
 
-
     private static function transformText($string)
     {
-        return str_replace(":", "$", ctrans('texts.'.$string));
+        return str_replace(':', '$', ctrans('texts.'.$string));
     }
 }

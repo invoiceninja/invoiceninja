@@ -64,7 +64,7 @@ class InvoicesTable extends Component
                 ->filter(function ($invoice) {
                     $invoice['line_items'] = collect($invoice->line_items)
                         ->filter(function ($item) {
-                            return $item->type_id == "4" || $item->type_id == 4;
+                            return $item->type_id == '4' || $item->type_id == 4;
                         });
 
                     return count($invoice['line_items']);

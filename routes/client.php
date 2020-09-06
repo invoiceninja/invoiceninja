@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('client', 'Auth\ContactLoginController@showLoginForm')->name('client.login'); //catch all
+Route::get('client', 'Auth\ContactLoginController@showLoginForm')->name('client.catchall'); //catch all
 
 Route::get('client/login', 'Auth\ContactLoginController@showLoginForm')->name('client.login')->middleware('locale');
 Route::post('client/login', 'Auth\ContactLoginController@login')->name('client.login.submit');
@@ -20,7 +20,7 @@ Route::get('view/{entity_type}/{invitation_key}/password', 'ClientPortal\EntityV
 Route::post('view/{entity_type}/{invitation_key}/password', 'ClientPortal\EntityViewController@handlePassword');
 
 //todo implement domain DB
-Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', 'as' => 'client.'], function () {
+Route::group(['middleware' => ['auth:contact', 'locale'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 
     Route::get('invoices', 'ClientPortal\InvoiceController@index')->name('invoices.index')->middleware('portal_enabled');
@@ -46,7 +46,7 @@ Route::group(['middleware' => ['auth:contact','locale'], 'prefix' => 'client', '
     Route::get('payment_methods/{payment_method}/verification', 'ClientPortal\PaymentMethodController@verify')->name('payment_methods.verification');
     Route::post('payment_methods/{payment_method}/verification', 'ClientPortal\PaymentMethodController@processVerification');
 
-    Route::resource('payment_methods', 'ClientPortal\PaymentMethodController');// name = (payment_methods. index / create / show / update / destroy / edit
+    Route::resource('payment_methods', 'ClientPortal\PaymentMethodController'); // name = (payment_methods. index / create / show / update / destroy / edit
 
     Route::match(['GET', 'POST'], 'quotes/approve', 'ClientPortal\QuoteController@bulk')->name('quotes.bulk');
     Route::get('quotes', 'ClientPortal\QuoteController@index')->name('quotes.index')->middleware('portal_enabled');
@@ -79,9 +79,8 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('{entity}/{client_hash}/{invitation_key}', 'ClientPortal\InvitationController@routerForIframe')->name('invoice.client_hash_and_invitation_key'); //should never need this
 
     Route::get('payment_hook/{company_gateway_id}/{gateway_type_id}', 'ClientPortal\PaymentHookController@process');
-
 });
 
-Route::get('phantom/{entity}/{invitation_key}', '\App\Utils\PhantomJS\Phantom@displayInvitation')->middleware(['invite_db','phantom_secret'])->name('phantom_view');
+Route::get('phantom/{entity}/{invitation_key}', '\App\Utils\PhantomJS\Phantom@displayInvitation')->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
 
 Route::fallback('BaseController@notFoundClient');

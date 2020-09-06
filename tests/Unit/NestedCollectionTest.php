@@ -14,11 +14,11 @@ class NestedCollectionTest extends TestCase
     {
         parent::setUp();
 
-        $this->map = (object)[
-            'client' => (object)[
-                'datatable' => (object)[
+        $this->map = (object) [
+            'client' => (object) [
+                'datatable' => (object) [
                     'per_page' => 20,
-                    'column_visibility' => (object)[
+                    'column_visibility' => (object) [
                         '__checkbox' => true,
                         'name' => true,
                         'contact' => true,
@@ -27,12 +27,11 @@ class NestedCollectionTest extends TestCase
                         'last_login' => true,
                         'balance' => true,
                         '__component:client-actions' => true,
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
     }
-
 
     public function testPerPageAttribute()
     {

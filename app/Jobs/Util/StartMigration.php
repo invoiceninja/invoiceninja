@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -13,18 +13,18 @@ namespace App\Jobs\Util;
 
 use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\NonExistingMigrationFile;
+use App\Exceptions\ProcessingMigrationArchiveFailed;
 use App\Exceptions\ResourceDependencyMissing;
-use App\Mail\MigrationFailed;
-use App\Models\User;
-use App\Models\Company;
+use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Libraries\MultiDB;
+use App\Mail\MigrationFailed;
+use App\Models\Company;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Exceptions\ProcessingMigrationArchiveFailed;
-use App\Exceptions\ResourceNotAvailableForMigration;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
 class StartMigration implements ShouldQueue
@@ -36,7 +36,6 @@ class StartMigration implements ShouldQueue
     /**
      * @var User
      */
-
     private $user;
 
     /**
@@ -51,13 +50,12 @@ class StartMigration implements ShouldQueue
      * @param User $user
      * @param Company $company
      */
-    
     public $tries = 1;
 
     public $timeout = 86400;
 
     public $retryAfter = 86430;
-    
+
     public function __construct($filepath, User $user, Company $company)
     {
         $this->filepath = $filepath;
@@ -74,7 +72,6 @@ class StartMigration implements ShouldQueue
      */
     public function handle()
     {
-
         set_time_limit(0);
 
         MultiDB::setDb($this->company->db);
@@ -91,7 +88,7 @@ class StartMigration implements ShouldQueue
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);
 
         try {
-            if (!$archive) {
+            if (! $archive) {
                 throw new ProcessingMigrationArchiveFailed('Processing migration archive failed. Migration file is possibly corrupted.');
             }
 
@@ -106,7 +103,7 @@ class StartMigration implements ShouldQueue
 
             $file = storage_path("migrations/$filename/migration.json");
 
-            if (!file_exists($file)) {
+            if (! file_exists($file)) {
                 throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
             }
 
@@ -115,7 +112,6 @@ class StartMigration implements ShouldQueue
             Import::dispatchNow($data, $this->company, $this->user);
 
             $this->company->setMigration(false);
-
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
             $this->company->setMigration(false);
 
@@ -127,7 +123,6 @@ class StartMigration implements ShouldQueue
         }
 
         //always make sure we unset the migration as running
-        
 
         return true;
     }

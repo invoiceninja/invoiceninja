@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,13 +18,13 @@ class Custom
     public $header;
 
     public $body;
-    
+
     public $product;
-    
+
     public $task;
 
     public $footer;
-    
+
     public $name;
 
     public function __construct($design)
@@ -34,11 +34,11 @@ class Custom
         $this->includes = $design->design->includes;
 
         $this->header = $design->design->header;
-        
+
         $this->body = $design->design->body;
-        
+
         $this->product = $design->design->product;
-        
+
         $this->task = $design->design->task;
 
         $this->footer = $design->design->footer;

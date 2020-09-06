@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Mail;
 
 class SendingController extends Controller
 {
-
     /**
      * Send a support message.
      *
@@ -61,7 +60,6 @@ class SendingController extends Controller
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function __invoke(Request $request)
     {
@@ -79,7 +77,7 @@ class SendingController extends Controller
             ->send(new SupportMessageSent($request->message, $send_logs));
 
         return response()->json([
-            'success' => true
+            'success' => true,
         ], 200);
     }
 }

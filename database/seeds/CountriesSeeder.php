@@ -193,6 +193,5 @@ class CountriesSeeder extends Seeder
         $p = Country::where('country_code', 275)->first();
         $p->name = 'Palestine';
         $p->save();
-
     }
 }

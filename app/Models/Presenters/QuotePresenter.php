@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,7 +15,7 @@ use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 
 /**
- * Class InvoicePresenter
+ * Class InvoicePresenter.
  *
  * For convenience and to allow users to easiliy
  * customise their invoices, we provide all possible
@@ -23,13 +23,10 @@ use App\Utils\Traits\MakesDates;
  *
  * Shortcuts to other presenters are here to facilitate
  * a clean UI / UX
- *
- * @package App\Models\Presenters
  */
 class QuotePresenter extends EntityPresenter
 {
     use MakesDates;
-
 
     public function amount()
     {

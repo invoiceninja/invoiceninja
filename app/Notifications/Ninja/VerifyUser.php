@@ -6,11 +6,11 @@ use App\Mail\Signup\NewSignup;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class VerifyUser extends Notification implements ShouldQueue
 {
@@ -21,7 +21,6 @@ class VerifyUser extends Notification implements ShouldQueue
      *
      * @return void
      */
-    
     protected $user;
 
     public function __construct($user)

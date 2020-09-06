@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -26,41 +26,40 @@ use Illuminate\Support\Str;
 
 class AutoBillInvoice extends AbstractService
 {
-
     private $invoice;
 
-    private $client; 
+    private $client;
 
     public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
-    
+
         $this->client = $invoice->client;
     }
 
     public function run()
     {
-
-        if(!$this->invoice->isPayable())
+        if (! $this->invoice->isPayable()) {
             return $this->invoice;
+        }
 
         $this->invoice = $this->invoice->service()->markSent()->save();
 
-        if($this->invoice->balance > 0)
-            $gateway_token = $this->getGateway($this->invoice->balance);      
-        else
+        if ($this->invoice->balance > 0) {
+            $gateway_token = $this->getGateway($this->invoice->balance);
+        } else {
             return $this->invoice->service()->markPaid()->save();
+        }
 
-        if(!$gateway_token || !$gateway_token->gateway->driver($this->client)->token_billing){
+        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing) {
             return $this->invoice;
         }
 
-        if($this->invoice->partial > 0){
+        if ($this->invoice->partial > 0) {
             $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->partial);
             // $amount = $this->invoice->partial + $fee;
             $amount = $this->invoice->partial;
-        }
-        else{
+        } else {
             $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->balance);
             // $amount = $this->invoice->balance + $fee;
             $amount = $this->invoice->balance;
@@ -96,28 +95,25 @@ class AutoBillInvoice extends AbstractService
 
     /**
      * Harvests a client gateway token which passes the
-     * necessary filters for an $amount
-     * 
+     * necessary filters for an $amount.
+     *
      * @param  float              $amount The amount to charge
      * @return ClientGatewayToken         The client gateway token
      */
     private function getGateway($amount)
     {
-
         $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC')->get();
 
-        foreach($gateway_tokens as $gateway_token)
-        {
-            if($this->validGatewayLimits($gateway_token, $amount)){
+        foreach ($gateway_tokens as $gateway_token) {
+            if ($this->validGatewayLimits($gateway_token, $amount)) {
                 return $gateway_token;
             }
         }
-
     }
 
     /**
-     * Adds a gateway fee to the invoice
-     * 
+     * Adds a gateway fee to the invoice.
+     *
      * @param float $fee The fee amount.
      */
     private function addFeeToInvoice(float $fee)
@@ -132,7 +128,7 @@ class AutoBillInvoice extends AbstractService
         $item->notes = ctrans('texts.online_payment_surcharge');
         $item->type_id = 3;
 
-        $items = (array)$this->invoice->line_items;
+        $items = (array) $this->invoice->line_items;
         $items[] = $item;
 
         $this->invoice->line_items = $items;
@@ -140,7 +136,7 @@ class AutoBillInvoice extends AbstractService
 
         $this->invoice = $this->invoice->calc()->getInvoice()->save();
 
-        if($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT){
+        if ($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT) {
             $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
             $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, 'Invoice balance updated after stale gateway fee removed')->save();
         }
@@ -149,9 +145,9 @@ class AutoBillInvoice extends AbstractService
     }
 
     /**
-     * Removes any existing unpaid gateway fees 
+     * Removes any existing unpaid gateway fees
      * due to previous payment failure.
-     * 
+     *
      * @return $this
      */
     // private function purgeStaleGatewayFees()
@@ -167,7 +163,7 @@ class AutoBillInvoice extends AbstractService
 
     //       if($item->type_id != 3)
     //         $new_items[] = $item;
-          
+
     //     }
 
     //     $this->invoice->line_items = $new_items;
@@ -186,31 +182,30 @@ class AutoBillInvoice extends AbstractService
     /**
      * Checks whether a given gateway token is able
      * to process the payment after passing through the
-     * fees and limits check
-     *     
+     * fees and limits check.
+     *
      * @param  CompanyGateway $cg     The CompanyGateway instance
      * @param  float          $amount The amount to be paid
      * @return bool
      */
     public function validGatewayLimits($cg, $amount) : bool
     {
-        if(isset($cg->fees_and_limits))
-            $fees_and_limits = $cg->fees_and_limits->{"1"};
-        else
+        if (isset($cg->fees_and_limits)) {
+            $fees_and_limits = $cg->fees_and_limits->{'1'};
+        } else {
             return true;
+        }
 
-        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !==  null && $amount < $fees_and_limits->min_limit) {
-            info("amount {$amount} less than ". $fees_and_limits->min_limit);
-            $passes = false;   
-        }
-        else if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !==  null && $amount > $fees_and_limits->max_limit){ 
-            info("amount {$amount} greater than ". $fees_and_limits->max_limit);
+        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $amount < $fees_and_limits->min_limit) {
+            info("amount {$amount} less than ".$fees_and_limits->min_limit);
             $passes = false;
-        }
-        else
+        } elseif ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $amount > $fees_and_limits->max_limit) {
+            info("amount {$amount} greater than ".$fees_and_limits->max_limit);
+            $passes = false;
+        } else {
             $passes = true;
+        }
 
         return $passes;
     }
-
 }

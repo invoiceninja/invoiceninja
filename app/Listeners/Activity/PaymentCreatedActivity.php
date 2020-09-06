@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -23,6 +23,7 @@ use Illuminate\Queue\InteractsWithQueue;
 class PaymentCreatedActivity implements ShouldQueue
 {
     protected $activity_repo;
+
     /**
      * Create the event listener.
      *
@@ -46,7 +47,7 @@ class PaymentCreatedActivity implements ShouldQueue
         $payment = $event->payment;
 
         $invoices = $payment->invoices;
-        
+
         $fields = new \stdClass;
 
         $fields->payment_id = $payment->id;

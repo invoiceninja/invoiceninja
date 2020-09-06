@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
 
     'organization' => 'Organisasjon',
     'name' => 'Navn',
@@ -1016,7 +1016,6 @@ $LANG = array(
     'trial_success' => 'Successfully enabled two week free pro plan trial',
     'overdue' => 'Forfalt',
 
-
     'white_label_text' => 'Kjøp ett års white-label-lisens for $:price for å fjerne Invoice Ninja branding fra fakturaer og kundeportal.',
     'user_email_footer' => 'For å justere varslingsinnstillingene vennligst besøk :link',
     'reset_password_footer' => 'Hvis du ikke ba om å få nullstillt ditt passord, vennligst kontakt kundeservice: :email',
@@ -1196,7 +1195,6 @@ $LANG = array(
     'enterprise_plan_features' => 'Enterprise-planen gir mulighet for flere brukere og filvedlegg, :link for å se hele listen med funksjoner.',
     'return_to_app' => 'Tilbake til App',
 
-
     // Payment updates
     'refund_payment' => 'Refunder Betaling',
     'refund_max' => 'Maks:',
@@ -1305,7 +1303,6 @@ $LANG = array(
     'braintree_paypal_help_link_text' => 'link PayPal to your BrainTree account',
     'token_billing_braintree_paypal' => 'Lagre betalingsdetaljer',
     'add_paypal_account' => 'Legg til PayPal-konto',
-
 
     'no_payment_method_specified' => 'Ingen betalingsmåte er spesifisert',
     'chart_type' => 'Chart Type',
@@ -2865,6 +2862,6 @@ $LANG = array(
     'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
     'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
-);
+];
 
 return $LANG;

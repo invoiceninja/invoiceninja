@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,65 +15,64 @@ use App\DataMapper\CompanySettings;
 use App\Utils\Traits\MakesHash;
 
 /**
- * CompanySettings
+ * CompanySettings.
  */
-
 class CompanySettings extends BaseSettings
 {
     use MakesHash;
     /*Group settings based on functionality*/
 
     /*Invoice*/
-    public $auto_archive_invoice 		    = false;
+    public $auto_archive_invoice = false;
 
     public $lock_invoices = 'off';          //off,when_sent,when_paid
 
-    public $enable_client_portal_tasks      = false;
-    public $enable_client_portal_password   = false;
-    public $enable_client_portal            = true; //implemented
-    public $enable_client_portal_dashboard  = true; //implemented
-    public $signature_on_pdf                = false;
-    public $document_email_attachment       = false;
+    public $enable_client_portal_tasks = false;
+    public $enable_client_portal_password = false;
+    public $enable_client_portal = true; //implemented
+    public $enable_client_portal_dashboard = true; //implemented
+    public $signature_on_pdf = false;
+    public $document_email_attachment = false;
     //public $send_portal_password          = false;
 
-    public $portal_design_id     		    = '1';
+    public $portal_design_id = '1';
 
-    public $timezone_id    				    = '';
-    public $date_format_id 				    = '';
-    public $military_time  				    = false;
+    public $timezone_id = '';
+    public $date_format_id = '';
+    public $military_time = false;
 
-    public $language_id        			    = '';
-    public $show_currency_code 			    = false;
+    public $language_id = '';
+    public $show_currency_code = false;
 
-    public $company_gateway_ids 		    = '';
+    public $company_gateway_ids = '';
 
-    public $currency_id 				    = '1';
+    public $currency_id = '1';
 
-    public $custom_value1 				    = '';
-    public $custom_value2 				    = '';
-    public $custom_value3 				    = '';
-    public $custom_value4 				    = '';
+    public $custom_value1 = '';
+    public $custom_value2 = '';
+    public $custom_value3 = '';
+    public $custom_value4 = '';
 
-    public $default_task_rate 			    = 0;
+    public $default_task_rate = 0;
 
-    public $payment_terms  				    = "";
-    public $send_reminders 				    = false;
+    public $payment_terms = '';
+    public $send_reminders = false;
 
-    public $custom_message_dashboard        = '';
-    public $custom_message_unpaid_invoice   = '';
-    public $custom_message_paid_invoice     = '';
+    public $custom_message_dashboard = '';
+    public $custom_message_unpaid_invoice = '';
+    public $custom_message_paid_invoice = '';
     public $custom_message_unapproved_quote = '';
-    public $auto_archive_quote              = false;
-    public $auto_convert_quote              = true;
-    public $auto_email_invoice              = true;
+    public $auto_archive_quote = false;
+    public $auto_convert_quote = true;
+    public $auto_email_invoice = true;
 
     public $inclusive_taxes = false;
-    public $quote_footer    = '';
+    public $quote_footer = '';
 
     public $translations;
 
-    public $counter_number_applied = 'when_saved';// when_saved , when_sent 
-    public $quote_number_applied   = 'when_saved';// when_saved , when_sent
+    public $counter_number_applied = 'when_saved'; // when_saved , when_sent
+    public $quote_number_applied = 'when_saved'; // when_saved , when_sent
 
     /* Counters */
     public $invoice_number_pattern = '';
@@ -104,71 +103,71 @@ class CompanySettings extends BaseSettings
     public $payment_number_counter = 1;
 
     public $shared_invoice_quote_counter = false;
-    public $recurring_number_prefix      = 'R';
-    public $reset_counter_frequency_id   = '0';
-    public $reset_counter_date           = '';
-    public $counter_padding              = 4;
+    public $recurring_number_prefix = 'R';
+    public $reset_counter_frequency_id = '0';
+    public $reset_counter_date = '';
+    public $counter_padding = 4;
 
     public $auto_bill = 'off'; //off,always,optin,optout
 
     public $design = 'views/pdf/design1.blade.php';
 
-    public $invoice_terms          = '';
-    public $quote_terms            = '';
-    public $invoice_taxes          = 0;
-   // public $enabled_item_tax_rates = 0;
-    public $invoice_design_id      = 'VolejRejNm';
-    public $quote_design_id        = 'VolejRejNm';
-    public $credit_design_id       = 'VolejRejNm';
-    public $invoice_footer         = '';
-    public $credit_footer          = '';
-    public $credit_terms           = '';
-    public $invoice_labels         = '';
-    public $tax_name1              = '';
-    public $tax_rate1              = 0;
-    public $tax_name2              = '';
-    public $tax_rate2              = 0;
-    public $tax_name3              = '';
-    public $tax_rate3              = 0;
-    public $payment_type_id        = '0';
-    public $invoice_fields         = '';
+    public $invoice_terms = '';
+    public $quote_terms = '';
+    public $invoice_taxes = 0;
+    // public $enabled_item_tax_rates = 0;
+    public $invoice_design_id = 'VolejRejNm';
+    public $quote_design_id = 'VolejRejNm';
+    public $credit_design_id = 'VolejRejNm';
+    public $invoice_footer = '';
+    public $credit_footer = '';
+    public $credit_terms = '';
+    public $invoice_labels = '';
+    public $tax_name1 = '';
+    public $tax_rate1 = 0;
+    public $tax_name2 = '';
+    public $tax_rate2 = 0;
+    public $tax_name3 = '';
+    public $tax_rate3 = 0;
+    public $payment_type_id = '0';
+    public $invoice_fields = '';
 
     public $show_accept_invoice_terms = false;
-    public $show_accept_quote_terms   = false;
+    public $show_accept_quote_terms = false;
     public $require_invoice_signature = false;
-    public $require_quote_signature   = false;
+    public $require_quote_signature = false;
 
     //email settings
-    public $email_sending_method  = 'default';//enum 'default','gmail'
+    public $email_sending_method = 'default'; //enum 'default','gmail'
     public $gmail_sending_user_id = '0';
 
-    public $reply_to_email       = '';
-    public $bcc_email            = '';
+    public $reply_to_email = '';
+    public $bcc_email = '';
     public $pdf_email_attachment = false;
     public $ubl_email_attachment = false;
 
-    public $email_style                     = 'light'; //plain, light, dark, custom
-    public $email_style_custom              = '';      //the template itself
-    public $email_subject_invoice           = '';
-    public $email_subject_quote             = '';
-    public $email_subject_payment           = '';
-    public $email_subject_payment_partial   = '';
-    public $email_subject_statement         = '';
-    public $email_template_invoice          = '';
-    public $email_template_quote            = '';
-    public $email_template_payment          = '';
-    public $email_template_payment_partial  = '';
-    public $email_template_statement        = '';
-    public $email_subject_reminder1         = '';
-    public $email_subject_reminder2         = '';
-    public $email_subject_reminder3         = '';
-    public $email_subject_reminder_endless  = '';
-    public $email_template_reminder1        = '';
-    public $email_template_reminder2        = '';
-    public $email_template_reminder3        = '';
+    public $email_style = 'light'; //plain, light, dark, custom
+    public $email_style_custom = '';      //the template itself
+    public $email_subject_invoice = '';
+    public $email_subject_quote = '';
+    public $email_subject_payment = '';
+    public $email_subject_payment_partial = '';
+    public $email_subject_statement = '';
+    public $email_template_invoice = '';
+    public $email_template_quote = '';
+    public $email_template_payment = '';
+    public $email_template_payment_partial = '';
+    public $email_template_statement = '';
+    public $email_subject_reminder1 = '';
+    public $email_subject_reminder2 = '';
+    public $email_subject_reminder3 = '';
+    public $email_subject_reminder_endless = '';
+    public $email_template_reminder1 = '';
+    public $email_template_reminder2 = '';
+    public $email_template_reminder3 = '';
     public $email_template_reminder_endless = '';
-    public $email_signature                 = '';
-    public $enable_email_markup             = true;
+    public $email_signature = '';
+    public $enable_email_markup = true;
 
     public $email_subject_custom1 = '';
     public $email_subject_custom2 = '';
@@ -186,47 +185,47 @@ class CompanySettings extends BaseSettings
     public $num_days_reminder2 = 0;
     public $num_days_reminder3 = 0;
 
-    public $schedule_reminder1 = '';// (enum: after_invoice_date, before_due_date, after_due_date)
-    public $schedule_reminder2 = '';// (enum: after_invoice_date, before_due_date, after_due_date)
-    public $schedule_reminder3 = '';// (enum: after_invoice_date, before_due_date, after_due_date)
+    public $schedule_reminder1 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
+    public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
+    public $schedule_reminder3 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
 
-    public $reminder_send_time = 32400;//number of seconds from UTC +0 to send reminders
+    public $reminder_send_time = 32400; //number of seconds from UTC +0 to send reminders
 
     public $late_fee_amount1 = 0;
     public $late_fee_amount2 = 0;
     public $late_fee_amount3 = 0;
 
     public $endless_reminder_frequency_id = '0';
-    public $late_fee_endless_amount       = 0;
-    public $late_fee_endless_percent      = 0;
+    public $late_fee_endless_amount = 0;
+    public $late_fee_endless_percent = 0;
 
     public $client_online_payment_notification = true; //@todo implement in notifications
     public $client_manual_payment_notification = true; //@todo implement in notifications
 
     /* Company Meta data that we can use to build sub companies*/
 
-    public $name         = '';
+    public $name = '';
     public $company_logo = '';
-    public $website      = '';
-    public $address1     = '';
-    public $address2     = '';
-    public $city         = '';
-    public $state        = '';
-    public $postal_code  = '';
-    public $phone        = '';
-    public $email        = '';
+    public $website = '';
+    public $address1 = '';
+    public $address2 = '';
+    public $city = '';
+    public $state = '';
+    public $postal_code = '';
+    public $phone = '';
+    public $email = '';
     public $country_id;
     public $vat_number = '';
-    public $id_number  = '';
+    public $id_number = '';
 
-    public $page_size         = 'A4';  //Letter, Legal, Tabloid, Ledger, A0, A1, A2, A3, A4, A5, A6
-    public $font_size         = 9;
-    public $primary_font      = 'Roboto';
-    public $secondary_font    = 'Roboto';
+    public $page_size = 'A4';  //Letter, Legal, Tabloid, Ledger, A0, A1, A2, A3, A4, A5, A6
+    public $font_size = 9;
+    public $primary_font = 'Roboto';
+    public $secondary_font = 'Roboto';
     public $hide_paid_to_date = false;
-    public $embed_documents   = false;
-    public $all_pages_header  = false;
-    public $all_pages_footer  = false;
+    public $embed_documents = false;
+    public $all_pages_header = false;
+    public $all_pages_footer = false;
     public $pdf_variables = '';
 
     public $portal_custom_head = '';
@@ -237,10 +236,9 @@ class CompanySettings extends BaseSettings
     public $client_can_register = false;
     public $client_portal_terms = '';
     public $client_portal_privacy_policy = '';
-    public $client_portal_enable_uploads = false; 
+    public $client_portal_enable_uploads = false;
     public $client_portal_allow_under_payment = false;
     public $client_portal_allow_over_payment = false;
-
 
     public static $casts = [
         'client_portal_allow_under_payment'  => 'bool',
@@ -414,7 +412,6 @@ class CompanySettings extends BaseSettings
         'client_portal_enable_uploads'       => 'bool',
     ];
 
-
     public static $free_plan_casts = [
         'currency_id'                        => 'string',
         'company_gateway_ids'                => 'string',
@@ -453,7 +450,7 @@ class CompanySettings extends BaseSettings
 
     /**
      * Array of variables which
-     * cannot be modified client side
+     * cannot be modified client side.
      */
     public static $protected_fields = [
         //	'credit_number_counter',
@@ -470,7 +467,7 @@ class CompanySettings extends BaseSettings
     /**
      * Cast object values and return entire class
      * prevents missing properties from not being returned
-     * and always ensure an up to date class is returned
+     * and always ensure an up to date class is returned.
      *
      * @return \stdClass
      */
@@ -480,29 +477,29 @@ class CompanySettings extends BaseSettings
     }
 
     /**
-     * Provides class defaults on init
+     * Provides class defaults on init.
      * @return object
      */
     public static function defaults():\stdClass
     {
         $config = json_decode(config('ninja.settings'));
 
-        $data = (object) get_class_vars(CompanySettings::class);
+        $data = (object) get_class_vars(self::class);
 
         unset($data->casts);
         unset($data->protected_fields);
         unset($data->free_plan_casts);
         unset($data->string_casts);
-        
-        $data->timezone_id       = (string) config('ninja.i18n.timezone_id');
-        $data->currency_id       = (string) config('ninja.i18n.currency_id');
-        $data->language_id       = (string) config('ninja.i18n.language_id');
-        $data->payment_terms     = (string) config('ninja.i18n.payment_terms');
-        $data->military_time     = (bool) config('ninja.i18n.military_time');
-        $data->date_format_id    = (string) config('ninja.i18n.date_format_id');
-        $data->country_id        = (string) config('ninja.i18n.country_id');
-        $data->translations      = (object) [];
-        $data->pdf_variables 	 = (object) self::getEntityVariableDefaults();
+
+        $data->timezone_id = (string) config('ninja.i18n.timezone_id');
+        $data->currency_id = (string) config('ninja.i18n.currency_id');
+        $data->language_id = (string) config('ninja.i18n.language_id');
+        $data->payment_terms = (string) config('ninja.i18n.payment_terms');
+        $data->military_time = (bool) config('ninja.i18n.military_time');
+        $data->date_format_id = (string) config('ninja.i18n.date_format_id');
+        $data->country_id = (string) config('ninja.i18n.country_id');
+        $data->translations = (object) [];
+        $data->pdf_variables = (object) self::getEntityVariableDefaults();
 
         return self::setCasts($data, self::$casts);
     }
@@ -516,10 +513,10 @@ class CompanySettings extends BaseSettings
      */
     public static function setProperties($settings):\stdClass
     {
-        $company_settings = (object) get_class_vars(CompanySettings::class);
+        $company_settings = (object) get_class_vars(self::class);
 
         foreach ($company_settings as $key => $value) {
-            if (!property_exists($settings, $key)) {
+            if (! property_exists($settings, $key)) {
                 $settings->{ $key} = self::castAttribute($key, $company_settings->{ $key});
             }
         }
@@ -614,10 +611,10 @@ class CompanySettings extends BaseSettings
                 '$custom_surcharge3',
                 '$custom_surcharge4',
                 '$paid_to_date',
-                '$client.balance'
+                '$client.balance',
             ],
         ];
-        
+
         return json_decode(json_encode($variables));
     }
 }

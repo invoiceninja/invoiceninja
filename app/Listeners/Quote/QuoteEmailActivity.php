@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Log;
 class QuoteEmailActivity implements ShouldQueue
 {
     protected $activity_repo;
+
     /**
      * Create the event listener.
      *
@@ -47,8 +48,8 @@ class QuoteEmailActivity implements ShouldQueue
         $fields = new \stdClass;
 
         $fields->quote_id = $event->invitation->quote->id;
-                  $fields->client_id = $event->invitation->quote->client_id;
-     $fields->user_id = $event->invitation->quote->user_id;
+        $fields->client_id = $event->invitation->quote->client_id;
+        $fields->user_id = $event->invitation->quote->user_id;
         $fields->company_id = $event->invitation->quote->company_id;
         $fields->client_contact_id = $event->invitation->quote->client_contact_id;
         $fields->activity_type_id = Activity::EMAIL_QUOTE;

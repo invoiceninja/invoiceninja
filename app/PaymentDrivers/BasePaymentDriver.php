@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -27,12 +27,7 @@ use Illuminate\Support\Carbon;
 use Omnipay\Omnipay;
 
 /**
- * Class BasePaymentDriver
- * @package App\PaymentDrivers
- *
- *  Minimum dataset required for payment gateways
- *
- *  $data = [
+ * Class BasePaymentDriver.
         'amount' => $invoice->getRequestedAmount(),
         'currency' => $invoice->getCurrencyCode(),
         'returnUrl' => $completeUrl,
@@ -42,7 +37,6 @@ use Omnipay\Omnipay;
         'transactionType' => 'Purchase',
         'clientIp' => Request::getClientIp(),
     ];
-
  */
 class BasePaymentDriver
 {
@@ -67,7 +61,6 @@ class BasePaymentDriver
     /* Authorise payment methods */
     protected $can_authorise_credit_card = false;
 
-
     public function __construct(CompanyGateway $company_gateway, Client $client, $invitation = false)
     {
         $this->company_gateway = $company_gateway;
@@ -78,7 +71,7 @@ class BasePaymentDriver
     }
 
     /**
-     * Returns the Omnipay driver
+     * Returns the Omnipay driver.
      * @return object Omnipay initialized object
      */
     protected function gateway()
@@ -91,7 +84,7 @@ class BasePaymentDriver
 
     /**
      * Return the configuration fields for the
-     * Gatway
+     * Gatway.
      * @return array The configuration fields
      */
     public function getFields()
@@ -100,7 +93,7 @@ class BasePaymentDriver
     }
 
     /**
-     * Returns the default gateway type
+     * Returns the default gateway type.
      */
     public function gatewayTypes()
     {
@@ -113,9 +106,10 @@ class BasePaymentDriver
     {
         return $this->company_gateway->id;
     }
+
     /**
-     * Returns whether refunds are possible with the gateway
-     * @return boolean TRUE|FALSE
+     * Returns whether refunds are possible with the gateway.
+     * @return bool TRUE|FALSE
      */
     public function getRefundable(): bool
     {
@@ -123,8 +117,8 @@ class BasePaymentDriver
     }
 
     /**
-     * Returns whether token billing is possible with the gateway
-     * @return boolean TRUE|FALSE
+     * Returns whether token billing is possible with the gateway.
+     * @return bool TRUE|FALSE
      */
     public function getTokenBilling(): bool
     {
@@ -142,7 +136,7 @@ class BasePaymentDriver
     }
 
     /**
-     * Refunds a given payment
+     * Refunds a given payment.
      * @return void
      */
     public function refundPayment($payment, $amount = 0)
@@ -153,7 +147,7 @@ class BasePaymentDriver
             $amount = $payment->getCompletedAmount();
         }
 
-        if ($payment->is_deleted || !$amount) {
+        if ($payment->is_deleted || ! $amount) {
             return false;
         }
 
@@ -200,7 +194,7 @@ class BasePaymentDriver
     }
 
     /**
-     * Return the contact if possible
+     * Return the contact if possible.
      *
      * @return ClientContact The ClientContact object
      */
@@ -234,7 +228,6 @@ class BasePaymentDriver
             'clientIp' => request()->getClientIp(),
         ];
 
-
         return $data;
     }
 
@@ -248,7 +241,6 @@ class BasePaymentDriver
                         ->send();
 
         return $response;
-        
     }
 
     public function completePurchase($data)
@@ -272,10 +264,8 @@ class BasePaymentDriver
         return $payment->service()->applyNumber()->save();
     }
 
-
     public function attachInvoices(Payment $payment, PaymentHash $payment_hash): Payment
     {
-
         $paid_invoices = $payment_hash->invoices();
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
         $payment->invoices()->sync($invoices);
@@ -286,8 +276,8 @@ class BasePaymentDriver
 
     /**
      * When a successful payment is made, we need to append the gateway fee
-     * to an invoice
-     *    
+     * to an invoice.
+     *
      * @param  PaymentResponseRequest $request The incoming payment request
      * @return void                            Success/Failure
      */
@@ -298,26 +288,22 @@ class BasePaymentDriver
 
         /*Payment invoices*/
         $payment_invoices = $payment_hash->invoices();
-        
+
         // /*Fee charged at gateway*/
         $fee_total = $payment_hash->fee_total;
 
         // Sum of invoice amounts
         // $invoice_totals = array_sum(array_column($payment_invoices,'amount'));
-        
+
         /*Hydrate invoices*/
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->get();
 
-        $invoices->each(function($invoice) use($fee_total){
-
-            if(collect($invoice->line_items)->contains('type_id', '3')){
+        $invoices->each(function ($invoice) use ($fee_total) {
+            if (collect($invoice->line_items)->contains('type_id', '3')) {
                 $invoice->service()->toggleFeesPaid()->save();
                 $invoice->client->service()->updateBalance($fee_total)->save();
                 $invoice->ledger()->updateInvoiceBalance($fee_total, $notes = 'Gateway fee adjustment');
             }
-            
         });
-
     }
 }
-

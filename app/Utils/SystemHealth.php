@@ -33,7 +33,7 @@ class SystemHealth
         'openssl',
         'mbstring',
         'xml',
-        'bcmath'
+        'bcmath',
     ];
 
     private static $php_version = 7.3;
@@ -55,8 +55,8 @@ class SystemHealth
             $system_health = false;
         }
 
-        if(!self::simpleDbCheck() && $check_database) {
-            info("db fails");
+        if (! self::simpleDbCheck() && $check_database) {
+            info('db fails');
             $system_health = false;
         }
 
@@ -64,7 +64,7 @@ class SystemHealth
             'system_health' => $system_health,
             'extensions' => self::extensions(),
             'php_version' => [
-                'minimum_php_version' => (string)self::$php_version,
+                'minimum_php_version' => (string) self::$php_version,
                 'current_php_version' => phpversion(),
                 'is_okay' => version_compare(phpversion(), self::$php_version, '>='),
             ],
@@ -82,14 +82,11 @@ class SystemHealth
             exec('node -v', $foo, $exitCode);
 
             if ($exitCode === 0) {
-              return empty($foo[0]) ?  'Found node, but no version information' : $foo[0];
+                return empty($foo[0]) ? 'Found node, but no version information' : $foo[0];
             }
-        
         } catch (\Exception $e) {
-           
             return false;
         }
-        
     }
 
     public static function checkNpm()
@@ -98,13 +95,11 @@ class SystemHealth
             exec('npm -v', $foo, $exitCode);
 
             if ($exitCode === 0) {
-              return empty($foo[0]) ? 'Found npm, but no version information' : $foo[0];
-            } 
-
-        }catch (\Exception $e) {
+                return empty($foo[0]) ? 'Found npm, but no version information' : $foo[0];
+            }
+        } catch (\Exception $e) {
             return false;
         }
-        
     }
 
     private static function simpleDbCheck() :bool
@@ -114,8 +109,7 @@ class SystemHealth
         try {
             $pdo = DB::connection()->getPdo();
             $result = true;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $result = false;
         }
 

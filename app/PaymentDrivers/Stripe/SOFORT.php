@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -48,7 +48,7 @@ class SOFORT
         return route('client.payments.response', [
             'company_gateway_id' => $this->stripe->company_gateway->id,
             'gateway_type_id' => GatewayType::SOFORT,
-            'hashed_ids' => implode(",", $data['hashed_ids']),
+            'hashed_ids' => implode(',', $data['hashed_ids']),
             'amount' => $data['amount'],
             'fee' => $data['fee'],
         ]);
@@ -84,7 +84,7 @@ class SOFORT
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
-        /** @todo: https://github.com/invoiceninja/invoiceninja/pull/3789/files#r436175798 */
+        /* @todo: https://github.com/invoiceninja/invoiceninja/pull/3789/files#r436175798 */
         if (isset($state['hashed_ids'])) {
             $this->stripe->attachInvoices($payment, $state['hashed_ids']);
         }
@@ -93,7 +93,7 @@ class SOFORT
 
         $logger_message = [
             'server_response' => $state,
-            'data' => $data
+            'data' => $data,
         ];
 
         SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client);

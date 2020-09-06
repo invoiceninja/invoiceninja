@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,7 +18,7 @@ use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Http\Request;
 
 /**
- * VendorRepository
+ * VendorRepository.
  */
 class VendorRepository extends BaseRepository
 {
@@ -48,7 +48,7 @@ class VendorRepository extends BaseRepository
     }
 
     /**
-     * Saves the vendor and its contacts
+     * Saves the vendor and its contacts.
      *
      * @param      array                           $data    The data
      * @param      \App\Models\vendor              $vendor  The vendor
@@ -61,7 +61,7 @@ class VendorRepository extends BaseRepository
 
         $vendor->save();
 
-        if ($vendor->id_number == "" || !$vendor->id_number) {
+        if ($vendor->id_number == '' || ! $vendor->id_number) {
             $vendor->id_number = $this->getNextVendorNumber($vendor);
         } //todo write tests for this and make sure that custom vendor numbers also works as expected from here
 
@@ -74,7 +74,6 @@ class VendorRepository extends BaseRepository
         if (empty($data['name'])) {
             $data['name'] = $vendor->present()->name();
         }
-
 
         return $vendor;
     }

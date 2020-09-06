@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,8 +12,7 @@
 namespace App\Libraries\Google;
 
 /**
- * Class Google
- * @package App\Libraries\Google
+ * Class Google.
  */
 class Google
 {
@@ -39,13 +38,11 @@ class Google
 
     public function checkAccessToken()
     {
-
     }
 
     public function refreshToken($user)
     {
-        if($this->client->isAccessTokenExpired()) {
-          
+        if ($this->client->isAccessTokenExpired()) {
             $this->client->fetchAccessTokenWithRefreshToken($user->oauth_user_refresh_token);
 
             $access_token = $this->client->getAccessToken();
@@ -53,7 +50,6 @@ class Google
             $user->oauth_user_token = $access_token;
 
             $user->save();
-
         }
 
         return $this;

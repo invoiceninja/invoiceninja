@@ -13,10 +13,10 @@ return [
     |
     */
 
-    "password" => "A palavra-passe deve conter pelo menos seis caracteres e combinar com a confirmação.",
-    "user" => "Utilizador não encontrado.",
-    "token" => "Token inválido.",
-    "sent" => "Link para reposição da palavra-passe enviado por email!",
-    "reset" => "Palavra-passe reposta!",
+    'password' => 'A palavra-passe deve conter pelo menos seis caracteres e combinar com a confirmação.',
+    'user' => 'Utilizador não encontrado.',
+    'token' => 'Token inválido.',
+    'sent' => 'Link para reposição da palavra-passe enviado por email!',
+    'reset' => 'Palavra-passe reposta!',
 
 ];

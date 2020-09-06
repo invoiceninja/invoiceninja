@@ -1,6 +1,6 @@
 <?php
 /**
- * client Ninja (https://clientninja.com)
+ * client Ninja (https://clientninja.com).
  *
  * @link https://github.com/clientninja/clientninja source repository
  *

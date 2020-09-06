@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,14 +24,10 @@ class PhantomSecret
      */
     public function handle($request, Closure $next)
     {
-
-        if( config('ninja.phantomjs_secret') && $request->has('phantomjs_secret') && (config('ninja.phantomjs_secret') == $request->input('phantomjs_secret')) )
-        {
+        if (config('ninja.phantomjs_secret') && $request->has('phantomjs_secret') && (config('ninja.phantomjs_secret') == $request->input('phantomjs_secret'))) {
             return $next($request);
         }
 
-            return redirect('/');
-
+        return redirect('/');
     }
-
 }

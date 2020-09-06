@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,15 +15,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentHash extends Model
 {
-
-	protected $guarded = ['id'];
+    protected $guarded = ['id'];
 
     protected $casts = [
-        'data' => 'object'
+        'data' => 'object',
     ];
 
     public function invoices()
     {
-    	return $this->data;
+        return $this->data;
     }
 }

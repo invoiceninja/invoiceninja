@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,26 +20,26 @@ use App\Utils\Traits\MakesHash;
 class RefundPaymentRequest extends Request
 {
     use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->isAdmin();
     }
-    
+
     protected function prepareForValidation()
     {
         $input = $this->all();
-        
-        if (!isset($input['gateway_refund'])) {
+
+        if (! isset($input['gateway_refund'])) {
             $input['gateway_refund'] = false;
         }
 
-        if (!isset($input['send_email'])) {
+        if (! isset($input['send_email'])) {
             $input['send_email'] = false;
         }
 

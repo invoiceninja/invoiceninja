@@ -21,8 +21,8 @@ use Carbon\Carbon;
 use Composer\Composer;
 use Composer\Console\Application;
 use Composer\Factory;
-use Composer\IO\NullIO;
 use Composer\Installer;
+use Composer\IO\NullIO;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -53,7 +53,7 @@ class DemoMode extends Command
     protected $description = 'Setup demo mode';
 
     protected $invoice_repo;
-    
+
     public function __construct(InvoiceRepository $invoice_repo)
     {
         parent::__construct();
@@ -71,7 +71,7 @@ class DemoMode extends Command
         set_time_limit(0);
 
         $cached_tables = config('ninja.cached_tables');
-        
+
         foreach ($cached_tables as $name => $class) {
             if (! Cache::has($name)) {
                 // check that the table exists in case the migration is pending
@@ -94,24 +94,19 @@ class DemoMode extends Command
             }
         }
 
-
-        $this->info("Migrating");
+        $this->info('Migrating');
         Artisan::call('migrate:fresh --force');
 
-        $this->info("Seeding");
+        $this->info('Seeding');
         Artisan::call('db:seed --force');
 
-        $this->info("Seeding Random Data");
+        $this->info('Seeding Random Data');
         $this->createSmallAccount();
-        
+
         VersionCheck::dispatchNow();
-        
+
         CompanySizeCheck::dispatchNow();
-
     }
-
-
-
 
     private function createSmallAccount()
     {
@@ -127,10 +122,10 @@ class DemoMode extends Command
             'slack_webhook_url' => config('ninja.notification.slack'),
             'enabled_modules' => 32767,
             'company_key' => 'KEY',
-            'enable_shop_api' => true
+            'enable_shop_api' => true,
         ]);
 
-         $settings = $company->settings;
+        $settings = $company->settings;
 
         $settings->name = $faker->company;
         $settings->address1 = $faker->buildingNumber;
@@ -139,25 +134,25 @@ class DemoMode extends Command
         $settings->state = $faker->state;
         $settings->postal_code = $faker->postcode;
         $settings->website = $faker->url;
-        $settings->vat_number = (string)$faker->numberBetween(123456789, 987654321);
-        $settings->phone = (string)$faker->phoneNumber;
+        $settings->vat_number = (string) $faker->numberBetween(123456789, 987654321);
+        $settings->phone = (string) $faker->phoneNumber;
 
-         $company->settings = $settings;
-         $company->save();
+        $company->settings = $settings;
+        $company->save();
 
         $account->default_company_id = $company->id;
         $account->save();
 
         $user = User::whereEmail('small@example.com')->first();
 
-        if (!$user) {
+        if (! $user) {
             $user = factory(\App\Models\User::class)->create([
                 'account_id' => $account->id,
                 'email' => 'small@example.com',
-                'confirmation_code' => $this->createDbHash(config('database.default'))
+                'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
         }
-        
+
         $company_token = new CompanyToken;
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
@@ -165,7 +160,7 @@ class DemoMode extends Command
         $company_token->name = 'test token';
         $company_token->token = Str::random(64);
         $company_token->is_system = true;
-        
+
         $company_token->save();
 
         $user->companies()->attach($company->id, [
@@ -180,13 +175,12 @@ class DemoMode extends Command
 
         $u2 = User::where('email', 'demo@invoiceninja.com')->first();
 
-        if(!$u2){
-
+        if (! $u2) {
             $u2 = factory(\App\Models\User::class)->create([
                 'email'             => 'demo@invoiceninja.com',
                 'password'          => Hash::make('demo'),
                 'account_id' => $account->id,
-                'confirmation_code' => $this->createDbHash(config('database.default'))
+                'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
 
             $company_token = new CompanyToken;
@@ -213,43 +207,41 @@ class DemoMode extends Command
                 'company_id' => $company->id,
             ]);
 
-        $this->info('Creating '.$this->count. ' clients');
+        $this->info('Creating '.$this->count.' clients');
 
-        for ($x=0; $x<$this->count; $x++) {
-            $z = $x+1;
-            $this->info("Creating client # ".$z);
+        for ($x = 0; $x < $this->count; $x++) {
+            $z = $x + 1;
+            $this->info('Creating client # '.$z);
 
             $this->createClient($company, $user, $u2->id);
-
         }
 
-        for($x=0; $x<$this->count; $x++)
-        {
+        for ($x = 0; $x < $this->count; $x++) {
             $client = $company->clients->random();
 
             $this->info('creating entities for client #'.$client->id);
-                $this->createInvoice($client, $u2->id);
+            $this->createInvoice($client, $u2->id);
 
             // for($y=0; $y<($this->count); $y++){
             //     $this->info("creating invoice #{$y} for client #".$client->id);
             // }
 
             $client = $company->clients->random();
-                $this->createCredit($client, $u2->id);
+            $this->createCredit($client, $u2->id);
 
             // for($y=0; $y<($this->count); $y++){
             //     $this->info("creating credit #{$y} for client #".$client->id);
             // }
 
             $client = $company->clients->random();
-                $this->createQuote($client, $u2->id);
+            $this->createQuote($client, $u2->id);
 
             // for($y=0; $y<($this->count); $y++){
             //     $this->info("creating quote #{$y}  for client #".$client->id);
             // }
 
             $client = $company->clients->random();
-                $this->createExpense($client, $u2->id);
+            $this->createExpense($client, $u2->id);
 
             //$this->info("creating expense for client #".$client->id);
 
@@ -268,45 +260,44 @@ class DemoMode extends Command
 
             // $this->info("creating project for client #".$client->id);
         }
-
     }
 
     private function createClient($company, $user, $assigned_user_id = null)
     {
 
         // dispatch(function () use ($company, $user) {
-   
+
         // });
         $client = factory(\App\Models\Client::class)->create([
                 'user_id' => $user->id,
-                'company_id' => $company->id
+                'company_id' => $company->id,
             ]);
 
         factory(\App\Models\ClientContact::class)->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
                     'company_id' => $company->id,
-                    'is_primary' => 1
+                    'is_primary' => 1,
                 ]);
 
         factory(\App\Models\ClientContact::class, rand(1, 5))->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
-                    'company_id' => $company->id
+                    'company_id' => $company->id,
                 ]);
 
         $client->id_number = $this->getNextClientNumber($client);
 
         $settings = $client->settings;
-        $settings->currency_id = (string)rand(1,3);
+        $settings->currency_id = (string) rand(1, 3);
         $client->settings = $settings;
 
-        if(rand(0,1))
+        if (rand(0, 1)) {
             $client->assigned_user_id = $assigned_user_id;
+        }
 
-        $client->country_id = array_rand([36,392,840,124,276,826]);
+        $client->country_id = array_rand([36, 392, 840, 124, 276, 826]);
         $client->save();
-
     }
 
     private function createExpense($client)
@@ -314,7 +305,7 @@ class DemoMode extends Command
         factory(\App\Models\Expense::class, rand(1, 5))->create([
                 'user_id' => $client->user_id,
                 'client_id' => $client->id,
-                'company_id' => $client->company_id
+                'company_id' => $client->company_id,
             ]);
     }
 
@@ -322,22 +313,21 @@ class DemoMode extends Command
     {
         $vendor = factory(\App\Models\Vendor::class)->create([
                 'user_id' => $client->user_id,
-                'company_id' => $client->company_id
+                'company_id' => $client->company_id,
             ]);
-
 
         factory(\App\Models\VendorContact::class)->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company_id,
-                'is_primary' => 1
+                'is_primary' => 1,
             ]);
 
         factory(\App\Models\VendorContact::class, rand(1, 5))->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company_id,
-                'is_primary' => 0
+                'is_primary' => 0,
             ]);
     }
 
@@ -345,7 +335,7 @@ class DemoMode extends Command
     {
         $vendor = factory(\App\Models\Task::class)->create([
                 'user_id' => $client->user->id,
-                'company_id' => $client->company_id
+                'company_id' => $client->company_id,
             ]);
     }
 
@@ -353,7 +343,7 @@ class DemoMode extends Command
     {
         $vendor = factory(\App\Models\Project::class)->create([
                 'user_id' => $client->user->id,
-                'company_id' => $client->company_id
+                'company_id' => $client->company_id,
             ]);
     }
 
@@ -365,13 +355,14 @@ class DemoMode extends Command
 
         $faker = \Faker\Factory::create();
 
-        $invoice = InvoiceFactory::create($client->company->id, $client->user->id);//stub the company and user_id
+        $invoice = InvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
 
-        if((bool)rand(0,1))
+        if ((bool) rand(0, 1)) {
             $dateable = Carbon::now()->subDays(rand(0, 90));
-        else
+        } else {
             $dateable = Carbon::now()->addDays(rand(0, 90));
+        }
 
         $invoice->date = $dateable;
 
@@ -393,8 +384,8 @@ class DemoMode extends Command
             $invoice->tax_rate3 = 5;
         }
 
-       // $invoice->custom_value1 = $faker->date;
-       // $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
+        // $invoice->custom_value1 = $faker->date;
+        // $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->save();
 
@@ -403,20 +394,20 @@ class DemoMode extends Command
 
         $invoice = $invoice_calc->getInvoice();
 
-        if(rand(0,1))
+        if (rand(0, 1)) {
             $invoice->assigned_user_id = $assigned_user_id;
+        }
 
         $invoice->save();
         $invoice->service()->createInvitations()->markSent();
 
         $this->invoice_repo->markSent($invoice);
 
-        if ((bool)rand(0, 2)) {
-
+        if ((bool) rand(0, 2)) {
             $invoice = $invoice->service()->markPaid()->save();
 
-            $invoice->payments->each(function ($payment){
-                $payment->date = now()->addDays(rand(-30,30));
+            $invoice->payments->each(function ($payment) {
+                $payment->date = now()->addDays(rand(-30, 30));
                 $payment->save();
             });
         }
@@ -435,10 +426,11 @@ class DemoMode extends Command
 
         $credit = factory(\App\Models\Credit::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
 
-        if((bool)rand(0,1))
+        if ((bool) rand(0, 1)) {
             $dateable = Carbon::now()->subDays(rand(0, 90));
-        else
+        } else {
             $dateable = Carbon::now()->addDays(rand(0, 90));
+        }
 
         $credit->date = $dateable;
 
@@ -467,8 +459,9 @@ class DemoMode extends Command
 
         $credit = $invoice_calc->getCredit();
 
-        if(rand(0,1))
+        if (rand(0, 1)) {
             $credit->assigned_user_id = $assigned_user_id;
+        }
 
         $credit->save();
         $credit->service()->markSent()->save();
@@ -477,16 +470,14 @@ class DemoMode extends Command
 
     private function createQuote($client, $assigned_user_id = null)
     {
-
         $faker = \Faker\Factory::create();
 
-        $quote =factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company_id, 'client_id' => $client->id]);
+        $quote = factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company_id, 'client_id' => $client->id]);
 
-        if((bool)rand(0,1)){
+        if ((bool) rand(0, 1)) {
             $dateable = Carbon::now()->subDays(rand(1, 30));
             $dateable_due = $dateable->addDays(rand(1, 30));
-        }
-        else{
+        } else {
             $dateable = Carbon::now()->addDays(rand(1, 30));
             $dateable_due = $dateable->addDays(rand(-10, 30));
         }
@@ -495,7 +486,7 @@ class DemoMode extends Command
         $quote->due_date = $dateable_due;
 
         $quote->client_id = $client->id;
-        
+
         $quote->setRelation('client', $client);
 
         $quote->line_items = $this->buildLineItems(rand(1, 10));
@@ -523,9 +514,10 @@ class DemoMode extends Command
 
         $quote = $quote_calc->getQuote();
 
-        if(rand(0,1))
+        if (rand(0, 1)) {
             $quote->assigned_user_id = $assigned_user_id;
-        
+        }
+
         $quote->save();
 
         $quote->service()->markSent()->save();
@@ -536,7 +528,7 @@ class DemoMode extends Command
     {
         $line_items = [];
 
-        for ($x=0; $x<$count; $x++) {
+        for ($x = 0; $x < $count; $x++) {
             $item = InvoiceItemFactory::create();
             $item->quantity = 1;
             //$item->cost = 10;
@@ -558,15 +550,13 @@ class DemoMode extends Command
 
             $product = Product::all()->random();
 
-            $item->cost = (float)$product->cost;
+            $item->cost = (float) $product->cost;
             $item->product_key = $product->product_key;
             $item->notes = $product->notes;
             $item->custom_value1 = $product->custom_value1;
             $item->custom_value2 = $product->custom_value2;
             $item->custom_value3 = $product->custom_value3;
             $item->custom_value4 = $product->custom_value4;
-
-
 
             $line_items[] = $item;
         }

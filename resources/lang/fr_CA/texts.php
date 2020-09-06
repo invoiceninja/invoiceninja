@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
 
     'organization' => 'Entreprise',
     'name' => 'Nom',
@@ -1007,7 +1007,6 @@ $LANG = array(
     'trial_success' => 'Le Plan Pro, version d\'essai gratuit pour 2 semaines a été activé',
     'overdue' => 'En souffrance',
 
-
     'white_label_text' => 'Achetez une licence sans pub d\'UN AN au coût de $:price pour retirer la marque de Invoice Ninja des factures et du portail client.',
     'user_email_footer' => 'Pour modifier vos paramètres de notification par courriel, veuillez visiter :link',
     'reset_password_footer' => 'Si vous n\'avez pas effectué de demande de réinitalisation de mot de passe veuillez contacter notre support : :email',
@@ -1187,7 +1186,6 @@ $LANG = array(
     'enterprise_plan_features' => 'Le Plan entreprise offre le support pour de multiple utilisateurs ainsi que l\'ajout de pièces jointes, :link pour voir la liste complète des fonctionnalités.',
     'return_to_app' => 'Retour à l\'app',
 
-
     // Payment updates
     'refund_payment' => 'Remboursement',
     'refund_max' => 'Max:',
@@ -1296,7 +1294,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'braintree_paypal_help_link_text' => 'lier PayPal à votre compte BrainTree',
     'token_billing_braintree_paypal' => 'Sauvegarder les détails du paiement',
     'add_paypal_account' => 'Ajouter un compte PayPal',
-
 
     'no_payment_method_specified' => 'Aucune méthode de paiement spécifiée',
     'chart_type' => 'Type de graphique',
@@ -2857,6 +2854,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'mobile_refresh_warning' => 'Si vous utilisez l\'app mobile, vous devez faire une actualisation complète.',
     'enable_proposals_for_background' => 'Pour téléverser une image de fond :link pour activer le module de propositions.',
 
-);
+];
 
 return $LANG;

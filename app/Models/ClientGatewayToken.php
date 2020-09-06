@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -32,9 +32,10 @@ class ClientGatewayToken extends BaseModel
     protected $appends = [
         'hashed_id',
     ];
+
     public function getEntityType()
     {
-        return ClientGatewayToken::class;
+        return self::class;
     }
 
     public function client()
@@ -68,7 +69,7 @@ class ClientGatewayToken extends BaseModel
      * @param  mixed  $value
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function resolveRouteBinding($value)
+    public function resolveRouteBinding($value, $field = NULL)
     {
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();

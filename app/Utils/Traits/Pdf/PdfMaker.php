@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,9 +15,8 @@ use Spatie\Browsershot\Browsershot;
 
 trait PdfMaker
 {
-
     /**
-     * Returns a PDF stream
+     * Returns a PDF stream.
      *
      * @param  string $header Header to be included in PDF
      * @param  string $footer Footer to be included in PDF
@@ -27,14 +26,15 @@ trait PdfMaker
      */
     public function makePdf($header, $footer, $html)
     {
-
         $browser = Browsershot::html($html);
 
-        if(config('ninja.system.node_path'))
+        if (config('ninja.system.node_path')) {
             $browser->setNodeBinary(config('ninja.system.node_path'));
+        }
 
-        if(config('ninja.system.npm_path'))
+        if (config('ninja.system.npm_path')) {
             $browser->setNpmBinary(config('ninja.system.npm_path'));
+        }
 
         return $browser->deviceScaleFactor(1)
                 ->showBackground()
@@ -44,7 +44,6 @@ trait PdfMaker
                 ->pdf();
     }
 }
-
 
         // if($header && $footer){
         //    $browser = Browsershot::html($html)
@@ -62,8 +61,8 @@ trait PdfMaker
         // else {
         //     $browser = Browsershot::html($html);
         // }
-        // 
-        // 
+        //
+        //
         //         // return Browsershot::html($html)
         // //->showBrowserHeaderAndFooter()
         // //->headerHtml($header)
@@ -73,6 +72,6 @@ trait PdfMaker
         //     ->waitUntilNetworkIdle(true)    ->pdf();
         // //->margins(10,10,10,10)
         // //->savePdf('test.pdf');
-        // 
+        //
         // $browser->format('A4');
         // $browser->landscape();

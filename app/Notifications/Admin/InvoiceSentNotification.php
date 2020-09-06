@@ -21,9 +21,8 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
      *
      * @return void
      */
-    
     protected $invitation;
-    
+
     protected $invoice;
 
     protected $company;
@@ -63,8 +62,7 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-                //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
-
+        //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
 
         $amount = Number::formatMoney($this->invoice->amount, $this->invoice->client);
         $subject = ctrans(
@@ -85,19 +83,18 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
                     'invoice' => $this->invoice->number,
                 ]
             ),
-            'url' => config('ninja.app_url') . 'invoices/' . $this->invoice->hashed_id,
+            'url' => config('ninja.app_url').'invoices/'.$this->invoice->hashed_id,
             'button' => ctrans('texts.view_invoice'),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),
         ];
 
-
         return (new MailMessage)
                     ->subject($subject)
-                    ->markdown('email.admin.generic', $data)                    
+                    ->markdown('email.admin.generic', $data)
                     ->withSwiftMessage(function ($message) {
-                            $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
-                        });
+                        $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
+                    });
     }
 
     /**
@@ -127,7 +124,7 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
                         [
                         'amount' => $amount,
                         'client' => $this->contact->present()->name(),
-                        'invoice' => $this->invoice->number
+                        'invoice' => $this->invoice->number,
                     ]
                     ))
                     ->attachment(function ($attachment) use ($amount) {

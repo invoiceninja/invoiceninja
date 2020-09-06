@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -17,12 +17,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * Statics
+ * Statics.
  */
 class Statics
 {
     /**
-     * Date format types
+     * Date format types.
      * @var array
      */
     public static $date = [
@@ -42,7 +42,7 @@ class Statics
     ];
 
     /**
-     * Date Time Format types
+     * Date Time Format types.
      * @var array
      */
     public static $date_time = [
@@ -60,11 +60,10 @@ class Statics
         ['format' => 'j. M. Y g:i a', 'format_moment' => 'DD. MMM. YYYY h:mm:ss a', 'format_dart' => 'd. MMM. yyyy h:mm a'],
         ['format' => 'j. F Y g:i a', 'format_moment' => 'DD. MMMM YYYY h:mm:ss a', 'format_dart' => 'd. MMMM yyyy h:mm a'],
     ];
-    
 
     /**
-     * Company statics
-     * @param  string|boolean $locale The user locale
+     * Company statics.
+     * @param  string|bool $locale The user locale
      * @return array          Array of statics
      */
     public static function company($locale = false) :array
@@ -101,7 +100,7 @@ class Statics
             })->values();
 
             $data['currencies'] = Cache::get('currencies')->each(function ($currency) {
-                $currency->name = ctrans('texts.currency_' . Str::slug($currency->name, '_'));
+                $currency->name = ctrans('texts.currency_'.Str::slug($currency->name, '_'));
             })->sortBy(function ($currency) {
                 return $currency->name;
             })->values();

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -73,7 +73,6 @@ class ActivityController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(Request $request)
     {
@@ -123,29 +122,29 @@ class ActivityController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function downloadHistoricalEntity(DownloadHistoricalEntityRequest $request, Activity $activity)
     {
         $backup = $activity->backup;
 
-        if(!$backup || !$backup->html_backup)
+        if (! $backup || ! $backup->html_backup) {
             return response()->json(['message'=> 'No backup exists for this activity', 'errors' => new \stdClass], 404);
+        }
 
         $pdf = $this->makePdf(null, null, $backup->html_backup);
 
-        if(isset($activity->invoice_id))
-            $filename = $activity->invoice->number . ".pdf";
-        elseif(isset($activity->quote_id))
-            $filename = $activity->quote->number . ".pdf";
-        elseif(isset($activity->credit_id))
-            $filename = $activity->credit->number . ".pdf";
-        else
-            $filename = "backup.pdf";
+        if (isset($activity->invoice_id)) {
+            $filename = $activity->invoice->number.'.pdf';
+        } elseif (isset($activity->quote_id)) {
+            $filename = $activity->quote->number.'.pdf';
+        } elseif (isset($activity->credit_id)) {
+            $filename = $activity->credit->number.'.pdf';
+        } else {
+            $filename = 'backup.pdf';
+        }
 
-        return response()->streamDownload(function () use($pdf) {
+        return response()->streamDownload(function () use ($pdf) {
             echo $pdf;
         }, $filename);
     }
-
 }

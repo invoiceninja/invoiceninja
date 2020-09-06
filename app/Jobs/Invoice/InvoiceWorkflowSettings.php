@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -51,7 +51,7 @@ class InvoiceWorkflowSettings implements ShouldQueue
     public function handle()
     {
         if ($this->client->getSetting('auto_archive_invoice')) {
-            /** Throws: Payment amount xxx does not match invoice totals. */
+            /* Throws: Payment amount xxx does not match invoice totals. */
             $this->base_repository->archive($this->invoice);
         }
 

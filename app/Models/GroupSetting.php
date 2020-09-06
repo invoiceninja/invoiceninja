@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,14 +18,14 @@ use App\Models\Company;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GroupSetting extends StaticModel
 {
     use MakesHash;
     use SoftDeletes;
-    
+
     //public $timestamps = false;
 
     protected $casts = [
@@ -37,7 +37,7 @@ class GroupSetting extends StaticModel
 
     protected $fillable = [
         'name',
-        'settings'
+        'settings',
     ];
 
     protected $touches = [];
@@ -63,7 +63,7 @@ class GroupSetting extends StaticModel
      * @param  mixed  $value
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function resolveRouteBinding($value)
+    public function resolveRouteBinding($value, $field = NULL)
     {
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();

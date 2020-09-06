@@ -14,7 +14,7 @@ class UpdateEnabledModulesValue extends Migration
      */
     public function up()
     {
-        Company::cursor()->each(function ($company){
+        Company::cursor()->each(function ($company) {
             $company->enabled_modules = 32767;
             $company->save();
         });

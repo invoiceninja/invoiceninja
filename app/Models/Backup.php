@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,10 +18,9 @@ use Laracasts\Presenter\PresentableTrait;
 
 class Backup extends BaseModel
 {
-
     public function getEntityType()
     {
-        return Backup::class;
+        return self::class;
     }
 
     public function activity()

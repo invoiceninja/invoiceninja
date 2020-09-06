@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,18 +21,16 @@ class UpdateRecurringQuoteRequest extends Request
 {
     use ChecksEntityStatus;
     use CleanLineItems;
-    
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('edit', $this->recurring_quote);
     }
-
 
     public function rules()
     {
@@ -51,7 +49,6 @@ class UpdateRecurringQuoteRequest extends Request
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
 
-        
         $this->replace($input);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,10 +16,10 @@ use Illuminate\Translation\TranslationServiceProvider;
 
 class NinjaTranslationServiceProvider extends TranslationServiceProvider
 {
-	public function boot()
+    public function boot()
     {
 
-        /**
+        /*
          * To reset the translator instance we call
          *
          * App::forgetInstance('translator');
@@ -30,11 +30,10 @@ class NinjaTranslationServiceProvider extends TranslationServiceProvider
          * We _must_ reset the singleton when shifting between
          * clients/companies otherwise translations will
          * persist.
-         * 
+         *
          */
-        
-        $this->app->singleton('translator', function($app)
-        {
+
+        $this->app->singleton('translator', function ($app) {
             $loader = $app['translation.loader'];
             $locale = $app['config']['app.locale'];
 
@@ -44,7 +43,5 @@ class NinjaTranslationServiceProvider extends TranslationServiceProvider
 
             return $trans;
         });
-
     }
 }
-

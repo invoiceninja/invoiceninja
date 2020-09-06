@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,7 +16,7 @@ use App\Models\Credit;
 
 class CreditFactory
 {
-    public static function create(int $company_id, int $user_id, object $settings= null, Client $client = null) :Credit
+    public static function create(int $company_id, int $user_id, object $settings = null, Client $client = null) :Credit
     {
         $credit = new Credit();
         $credit->status_id = Credit::STATUS_DRAFT;
@@ -47,7 +47,7 @@ class CreditFactory
         $credit->user_id = $user_id;
         $credit->company_id = $company_id;
         $credit->recurring_id = null;
-        
+
         return $credit;
     }
 }

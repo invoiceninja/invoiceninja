@@ -39,7 +39,7 @@ class ExampleIntegrationTest extends TestCase
             'template' => $design->elements([
                 'client' => $invoice->client,
                 'entity' => $invoice,
-                'pdf_variables' => (array)$invoice->company->settings->pdf_variables,
+                'pdf_variables' => (array) $invoice->company->settings->pdf_variables,
             ]),
             'variables' => $engine->generateLabelsAndValues(),
         ];
@@ -50,7 +50,7 @@ class ExampleIntegrationTest extends TestCase
             ->design($design)
             ->build();
 
-  //      exec('echo "" > storage/logs/laravel.log');
+        //      exec('echo "" > storage/logs/laravel.log');
 
 //        info($maker->getCompiledHTML(true));
 

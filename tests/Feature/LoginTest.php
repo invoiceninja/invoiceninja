@@ -33,11 +33,12 @@ class LoginTest extends TestCase
     public function testLoginFormDisplayed()
     {
         $response = $this->get('/login', [
-            '_token' => csrf_token()
+            '_token' => csrf_token(),
         ]);
 
         $response->assertStatus(404);
     }
+
     /**
      * A valid user can be logged in.
      *
@@ -125,7 +126,7 @@ class LoginTest extends TestCase
     //         '_token' => csrf_token()
     //     ]);
     //     $response->assertStatus(302);
-        
+
     //    // $this->assertGuest();
     // }
 
@@ -135,7 +136,7 @@ class LoginTest extends TestCase
         $user = factory(User::class)->create([
             'account_id' => $account->id,
             'email' => 'test@example.com',
-            'password' => \Hash::make('123456')
+            'password' => \Hash::make('123456'),
         ]);
 
         $company = factory(\App\Models\Company::class)->create([
@@ -149,10 +150,9 @@ class LoginTest extends TestCase
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
         $company_token->account_id = $account->id;
-        $company_token->name = $user->first_name. ' '. $user->last_name;
+        $company_token->name = $user->first_name.' '.$user->last_name;
         $company_token->token = \Illuminate\Support\Str::random(64);
         $company_token->save();
-
 
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
@@ -170,13 +170,12 @@ class LoginTest extends TestCase
 
         $data = [
             'email' => 'test@example.com',
-            'password' => '123456'
+            'password' => '123456',
         ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
             ])->post('/api/v1/login', $data);
-
 
         $response->assertStatus(200);
     }

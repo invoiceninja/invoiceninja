@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -25,7 +25,7 @@ class DesignFactory
         $design->is_custom = true;
         $design->name = '';
         $design->design = '';
-        
+
         return $design;
     }
 }

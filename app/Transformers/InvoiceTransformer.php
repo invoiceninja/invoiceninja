@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -52,14 +52,14 @@ class InvoiceTransformer extends EntityTransformer
 
         return $this->includeCollection($invoice->history, $transformer, Backup::class);
     }
-    
+
     public function includeClient(Invoice $invoice)
     {
         $transformer = new ClientTransformer($this->serializer);
 
         return $this->includeItem($invoice->client, $transformer, Client::class);
     }
-    
+
     /*
         public function includePayments(Invoice $invoice)
         {
@@ -82,7 +82,7 @@ class InvoiceTransformer extends EntityTransformer
 
         return $this->includeCollection($invoice->documents, $transformer, Document::class);
     }
-    
+
     public function transform(Invoice $invoice)
     {
         return [
@@ -95,9 +95,9 @@ class InvoiceTransformer extends EntityTransformer
             'vendor_id' => (string) $this->encodePrimaryKey($invoice->vendor_id),
             'status_id' => (string) ($invoice->status_id ?: 1),
             'design_id' => (string) $this->encodePrimaryKey($invoice->design_id),
-            'created_at' => (int)$invoice->created_at,
-            'updated_at' => (int)$invoice->updated_at,
-            'archived_at' => (int)$invoice->deleted_at,
+            'created_at' => (int) $invoice->created_at,
+            'updated_at' => (int) $invoice->updated_at,
+            'archived_at' => (int) $invoice->deleted_at,
             'is_deleted' => (bool) $invoice->is_deleted,
             'number' => $invoice->number ?: '',
             'discount' => (float) $invoice->discount,
@@ -131,16 +131,16 @@ class InvoiceTransformer extends EntityTransformer
             'custom_value4' => (string) $invoice->custom_value4 ?: '',
             'has_tasks' => (bool) $invoice->has_tasks,
             'has_expenses' => (bool) $invoice->has_expenses,
-            'custom_surcharge1' => (float)$invoice->custom_surcharge1,
-            'custom_surcharge2' => (float)$invoice->custom_surcharge2,
-            'custom_surcharge3' => (float)$invoice->custom_surcharge3,
-            'custom_surcharge4' => (float)$invoice->custom_surcharge4,
-            'exchange_rate' => (float)$invoice->exchange_rate,
+            'custom_surcharge1' => (float) $invoice->custom_surcharge1,
+            'custom_surcharge2' => (float) $invoice->custom_surcharge2,
+            'custom_surcharge3' => (float) $invoice->custom_surcharge3,
+            'custom_surcharge4' => (float) $invoice->custom_surcharge4,
+            'exchange_rate' => (float) $invoice->exchange_rate,
             'custom_surcharge_tax1' => (bool) $invoice->custom_surcharge_tax1,
             'custom_surcharge_tax2' => (bool) $invoice->custom_surcharge_tax2,
             'custom_surcharge_tax3' => (bool) $invoice->custom_surcharge_tax3,
             'custom_surcharge_tax4' => (bool) $invoice->custom_surcharge_tax4,
-            'line_items' => $invoice->line_items ?: (array)[],
+            'line_items' => $invoice->line_items ?: (array) [],
             'entity_type' => 'invoice',
         ];
     }

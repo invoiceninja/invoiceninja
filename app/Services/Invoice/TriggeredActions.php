@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -37,26 +37,25 @@ class TriggeredActions extends AbstractService
     public function __construct(Invoice $invoice, Request $request)
     {
         $this->request = $request;
-        
+
         $this->invoice = $invoice;
     }
 
     public function run()
     {
-
-        if($this->request->has('auto_bill') && $this->request->input('auto_bill') == 'true') {
+        if ($this->request->has('auto_bill') && $this->request->input('auto_bill') == 'true') {
             $this->invoice = $this->invoice->service()->autoBill()->save();
         }
-        
-        if($this->request->has('paid') && $this->request->input('paid') == 'true') {
+
+        if ($this->request->has('paid') && $this->request->input('paid') == 'true') {
             $this->invoice = $this->invoice->service()->markPaid()->save();
         }
 
-        if($this->request->has('send_email') && $this->request->input('send_email') == 'true') {
+        if ($this->request->has('send_email') && $this->request->input('send_email') == 'true') {
             $this->sendEmail();
         }
 
-        if($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true'){
+        if ($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true') {
             $this->invoice = $this->invoice->service()->markSent()->save();
         }
 
@@ -69,17 +68,14 @@ class TriggeredActions extends AbstractService
         //$reminder_template = $this->invoice->calculateTemplate();
         $reminder_template = 'payment';
 
-        $this->invoice->invitations->load('contact.client.country','invoice.client.country','invoice.company')->each(function ($invitation) use($reminder_template){
-
+        $this->invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($reminder_template) {
             $email_builder = (new InvoiceEmail())->build($invitation, $reminder_template);
 
             EmailInvoice::dispatch($email_builder, $invitation, $this->invoice->company);
-
         });
 
         if ($this->invoice->invitations->count() > 0) {
             event(new InvoiceWasEmailed($this->invoice->invitations->first(), $this->invoice->company, Ninja::eventVars()));
         }
-
     }
 }

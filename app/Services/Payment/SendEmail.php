@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -8,7 +8,6 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-
 
 namespace App\Services\Payment;
 
@@ -29,7 +28,7 @@ class SendEmail
     }
 
     /**
-     * Builds the correct template to send
+     * Builds the correct template to send.
      * @param string $reminder_template The template name ie reminder1
      * @return array
      */

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -36,10 +36,8 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 /**
- * Class QuoteController
- * @package App\Http\Controllers\QuoteController
+ * Class QuoteController.
  */
-
 class QuoteController extends BaseController
 {
     use MakesHash;
@@ -105,13 +103,11 @@ class QuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
-   
     public function index(QuoteFilters $filters)
     {
         $quotes = Quote::filter($filters);
-      
+
         return $this->listResponse($quotes);
     }
 
@@ -152,7 +148,6 @@ class QuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateQuoteRequest $request)
     {
@@ -200,7 +195,6 @@ class QuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreQuoteRequest $request)
     {
@@ -261,7 +255,6 @@ class QuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowQuoteRequest $request, Quote $quote)
     {
@@ -318,13 +311,12 @@ class QuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditQuoteRequest $request, Quote $quote)
     {
         return $this->itemResponse($quote);
     }
-    
+
     /**
      * Update the specified resource in storage.
      *
@@ -375,14 +367,13 @@ class QuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateQuoteRequest $request, Quote $quote)
     {
         if ($request->entityIsDeleted($quote)) {
             return $request->disallowUpdate();
         }
-        
+
         $quote = $this->quote_repo->save($request->all(), $quote);
 
         return $this->itemResponse($quote);
@@ -437,7 +428,6 @@ class QuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyQuoteRequest $request, Quote $quote)
     {
@@ -447,7 +437,7 @@ class QuoteController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @return Collection
      *
@@ -497,18 +487,16 @@ class QuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
-
         $action = request()->input('action');
 
         $ids = request()->input('ids');
 
         $quotes = Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (!$quotes) {
+        if (! $quotes) {
             return response()->json(['message' => 'No Quote/s Found']);
         }
 
@@ -519,7 +507,7 @@ class QuoteController extends BaseController
         if ($action == 'download' && $quotes->count() >= 1) {
             $quotes->each(function ($quote) {
                 if (auth()->user()->cannot('view', $quote)) {
-                    return response()->json(['message'=>'Insufficient privileges to access quote '. $quote->number]);
+                    return response()->json(['message'=>'Insufficient privileges to access quote '.$quote->number]);
                 }
             });
 
@@ -528,8 +516,7 @@ class QuoteController extends BaseController
             return response()->json(['message' => 'Email Sent!'], 200);
         }
 
-        if($action == 'convert') {
-
+        if ($action == 'convert') {
             $this->entity_type = Quote::class;
             $this->entity_transformer = QuoteTransformer::class;
 
@@ -555,10 +542,9 @@ class QuoteController extends BaseController
 
         return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
     }
-    
 
     /**
-     * Quote Actions
+     * Quote Actions.
      *
      *
      *
@@ -625,14 +611,11 @@ class QuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
-    
     public function action(ActionQuoteRequest $request, Quote $quote, $action)
     {
         return $this->performAction($quote, $action);
     }
-
 
     private function performAction(Quote $quote, $action, $bulk = false)
     {
@@ -643,10 +626,12 @@ class QuoteController extends BaseController
                 $this->entity_transformer = InvoiceTransformer::class;
 
                 $invoice = CloneQuoteToInvoiceFactory::create($quote, auth()->user()->id);
+
                 return $this->itemResponse($invoice);
                 break;
             case 'clone_to_quote':
                 $quote = CloneQuoteFactory::create($quote, auth()->user()->id);
+
                 return $this->itemResponse($quote);
                 break;
             case 'approve':
@@ -654,34 +639,37 @@ class QuoteController extends BaseController
                 if ($quote->status_id != Quote::STATUS_SENT) {
                     return response()->json(['message' => 'Unable to approve this quote as it has expired.'], 400);
                 }
-                
+
                 return $this->itemResponse($quote->service()->approve()->save());
                 break;
             case 'history':
-                # code...
+                // code...
                 break;
             case 'download':
-                    return response()->streamDownload(function () use($quote) {
+                    return response()->streamDownload(function () use ($quote) {
                         echo file_get_contents($quote->pdf_file_path());
                     }, basename($quote->pdf_file_path()));
                     //return response()->download(TempFile::path($quote->pdf_file_path()), basename($quote->pdf_file_path()));
                 break;
             case 'archive':
                 $this->quote_repo->archive($quote);
+
                 return $this->listResponse($quote);
                 break;
             case 'delete':
                 $this->quote_repo->delete($quote);
+
                 return $this->listResponse($quote);
                 break;
             case 'email':
                 $quote->service()->sendEmail();
+
                 return response()->json(['message'=>'email sent'], 200);
                 break;
             case 'mark_sent':
                 $quote->service()->markSent()->save();
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->itemResponse($quote);
                 }
                 // no break
@@ -694,8 +682,8 @@ class QuoteController extends BaseController
     public function downloadPdf($invitation_key)
     {
         $invitation = $this->quote_repo->getInvitationByKey($invitation_key);
-        $contact    = $invitation->contact;
-        $quote    = $invitation->quote;
+        $contact = $invitation->contact;
+        $quote = $invitation->quote;
 
         $file_path = $quote->service()->getQuotePdf($contact);
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -8,7 +8,6 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-
 
 namespace App\Services\Payment;
 
@@ -37,7 +36,6 @@ class DeletePayment
 
     public function run()
     {
-
         return $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
             ->updateCreditables() //return the credits first
             ->adjustInvoices()
@@ -45,63 +43,52 @@ class DeletePayment
             ->save();
     }
 
-
-
     //reverse paymentables->invoices
-    
+
     //reverse paymentables->credits
-    
-    //set refunded to amount 
+
+    //set refunded to amount
 
     //set applied amount to 0
 
     private function updateClient()
     {
-        $this->payment->client->service()->updatePaidToDate(-1*$this->payment->amount)->save();
+        $this->payment->client->service()->updatePaidToDate(-1 * $this->payment->amount)->save();
 
         return $this;
     }
 
     private function adjustInvoices()
     {
-        if ($this->payment->invoices()->exists()) 
-        {
-        
-            $this->payment->invoices()->each(function ($paymentable_invoice){
-
+        if ($this->payment->invoices()->exists()) {
+            $this->payment->invoices()->each(function ($paymentable_invoice) {
                 $paymentable_invoice->service()->updateBalance($paymentable_invoice->pivot->amount)->save();
                 $paymentable_invoice->ledger()->updateInvoiceBalance($paymentable_invoice->pivot->amount)->save();
                 $paymentable_invoice->client->service()->updateBalance($paymentable_invoice->pivot->amount)->save();
-                
-                if(floatval($paymentable_invoice->balance) == 0)
+
+                if (floatval($paymentable_invoice->balance) == 0) {
                     $paymentable_invoice->service()->setStatus(Invoice::STATUS_SENT)->save();
-                else
+                } else {
                     $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();
+                }
 
                 //fire event for this credit
                 //
             });
-
         }
-
 
         return $this;
     }
 
     private function updateCreditables()
     {
-        if ($this->payment->credits()->exists()) 
-        {
-        
-            $this->payment->credits()->each(function ($paymentable_credit){
-
+        if ($this->payment->credits()->exists()) {
+            $this->payment->credits()->each(function ($paymentable_credit) {
                 $paymentable_credit->balance += $paymentable_credit->pivot->amount;
                 $paymentable_credit->setStatus(Credit::STATUS_SENT);
                 //fire event for this credit
                 //
             });
-
-
         }
 
         return $this;
@@ -113,9 +100,10 @@ class DeletePayment
 
         return $this;
     }
+
     /**
-     * Saves the payment
-     * 
+     * Saves the payment.
+     *
      * @return Payment $payment
      */
     private function save()
@@ -124,6 +112,4 @@ class DeletePayment
 
         return $this->payment;
     }
-
-
 }

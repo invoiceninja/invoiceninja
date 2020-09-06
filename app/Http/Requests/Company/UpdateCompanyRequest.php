@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,17 +22,16 @@ use Illuminate\Validation\Rule;
 class UpdateCompanyRequest extends Request
 {
     use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('edit', $this->company);
     }
-
 
     public function rules()
     {
@@ -60,11 +59,11 @@ class UpdateCompanyRequest extends Request
 
     protected function prepareForValidation()
     {
-
         $input = $this->all();
-        
-            if(array_key_exists('settings', $input))
-                $input['settings'] = $this->filterSaveableSettings($input['settings']);
+
+        if (array_key_exists('settings', $input)) {
+            $input['settings'] = $this->filterSaveableSettings($input['settings']);
+        }
 
         $this->replace($input);
     }
@@ -72,10 +71,10 @@ class UpdateCompanyRequest extends Request
     /**
      * For the hosted platform, we restrict the feature settings.
      *
-     * This method will trim the company settings object 
-     * down to the free plan setting properties which 
+     * This method will trim the company settings object
+     * down to the free plan setting properties which
      * are saveable
-     * 
+     *
      * @param  object $settings
      * @return object $settings
      */
@@ -83,20 +82,18 @@ class UpdateCompanyRequest extends Request
     {
         $account = $this->company->account;
 
-        if(!$account->isFreeHostedClient())
+        if (! $account->isFreeHostedClient()) {
             return $settings;
+        }
 
         $saveable_casts = CompanySettings::$free_plan_casts;
 
-        foreach($settings as $key => $value){
-
-            if(!array_key_exists($key, $saveable_casts))
+        foreach ($settings as $key => $value) {
+            if (! array_key_exists($key, $saveable_casts)) {
                 unset($settings->{$key});
-
+            }
         }
-        
+
         return $settings;
-
     }
-
 }

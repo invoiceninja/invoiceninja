@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * @OA\Schema(
  *   schema="Product",
  *   type="object",

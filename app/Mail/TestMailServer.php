@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -32,7 +32,7 @@ class TestMailServer extends Mailable
     }
 
     /**
-     * Test Server mail
+     * Test Server mail.
      *
      * @return $this
      */
@@ -43,7 +43,7 @@ class TestMailServer extends Mailable
             ->markdown('email.support.message', [
                 'message' => $this->message,
                 'system_info' => '',
-                'laravel_log' => []
+                'laravel_log' => [],
             ]);
     }
 }

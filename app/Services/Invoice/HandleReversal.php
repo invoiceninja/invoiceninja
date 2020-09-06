@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -41,13 +41,14 @@ class HandleReversal extends AbstractService
     public function run()
     {
         /* Check again!! */
-        if (!$this->invoice->invoiceReversable($this->invoice)) {
+        if (! $this->invoice->invoiceReversable($this->invoice)) {
             return $this->invoice;
         }
 
         /* If the invoice has been cancelled - we need to unwind the cancellation before reversing*/
-        if($this->invoice->status_id == Invoice::STATUS_CANCELLED)
+        if ($this->invoice->status_id == Invoice::STATUS_CANCELLED) {
             $this->invoice = $this->invoice->service()->reverseCancellation()->save();
+        }
 
         $balance_remaining = $this->invoice->balance;
 
@@ -68,16 +69,16 @@ class HandleReversal extends AbstractService
         });
 
         /* Generate a credit for the $total_paid amount */
-        $notes = "Credit for reversal of ".$this->invoice->number;
+        $notes = 'Credit for reversal of '.$this->invoice->number;
 
         if ($total_paid > 0) {
             $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);
             $credit->client_id = $this->invoice->client_id;
             $credit->invoice_id = $this->invoice->id;
-            
+
             $item = InvoiceItemFactory::create();
             $item->quantity = 1;
-            $item->cost = (float)$total_paid;
+            $item->cost = (float) $total_paid;
             $item->notes = $notes;
 
             $line_items[] = $item;
@@ -95,10 +96,11 @@ class HandleReversal extends AbstractService
         }
 
         /* Set invoice balance to 0 */
-        if($this->invoice->balance != 0)
-            $this->invoice->ledger()->updateInvoiceBalance($balance_remaining*-1, $notes)->save();
+        if ($this->invoice->balance != 0) {
+            $this->invoice->ledger()->updateInvoiceBalance($balance_remaining * -1, $notes)->save();
+        }
 
-        $this->invoice->balance=0;
+        $this->invoice->balance = 0;
 
         /* Set invoice status to reversed... somehow*/
         $this->invoice->service()->setStatus(Invoice::STATUS_REVERSED)->save();
@@ -107,16 +109,15 @@ class HandleReversal extends AbstractService
         /* Reduce the client balance by $balance_remaining */
 
         $this->invoice->client->service()
-            ->updateBalance($balance_remaining*-1)
-            ->updatePaidToDate($total_paid*-1)
+            ->updateBalance($balance_remaining * -1)
+            ->updatePaidToDate($total_paid * -1)
             ->save();
 
         event(new InvoiceWasReversed($this->invoice, $this->invoice->company, Ninja::eventVars()));
-        
+
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
     }
-
 
     // public function run2()
     // {
@@ -149,9 +150,6 @@ class HandleReversal extends AbstractService
     //     });
 
     //     //Unwinding any payments made to this invoice
-        
-        
+
     // }
 }
-
-    

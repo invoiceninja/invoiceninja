@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -27,7 +27,7 @@ class QuoteInvitation extends BaseModel
     use MakesDates;
     use Inviteable;
     use SoftDeletes;
-    
+
     protected $fillable = [
         'id',
         'client_contact_id',
@@ -37,12 +37,12 @@ class QuoteInvitation extends BaseModel
         'company',
         'contact',
     ];
-    
+
     protected $touches = ['quote'];
 
     public function getEntityType()
     {
-        return QuoteInvitation::class;
+        return self::class;
     }
 
     // public function getSignatureDateAttribute($value)
@@ -76,7 +76,7 @@ class QuoteInvitation extends BaseModel
     //     }
     //     return $value;
     // }
-    
+
     public function entityType()
     {
         return Quote::class;
@@ -131,9 +131,9 @@ class QuoteInvitation extends BaseModel
 
     public function pdf_file_path()
     {
-        $storage_path = Storage::url($this->quote->client->quote_filepath() . $this->quote->number . '.pdf');
+        $storage_path = Storage::url($this->quote->client->quote_filepath().$this->quote->number.'.pdf');
 
-        if (!Storage::exists($this->quote->client->quote_filepath() . $this->quote->number . '.pdf')) {
+        if (! Storage::exists($this->quote->client->quote_filepath().$this->quote->number.'.pdf')) {
             event(new QuoteWasUpdated($this->quote, $this->company, Ninja::eventVars()));
             CreateQuotePdf::dispatchNow($this);
         }

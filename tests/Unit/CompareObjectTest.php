@@ -16,24 +16,22 @@ class CompareObjectTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-    
+
         $this->client_settings = ClientSettings::defaults();
 
         $this->company_settings = CompanySettings::defaults();
     }
 
-
     public function buildClientSettings()
     {
         foreach ($this->company_settings as $key => $value) {
-            if (!isset($this->client_settings->{$key}) && property_exists($this->company_settings, $key)) {
+            if (! isset($this->client_settings->{$key}) && property_exists($this->company_settings, $key)) {
                 $this->client_settings->{$key} = $this->company_settings->{$key};
             }
         }
 
         return $this->client_settings;
     }
-
 
     public function testProperties()
     {

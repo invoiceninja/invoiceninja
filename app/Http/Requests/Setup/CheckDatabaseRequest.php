@@ -13,7 +13,7 @@ class CheckDatabaseRequest extends FormRequest
      */
     public function authorize()
     {
-        return true; /** Return something that will check if setup has been completed, like Ninja::hasCompletedSetup() */
+        return true; /* Return something that will check if setup has been completed, like Ninja::hasCompletedSetup() */
     }
 
     /**

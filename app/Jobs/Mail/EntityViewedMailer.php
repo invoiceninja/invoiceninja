@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -44,6 +44,7 @@ class EntityViewedMailer extends BaseMailerJob implements ShouldQueue
     public $entity;
 
     public $settings;
+
     /**
      * Create a new job instance.
      *
@@ -62,7 +63,6 @@ class EntityViewedMailer extends BaseMailerJob implements ShouldQueue
         $this->entity_type = $entity_type;
 
         $this->settings = $invitation->contact->client->getMergedSettings();
-
     }
 
     /**
@@ -90,9 +90,5 @@ class EntityViewedMailer extends BaseMailerJob implements ShouldQueue
         if (count(Mail::failures()) > 0) {
             return $this->logMailError(Mail::failures(), $this->invoice->client);
         }
-
     }
-
-
-
 }

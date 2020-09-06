@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -50,10 +50,11 @@ class QuoteService
         return $this;
     }
 
-    public function convert() :QuoteService
+    public function convert() :self
     {
-        if($this->quote->invoice_id)
+        if ($this->quote->invoice_id) {
             return $this;
+        }
 
         $convert_quote = new ConvertQuote($this->quote->client);
 
@@ -69,7 +70,7 @@ class QuoteService
         return (new GetQuotePdf($this->quote, $contact))->run();
     }
 
-    public function sendEmail($contact = null) :QuoteService
+    public function sendEmail($contact = null) :self
     {
         $send_email = new SendEmail($this->quote, null, $contact);
 
@@ -79,10 +80,10 @@ class QuoteService
     }
 
     /**
-     * Applies the invoice number
+     * Applies the invoice number.
      * @return $this InvoiceService object
      */
-    public function applyNumber() :QuoteService
+    public function applyNumber() :self
     {
         $apply_number = new ApplyNumber($this->quote->client);
 
@@ -91,7 +92,7 @@ class QuoteService
         return $this;
     }
 
-    public function markSent() :QuoteService
+    public function markSent() :self
     {
         $mark_sent = new MarkSent($this->quote->client, $this->quote);
 
@@ -100,14 +101,14 @@ class QuoteService
         return $this;
     }
 
-    public function setStatus($status) :QuoteService
+    public function setStatus($status) :self
     {
         $this->quote->status_id = $status;
 
         return $this;
     }
 
-    public function approve() :QuoteService
+    public function approve() :self
     {
         $this->setStatus(Quote::STATUS_APPROVED)->save();
 
@@ -139,17 +140,19 @@ class QuoteService
 
     public function isConvertable() :bool
     {
-        if($this->quote->invoice_id)
+        if ($this->quote->invoice_id) {
             return false;
+        }
 
-        if($this->quote->status_id == Quote::STATUS_EXPIRED)
+        if ($this->quote->status_id == Quote::STATUS_EXPIRED) {
             return false;
+        }
 
         return true;
     }
 
     /**
-     * Saves the quote
+     * Saves the quote.
      * @return Quote|null
      */
     public function save() : ?Quote

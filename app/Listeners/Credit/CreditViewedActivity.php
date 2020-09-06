@@ -1,6 +1,6 @@
 <?php
 /**
- * Credit Ninja (https://creditninja.com)
+ * Credit Ninja (https://creditninja.com).
  *
  * @link https://github.com/creditninja/creditninja source repository
  *
@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Log;
 class CreditViewedActivity implements ShouldQueue
 {
     protected $activity_repo;
+
     /**
      * Create the event listener.
      *

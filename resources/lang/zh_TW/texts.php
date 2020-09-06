@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
 
     'organization' => '組織',
     'name' => '姓名',
@@ -1014,7 +1014,6 @@ $LANG = array(
     'trial_success' => '已成功地啟用兩星期的專業版免費試用',
     'overdue' => '逾期未付',
 
-
     'white_label_text' => '以 $:price  購買一年份的白牌授權，在發票與客戶的入口介面移除發票忍者的商標。',
     'user_email_footer' => '欲調整您的電子郵件通知設定。請造訪 :link',
     'reset_password_footer' => '若您未提出這項重設密碼的要求，請寫電子郵件給我們的客服： :email',
@@ -1194,7 +1193,6 @@ $LANG = array(
     'enterprise_plan_features' => '企業版進一步支援多使用者與附加檔案， :link 以查看其所有的功能一覽表。',
     'return_to_app' => '返回APP',
 
-
     // Payment updates
     'refund_payment' => '已退款的支付',
     'refund_max' => '最大值：',
@@ -1303,7 +1301,6 @@ $LANG = array(
     'braintree_paypal_help_link_text' => '將PayPal連結至您的BrainTree帳號',
     'token_billing_braintree_paypal' => '儲存付款的詳細資料',
     'add_paypal_account' => '新增PayPal帳戶',
-
 
     'no_payment_method_specified' => '無指定之付款方式',
     'chart_type' => '圖表類型',
@@ -2864,6 +2861,6 @@ $LANG = array(
     'mobile_refresh_warning' => '若您使用行動裝置APP，您可能需要做一次重新整理。',
     'enable_proposals_for_background' => '上傳一個背景圖像 :link以啟用提案模組。',
 
-);
+];
 
 return $LANG;

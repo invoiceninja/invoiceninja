@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: michael.hampton
  * Date: 14/02/2020
- * Time: 19:51
+ * Time: 19:51.
  */
 
 namespace App\Helpers\Email;
@@ -20,11 +20,11 @@ class InvoiceEmail extends EmailBuilder
         $invoice = $invitation->invoice;
         $contact = $invitation->contact;
 
-        if (!$reminder_template) {
+        if (! $reminder_template) {
             $reminder_template = $invoice->calculateTemplate();
         }
 
-        $body_template = $client->getSetting('email_template_' . $reminder_template);
+        $body_template = $client->getSetting('email_template_'.$reminder_template);
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
@@ -40,7 +40,7 @@ class InvoiceEmail extends EmailBuilder
             );
         }
 
-        $subject_template = $client->getSetting('email_subject_' . $reminder_template);
+        $subject_template = $client->getSetting('email_subject_'.$reminder_template);
 
         if (iconv_strlen($subject_template) == 0) {
             if ($reminder_template == 'quote') {
@@ -48,7 +48,7 @@ class InvoiceEmail extends EmailBuilder
                     'texts.quote_subject',
                     [
                         'number' => $invoice->number,
-                        'account' => $invoice->company->present()->name()
+                        'account' => $invoice->company->present()->name(),
                     ],
                     null,
                     $invoice->client->locale()
@@ -58,26 +58,27 @@ class InvoiceEmail extends EmailBuilder
                     'texts.invoice_subject',
                     [
                         'number' => $invoice->number,
-                        'account' => $invoice->company->present()->name()
+                        'account' => $invoice->company->present()->name(),
                     ],
                     null,
                     $invoice->client->locale()
                 );
             }
         }
-        
+
         $this->setTemplate($client->getSetting('email_style'))
             ->setContact($contact)
             ->setVariables($invoice->makeValues($contact))
             ->setSubject($subject_template)
             ->setBody($body_template)
-            ->setFooter("<a href='{$invitation->getLink()}'>".ctrans('texts.view_invoice')."</a>")
+            ->setFooter("<a href='{$invitation->getLink()}'>".ctrans('texts.view_invoice').'</a>')
             ->setViewLink($invitation->getLink())
             ->setViewText(ctrans('texts.view_invoice'));
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $this->setAttachments($invitation->pdf_file_path());
         }
+
         return $this;
     }
 }

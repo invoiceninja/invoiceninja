@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,10 +21,8 @@ class ShowInvoiceRequest extends Request
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
-        
         return auth('contact')->user()->client->id === $this->invoice->client_id;
     }
 }

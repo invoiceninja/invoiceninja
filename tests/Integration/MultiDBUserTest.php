@@ -19,9 +19,7 @@ use Tests\TestCase;
  * @covers  App\Libraries\MultiDB
  *
  * Proves that we can reliably switch database connections at runtime
- *
  */
-
 class MultiDBUserTest extends TestCase
 {
     public function setUp() :void
@@ -49,10 +47,9 @@ class MultiDBUserTest extends TestCase
             'account_id' => $account2->id,
         ]);
 
-
         $company->setHidden(['settings', 'settings_object', 'hashed_id']);
         $company2->setHidden(['settings', 'settings_object', 'hashed_id']);
-        
+
         $coco = Company::on('db-ninja-01')->create($company->toArray());
 
         Company::on('db-ninja-02')->create($company2->toArray());
@@ -69,7 +66,6 @@ class MultiDBUserTest extends TestCase
             'oauth_user_id' => '123',
        //     'account_id' => $account->id,
         ];
-
 
         $user2 = [
             'account_id' => $account2->id,
@@ -166,7 +162,7 @@ class MultiDBUserTest extends TestCase
             'company_user' => [
                     'is_admin' => true,
                     'is_owner' => false,
-                    'permissions' => 'create_client,create_invoice'
+                    'permissions' => 'create_client,create_invoice',
                 ],
         ];
 
@@ -186,7 +182,6 @@ class MultiDBUserTest extends TestCase
         }
     }
 
-
     public function test_cross_db_user_linking_succeeds_appropriately()
     {
         $data = [
@@ -196,7 +191,7 @@ class MultiDBUserTest extends TestCase
             'company_user' => [
                     'is_admin' => false,
                     'is_owner' => false,
-                    'permissions' => 'create_client,create_invoice'
+                    'permissions' => 'create_client,create_invoice',
                 ],
         ];
 

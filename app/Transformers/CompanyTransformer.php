@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -31,7 +31,7 @@ use App\Models\Project;
 use App\Models\Quote;
 use App\Models\SystemLog;
 use App\Models\Task;
-use App\Models\TaxRate;  
+use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Webhook;
 use App\Transformers\CompanyLedgerTransformer;
@@ -94,7 +94,6 @@ class CompanyTransformer extends EntityTransformer
         'system_logs',
     ];
 
-
     /**
      * @param Company $company
      *
@@ -105,20 +104,20 @@ class CompanyTransformer extends EntityTransformer
         $std = new \stdClass;
 
         return [
-            'id' => (string)$this->encodePrimaryKey($company->id),
-            'company_key' => (string)$company->company_key ?: '',
-            'update_products' => (bool)$company->update_products,
-            'fill_products' => (bool)$company->fill_products,
-            'convert_products' => (bool)$company->convert_products,
-            'custom_surcharge_taxes1' => (bool)$company->custom_surcharge_taxes1,
-            'custom_surcharge_taxes2' => (bool)$company->custom_surcharge_taxes2,
-            'custom_surcharge_taxes3' => (bool)$company->custom_surcharge_taxes3,
-            'custom_surcharge_taxes4' => (bool)$company->custom_surcharge_taxes4,
-            'show_product_cost' => (bool)$company->show_product_cost,
-            'enable_product_cost' => (bool)$company->enable_product_cost,
-            'show_product_details' => (bool)$company->show_product_details,
-            'enable_product_quantity' => (bool)$company->enable_product_quantity,
-            'default_quantity' => (bool)$company->default_quantity,
+            'id' => (string) $this->encodePrimaryKey($company->id),
+            'company_key' => (string) $company->company_key ?: '',
+            'update_products' => (bool) $company->update_products,
+            'fill_products' => (bool) $company->fill_products,
+            'convert_products' => (bool) $company->convert_products,
+            'custom_surcharge_taxes1' => (bool) $company->custom_surcharge_taxes1,
+            'custom_surcharge_taxes2' => (bool) $company->custom_surcharge_taxes2,
+            'custom_surcharge_taxes3' => (bool) $company->custom_surcharge_taxes3,
+            'custom_surcharge_taxes4' => (bool) $company->custom_surcharge_taxes4,
+            'show_product_cost' => (bool) $company->show_product_cost,
+            'enable_product_cost' => (bool) $company->enable_product_cost,
+            'show_product_details' => (bool) $company->show_product_details,
+            'enable_product_quantity' => (bool) $company->enable_product_quantity,
+            'default_quantity' => (bool) $company->default_quantity,
             'custom_fields' => $company->custom_fields ?: $std,
             'size_id' => (string) $company->size_id ?: '',
             'industry_id' => (string) $company->industry_id ?: '',
@@ -128,14 +127,14 @@ class CompanyTransformer extends EntityTransformer
             'portal_mode' => (string) $company->portal_mode ?: '',
             'portal_domain' => (string) $company->portal_domain ?: '',
             'settings' => $company->settings ?: '',
-            'enabled_tax_rates' => (int)$company->enabled_tax_rates,
-            'enabled_modules' => (int)$company->enabled_modules,
-            'updated_at' => (int)$company->updated_at,
-            'archived_at' => (int)$company->deleted_at,
-            'created_at' =>(int)$company->created_at,
-            'slack_webhook_url' => (string)$company->slack_webhook_url,
-            'google_analytics_url' => (string)$company->google_analytics_key, //@deprecate
-            'google_analytics_key' => (string)$company->google_analytics_key,
+            'enabled_tax_rates' => (int) $company->enabled_tax_rates,
+            'enabled_modules' => (int) $company->enabled_modules,
+            'updated_at' => (int) $company->updated_at,
+            'archived_at' => (int) $company->deleted_at,
+            'created_at' =>(int) $company->created_at,
+            'slack_webhook_url' => (string) $company->slack_webhook_url,
+            'google_analytics_url' => (string) $company->google_analytics_key, //@deprecate
+            'google_analytics_key' => (string) $company->google_analytics_key,
             'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates,
             'client_can_register' => (bool) $company->client_can_register,
             'is_large' => (bool) $company->is_large,
@@ -308,7 +307,7 @@ class CompanyTransformer extends EntityTransformer
     {
         $transformer = new PaymentTermTransformer($this->serializer);
 
-        return $this->includeCollection($company->payment_terms()->get(), $transformer, PaymentTerm::class);      
+        return $this->includeCollection($company->payment_terms()->get(), $transformer, PaymentTerm::class);
     }
 
     public function includeSystemLogs(Company $company)

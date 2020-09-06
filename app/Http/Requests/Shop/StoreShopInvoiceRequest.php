@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -29,7 +29,6 @@ class StoreShopInvoiceRequest extends Request
      *
      * @return bool
      */
-
     private $company;
 
     public function authorize() : bool
@@ -45,7 +44,7 @@ class StoreShopInvoiceRequest extends Request
             $documents = count($this->input('documents'));
 
             foreach (range(0, $documents) as $index) {
-                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+                $rules['documents.'.$index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
@@ -56,7 +55,7 @@ class StoreShopInvoiceRequest extends Request
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
         $rules['number'] = new UniqueInvoiceNumberRule($this->all());
-        
+
         return $rules;
     }
 
@@ -80,7 +79,7 @@ class StoreShopInvoiceRequest extends Request
 
         if (isset($input['client_contacts'])) {
             foreach ($input['client_contacts'] as $key => $contact) {
-                if (!array_key_exists('send_email', $contact) || !array_key_exists('id', $contact)) {
+                if (! array_key_exists('send_email', $contact) || ! array_key_exists('id', $contact)) {
                     unset($input['client_contacts'][$key]);
                 }
             }

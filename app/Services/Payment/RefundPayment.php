@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -8,7 +8,6 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-
 
 namespace App\Services\Payment;
 
@@ -52,7 +51,6 @@ class RefundPayment
 
     public function run()
     {
-
         return $this->calculateTotalRefund() //sets amount for the refund (needed if we are refunding multiple invoices in one payment)
             ->setStatus() //sets status of payment
             //->reversePayment()
@@ -66,14 +64,13 @@ class RefundPayment
     }
 
     /**
-     * Process the refund through the gateway
-     * 
-     * @return $this 
+     * Process the refund through the gateway.
+     *
+     * @return $this
      */
     private function processGatewayRefund()
     {
         if ($this->refund_data['gateway_refund'] !== false && $this->total_refund > 0) {
-
             if ($this->payment->company_gateway) {
                 $response = $gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
 
@@ -95,10 +92,10 @@ class RefundPayment
     }
 
     /**
-     * Create the payment activity
-     * 
+     * Create the payment activity.
+     *
      * @param  json $notes gateway_transaction
-     * @return $this        
+     * @return $this
      */
     private function createActivity($notes)
     {
@@ -125,49 +122,45 @@ class RefundPayment
     }
 
     /**
-     * Determine the amount of refund
-     * 
+     * Determine the amount of refund.
+     *
      * @return $this
      */
     private function calculateTotalRefund()
     {
-
-        if (array_key_exists('invoices', $this->refund_data) && count($this->refund_data['invoices']) > 0)
+        if (array_key_exists('invoices', $this->refund_data) && count($this->refund_data['invoices']) > 0) {
             $this->total_refund = collect($this->refund_data['invoices'])->sum('amount');
-        else
+        } else {
             $this->total_refund = $this->refund_data['amount'];
+        }
 
         return $this;
-
     }
 
     /**
-     * Set the payment status
+     * Set the payment status.
      */
     private function setStatus()
     {
-
-        if ($this->refund_data['amount'] == $this->payment->amount) 
+        if ($this->refund_data['amount'] == $this->payment->amount) {
             $this->payment->status_id = Payment::STATUS_REFUNDED;
-        else 
+        } else {
             $this->payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+        }
 
         return $this;
-
     }
 
     /**
-     * Update the paymentable records
-     * 
+     * Update the paymentable records.
+     *
      * @return $this
      */
     private function updatePaymentables()
     {
         if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
             $this->payment->invoices->each(function ($paymentable_invoice) {
-
                 collect($this->refund_data['invoices'])->each(function ($refunded_invoice) use ($paymentable_invoice) {
-
                     if ($refunded_invoice['invoice_id'] == $paymentable_invoice->id) {
                         $paymentable_invoice->pivot->refunded += $refunded_invoice['amount'];
                         $paymentable_invoice->pivot->save();
@@ -180,14 +173,13 @@ class RefundPayment
     }
 
     /**
-     * If credits have been bundled in this payment, we 
-     * need to reverse these
-     * 
-     * @return $this 
+     * If credits have been bundled in this payment, we
+     * need to reverse these.
+     *
+     * @return $this
      */
     private function updateCreditables()
     {
-
         if ($this->payment->credits()->exists()) {
             //Adjust credits first!!!
             foreach ($this->payment->credits as $paymentable_credit) {
@@ -222,29 +214,27 @@ class RefundPayment
     }
 
     /**
-     * Reverse the payments made on invoices
-     * 
-     * @return $this 
+     * Reverse the payments made on invoices.
+     *
+     * @return $this
      */
     private function adjustInvoices()
     {
         $adjustment_amount = 0;
 
         if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
-
-            foreach ($this->refund_data['invoices'] as $refunded_invoice) 
-            {
-            
+            foreach ($this->refund_data['invoices'] as $refunded_invoice) {
                 $invoice = Invoice::find($refunded_invoice['invoice_id']);
 
                 $invoice->service()->updateBalance($refunded_invoice['amount'])->save();
                 $invoice->ledger()->updateInvoiceBalance($refunded_invoice['amount'], "Refund of payment # {$this->payment->number}")->save();
 
-                if ($invoice->amount == $invoice->balance) 
+                if ($invoice->amount == $invoice->balance) {
                     $invoice->service()->setStatus(Invoice::STATUS_SENT);
-                else 
+                } else {
                     $invoice->service()->setStatus(Invoice::STATUS_PARTIAL);
-                
+                }
+
                 $invoice->save();
 
                 $client = $invoice->client;
@@ -259,18 +249,17 @@ class RefundPayment
             // $ledger_string = "Refund for Invoice {$invoice->number} for amount " . $refunded_invoice['amount']; //todo
 
             // $this->credit_note->ledger()->updateCreditBalance($adjustment_amount, $ledger_string);
-            
-            $client = $this->payment->client->fresh();
-            $client->service()->updatePaidToDate(-1*$this->total_refund)->save();
 
+            $client = $this->payment->client->fresh();
+            $client->service()->updatePaidToDate(-1 * $this->total_refund)->save();
         }
 
         return $this;
     }
 
     /**
-     * Saves the payment
-     * 
+     * Saves the payment.
+     *
      * @return Payment $payment
      */
     private function save()
@@ -351,5 +340,4 @@ class RefundPayment
 
     //     return $this;
     // }
-
 }

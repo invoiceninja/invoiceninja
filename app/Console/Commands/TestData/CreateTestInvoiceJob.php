@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -36,13 +36,11 @@ class CreateTestInvoiceJob implements ShouldQueue
 
     protected $client;
 
-
     /**
      * Create a new job instance.
      *
      * @return void
      */
-
     public function __construct(Client $client)
     {
         $this->client = $client;
@@ -57,7 +55,7 @@ class CreateTestInvoiceJob implements ShouldQueue
     {
         $faker = \Faker\Factory::create();
 
-        $invoice = InvoiceFactory::create($this->client->company->id, $this->client->user->id);//stub the company and user_id
+        $invoice = InvoiceFactory::create($this->client->company->id, $this->client->user->id); //stub the company and user_id
         $invoice->client_id = $this->client->id;
 //        $invoice->date = $faker->date();
         $dateable = Carbon::now()->subDays(rand(0, 90));
@@ -97,7 +95,6 @@ class CreateTestInvoiceJob implements ShouldQueue
 
         //$this->invoice_repo->markSent($invoice);
 
-
         if (rand(0, 1)) {
             $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
             $payment->date = $dateable;
@@ -121,12 +118,11 @@ class CreateTestInvoiceJob implements ShouldQueue
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
     }
 
-
     private function buildLineItems($count = 1)
     {
         $line_items = [];
 
-        for ($x=0; $x<$count; $x++) {
+        for ($x = 0; $x < $count; $x++) {
             $item = InvoiceItemFactory::create();
             $item->quantity = 1;
             //$item->cost = 10;
@@ -148,15 +144,13 @@ class CreateTestInvoiceJob implements ShouldQueue
 
             $product = Product::all()->random();
 
-            $item->cost = (float)$product->cost;
+            $item->cost = (float) $product->cost;
             $item->product_key = $product->product_key;
             $item->notes = $product->notes;
             $item->custom_value1 = $product->custom_value1;
             $item->custom_value2 = $product->custom_value2;
             $item->custom_value3 = $product->custom_value3;
             $item->custom_value4 = $product->custom_value4;
-
-
 
             $line_items[] = $item;
         }

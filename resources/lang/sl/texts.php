@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
 
     'organization' => 'Organizacija',
     'name' => 'Ime',
@@ -1012,7 +1012,6 @@ Ne morete najti računa? Potrebujete dodatno pomoč? Z veseljem bomo pomagali. P
     'trial_success' => 'Dva tedensko brezplačno poskusno obdobje uspešno omogočeno.',
     'overdue' => 'Zapadlo',
 
-
     'white_label_text' => 'Za odstranitev Invoice Ninja znamke z računa in portala za stranke, zakupi enoletno "white Label" licenco v znesku $:price.',
     'user_email_footer' => 'Za spremembo e-poštnih obvestil obiščite :link',
     'reset_password_footer' => 'Če niste zahtevali ponastavitev gesla, nas prosim obvestite na naslov: :email',
@@ -1193,7 +1192,6 @@ Velikost strani',
     'enterprise_plan_features' => 'Podjetniški paket omogoča več uporabnikov in priponk. :link za ogled celotnega seznama funkcij.',
     'return_to_app' => 'Nazaj na vrh',
 
-
     // Payment updates
     'refund_payment' => 'Vračilo plačila',
     'refund_max' => 'Maksimalno:',
@@ -1302,7 +1300,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'braintree_paypal_help_link_text' => 'povezati PayPay z vašim BrainTree računom ',
     'token_billing_braintree_paypal' => 'Shrani plačilne podatke',
     'add_paypal_account' => 'Dodaj Paypal račun',
-
 
     'no_payment_method_specified' => 'Plačilno sredstvo ni izbrano.',
     'chart_type' => 'Tip grafikona',
@@ -2862,6 +2859,6 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
     'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
-);
+];
 
 return $LANG;

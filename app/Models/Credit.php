@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -36,7 +36,7 @@ class Credit extends BaseModel
     use PresentableTrait;
     use MakesInvoiceValues;
 
-    protected $presenter = 'App\Models\Presenters\CreditPresenter';
+    protected $presenter = \App\Models\Presenters\CreditPresenter::class;
 
     protected $fillable = [
         'assigned_user_id',
@@ -90,7 +90,7 @@ class Credit extends BaseModel
 
     public function getEntityType()
     {
-        return Credit::class;
+        return self::class;
     }
 
     public function getDateAttribute($value)
@@ -108,7 +108,6 @@ class Credit extends BaseModel
         return $this->dateMutator($value);
     }
 
-
     public function assigned_user()
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id');
@@ -118,7 +117,7 @@ class Credit extends BaseModel
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
-    
+
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -145,7 +144,7 @@ class Credit extends BaseModel
     }
 
     /**
-     * The invoice which the credit has been created from
+     * The invoice which the credit has been created from.
      */
     public function invoice()
     {
@@ -156,11 +155,12 @@ class Credit extends BaseModel
     {
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
-    
+
     public function ledger()
     {
         return new LedgerService($this);
     }
+
     /**
      * The invoice/s which the credit has
      * been applied to.
@@ -180,9 +180,8 @@ class Credit extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
-
     /**
-     * Access the invoice calculator object
+     * Access the invoice calculator object.
      *
      * @return object The invoice calculator object getters
      */
@@ -198,7 +197,6 @@ class Credit extends BaseModel
 
         return $credit_calc->build();
     }
-
 
     public function service()
     {
@@ -237,18 +235,17 @@ class Credit extends BaseModel
 
     public function pdf_file_path($invitation = null)
     {
+        $storage_path = Storage::url($this->client->credit_filepath().$this->number.'.pdf');
 
-        $storage_path = Storage::url($this->client->credit_filepath() . $this->number . '.pdf');
-
-        if (Storage::exists($this->client->credit_filepath() . $this->number . '.pdf')) {
+        if (Storage::exists($this->client->credit_filepath().$this->number.'.pdf')) {
             return $storage_path;
         }
 
-        if (!$invitation) {
-           event(new CreditWasUpdated($this, $this->company, Ninja::eventVars())); 
+        if (! $invitation) {
+            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
             CreateCreditPdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
         } else {
-           event(new CreditWasUpdated($this, $this->company, Ninja::eventVars())); 
+            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
             CreateCreditPdf::dispatchNow($invitation->credit, $invitation->company, $invitation->contact);
         }
 
@@ -258,7 +255,7 @@ class Credit extends BaseModel
     public function markInvitationsSent()
     {
         $this->invitations->each(function ($invitation) {
-            if (!isset($invitation->sent_date)) {
+            if (! isset($invitation->sent_date)) {
                 $invitation->sent_date = Carbon::now();
                 $invitation->save();
             }

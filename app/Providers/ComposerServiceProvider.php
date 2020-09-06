@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,7 +22,7 @@ class ComposerServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        view()->composer('portal.*', 'App\Http\ViewComposers\PortalComposer');
+        view()->composer('portal.*', \App\Http\ViewComposers\PortalComposer::class);
     }
 
     /**

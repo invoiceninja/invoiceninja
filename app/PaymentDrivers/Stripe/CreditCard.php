@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -99,7 +99,7 @@ class CreditCard
         if ($data['token']) {
             $payment_intent_data['payment_method'] = $data['token']->token;
         } else {
-            $payment_intent_data['setup_future_usage']  = 'off_session';
+            $payment_intent_data['setup_future_usage'] = 'off_session';
             // $payment_intent_data['save_payment_method'] = true;
             // $payment_intent_data['confirm'] = true;
         }
@@ -114,7 +114,7 @@ class CreditCard
     {
         $server_response = json_decode($request->input('gateway_response'));
 
-        $payment_hash = PaymentHash::whereRaw("BINARY `hash`= ?", [$request->input('payment_hash')])->firstOrFail();
+        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
 
         $state = [
             'payment_method' => $server_response->payment_method,
@@ -173,7 +173,7 @@ class CreditCard
         $payment_meta = new \stdClass;
         $payment_meta->exp_month = $payment_method_object['card']['exp_month'];
         $payment_meta->exp_year = $payment_method_object['card']['exp_year'];
-        $payment_meta->brand =  $payment_method_object['card']['brand'];
+        $payment_meta->brand = $payment_method_object['card']['brand'];
         $payment_meta->last4 = $payment_method_object['card']['last4'];
         $payment_meta->type = $payment_method_object['type'];
 
@@ -184,7 +184,7 @@ class CreditCard
         }
 
         // Todo: Need to fix this to support payment types other than credit card.... sepa etc etc
-        if (!isset($state['payment_type'])) {
+        if (! isset($state['payment_type'])) {
             $state['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
         }
 
@@ -206,7 +206,7 @@ class CreditCard
 
         $logger_message = [
             'server_response' => $state['payment_intent'],
-            'data' => $data
+            'data' => $data,
         ];
 
         SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client);

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,13 +20,12 @@ class StoreRecurringQuoteRequest extends Request
 {
     use MakesHash;
     use CleanLineItems;
-    
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('create', RecurringQuote::class);
@@ -47,11 +46,11 @@ class StoreRecurringQuoteRequest extends Request
         if ($input['client_id']) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
-        
+
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
-        
+
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         //$input['line_items'] = json_encode($input['line_items']);
         $this->replace($input);

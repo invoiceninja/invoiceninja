@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -29,9 +29,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use ReflectionClass;
 
-/**
- *
- */
 class BaseRepository
 {
     use MakesHash;
@@ -63,7 +60,7 @@ class BaseRepository
      */
     private function getEventClass($entity, $type)
     {
-        return 'App\Events\\' . ucfirst(class_basename($entity)) . 'Was' . $type;
+        return 'App\Events\\'.ucfirst(class_basename($entity)).'Was'.$type;
     }
 
     /**
@@ -74,9 +71,9 @@ class BaseRepository
         if ($entity->trashed()) {
             return;
         }
-        
+
         $entity->delete();
-                
+
         $className = $this->getEventClass($entity, 'Archived');
 
         if (class_exists($className)) {
@@ -126,7 +123,7 @@ class BaseRepository
 
         $className = $this->getEventClass($entity, 'Deleted');
 
-        if (class_exists($className)  && !($entity instanceOf Company)) {
+        if (class_exists($className) && ! ($entity instanceof Company)) {
             event(new $className($entity, $entity->company, Ninja::eventVars()));
         }
     }
@@ -178,13 +175,13 @@ class BaseRepository
 
     public function getInvitation($invitation, $resource)
     {
-        if (is_array($invitation) && !array_key_exists('key', $invitation)) {
+        if (is_array($invitation) && ! array_key_exists('key', $invitation)) {
             return false;
         }
 
-        $invitation_class = sprintf("App\\Models\\%sInvitation", $resource);
+        $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
 
-        $invitation = $invitation_class::whereRaw("BINARY `key`= ?", [$invitation['key']])->first();
+        $invitation = $invitation_class::whereRaw('BINARY `key`= ?', [$invitation['key']])->first();
 
         return $invitation;
     }
@@ -194,7 +191,6 @@ class BaseRepository
      */
     protected function alternativeSave($data, $model)
     {
-
         $class = new ReflectionClass($model);
 
         if (array_key_exists('client_id', $data)) {
@@ -205,18 +201,18 @@ class BaseRepository
 
         $state = [];
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
-        $lcfirst_resource_id = lcfirst($resource) . '_id';
+        $lcfirst_resource_id = lcfirst($resource).'_id';
 
         if ($class->name == Invoice::class || $class->name == Quote::class) {
             $state['starting_amount'] = $model->amount;
         }
 
-        if (!$model->id) {
+        if (! $model->id) {
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
             $data = array_merge($company_defaults, $data);
         }
-        
+
         $tmp_data = $data;
 
         /* We need to unset some variable as we sometimes unguard the model */
@@ -235,7 +231,7 @@ class BaseRepository
             $this->saveDocuments($data['documents'], $model);
         }
 
-        $invitation_factory_class = sprintf("App\\Factory\\%sInvitationFactory", $resource);
+        $invitation_factory_class = sprintf('App\\Factory\\%sInvitationFactory', $resource);
 
         if (isset($data['client_contacts'])) {
             foreach ($data['client_contacts'] as $contact) {
@@ -251,14 +247,13 @@ class BaseRepository
             $invitations = collect($data['invitations']);
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-            $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use($resource){
+            $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
+                $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
+                $invitation = $invitation_class::whereRaw('BINARY `key`= ?', [$invitation])->first();
 
-                    $invitation_class = sprintf("App\\Models\\%sInvitation", $resource);
-                    $invitation = $invitation_class::whereRaw("BINARY `key`= ?", [$invitation])->first();
-
-                    if($invitation)
-                        $invitation->delete();
-
+                if ($invitation) {
+                    $invitation->delete();
+                }
             });
 
             foreach ($data['invitations'] as $invitation) {
@@ -275,25 +270,20 @@ class BaseRepository
                     if ($contact && $model->client_id == $contact->client_id);
                     {
 
-                        $invitation_class = sprintf("App\\Models\\%sInvitation", $resource);
+                        $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
 
                         $new_invitation = $invitation_class::withTrashed()
                                             ->where('client_contact_id', $contact->id)
                                             ->where($lcfirst_resource_id, $model->id)
                                             ->first();
 
-                        if($new_invitation && $new_invitation->trashed()){
-
+                        if ($new_invitation && $new_invitation->trashed()) {
                             $new_invitation->restore();
-
-                        }
-                        else {
-
+                        } else {
                             $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
                             $new_invitation->{$lcfirst_resource_id} = $model->id;
                             $new_invitation->client_contact_id = $contact->id;
                             $new_invitation->save();
-
                         }
 
                     }
@@ -309,48 +299,44 @@ class BaseRepository
         }
 
         $model = $model->calc()->getInvoice();
-        
+
         $state['finished_amount'] = $model->amount;
 
         $model = $model->service()->applyNumber()->save();
-        
+
         if ($model->company->update_products !== false) {
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
         }
 
         if ($class->name == Invoice::class) {
-
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
-
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
                 $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
             }
 
-            if(!$model->design_id)
+            if (! $model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
-
+            }
         }
 
         if ($class->name == Credit::class) {
             $model = $model->calc()->getCredit();
 
-            if(!$model->design_id)
+            if (! $model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
-
+            }
         }
-        
+
         if ($class->name == Quote::class) {
             $model = $model->calc()->getQuote();
 
-            if(!$model->design_id)
+            if (! $model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
-
+            }
         }
 
         $model->save();
 
         return $model->fresh();
-
     }
-    
 }

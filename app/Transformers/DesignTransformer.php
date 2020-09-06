@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -34,7 +34,6 @@ class DesignTransformer extends EntityTransformer
     protected $availableIncludes = [
     ];
 
-
     /**
      * @param Design $design
      *
@@ -43,15 +42,15 @@ class DesignTransformer extends EntityTransformer
     public function transform(Design $design)
     {
         return [
-            'id' => (string)$this->encodePrimaryKey($design->id),
-            'name' => (string)$design->name,
-            'is_custom' => (bool)$design->is_custom,
-            'is_active' => (bool)$design->is_active,
+            'id' => (string) $this->encodePrimaryKey($design->id),
+            'name' => (string) $design->name,
+            'is_custom' => (bool) $design->is_custom,
+            'is_active' => (bool) $design->is_active,
             'design' => $design->design,
-            'updated_at' => (int)$design->updated_at,
-            'archived_at' => (int)$design->deleted_at,
-            'created_at' => (int)$design->created_at,
-            'is_deleted' => (bool)$design->is_deleted,
+            'updated_at' => (int) $design->updated_at,
+            'archived_at' => (int) $design->deleted_at,
+            'created_at' => (int) $design->created_at,
+            'is_deleted' => (bool) $design->is_deleted,
         ];
     }
 }

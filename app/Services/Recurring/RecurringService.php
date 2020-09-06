@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -9,14 +9,12 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-
 namespace App\Services\Recurring;
 
 use App\Models\RecurringInvoice;
 
 class RecurringService
 {
-
     protected $recurring_entity;
 
     public function __construct($recurring_entity)

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,15 +16,11 @@ use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\GetTransactionDetailsRequest;
 use net\authorize\api\controller\GetTransactionDetailsController;
 
-
 /**
- * Class AuthorizeTransactions
- * @package App\PaymentDrivers\Authorize
- *
+ * Class AuthorizeTransactions.
  */
 class AuthorizeTransactions
 {
-
     public $authorize;
 
     public function __construct(AuthorizePaymentDriver $authorize)
@@ -32,36 +28,33 @@ class AuthorizeTransactions
         $this->authorize = $authorize;
     }
 
-	function getTransactionDetails($transactionId)
-	{
-	    /* Create a merchantAuthenticationType object with authentication details
-	       retrieved from the constants file */
-	    $this->authorize->init();
-	    
-	    // Set the transaction's refId
-	    $refId = 'ref' . time();
+    public function getTransactionDetails($transactionId)
+    {
+        /* Create a merchantAuthenticationType object with authentication details
+           retrieved from the constants file */
+        $this->authorize->init();
 
-	    $request = new GetTransactionDetailsRequest();
-	    $request->setMerchantAuthentication($this->authorize->merchant_authentication);
-	    $request->setTransId($transactionId);
+        // Set the transaction's refId
+        $refId = 'ref'.time();
 
-	    $controller = new GetTransactionDetailsController($request);
+        $request = new GetTransactionDetailsRequest();
+        $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+        $request->setTransId($transactionId);
 
-	    $response = $controller->executeWithApiResponse($this->authorize->mode());
+        $controller = new GetTransactionDetailsController($request);
 
-	    if (($response != null) && ($response->getMessages()->getResultCode() == "Ok"))
-	    {
-	        info( "SUCCESS: Transaction Status:" . $response->getTransaction()->getTransactionStatus() );
-	        info( "                Auth Amount:" . $response->getTransaction()->getAuthAmount() );
-	        info( "                   Trans ID:" . $response->getTransaction()->getTransId() );
-	     }
-	    else
-	    {
-	        info( "ERROR :  Invalid response\n");
-	        $errorMessages = $response->getMessages()->getMessage();
-	        info( "Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() );
-	    }
+        $response = $controller->executeWithApiResponse($this->authorize->mode());
 
-	    return $response;
-  	}
+        if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
+            info('SUCCESS: Transaction Status:'.$response->getTransaction()->getTransactionStatus());
+            info('                Auth Amount:'.$response->getTransaction()->getAuthAmount());
+            info('                   Trans ID:'.$response->getTransaction()->getTransId());
+        } else {
+            info("ERROR :  Invalid response\n");
+            $errorMessages = $response->getMessages()->getMessage();
+            info('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText());
+        }
+
+        return $response;
+    }
 }

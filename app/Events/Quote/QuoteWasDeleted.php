@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -26,6 +26,7 @@ class QuoteWasDeleted
     public $company;
 
     public $event_vars;
+
     /**
      * Create a new event instance.
      *

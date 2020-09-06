@@ -25,6 +25,5 @@ class AddIsDeletedToGroupSettings extends Migration
      */
     public function down()
     {
-
     }
 }

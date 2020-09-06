@@ -37,7 +37,6 @@ class AddReminderSentFieldsToEntityTables extends Migration
             $table->date('reminder3_sent')->nullable();
             $table->date('reminder_last_sent')->nullable();
         });
-
     }
 
     /**
@@ -47,6 +46,5 @@ class AddReminderSentFieldsToEntityTables extends Migration
      */
     public function down()
     {
-
     }
 }

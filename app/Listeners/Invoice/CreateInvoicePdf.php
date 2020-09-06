@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,7 +18,6 @@ use Illuminate\Queue\InteractsWithQueue;
 
 class CreateInvoicePdf implements ShouldQueue
 {
-
     /**
      * Create the event listener.
      *
@@ -36,13 +35,10 @@ class CreateInvoicePdf implements ShouldQueue
      */
     public function handle($event)
     {
-
         MultiDB::setDb($event->company->db);
 
         $event->invoice->invitations->each(function ($invitation) {
-            
             PdfCreator::dispatch($invitation);
-
         });
     }
 }

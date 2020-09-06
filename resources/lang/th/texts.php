@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
 
     'organization' => 'องค์กร',
     'name' => 'ชื่อ',
@@ -1018,7 +1018,6 @@ $LANG = array(
     'trial_success' => 'เปิดใช้งานการทดลองใช้ฟรี Pro Plan สองสัปดาห์แล้ว',
     'overdue' => 'เกินกำหนด',
 
-
     'white_label_text' => 'ชำระเงินสำหรับ white label ไลเซนต์ 1 ปี ราคา :price เพื่อเอา logo invoice ninja ออกจากใบแจ้งหนี้และพอร์ทัลของลูกค้า',
     'user_email_footer' => 'หากต้องการปรับการตั้งค่าการแจ้งเตือนทางอีเมลโปรดไปที่ :link',
     'reset_password_footer' => 'หากคุณไม่ได้ขอให้รีเซ็ตรหัสผ่านนี้โปรดส่งอีเมลถึงฝ่ายสนับสนุนของเรา: :email',
@@ -1198,7 +1197,6 @@ $LANG = array(
     'enterprise_plan_features' => 'แผน Enterprise เพิ่มการสนับสนุนสำหรับผู้ใช้หลายคนและไฟล์แนบ :link  เพื่อดูรายการคุณสมบัติทั้งหมด',
     'return_to_app' => 'Return To App',
 
-
     // Payment updates
     'refund_payment' => 'การชำระเงินคืน',
     'refund_max' => 'สูงสุด:',
@@ -1307,7 +1305,6 @@ $LANG = array(
     'braintree_paypal_help_link_text' => 'เชื่อมโยง PayPal กับบัญชี BrainTree ของคุณ',
     'token_billing_braintree_paypal' => 'บันทึกรายละเอียดการชำระเงิน',
     'add_paypal_account' => 'เพิ่มบัญชี PayPal',
-
 
     'no_payment_method_specified' => 'ไม่ระบุวิธีการชำระเงิน',
     'chart_type' => 'ประเภทแผนภูมิ',
@@ -2867,6 +2864,6 @@ $LANG = array(
     'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
     'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
-);
+];
 
 return $LANG;

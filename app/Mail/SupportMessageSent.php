@@ -32,7 +32,7 @@ class SupportMessageSent extends Mailable
         $system_info = null;
         $log_lines = [];
 
-        /**
+        /*
          * With self-hosted version of Ninja,
          * we are going to bundle system-level info
          * and last 10 lines of laravel.log file.
@@ -47,7 +47,6 @@ class SupportMessageSent extends Mailable
             $lines = new \LimitIterator($log_file, $last_line - 10, $last_line);
 
             $log_lines = iterator_to_array($lines);
-            
         }
 
         $account = auth()->user()->account;
@@ -64,7 +63,7 @@ class SupportMessageSent extends Mailable
             ->markdown('email.support.message', [
                 'message' => $this->message,
                 'system_info' => $system_info,
-                'laravel_log' => $log_lines
+                'laravel_log' => $log_lines,
             ]);
     }
 }

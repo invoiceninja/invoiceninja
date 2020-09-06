@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -31,7 +31,7 @@ class GroupSettingController extends BaseController
     use DispatchesJobs;
     use Uploadable;
     use MakesHash;
-    
+
     protected $entity_type = GroupSetting::class;
 
     protected $entity_transformer = GroupSettingTransformer::class;
@@ -83,7 +83,6 @@ class GroupSettingController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index()
     {
@@ -129,7 +128,6 @@ class GroupSettingController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateGroupSettingRequest $request)
     {
@@ -176,7 +174,6 @@ class GroupSettingController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreGroupSettingRequest $request)
     {
@@ -186,7 +183,7 @@ class GroupSettingController extends BaseController
         $group_setting = GroupSettingFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
         $group_setting = $this->group_setting_repo->save($request->all(), $group_setting);
-        
+
         $this->uploadLogo($request->file('company_logo'), $group_setting->company, $group_setting);
 
         return $this->itemResponse($group_setting);
@@ -240,7 +237,6 @@ class GroupSettingController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowGroupSettingRequest $request, GroupSetting $group_setting)
     {
@@ -295,7 +291,6 @@ class GroupSettingController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditGroupSettingRequest $request, GroupSetting $group_setting)
     {
@@ -351,12 +346,11 @@ class GroupSettingController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateGroupSettingRequest $request, GroupSetting $group_setting)
     {
         $group_setting = $this->group_setting_repo->save($request->all(), $group_setting);
-    
+
         $this->uploadLogo($request->file('company_logo'), $group_setting->company, $group_setting);
 
         return $this->itemResponse($group_setting);
@@ -409,7 +403,6 @@ class GroupSettingController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyGroupSettingRequest $request, GroupSetting $group_setting)
     {
@@ -419,7 +412,7 @@ class GroupSettingController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @return Collection
      *
@@ -467,18 +460,16 @@ class GroupSettingController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
-
         $action = request()->input('action');
 
         $ids = request()->input('ids');
 
         $group_settings = GroupSetting::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (!$group_settings) {
+        if (! $group_settings) {
             return response()->json(['message' => 'No Group Settings Found']);
         }
 

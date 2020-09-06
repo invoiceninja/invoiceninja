@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,7 +24,7 @@ class Account extends BaseModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Models\Presenters\AccountPresenter';
+    protected $presenter = \App\Models\Presenters\AccountPresenter::class;
 
     /**
      * @var array
@@ -53,42 +53,41 @@ class Account extends BaseModel
         'discount_expires',
     ];
 
-    const PLAN_FREE         = 'free';
-    const PLAN_PRO          = 'pro';
-    const PLAN_ENTERPRISE   = 'enterprise';
-    const PLAN_WHITE_LABEL  = 'white_label';
+    const PLAN_FREE = 'free';
+    const PLAN_PRO = 'pro';
+    const PLAN_ENTERPRISE = 'enterprise';
+    const PLAN_WHITE_LABEL = 'white_label';
     const PLAN_TERM_MONTHLY = 'month';
-    const PLAN_TERM_YEARLY  = 'year';
+    const PLAN_TERM_YEARLY = 'year';
 
-    const FEATURE_TASKS                     = 'tasks';
-    const FEATURE_EXPENSES                  = 'expenses';
-    const FEATURE_QUOTES                    = 'quotes';
-    const FEATURE_CUSTOMIZE_INVOICE_DESIGN  = 'custom_designs';
-    const FEATURE_DIFFERENT_DESIGNS         = 'different_designs';
+    const FEATURE_TASKS = 'tasks';
+    const FEATURE_EXPENSES = 'expenses';
+    const FEATURE_QUOTES = 'quotes';
+    const FEATURE_CUSTOMIZE_INVOICE_DESIGN = 'custom_designs';
+    const FEATURE_DIFFERENT_DESIGNS = 'different_designs';
     const FEATURE_EMAIL_TEMPLATES_REMINDERS = 'template_reminders';
-    const FEATURE_INVOICE_SETTINGS          = 'invoice_settings';
-    const FEATURE_CUSTOM_EMAILS             = 'custom_emails';
-    const FEATURE_PDF_ATTACHMENT            = 'pdf_attachments';
-    const FEATURE_MORE_INVOICE_DESIGNS      = 'more_invoice_designs';
-    const FEATURE_REPORTS                   = 'reports';
-    const FEATURE_BUY_NOW_BUTTONS           = 'buy_now_buttons';
-    const FEATURE_API                       = 'api';
-    const FEATURE_CLIENT_PORTAL_PASSWORD    = 'client_portal_password';
-    const FEATURE_CUSTOM_URL                = 'custom_url';
-    const FEATURE_MORE_CLIENTS              = 'more_clients';
-    const FEATURE_WHITE_LABEL               = 'white_label';
-    const FEATURE_REMOVE_CREATED_BY         = 'remove_created_by';
-    const FEATURE_USERS                     = 'users'; // Grandfathered for old Pro users
-    const FEATURE_DOCUMENTS                 = 'documents';
-    const FEATURE_USER_PERMISSIONS          = 'permissions';
+    const FEATURE_INVOICE_SETTINGS = 'invoice_settings';
+    const FEATURE_CUSTOM_EMAILS = 'custom_emails';
+    const FEATURE_PDF_ATTACHMENT = 'pdf_attachments';
+    const FEATURE_MORE_INVOICE_DESIGNS = 'more_invoice_designs';
+    const FEATURE_REPORTS = 'reports';
+    const FEATURE_BUY_NOW_BUTTONS = 'buy_now_buttons';
+    const FEATURE_API = 'api';
+    const FEATURE_CLIENT_PORTAL_PASSWORD = 'client_portal_password';
+    const FEATURE_CUSTOM_URL = 'custom_url';
+    const FEATURE_MORE_CLIENTS = 'more_clients';
+    const FEATURE_WHITE_LABEL = 'white_label';
+    const FEATURE_REMOVE_CREATED_BY = 'remove_created_by';
+    const FEATURE_USERS = 'users'; // Grandfathered for old Pro users
+    const FEATURE_DOCUMENTS = 'documents';
+    const FEATURE_USER_PERMISSIONS = 'permissions';
 
     const RESULT_FAILURE = 'failure';
     const RESULT_SUCCESS = 'success';
 
-
     public function getEntityType()
     {
-        return Account::class;
+        return self::class;
     }
 
     public function users()
@@ -100,6 +99,7 @@ class Account extends BaseModel
     {
         return $this->hasOne(Company::class, 'id', 'default_company_id');
     }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -123,14 +123,13 @@ class Account extends BaseModel
         return $this->plan ?: '';
     }
 
-
     public function hasFeature($feature)
     {
         $plan_details = $this->getPlanDetails();
         $self_host = ! Ninja::isNinja();
 
         switch ($feature) {
-            
+
             case self::FEATURE_TASKS:
             case self::FEATURE_EXPENSES:
             case self::FEATURE_QUOTES:
@@ -201,15 +200,16 @@ class Account extends BaseModel
     {
         if (! Ninja::isNinja()) {
             return false;
-        } 
+        }
 
         return $this->plan == 'free';
     }
 
     public function isEnterpriseClient()
     {
-        if(!Ninja::isNinja())
+        if (! Ninja::isNinja()) {
             return false;
+        }
 
         return $this->plan == 'enterprise';
     }

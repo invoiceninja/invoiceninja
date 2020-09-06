@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -34,7 +34,7 @@ class CompanyFactory
         //$company->custom_fields = (object) ['invoice1' => '1', 'invoice2' => '2', 'client1'=>'3'];
         $company->custom_fields = (object) [];
         $company->subdomain = '';
-        $company->enabled_modules = config('ninja.enabled_modules'); //32767;//8191; //4095 
+        $company->enabled_modules = config('ninja.enabled_modules'); //32767;//8191; //4095
 
         return $company;
     }

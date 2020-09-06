@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,9 +28,9 @@ class EmailController extends BaseController
 {
     use MakesHash;
 
-    protected $entity_type = Invoice::class ;
+    protected $entity_type = Invoice::class;
 
-    protected $entity_transformer = InvoiceTransformer::class ;
+    protected $entity_transformer = InvoiceTransformer::class;
 
     public function __construct()
     {
@@ -38,7 +38,7 @@ class EmailController extends BaseController
     }
 
     /**
-     * Returns a template filled with entity variables
+     * Returns a template filled with entity variables.
      *
      * @return \Illuminate\Http\Response
      *
@@ -115,36 +115,31 @@ class EmailController extends BaseController
         $entity_string = strtolower(class_basename($entity_obj));
 
         $entity_obj->invitations->each(function ($invitation) use ($subject, $body, $entity_string, $entity_obj) {
-
             if ($invitation->contact->send_email && $invitation->contact->email) {
-
                 $when = now()->addSeconds(1);
 
                 $invitation->contact->notify((new SendGenericNotification($invitation, $entity_string, $subject, $body))->delay($when));
-
             }
-            
         });
 
         /*Only notify the admin ONCE, not once per contact/invite*/
         $invitation = $entity_obj->invitations->first();
 
-        EntitySentMailer::dispatch($invitation, $entity_string, $entity_obj->user, $invitation->company); 
+        EntitySentMailer::dispatch($invitation, $entity_string, $entity_obj->user, $invitation->company);
 
-        
         if ($this instanceof Invoice) {
-            $this->entity_type = Invoice::class ;
-            $this->entity_transformer = InvoiceTransformer::class ;
+            $this->entity_type = Invoice::class;
+            $this->entity_transformer = InvoiceTransformer::class;
         }
 
         if ($this instanceof Quote) {
-            $this->entity_type = Quote::class ;
-            $this->entity_transformer = QuoteTransformer::class ;
+            $this->entity_type = Quote::class;
+            $this->entity_transformer = QuoteTransformer::class;
         }
 
         if ($this instanceof Credit) {
-            $this->entity_type = Credit::class ;
-            $this->entity_transformer = CreditTransformer::class ;
+            $this->entity_type = Credit::class;
+            $this->entity_transformer = CreditTransformer::class;
         }
 
         $entity_obj->service()->markSent()->save();

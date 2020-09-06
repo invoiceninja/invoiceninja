@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,8 +15,7 @@ use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class ValidCompanyGatewayFeesAndLimitsRule
- * @package App\Http\ValidationRules
+ * Class ValidCompanyGatewayFeesAndLimitsRule.
  */
 class ValidCompanyGatewayFeesAndLimitsRule implements Rule
 {
@@ -27,7 +26,6 @@ class ValidCompanyGatewayFeesAndLimitsRule implements Rule
      * @param mixed $value
      * @return bool
      */
-    
     public $return_data;
 
     public function passes($attribute, $value)
@@ -36,6 +34,7 @@ class ValidCompanyGatewayFeesAndLimitsRule implements Rule
 
         if (is_array($data)) {
             $this->return_data = $data;
+
             return false;
         } else {
             return true;
@@ -47,6 +46,6 @@ class ValidCompanyGatewayFeesAndLimitsRule implements Rule
      */
     public function message()
     {
-        return $this->return_data[0]." is not a valid ".$this->return_data[1];
+        return $this->return_data[0].' is not a valid '.$this->return_data[1];
     }
 }

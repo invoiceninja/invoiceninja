@@ -19,7 +19,6 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /** @test*/
-
 class UpdateCompanyLedgerTest extends TestCase
 {
     use MockAccountData;
@@ -44,7 +43,7 @@ class UpdateCompanyLedgerTest extends TestCase
                                 ->orderBy('id', 'DESC')
                                 ->first();
 
-        $payment = $ledger->adjustment * - 1;
+        $payment = $ledger->adjustment * -1;
         $this->assertEquals($invoice->amount, $payment);
     }
 
@@ -53,13 +52,9 @@ class UpdateCompanyLedgerTest extends TestCase
      */
     public function testInvoiceIsPresentInLedger()
     {
-        //$this->invoice->save();
 
-        $ledger = CompanyLedger::whereCompanyLedgerableId($this->invoice->id)
-                                    ->whereCompanyLedgerableType(Invoice::class)
-                                    ->whereCompanyId($this->invoice->company_id)
-                                    ->get();
+        $invoice = $this->invoice->service()->markPaid()->save();
 
-        $this->assertGreaterThan(1, count($ledger));
+        $this->assertGreaterThan(0, $invoice->company_ledger()->count());
     }
 }

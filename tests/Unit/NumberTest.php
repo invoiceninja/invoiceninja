@@ -35,22 +35,18 @@ class NumberTest extends TestCase
 
     public function testParsingFloats()
     {
-
-        Currency::all()->each(function ($currency){
-
+        Currency::all()->each(function ($currency) {
             $amount = 123456789.12;
 
             $formatted_amount = Number::formatValue($amount, $currency);
 
             $float_amount = Number::parseFloat($formatted_amount);
 
-            if($currency->precision == 0){
+            if ($currency->precision == 0) {
                 $this->assertEquals(123456789, $float_amount);
-            }
-            else
+            } else {
                 $this->assertEquals($amount, $float_amount);
-
+            }
         });
-
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -44,8 +44,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class ClientController
- * @package App\Http\Controllers
+ * Class ClientController.
  * @covers App\Http\Controllers\ClientController
  */
 class ClientController extends BaseController
@@ -108,7 +107,6 @@ class ClientController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(ClientFilters $filters)
     {
@@ -165,7 +163,6 @@ class ClientController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowClientRequest $request, Client $client)
     {
@@ -220,7 +217,6 @@ class ClientController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditClientRequest $request, Client $client)
     {
@@ -277,7 +273,6 @@ class ClientController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
@@ -329,7 +324,6 @@ class ClientController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateClientRequest $request)
     {
@@ -376,7 +370,6 @@ class ClientController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreClientRequest $request)
     {
@@ -438,7 +431,6 @@ class ClientController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyClientRequest $request, Client $client)
     {
@@ -449,7 +441,7 @@ class ClientController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @param BulkClientRequest $request
      * @return \Illuminate\Http\Response
@@ -503,21 +495,21 @@ class ClientController extends BaseController
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
         $clients = Client::withTrashed()->find($this->transformKeys($ids));
-        
+
         $clients->each(function ($client, $key) use ($action) {
             if (auth()->user()->can('edit', $client)) {
                 $this->client_repo->{$action}($client);
             }
         });
-        
+
         return $this->listResponse(Client::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 
     /**
-     * Returns a client statement
+     * Returns a client statement.
      *
      * @return [type] [description]
      */

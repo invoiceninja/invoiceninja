@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -19,12 +19,12 @@ use Illuminate\Support\Facades\Log;
 class UpdateDesignRequest extends Request
 {
     use ChecksEntityStatus;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->isAdmin();
@@ -39,11 +39,11 @@ class UpdateDesignRequest extends Request
     {
         $input = $this->all();
 
-        if (!array_key_exists('product', $input['design']) || is_null($input['design']['product'])) {
+        if (! array_key_exists('product', $input['design']) || is_null($input['design']['product'])) {
             $input['design']['product'] = '';
         }
 
-        if (!array_key_exists('task', $input['design']) || is_null($input['design']['task'])) {
+        if (! array_key_exists('task', $input['design']) || is_null($input['design']['task'])) {
             $input['design']['task'] = '';
         }
 

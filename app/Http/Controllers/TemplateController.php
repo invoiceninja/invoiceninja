@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -31,7 +31,7 @@ class TemplateController extends BaseController
     }
 
     /**
-     * Returns a template filled with entity variables
+     * Returns a template filled with entity variables.
      *
      * @return \Illuminate\Http\Response
      *
@@ -93,9 +93,7 @@ class TemplateController extends BaseController
         $template = request()->has('template') ? request()->input('template') : '';
 
         $data = (new TemplateEngine($body, $subject, $entity, $entity_id, $template))->build();
-        
 
         return response()->json($data, 200);
     }
-
 }

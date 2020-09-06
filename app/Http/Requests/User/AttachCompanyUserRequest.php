@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -19,12 +19,12 @@ use App\Utils\Traits\MakesHash;
 class AttachCompanyUserRequest extends Request
 {
     use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->isAdmin();
@@ -35,8 +35,8 @@ class AttachCompanyUserRequest extends Request
         $is_admin = request()->has('is_admin') ? request()->input('is_admin') : false;
         $permissions = request()->has('permissions') ? request()->input('permissions') : '';
         $settings = request()->has('settings') ? request()->input('settings') : json_encode(DefaultSettings::userSettings());
-        $is_locked =request()->has('is_locked') ? request()->input('is_locked') : false;
-        
+        $is_locked = request()->has('is_locked') ? request()->input('is_locked') : false;
+
         $this->replace([
             'is_admin' => $is_admin,
             'permissions' => $permissions,

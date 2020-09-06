@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -30,7 +30,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 /**
- * PaymentMigrationRepository
+ * PaymentMigrationRepository.
  */
 class PaymentMigrationRepository extends BaseRepository
 {
@@ -69,7 +69,7 @@ class PaymentMigrationRepository extends BaseRepository
     }
 
     /**
-     * Handles a positive payment request
+     * Handles a positive payment request.
      * @param  array $data      The data object
      * @param  Payment $payment The $payment entity
      * @return Payment          The updated/created payment object
@@ -78,15 +78,14 @@ class PaymentMigrationRepository extends BaseRepository
     {
 
         //check currencies here and fill the exchange rate data if necessary
-        if (!$payment->id) {
+        if (! $payment->id) {
             $this->processExchangeRates($data, $payment);
 
             /*We only update the paid to date ONCE per payment*/
             if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
-
-                if($data['amount'] == '')
+                if ($data['amount'] == '') {
                     $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
-            
+                }
             }
         }
 
@@ -96,7 +95,7 @@ class PaymentMigrationRepository extends BaseRepository
         $payment->save();
 
         /*Ensure payment number generated*/
-        if (!$payment->number || strlen($payment->number) == 0) {
+        if (! $payment->number || strlen($payment->number) == 0) {
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
         }
 
@@ -105,19 +104,17 @@ class PaymentMigrationRepository extends BaseRepository
 
         /*Iterate through invoices and apply payments*/
         if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
-
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
-            
+
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
             $payment->invoices()->saveMany($invoices);
-            
-            $payment->invoices->each(function ($inv) use($invoice_totals){
+
+            $payment->invoices->each(function ($inv) use ($invoice_totals) {
                 $inv->pivot->amount = $invoice_totals;
                 $inv->pivot->save();
             });
-
-        } 
+        }
 
         $fields = new \stdClass;
 
@@ -126,7 +123,7 @@ class PaymentMigrationRepository extends BaseRepository
         $fields->company_id = $payment->company_id;
         $fields->activity_type_id = Activity::CREATE_PAYMENT;
 
-        foreach ($payment->invoices as $invoice) { 
+        foreach ($payment->invoices as $invoice) {
             $fields->invoice_id = $invoice->id;
 
             $this->activity_repo->save($fields, $invoice, Ninja::eventVars());
@@ -136,7 +133,7 @@ class PaymentMigrationRepository extends BaseRepository
             $this->activity_repo->save($fields, $payment, Ninja::eventVars());
         }
 
-       if ($invoice_totals == $payment->amount) {
+        if ($invoice_totals == $payment->amount) {
             $payment->applied += $payment->amount;
         } elseif ($invoice_totals < $payment->amount) {
             $payment->applied += $invoice_totals;
@@ -147,14 +144,12 @@ class PaymentMigrationRepository extends BaseRepository
         return $payment->fresh();
     }
 
-
     /**
      * If the client is paying in a currency other than
-     * the company currency, we need to set a record
+     * the company currency, we need to set a record.
      */
     private function processExchangeRates($data, $payment)
     {
-
         $client = Client::find($data['client_id']);
 
         $client_currency = $client->getSetting('currency_id');
@@ -175,20 +170,21 @@ class PaymentMigrationRepository extends BaseRepository
     public function delete($payment)
     {
         //cannot double delete a payment
-        if($payment->is_deleted)
+        if ($payment->is_deleted) {
             return;
+        }
 
         $payment->service()->deletePayment();
 
         return parent::delete($payment);
-
     }
 
     public function restore($payment)
     {
         //we cannot restore a deleted payment.
-        if($payment->is_deleted)
+        if ($payment->is_deleted) {
             return;
+        }
 
         return parent::restore($payment);
     }

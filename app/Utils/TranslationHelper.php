@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -56,7 +56,7 @@ class TranslationHelper
     public static function getCurrencies()
     {
         return Cache::get('currencies')->each(function ($currency) {
-            $currency->name = ctrans('texts.currency_' . Str::slug($currency->name, '_'));
+            $currency->name = ctrans('texts.currency_'.Str::slug($currency->name, '_'));
         })->sortBy(function ($currency) {
             return $currency->name;
         });
@@ -65,7 +65,8 @@ class TranslationHelper
     public static function getPaymentTerms()
     {
         return PaymentTerm::getCompanyTerms()->map(function ($term) {
-            $term['name'] = ctrans('texts.payment_terms_net') . ' ' . $term['num_days'];
+            $term['name'] = ctrans('texts.payment_terms_net').' '.$term['num_days'];
+
             return $term;
         });
     }

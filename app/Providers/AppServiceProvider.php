@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -56,8 +56,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Relation::morphMap([
-            'invoices' => '\App\Models\Invoice',
-            'proposals' => '\App\Models\Proposal',
+            'invoices' => \App\Models\Invoice::class,
+            'proposals' => \App\Models\Proposal::class,
         ]);
 
         Blade::if('env', function ($environment) {
@@ -79,7 +79,6 @@ class AppServiceProvider extends ServiceProvider
         Proposal::observe(ProposalObserver::class);
         Quote::observe(QuoteObserver::class);
         Task::observe(TaskObserver::class);
-
 
         // Queue::before(function (JobProcessing $event) {
         //     // \Log::info('Event Job '.$event->connectionName);

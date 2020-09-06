@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,7 +21,6 @@ class StoreDocumentRequest extends Request
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return true;
@@ -30,7 +29,7 @@ class StoreDocumentRequest extends Request
     public function rules()
     {
         return [
-            'file' => 'required|max:10000|mimes:png,svg,jpeg,gif,jpg,bmp'
+            'file' => 'required|max:10000|mimes:png,svg,jpeg,gif,jpg,bmp',
         ];
     }
 

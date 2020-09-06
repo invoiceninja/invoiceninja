@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -29,8 +29,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Class DesignController
- * @package App\Http\Controllers
+ * Class DesignController.
  */
 class DesignController extends BaseController
 {
@@ -85,7 +84,6 @@ class DesignController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(DesignFilters $filters)
     {
@@ -142,7 +140,6 @@ class DesignController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowDesignRequest $request, Design $design)
     {
@@ -197,7 +194,6 @@ class DesignController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditDesignRequest $request, Design $design)
     {
@@ -254,7 +250,6 @@ class DesignController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateDesignRequest $request, Design $design)
     {
@@ -305,7 +300,6 @@ class DesignController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateDesignRequest $request)
     {
@@ -352,7 +346,6 @@ class DesignController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreDesignRequest $request)
     {
@@ -410,7 +403,6 @@ class DesignController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyDesignRequest $request, Design $design)
     {
@@ -423,7 +415,7 @@ class DesignController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @param BulkDesignRequest $request
      * @return \Illuminate\Http\Response
@@ -477,17 +469,17 @@ class DesignController extends BaseController
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
 
         $designs = Design::withTrashed()->find($this->transformKeys($ids));
-        
+
         $designs->each(function ($design, $key) use ($action) {
             if (auth()->user()->can('edit', $design)) {
                 $this->design_repo->{$action}($design);
             }
         });
-        
+
         return $this->listResponse(Design::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 }

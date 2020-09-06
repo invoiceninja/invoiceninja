@@ -1,6 +1,6 @@
 <?php
 /**
- * Credit Ninja (https://creditninja.com)
+ * Credit Ninja (https://creditninja.com).
  *
  * @link https://github.com/creditninja/creditninja source repository
  *
@@ -17,8 +17,7 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class UniqueCreditNumberRule
- * @package App\Http\ValidationRules
+ * Class UniqueCreditNumberRule.
  */
 class UniqueCreditNumberRule implements Rule
 {
@@ -29,7 +28,7 @@ class UniqueCreditNumberRule implements Rule
         $this->input = $input;
     }
 
-     /**
+    /**
      * @param string $attribute
      * @param mixed $value
      * @return bool
@@ -44,26 +43,26 @@ class UniqueCreditNumberRule implements Rule
      */
     public function message()
     {
-        return "Credit number already taken";
+        return 'Credit number already taken';
     }
 
     /**
      * @param $email
      *
      * //off,when_sent,when_paid
-     * 
+     *
      * @return bool
      */
     private function checkIfCreditNumberUnique() : bool
     {
-
         $credit = Credit::where('client_id', $this->input['client_id'])
                         ->where('number', $this->input['number'])
                         ->withTrashed()
                         ->exists();
 
-        if($credit)
+        if ($credit) {
             return false;
+        }
 
         return true;
     }

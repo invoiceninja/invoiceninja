@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,10 +12,10 @@
 
 namespace App\Services\PdfMaker;
 
-use Illuminate\Support\Str;
-use App\Utils\Traits\MakesInvoiceValues;
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
+use App\Utils\Traits\MakesInvoiceValues;
+use Illuminate\Support\Str;
 
 class Design extends BaseDesign
 {
@@ -60,7 +60,7 @@ class Design extends BaseDesign
             : config('ninja.designs.base_path');
 
         return file_get_contents(
-            $path . $this->design
+            $path.$this->design
         );
     }
 
@@ -153,7 +153,7 @@ class Design extends BaseDesign
 
         foreach ($variables as $variable) {
             $elements[] = ['element' => 'tr', 'properties' => ['hidden' => $this->entityVariableCheck($variable)], 'elements' => [
-                ['element' => 'th', 'content' => $variable . '_label'],
+                ['element' => 'th', 'content' => $variable.'_label'],
                 ['element' => 'th', 'content' => $variable],
             ]];
         }
@@ -177,7 +177,7 @@ class Design extends BaseDesign
         $elements = [];
 
         foreach ($this->context['pdf_variables']["{$this->type}_columns"] as $column) {
-            $elements[] = ['element' => 'th', 'content' => $column . '_label'];
+            $elements[] = ['element' => 'th', 'content' => $column.'_label'];
         }
 
         return $elements;
@@ -223,7 +223,7 @@ class Design extends BaseDesign
 
             $elements[] = ['element' => 'tr', 'elements' => [
                 ['element' => 'td', 'properties' => ['colspan' => $this->calculateColspan(2)]],
-                ['element' => 'td', 'content' => $variable . '_label'],
+                ['element' => 'td', 'content' => $variable.'_label'],
                 ['element' => 'td', 'content' => $variable],
             ]];
         }

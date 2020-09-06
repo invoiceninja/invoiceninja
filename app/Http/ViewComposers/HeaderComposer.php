@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,12 +14,10 @@ namespace App\Http\ViewComposers;
 use Illuminate\View\View;
 
 /**
- * Class HeaderComposer
- * @package App\Http\ViewComposers
+ * Class HeaderComposer.
  */
 class HeaderComposer
 {
-
     /**
      * Bind data to the view.
      *
@@ -36,10 +34,10 @@ class HeaderComposer
      */
     private function headerData()
     {
-        if (!auth()->user()) {
+        if (! auth()->user()) {
             return [];
         }
-        
+
         $companies = auth()->user()->companies;
 
         //companies

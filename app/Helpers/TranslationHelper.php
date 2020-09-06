@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -11,7 +11,7 @@
 
 /**
  * Returns a custom translation string
- * falls back on defaults if no string exists
+ * falls back on defaults if no string exists.
  *
  * //Cache::forever($custom_company_translated_string, 'mogly');
  *
@@ -21,6 +21,6 @@
 function ctrans(string $string, $replace = [], $locale = null) : string
 {
     //todo pass through the cached version of the custom strings here else return trans();
-    
+
     return trans($string, $replace, $locale);
 }

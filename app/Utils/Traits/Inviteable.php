@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,13 +12,10 @@
 namespace App\Utils\Traits;
 
 /**
- * Class Inviteable
- * @package App\Utils\Traits
+ * Class Inviteable.
  */
 trait Inviteable
 {
-
-
     /**
      * Gets the status.
      *
@@ -40,7 +37,6 @@ trait Inviteable
             $status = ctrans('texts.invitation_status_viewed');
         }
 
-
         return $status;
     }
 
@@ -55,14 +51,14 @@ trait Inviteable
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
-                return $domain .'client/'. $entity_type .'/'. $this->key;
+                return $domain.'client/'.$entity_type.'/'.$this->key;
                 break;
             case 'iframe':
-                return $domain .'client/'. $entity_type .'/'. $this->key;
+                return $domain.'client/'.$entity_type.'/'.$this->key;
                 //return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
                 break;
             case 'domain':
-                return $domain .'client/'. $entity_type .'/'. $this->key;
+                return $domain.'client/'.$entity_type.'/'.$this->key;
                 break;
 
         }
@@ -70,6 +66,6 @@ trait Inviteable
 
     public function getAdminLink() :string
     {
-        return $this->getLink(). '?silent=true';
+        return $this->getLink().'?silent=true';
     }
 }

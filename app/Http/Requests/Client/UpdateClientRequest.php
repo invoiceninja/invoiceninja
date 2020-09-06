@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -26,12 +26,12 @@ class UpdateClientRequest extends Request
 {
     use MakesHash;
     use ChecksEntityStatus;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('edit', $this->client);
@@ -45,19 +45,19 @@ class UpdateClientRequest extends Request
             $documents = count($this->input('documents'));
 
             foreach (range(0, $documents) as $index) {
-                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+                $rules['documents.'.$index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
-        
+
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
         $rules['industry_id'] = 'integer|nullable';
         $rules['size_id'] = 'integer|nullable';
         $rules['country_id'] = 'integer|nullable';
         $rules['shipping_country_id'] = 'integer|nullable';
         //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
-        $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
+        $rules['id_number'] = 'unique:clients,id_number,'.$this->id.',id,company_id,'.$this->company_id;
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
         $rules['contacts.*.password'] = [
@@ -87,7 +87,7 @@ class UpdateClientRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-        
+
         if (isset($input['group_settings_id'])) {
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
         }
@@ -104,13 +104,12 @@ class UpdateClientRequest extends Request
                     $input['contacts'][$key]['id'] = $this->decodePrimaryKey($contact['id']);
                 }
 
-
                 //Filter the client contact password - if it is sent with ***** we should ignore it!
                 if (isset($contact['password'])) {
                     if (strlen($contact['password']) == 0) {
                         $input['contacts'][$key]['password'] = '';
                     } else {
-                        $contact['password'] = str_replace("*", "", $contact['password']);
+                        $contact['password'] = str_replace('*', '', $contact['password']);
 
                         if (strlen($contact['password']) == 0) {
                             unset($input['contacts'][$key]['password']);
@@ -120,20 +119,20 @@ class UpdateClientRequest extends Request
             }
         }
 
-        if(array_key_exists('settings', $input))
+        if (array_key_exists('settings', $input)) {
             $input['settings'] = $this->filterSaveableSettings($input['settings']);
+        }
 
         $this->replace($input);
     }
 
-
     /**
      * For the hosted platform, we restrict the feature settings.
      *
-     * This method will trim the company settings object 
-     * down to the free plan setting properties which 
+     * This method will trim the company settings object
+     * down to the free plan setting properties which
      * are saveable
-     * 
+     *
      * @param  object $settings
      * @return object $settings
      */
@@ -141,19 +140,18 @@ class UpdateClientRequest extends Request
     {
         $account = $this->client->company->account;
 
-        if(!$account->isFreeHostedClient())
+        if (! $account->isFreeHostedClient()) {
             return $settings;
+        }
 
         $saveable_casts = CompanySettings::$free_plan_casts;
 
-        foreach($settings as $key => $value){
-
-            if(!array_key_exists($key, $saveable_casts))
+        foreach ($settings as $key => $value) {
+            if (! array_key_exists($key, $saveable_casts)) {
                 unset($settings->{$key});
-
+            }
         }
-        
-        return $settings;
 
+        return $settings;
     }
 }

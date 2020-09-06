@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,8 +15,7 @@ use App\Models\Client;
 use App\Models\SystemLog;
 
 /**
- * Class SystemLogTrait
- * @package App\Utils\Traits
+ * Class SystemLogTrait.
  */
 trait SystemLogTrait
 {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -8,7 +8,6 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-
 
 namespace App\Http\Controllers;
 
@@ -63,7 +62,6 @@ class CompanyLedgerController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(ShowCompanyLedgerRequest $request)
     {

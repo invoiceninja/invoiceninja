@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,8 +18,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class ValidCreditsPresentRule
- * @package App\Http\ValidationRules
+ * Class ValidCreditsPresentRule.
  */
 class ValidCreditsPresentRule implements Rule
 {
@@ -46,12 +45,12 @@ class ValidCreditsPresentRule implements Rule
     private function validCreditsPresent() :bool
     {
         //todo need to ensure the clients credits are here not random ones!
-        
+
         if (request()->input('credits') && is_array(request()->input('credits'))) {
             foreach (request()->input('credits') as $credit) {
                 $cred = Credit::find($this->decodePrimaryKey($credit['credit_id']));
 
-                if (!$cred || $cred->balance == 0) {
+                if (! $cred || $cred->balance == 0) {
                     return false;
                 }
             }

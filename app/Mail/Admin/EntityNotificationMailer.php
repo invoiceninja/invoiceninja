@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,7 +16,6 @@ use Illuminate\Mail\Mailable;
 
 class EntityNotificationMailer extends Mailable
 {
-
     public $mail_obj;
 
     /**
@@ -40,7 +39,7 @@ class EntityNotificationMailer extends Mailable
                     ->subject($this->mail_obj->subject)
                     ->markdown($this->mail_obj->markdown, $this->mail_obj->data)
                     ->withSwiftMessage(function ($message) {
-                            $message->getHeaders()->addTextHeader('Tag', $this->mail_obj->tag);
-                        });
+                        $message->getHeaders()->addTextHeader('Tag', $this->mail_obj->tag);
+                    });
     }
 }

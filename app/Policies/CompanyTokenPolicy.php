@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,8 +14,7 @@ namespace App\Policies;
 use App\Models\User;
 
 /**
- * Class CompanyTokenPolicy
- * @package App\Policies
+ * Class CompanyTokenPolicy.
  */
 class CompanyTokenPolicy extends EntityPolicy
 {

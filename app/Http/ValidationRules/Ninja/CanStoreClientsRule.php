@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,12 +15,10 @@ use App\Models\Company;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class CanStoreClientsRule
- * @package App\Http\ValidationRules
+ * Class CanStoreClientsRule.
  */
 class CanStoreClientsRule implements Rule
 {
-
     public $company_id;
 
     public function __construct($company_id)
@@ -47,5 +45,4 @@ class CanStoreClientsRule implements Rule
     {
         return ctrans('texts.limit_clients', ['count' => config('ninja.quotas.free.clients')]);
     }
-
 }

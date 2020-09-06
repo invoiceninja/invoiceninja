@@ -24,7 +24,7 @@ class PrimaryKeyTransformationTest extends TestCase
     public function testTransformationArray()
     {
         $keys = [
-            $this->encodePrimaryKey(310), $this->encodePrimaryKey(311)
+            $this->encodePrimaryKey(310), $this->encodePrimaryKey(311),
         ];
 
         $transformed_keys = $this->transformKeys($keys);

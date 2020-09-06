@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,26 +12,25 @@
 namespace App\DataMapper;
 
 /**
- * EmailSpooledForSend
+ * EmailSpooledForSend.
  *
- * Stubbed class used to store the meta data 
+ * Stubbed class used to store the meta data
  * for an email that was unable to be sent
  * for a reason such as:
- * 
+ *
  *  - Quota exceeded
  *  - SMTP issues
  *  - Upstream connectivity
- *  
  */
 class EmailSpooledForSend
 {
-	public $entity_name;
+    public $entity_name;
 
-	public $invitation_key = '';
+    public $invitation_key = '';
 
-	public $reminder_template = '';
+    public $reminder_template = '';
 
-	public $subject = '';
+    public $subject = '';
 
-	public $body = '';
+    public $body = '';
 }

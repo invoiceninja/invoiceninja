@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,7 +21,6 @@ class CreateCompanyRequest extends Request
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('create', Company::class);

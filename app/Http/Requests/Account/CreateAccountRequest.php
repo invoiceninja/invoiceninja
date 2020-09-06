@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,7 +16,6 @@ use App\Http\ValidationRules\NewUniqueUserRule;
 
 class CreateAccountRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -42,7 +41,7 @@ class CreateAccountRequest extends Request
             'email'             => 'bail|required|email',
             'email'             => new NewUniqueUserRule(),
             'privacy_policy'    => 'required',
-            'terms_of_service'  => 'required'
+            'terms_of_service'  => 'required',
         ];
     }
 

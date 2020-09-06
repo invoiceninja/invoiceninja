@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,7 +12,7 @@
 namespace App\Helpers\Invoice;
 
 /**
- * Class for discount calculations
+ * Class for discount calculations.
  */
 trait Balancer
 {

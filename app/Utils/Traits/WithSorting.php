@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,7 +20,7 @@ trait WithSorting
     public function sortBy($field)
     {
         $this->sort_field === $field
-            ? $this->sort_asc = !$this->sort_asc
+            ? $this->sort_asc = ! $this->sort_asc
             : $this->sort_asc = true;
 
         $this->sort_field = $field;

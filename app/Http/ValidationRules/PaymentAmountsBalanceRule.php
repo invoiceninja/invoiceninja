@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,12 +16,10 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class PaymentAmountsBalanceRule
- * @package App\Http\ValidationRules
+ * Class PaymentAmountsBalanceRule.
  */
 class PaymentAmountsBalanceRule implements Rule
 {
-
     /**
      * @param string $attribute
      * @param mixed $value
@@ -42,13 +40,13 @@ class PaymentAmountsBalanceRule implements Rule
 
     private function calculateAmounts() :bool
     {
-        /**
+        /*
          * Sometimes the request may not contain the amount or it may be zero,
          * and this is a valid use case, only compare the amounts if they
          * have been presented!
          */
 
-        if (!request()->has('amount')) {
+        if (! request()->has('amount')) {
             return true;
         }
 

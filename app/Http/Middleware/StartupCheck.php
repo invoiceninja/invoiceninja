@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -39,10 +39,10 @@ class StartupCheck
     public function handle(Request $request, Closure $next)
     {
         // $start = microtime(true);
-        
+
         /* Make sure our cache is built */
         $cached_tables = config('ninja.cached_tables');
-        
+
         foreach ($cached_tables as $name => $class) {
             if ($request->has('clear_cache') || ! Cache::has($name)) {
                 // check that the table exists in case the migration is pending

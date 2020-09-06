@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,7 +15,7 @@ use App\Models\Gateway;
 use App\Utils\Traits\MakesHash;
 
 /**
- * class ClientTransformer
+ * class ClientTransformer.
  */
 class GatewayTransformer extends EntityTransformer
 {
@@ -30,7 +30,6 @@ class GatewayTransformer extends EntityTransformer
     protected $availableIncludes = [
     ];
 
-
     /**
      * @param Client $client
      *
@@ -40,18 +39,18 @@ class GatewayTransformer extends EntityTransformer
     {
         return [
             'id' => $this->encodePrimaryKey($gateway->id),
-            'name' => (string)$gateway->name ?: '',
-            'key' => (string)$gateway->key ?: '',
-            'provider' => (string)$gateway->provider ?: '',
-            'visible' => (bool)$gateway->visible,
-            'sort_order' => (int)$gateway->sort_order,
-            'default_gateway_type_id' => (string)$gateway->default_gateway_type_id,
-            'site_url' => (string)$gateway->site_url ?: '',
-            'is_offsite' => (bool)$gateway->is_offsite,
-            'is_secure' => (bool)$gateway->is_secure,
-            'fields' => (string)$gateway->fields ?: '',
-            'updated_at' => (int)$gateway->updated_at,
-            'created_at' => (int)$gateway->created_at,
+            'name' => (string) $gateway->name ?: '',
+            'key' => (string) $gateway->key ?: '',
+            'provider' => (string) $gateway->provider ?: '',
+            'visible' => (bool) $gateway->visible,
+            'sort_order' => (int) $gateway->sort_order,
+            'default_gateway_type_id' => (string) $gateway->default_gateway_type_id,
+            'site_url' => (string) $gateway->site_url ?: '',
+            'is_offsite' => (bool) $gateway->is_offsite,
+            'is_secure' => (bool) $gateway->is_secure,
+            'fields' => (string) $gateway->fields ?: '',
+            'updated_at' => (int) $gateway->updated_at,
+            'created_at' => (int) $gateway->created_at,
         ];
     }
 }

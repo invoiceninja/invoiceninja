@@ -26,7 +26,7 @@ class RecurringInvoicesTable extends Component
             ->paginate($this->per_page);
 
         return render('components.livewire.recurring-invoices-table', [
-            'invoices' => $query
+            'invoices' => $query,
         ]);
     }
 }

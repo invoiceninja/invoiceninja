@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -45,12 +45,12 @@ class CreateInvoiceInvitation implements ShouldQueue
                                         ->whereInvoiceId($invoice->id)
                                         ->first();
 
-            if (!$invitation && $contact->send) {
+            if (! $invitation && $contact->send) {
                 $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
                 $ii->invoice_id = $invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send) {
+            } elseif ($invitation && ! $contact->send) {
                 $invitation->delete();
             }
         });

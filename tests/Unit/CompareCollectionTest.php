@@ -21,7 +21,7 @@ class CompareCollectionTest extends TestCase
         ['action' => 'create_invoice_client_id', 'permission' => 'create_invoice', 'route' => 'invoice.create', 'key' => 'client_id', 'name' => trans('texts.new_invoice')],
         ['action' => 'enter_payment_client_id', 'permission' => 'create_payment', 'route' => 'payment.create', 'key' => 'client_id', 'name' => trans('texts.enter_payment')],
         ['action' => 'enter_credit_client_id', 'permission' => 'create_credit', 'route' => 'credit.create', 'key' => 'client_id', 'name' => trans('texts.enter_credit')],
-        ['action' => 'enter_expense_client_id', 'permission' => 'create_expense', 'route' => 'expense.create', 'key' => 'client_id', 'name' => trans('texts.enter_expense')]
+        ['action' => 'enter_expense_client_id', 'permission' => 'create_expense', 'route' => 'expense.create', 'key' => 'client_id', 'name' => trans('texts.enter_expense')],
     ]);
 
         $this->view_permission = ['view_client'];
@@ -56,7 +56,7 @@ class CompareCollectionTest extends TestCase
     public function testActionViewClientFilter()
     {
         $actions = [
-            'view_client_client_id'
+            'view_client_client_id',
         ];
 
         $this->assertEquals(1, $this->map->whereIn('action', $actions)->count());
@@ -65,7 +65,7 @@ class CompareCollectionTest extends TestCase
     public function testNoActionClientFilter()
     {
         $actions = [
-            ''
+            '',
         ];
 
         $this->assertEquals(0, $this->map->whereIn('action', $actions)->count());
@@ -74,7 +74,7 @@ class CompareCollectionTest extends TestCase
     public function testActionsAndPermissionsFilter()
     {
         $actions = [
-            'view_client_client_id'
+            'view_client_client_id',
 
         ];
 
@@ -86,7 +86,7 @@ class CompareCollectionTest extends TestCase
     public function testActionAndPermissionsFilterFailure()
     {
         $actions = [
-            'edit_client_client_id'
+            'edit_client_client_id',
 
         ];
 
@@ -98,7 +98,7 @@ class CompareCollectionTest extends TestCase
     public function testEditActionAndPermissionsFilter()
     {
         $actions = [
-            'edit_client_client_id'
+            'edit_client_client_id',
 
         ];
 

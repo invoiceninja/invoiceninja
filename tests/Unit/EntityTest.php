@@ -26,7 +26,7 @@ class EntityTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-    
+
         $this->makeTestData();
 
         $this->invoice->line_items = $this->buildLineItems();
@@ -36,7 +36,6 @@ class EntityTest extends TestCase
 
     public function testEntityNameResolution()
     {
-
         $entity_type = $this->invoice->getEntityType();
 
         $this->assertEquals('Invoice', class_basename($entity_type));
@@ -48,9 +47,5 @@ class EntityTest extends TestCase
         $this->assertEquals('InvoiceInvitation', class_basename($entity_type));
 
         $this->assertEquals('InvoiceInvitation', class_basename($invitation));
-
     }
-
-
-
 }

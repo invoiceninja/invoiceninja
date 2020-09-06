@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,12 +15,10 @@ use App\Models\Company;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class CanAddUserRule
- * @package App\Http\ValidationRules
+ * Class CanAddUserRule.
  */
 class CanAddUserRule implements Rule
 {
-
     public $account;
 
     public function __construct($account)
@@ -45,5 +43,4 @@ class CanAddUserRule implements Rule
     {
         return ctrans('texts.limit_users', ['limit' => $this->account->num_users]);
     }
-
 }

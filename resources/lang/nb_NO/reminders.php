@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
 
     /*
     |--------------------------------------------------------------------------
@@ -13,12 +13,12 @@ return array(
     |
     */
 
-    "password" => "Passord m&#229; v&#230;re minst seks tegn og samsvare med bekreftelsen.",
+    'password' => 'Passord m&#229; v&#230;re minst seks tegn og samsvare med bekreftelsen.',
 
-    "user" => "Vi kan ikke finne en bruker med den e-postadressen.",
+    'user' => 'Vi kan ikke finne en bruker med den e-postadressen.',
 
-    "token" => "Denne tilbakestillingsn&#248;kkelen er ugyldig.",
+    'token' => 'Denne tilbakestillingsn&#248;kkelen er ugyldig.',
 
-    "sent" => "Passord p&#229;minnelse sendt!",
+    'sent' => 'Passord p&#229;minnelse sendt!',
 
-);
+];

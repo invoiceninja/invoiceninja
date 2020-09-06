@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -156,7 +156,6 @@ class Import implements ShouldQueue
      */
     public function handle() :bool
     {
-
         set_time_limit(0);
 
         foreach ($this->data as $key => $resource) {
@@ -188,9 +187,7 @@ class Import implements ShouldQueue
 
     private function setInitialCompanyLedgerBalances()
     {
-
-        Client::cursor()->each(function ($client){
-
+        Client::cursor()->each(function ($client) {
             $company_ledger = CompanyLedgerFactory::create($client->company_id, $client->user_id);
             $company_ledger->client_id = $client->id;
             $company_ledger->adjustment = $client->balance;
@@ -200,9 +197,7 @@ class Import implements ShouldQueue
             $company_ledger->save();
 
             $client->company_ledger()->save($company_ledger);
-
         });
-
     }
 
     /**
@@ -227,7 +222,7 @@ class Import implements ShouldQueue
             unset($data['account_id']);
         }
 
-        if(isset($data['referral_code'])) {
+        if (isset($data['referral_code'])) {
             $account = $this->company->account;
             $account->referral_code = $data['referral_code'];
             $account->save();
@@ -388,7 +383,7 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
             $modified['balance'] = $modified['balance'] ?: 0;
             $modified['paid_to_date'] = $modified['paid_to_date'] ?: 0;
-            
+
             unset($modified['id']);
             unset($modified['contacts']);
 
@@ -413,11 +408,9 @@ class Import implements ShouldQueue
                     unset($modified_contacts[$key]['id']);
                 }
 
-
                 $saveable_contacts['contacts'] = $modified_contacts;
 
                 $contact_repository->save($saveable_contacts, $client);
-
             }
 
             $key = "clients_{$resource['id']}";
@@ -495,15 +488,14 @@ class Import implements ShouldQueue
         $invoice_repository = new InvoiceMigrationRepository();
 
         foreach ($data as $key => $resource) {
-
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && ! array_key_exists('clients', $this->ids)) {
                 throw new ResourceDependencyMissing('Processing invoices failed, because of missing dependency - clients.');
             }
 
-            $modified['client_id']  = $this->transformId('clients', $resource['client_id']);
-            $modified['user_id']    = $this->processUserId($resource);
+            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['user_id'] = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
             $modified['line_items'] = $this->cleanItems($modified['line_items']);
 
@@ -523,7 +515,6 @@ class Import implements ShouldQueue
         }
 
         Invoice::reguard();
-
 
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
@@ -664,7 +655,6 @@ class Import implements ShouldQueue
             unset($modified['invoice_id']);
 
             if (isset($modified['invoices'])) {
-                
                 foreach ($modified['invoices'] as $key => $invoice) {
                     $modified['invoices'][$key]['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
                 }
@@ -714,12 +704,12 @@ class Import implements ShouldQueue
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
                 $modified['documentable_id'] = $this->transformId('invoices', $resource['invoice_id']);
-                $modified['documentable_type'] = 'App\\Models\\Invoice';
+                $modified['documentable_type'] = \App\Models\Invoice::class;
             }
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $modified['documentable_id'] = $this->transformId('expenses', $resource['expense_id']);
-                $modified['documentable_type'] = 'App\\Models\\Expense';
+                $modified['documentable_type'] = \App\Models\Expense::class;
             }
 
             $modified['user_id'] = $this->processUserId($resource);
@@ -748,22 +738,19 @@ class Import implements ShouldQueue
 
     private function processPaymentTerms(array $data) :void
     {
-
         PaymentTerm::unguard();
 
-        $modified = collect($data)->map(function ($item){
-
+        $modified = collect($data)->map(function ($item) {
             $item['user_id'] = $this->user->id;
             $item['company_id'] = $this->company->id;
 
             return $item;
-
         })->toArray();
 
         PaymentTerm::insert($modified);
 
         PaymentTerm::reguard();
-        
+
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
     }

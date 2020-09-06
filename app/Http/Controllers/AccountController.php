@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -146,8 +146,8 @@ class AccountController extends BaseController
     public function store(CreateAccountRequest $request)
     {
         $account = CreateAccount::dispatchNow($request->all());
-    
-        if (!($account instanceof Account)) {
+
+        if (! ($account instanceof Account)) {
             return $account;
         }
 

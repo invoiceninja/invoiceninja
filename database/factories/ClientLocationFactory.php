@@ -13,6 +13,6 @@ $factory->define(App\Models\ClientLocation::class, function (Faker $faker) {
         'latitude' => $faker->latitude,
         'longitude' => $faker->longitude,
         'description' => $faker->paragraph,
-        'private_notes' => $faker->paragraph
+        'private_notes' => $faker->paragraph,
     ];
 });

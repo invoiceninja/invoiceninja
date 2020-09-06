@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,7 +21,7 @@ class CompanyToken extends BaseModel
     use Filterable;
 
     protected $fillable = [
-        'name'
+        'name',
     ];
 
     protected $with = [
@@ -29,10 +29,9 @@ class CompanyToken extends BaseModel
 
     protected $touches = [];
 
-
     public function getEntityType()
     {
-        return CompanyToken::class;
+        return self::class;
     }
 
     public function account()
@@ -52,9 +51,8 @@ class CompanyToken extends BaseModel
 
     public function company_user()
     {
-        return $this->hasOne(CompanyUser::class,'user_id','user_id')
+        return $this->hasOne(CompanyUser::class, 'user_id', 'user_id')
                     ->where('company_id', $this->company_id)
                     ->where('user_id', $this->user_id);
     }
-
 }

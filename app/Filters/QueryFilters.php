@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,27 +14,25 @@ namespace App\Filters;
 use App\Models\User;
 //use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Builder;
-
 use Illuminate\Http\Request;
 
 /**
- * Class QueryFilters
- * @package App\Filters
+ * Class QueryFilters.
  */
 abstract class QueryFilters
 {
     /**
-     * active status
+     * active status.
      */
     const STATUS_ACTIVE = 'active';
 
     /**
-     * archived status
+     * archived status.
      */
     const STATUS_ARCHIVED = 'archived';
 
     /**
-     * deleted status
+     * deleted status.
      */
     const STATUS_DELETED = 'deleted';
 
@@ -102,14 +100,14 @@ abstract class QueryFilters
     }
 
     /**
-     * Explodes the value by delimiter
+     * Explodes the value by delimiter.
      *
      * @param  string $value
      * @return stdClass
      */
     public function split($value) : stdClass
     {
-        $exploded_array = explode(":", $value);
+        $exploded_array = explode(':', $value);
 
         $parts = new stdClass;
 
@@ -120,7 +118,7 @@ abstract class QueryFilters
     }
 
     /**
-     * String to operator convertor
+     * String to operator convertor.
      *
      * @param  string $value
      * @return string
@@ -146,7 +144,7 @@ abstract class QueryFilters
             default:
                 return '=';
                 break;
-                
+
         }
     }
 

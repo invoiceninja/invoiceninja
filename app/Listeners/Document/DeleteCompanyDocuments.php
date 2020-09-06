@@ -29,7 +29,6 @@ class DeleteCompanyDocuments
      */
     public function handle($event)
     {
- 
         MultiDB::setDb($event->company->db);
 
         $path = sprintf('%s/%s', storage_path('app/public'), $event->company->company_key);
@@ -41,6 +40,5 @@ class DeleteCompanyDocuments
         Storage::deleteDirectory($event->company->company_key);
 
         Document::whereCompanyId($event->company->id)->delete();
-        
     }
 }

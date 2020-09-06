@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -64,7 +64,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
     /**
      * Methods in this class are divided into
-     * two separate streams
+     * two separate streams.
      *
      * 1. Omnipay Specific
      * 2. Stripe Specific
@@ -76,7 +76,7 @@ class StripePaymentDriver extends BasePaymentDriver
     /************************************** Stripe API methods **********************************************************/
 
     /**
-     * Initializes the Stripe API
+     * Initializes the Stripe API.
      * @return void
      */
     public function init(): void
@@ -94,7 +94,7 @@ class StripePaymentDriver extends BasePaymentDriver
     }
 
     /**
-     * Returns the gateway types
+     * Returns the gateway types.
      */
     public function gatewayTypes(): array
     {
@@ -126,7 +126,6 @@ class StripePaymentDriver extends BasePaymentDriver
         if ($this->company_gateway->getApplePayEnabled()) {
             $types[] = GatewayType::APPLE_PAY;
         }
-
 
         return $types;
     }
@@ -160,9 +159,9 @@ class StripePaymentDriver extends BasePaymentDriver
 
     /**
      * Proxy method to pass the data into payment method authorizeView().
-     * 
-     * @param array $data 
-     * 
+     *
+     * @param array $data
+     *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function authorizeView(array $data)
@@ -195,7 +194,7 @@ class StripePaymentDriver extends BasePaymentDriver
     }
 
     /**
-     * Payment Intent Reponse looks like this
+     * Payment Intent Reponse looks like this.
       +"id": "pi_1FMR7JKmol8YQE9DuC4zMeN3"
       +"object": "payment_intent"
       +"allowed_source_types": array:1 [▼
@@ -245,12 +244,12 @@ class StripePaymentDriver extends BasePaymentDriver
     }
 
     /**
-     * Creates a new String Payment Intent
+     * Creates a new String Payment Intent.
      *
      * @param  array $data The data array to be passed to Stripe
      * @return PaymentIntent       The Stripe payment intent object
      */
-    public function createPaymentIntent($data): ?\Stripe\PaymentIntent
+    public function createPaymentIntent($data): ?PaymentIntent
     {
         $this->init();
 
@@ -263,17 +262,16 @@ class StripePaymentDriver extends BasePaymentDriver
      *
      * @return \Stripe\SetupIntent
      */
-    public function getSetupIntent(): \Stripe\SetupIntent
+    public function getSetupIntent(): SetupIntent
     {
         $this->init();
 
         return SetupIntent::create();
     }
 
-
     /**
-     * Returns the Stripe publishable key
-     * @return NULL|string The stripe publishable key
+     * Returns the Stripe publishable key.
+     * @return null|string The stripe publishable key
      */
     public function getPublishableKey(): ?string
     {
@@ -281,9 +279,9 @@ class StripePaymentDriver extends BasePaymentDriver
     }
 
     /**
-     * Finds or creates a Stripe Customer object
+     * Finds or creates a Stripe Customer object.
      *
-     * @return NULL|\Stripe\Customer A Stripe customer object
+     * @return null|\Stripe\Customer A Stripe customer object
      */
     public function findOrCreateCustomer(): ?\Stripe\Customer
     {
@@ -306,7 +304,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $customer = \Stripe\Customer::create($data);
         }
 
-        if (!$customer) {
+        if (! $customer) {
             throw new \Exception('Unable to create gateway customer');
         }
 
@@ -368,7 +366,7 @@ class StripePaymentDriver extends BasePaymentDriver
         return response([], 200);
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) 
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         return (new Charge($this))->tokenBilling($cgt, $payment_hash);
     }
@@ -376,14 +374,13 @@ class StripePaymentDriver extends BasePaymentDriver
     /**
      * Creates a payment record for the given
      * data array.
-     * 
+     *
      * @param  array $data   An array of payment attributes
      * @param  float $amount The amount of the payment
      * @return Payment       The payment object
      */
     public function createPaymentRecord($data, $amount) :?Payment
     {
-
         $payment = PaymentFactory::create($this->client->company_id, $this->client->user_id);
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
@@ -393,7 +390,7 @@ class StripePaymentDriver extends BasePaymentDriver
         $payment->currency_id = $this->client->getSetting('currency_id');
         $payment->date = Carbon::now();
         $payment->transaction_reference = $data['transaction_reference'];
-        $payment->amount = $amount; 
+        $payment->amount = $amount;
         $payment->save();
 
         return $payment->service()->applyNumber()->save();

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -8,7 +8,6 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-
 
 namespace App\Services\Quote;
 
@@ -29,12 +28,12 @@ class CreateInvitations
                 ->whereQuoteId($quote->id)
                 ->first();
 
-            if (!$invitation && $contact->send_email) {
+            if (! $invitation && $contact->send_email) {
                 $ii = QuoteInvitationFactory::create($quote->company_id, $quote->user_id);
                 $ii->quote_id = $quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send_email) {
+            } elseif ($invitation && ! $contact->send_email) {
                 $invitation->delete();
             }
         });

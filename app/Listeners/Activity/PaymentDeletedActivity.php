@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -46,7 +46,7 @@ class PaymentDeletedActivity implements ShouldQueue
         $payment = $event->payment;
 
         $invoices = $payment->invoices;
-        
+
         $fields = new \stdClass;
 
         $fields->payment_id = $payment->id;

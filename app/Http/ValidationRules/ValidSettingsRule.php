@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -17,8 +17,7 @@ use App\Utils\Traits\SettingsSaver;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class ValidSettingsRule
- * @package App\Http\ValidationRules
+ * Class ValidSettingsRule.
  */
 class ValidSettingsRule implements Rule
 {
@@ -28,7 +27,6 @@ class ValidSettingsRule implements Rule
      * @param mixed $value
      * @return bool
      */
-    
     public $return_data;
 
     public function passes($attribute, $value)
@@ -37,6 +35,7 @@ class ValidSettingsRule implements Rule
 
         if (is_array($data)) {
             $this->return_data = $data;
+
             return false;
         } else {
             return true;
@@ -48,6 +47,6 @@ class ValidSettingsRule implements Rule
      */
     public function message()
     {
-        return $this->return_data[0]." is not a valid ".$this->return_data[1]. " ( ".$this->return_data[2]." )";
+        return $this->return_data[0].' is not a valid '.$this->return_data[1].' ( '.$this->return_data[2].' )';
     }
 }

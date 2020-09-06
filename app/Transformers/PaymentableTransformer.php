@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -38,12 +38,12 @@ class PaymentableTransformer extends EntityTransformer
         if ($paymentable->paymentable_type == Credit::class) {
             $entity_key = 'credit_id';
         }
-        
+
         return  [
             'id' => $this->encodePrimaryKey($paymentable->id),
             $entity_key => $this->encodePrimaryKey($paymentable->paymentable_id),
-            'amount' => (float)$paymentable->amount,
-            'refunded' => (float)$paymentable->refunded,
+            'amount' => (float) $paymentable->amount,
+            'refunded' => (float) $paymentable->refunded,
             'created_at' => (int) $paymentable->created_at,
             'updated_at' => (int) $paymentable->updated_at,
         ];

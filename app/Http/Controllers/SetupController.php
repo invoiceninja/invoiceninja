@@ -49,12 +49,12 @@ class SetupController extends Controller
         if ($check['system_health'] === false) {
             info($check);
 
-            return response('Oops, something went wrong. Check your storage/logs/laravel.log file.');
+            return response('Oops, something went wrong. Check your logs.'); /* We should never reach this block, but jic. */
         }
 
         $mail_driver = $request->input('mail_driver');
 
-        if (!$this->failsafeMailCheck($request)) {
+        if (! $this->failsafeMailCheck($request)) {
             $mail_driver = 'log';
         }
 
@@ -72,7 +72,7 @@ class SetupController extends Controller
         $_ENV['DB_DATABASE1'] = $request->input('database');
         $_ENV['DB_USERNAME1'] = $request->input('db_username');
         $_ENV['DB_PASSWORD1'] = $request->input('db_password');
-        $_ENV['MAIL_DRIVER'] = $mail_driver;
+        $_ENV['MAIL_MAILER'] = $mail_driver;
         $_ENV['MAIL_PORT'] = $request->input('mail_port');
         $_ENV['MAIL_ENCRYPTION'] = $request->input('encryption');
         $_ENV['MAIL_HOST'] = $request->input('mail_host');
@@ -119,7 +119,6 @@ class SetupController extends Controller
             Artisan::call('db:seed', ['--force' => true]);
 
             Storage::disk('local')->delete('test.pdf');
-
 
             /* Create the first account. */
             if (Account::count() == 0) {
@@ -182,14 +181,12 @@ class SetupController extends Controller
             return true;
         }
 
-
         return false;
     }
 
     public function checkPdf(Request $request)
     {
         try {
-
             if (config('ninja.phantomjs_key')) {
                 return $this->testPhantom();
             }
@@ -210,9 +207,7 @@ class SetupController extends Controller
 
     private function testPhantom()
     {
-
         try {
-
             $key = config('ninja.phantomjs_key');
             $url = 'https://www.invoiceninja.org/';
 
@@ -224,7 +219,6 @@ class SetupController extends Controller
 
             return response(['url' => Storage::disk('local')->url('test.pdf')], 200);
         } catch (\Exception $e) {
-
             return response([], 500);
         }
     }

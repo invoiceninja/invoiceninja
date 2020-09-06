@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,19 +28,16 @@ use net\authorize\api\controller\CreateTransactionController;
 use net\authorize\api\controller\GetMerchantDetailsController;
 
 /**
- * Class CustomPaymentDriver
- * @package App\PaymentDrivers
- *
+ * Class CustomPaymentDriver.
  */
 class CustomPaymentDriver extends BaseDriver
 {
-
     public $token_billing = false;
 
     public $can_authorise_credit_card = false;
-    
+
     /**
-     * Returns the gateway types
+     * Returns the gateway types.
      */
     public function gatewayTypes() :array
     {
@@ -51,11 +48,17 @@ class CustomPaymentDriver extends BaseDriver
         return $types;
     }
 
-    public function authorize($payment_method) {}
-    
-    public function purchase($amount, $return_client_response = false) {}
+    public function authorize($payment_method)
+    {
+    }
 
-    public function refund(Payment $payment, $amount, $return_client_response = false) {}
+    public function purchase($amount, $return_client_response = false)
+    {
+    }
+
+    public function refund(Payment $payment, $amount, $return_client_response = false)
+    {
+    }
 
     public function setPaymentMethod($payment_method_id)
     {
@@ -66,14 +69,10 @@ class CustomPaymentDriver extends BaseDriver
 
     public function processPaymentView($data)
     {
-
         return render('gateways.custom.landing_page', $data);
-
     }
 
     public function processPaymentResponse($request)
     {
-
     }
-
 }

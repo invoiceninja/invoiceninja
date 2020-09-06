@@ -13,10 +13,10 @@ return [
     |
     */
 
-    "password" => "Beide Passwörter müssen übereinstimmen und mindestens 6 Zeichen lang sein.",
-    "user" => "Wir können keinen Nutzer mit dieser E-Mail Adresse finden.",
-    "token" => "Der Code zum Zurücksetzen des Passworts ist ungültig oder abgelaufen.",
-    "sent" => "Es wurde soeben eine E-Mail verschickt, die einen Link zum Zurücksetzen des Passworts enthält!",
-    "reset" => "Das Passwort wurde zurückgesetzt!",
+    'password' => 'Beide Passwörter müssen übereinstimmen und mindestens 6 Zeichen lang sein.',
+    'user' => 'Wir können keinen Nutzer mit dieser E-Mail Adresse finden.',
+    'token' => 'Der Code zum Zurücksetzen des Passworts ist ungültig oder abgelaufen.',
+    'sent' => 'Es wurde soeben eine E-Mail verschickt, die einen Link zum Zurücksetzen des Passworts enthält!',
+    'reset' => 'Das Passwort wurde zurückgesetzt!',
 
 ];

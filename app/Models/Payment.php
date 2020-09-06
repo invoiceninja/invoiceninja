@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -87,7 +87,7 @@ class Payment extends BaseModel
 
     public function getEntityType()
     {
-        return Payment::class;
+        return self::class;
     }
 
     public function client()
@@ -119,7 +119,7 @@ class Payment extends BaseModel
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
-    
+
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
@@ -157,7 +157,7 @@ class Payment extends BaseModel
 
     public function clientPaymentDate()
     {
-        if (!$this->date) {
+        if (! $this->date) {
             return '';
         }
 
@@ -188,7 +188,7 @@ class Payment extends BaseModel
                 return '<h6><span class="badge badge-primary">'.ctrans('texts.payment_status_6').'</span></h6>';
                 break;
             default:
-                # code...
+                // code...
                 break;
         }
     }
@@ -203,14 +203,14 @@ class Payment extends BaseModel
         return new PaymentService($this);
     }
 
-    public function resolveRouteBinding($value)
+    public function resolveRouteBinding($value, $field = NULL)
     {
         return $this
             ->withTrashed()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
-    public function refund(array $data) :Payment
+    public function refund(array $data) :self
     {
         return $this->service()->refundPayment($data);
 

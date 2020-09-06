@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,13 +16,12 @@ use App\Models\CompanyUser;
 use App\Models\User;
 
 /**
- * Class UserPolicy
- * @package App\Policies
+ * Class UserPolicy.
  */
 class UserPolicy extends EntityPolicy
 {
     /**
-     *  Checks if the user has create permissions
+     *  Checks if the user has create permissions.
      *
      * @param  User $user
      * @return bool
@@ -31,7 +30,6 @@ class UserPolicy extends EntityPolicy
     {
         return $user->isAdmin() || $user->hasPermission('create_user') || $user->hasPermission('create_all');
     }
-
 
     /*
     *
@@ -43,6 +41,6 @@ class UserPolicy extends EntityPolicy
     {
         $company_user = CompanyUser::whereUserId($user->id)->AuthCompany()->first();
 
-        return ($user->isAdmin() && $company_user);
+        return $user->isAdmin() && $company_user;
     }
 }

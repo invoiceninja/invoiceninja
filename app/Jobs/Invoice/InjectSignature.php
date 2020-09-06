@@ -44,7 +44,7 @@ class InjectSignature implements ShouldQueue
     {
         $invitation = $this->invoice->invitations->whereNotNull('signature_base64')->first();
 
-        if (!$invitation) {
+        if (! $invitation) {
             return;
         }
 

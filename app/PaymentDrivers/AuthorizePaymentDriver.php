@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -29,35 +29,31 @@ use net\authorize\api\controller\CreateTransactionController;
 use net\authorize\api\controller\GetMerchantDetailsController;
 
 /**
- * Class BaseDriver
- * @package App\PaymentDrivers
- *
+ * Class BaseDriver.
  */
 class AuthorizePaymentDriver extends BaseDriver
 {
-
     public $merchant_authentication;
 
     public $token_billing = true;
 
     public $can_authorise_credit_card = true;
-    
+
     public static $methods = [
         GatewayType::CREDIT_CARD => AuthorizeCreditCard::class,
     ];
 
     public function setPaymentMethod($payment_method_id)
     {
-
         $class = self::$methods[$payment_method_id];
 
         $this->payment_method = new $class($this);
 
         return $this;
-
     }
+
     /**
-     * Returns the gateway types
+     * Returns the gateway types.
      */
     public function gatewayTypes() :array
     {
@@ -70,7 +66,7 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function init()
     {
-        error_reporting (E_ALL & ~E_DEPRECATED);
+        error_reporting(E_ALL & ~E_DEPRECATED);
 
         $this->merchant_authentication = new MerchantAuthenticationType();
         $this->merchant_authentication->setName($this->company_gateway->getConfigField('apiLoginId'));
@@ -81,7 +77,6 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function getPublicClientKey()
     {
-
         $request = new GetMerchantDetailsRequest();
         $request->setMerchantAuthentication($this->merchant_authentication);
 
@@ -89,17 +84,15 @@ class AuthorizePaymentDriver extends BaseDriver
         $response = $controller->executeWithApiResponse($this->mode());
 
         return $response->getPublicClientKey();
-
     }
 
     public function mode()
     {
-
-        if($this->company_gateway->getConfigField('testMode'))
+        if ($this->company_gateway->getConfigField('testMode')) {
             return  ANetEnvironment::SANDBOX;
-        
-        return $env = ANetEnvironment::PRODUCTION;
+        }
 
+        return $env = ANetEnvironment::PRODUCTION;
     }
 
     public function authorizeView($payment_method)
@@ -112,11 +105,11 @@ class AuthorizePaymentDriver extends BaseDriver
         return (new AuthorizePaymentMethod($this))->authorizeResponseView($data);
     }
 
-    public function authorize($payment_method) 
+    public function authorize($payment_method)
     {
         return $this->authorizeView($payment_method);
     }
-    
+
     public function processPaymentView($data)
     {
         return $this->payment_method->processPaymentView($data);
@@ -127,12 +120,12 @@ class AuthorizePaymentDriver extends BaseDriver
         return $this->payment_method->processPaymentResponse($request);
     }
 
-    public function purchase($amount, $return_client_response = false) 
+    public function purchase($amount, $return_client_response = false)
     {
         return false;
     }
 
-    public function refund(Payment $payment, $refund_amount, $return_client_response = false) 
+    public function refund(Payment $payment, $refund_amount, $return_client_response = false)
     {
         return (new RefundTransaction($this))->refundTransaction($payment, $refund_amount);
     }
@@ -144,11 +137,10 @@ class AuthorizePaymentDriver extends BaseDriver
                                  ->first();
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) 
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         $this->setPaymentMethod($cgt->gateway_type_id);
 
         return $this->payment_method->tokenBilling($cgt, $payment_hash);
     }
-
 }

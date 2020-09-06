@@ -25,6 +25,5 @@ class AddIsDeletedFlagToClientGatewayTokenTable extends Migration
      */
     public function down()
     {
-
     }
 }

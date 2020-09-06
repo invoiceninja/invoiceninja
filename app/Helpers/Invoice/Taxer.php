@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,7 +12,7 @@
 namespace App\Helpers\Invoice;
 
 /**
- * Class for tax calculations
+ * Class for tax calculations.
  */
 trait Taxer
 {
@@ -23,11 +23,11 @@ trait Taxer
 
     public function calcAmountLineTax($tax_rate, $amount)
     {
-        return $this->formatValue(($amount * $tax_rate/100), 2);
+        return $this->formatValue(($amount * $tax_rate / 100), 2);
     }
 
     public function calcInclusiveLineTax($tax_rate, $amount)
     {
-        return $this->formatValue($amount - ($amount / (1 + ($tax_rate/100))), 2);
+        return $this->formatValue($amount - ($amount / (1 + ($tax_rate / 100))), 2);
     }
 }

@@ -22,7 +22,6 @@ use Tests\TestCase;
  * @test
  * @covers App\Http\Controllers\RecurringInvoiceController
  */
-    
 class RecurringInvoiceTest extends TestCase
 {
     use MakesHash;
@@ -43,33 +42,29 @@ class RecurringInvoiceTest extends TestCase
             ThrottleRequests::class
         );
 
-                $this->makeTestData();
-
+        $this->makeTestData();
     }
 
     public function testRecurringInvoiceList()
     {
-
-
         factory(\App\Models\Client::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
-                'is_primary' => 1
+                'is_primary' => 1,
             ]);
 
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
-                'company_id' => $this->company->id
+                'company_id' => $this->company->id,
             ]);
         });
 
         $client = Client::all()->first();
 
         factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
-
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -81,19 +76,18 @@ class RecurringInvoiceTest extends TestCase
 
     public function testRecurringInvoiceRESTEndPoints()
     {
-
         factory(\App\Models\Client::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
-                'is_primary' => 1
+                'is_primary' => 1,
             ]);
 
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
-                'company_id' => $this->company->id
+                'company_id' => $this->company->id,
             ]);
         });
         $client = Client::all()->first();
@@ -103,7 +97,6 @@ class RecurringInvoiceTest extends TestCase
         $RecurringInvoice = RecurringInvoice::where('user_id', $this->user->id)->first();
         $RecurringInvoice->save();
 
-        
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,

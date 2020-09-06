@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -25,6 +25,7 @@ class DeletedUserActivity implements ShouldQueue
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     protected $activityRepo;
+
     /**
      * Create the event listener.
      *
@@ -43,16 +44,16 @@ class DeletedUserActivity implements ShouldQueue
      */
     public function handle($event)
     {
-         MultiDB::setDb($event->company->db);
+        MultiDB::setDb($event->company->db);
 
-       $fields = new \stdClass;
+        $fields = new \stdClass;
 
         if (auth()->user()->id) {
             $fields->user_id = auth()->user()->id;
         } else {
             $fields->user_id = $event->user->id;
         }
-        
+
         $fields->company_id = $event->company->id;
         $fields->activity_type_id = Activity::DELETE_USER;
 

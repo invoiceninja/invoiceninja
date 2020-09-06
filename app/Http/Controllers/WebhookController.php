@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -77,7 +77,6 @@ class WebhookController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(WebhookFilters $filters)
     {
@@ -134,7 +133,6 @@ class WebhookController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowWebhookRequest $request, Webhook $webhook)
     {
@@ -189,7 +187,6 @@ class WebhookController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditWebhookRequest $request, Webhook $webhook)
     {
@@ -246,7 +243,6 @@ class WebhookController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateWebhookRequest $request, Webhook $webhook)
     {
@@ -297,14 +293,13 @@ class WebhookController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateWebhookRequest $request)
     {
         $webhook = WebhookFactory::create(auth()->user()->company()->id, auth()->user()->id);
         $webhook->fill($request->all());
         $webhook->save();
-        
+
         return $this->itemResponse($webhook);
     }
 
@@ -346,15 +341,14 @@ class WebhookController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreWebhookRequest $request)
     {
         $event_id = $request->input('event_id');
         $target_url = $request->input('target_url');
 
-        if (!in_array($event_id, Webhook::$valid_events)) {
-            return response()->json("Invalid event", 400);
+        if (! in_array($event_id, Webhook::$valid_events)) {
+            return response()->json('Invalid event', 400);
         }
 
         $webhook = new Webhook;
@@ -364,7 +358,7 @@ class WebhookController extends BaseController
         $webhook->target_url = $target_url;
         $webhook->save();
 
-        if (!$webhook->id) {
+        if (! $webhook->id) {
             return response()->json('Failed to create Webhook', 400);
         }
 
@@ -418,7 +412,6 @@ class WebhookController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyWebhookRequest $request, Webhook $webhook)
     {
@@ -429,7 +422,7 @@ class WebhookController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @param BulkWebhookRequest $request
      * @return \Illuminate\Http\Response
@@ -488,7 +481,6 @@ class WebhookController extends BaseController
 
         $webhooks = Webhook::withTrashed()->find($this->transformKeys($ids));
 
-
         $webhooks->each(function ($webhook, $key) use ($action) {
             if (auth()->user()->can('edit', $webhook)) {
                 $this->base_repo->{$action}($webhook);
@@ -497,6 +489,4 @@ class WebhookController extends BaseController
 
         return $this->listResponse(Webhook::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
-
-
 }

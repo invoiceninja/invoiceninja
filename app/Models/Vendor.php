@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -43,7 +43,6 @@ class Vendor extends BaseModel
         'custom_value4',
     ];
 
-
     protected $casts = [
         'country_id' => 'string',
         'currency_id' => 'string',
@@ -61,7 +60,7 @@ class Vendor extends BaseModel
 
     public function getEntityType()
     {
-        return Vendor::class;
+        return self::class;
     }
 
     public function documents()

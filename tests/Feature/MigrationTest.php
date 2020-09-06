@@ -25,7 +25,6 @@ use Tests\TestCase;
  * @test
  * @covers App\Http\Controllers\MigrationController
  */
-
 class MigrationTest extends TestCase
 {
     use DatabaseTransactions;
@@ -43,7 +42,6 @@ class MigrationTest extends TestCase
 
         $this->makeTestData();
     }
-
 
     public function testCompanyExists()
     {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,8 +20,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class ValidInvoicesRules
- * @package App\Http\ValidationRules\Payment
+ * Class ValidInvoicesRules.
  */
 class ValidInvoicesRules implements Rule
 {
@@ -36,7 +35,6 @@ class ValidInvoicesRules implements Rule
 
     private $input;
 
-
     public function __construct($input)
     {
         $this->input = $input;
@@ -49,8 +47,9 @@ class ValidInvoicesRules implements Rule
 
     private function checkInvoicesAreHomogenous()
     {
-        if (!array_key_exists('client_id', $this->input)) {
-            $this->error_msg = "Client id is required";
+        if (! array_key_exists('client_id', $this->input)) {
+            $this->error_msg = 'Client id is required';
+
             return false;
         }
 
@@ -61,26 +60,27 @@ class ValidInvoicesRules implements Rule
 
             $inv = Invoice::whereId($invoice['invoice_id'])->first();
 
-            if (!$inv) {
-                $this->error_msg = "Invoice not found ";
+            if (! $inv) {
+                $this->error_msg = 'Invoice not found ';
+
                 return false;
             }
 
             if ($inv->client_id != $this->input['client_id']) {
-                $this->error_msg = "Selected invoices are not from a single client";
+                $this->error_msg = 'Selected invoices are not from a single client';
+
                 return false;
             }
         }
 
-        if (!(array_unique($unique_array) == $unique_array)) {
-            $this->error_msg = "Duplicate invoices submitted.";
+        if (! (array_unique($unique_array) == $unique_array)) {
+            $this->error_msg = 'Duplicate invoices submitted.';
+
             return false;
         }
 
-
         return true;
     }
-    
 
     /**
      * @return string

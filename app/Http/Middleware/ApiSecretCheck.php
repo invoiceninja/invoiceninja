@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -30,8 +30,9 @@ class ApiSecretCheck
         } else {
             $error = [
                 'message' => 'Invalid secret',
-                'errors' => new \stdClass
+                'errors' => new \stdClass,
             ];
+
             return response()
             ->json($error, 403)
             ->header('X-App-Version', config('ninja.app_version'))

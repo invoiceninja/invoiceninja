@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -68,28 +68,29 @@ class CreateCreditPdf implements ShouldQueue
 
     public function handle()
     {
-        if(config('ninja.phantomjs_key'))
+        if (config('ninja.phantomjs_key')) {
             return (new Phantom)->generate($this->invitation);
+        }
 
         $this->credit->load('client');
 
         App::setLocale($this->contact->preferredLocale());
 
-        $path      = $this->credit->client->credit_filepath();
+        $path = $this->credit->client->credit_filepath();
 
-        $file_path = $path . $this->credit->number . '.pdf';
+        $file_path = $path.$this->credit->number.'.pdf';
 
         $credit_design_id = $this->credit->design_id ? $this->credit->design_id : $this->decodePrimaryKey($this->credit->client->getSetting('credit_design_id'));
 
         $design = Design::find($credit_design_id);
-        
+
         $designer = new Designer($this->credit, $design, $this->credit->client->getSetting('pdf_variables'), 'credit');
 
         $html = (new HtmlEngine($designer, $this->invitation, 'credit'))->build();
 
         Storage::makeDirectory($path, 0775);
 
-        $pdf       = $this->makePdf(null, null, $html);
+        $pdf = $this->makePdf(null, null, $html);
 
         $instance = Storage::disk($this->disk)->put($file_path, $pdf);
 

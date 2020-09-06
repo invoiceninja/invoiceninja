@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,12 +15,10 @@ use App\Models\Client;
 use App\Models\User;
 
 /**
- * Class DefaultSettings
- * @package App\DataMapper
+ * Class DefaultSettings.
  */
 class DefaultSettings extends BaseSettings
 {
-
     /**
      * @var int
      */
@@ -33,7 +31,7 @@ class DefaultSettings extends BaseSettings
      */
     public static function userSettings() : \stdClass
     {
-        return (object)[
+        return (object) [
         //    class_basename(User::class) => self::userSettingsObject(),
         ];
     }
@@ -43,7 +41,7 @@ class DefaultSettings extends BaseSettings
      */
     private static function userSettingsObject() : \stdClass
     {
-        return (object)[
+        return (object) [
         //    'per_page' => self::$per_page,
         ];
     }

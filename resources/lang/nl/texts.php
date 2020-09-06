@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
 
     'organization' => 'Organisatie',
     'name' => 'Naam',
@@ -1007,7 +1007,6 @@ $LANG = array(
     'trial_success' => 'De gratis twee weken durende probeerversie van het pro plan is succesvol geactiveerd.',
     'overdue' => 'Verlopen',
 
-
     'white_label_text' => 'Koop een white label licentie voor één jaar voor $:price om de Invoice Ninja reclame te verwijderen van facturen en het klantenportaal.',
     'user_email_footer' => 'Ga alstublieft naar :link om uw e-mail notificatie instellingen aan te passen',
     'reset_password_footer' => 'Neem a.u.b. contact op met onze helpdesk indien u deze wachtwoordreset niet heeft aangevraagd. Het e-mailadres van de helpdesk is :email',
@@ -1187,7 +1186,6 @@ $LANG = array(
     'enterprise_plan_features' => 'Het zakelijke abonnement voegt ondersteuning toe voor meerdere gebruikers en bijlagen, :link om een volledige lijst van de mogelijkheden te bekijken.',
     'return_to_app' => 'Terug naar de app',
 
-
     // Payment updates
     'refund_payment' => 'Terugbetalen',
     'refund_max' => 'Max:',
@@ -1296,7 +1294,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'braintree_paypal_help_link_text' => 'PayPal koppelen aan uw BrainTree account',
     'token_billing_braintree_paypal' => 'Betalingsgegevens opslaan',
     'add_paypal_account' => 'PayPal rekening toevoegen',
-
 
     'no_payment_method_specified' => 'Geen betalingsmethode gespecificeerd',
     'chart_type' => 'Grafiektype',
@@ -2857,6 +2854,6 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'mobile_refresh_warning' => 'Als u de mobiele app gebruikt, moet u mogelijk een volledige vernieuwing uitvoeren.',
     'enable_proposals_for_background' => 'Een achtergrondafbeelding uploaden :link om de voorstellenmodule in te schakelen.',
 
-);
+];
 
 return $LANG;

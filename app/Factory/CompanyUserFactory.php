@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -23,6 +23,7 @@ class CompanyUserFactory
         $company_user->company_id = $company_id;
         $company_user->account_id = $account_id;
         $company_user->notifications = CompanySettings::notificationDefaults();
+
         return $company_user;
     }
 }

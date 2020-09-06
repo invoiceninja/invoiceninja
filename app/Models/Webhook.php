@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,7 +18,7 @@ class Webhook extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
-    
+
     const EVENT_CREATE_CLIENT = 1;
     const EVENT_CREATE_INVOICE = 2;
     const EVENT_CREATE_QUOTE = 3;
@@ -54,7 +54,7 @@ class Webhook extends BaseModel
     protected $fillable = [
         'target_url',
         'format',
-        'event_id'
+        'event_id',
     ];
 
     public function user()

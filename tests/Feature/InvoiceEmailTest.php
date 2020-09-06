@@ -20,9 +20,9 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
-* @test
-* @covers App\Jobs\Invoice\EmailInvoice
-*/
+ * @test
+ * @covers App\Jobs\Invoice\EmailInvoice
+ */
 class InvoiceEmailTest extends TestCase
 {
     use MockAccountData;
@@ -54,7 +54,7 @@ class InvoiceEmailTest extends TestCase
         $client_settings->email_style = 'dark';
         $this->client->settings = $client_settings;
         $this->client->save();
-        
+
         $this->invoice->setRelation('client', $this->client);
 
         $this->invoice->save();
@@ -104,7 +104,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->company->settings = $settings;
         $this->company->save();
-        
+
         $this->invoice->date = now();
         $this->invoice->due_date = now()->addDays(7);
         $this->invoice->number = $this->getNextInvoiceNumber($this->client);
@@ -134,7 +134,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->company->settings = $settings;
         $this->company->save();
-        
+
         $this->invoice->date = now();
         $this->invoice->due_date = now()->addDays(7);
         $this->invoice->number = $this->getNextInvoiceNumber($this->client);
@@ -153,7 +153,6 @@ class InvoiceEmailTest extends TestCase
                 $this->expectsJobs(EmailInvoice::class);
             }
         });
-
 
         $this->assertTrue(true);
     }

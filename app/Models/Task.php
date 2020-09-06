@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -19,7 +19,7 @@ class Task extends BaseModel
 {
     use MakesHash;
     use SoftDeletes;
-    
+
     protected $fillable = [
         'client_id',
         'invoice_id',
@@ -39,7 +39,7 @@ class Task extends BaseModel
 
     public function getEntityType()
     {
-        return Task::class;
+        return self::class;
     }
 
     public function company()

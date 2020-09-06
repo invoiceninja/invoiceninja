@@ -22,7 +22,6 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
      *
      * @return void
      */
-    
     protected $recurring_invoice;
 
     protected $client_contact;
@@ -33,7 +32,6 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
      * @var \Closure|null
      */
     public static $toMailCallback;
-
 
     public function __construct($recurring_invoice, $client_contact)
     {
@@ -49,7 +47,7 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
      */
     public function via($notifiable)
     {
-        return ['mail','slack'];
+        return ['mail', 'slack'];
     }
 
     /**
@@ -63,12 +61,10 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
         if (static::$toMailCallback) {
             return call_user_func(static::$toMailCallback, $notifiable, $this->client_contact);
         }
-        
 
         $client_contact_name = $this->client_contact->present()->name();
         $client_name = $this->client_contact->client->present()->name();
         $recurring_invoice_number = $this->recurring_invoice->number;
-
 
         return (new MailMessage)
             ->subject('Request for recurring invoice cancellation from '.$client_contact_name)
@@ -98,12 +94,11 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
 
         return (new SlackMessage)
                 ->success()
-                ->to("#devv2")
-                ->from("System")
+                ->to('#devv2')
+                ->from('System')
                 ->image('https://app.invoiceninja.com/favicon.png')
                 ->content("Contact {$name} from client {$client_name} requested to cancel Recurring Invoice #{$recurring_invoice_number}");
     }
-
 
     /**
      * Set a callback that should be used when building the notification mail message.

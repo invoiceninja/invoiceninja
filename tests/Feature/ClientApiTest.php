@@ -43,19 +43,16 @@ class ClientApiTest extends TestCase
         Model::reguard();
     }
 
-
     public function testClientPost()
     {
         $data = [
             'name' => $this->faker->firstName,
         ];
 
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/clients', $data);
-
 
         $response->assertStatus(200);
     }
@@ -67,12 +64,10 @@ class ClientApiTest extends TestCase
             'id_number' => 'Coolio',
         ];
 
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/clients/'.$this->encodePrimaryKey($this->client->id), $data);
-
 
         $response->assertStatus(200);
     }
@@ -81,9 +76,8 @@ class ClientApiTest extends TestCase
     {
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/clients/'.$this->encodePrimaryKey($this->client->id));
-
 
         $response->assertStatus(200);
     }
@@ -92,7 +86,7 @@ class ClientApiTest extends TestCase
     {
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/clients/'.$this->encodePrimaryKey($this->client->id));
 
         $arr = $response->json();
@@ -106,27 +100,25 @@ class ClientApiTest extends TestCase
             'ids' => [$this->encodePrimaryKey($this->client->id)],
         ];
 
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/clients/bulk?action=archive', $data);
 
         $arr = $response->json();
 
         $this->assertNotNull($arr['data'][0]['archived_at']);
     }
- 
+
     public function testClientRestored()
     {
         $data = [
             'ids' => [$this->encodePrimaryKey($this->client->id)],
         ];
 
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/clients/bulk?action=restore', $data);
 
         $arr = $response->json();
@@ -140,10 +132,9 @@ class ClientApiTest extends TestCase
             'ids' => [$this->encodePrimaryKey($this->client->id)],
         ];
 
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/clients/bulk?action=delete', $data);
 
         $arr = $response->json();

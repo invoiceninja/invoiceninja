@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -9,15 +9,14 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-
 namespace App\Services\Credit;
 
-use App\Models\Credit;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Jobs\Customer\UpdateCustomerBalance;
 use App\Jobs\Customer\UpdateCustomerPaidToDate;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
@@ -36,7 +35,7 @@ class ApplyNumber extends AbstractService
     public function __construct(Client $client, Credit $credit)
     {
         $this->client = $client;
-        
+
         $this->credit = $credit;
     }
 
@@ -47,7 +46,6 @@ class ApplyNumber extends AbstractService
         }
 
         $this->credit->number = $this->getNextCreditNumber($this->client);
-
 
         return $this->credit;
     }

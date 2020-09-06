@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -40,7 +40,7 @@ class Quote extends BaseModel
     use PresentableTrait;
     use MakesInvoiceValues;
 
-    protected $presenter = 'App\Models\Presenters\QuotePresenter';
+    protected $presenter = \App\Models\Presenters\QuotePresenter::class;
 
     protected $touches = [];
 
@@ -73,7 +73,7 @@ class Quote extends BaseModel
         'client_id',
         'footer',
         'design_id',
-        'exchange_rate'
+        'exchange_rate',
     ];
 
     protected $casts = [
@@ -90,14 +90,14 @@ class Quote extends BaseModel
     protected $dates = [];
 
     const STATUS_DRAFT = 1;
-    const STATUS_SENT =  2;
+    const STATUS_SENT = 2;
     const STATUS_APPROVED = 3;
     const STATUS_CONVERTED = 4;
     const STATUS_EXPIRED = -1;
 
     public function getEntityType()
     {
-        return Quote::class;
+        return self::class;
     }
 
     public function getDateAttribute($value)
@@ -115,7 +115,6 @@ class Quote extends BaseModel
         return $this->dateMutator($value);
     }
 
-
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -125,7 +124,7 @@ class Quote extends BaseModel
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
-    
+
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
@@ -157,7 +156,7 @@ class Quote extends BaseModel
     }
 
     /**
-     * Access the quote calculator object
+     * Access the quote calculator object.
      *
      * @return object The quote calculator object getters
      */
@@ -175,13 +174,12 @@ class Quote extends BaseModel
     }
 
     /**
-     * Updates Invites to SENT
-     *
+     * Updates Invites to SENT.
      */
     public function markInvitationsSent()
     {
         $this->invitations->each(function ($invitation) {
-            if (!isset($invitation->sent_date)) {
+            if (! isset($invitation->sent_date)) {
                 $invitation->sent_date = Carbon::now();
                 $invitation->save();
             }
@@ -195,17 +193,18 @@ class Quote extends BaseModel
 
     public function pdf_file_path($invitation = null)
     {
-        if(!$invitation)
+        if (! $invitation) {
             $invitation = $this->invitations->where('client_contact_id', $this->client->primary_contact()->first()->id)->first();
+        }
 
-        $storage_path = Storage::url($this->client->quote_filepath() . $this->number . '.pdf');
+        $storage_path = Storage::url($this->client->quote_filepath().$this->number.'.pdf');
 
-        if (Storage::exists($this->client->quote_filepath() . $this->number . '.pdf')) {
+        if (Storage::exists($this->client->quote_filepath().$this->number.'.pdf')) {
             return $storage_path;
         }
 
-        event(new QuoteWasUpdated($this, $this->company, Ninja::eventVars())); 
-        
+        event(new QuoteWasUpdated($this, $this->company, Ninja::eventVars()));
+
         CreateQuotePdf::dispatchNow($invitation);
 
         return $storage_path;
@@ -218,20 +217,20 @@ class Quote extends BaseModel
     public static function badgeForStatus(int $status)
     {
         switch ($status) {
-            case Quote::STATUS_DRAFT:
-                return '<h5><span class="badge badge-light">' . ctrans('texts.draft') . '</span></h5>';
+            case self::STATUS_DRAFT:
+                return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
                 break;
-            case Quote::STATUS_SENT:
-                return '<h5><span class="badge badge-primary">' . ctrans('texts.pending') . '</span></h5>';
+            case self::STATUS_SENT:
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.pending').'</span></h5>';
                 break;
-            case Quote::STATUS_APPROVED:
-                return '<h5><span class="badge badge-success">' . ctrans('texts.approved') . '</span></h5>';
+            case self::STATUS_APPROVED:
+                return '<h5><span class="badge badge-success">'.ctrans('texts.approved').'</span></h5>';
                 break;
-            case Quote::STATUS_EXPIRED:
-                return '<h5><span class="badge badge-danger">' . ctrans('texts.expired') . '</span></h5>';
+            case self::STATUS_EXPIRED:
+                return '<h5><span class="badge badge-danger">'.ctrans('texts.expired').'</span></h5>';
                 break;
             default:
-                # code...
+                // code...
                 break;
         }
     }

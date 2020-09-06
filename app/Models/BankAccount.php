@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -11,8 +11,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Crypt;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -65,12 +65,11 @@ class BankAccount extends BaseModel
      */
     public function bank_subaccounts()
     {
-        return $this->hasMany('App\Models\BankSubaccount');
+        return $this->hasMany(\App\Models\BankSubaccount::class);
     }
 
     public function getEntityType()
     {
-        return BankAccount::class;
+        return self::class;
     }
-
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -17,17 +17,17 @@ use App\Models\RecurringInvoice;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
-use Illuminate\Foundation\Bus\Dispatchable;
 
 class SendRecurring implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use GeneratesCounter;
-    
+
     public $recurring_invoice;
 
     protected $db;
@@ -37,7 +37,6 @@ class SendRecurring implements ShouldQueue
      *
      * @return void
      */
-
     public function __construct(RecurringInvoice $recurring_invoice, string $db = 'db-ninja-01')
     {
         $this->recurring_invoice = $recurring_invoice;
@@ -60,13 +59,13 @@ class SendRecurring implements ShouldQueue
 
         // Queue: Emails for invoice
         // foreach invoice->invitations
-        
+
         // Fire Payment if auto-bill is enabled
         if ($this->recurring_invoice->settings->auto_bill) {
             //PAYMENT ACTION HERE TODO
 
             // Clean up recurring invoice object
-        
+
             $this->recurring_invoice->remaining_cycles = $this->recurring_invoice->remainingCycles();
         }
         $this->recurring_invoice->last_sent_date = date('Y-m-d');
@@ -76,7 +75,7 @@ class SendRecurring implements ShouldQueue
         } else {
             $this->recurring_invoice->setCompleted();
         }
-        
+
         $this->recurring_invoice->save();
     }
 }

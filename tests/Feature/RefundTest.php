@@ -30,7 +30,6 @@ use Tests\TestCase;
  * @test
  * @covers App\Utils\Traits\Payment\Refundable
  */
-    
 class RefundTest extends TestCase
 {
     use MakesHash;
@@ -65,7 +64,7 @@ class RefundTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -92,12 +91,11 @@ class RefundTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments', $data);
 
-        
         $arr = $response->json();
         $response->assertStatus(200);
 
         $payment_id = $arr['data']['id'];
-        
+
         $this->assertEquals(50, $arr['data']['amount']);
 
         $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
@@ -141,7 +139,7 @@ class RefundTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -155,23 +153,23 @@ class RefundTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        
+
         $this->invoice->setRelation('client', $this->client);
         $this->invoice->setRelation('company', $this->company);
 
         $this->invoice->service()->createInvitations()->markSent()->save();
 
         $this->assertNotNull($this->invoice->invitations);
-        
+
         $this->assertNotNull($this->invoice->invitations->first()->contact);
-        
+
         $data = [
             'amount' => 50,
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -183,7 +181,6 @@ class RefundTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments', $data);
 
-        
         $arr = $response->json();
         $response->assertStatus(200);
 
@@ -196,7 +193,6 @@ class RefundTest extends TestCase
         $this->assertNotNull($payment);
         $this->assertNotNull($payment->invoices());
         $this->assertEquals(1, $payment->invoices()->count());
-        
 
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
@@ -232,7 +228,7 @@ class RefundTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -253,7 +249,7 @@ class RefundTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -265,7 +261,6 @@ class RefundTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments', $data);
 
-        
         $arr = $response->json();
         $response->assertStatus(200);
 
@@ -278,7 +273,6 @@ class RefundTest extends TestCase
         $this->assertNotNull($payment);
         $this->assertNotNull($payment->invoices());
         $this->assertEquals(1, $payment->invoices()->count());
-        
 
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
@@ -286,7 +280,7 @@ class RefundTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -298,19 +292,19 @@ class RefundTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments/refund', $data);
-        
+
         $response->assertStatus(200);
     }
 
     /**
-     * Test Validation with incorrect invoice refund amounts
+     * Test Validation with incorrect invoice refund amounts.
      */
     public function testRefundValidationWithInValidInvoiceRefundedAmount()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -331,7 +325,7 @@ class RefundTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -343,7 +337,6 @@ class RefundTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments', $data);
 
-        
         $arr = $response->json();
         $response->assertStatus(200);
 
@@ -356,7 +349,6 @@ class RefundTest extends TestCase
         $this->assertNotNull($payment);
         $this->assertNotNull($payment->invoices());
         $this->assertEquals(1, $payment->invoices()->count());
-        
 
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
@@ -364,7 +356,7 @@ class RefundTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 100
+                'amount' => 100,
                 ],
             ],
             'date' => '2020/12/12',
@@ -387,17 +379,17 @@ class RefundTest extends TestCase
             $response->assertStatus(302);
         }
     }
-    
+
     /**
      * Tests refund when providing an invoice
-     * not related to the payment
+     * not related to the payment.
      */
     public function testRefundValidationWithInValidInvoiceProvided()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -418,7 +410,7 @@ class RefundTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -430,7 +422,6 @@ class RefundTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments', $data);
 
-        
         $arr = $response->json();
         $response->assertStatus(200);
 
@@ -443,8 +434,8 @@ class RefundTest extends TestCase
         $this->assertNotNull($payment);
         $this->assertNotNull($payment->invoices());
         $this->assertEquals(1, $payment->invoices()->count());
-        
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -465,7 +456,7 @@ class RefundTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -490,7 +481,7 @@ class RefundTest extends TestCase
     }
 
     /**
-     * Test refunds where payments include credits
+     * Test refunds where payments include credits.
      *
      * $10 invoice
      * $10 credit
@@ -501,14 +492,13 @@ class RefundTest extends TestCase
      *
      * payment.applied = 10
      * credit.balance = 0
-     *
      */
     public function testRefundWhereCreditsArePresent()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -525,7 +515,7 @@ class RefundTest extends TestCase
 
         $this->credit = CreditFactory::create($this->company->id, $this->user->id);
         $this->credit->client_id = $client->id;
-        $this->credit->status_id=2;
+        $this->credit->status_id = 2;
 
         $this->credit->line_items = $this->buildLineItems();
         $this->credit->amount = 10;
@@ -540,13 +530,13 @@ class RefundTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'credits' => [
                 [
                 'credit_id' => $this->credit->hashed_id,
-                'amount' => $this->credit->amount
+                'amount' => $this->credit->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -562,10 +552,9 @@ class RefundTest extends TestCase
             ])->post('/api/v1/payments', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            \Log::error("this should not hit");
+            \Log::error('this should not hit');
             \Log::error($message);
         }
-
 
         $arr = $response->json();
         $response->assertStatus(200);
@@ -579,7 +568,6 @@ class RefundTest extends TestCase
         $this->assertNotNull($payment);
         $this->assertNotNull($payment->invoices());
         $this->assertEquals(1, $payment->invoices()->count());
-        
 
         $data = [
             'id' => $this->encodePrimaryKey($payment->id),
@@ -587,7 +575,7 @@ class RefundTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -602,10 +590,9 @@ class RefundTest extends TestCase
         ])->post('/api/v1/payments/refund', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            \Log::error("refund message error");
+            \Log::error('refund message error');
             \Log::error($message);
         }
-
 
         $response->assertStatus(200);
         $arr = $response->json();

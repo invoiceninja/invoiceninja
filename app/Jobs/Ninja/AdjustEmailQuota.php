@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -53,28 +53,22 @@ class AdjustEmailQuota implements ShouldQueue
      */
     public function handle()
     {
-
         if (! config('ninja.db.multi_db_enabled')) {
             $this->adjust();
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
-
                 MultiDB::setDB($db);
 
                 $this->adjust();
             }
         }
-
     }
 
     public function adjust()
     {
-
-        foreach(Account::cursor() as $account){
-                //@TODO once we add in the two columns daily_emails_quota daily_emails_sent_
+        foreach (Account::cursor() as $account) {
+            //@TODO once we add in the two columns daily_emails_quota daily_emails_sent_
         }
-
     }
-
 }

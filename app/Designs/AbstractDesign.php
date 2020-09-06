@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,14 +14,14 @@ namespace App\Designs;
 abstract class AbstractDesign
 {
     abstract public function includes();
-    
+
     abstract public function header();
-    
+
     abstract public function body();
-    
+
     abstract public function product();
 
     abstract public function task();
-    
+
     abstract public function footer();
 }

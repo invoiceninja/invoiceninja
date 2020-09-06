@@ -42,23 +42,22 @@ class UploadLogoTest extends TestCase
         Company::reguard();
     }
 
-
     public function testLogoUploadWorks()
     {
         Storage::fake('avatars');
 
         $data = [
             'company_logo' => UploadedFile::fake()->image('avatar.jpg'),
-            'name' => 'TestCompany'
+            'name' => 'TestCompany',
         ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $data);
-        
+
         $response->assertStatus(200);
-        
+
         $acc = $response->json();
 
         $logo = $acc['data']['settings']['company_logo'];
@@ -68,41 +67,38 @@ class UploadLogoTest extends TestCase
         $this->assertNotNull($logo_file);
     }
 
-
-
     public function testLogoUploadfailure()
     {
         Storage::fake('avatars');
 
         $data = [
-            'company_logo' => "",
-            'name' => 'TestCompany'
+            'company_logo' => '',
+            'name' => 'TestCompany',
         ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $data);
-        
+
         //$acc = $response->json();
 
         $response->assertStatus(302);
     }
-
 
     public function testLogoUploadNoAttribute()
     {
         Storage::fake('avatars');
 
         $data = [
-            'name' => 'TestCompany'
+            'name' => 'TestCompany',
         ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $data);
-        
+
         $response->assertStatus(200);
     }
 }

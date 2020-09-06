@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -30,10 +30,8 @@ use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
 /**
- * Class PaymentController
- * @package App\Http\Controllers\ClientPortal\PaymentController
+ * Class PaymentController.
  */
-
 class PaymentController extends Controller
 {
     use MakesHash;
@@ -92,7 +90,6 @@ class PaymentController extends Controller
             return $invoice->isPayable();
         });
 
-
         /*return early if no invoices*/
         if ($invoices->count() == 0) {
             return redirect()
@@ -101,29 +98,27 @@ class PaymentController extends Controller
         }
 
         /*iterate through invoices and add gateway fees and other payment metadata*/
-        
-        foreach($payable_invoices as $key => $payable_invoice)
-        {
 
+        foreach ($payable_invoices as $key => $payable_invoice) {
             $payable_invoices[$key]['amount'] = Number::parseFloat($payable_invoice['amount']);
             $payable_invoice['amount'] = $payable_invoices[$key]['amount'];
 
-            $invoice = $invoices->first(function ($inv) use($payable_invoice) {
-                            return $payable_invoice['invoice_id'] == $inv->hashed_id;
-                        });
-            
+            $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
+                return $payable_invoice['invoice_id'] == $inv->hashed_id;
+            });
+
             $payable_invoices[$key]['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             $payable_invoices[$key]['invoice_number'] = $invoice->number;
 
-            if(isset($invoice->po_number))
+            if (isset($invoice->po_number)) {
                 $additional_info = $invoice->po_number;
-            elseif(isset($invoice->public_notes))
+            } elseif (isset($invoice->public_notes)) {
                 $additional_info = $invoice->public_notes;
-            else
+            } else {
                 $additional_info = $invoice->date;
+            }
 
             $payable_invoices[$key]['additional_info'] = $additional_info;
-
         }
 
         if ((bool) request()->signature) {
@@ -135,17 +130,16 @@ class PaymentController extends Controller
         $payment_methods = auth()->user()->client->getPaymentMethods(array_sum(array_column($payable_invoices, 'amount_with_fee')));
         $payment_method_id = request()->input('payment_method_id');
 
-        $invoice_totals = array_sum(array_column($payable_invoices,'amount'));
+        $invoice_totals = array_sum(array_column($payable_invoices, 'amount'));
 
         $first_invoice = $invoices->first();
         $fee_totals = round($gateway->calcGatewayFee($invoice_totals, true), $first_invoice->client->currency()->precision);
 
-        if(!$first_invoice->uses_inclusive_taxes) {
-
+        if (! $first_invoice->uses_inclusive_taxes) {
             $fee_tax = 0;
-            $fee_tax += round(($first_invoice->tax_rate1/100)*$fee_totals, $first_invoice->client->currency()->precision);
-            $fee_tax += round(($first_invoice->tax_rate2/100)*$fee_totals, $first_invoice->client->currency()->precision);
-            $fee_tax += round(($first_invoice->tax_rate3/100)*$fee_totals, $first_invoice->client->currency()->precision);
+            $fee_tax += round(($first_invoice->tax_rate1 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
+            $fee_tax += round(($first_invoice->tax_rate2 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
+            $fee_tax += round(($first_invoice->tax_rate3 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
 
             $fee_totals += $fee_tax;
         }
@@ -188,18 +182,18 @@ class PaymentController extends Controller
         //REFACTOR - Entry point for the gateway response - we don't need to do anything at this point.
         //
         // - Inside each gateway driver, we should use have a generic code path (in BaseDriver.php)for successful/failed payment
-        // 
+        //
         //   Success workflow
-        //   
+        //
         // - Rehydrate the hash and iterate through the invoices and update the balances
         // - Update the type_id of the gateway fee to type_id 4
         // - Link invoices to payment
-        // 
+        //
         //   Failure workflow
-        // 
+        //
         // - Rehydrate hash, iterate through invoices and remove type_id 3's
         // - Recalcuate invoice totals
-        
+
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->input('payment_method_id'))

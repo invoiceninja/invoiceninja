@@ -16,8 +16,9 @@ class RemovePhotoDesign extends Migration
     {
         $design = Design::find(10);
 
-        if($design)
+        if ($design) {
             $design->forceDelete();
+        }
     }
 
     /**

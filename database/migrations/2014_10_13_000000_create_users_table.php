@@ -14,8 +14,8 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        DB::raw("SET GLOBAL innodb_file_per_table=1;");
-        DB::raw("SET GLOBAL innodb_file_format=Barracuda;");
+        DB::raw('SET GLOBAL innodb_file_per_table=1;');
+        DB::raw('SET GLOBAL innodb_file_format=Barracuda;');
 
         Schema::create('languages', function ($table) {
             $table->increments('id');
@@ -105,7 +105,7 @@ class CreateUsersTable extends Migration
             $table->date('plan_expires')->nullable();
             $table->string('user_agent')->nullable();
             $table->string('key')->nullable();
-            
+
             $table->unsignedInteger('payment_id')->nullable()->index();
             $table->unsignedInteger('default_company_id');
 
@@ -127,7 +127,7 @@ class CreateUsersTable extends Migration
 
             $table->timestamps(6);
         });
-        
+
         Schema::create('companies', function (Blueprint $table) {
             $table->increments('id');
             //$table->string('name')->nullable();
@@ -141,7 +141,7 @@ class CreateUsersTable extends Migration
             $table->boolean('update_products')->default(true);
             $table->boolean('show_product_details')->default(true);
             $table->boolean('client_can_register')->default(false);
-            
+
             $table->boolean('custom_surcharge_taxes1')->default(false);
             $table->boolean('custom_surcharge_taxes2')->default(false);
             $table->boolean('custom_surcharge_taxes3')->default(false);
@@ -150,7 +150,7 @@ class CreateUsersTable extends Migration
             $table->boolean('show_product_cost')->default(false);
             $table->unsignedInteger('enabled_tax_rates')->default(0);
             $table->unsignedInteger('enabled_modules')->default(0);
-            
+
             $table->boolean('enable_product_cost')->default(0);
             $table->boolean('enable_product_quantity')->default(1);
             $table->boolean('default_quantity')->default(1);
@@ -166,13 +166,13 @@ class CreateUsersTable extends Migration
             $table->smallInteger('enable_modules')->default(0);
             $table->mediumText('custom_fields');
             $table->mediumText('settings');
-            
+
             $table->string('slack_webhook_url');
             $table->string('google_analytics_url');
 
             $table->timestamps(6);
             //$table->softDeletes('deleted_at', 6);
-            
+
             //$table->foreign('country_id')->references('id')->on('countries');
             $table->foreign('industry_id')->references('id')->on('industries');
             $table->foreign('size_id')->references('id')->on('sizes');
@@ -180,7 +180,6 @@ class CreateUsersTable extends Migration
         });
 
         //DB::statement('ALTER table companies key_block_size=8 row_format=compressed');
-
 
         Schema::create('company_user', function (Blueprint $table) {
             $table->increments('id');
@@ -202,9 +201,9 @@ class CreateUsersTable extends Migration
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             //  $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            
+
             $table->unique(['company_id', 'user_id']);
-            $table->index(['account_id', 'company_id','deleted_at']);
+            $table->index(['account_id', 'company_id', 'deleted_at']);
         });
 
         Schema::create('documents', function (Blueprint $table) {
@@ -236,7 +235,7 @@ class CreateUsersTable extends Migration
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
         });
-         
+
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('account_id')->index();
@@ -279,7 +278,6 @@ class CreateUsersTable extends Migration
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade')->onUpdate('cascade');
         });
 
-
         Schema::create('company_tokens', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('company_id')->index();
@@ -295,7 +293,7 @@ class CreateUsersTable extends Migration
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
-        
+
         Schema::create('clients', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('company_id')->index();
@@ -388,7 +386,7 @@ class CreateUsersTable extends Migration
             $table->softDeletes('deleted_at', 6);
             $table->index(['company_id', 'deleted_at']);
             $table->index(['company_id', 'email', 'deleted_at']);
-            
+
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
             //$table->unique(['company_id', 'email']);
         });
@@ -415,12 +413,10 @@ class CreateUsersTable extends Migration
             $table->softDeletes('deleted_at', 6);
             $table->index(['company_id', 'deleted_at']);
 
-
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('gateway_key')->references('key')->on('gateways');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
-
 
         Schema::create('invoices', function ($t) {
             $t->increments('id');
@@ -465,7 +461,7 @@ class CreateUsersTable extends Migration
             $t->decimal('total_taxes', 13, 3)->default(0);
 
             $t->boolean('uses_inclusive_taxes')->default(0);
-            
+
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();
@@ -543,7 +539,7 @@ class CreateUsersTable extends Migration
             $t->decimal('total_taxes', 13, 3)->default(0);
 
             $t->boolean('uses_inclusive_taxes')->default(0);
-            
+
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();
@@ -578,7 +574,6 @@ class CreateUsersTable extends Migration
             $t->unique(['company_id', 'number']);
         });
 
-
         Schema::create('credit_invitations', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('company_id');
@@ -604,7 +599,7 @@ class CreateUsersTable extends Migration
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
 
-            $t->index(['deleted_at', 'credit_id','company_id']);
+            $t->index(['deleted_at', 'credit_id', 'company_id']);
             $t->unique(['client_contact_id', 'credit_id']);
         });
 
@@ -636,7 +631,6 @@ class CreateUsersTable extends Migration
             $t->text('private_notes')->nullable();
             $t->text('terms')->nullable();
 
-
             $t->string('tax_name1')->nullable();
             $t->decimal('tax_rate1', 13, 3)->default(0);
 
@@ -647,7 +641,6 @@ class CreateUsersTable extends Migration
             $t->decimal('tax_rate3', 13, 3)->default(0);
 
             $t->decimal('total_taxes', 13, 3)->default(0);
-
 
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
@@ -672,8 +665,6 @@ class CreateUsersTable extends Migration
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-
-
         });
 
         Schema::create('recurring_quotes', function ($t) {
@@ -715,7 +706,6 @@ class CreateUsersTable extends Migration
 
             $t->decimal('total_taxes', 13, 3)->default(0);
 
-
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();
@@ -738,8 +728,6 @@ class CreateUsersTable extends Migration
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-
-
         });
 
         Schema::create('quotes', function ($t) {
@@ -762,7 +750,7 @@ class CreateUsersTable extends Migration
             $t->string('po_number')->nullable();
             $t->date('date')->nullable();
             $t->date('last_sent_date')->nullable();
-            
+
             $t->datetime('due_date')->nullable();
             $t->datetime('next_send_date')->nullable();
 
@@ -788,7 +776,7 @@ class CreateUsersTable extends Migration
             $t->decimal('total_taxes', 13, 3)->default(0);
 
             $t->boolean('uses_inclusive_taxes')->default(0);
-            
+
             $t->string('custom_value1')->nullable();
             $t->string('custom_value2')->nullable();
             $t->string('custom_value3')->nullable();
@@ -851,8 +839,6 @@ class CreateUsersTable extends Migration
             $t->unique(['client_contact_id', 'invoice_id']);
         });
 
-
-
         Schema::create('quote_invitations', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('company_id');
@@ -878,8 +864,7 @@ class CreateUsersTable extends Migration
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
 
-
-            $t->index(['deleted_at', 'quote_id','company_id']);
+            $t->index(['deleted_at', 'quote_id', 'company_id']);
             $t->unique(['client_contact_id', 'quote_id']);
         });
 
@@ -898,7 +883,6 @@ class CreateUsersTable extends Migration
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
-
 
         Schema::create('products', function ($t) {
             $t->increments('id');
@@ -933,10 +917,7 @@ class CreateUsersTable extends Migration
 
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-
-
         });
-
 
         Schema::create('payments', function ($t) {
             $t->increments('id');
@@ -989,7 +970,6 @@ class CreateUsersTable extends Migration
             $table->foreign('payment_id')->references('id')->on('payments')->onDelete('cascade')->onUpdate('cascade');
         });
 
-
         Schema::create('payment_libraries', function ($t) {
             $t->increments('id');
             $t->timestamps(6);
@@ -997,7 +977,6 @@ class CreateUsersTable extends Migration
             $t->string('name')->nullable();
             $t->boolean('visible')->default(true);
         });
-
 
         Schema::create('banks', function ($table) {
             $table->increments('id');
@@ -1023,7 +1002,6 @@ class CreateUsersTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('bank_id')->references('id')->on('banks');
         });
-
 
         Schema::create('bank_subcompanies', function ($table) {
             $table->increments('id');
@@ -1061,7 +1039,6 @@ class CreateUsersTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
 
-
         Schema::create('activities', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('user_id')->nullable();
@@ -1083,7 +1060,6 @@ class CreateUsersTable extends Migration
 
             $table->text('notes');
             $table->timestamps(6);
-
 
             $table->index(['vendor_id', 'company_id']);
             $table->index(['project_id', 'company_id']);
@@ -1137,7 +1113,6 @@ class CreateUsersTable extends Migration
             $table->string('name')->nullable();
         });
 
-
         Schema::create('client_gateway_tokens', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('company_id');
@@ -1172,7 +1147,6 @@ class CreateUsersTable extends Migration
 
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
         });
-
 
         Schema::create('date_formats', function ($table) {
             $table->increments('id');
@@ -1232,7 +1206,7 @@ class CreateUsersTable extends Migration
             $table->string('custom_value4')->nullable();
 
             $table->index(['company_id', 'deleted_at']);
-            
+
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('country_id')->references('id')->on('countries');
@@ -1274,7 +1248,6 @@ class CreateUsersTable extends Migration
             $table->string('name')->nullable();
 
             $table->index(['company_id', 'deleted_at']);
-
         });
 
         Schema::create('expenses', function (Blueprint $table) {
@@ -1325,7 +1298,6 @@ class CreateUsersTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
 
-
         Schema::create('projects', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('user_id');
@@ -1344,10 +1316,10 @@ class CreateUsersTable extends Migration
             $t->text('custom_value4')->nullable();
             $t->timestamps(6);
             $t->softDeletes();
-            
+
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            
+
             $t->index(['company_id', 'deleted_at']);
 
             $t->unique(['company_id', 'name']);
@@ -1385,7 +1357,6 @@ class CreateUsersTable extends Migration
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
         });
-        
 
         Schema::create('designs', function ($table) {
             $table->increments('id');
@@ -1404,7 +1375,7 @@ class CreateUsersTable extends Migration
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
         });
     }
-  
+
     /**
      * Reverse the migrations.
      *

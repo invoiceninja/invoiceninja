@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Models\Invoice;
 use App\Http\Controllers\Controller;
+use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Hash;
 
@@ -25,15 +25,15 @@ class EntityViewController extends Controller
      */
     public function index(string $entity_type, string $invitation_key)
     {
-        if (!in_array($entity_type, $this->entity_types)) {
+        if (! in_array($entity_type, $this->entity_types)) {
             abort(404);
         }
 
         $invitation_entity = sprintf('App\\Models\\%sInvitation', ucfirst($entity_type));
 
-        $key = $entity_type . '_id';
+        $key = $entity_type.'_id';
 
-        $invitation = $invitation_entity::whereRaw("BINARY `key`= ?", [$invitation_key])->firstOrFail();
+        $invitation = $invitation_entity::whereRaw('BINARY `key`= ?', [$invitation_key])->firstOrFail();
 
         $contact = $invitation->contact;
 
@@ -48,7 +48,7 @@ class EntityViewController extends Controller
             session()->flash("{$entity_type}_VIEW_{$entity->hashed_id}", true);
         }
 
-        if (!session("{$entity_type}_VIEW_{$entity->hashed_id}")) {
+        if (! session("{$entity_type}_VIEW_{$entity->hashed_id}")) {
             return redirect()->route('client.entity_view.password', compact('entity_type', 'invitation_key'));
         }
 
@@ -84,15 +84,15 @@ class EntityViewController extends Controller
      */
     public function handlePassword(string $entity_type, string $invitation_key)
     {
-        if (!in_array($entity_type, $this->entity_types)) {
+        if (! in_array($entity_type, $this->entity_types)) {
             abort(404);
         }
 
         $invitation_entity = sprintf('App\\Models\\%sInvitation', ucfirst($entity_type));
 
-        $key = $entity_type . '_id';
+        $key = $entity_type.'_id';
 
-        $invitation = $invitation_entity::whereRaw("BINARY `key`= ?", [$invitation_key])->firstOrFail();
+        $invitation = $invitation_entity::whereRaw('BINARY `key`= ?', [$invitation_key])->firstOrFail();
 
         $contact = $invitation->contact;
 
@@ -109,6 +109,7 @@ class EntityViewController extends Controller
         }
 
         session()->flash('PASSWORD_FAILED', true);
+
         return back();
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -41,6 +41,5 @@ class ClientWasCreated
         $this->client = $client;
         $this->company = $company;
         $this->event_vars = $event_vars;
-
     }
 }

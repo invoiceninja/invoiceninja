@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -93,15 +93,14 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @return void
      */
-
     public function boot()
     {
         $this->registerPolicies();
 
         Gate::define('view-list', function ($user, $entity) {
             $entity = strtolower(class_basename($entity));
-            return $user->hasPermission('view_' . $entity) || $user->isAdmin();
+
+            return $user->hasPermission('view_'.$entity) || $user->isAdmin();
         });
     }
-
 }

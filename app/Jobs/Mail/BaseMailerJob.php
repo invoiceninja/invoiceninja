@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,7 +28,6 @@ class BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-
     public function setMailDriver()
     {
         switch ($this->settings->email_sending_method) {
@@ -40,7 +39,6 @@ class BaseMailerJob implements ShouldQueue
             default:
                 break;
         }
-
     }
 
     public function setGmailMailer()
@@ -56,19 +54,17 @@ class BaseMailerJob implements ShouldQueue
             $google->refreshToken($user);
         }
 
-        /* 
-         *  Now that our token is refresh and valid we can boot the 
+        /*
+         *  Now that our token is refresh and valid we can boot the
          *  mail driver at runtime and also set the token which will persist
          *  just for this request.
         */
-       
+
         Config::set('mail.driver', 'gmail');
         Config::set('services.gmail.token', $user->oauth_user_token->access_token);
 
         (new MailServiceProvider(app()))->register();
-
     }
-
 
     public function logMailError($errors, $recipient_object)
     {

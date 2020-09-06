@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
 
         if (Timezone::count()) {
             $this->command->info('Skipping: already run');
+
             return;
         }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,8 +14,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 /**
- * Class SettingsController
- * @package App\Http\Controllers
+ * Class SettingsController.
  */
 class SettingsController extends BaseController
 {
@@ -23,7 +22,7 @@ class SettingsController extends BaseController
     {
         parent::__construct();
     }
-    
+
     /**
      * Display a listing of the resource.
      *

@@ -22,20 +22,17 @@ class CloneQuoteToInvoiceFactoryTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-    
-        $this->makeTestData();
 
+        $this->makeTestData();
     }
 
     public function testCloneProperties()
     {
-
         $invoice = CloneQuoteToInvoiceFactory::create($this->quote, $this->quote->user_id);
 
         $this->assertNull($invoice->due_date);
         $this->assertNull($invoice->partial_due_date);
         $this->assertNull($invoice->number);
-
     }
 
     public function testQuoteToInvoiceConversionService()
@@ -44,6 +41,4 @@ class CloneQuoteToInvoiceFactoryTest extends TestCase
 
         $this->assertTrue($invoice instanceof Invoice);
     }
-
-
 }

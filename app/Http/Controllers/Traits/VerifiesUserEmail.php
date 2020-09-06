@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,8 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Class VerifiesUserEmail
- * @package App\Http\Controllers\Traits
+ * Class VerifiesUserEmail.
  */
 trait VerifiesUserEmail
 {
@@ -32,10 +31,10 @@ trait VerifiesUserEmail
     public function confirm()
     {
         $user = User::where('confirmation_code', request()->confirmation_code)->first();
-        
+
         // if ($user = User::whereRaw("BINARY `confirmation_code`= ?", request()->input('confirmation_code'))->first()) {
 
-        if (!$user) {
+        if (! $user) {
             return $this->render('auth.confirmed', ['root' => 'themes', 'message' => ctrans('texts.wrong_confirmation')]);
         }
 
@@ -57,10 +56,10 @@ trait VerifiesUserEmail
     {
         $user = User::where('confirmation_code', request()->confirmation_code)->first();
 
-        if (!$user) {
+        if (! $user) {
             return $this->render('auth.confirmed', ['root' => 'themes', 'message' => ctrans('texts.wrong_confirmation')]);
         }
-        
+
         request()->validate([
             'password' => ['required', 'min:6', 'confirmed'],
         ]);

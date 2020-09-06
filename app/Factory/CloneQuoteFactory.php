@@ -1,6 +1,6 @@
 <?php
 /**
- * quote Ninja (https://quoteninja.com)
+ * quote Ninja (https://quoteninja.com).
  *
  * @link https://github.com/quoteninja/quoteninja source repository
  *
@@ -27,7 +27,7 @@ class CloneQuoteFactory
         $clone_quote->balance = $quote->amount;
         $clone_quote->amount = $quote->amount;
         $clone_quote->line_items = $quote->line_items;
-        
+
         return $clone_quote;
     }
 }
