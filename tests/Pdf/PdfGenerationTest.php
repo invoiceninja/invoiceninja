@@ -25,6 +25,7 @@ class PdfGenerationTest extends TestCase
             //->footerHtml($footer)
             ->waitUntilNetworkIdle()
             //->margins(10,10,10,10)
+            ->noSandbox()
             ->savePdf($pdf);
     }
 

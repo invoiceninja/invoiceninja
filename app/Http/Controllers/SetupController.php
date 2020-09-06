@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -30,16 +31,11 @@ use Spatie\Browsershot\Browsershot;
  */
 class SetupController extends Controller
 {
-    /**
-     * Main setup view.
-     *
-     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
-     */
     public function index()
     {
         $check = SystemHealth::check(false);
 
-        if($check['system_health'] == true && $check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::all()->first()) {
+        if ($check['system_health'] == true && $check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::all()->first()) {
             return redirect('/');
         }
 
@@ -53,7 +49,7 @@ class SetupController extends Controller
         if ($check['system_health'] === false) {
             info($check);
 
-            return response('Oops, something went wrong. Check your logs.'); /** We should never reach this block, but jic. */
+            return response('Oops, something went wrong. Check your storage/logs/laravel.log file.');
         }
 
         $mail_driver = $request->input('mail_driver');
@@ -64,7 +60,7 @@ class SetupController extends Controller
 
         $url = $request->input('url');
 
-        if(substr($url, -1) != '/')
+        if (substr($url, -1) != '/')
             $url = $url . '/';
 
         $_ENV['APP_KEY'] = config('app.key');
@@ -106,7 +102,7 @@ class SetupController extends Controller
             }
 
             /* Write the .env file */
-            $filePath = base_path().'/.env';
+            $filePath = base_path() . '/.env';
             $fp = fopen($filePath, 'w');
             fwrite($fp, $config);
             fclose($fp);
@@ -185,7 +181,7 @@ class SetupController extends Controller
         if ($response_array instanceof Response) {
             return true;
         }
-        
+
 
         return false;
     }
@@ -193,16 +189,16 @@ class SetupController extends Controller
     public function checkPdf(Request $request)
     {
         try {
-        
-            if(config('ninja.phantomjs_key')){
+
+            if (config('ninja.phantomjs_key')) {
                 return $this->testPhantom();
             }
 
-
-            Browsershot::url('https://www.invoiceninja.com')->savePdf(
-     //       Browsershot::html('If you see this text, generating PDF works! Thanks for using Invoice Ninja!')->savePdf(
-                public_path('test.pdf')
-            );
+            Browsershot::url('https://www.invoiceninja.com')
+                ->noSandbox()
+                ->savePdf(
+                    public_path('test.pdf')
+                );
 
             return response(['url' => asset('test.pdf')], 200);
         } catch (\Exception $e) {
@@ -216,7 +212,7 @@ class SetupController extends Controller
     {
 
         try {
-        
+
             $key = config('ninja.phantomjs_key');
             $url = 'https://www.invoiceninja.org/';
 
@@ -227,14 +223,9 @@ class SetupController extends Controller
             Storage::disk('local')->put('test.pdf', $pdf);
 
             return response(['url' => Storage::disk('local')->url('test.pdf')], 200);
-        
-        }
-        catch(\Exception $e){
-        
+        } catch (\Exception $e) {
+
             return response([], 500);
-
         }
-
     }
-    
 }
