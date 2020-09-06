@@ -23,7 +23,7 @@ class GoogleAnalyticsTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-        
+
         $this->makeTestData();
     }
 
@@ -31,17 +31,16 @@ class GoogleAnalyticsTest extends TestCase
     {
         $this->withoutEvents();
 
-
-        $analytics_id = "analytics_id";
+        $analytics_id = 'analytics_id';
         $invoice = $this->invoice;
         $client = $this->client;
-        
+
         $invoice->service()->markPaid()->save();
 
         $payment = $invoice->payments->first();
 
         $amount = $payment->amount;
-        
+
         if ($invoice) {
             $items = $invoice->line_items;
             $item = end($items)->product_key;
@@ -59,10 +58,10 @@ class GoogleAnalyticsTest extends TestCase
 
         $base = "v=1&tid={$analytics_id}&cid={$client->id}&cu={$currency_code}&ti={$entity_number}";
 
-        $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
+        $url = $base."&t=transaction&ta=ninja&tr={$amount}";
 
-        $url = $base . "&t=item&in={$item}&ip={$amount}&iq=1";
-    
+        $url = $base."&t=item&in={$item}&ip={$amount}&iq=1";
+
         $this->assertNotNull($url);
     }
 }

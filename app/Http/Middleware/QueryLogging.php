@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -47,15 +47,14 @@ class QueryLogging
                 $count = count($queries);
                 $timeEnd = microtime(true);
                 $time = $timeEnd - $timeStart;
-            
-                Log::info($request->method() . ' - ' . $request->url() . ": $count queries - " . $time);
-                
-           //   if($count > 100)
+
+                Log::info($request->method().' - '.$request->url().": $count queries - ".$time);
+
+                //   if($count > 100)
            //       Log::info($queries);
-                 
             }
         }
-        
+
         return $response;
     }
 }

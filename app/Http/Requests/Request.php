@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,7 +15,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class Request extends FormRequest
 {
-
     /**
      * Get the validation rules that apply to the request.
      *

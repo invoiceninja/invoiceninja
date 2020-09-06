@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,46 +21,50 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 
-
 class Phantom
 {
-	use MakesHash;
-	/**
-	 * Generate a PDF from the 
-	 * Phantom JS API
-	 * 
-	 * @return pdf HTML to PDF conversion
-	 */
-	public function generate($invitation)
-	{
-		$entity = false;
+    use MakesHash;
 
-		if($invitation instanceof InvoiceInvitation)
-			$entity = 'invoice';
-		elseif($invitation instanceof CreditInvitation)
-			$entity = 'credit';
-		elseif($invitation instanceof QuoteInvitation)
-			$entity = 'quote';
+    /**
+     * Generate a PDF from the
+     * Phantom JS API.
+     *
+     * @return pdf HTML to PDF conversion
+     */
+    public function generate($invitation)
+    {
+        $entity = false;
 
-		$entity_obj = $invitation->{$entity};
+        if ($invitation instanceof InvoiceInvitation) {
+            $entity = 'invoice';
+        } elseif ($invitation instanceof CreditInvitation) {
+            $entity = 'credit';
+        } elseif ($invitation instanceof QuoteInvitation) {
+            $entity = 'quote';
+        }
 
-		if($entity == 'invoice')
-        	$path      = $entity_obj->client->invoice_filepath();
+        $entity_obj = $invitation->{$entity};
 
-		if($entity == 'quote')
-        	$path      = $entity_obj->client->quote_filepath();
+        if ($entity == 'invoice') {
+            $path = $entity_obj->client->invoice_filepath();
+        }
 
-		if($entity == 'credit')
-        	$path      = $entity_obj->client->credit_filepath();
+        if ($entity == 'quote') {
+            $path = $entity_obj->client->quote_filepath();
+        }
 
-        $file_path = $path . $entity_obj->number . '.pdf';
+        if ($entity == 'credit') {
+            $path = $entity_obj->client->credit_filepath();
+        }
 
-		$url = config('ninja.app_url') . 'phantom/' . $entity . '/' . $invitation->key . '?phantomjs_secret='. config('ninja.phantomjs_secret');
+        $file_path = $path.$entity_obj->number.'.pdf';
 
-		$key = config('ninja.phantomjs_key');
-		$secret = config('ninja.phantomjs_key');
+        $url = config('ninja.app_url').'phantom/'.$entity.'/'.$invitation->key.'?phantomjs_secret='.config('ninja.phantomjs_secret');
 
-		$phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
+        $key = config('ninja.phantomjs_key');
+        $secret = config('ninja.phantomjs_key');
+
+        $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
         $pdf = \App\Utils\CurlUtils::get($phantom_url);
 
         Storage::makeDirectory($path, 0775);
@@ -68,16 +72,15 @@ class Phantom
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 
         return $file_path;
+    }
 
-	}
-
-	public function displayInvitation(string $entity, string $invitation_key)
-	{
+    public function displayInvitation(string $entity, string $invitation_key)
+    {
         $key = $entity.'_id';
 
         $invitation_instance = 'App\Models\\'.ucfirst($entity).'Invitation';
 
-        $invitation = $invitation_instance::whereRaw("BINARY `key`= ?", [$invitation_key])->first();
+        $invitation = $invitation_instance::whereRaw('BINARY `key`= ?', [$invitation_key])->first();
 
         $entity_obj = $invitation->{$entity};
 
@@ -85,15 +88,14 @@ class Phantom
 
         App::setLocale($invitation->contact->preferredLocale());
 
-        $design_id = $entity_obj->design_id ? $entity_obj->design_id : $this->decodePrimaryKey($entity_obj->client->getSetting($entity . '_design_id'));
+        $design_id = $entity_obj->design_id ? $entity_obj->design_id : $this->decodePrimaryKey($entity_obj->client->getSetting($entity.'_design_id'));
 
         $design = Design::find($design_id);
-        
+
         $designer = new Designer($entity_obj, $design, $entity_obj->client->getSetting('pdf_variables'), $entity);
 
         $data['html'] = (new HtmlEngine($designer, $invitation, $entity))->build();
 
         return view('pdf.html', $data);
-	}
-
+    }
 }

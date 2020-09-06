@@ -6,11 +6,11 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Database\Eloquent\Model;
 
 class GroupSettingTest extends TestCase
 {
@@ -38,7 +38,7 @@ class GroupSettingTest extends TestCase
 
         $data = [
             'name' => 'test',
-            'settings' => $settings
+            'settings' => $settings,
         ];
 
         $response = $this->withHeaders([
@@ -47,14 +47,12 @@ class GroupSettingTest extends TestCase
         ])->post('/api/v1/group_settings', $data);
 
         $response->assertStatus(200);
- 
+
         $arr = $response->json();
 
         $this->assertEquals('test', $arr['data']['name']);
         $this->assertEquals(0, $arr['data']['archived_at']);
-
     }
-
 
     public function testArchiveGroupSettings()
     {
@@ -63,7 +61,7 @@ class GroupSettingTest extends TestCase
 
         $data = [
             'name' => 'test',
-            'settings' => $settings
+            'settings' => $settings,
         ];
 
         $response = $this->withHeaders([
@@ -72,14 +70,14 @@ class GroupSettingTest extends TestCase
         ])->post('/api/v1/group_settings', $data);
 
         $response->assertStatus(200);
- 
+
         $arr = $response->json();
 
         $data = [
             'action' => 'archive',
-            'ids' => [$arr['data']['id']]
+            'ids' => [$arr['data']['id']],
         ];
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -88,8 +86,7 @@ class GroupSettingTest extends TestCase
         $response->assertStatus(200);
 
         $arr = $response->json();
-        
+
         $this->assertNotNull($arr['data'][0]['archived_at']);
     }
-
 }

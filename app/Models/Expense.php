@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -52,19 +52,18 @@ class Expense extends BaseModel
         'custom_value4',
     ];
 
-
     protected $casts = [
         'is_deleted' => 'boolean',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-    
+
     protected $touches = [];
 
     public function getEntityType()
     {
-        return Expense::class;
+        return self::class;
     }
 
     public function documents()

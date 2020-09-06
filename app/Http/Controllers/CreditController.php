@@ -27,10 +27,8 @@ use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 
 /**
- * Class CreditController
- * @package App\Http\Controllers\CreditController
+ * Class CreditController.
  */
-
 class CreditController extends BaseController
 {
     use MakesHash;
@@ -49,7 +47,7 @@ class CreditController extends BaseController
     }
 
     /**
-     * Show the list of Credits
+     * Show the list of Credits.
      *
      * @param      \App\Filters\CreditFilters  $filters  The filters
      *
@@ -87,13 +85,11 @@ class CreditController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
-    
     public function index(CreditFilters $filters)
     {
         $credits = Credit::filter($filters);
-      
+
         return $this->listResponse($credits);
     }
 
@@ -135,7 +131,6 @@ class CreditController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateCreditRequest $request)
     {
@@ -182,7 +177,6 @@ class CreditController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreCreditRequest $request)
     {
@@ -247,7 +241,6 @@ class CreditController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowCreditRequest $request, Credit $credit)
     {
@@ -303,7 +296,6 @@ class CreditController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditCreditRequest $request, Credit $credit)
     {
@@ -360,7 +352,6 @@ class CreditController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateCreditRequest $request, Credit $credit)
     {
@@ -423,7 +414,6 @@ class CreditController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyCreditRequest $request, Credit $credit)
     {
@@ -433,7 +423,7 @@ class CreditController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @return Collection
      *
@@ -481,17 +471,16 @@ class CreditController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
 
         $credits = Credit::withTrashed()->whereIn('id', $this->transformKeys($ids));
 
-        if (!$credits) {
+        if (! $credits) {
             return response()->json(['message' => 'No Credits Found']);
         }
 
@@ -515,48 +504,49 @@ class CreditController extends BaseController
         switch ($action) {
             case 'clone_to_credit':
                 $credit = CloneCreditFactory::create($credit, auth()->user()->id);
+
                 return $this->itemResponse($credit);
                 break;
             case 'history':
-                # code...
+                // code...
                 break;
             case 'mark_sent':
                 $credit->service()->markSent()->save();
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->itemResponse($credit);
                 }
                 break;
             case 'download':
-                    return response()->streamDownload(function () use($credit) {
+                    return response()->streamDownload(function () use ($credit) {
                         echo file_get_contents($credit->pdf_file_path());
                     }, basename($credit->pdf_file_path()));
-                //return response()->download(TempFile::path($credit->pdf_file_path()), basename($credit->pdf_file_path()));  
+                //return response()->download(TempFile::path($credit->pdf_file_path()), basename($credit->pdf_file_path()));
               break;
             case 'archive':
                 $this->credit_repository->archive($credit);
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->listResponse($credit);
                 }
                 break;
             case 'restore':
                 $this->credit_repository->restore($credit);
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->listResponse($credit);
                 }
                 break;
             case 'delete':
                 $this->credit_repository->delete($credit);
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->listResponse($credit);
                 }
                 break;
             case 'email':
                 EmailCredit::dispatch($credit, $credit->company);
-                if (!$bulk) {
+                if (! $bulk) {
                     return response()->json(['message'=>'email sent'], 200);
                 }
                 break;
@@ -570,11 +560,11 @@ class CreditController extends BaseController
     public function downloadPdf($invitation_key)
     {
         $invitation = $this->credit_repository->getInvitationByKey($invitation_key);
-        $contact    = $invitation->contact;
-        $credit    = $invitation->credit;
+        $contact = $invitation->contact;
+        $credit = $invitation->credit;
 
         $file_path = $credit->service()->getCreditPdf($contact);
-        
+
         return response()->download($file_path);
     }
 }

@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: michael.hampton
  * Date: 14/02/2020
- * Time: 19:51
+ * Time: 19:51.
  */
 
 namespace App\Helpers\Email;

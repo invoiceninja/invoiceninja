@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -44,7 +44,7 @@ class Product extends BaseModel
 
     public function getEntityType()
     {
-        return Product::class;
+        return self::class;
     }
 
     public function company()
@@ -61,7 +61,7 @@ class Product extends BaseModel
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
-    
+
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');

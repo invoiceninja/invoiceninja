@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,14 +18,12 @@ use League\CommonMark\CommonMarkConverter;
 use Parsedown;
 
 /**
- * Class InvoiceEmailBuilder
- * @package App\Utils\Traits
+ * Class InvoiceEmailBuilder.
  */
 trait InvoiceEmailBuilder
 {
-
     /**
-     * Builds the correct template to send
+     * Builds the correct template to send.
      * @param  string $reminder_template The template name ie reminder1
      * @return array
      */
@@ -34,7 +32,7 @@ trait InvoiceEmailBuilder
         //client
         //$client = $this->client;
 
-        if (!$reminder_template) {
+        if (! $reminder_template) {
             $reminder_template = $this->calculateTemplate();
         }
 
@@ -52,19 +50,18 @@ trait InvoiceEmailBuilder
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
-            $body_template = trans('texts.invoice_message', ['amount'=>$this->present()->amount(),'account'=>$this->company->present()->name()], null, $this->client->locale());
+            $body_template = trans('texts.invoice_message', ['amount'=>$this->present()->amount(), 'account'=>$this->company->present()->name()], null, $this->client->locale());
         }
 
         $subject_template = $client->getSetting('email_subject_'.$reminder_template);
 
         if (iconv_strlen($subject_template) == 0) {
             if ($reminder_template == 'invoice') {
-                $subject_template = trans('texts.invoice_subject', ['number'=>$this->present()->invoice_number(),'account'=>$this->company->present()->name()], null, $this->client->locale());
+                $subject_template = trans('texts.invoice_subject', ['number'=>$this->present()->invoice_number(), 'account'=>$this->company->present()->name()], null, $this->client->locale());
             } else {
-                $subject_template = trans('texts.reminder_subject', ['number'=>$this->present()->invoice_number(),'account'=>$this->company->present()->name()], null, $this->client->locale());
+                $subject_template = trans('texts.reminder_subject', ['number'=>$this->present()->invoice_number(), 'account'=>$this->company->present()->name()], null, $this->client->locale());
             }
         }
-
 
         $data['body'] = $this->parseTemplate($body_template, true, $contact);
 

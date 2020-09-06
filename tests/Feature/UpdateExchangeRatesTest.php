@@ -48,12 +48,9 @@ class UpdateExchangeRatesTest extends TestCase
         Model::reguard();
     }
 
-
     public function testExchangeRate()
     {
-
-        if(!empty(config('ninja.currency_converter_api_key')))
-        {
+        if (! empty(config('ninja.currency_converter_api_key'))) {
             $cc_endpoint = sprintf('https://openexchangerates.org/api/latest.json?app_id=%s', config('ninja.currency_converter_api_key'));
 
             $client = new \GuzzleHttp\Client();
@@ -64,23 +61,21 @@ class UpdateExchangeRatesTest extends TestCase
             UpdateExchangeRates::dispatchNow();
 
             $currencies = Cache::get('currencies');
-            
+
             $gbp_currency = $currencies->filter(function ($item) {
                 return $item->id == 2;
             })->first();
 
             $this->assertEquals($currency_api->rates->GBP, $gbp_currency->exchange_rate);
-        }
-        else
+        } else {
             $this->markTestSkipped('No API Key set');
-
+        }
     }
 
     public function testExchangeRateConversion()
     {
         $usd = Currency::find(1);
         $gbp = Currency::find(2);
-
 
         $usd->exchange_rate = 1;
         $usd->save();
@@ -119,8 +114,5 @@ class UpdateExchangeRatesTest extends TestCase
         $synthetic_exchange = $currency_api->exchangeRate($gbp->id, $aud->id);
 
         $this->assertEquals($synthetic_exchange, 3);
-
-
     }
-
 }

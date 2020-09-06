@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -29,21 +29,20 @@ class ContactTokenAuth
      */
     public function handle($request, Closure $next)
     {
-        if ($request->header('X-API-TOKEN') && ($client_contact = ClientContact::with(['company'])->whereRaw("BINARY `token`= ?", [$request->header('X-API-TOKEN')])->first())) {
+        if ($request->header('X-API-TOKEN') && ($client_contact = ClientContact::with(['company'])->whereRaw('BINARY `token`= ?', [$request->header('X-API-TOKEN')])->first())) {
             $error = [
                 'message' => 'Authentication disabled for user.',
-                'errors' => new \stdClass
+                'errors' => new \stdClass,
             ];
 
             //client_contact who once existed, but has been soft deleted
-            if (!$client_contact) {
+            if (! $client_contact) {
                 return response()->json($error, 403);
             }
 
-
             $error = [
                 'message' => 'Access is locked.',
-                'errors' => new \stdClass
+                'errors' => new \stdClass,
             ];
 
             //client_contact who has been disabled
@@ -53,12 +52,12 @@ class ContactTokenAuth
 
             //stateless, don't remember the contact.
             auth()->guard('contact')->login($client_contact, false);
-            
+
             event(new ContactLoggedIn($client_contact, $client_contact->company, Ninja::eventVars())); //todo
         } else {
             $error = [
                 'message' => 'Invalid token',
-                'errors' => new \stdClass
+                'errors' => new \stdClass,
             ];
 
             return response()->json($error, 403);

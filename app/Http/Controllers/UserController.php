@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -39,13 +39,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class UserController
- * @package App\Http\Controllers
+ * Class UserController.
  */
 class UserController extends BaseController
 {
     use VerifiesUserEmail;
-
     use MakesHash;
 
     protected $entity_type = User::class;
@@ -55,7 +53,7 @@ class UserController extends BaseController
     protected $user_repo;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param      \App\Repositories\UserRepository  $user_repo  The user repo
      */
@@ -65,7 +63,7 @@ class UserController extends BaseController
 
         $this->user_repo = $user_repo;
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -104,13 +102,11 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
-
     public function index(UserFilters $filters)
     {
         $users = User::filter($filters);
-        
+
         return $this->listResponse($users);
     }
 
@@ -151,7 +147,6 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateUserRequest $request)
     {
@@ -198,7 +193,6 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreUserRequest $request)
     {
@@ -261,7 +255,6 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowUserRequest $request, User $user)
     {
@@ -316,7 +309,6 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditUserRequest $request, User $user)
     {
@@ -367,7 +359,6 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateUserRequest $request, User $user)
     {
@@ -376,8 +367,9 @@ class UserController extends BaseController
 
         $user = $this->user_repo->save($request->all(), $user);
 
-        if($user)
+        if ($user) {
             UserEmailChanged::dispatch($new_email, $old_email, auth()->user()->company());
+        }
 
         return $this->itemResponse($user);
     }
@@ -440,18 +432,17 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyUserRequest $request, User $user)
     {
         /* If the user passes the company user we archive the company user */
         $user = $this->user_repo->destroy($request->all(), $user);
-        
+
         return $this->itemResponse($user->fresh());
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @return Collection
      *
@@ -502,12 +493,11 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
 
         $users = User::withTrashed()->find($this->transformKeys($ids));
@@ -517,21 +507,19 @@ class UserController extends BaseController
          * each user through the Policy sieve and only return users that they
          * have access to
          */
-        
+
         $return_user_collection = collect();
 
         $users->each(function ($user, $key) use ($action, $return_user_collection) {
             if (auth()->user()->can('edit', $user)) {
                 $this->user_repo->{$action}($user);
-                
+
                 $return_user_collection->push($user->id);
             }
         });
 
         return $this->listResponse(User::withTrashed()->whereIn('id', $return_user_collection));
     }
-
-
 
     /**
      * Attach an existing user to a company.
@@ -582,7 +570,6 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function attach(AttachCompanyUserRequest $request, User $user)
     {
@@ -647,13 +634,12 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function detach(DetachCompanyUserRequest $request, User $user)
     {
         $company_user = CompanyUser::whereUserId($user->id)
                                     ->whereCompanyId(auth()->user()->companyId())->first();
-                                    
+
         $token = $company_user->token->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
 
         if ($token) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -13,8 +13,8 @@ namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Credit\ValidCreditsRules;
-use App\Http\ValidationRules\PaymentAmountsBalanceRule;
 use App\Http\ValidationRules\Payment\ValidInvoicesRules;
+use App\Http\ValidationRules\PaymentAmountsBalanceRule;
 use App\Http\ValidationRules\ValidCreditsPresentRule;
 use App\Http\ValidationRules\ValidPayableInvoicesRule;
 use App\Models\Payment;
@@ -29,7 +29,6 @@ class StorePaymentRequest extends Request
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('create', Payment::class);
@@ -51,7 +50,7 @@ class StorePaymentRequest extends Request
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
-        
+
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
                 $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
@@ -76,17 +75,17 @@ class StorePaymentRequest extends Request
             $input['credits'] = null;
         }
 
-        if (!isset($input['amount']) || $input['amount'] == 0) {
+        if (! isset($input['amount']) || $input['amount'] == 0) {
             //$input['amount'] = $invoices_total - $credits_total;
             $input['amount'] = $invoices_total;
         }
 
         $input['is_manual'] = true;
-        
-        if(!isset($input['date'])) {
+
+        if (! isset($input['date'])) {
             $input['date'] = now()->format('Y-m-d');
         }
-        
+
         $this->replace($input);
     }
 
@@ -94,7 +93,7 @@ class StorePaymentRequest extends Request
     {
         $rules = [
             'amount' => 'numeric|required',
-            'amount' => [new PaymentAmountsBalanceRule(),new ValidCreditsPresentRule()],
+            'amount' => [new PaymentAmountsBalanceRule(), new ValidCreditsPresentRule()],
             //'date' => 'required',
             'client_id' => 'bail|required|exists:clients,id',
             'invoices.*.invoice_id' => 'required|distinct|exists:invoices,id',
@@ -104,16 +103,15 @@ class StorePaymentRequest extends Request
             'credits.*.credit_id' => new ValidCreditsRules($this->all()),
             'credits.*.amount' => 'required',
             'invoices' => new ValidPayableInvoicesRule(),
-            'number' => 'nullable|unique:payments,number,' . $this->id . ',id,company_id,' . $this->company_id,
+            'number' => 'nullable|unique:payments,number,'.$this->id.',id,company_id,'.$this->company_id,
             //'number' => 'nullable',
         ];
-
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
             $documents = count($this->input('documents'));
 
             foreach (range(0, $documents) as $index) {
-                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+                $rules['documents.'.$index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';

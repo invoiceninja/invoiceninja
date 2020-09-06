@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
 
     /*
     |--------------------------------------------------------------------------
@@ -13,14 +13,14 @@ return array(
     |
     */
 
-    "password" => "Passwords skal minimum være 6 tegn og matche sikkerhedstjekket.",
+    'password' => 'Passwords skal minimum være 6 tegn og matche sikkerhedstjekket.',
 
-    "user"     => "Vi kan ikke finde en bruger med den email-adresse.",
+    'user'     => 'Vi kan ikke finde en bruger med den email-adresse.',
 
-    "token"    => "Password-nulstillingskoden er ugyldig.",
+    'token'    => 'Password-nulstillingskoden er ugyldig.',
 
-    "sent"     => "Password-påmindelse sendt!",
+    'sent'     => 'Password-påmindelse sendt!',
 
-    "reset"    => "Password has been reset!",
+    'reset'    => 'Password has been reset!',
 
-);
+];

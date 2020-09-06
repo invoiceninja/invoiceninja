@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,13 +15,11 @@ use App\Http\Requests\Request;
 
 class StoreSetupRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return true;
@@ -51,14 +49,14 @@ class StoreSetupRequest extends Request
           'first_name' => 'required',
           'last_name' => 'required',
           'email' => 'required',
-          'password' => 'required'
+          'password' => 'required',
         ];
     }
 
     protected function prepareForValidation()
     {
         $input = $this->all();
-          
+
         $input['user_agent'] = request()->server('HTTP_USER_AGENT');
 
         $this->replace($input);

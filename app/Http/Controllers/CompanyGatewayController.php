@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -26,8 +26,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 
 /**
- * Class CompanyGatewayController
- * @package App\Http\Controllers
+ * Class CompanyGatewayController.
  */
 class CompanyGatewayController extends BaseController
 {
@@ -91,7 +90,6 @@ class CompanyGatewayController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index()
     {
@@ -137,12 +135,11 @@ class CompanyGatewayController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateCompanyGatewayRequest $request)
     {
         $company_gateway = CompanyGatewayFactory::create(auth()->user()->company()->id, auth()->user()->id);
-        
+
         return $this->itemResponse($company_gateway);
     }
 
@@ -184,7 +181,6 @@ class CompanyGatewayController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreCompanyGatewayRequest $request)
     {
@@ -243,7 +239,6 @@ class CompanyGatewayController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
@@ -298,7 +293,6 @@ class CompanyGatewayController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
@@ -354,13 +348,12 @@ class CompanyGatewayController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
         $company_gateway->fill($request->all());
 
-        if (!$request->has('fees_and_limits')) {
+        if (! $request->has('fees_and_limits')) {
             $company_gateway->fees_and_limits = '';
         }
 
@@ -416,7 +409,6 @@ class CompanyGatewayController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
@@ -425,8 +417,8 @@ class CompanyGatewayController extends BaseController
         return response()->json([], 200);
     }
 
-     /**
-     * Perform bulk actions on the list view
+    /**
+     * Perform bulk actions on the list view.
      *
      * @param BulkCompanyGatewayRequest $request
      * @return \Illuminate\Http\Response
@@ -480,17 +472,17 @@ class CompanyGatewayController extends BaseController
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
-        
+
         $company_gateways = CompanyGateway::withTrashed()->find($this->transformKeys($ids));
-        
+
         $company_gateways->each(function ($company_gateway, $key) use ($action) {
             if (auth()->user()->can('edit', $company_gateway)) {
                 $this->company_repo->{$action}($company_gateway);
             }
         });
-        
+
         return $this->listResponse(CompanyGateway::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 }

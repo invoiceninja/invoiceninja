@@ -12,6 +12,7 @@ use Illuminate\Database\Seeder;
 class UsersTableSeeder extends Seeder
 {
     use \App\Utils\Traits\MakesHash;
+
     /**
      * Run the database seeds.
      *
@@ -36,9 +37,8 @@ class UsersTableSeeder extends Seeder
 
         $user = factory(\App\Models\User::class)->create([
             'account_id' => $account->id,
-            'confirmation_code' => $this->createDbHash(config('database.default'))
+            'confirmation_code' => $this->createDbHash(config('database.default')),
         ]);
-
 
         $userPermissions = collect([
                                     'view_invoice',
@@ -46,9 +46,8 @@ class UsersTableSeeder extends Seeder
                                     'edit_client',
                                     'edit_invoice',
                                     'create_invoice',
-                                    'create_client'
+                                    'create_client',
                                 ]);
-
 
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
@@ -62,9 +61,8 @@ class UsersTableSeeder extends Seeder
 
         $client = factory(\App\Models\Client::class)->create([
             'user_id' => $user->id,
-            'company_id' => $company->id
+            'company_id' => $company->id,
         ]);
-
 
         ClientContact::create([
             'first_name' => $faker->firstName,
@@ -76,19 +74,18 @@ class UsersTableSeeder extends Seeder
             'client_id' =>$client->id,
         ]);
 
-
         factory(\App\Models\Client::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
-                'is_primary' => 1
+                'is_primary' => 1,
             ]);
 
             factory(\App\Models\ClientContact::class, 10)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
-                'company_id' => $company->id
+                'company_id' => $company->id,
             ]);
         });
     }

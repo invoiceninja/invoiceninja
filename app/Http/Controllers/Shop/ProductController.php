@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,7 +22,7 @@ use Illuminate\Http\Request;
 class ProductController extends BaseController
 {
     use MakesHash;
-    
+
     protected $entity_type = Product::class;
 
     protected $entity_transformer = ProductTransformer::class;
@@ -36,8 +36,9 @@ class ProductController extends BaseController
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->firstOrFail();
 
-        if(!$company->enable_shop_api)
-            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass],403);
+        if (! $company->enable_shop_api) {
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass], 403);
+        }
 
         $products = Product::where('company_id', $company->id);
 
@@ -48,9 +49,10 @@ class ProductController extends BaseController
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->firstOrFail();
 
-        if(!$company->enable_shop_api)
-            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass],403);
-        
+        if (! $company->enable_shop_api) {
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass], 403);
+        }
+
         $product = Product::where('company_id', $company->id)
                             ->where('product_key', $product_key)
                             ->first();

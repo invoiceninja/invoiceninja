@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -13,8 +13,8 @@
 namespace App\Jobs\Quote;
 
 use App\Mail\Quote\QuoteWasApproved;
-use App\Models\Quote;
 use App\Models\Client;
+use App\Models\Quote;
 use App\Repositories\BaseRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -49,13 +49,12 @@ class QuoteWorkflowSettings implements ShouldQueue
      */
     public function handle()
     {
-
         if ($this->client->getSetting('auto_email_quote')) {
             $this->quote->invitations->each(function ($invitation, $key) {
                 $this->quote->service()->sendEmail($invitation->contact);
-           });
+            });
         }
-        
+
         if ($this->client->getSetting('auto_archive_quote')) {
             $this->base_repository->archive($this->quote);
         }

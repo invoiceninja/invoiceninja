@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,58 +16,53 @@ use Illuminate\Support\Carbon;
 
 class CurrencyApi implements CurrencyConversionInterface
 {
+    public function convert($amount, $from_currency_id, $to_currency_id, $date = null)
+    {
+        if (! $date) {
+            $date = Carbon::now();
+        }
 
-	public function convert($amount, $from_currency_id, $to_currency_id, $date = null)
-	{
+        $from_currency = Currency::find($from_currency_id);
 
-		if(!$date)
-			$date = Carbon::now();
+        $to_currency = Currency::find($to_currency_id);
 
-		$from_currency = Currency::find($from_currency_id);
+        $usd_amount = $this->convertToUsd($amount, $from_currency);
 
-		$to_currency = Currency::find($to_currency_id);
+        return $this->convertFromUsdToCurrency($usd_amount, $to_currency);
+    }
 
-		$usd_amount = $this->convertToUsd($amount, $from_currency);
+    public function exchangeRate($from_currency_id, $to_currency_id, $date = null)
+    {
+        $from_currency = Currency::find($from_currency_id);
 
-		return $this->convertFromUsdToCurrency($usd_amount, $to_currency);
-		
-	}
+        $to_currency = Currency::find($to_currency_id);
 
-	public function exchangeRate($from_currency_id, $to_currency_id, $date = null)
-	{
+        $usd_amount = $this->convertToUsd(1, $from_currency);
 
-		$from_currency = Currency::find($from_currency_id);
+        return $this->convertFromUsdToCurrency($usd_amount, $to_currency);
+    }
 
-		$to_currency = Currency::find($to_currency_id);
+    /**
+     * Converts a currency amount to USD.
+     *
+     * @param  float  $amount   amount
+     * @param  object $currency currency object
+     * @return float            USD Amount
+     */
+    private function convertToUsd($amount, $currency)
+    {
+        return $amount / $currency->exchange_rate;
+    }
 
-		$usd_amount = $this->convertToUsd(1, $from_currency);
-		
-		return $this->convertFromUsdToCurrency($usd_amount, $to_currency);
-
-	}
-
-	/**
-	 * Converts a currency amount to USD
-	 * 
-	 * @param  float  $amount   amount
-	 * @param  object $currency currency object
-	 * @return float            USD Amount
-	 */
-	private function convertToUsd($amount, $currency)
-	{
-		return $amount / $currency->exchange_rate;
-	}
-
-	/**
-	 * Converts USD to any other denomination
-	 * 
-	 * @param  float  $amount   amount
-	 * @param  object $currency destination currency
-	 * @return float            the converted amount
-	 */
-	private function convertFromUsdToCurrency($amount, $currency)
-	{
-		return $amount * $currency->exchange_rate;
-	}
-
+    /**
+     * Converts USD to any other denomination.
+     *
+     * @param  float  $amount   amount
+     * @param  object $currency destination currency
+     * @return float            the converted amount
+     */
+    private function convertFromUsdToCurrency($amount, $currency)
+    {
+        return $amount * $currency->exchange_rate;
+    }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -36,7 +36,6 @@ class ContactLoginController extends Controller
         return $this->render('auth.login');
     }
 
-
     public function login(Request $request)
     {
         Auth::shouldUse('contact');
@@ -48,6 +47,7 @@ class ContactLoginController extends Controller
         if (method_exists($this, 'hasTooManyLoginAttempts') &&
             $this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
+
             return $this->sendLockoutResponse($request);
         }
         if ($this->attemptLogin($request)) {
@@ -57,6 +57,7 @@ class ContactLoginController extends Controller
         // to login and redirect the user back to the login form. Of course, when this
         // user surpasses their maximum number of attempts they will get locked out.
         $this->incrementLoginAttempts($request);
+
         return $this->sendFailedLoginResponse($request);
     }
 

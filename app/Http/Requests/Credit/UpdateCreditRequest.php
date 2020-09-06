@@ -36,18 +36,18 @@ class UpdateCreditRequest extends FormRequest
             $documents = count($this->input('documents'));
 
             foreach (range(0, $documents) as $index) {
-                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+                $rules['documents.'.$index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        if($this->input('number'))
-            $rules['number'] = 'unique:credits,number,' . $this->id . ',id,company_id,' . $this->credit->company_id;
-        
+        if ($this->input('number')) {
+            $rules['number'] = 'unique:credits,number,'.$this->id.',id,company_id,'.$this->credit->company_id;
+        }
+
         return $rules;
     }
-
 
     protected function prepareForValidation()
     {
@@ -56,7 +56,7 @@ class UpdateCreditRequest extends FormRequest
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
-        
+
         if (isset($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
@@ -64,7 +64,7 @@ class UpdateCreditRequest extends FormRequest
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
-        
+
         if (isset($input['invitations'])) {
             foreach ($input['invitations'] as $key => $value) {
                 if (is_numeric($input['invitations'][$key]['id'])) {
@@ -80,7 +80,7 @@ class UpdateCreditRequest extends FormRequest
                 }
             }
         }
-        
+
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
 
         $input['id'] = $this->credit->id;

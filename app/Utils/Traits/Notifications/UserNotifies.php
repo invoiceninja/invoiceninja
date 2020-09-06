@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,8 +12,7 @@
 namespace App\Utils\Traits\Notifications;
 
 /**
- * Class UserNotifies
- * @package App\Utils\Traits
+ * Class UserNotifies.
  */
 trait UserNotifies
 {
@@ -27,10 +26,10 @@ trait UserNotifies
         $notifications = $company_user->notifications;
 
         if ($invitation->{$entity_name}->user_id == $company_user->_user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id) {
-            array_push($required_permissions, "all_user_notifications");
+            array_push($required_permissions, 'all_user_notifications');
         }
 
-        if (count(array_intersect($required_permissions, $notifications->email)) >=1 || count(array_intersect($required_permissions, "all_user_notifications")) >=1 || count(array_intersect($required_permissions, "all_notifications")) >=1) {
+        if (count(array_intersect($required_permissions, $notifications->email)) >= 1 || count(array_intersect($required_permissions, 'all_user_notifications')) >= 1 || count(array_intersect($required_permissions, 'all_notifications')) >= 1) {
             array_push($notifiable_methods, 'mail');
         }
 
@@ -39,7 +38,6 @@ trait UserNotifies
 
         return $notifiable_methods;
     }
-
 
     public function findUserEntityNotificationType($entity, $company_user, $required_permissions) :array
     {
@@ -50,14 +48,15 @@ trait UserNotifies
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
-        if(!$notifications)
+        if (! $notifications) {
             return [];
-
-        if ($entity->user_id == $company_user->_user_id || $entity->assigned_user_id == $company_user->user_id) {
-            array_push($required_permissions, "all_user_notifications");
         }
 
-        if (count(array_intersect($required_permissions, $notifications->email)) >=1 || count(array_intersect($required_permissions, ['all_user_notifications'])) >=1 || count(array_intersect($required_permissions, ['all_notifications'])) >=1) {
+        if ($entity->user_id == $company_user->_user_id || $entity->assigned_user_id == $company_user->user_id) {
+            array_push($required_permissions, 'all_user_notifications');
+        }
+
+        if (count(array_intersect($required_permissions, $notifications->email)) >= 1 || count(array_intersect($required_permissions, ['all_user_notifications'])) >= 1 || count(array_intersect($required_permissions, ['all_notifications'])) >= 1) {
             array_push($notifiable_methods, 'mail');
         }
 
@@ -73,12 +72,11 @@ trait UserNotifies
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
-        if (count(array_intersect($required_permissions, $notifications->email)) >=1 || count(array_intersect($required_permissions, ['all_user_notifications'])) >=1 || count(array_intersect($required_permissions, ['all_notifications'])) >=1) {
+        if (count(array_intersect($required_permissions, $notifications->email)) >= 1 || count(array_intersect($required_permissions, ['all_user_notifications'])) >= 1 || count(array_intersect($required_permissions, ['all_notifications'])) >= 1) {
             array_push($notifiable_methods, 'mail');
         }
 
         return $notifiable_methods;
-
     }
 
     private function migrationRunning($company_user)

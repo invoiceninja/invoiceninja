@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -25,7 +25,6 @@ use App\Utils\Traits\GeneratesCounter;
 
 class AddGatewayFee extends AbstractService
 {
-
     private $company_gateway;
 
     private $invoice;
@@ -35,7 +34,7 @@ class AddGatewayFee extends AbstractService
     public function __construct(CompanyGateway $company_gateway, Invoice $invoice, float $amount)
     {
         $this->company_gateway = $company_gateway;
-        
+
         $this->invoice = $invoice;
 
         $this->amount = $amount;
@@ -47,19 +46,18 @@ class AddGatewayFee extends AbstractService
 
         $this->cleanPendingGatewayFees();
 
-        if($gateway_fee > 0)
+        if ($gateway_fee > 0) {
             return $this->processGatewayFee($gateway_fee);
+        }
 
         return $this->processGatewayDiscount($gateway_fee);
-
-
     }
 
     private function cleanPendingGatewayFees()
     {
         $invoice_items = $this->invoice->line_items;
 
-        $invoice_items = collect($invoice_items)->filter(function ($item){
+        $invoice_items = collect($invoice_items)->filter(function ($item) {
             return $item->type_id != '3';
         });
 
@@ -77,8 +75,7 @@ class AddGatewayFee extends AbstractService
         $invoice_item->quantity = 1;
         $invoice_item->cost = $gateway_fee;
 
-        if($fees_and_limits = $this->company_gateway->getFeesAndLimits())
-        {
+        if ($fees_and_limits = $this->company_gateway->getFeesAndLimits()) {
             $invoice_item->tax_rate1 = $fees_and_limits->fee_tax_rate1;
             $invoice_item->tax_rate2 = $fees_and_limits->fee_tax_rate2;
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
@@ -97,7 +94,6 @@ class AddGatewayFee extends AbstractService
         //$this->invoice->ledger()->updateInvoiceBalance($gateway_fee, $notes = 'Gateway fee adjustment');
 
         return $this->invoice;
-         
     }
 
     private function processGatewayDiscount($gateway_fee)
@@ -109,8 +105,7 @@ class AddGatewayFee extends AbstractService
         $invoice_item->quantity = 1;
         $invoice_item->cost = $gateway_fee;
 
-        if($fees_and_limits = $this->company_gateway->getFeesAndLimits())
-        {
+        if ($fees_and_limits = $this->company_gateway->getFeesAndLimits()) {
             $invoice_item->tax_rate1 = $fees_and_limits->fee_tax_rate1;
             $invoice_item->tax_rate2 = $fees_and_limits->fee_tax_rate2;
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;

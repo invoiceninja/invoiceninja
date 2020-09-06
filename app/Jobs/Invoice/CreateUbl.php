@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -51,7 +51,6 @@ class CreateUbl implements ShouldQueue
      *
      * @return void
      */
-    
     public function handle()
     {
         $invoice = $this->invoice;
@@ -100,7 +99,6 @@ class CreateUbl implements ShouldQueue
         try {
             return Generator::invoice($ubl_invoice, $invoice->client->getCurrencyCode());
         } catch (\Exception $exception) {
-
             return false;
         }
     }
@@ -179,33 +177,6 @@ class CreateUbl implements ShouldQueue
         return $taxAmount;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * @param $invoiceItem
      * @param $invoiceTotal
@@ -270,22 +241,18 @@ class CreateUbl implements ShouldQueue
         if ($this->invoice->custom_surcharge1 && $this->invoice->custom_surcharge_tax1) {
             $total += $this->invoice->custom_surcharge1;
         }
-        
 
         if ($this->invoice->custom_surcharge2 && $this->invoice->custom_surcharge_tax2) {
             $total += $this->invoice->custom_surcharge2;
         }
-        
 
         if ($this->invoice->custom_surcharge3 && $this->invoice->custom_surcharge_tax3) {
             $total += $this->invoice->custom_surcharge3;
         }
-        
 
         if ($this->invoice->custom_surcharge4 && $this->invoice->custom_surcharge_tax4) {
             $total += $this->invoice->custom_surcharge4;
         }
-        
 
         return $total;
     }

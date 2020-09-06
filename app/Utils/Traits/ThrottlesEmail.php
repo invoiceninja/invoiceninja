@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,8 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * Class ThrottlesEmail
- * @package App\Utils\Traits
+ * Class ThrottlesEmail.
  */
 trait ThrottlesEmail
 {
@@ -57,14 +56,14 @@ trait ThrottlesEmail
         if ($new_day_throttle > $day) {
             $error_email = config('ninja.error_email');
             if ($error_email && ! Cache::get("throttle_notified:{$key}")) {
-                Mail::raw('Account Throttle: ' . $company->company_key, function ($message) use ($error_email, $company) {
+                Mail::raw('Account Throttle: '.$company->company_key, function ($message) use ($error_email, $company) {
                     $message->to($error_email)
                             ->from(config('ninja.contact.email'))
-                            ->subject("Email throttle triggered for company " . $company->id);
+                            ->subject('Email throttle triggered for company '.$company->id);
                 });
             }
             Cache::put("throttle_notified:{$key}", true, 60 * 24);
-            
+
             return true;
         }
 

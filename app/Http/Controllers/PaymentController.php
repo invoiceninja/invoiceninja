@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -31,10 +31,8 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 /**
- * Class PaymentController
- * @package App\Http\Controllers\PaymentController
+ * Class PaymentController.
  */
-
 class PaymentController extends BaseController
 {
     use MakesHash;
@@ -47,7 +45,6 @@ class PaymentController extends BaseController
      * @var PaymentRepository
      */
     protected $payment_repo;
-
 
     /**
      * PaymentController constructor.
@@ -62,7 +59,7 @@ class PaymentController extends BaseController
     }
 
     /**
-     * Show the list of Invoices
+     * Show the list of Invoices.
      *
      * @param      \App\Filters\PaymentFilters  $filters  The filters
      *
@@ -102,7 +99,6 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(PaymentFilters $filters)
     {
@@ -150,7 +146,6 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreatePaymentRequest $request)
     {
@@ -158,7 +153,6 @@ class PaymentController extends BaseController
 
         return $this->itemResponse($payment);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -204,7 +198,6 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StorePaymentRequest $request)
     {
@@ -263,7 +256,6 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowPaymentRequest $request, Payment $payment)
     {
@@ -320,7 +312,6 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditPaymentRequest $request, Payment $payment)
     {
@@ -377,7 +368,6 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdatePaymentRequest $request, Payment $payment)
     {
@@ -439,12 +429,11 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyPaymentRequest $request, Payment $payment)
     {
         $payment->service()->reversePayment();
-        
+
         $payment->is_deleted = true;
         $payment->save();
         $payment->delete();
@@ -453,7 +442,7 @@ class PaymentController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @return Collection
      *
@@ -503,7 +492,6 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
@@ -523,7 +511,7 @@ class PaymentController extends BaseController
     }
 
     /**
-     * Payment Actions
+     * Payment Actions.
      *
      *
      * @OA\Get(
@@ -589,7 +577,6 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function action(ActionPaymentRequest $request, Payment $payment, $action)
     {
@@ -603,26 +590,26 @@ class PaymentController extends BaseController
                 // todo build the quote transformer and return response here
                 break;
             case 'history':
-                # code...
+                // code...
                 break;
             case 'delivery_note':
-                # code...
+                // code...
                 break;
             case 'mark_paid':
-                # code...
+                // code...
                 break;
             case 'archive':
-                # code...
+                // code...
                 break;
             case 'delete':
-                # code...
+                // code...
                 break;
             case 'email':
                 //dispatch email to queue
                 break;
 
             default:
-                # code...
+                // code...
                 break;
         }
     }
@@ -671,7 +658,6 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function refund(RefundPaymentRequest $request)
     {

@@ -16,11 +16,11 @@ class BulkTokenRequest extends FormRequest
      */
     public function authorize()
     {
-        if (!$this->has('action')) {
+        if (! $this->has('action')) {
             return false;
         }
 
-        if (!in_array($this->action, $this->getBulkOptions(), true)) {
+        if (! in_array($this->action, $this->getBulkOptions(), true)) {
             return false;
         }
 
@@ -36,7 +36,7 @@ class BulkTokenRequest extends FormRequest
     {
         $rules = $this->getGlobalRules();
 
-        /** We don't require IDs on bulk storing. */
+        /* We don't require IDs on bulk storing. */
         if ($this->action !== self::$STORE_METHOD) {
             $rules['ids'] = ['required'];
         }

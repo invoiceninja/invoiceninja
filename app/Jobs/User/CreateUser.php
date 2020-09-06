@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -40,7 +40,6 @@ class CreateUser
      *
      * @return void
      */
-
     public function __construct(array $request, $account, $company, $company_owner = false)
     {
         $this->request = $request;
@@ -62,7 +61,7 @@ class CreateUser
         $user->accepted_terms_version = config('ninja.terms_version');
         $user->confirmation_code = $this->createDbHash(config('database.default'));
         $user->fill($this->request);
-        $user->email = $this->request['email'];//todo need to remove this in production
+        $user->email = $this->request['email']; //todo need to remove this in production
         $user->last_login = now();
         $user->ip = request()->ip();
         $user->save();
@@ -77,7 +76,7 @@ class CreateUser
             //'settings' => DefaultSettings::userSettings(),
             'settings' => null,
         ]);
-        
+
         event(new UserWasCreated($user, $this->company, Ninja::eventVars()));
 
         return $user;

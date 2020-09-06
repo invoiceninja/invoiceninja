@@ -9,7 +9,6 @@ use Tests\TestCase;
 /**
  * @test
  */
-
 class EvaluateStringTest extends TestCase
 {
     public function testClassNameResolution()

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,7 +24,6 @@ class StoreGroupSettingRequest extends Request
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('create', GroupSetting::class);
@@ -41,26 +40,24 @@ class StoreGroupSettingRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-        
+
         $group_settings = ClientSettings::defaults();
-        
-        if (array_key_exists('settings', $input) && !empty($input['settings'])) {
+
+        if (array_key_exists('settings', $input) && ! empty($input['settings'])) {
             foreach ($input['settings'] as $key => $value) {
                 $group_settings->{$key} = $value;
             }
         }
-        
-        $input['settings'] = $group_settings;
 
+        $input['settings'] = $group_settings;
 
         $this->replace($input);
     }
 
-
     public function messages()
     {
         return [
-            'settings' => 'settings must be a valid json structure'
+            'settings' => 'settings must be a valid json structure',
         ];
     }
 }

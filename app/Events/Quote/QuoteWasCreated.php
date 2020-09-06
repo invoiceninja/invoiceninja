@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,12 +20,13 @@ use Illuminate\Queue\SerializesModels;
 class QuoteWasCreated
 {
     use SerializesModels;
-    
+
     public $quote;
 
     public $company;
 
     public $event_vars;
+
     /**
      * Create a new event instance.
      *

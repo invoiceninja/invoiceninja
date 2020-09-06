@@ -28,7 +28,6 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /** @test*/
-
 class CompanyLedgerTest extends TestCase
 {
     use DatabaseTransactions;
@@ -50,9 +49,9 @@ class CompanyLedgerTest extends TestCase
 
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
-        
+
         foreach ($cached_tables as $name => $class) {
-            
+
             // check that the table exists in case the migration is pending
             if (! Schema::hasTable((new $class())->getTable())) {
                 continue;
@@ -80,17 +79,17 @@ class CompanyLedgerTest extends TestCase
         $settings = CompanySettings::defaults();
 
         $settings->company_logo = 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
-        $settings->website      = 'www.invoiceninja.com';
-        $settings->address1     = 'Address 1';
-        $settings->address2     = 'Address 2';
-        $settings->city         = 'City';
-        $settings->state        = 'State';
-        $settings->postal_code  = 'Postal Code';
-        $settings->phone        = '555-343-2323';
-        $settings->email        = 'user@example.com';
-        $settings->country_id   = '840';
+        $settings->website = 'www.invoiceninja.com';
+        $settings->address1 = 'Address 1';
+        $settings->address2 = 'Address 2';
+        $settings->city = 'City';
+        $settings->state = 'State';
+        $settings->postal_code = 'Postal Code';
+        $settings->phone = '555-343-2323';
+        $settings->email = 'user@example.com';
+        $settings->country_id = '840';
         $settings->vat_number = 'vat number';
-        $settings->id_number  = 'id number';
+        $settings->id_number = 'id number';
 
         $this->company->settings = $settings;
         $this->company->save();
@@ -100,14 +99,14 @@ class CompanyLedgerTest extends TestCase
 
         $this->user = User::whereEmail('user@example.com')->first();
 
-        if (!$this->user) {
+        if (! $this->user) {
             $this->user = factory(\App\Models\User::class)->create([
                 'account_id' => $this->account->id,
                 'password' => Hash::make('ALongAndBriliantPassword'),
-                'confirmation_code' => $this->createDbHash(config('database.default'))
+                'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
         }
-        
+
         $cu = CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
         $cu->is_owner = true;
         $cu->is_admin = true;
@@ -127,7 +126,6 @@ class CompanyLedgerTest extends TestCase
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
             ]);
-
 
         factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
@@ -157,7 +155,7 @@ class CompanyLedgerTest extends TestCase
 
         $data = [
             'client_id' => $this->encodePrimaryKey($this->client->id),
-            'line_items' => $line_items
+            'line_items' => $line_items,
         ];
 
         /* Test adding one invoice */
@@ -180,7 +178,6 @@ class CompanyLedgerTest extends TestCase
 
         $this->assertEquals($invoice_ledger->balance, $invoice->client->balance);
         $this->assertEquals($invoice->client->paid_to_date, 0);
-
 
         /* Test adding another invoice */
         $response = $this->withHeaders([
@@ -209,7 +206,7 @@ class CompanyLedgerTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->encodePrimaryKey($invoice->id),
-                'amount' => $invoice->balance
+                'amount' => $invoice->balance,
                 ],
             ],
             'date' => '2020/12/11',
@@ -230,7 +227,7 @@ class CompanyLedgerTest extends TestCase
 
         $this->assertEquals($payment->client->balance, $payment_ledger->balance);
         $this->assertEquals($payment->client->paid_to_date, 10);
-        
+
         $invoice = Invoice::find($invoice->id);
 
         $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
@@ -256,7 +253,6 @@ class CompanyLedgerTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments/refund', $data);
-
 
         $acc = $response->json();
         $invoice = Invoice::find($invoice->id);

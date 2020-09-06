@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -44,13 +44,12 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
     public $company;
 
     public $settings;
+
     /**
-     *
      * EmailInvoice constructor.
      * @param InvoiceEmail $email_builder
      * @param InvoiceInvitation $quote_invitation
      */
-
     public function __construct(InvoiceEmail $email_builder, InvoiceInvitation $invoice_invitation, Company $company)
     {
         $this->company = $company;
@@ -60,7 +59,6 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
         $this->email_builder = $email_builder;
 
         $this->settings = $invoice_invitation->contact->client->getMergedSettings();
-
     }
 
     /**
@@ -69,15 +67,13 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
      *
      * @return void
      */
-
     public function handle()
-    {        
+    {
         MultiDB::setDB($this->company->db);
-        
+
         $this->setMailDriver();
 
         try {
-
             Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
                 ->send(
                     new TemplateEmail(
@@ -86,26 +82,17 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
                         $this->invoice_invitation->contact->client
                     )
                 );
-
-        }
-        catch (\Swift_TransportException $e) {
-            
+        } catch (\Swift_TransportException $e) {
             event(new InvoiceWasEmailedAndFailed($this->invoice_invitation->invoice, $this->company, $e->getMessage(), Ninja::eventVars()));
-            
-        } 
+        }
 
         if (count(Mail::failures()) > 0) {
             $this->logMailError(Mail::failures(), $this->invoice->client);
-        }
-        else{
+        } else {
             event(new InvoiceWasEmailed($this->invoice_invitation, $this->company, Ninja::eventVars()));
         }
 
         /* Mark invoice sent */
         $this->invoice_invitation->invoice->service()->markSent()->save();
-
-
     }
-
-
 }

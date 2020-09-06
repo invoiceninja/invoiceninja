@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,12 +20,12 @@ class StaticModel extends Model
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
-    
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
     public function getIdAttribute()
     {
-        return (string)$this->attributes['id'];
+        return (string) $this->attributes['id'];
     }
 
     /*
@@ -34,7 +34,7 @@ class StaticModel extends Model
     public function scopeCompany($query)
     {
         $query->where('company_id', auth()->user()->companyId());
-        
+
         return $query;
     }
 }

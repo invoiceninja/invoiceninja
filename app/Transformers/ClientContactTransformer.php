@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,16 +16,15 @@ use App\Utils\Traits\MakesHash;
 
 /**
  * Class ContactTransformer.
- *
  */
 class ClientContactTransformer extends EntityTransformer
 {
     use MakesHash;
+
     /**
      * @param ClientContact $contact
      *
      * @return array
-     *
      */
     public function transform(ClientContact $contact)
     {
@@ -34,9 +33,9 @@ class ClientContactTransformer extends EntityTransformer
             'first_name' => $contact->first_name ?: '',
             'last_name' => $contact->last_name ?: '',
             'email' => $contact->email ?: '',
-            'created_at' => (int)$contact->created_at,
-            'updated_at' => (int)$contact->updated_at,
-            'archived_at' => (int)$contact->deleted_at,
+            'created_at' => (int) $contact->created_at,
+            'updated_at' => (int) $contact->updated_at,
+            'archived_at' => (int) $contact->deleted_at,
             'is_primary' => (bool) $contact->is_primary,
             'is_locked' => (bool) $contact->is_locked,
             'phone' => $contact->phone ?: '',
@@ -46,7 +45,7 @@ class ClientContactTransformer extends EntityTransformer
             'custom_value4' => $contact->custom_value4 ?: '',
             'contact_key' => $contact->contact_key ?: '',
             'send_email' => (bool) $contact->send_email,
-            'last_login' => (int)$contact->last_login,
+            'last_login' => (int) $contact->last_login,
             'password' => empty($contact->password) ? '' : '**********',
         ];
     }

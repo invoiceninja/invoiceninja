@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -42,16 +42,15 @@ class CreditArchivedActivity implements ShouldQueue
     public function handle($event)
     {
         MultiDB::setDb($event->company->db);
-        
+
         $fields = new \stdClass;
 
         $fields->payment_id = $event->credit->id;
-           $fields->client_id = $event->credit->client_id;
-     $fields->user_id = $event->credit->user_id;
+        $fields->client_id = $event->credit->client_id;
+        $fields->user_id = $event->credit->user_id;
         $fields->company_id = $event->credit->company_id;
         $fields->activity_type_id = Activity::ARCHIVE_CREDIT;
 
         $this->activity_repo->save($fields, $$event->credit, $event->event_vars);
-
     }
 }

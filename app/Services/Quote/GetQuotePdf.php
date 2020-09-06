@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,21 +28,21 @@ class GetQuotePdf extends AbstractService
 
     public function run()
     {
-        if (!$this->contact) {
+        if (! $this->contact) {
             $this->contact = $this->quote->client->primary_contact()->first();
         }
 
         $invitation = $this->quote->invitations->where('client_contact_id', $this->contact->id)->first();
 
-        $path      = $this->quote->client->invoice_filepath();
+        $path = $this->quote->client->invoice_filepath();
 
-        $file_path = $path . $this->quote->number . '.pdf';
+        $file_path = $path.$this->quote->number.'.pdf';
 
-        $disk 	   = config('filesystems.default');
+        $disk = config('filesystems.default');
 
-        $file 	   = Storage::disk($disk)->exists($file_path);
+        $file = Storage::disk($disk)->exists($file_path);
 
-        if (!$file) {
+        if (! $file) {
             $file_path = CreateQuotePdf::dispatchNow($invitation);
         }
 

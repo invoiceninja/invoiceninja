@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -26,12 +26,13 @@ class InvoiceWasRestored
      * @var Invoice
      */
     public $invoice;
-    
+
     public $fromDeleted;
 
     public $company;
 
     public $event_vars;
+
     /**
      * Create a new event instance.
      *

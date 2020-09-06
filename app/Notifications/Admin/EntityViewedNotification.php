@@ -6,11 +6,11 @@ use App\Utils\Number;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class EntityViewedNotification extends Notification implements ShouldQueue
 {
@@ -22,9 +22,8 @@ class EntityViewedNotification extends Notification implements ShouldQueue
      * @return void
      * @
      */
-    
     protected $invitation;
-    
+
     protected $entity_name;
 
     protected $entity;
@@ -68,7 +67,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-                //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
+        //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
 
         $data = $this->buildDataArray();
         $subject = $this->buildSubject();
@@ -77,8 +76,8 @@ class EntityViewedNotification extends Notification implements ShouldQueue
                     ->subject($subject)
                     ->markdown('email.admin.generic', $data)
                     ->withSwiftMessage(function ($message) {
-                            $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
-                        });
+                        $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
+                    });
     }
 
     /**
@@ -108,7 +107,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
                 [
                     'amount' => $amount,
                     'client' => $this->contact->present()->name(),
-                    $this->entity_name => $this->entity->number
+                    $this->entity_name => $this->entity->number,
                 ]
             ))
             ->attachment(function ($attachment) use ($amount) {
@@ -119,7 +118,6 @@ class EntityViewedNotification extends Notification implements ShouldQueue
                             ]);
             });
     }
-
 
     private function buildDataArray()
     {
@@ -140,7 +138,6 @@ class EntityViewedNotification extends Notification implements ShouldQueue
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),
         ];
-
 
         return $data;
     }

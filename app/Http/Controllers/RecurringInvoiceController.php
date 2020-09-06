@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -32,10 +32,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class RecurringInvoiceController
- * @package App\Http\Controllers\RecurringInvoiceController
+ * Class RecurringInvoiceController.
  */
-
 class RecurringInvoiceController extends BaseController
 {
     use MakesHash;
@@ -64,7 +62,7 @@ class RecurringInvoiceController extends BaseController
     }
 
     /**
-     * Show the list of recurring_invoices
+     * Show the list of recurring_invoices.
      *
      * @param      \App\Filters\RecurringInvoiceFilters  $filters  The filters
      *
@@ -103,12 +101,11 @@ class RecurringInvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(RecurringInvoiceFilters $filters)
     {
         $recurring_invoices = RecurringInvoice::filter($filters);
-      
+
         return $this->listResponse($recurring_invoices);
     }
 
@@ -151,7 +148,6 @@ class RecurringInvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateRecurringInvoiceRequest $request)
     {
@@ -159,7 +155,6 @@ class RecurringInvoiceController extends BaseController
 
         return $this->itemResponse($recurring_invoice);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -200,7 +195,6 @@ class RecurringInvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreRecurringInvoiceRequest $request)
     {
@@ -259,7 +253,6 @@ class RecurringInvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
@@ -316,13 +309,12 @@ class RecurringInvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
         return $this->itemResponse($recurring_invoice);
     }
-    
+
     /**
      * Update the specified resource in storage.
      *
@@ -373,14 +365,13 @@ class RecurringInvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
         if ($request->entityIsDeleted($recurring_invoice)) {
             return $request->disallowUpdate();
         }
-        
+
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), $recurring_invoice);
 
         return $this->itemResponse($recurring_invoice);
@@ -435,7 +426,6 @@ class RecurringInvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
@@ -445,7 +435,7 @@ class RecurringInvoiceController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @return Collection
      *
@@ -495,12 +485,11 @@ class RecurringInvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
 
         $recurring_invoices = RecurringInvoice::withTrashed()->find($this->transformKeys($ids));
@@ -515,7 +504,7 @@ class RecurringInvoiceController extends BaseController
     }
 
     /**
-     * Recurring Invoice Actions
+     * Recurring Invoice Actions.
      *
      *
      * @OA\Get(
@@ -581,9 +570,7 @@ class RecurringInvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
-     
     public function action(ActionRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice, $action)
     {
         switch ($action) {
@@ -596,26 +583,26 @@ class RecurringInvoiceController extends BaseController
                 // todo build the quote transformer and return response here
                 break;
             case 'history':
-                # code...
+                // code...
                 break;
             case 'delivery_note':
-                # code...
+                // code...
                 break;
             case 'mark_paid':
-                # code...
+                // code...
                 break;
             case 'archive':
-                # code...
+                // code...
                 break;
             case 'delete':
-                # code...
+                // code...
                 break;
             case 'email':
                 //dispatch email to queue
                 break;
 
             default:
-                # code...
+                // code...
                 break;
         }
     }

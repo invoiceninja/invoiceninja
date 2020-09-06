@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,21 +28,21 @@ class GetInvoicePdf extends AbstractService
 
     public function run()
     {
-        if (!$this->contact) {
+        if (! $this->contact) {
             $this->contact = $this->invoice->client->primary_contact()->first();
         }
 
         $invitation = $this->invoice->invitations->where('client_contact_id', $this->contact->id)->first();
 
-        $path      = $this->invoice->client->invoice_filepath();
+        $path = $this->invoice->client->invoice_filepath();
 
-        $file_path = $path . $this->invoice->number . '.pdf';
+        $file_path = $path.$this->invoice->number.'.pdf';
 
-        $disk 	   = config('filesystems.default');
+        $disk = config('filesystems.default');
 
-        $file 	   = Storage::disk($disk)->exists($file_path);
+        $file = Storage::disk($disk)->exists($file_path);
 
-        if (!$file) {
+        if (! $file) {
             $file_path = CreateInvoicePdf::dispatchNow($invitation);
         }
 

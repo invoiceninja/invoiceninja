@@ -1,6 +1,6 @@
 <?php
 /**
- * Payment Ninja (https://paymentninja.com)
+ * Payment Ninja (https://paymentninja.com).
  *
  * @link https://github.com/paymentninja/paymentninja source repository
  *
@@ -29,7 +29,7 @@ class ApplyNumber extends AbstractService
     public function __construct(Payment $payment)
     {
         $this->client = $payment->client;
-        
+
         $this->payment = $payment;
     }
 

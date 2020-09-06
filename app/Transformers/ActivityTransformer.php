@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -8,7 +8,6 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-
 
 namespace App\Transformers;
 
@@ -42,8 +41,8 @@ class ActivityTransformer extends EntityTransformer
             'invoice_id' => $activity->invoice_id ? (string) $this->encodePrimaryKey($activity->invoice_id) : '',
             'payment_id' => $activity->payment_id ? (string) $this->encodePrimaryKey($activity->payment_id) : '',
             'credit_id' => $activity->credit_id ? (string) $this->encodePrimaryKey($activity->credit_id) : '',
-            'updated_at' => (int)$activity->updated_at,
-            'created_at' => (int)$activity->created_at,
+            'updated_at' => (int) $activity->updated_at,
+            'created_at' => (int) $activity->created_at,
             'expense_id' => $activity->expense_id ? (string) $this->encodePrimaryKey($activity->expense_id) : '',
             'is_system' => (bool) $activity->is_system,
             'contact_id' => $activity->contact_id ? (string) $this->encodePrimaryKey($activity->contact_id) : '',

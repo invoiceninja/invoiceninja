@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -27,7 +27,7 @@ class DownloadController extends Controller
     use MakesHash;
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View 
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
     {
@@ -35,7 +35,7 @@ class DownloadController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View 
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function show(ShowDocumentRequest $request, Document $download)
     {
@@ -45,10 +45,10 @@ class DownloadController extends Controller
     }
 
     /**
-     * @param \App\Http\Requests\Document\ShowDocumentRequest $request 
-     * @param \App\Models\Document $download 
-     * @param bool $bulk 
-     * @return mixed 
+     * @param \App\Http\Requests\Document\ShowDocumentRequest $request
+     * @param \App\Models\Document $download
+     * @param bool $bulk
+     * @return mixed
      */
     public function download(ShowDocumentRequest $request, Document $download)
     {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -33,7 +33,7 @@ use Illuminate\Support\Carbon;
 use ReflectionClass;
 
 /**
- * InvoiceMigrationRepository
+ * InvoiceMigrationRepository.
  */
 class InvoiceMigrationRepository extends BaseRepository
 {
@@ -42,7 +42,6 @@ class InvoiceMigrationRepository extends BaseRepository
 
     public function save($data, $model)
     {
-
         $class = new ReflectionClass($model);
 
         if (array_key_exists('client_id', $data)) {
@@ -53,18 +52,18 @@ class InvoiceMigrationRepository extends BaseRepository
 
         $state = [];
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
-        $lcfirst_resource_id = lcfirst($resource) . '_id';
+        $lcfirst_resource_id = lcfirst($resource).'_id';
 
         if ($class->name == Invoice::class || $class->name == Quote::class) {
             $state['starting_amount'] = $model->amount;
         }
 
-        if (!$model->id) {
+        if (! $model->id) {
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
             $data = array_merge($company_defaults, $data);
         }
-        
+
         $tmp_data = $data;
 
         /* We need to unset some variable as we sometimes unguard the model */
@@ -84,7 +83,7 @@ class InvoiceMigrationRepository extends BaseRepository
             $this->saveDocuments($data['documents'], $model);
         }
 
-        $invitation_factory_class = sprintf("App\\Factory\\%sInvitationFactory", $resource);
+        $invitation_factory_class = sprintf('App\\Factory\\%sInvitationFactory', $resource);
 
         if (isset($data['client_contacts'])) {
             foreach ($data['client_contacts'] as $contact) {
@@ -115,8 +114,7 @@ class InvoiceMigrationRepository extends BaseRepository
                     //make sure we are creating an invite for a contact who belongs to the client only!
                     $contact = ClientContact::find($invitation['client_contact_id']);
 
-                    if ($contact && $model->client_id == $contact->client_id)
-                    {
+                    if ($contact && $model->client_id == $contact->client_id) {
                         $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
                         $new_invitation->{$lcfirst_resource_id} = $model->id;
                         $new_invitation->client_contact_id = $contact->id;
@@ -134,50 +132,45 @@ class InvoiceMigrationRepository extends BaseRepository
         }
 
         $model = $model->calc()->getInvoice();
-        
+
         $state['finished_amount'] = $model->amount;
-        
+
         $model = $model->service()->applyNumber()->save();
-        
+
         if ($model->company->update_products !== false) {
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
         }
 
         if ($class->name == Invoice::class) {
-
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
 
                 // $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
                 // $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
             }
 
-            if(!$model->design_id)
+            if (! $model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
-
+            }
         }
 
         if ($class->name == Credit::class) {
             $model = $model->calc()->getCredit();
 
-            if(!$model->design_id)
+            if (! $model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
-
-
+            }
         }
-        
+
         if ($class->name == Quote::class) {
             $model = $model->calc()->getQuote();
 
-            if(!$model->design_id)
+            if (! $model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
-
-
-
+            }
         }
 
         $model->save();
 
         return $model->fresh();
     }
-    
 }

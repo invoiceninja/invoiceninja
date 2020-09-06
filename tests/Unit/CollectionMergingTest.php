@@ -19,7 +19,6 @@ class CollectionMergingTest extends TestCase
         parent::setUp();
 
         Session::start();
-
     }
 
     public function testUniqueValues()

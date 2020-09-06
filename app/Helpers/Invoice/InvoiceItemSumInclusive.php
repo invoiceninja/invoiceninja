@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,7 +22,6 @@ class InvoiceItemSumInclusive
     use NumberFormatter;
     use Discounter;
     use Taxer;
-
 
     protected $invoice;
 
@@ -57,8 +56,9 @@ class InvoiceItemSumInclusive
 
     public function process()
     {
-        if (!$this->invoice->line_items || !is_array($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
+        if (! $this->invoice->line_items || ! is_array($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
             $this->items = [];
+
             return $this;
         }
 
@@ -88,7 +88,6 @@ class InvoiceItemSumInclusive
         return $this;
     }
 
-
     private function sumLineItem()
     {
         $this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
@@ -112,13 +111,12 @@ class InvoiceItemSumInclusive
     /**
      * Taxes effect the line totals and item costs. we decrement both on
      * application of inclusive tax rates.
-     *
      */
     private function calcTaxes()
     {
         $item_tax = 0;
 
-        $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/100));
+        $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
 
         $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
 
@@ -127,7 +125,7 @@ class InvoiceItemSumInclusive
         if ($item_tax_rate1_total > 0) {
             $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
         }
-        
+
         $item_tax_rate2_total = $this->calcInclusiveLineTax($this->item->tax_rate2, $amount);
 
         $item_tax += $this->formatValue($item_tax_rate2_total, $this->currency->precision);
@@ -153,9 +151,9 @@ class InvoiceItemSumInclusive
     {
         $group_tax = [];
 
-        $key = str_replace(" ", "", $tax_name.$tax_rate);
+        $key = str_replace(' ', '', $tax_name.$tax_rate);
 
-        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name . ' ' . $tax_rate.'%'];
+        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name.' '.$tax_rate.'%'];
 
         $this->tax_collection->push(collect($group_tax));
     }
@@ -209,11 +207,12 @@ class InvoiceItemSumInclusive
     public function setSubTotal($value)
     {
         $this->sub_total = $value;
+
         return $this;
     }
 
     /**
-     * Invoice Amount Discount
+     * Invoice Amount Discount.
      *
      * The problem, when calculating invoice level discounts,
      * the tax collected changes.
@@ -222,7 +221,6 @@ class InvoiceItemSumInclusive
      * and recalculate the taxes and then pass back
      * the updated map
      */
-    
     public function calcTaxesWithAmountDiscount()
     {
         $this->setGroupedTaxes(collect([]));
@@ -230,7 +228,7 @@ class InvoiceItemSumInclusive
         $item_tax = 0;
 
         foreach ($this->line_items as $this->item) {
-            $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount/$this->sub_total));
+            $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
             $item_tax_rate1_total = $this->calcInclusiveLineTax($this->item->tax_rate1, $amount);
 
             $item_tax += $item_tax_rate1_total;
@@ -238,7 +236,7 @@ class InvoiceItemSumInclusive
             if ($item_tax_rate1_total > 0) {
                 $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
             }
-        
+
             $item_tax_rate2_total = $this->calcInclusiveLineTax($this->item->tax_rate2, $amount);
 
             $item_tax += $item_tax_rate2_total;

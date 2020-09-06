@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,6 +20,7 @@ class CompanyGatewayFactory
         $company_gateway = new CompanyGateway;
         $company_gateway->company_id = $company_id;
         $company_gateway->user_id = $user_id;
+
         return $company_gateway;
     }
 }

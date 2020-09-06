@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -42,36 +42,32 @@ class SendFailedEmails implements ShouldQueue
      */
     public function handle()
     {
-
         if (! config('ninja.db.multi_db_enabled')) {
             $this->processEmails();
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
-
                 MultiDB::setDB($db);
 
                 $this->processEmails();
             }
         }
-
     }
 
     private function processEmails()
     {
-\Log::error("processing emails");
+        \Log::error('processing emails');
         //info("process emails");
         //@todo check that the quota is available for the job
-        
+
         $email_jobs = SystemLog::where('event_id', SystemLog::EVENT_MAIL_RETRY_QUEUE)->get();
 
-        $email_jobs->each(function($job){
-
+        $email_jobs->each(function ($job) {
             $job_meta_array = $job->log;
 
             $invitation = $job_meta_array['entity_name']::where('key', $job_meta_array['invitation_key'])->with('contact')->first();
 
-            if($invitation->invoice){
+            if ($invitation->invoice) {
                 $email_builder = (new InvoiceEmail())->build($invitation, $job_meta_array['reminder_template']);
 
                 if ($invitation->contact->send_email && $invitation->contact->email) {
@@ -79,7 +75,5 @@ class SendFailedEmails implements ShouldQueue
                 }
             }
         });
-
     }
-
 }

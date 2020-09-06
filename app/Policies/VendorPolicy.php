@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -11,17 +11,16 @@
 
 namespace App\Policies;
 
-use App\Models\Vendor;
 use App\Models\User;
+use App\Models\Vendor;
 
 /**
- * Class VendorPolicy
- * @package App\Policies
+ * Class VendorPolicy.
  */
 class VendorPolicy extends EntityPolicy
 {
     /**
-     *  Checks if the user has create permissions
+     *  Checks if the user has create permissions.
      *
      * @param  User $user
      * @return bool

@@ -29,7 +29,7 @@ class PaymentsTable extends Component
             ->paginate($this->per_page);
 
         return render('components.livewire.payments-table', [
-            'payments' => $query
+            'payments' => $query,
         ]);
     }
 }

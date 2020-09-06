@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,17 +14,16 @@ namespace App\Repositories;
 use App\Factory\ClientContactFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 /**
- * ClientContactRepository
+ * ClientContactRepository.
  */
 class ClientContactRepository extends BaseRepository
 {
     public function save(array $data, Client $client) : void
     {
-
         if (isset($data['contacts'])) {
             $contacts = collect($data['contacts']);
         } else {
@@ -40,6 +39,7 @@ class ClientContactRepository extends BaseRepository
         $contacts = $contacts->sortByDesc('is_primary')->map(function ($contact) {
             $contact['is_primary'] = $this->is_primary;
             $this->is_primary = false;
+
             return $contact;
         });
 
@@ -51,7 +51,7 @@ class ClientContactRepository extends BaseRepository
                 $update_contact = ClientContact::find($contact['id']);
             }
 
-            if (!$update_contact) {
+            if (! $update_contact) {
                 $update_contact = ClientContactFactory::create($client->company_id, $client->user_id);
                 $update_contact->client_id = $client->id;
             }
@@ -67,7 +67,6 @@ class ClientContactRepository extends BaseRepository
             }
 
             $update_contact->save();
-
         });
 
         //need to reload here to shake off stale contacts
@@ -75,14 +74,11 @@ class ClientContactRepository extends BaseRepository
 
         //always made sure we have one blank contact to maintain state
         if ($client->contacts->count() == 0) {
-        
             $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
             $new_contact->client_id = $client->id;
             $new_contact->contact_key = Str::random(40);
             $new_contact->is_primary = true;
             $new_contact->save();
-        
         }
-
     }
 }

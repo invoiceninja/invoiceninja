@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,8 +12,8 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\UpdateContactRequest;
 use App\Http\Requests\ClientPortal\UpdateClientRequest;
+use App\Http\Requests\ClientPortal\UpdateContactRequest;
 use App\Jobs\Util\UploadAvatar;
 use App\Models\ClientContact;
 use Illuminate\Http\Request;

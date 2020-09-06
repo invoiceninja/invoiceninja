@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,21 +21,21 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class UserLoggedIn
- * @package App\Events\User
+ * Class UserLoggedIn.
  */
 class ContactLoggedIn
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @var $client_contact
+     * @var
      */
     public $client_contact;
 
     public $company;
 
     public $event_vars;
+
     /**
      * Create a new event instance.
      *

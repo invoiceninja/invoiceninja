@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -35,8 +35,9 @@ class EmailCredit extends BaseMailerJob implements ShouldQueue
     public $credit;
 
     public $message_array = [];
-    
+
     public $settings;
+
     /**
      * Create a new job instance.
      *
@@ -60,26 +61,23 @@ class EmailCredit extends BaseMailerJob implements ShouldQueue
         //todo - change runtime config of mail driver if necessary
 
         $template_style = $this->credit->client->getSetting('email_style');
-        
+
         $this->setMailDriver();
 
         $this->credit->invitations->each(function ($invitation) use ($template_style) {
-
             if ($invitation->contact->send_email && $invitation->contact->email) {
-
                 $message_array = $this->credit->getEmailData('', $invitation->contact);
                 $message_array['title'] = &$message_array['subject'];
-                $message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
-                                
+                $message_array['footer'] = 'Sent to '.$invitation->contact->present()->name();
+
                 //send message
                 Mail::to($invitation->contact->email, $invitation->contact->present()->name())
                 ->send(new TemplateEmail($message_array, $template_style, $invitation->contact->user, $invitation->contact->client));
 
                 if (count(Mail::failures()) > 0) {
                     event(new CreditWasEmailedAndFailed($this->credit, $this->credit->company, Mail::failures(), Ninja::eventVars()));
-                    
-                    return $this->logMailError(Mail::failures(), $this->credit->client);
 
+                    return $this->logMailError(Mail::failures(), $this->credit->client);
                 }
 
                 //fire any events

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,7 +22,7 @@ class GroupSettingFactory
         $gs->company_id = $company_id;
         $gs->user_id = $user_id;
         $gs->settings = '{}';
-        
+
         return $gs;
     }
 }

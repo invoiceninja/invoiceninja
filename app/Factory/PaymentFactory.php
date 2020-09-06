@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,7 +22,7 @@ class PaymentFactory
     public static function create(int $company_id, int $user_id) :Payment
     {
         $payment = new Payment;
-        
+
         $payment->company_id = $company_id;
         $payment->user_id = $user_id;
         $payment->client_id = 0;
@@ -36,7 +36,7 @@ class PaymentFactory
         $payment->transaction_reference = null;
         $payment->payer_id = null;
         $payment->status_id = Payment::STATUS_PENDING;
-        
+
         return $payment;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -87,8 +87,8 @@ use App\Listeners\Invoice\InvoiceArchivedActivity;
 use App\Listeners\Invoice\InvoiceCancelledActivity;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
-use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
+use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Invoice\InvoiceRestoredActivity;
 use App\Listeners\Invoice\InvoiceReversedActivity;
@@ -200,7 +200,7 @@ class EventServiceProvider extends ServiceProvider
             CreditRestoredActivity::class,
         ],
         CreditWasViewed::class => [
-            CreditViewedActivity::class
+            CreditViewedActivity::class,
         ],
         //Designs
         DesignWasArchived::class => [
@@ -252,7 +252,7 @@ class EventServiceProvider extends ServiceProvider
             InvoiceCancelledActivity::class,
         ],
         InvitationWasViewed::class => [
-            InvitationViewedListener::class
+            InvitationViewedListener::class,
         ],
         CompanyDocumentsDeleted::class => [
             DeleteCompanyDocuments::class,
@@ -297,7 +297,6 @@ class EventServiceProvider extends ServiceProvider
      *
      * @return void
      */
-
     public function boot()
     {
         parent::boot();

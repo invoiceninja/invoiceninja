@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -23,12 +23,12 @@ class UpdateVendorRequest extends Request
 {
     use MakesHash;
     use ChecksEntityStatus;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('edit', $this->vendor);
@@ -40,7 +40,7 @@ class UpdateVendorRequest extends Request
 
         $rules['country_id'] = 'integer|nullable';
         //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
-        $rules['id_number'] = 'unique:clients,id_number,' . $this->id . ',id,company_id,' . $this->company_id;
+        $rules['id_number'] = 'unique:clients,id_number,'.$this->id.',id,company_id,'.$this->company_id;
         $rules['contacts.*.email'] = 'nullable|distinct';
 
         $contacts = request('contacts');
@@ -51,6 +51,7 @@ class UpdateVendorRequest extends Request
                 //     //$rules['contacts.' . $i . '.email'] = 'nullable|email';
                 // }
         }
+
         return $rules;
     }
 
@@ -67,7 +68,7 @@ class UpdateVendorRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-        
+
         $this->replace($input);
     }
 }

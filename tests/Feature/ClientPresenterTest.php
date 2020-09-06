@@ -19,7 +19,7 @@ class ClientPresenterTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-        
+
         $this->makeTestData();
     }
 
@@ -30,7 +30,7 @@ class ClientPresenterTest extends TestCase
         $settings->name = 'test';
         $this->client->company->settings = $settings;
         $this->client->company->save();
-        
+
         $this->client->getSetting('name');
 
         $merged_settings = $this->client->getMergedSettings();

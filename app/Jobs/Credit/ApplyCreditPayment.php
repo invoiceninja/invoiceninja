@@ -1,6 +1,6 @@
 <?php
 /**
- * Credit Ninja (https://invoiceninja.com)
+ * Credit Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -35,7 +35,6 @@ class ApplyCreditPayment implements ShouldQueue
 
     public $amount;
 
-
     /**
      * Create a new job instance.
      *
@@ -69,12 +68,12 @@ class ApplyCreditPayment implements ShouldQueue
 
         if ($this->amount == $credit_balance) { //total credit applied.
             $this->credit->setStatus(Credit::STATUS_APPLIED);
-            $this->credit->updateBalance($this->amount*-1);
+            $this->credit->updateBalance($this->amount * -1);
         } elseif ($this->amount < $credit_balance) { //compare number appropriately
             $this->credit->setStatus(Credit::STATUS_PARTIAL);
-            $this->credit->updateBalance($this->amount*-1);
+            $this->credit->updateBalance($this->amount * -1);
         }
-            
+
         /* Update Payment Applied Amount*/
         $this->payment->save();
     }

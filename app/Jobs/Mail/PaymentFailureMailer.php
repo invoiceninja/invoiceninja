@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -71,7 +71,7 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        info("entity payment failure mailer");
+        info('entity payment failure mailer');
         //Set DB
         MultiDB::setDb($this->company->db);
 
@@ -79,7 +79,7 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver();
 
         //iterate through company_users
-        $this->company->company_users->each(function ($company_user){
+        $this->company->company_users->each(function ($company_user) {
 
             //determine if this user has the right permissions
             $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure']);
@@ -90,7 +90,7 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
 
                 $mail_obj = (new PaymentFailureObject($this->client, $this->message, $this->amount, $this->company))->build();
                 $mail_obj->from = [$this->company->owner()->email, $this->company->owner()->present()->name()];
-                
+
                 //send email
                 Mail::to($company_user->user->email)
                     ->send(new EntityNotificationMailer($mail_obj));
@@ -99,12 +99,7 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
                 if (count(Mail::failures()) > 0) {
                     return $this->logMailError(Mail::failures(), $this->client);
                 }
-
             }
-
         });
-
     }
-
-
 }

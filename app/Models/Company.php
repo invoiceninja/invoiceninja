@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -80,8 +80,8 @@ class Company extends BaseModel
     //    kModuleInvoices = 4096;
     //    kModulePayments = 8192;
     //    16383
-        
-    protected $presenter = 'App\Models\Presenters\CompanyPresenter';
+
+    protected $presenter = \App\Models\Presenters\CompanyPresenter::class;
 
     protected $fillable = [
         'enabled_item_tax_rates',
@@ -111,7 +111,6 @@ class Company extends BaseModel
         'client_can_register',
         'enable_shop_api',
     ];
-
 
     protected $hidden = [
         'id',
@@ -152,10 +151,10 @@ class Company extends BaseModel
     {
         return $this->morphMany(Document::class, 'documentable');
     }
-    
+
     public function getEntityType()
     {
-        return Company::class;
+        return self::class;
     }
 
     public function ledger()
@@ -249,7 +248,6 @@ class Company extends BaseModel
         return $this->hasMany(Quote::class)->withTrashed();
     }
 
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -296,9 +294,6 @@ class Company extends BaseModel
         return $this->hasMany(GroupSetting::class);
     }
 
-    /**
-     *
-     */
     public function timezone()
     {
         return Timezone::find($this->settings->timezone_id);
@@ -414,7 +409,7 @@ class Company extends BaseModel
         return User::find($c->user_id);
     }
 
-    public function resolveRouteBinding($value)
+    public function resolveRouteBinding($value, $field = NULL)
     {
         return $this->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
@@ -422,7 +417,7 @@ class Company extends BaseModel
     public function domain()
     {
         if (Ninja::isNinja()) {
-            return $this->subdomain . config('ninja.app_domain');
+            return $this->subdomain.config('ninja.app_domain');
         }
 
         return config('ninja.app_url');
@@ -442,12 +437,9 @@ class Company extends BaseModel
     {
         $company_users = CompanyUser::where('company_id', $this->id)->get();
 
-        foreach($company_users as $cu)
-        {
-            $cu->is_migrating=$status;
+        foreach ($company_users as $cu) {
+            $cu->is_migrating = $status;
             $cu->save();
         }
-        
     }
-
 }

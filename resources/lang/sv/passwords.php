@@ -13,14 +13,14 @@ return [
     |
     */
 
-    "password" => "Lösenord måste innehålla minst sex tecken och matcha varandra.",
+    'password' => 'Lösenord måste innehålla minst sex tecken och matcha varandra.',
 
-    "user"     => "Vi kan inte hitta en användare med den e-postadressen.",
+    'user'     => 'Vi kan inte hitta en användare med den e-postadressen.',
 
-    "token"    => "Koden för lösenordsåterställning är ogiltig.",
+    'token'    => 'Koden för lösenordsåterställning är ogiltig.',
 
-    "sent"     => "Lösenordspåminnelse skickad!",
+    'sent'     => 'Lösenordspåminnelse skickad!',
 
-    "reset"    => "Lösenordet har blivit återställt!",
+    'reset'    => 'Lösenordet har blivit återställt!',
 
 ];

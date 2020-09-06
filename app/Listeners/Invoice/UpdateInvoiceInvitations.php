@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,7 +18,6 @@ use Illuminate\Queue\InteractsWithQueue;
 
 class UpdateInvoiceInvitations implements ShouldQueue
 {
-
     /**
      * Create the event listener.
      *
@@ -41,8 +40,7 @@ class UpdateInvoiceInvitations implements ShouldQueue
         $payment = $event->payment;
         $invoices = $payment->invoices;
 
-
-        /**
+        /*
         * Move this into an event
         */
         $invoices->each(function ($invoice) use ($payment) {

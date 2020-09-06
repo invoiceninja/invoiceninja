@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -55,7 +55,7 @@ trait PdfMakerUtilities
 
             if (isset($element['tag'])) {
                 $node = $this->document->getElementsByTagName($element['tag'])->item(0);
-            } elseif(!is_null($this->document->getElementById($element['id']))) {
+            } elseif (! is_null($this->document->getElementById($element['id']))) {
                 $node = $this->document->getElementById($element['id']);
             } else {
                 continue;
@@ -80,7 +80,7 @@ trait PdfMakerUtilities
         $processed = [];
 
         foreach ($children as $child) {
-            if (!isset($child['order'])) {
+            if (! isset($child['order'])) {
                 $child['order'] = 0;
             }
 
@@ -97,10 +97,10 @@ trait PdfMakerUtilities
     public function updateElementProperty($element, string $attribute, string $value)
     {
         // We have exception for "hidden" property.
-        // hidden="true" or hidden="false" will both hide the element, 
+        // hidden="true" or hidden="false" will both hide the element,
         // that's why we have to create an exception here for this rule.
 
-        if ($attribute == 'hidden' && ($value == false || $value == "false")) {
+        if ($attribute == 'hidden' && ($value == false || $value == 'false')) {
             return $element;
         }
 
@@ -163,7 +163,7 @@ trait PdfMakerUtilities
 
     public function processOptions()
     {
-        if (!isset($this->options['all_pages_header']) && !isset($this->options['all_pages_footer'])) {
+        if (! isset($this->options['all_pages_header']) && ! isset($this->options['all_pages_footer'])) {
             return;
         }
 
@@ -173,7 +173,7 @@ trait PdfMakerUtilities
 
     public function insertPrintCSS()
     {
-        $css = <<<EOT
+        $css = <<<'EOT'
         table.page-container {
             page-break-after: always;
         }
@@ -206,7 +206,7 @@ trait PdfMakerUtilities
 
     public function wrapIntoTable()
     {
-        $markup = <<<EOT
+        $markup = <<<'EOT'
         <table class="page-container" id="page-container">
             <thead class="page-report">
                 <tr>
@@ -270,7 +270,6 @@ trait PdfMakerUtilities
             isset($this->data['options']['all_pages_header']) &&
             $this->data['options']['all_pages_header']
         ) {
-
             $header = $this->document->getElementById('header');
             $clone = $header->cloneNode(true);
 

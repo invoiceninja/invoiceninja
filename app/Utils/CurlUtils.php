@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -42,7 +42,7 @@ class CurlUtils
         $response = curl_exec($curl);
 
         if ($error = curl_error($curl)) {
-            \Log::error('CURL Error #' . curl_errno($curl) . ': ' . $error);
+            \Log::error('CURL Error #'.curl_errno($curl).': '.$error);
         }
 
         curl_close($curl);

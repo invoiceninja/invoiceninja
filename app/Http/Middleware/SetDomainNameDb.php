@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -23,12 +23,11 @@ class SetDomainNameDb
      * @param  \Closure  $next
      * @return mixed
      */
-    
     public function handle($request, Closure $next)
     {
         $error = [
                 'message' => 'Invalid token',
-                'errors' => new \stdClass
+                'errors' => new \stdClass,
             ];
         /*
          * Use the host name to set the active DB

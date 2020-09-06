@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,12 +12,10 @@
 namespace App\Utils\Traits;
 
 /**
- * Class UserSettings
- * @package App\Utils\Traits
+ * Class UserSettings.
  */
 trait UserSettings
 {
-
     /**
      * @param string $entity
      * @return \stdClass

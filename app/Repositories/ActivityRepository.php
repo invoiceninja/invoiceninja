@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -29,22 +29,22 @@ use Illuminate\Support\Facades\Log;
 class ActivityRepository extends BaseRepository
 {
     use MakesInvoiceHtml;
+
     /**
-     * Save the Activity
+     * Save the Activity.
      *
      * @param      stdClass  $fields  The fields
      * @param      Collection  $entity  The entity that you wish to have backed up (typically Invoice, Quote etc etc rather than Payment)
      */
     public function save($fields, $entity, $event_vars)
     {
-
         $activity = new Activity();
 
         foreach ($fields as $key => $value) {
             $activity->{$key} = $value;
         }
 
-        if($token_id = $this->getTokenId($event_vars)){
+        if ($token_id = $this->getTokenId($event_vars)) {
             $fields->token_id = $token_id;
         }
 
@@ -66,7 +66,7 @@ class ActivityRepository extends BaseRepository
     {
         $backup = new Backup();
 
-        if (get_class($entity) == Invoice::class || get_class($entity) == Quote::class || get_class($entity) == Credit::class){
+        if (get_class($entity) == Invoice::class || get_class($entity) == Quote::class || get_class($entity) == Credit::class) {
             $contact = $entity->client->primary_contact()->first();
             $backup->html_backup = $this->generateEntityHtml($entity->getEntityDesigner(), $entity, $contact);
             $backup->amount = $entity->amount;
@@ -80,18 +80,14 @@ class ActivityRepository extends BaseRepository
 
     public function getTokenId(array $event_vars)
     {
+        if ($event_vars['token']) {
+            $company_token = CompanyToken::whereRaw('BINARY `token`= ?', [$event_vars['token']])->first();
 
-        if($event_vars['token'])
-        {
-
-            $company_token = CompanyToken::whereRaw("BINARY `token`= ?", [$event_vars['token']])->first();
-
-            if($company_token)
+            if ($company_token) {
                 return $company_token->id;
-            
+            }
         }
 
         return false;
-
     }
 }

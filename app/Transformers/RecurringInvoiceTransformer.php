@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -87,9 +87,9 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'balance' => (float) $invoice->balance ?: '',
             'client_id' => (string) $invoice->client_id,
             'status_id' => (string) ($invoice->status_id ?: 1),
-            'created_at' => (int)$invoice->created_at,
-            'updated_at' => (int)$invoice->updated_at,
-            'archived_at' => (int)$invoice->deleted_at,
+            'created_at' => (int) $invoice->created_at,
+            'updated_at' => (int) $invoice->updated_at,
+            'archived_at' => (int) $invoice->deleted_at,
             'discount' => (float) $invoice->discount ?: '',
             'po_number' => $invoice->po_number ?: '',
             'date' => $invoice->date ?: '',

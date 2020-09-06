@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -35,7 +35,7 @@ class ClientObserver
      * @return void
      */
     public function updated(Client $client)
-    {        
+    {
         WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CLIENT, $client);
     }
 
@@ -48,7 +48,6 @@ class ClientObserver
     public function deleted(Client $client)
     {
         WebhookHandler::dispatch(Webhook::EVENT_DELETE_CLIENT, $client);
-
     }
 
     /**

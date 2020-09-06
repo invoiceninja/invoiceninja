@@ -31,12 +31,12 @@ class DownloadsTable extends Component
         // $query = auth('contact')->user()->client->documents();
         $query = Document::query();
 
-        if (in_array('resources', $this->status) && !in_array('client', $this->status)) {
-            $query = $query->where('documentable_type', '!=', 'App\Models\Client');
+        if (in_array('resources', $this->status) && ! in_array('client', $this->status)) {
+            $query = $query->where('documentable_type', '!=', \App\Models\Client::class);
         }
 
-        if (in_array('client', $this->status) && !in_array('resources', $this->status)) {
-            $query = $query->where('documentable_type', 'App\Models\Client');
+        if (in_array('client', $this->status) && ! in_array('resources', $this->status)) {
+            $query = $query->where('documentable_type', \App\Models\Client::class);
         }
 
         $query = $query

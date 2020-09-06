@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -48,7 +48,6 @@ class InvitationViewedListener implements ShouldQueue
         $notification = new EntityViewedNotification($invitation, $entity_name);
 
         foreach ($invitation->company->company_users as $company_user) {
-
             $entity_viewed = "{$entity_name}_viewed";
 
             $methods = $this->findUserNotificationTypes($invitation, $company_user, $entity_name, ['all_notifications', $entity_viewed]);
@@ -56,14 +55,12 @@ class InvitationViewedListener implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                EntityViewedMailer::dispatch($invitation, $entity_name, $company_user->user, $invitation->company); 
-                
+                EntityViewedMailer::dispatch($invitation, $entity_name, $company_user->user, $invitation->company);
             }
 
             $notification->method = $methods;
 
             $company_user->user->notify($notification);
-
         }
 
         if (isset($invitation->company->slack_webhook_url)) {
@@ -72,9 +69,5 @@ class InvitationViewedListener implements ShouldQueue
             Notification::route('slack', $invitation->company->slack_webhook_url)
                         ->notify($notification);
         }
-
     }
-
-
-
 }

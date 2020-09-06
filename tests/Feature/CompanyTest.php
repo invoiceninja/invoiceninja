@@ -30,7 +30,6 @@ class CompanyTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-
     use DatabaseTransactions;
 
     public function setUp() :void
@@ -44,19 +43,16 @@ class CompanyTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
-
     }
 
     public function testCompanyList()
     {
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/companies');
 
         $response->assertStatus(200);
-
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -65,7 +61,7 @@ class CompanyTest extends TestCase
             '/api/v1/companies?include=company',
             [
                 'name' => 'A New Company',
-                'logo' => UploadedFile::fake()->image('avatar.jpg')
+                'logo' => UploadedFile::fake()->image('avatar.jpg'),
             ]
         )
         ->assertStatus(200)->decodeResponseJson();
@@ -79,7 +75,7 @@ class CompanyTest extends TestCase
             '/api/v1/companies/',
             [
                 'name' => 'A New Company',
-                'company_logo' => UploadedFile::fake()->create('avatar.pdf', 100)
+                'company_logo' => UploadedFile::fake()->create('avatar.pdf', 100),
             ]
         )
         ->assertStatus(302);
@@ -98,7 +94,6 @@ class CompanyTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company_update)
             ->assertStatus(200);
-
 
         $settings = CompanySettings::defaults();
         $settings->custom_value1 = 'test';

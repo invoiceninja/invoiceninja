@@ -21,7 +21,7 @@ class InvoiceActionsTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-    
+
         $this->makeTestData();
     }
 
@@ -34,7 +34,7 @@ class InvoiceActionsTest extends TestCase
 
     public function testInvoiceIsReversable()
     {
-                $this->withoutEvents();
+        $this->withoutEvents();
 
         $this->invoice->service()->markPaid()->save();
 
@@ -68,7 +68,6 @@ class InvoiceActionsTest extends TestCase
 
         $this->invoice->delete();
 
-        
         $this->assertFalse($this->invoiceDeletable($this->invoice));
         $this->assertFalse($this->invoiceReversable($this->invoice));
         $this->assertFalse($this->invoiceCancellable($this->invoice));

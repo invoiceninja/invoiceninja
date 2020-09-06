@@ -16,7 +16,7 @@ class CompanyGatewayObserver
     {
 
         /* Set company gateway if not exists*/
-        if(!$company_gateway->label){
+        if (! $company_gateway->label) {
             $company_gateway->label = $company_gateway->gateway->name;
             $company_gateway->save();
         }

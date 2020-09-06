@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -39,6 +39,7 @@ class ZipInvoices extends BaseMailerJob implements ShouldQueue
     private $email;
 
     public $settings;
+
     /**
      * @deprecated confirm to be deleted
      * Create a new job instance.
@@ -69,8 +70,8 @@ class ZipInvoices extends BaseMailerJob implements ShouldQueue
         $options = new Archive();
         $options->setOutputStream($tempStream);
 
-        # create a new zipstream object
-        $file_name = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')).".zip";
+        // create a new zipstream object
+        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
 
         $path = $this->invoices->first()->client->invoice_filepath();
 
@@ -82,15 +83,15 @@ class ZipInvoices extends BaseMailerJob implements ShouldQueue
 
         $zip->finish();
 
-        Storage::disk(config('filesystems.default'))->put($path . $file_name, $tempStream);
+        Storage::disk(config('filesystems.default'))->put($path.$file_name, $tempStream);
 
         fclose($tempStream);
 
         $this->setMailDriver();
 
         Mail::to($this->email)
-            ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path . $file_name), $this->company));
+            ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path.$file_name), $this->company));
 
-        UnlinkFile::dispatch(config('filesystems.default'), $path . $file_name)->delay(now()->addHours(1));
+        UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
     }
 }

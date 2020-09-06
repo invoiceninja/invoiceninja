@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -19,12 +19,12 @@ use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 class StoreCompanyGatewayRequest extends Request
 {
     use CompanyGatewayFeesAndLimitsSaver;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->isAdmin();
@@ -36,7 +36,7 @@ class StoreCompanyGatewayRequest extends Request
             'gateway_key' => 'required',
             'fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
         ];
-        
+
         return $rules;
     }
 
@@ -44,21 +44,17 @@ class StoreCompanyGatewayRequest extends Request
     {
         $input = $this->all();
         $gateway = Gateway::where('key', $input['gateway_key'])->first();
-     
+
         $default_gateway_fields = json_decode($gateway->fields);
-        
+
         /*Force gateway properties */
-        if(isset($input['config']) && is_object(json_decode($input['config'])))
-        {
-            foreach(json_decode($input['config']) as $key => $value) {
-
+        if (isset($input['config']) && is_object(json_decode($input['config']))) {
+            foreach (json_decode($input['config']) as $key => $value) {
                 $default_gateway_fields->{$key} = $value;
-
             }
 
             $input['config'] = json_encode($default_gateway_fields);
         }
-
 
         if (isset($input['config'])) {
             $input['config'] = encrypt($input['config']);
@@ -67,7 +63,6 @@ class StoreCompanyGatewayRequest extends Request
         if (isset($input['fees_and_limits'])) {
             $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
         }
-
 
         $this->replace($input);
     }

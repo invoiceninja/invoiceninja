@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -37,12 +37,12 @@ class UpdateContactLastLogin implements ShouldQueue
     public function handle($event)
     {
         MultiDB::setDb($event->company->db);
-        
+
         $client_contact = $event->client_contact;
 
         $client_contact->last_login = now();
         $client_contact->client->last_login = now();
-        
+
         $client_contact->save();
     }
 }

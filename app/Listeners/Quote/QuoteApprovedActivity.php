@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Log;
 class QuoteApprovedActivity implements ShouldQueue
 {
     protected $activity_repo;
+
     /**
      * Create the event listener.
      *
@@ -42,14 +43,13 @@ class QuoteApprovedActivity implements ShouldQueue
      */
     public function handle($event)
     {
-
         MultiDB::setDb($event->company->db);
 
         $fields = new \stdClass;
 
         $fields->quote_id = $event->quote->id;
-               $fields->client_id = $event->quote->client_id;
-      $fields->user_id = $event->quote->user_id;
+        $fields->client_id = $event->quote->client_id;
+        $fields->user_id = $event->quote->user_id;
         $fields->client_contact_id = $event->contact->id;
         $fields->company_id = $event->payment->company_id;
         $fields->activity_type_id = Activity::RESTORE_PAYMENT;

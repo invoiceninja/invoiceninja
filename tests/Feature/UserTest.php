@@ -24,9 +24,9 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
-* @test
+ * @test
  * @covers App\Http\Controllers\UserController
-*/
+ */
 class UserTest extends TestCase
 {
     use MockAccountData;
@@ -48,7 +48,6 @@ class UserTest extends TestCase
             ThrottleRequests::class,
             PasswordProtection::class
         );
-
     }
 
     public function testUserList()
@@ -65,7 +64,7 @@ class UserTest extends TestCase
     public function testUserStore()
     {
         $this->withoutMiddleware(PasswordProtection::class);
-        
+
         $data = [
             'first_name' => 'hey',
             'last_name' => 'you',
@@ -73,7 +72,7 @@ class UserTest extends TestCase
             'company_user' => [
                     'is_admin' => false,
                     'is_owner' => false,
-                    'permissions' => 'create_client,create_invoice'
+                    'permissions' => 'create_client,create_invoice',
                 ],
         ];
 
@@ -110,7 +109,6 @@ class UserTest extends TestCase
         $this->assertNotNull($user->company_user);
         $this->assertEquals($user->company_user->company_id, $this->company->id);
 
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
@@ -118,7 +116,6 @@ class UserTest extends TestCase
         ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/detach_from_company?include=company_user');
 
         $response->assertStatus(200);
-
 
         $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($this->company->id)->first();
         $ct = CompanyToken::whereUserId($user->id)->whereCompanyId($this->company->id)->first();
@@ -136,7 +133,7 @@ class UserTest extends TestCase
         $company2 = factory(\App\Models\Company::class)->create([
             'account_id' => $this->account->id,
         ]);
-        
+
         $company_token = new CompanyToken;
         $company_token->user_id = $this->user->id;
         $company_token->company_id = $company2->id;
@@ -144,7 +141,6 @@ class UserTest extends TestCase
         $company_token->name = 'test token';
         $company_token->token = \Illuminate\Support\Str::random(64);
         $company_token->save();
-
 
         /*Manually link this user to the company*/
         $cu = CompanyUserFactory::create($this->user->id, $company2->id, $this->account->id);
@@ -168,7 +164,6 @@ class UserTest extends TestCase
         $this->assertNotNull($new_user->company_user);
         $this->assertEquals($new_user->company_user->company_id, $company2->id);
 
-
         /*Create brand new user manually with company_user object and attach to a different company*/
         $data = [
             'first_name' => 'hey',
@@ -177,7 +172,7 @@ class UserTest extends TestCase
             'company_user' => [
                     'is_admin' => false,
                     'is_owner' => false,
-                    'permissions' => 'create_client,create_invoice'
+                    'permissions' => 'create_client,create_invoice',
                 ],
         ];
 
@@ -203,8 +198,6 @@ class UserTest extends TestCase
 
         $this->assertNotNull($cu);
 
-
-
         /*Update the user permissions of this user*/
         $data = [
             'first_name' => 'Captain',
@@ -213,7 +206,7 @@ class UserTest extends TestCase
             'company_user' => [
                     'is_admin' => true,
                     'is_owner' => false,
-                    'permissions' => 'create_invoice,create_invoice'
+                    'permissions' => 'create_invoice,create_invoice',
                 ],
         ];
 

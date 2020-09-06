@@ -22,7 +22,7 @@ class CreditsTable extends Component
             ->paginate($this->per_page);
 
         return render('components.livewire.credits-table', [
-            'credits' => $query
+            'credits' => $query,
         ]);
     }
 }

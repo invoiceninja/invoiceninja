@@ -30,12 +30,11 @@ class InvitationTest extends TestCase
 
     public function testInvitationSanity()
     {
-
         $this->assertEquals($this->invoice->invitations->count(), 2);
 
         $invitations = $this->invoice->invitations()->get();
 
-        $invites = $invitations->reject(function ($invitation){
+        $invites = $invitations->reject(function ($invitation) {
             return $invitation->contact->is_primary == false;
         })->toArray();
 
@@ -76,6 +75,5 @@ class InvitationTest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals(2, count($arr['data']['invitations']));
-
     }
 }

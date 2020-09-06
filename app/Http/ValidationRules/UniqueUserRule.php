@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,8 +16,7 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class UniqueUserRule
- * @package App\Http\ValidationRules
+ * Class UniqueUserRule.
  */
 class UniqueUserRule implements Rule
 {
@@ -27,8 +26,8 @@ class UniqueUserRule implements Rule
 
     public function __construct($user, $new_email)
     {
-        $this->user= $user;
-    
+        $this->user = $user;
+
         $this->new_email = $new_email;
     }
 

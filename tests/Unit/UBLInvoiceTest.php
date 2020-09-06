@@ -24,7 +24,7 @@ class UBLInvoiceTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-    
+
         $this->withoutMiddleware(
             ThrottleRequests::class
         );

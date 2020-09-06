@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,12 +12,10 @@
 namespace App\Models\Presenters;
 
 /**
- * Class UserPresenter
- * @package App\Models\Presenters
+ * Class UserPresenter.
  */
 class UserPresenter extends EntityPresenter
 {
-
     /**
      * @return string
      */
@@ -25,7 +23,7 @@ class UserPresenter extends EntityPresenter
     {
         $first_name = isset($this->entity->first_name) ? $this->entity->first_name : '';
         $last_name = isset($this->entity->last_name) ? $this->entity->last_name : '';
-        
-        return $first_name . ' ' . $last_name;
+
+        return $first_name.' '.$last_name;
     }
 }

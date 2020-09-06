@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -34,12 +34,12 @@ class CreateInvitations extends AbstractService
                                         ->withTrashed()
                                         ->first();
 
-            if (!$invitation && $contact->send_email) {
+            if (! $invitation && $contact->send_email) {
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send_email) {
+            } elseif ($invitation && ! $contact->send_email) {
                 $invitation->delete();
             }
         });

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -41,7 +41,7 @@ class UpdateOrCreateProduct implements ShouldQueue
     public function __construct($products, $invoice, $company)
     {
         $this->products = $products;
-        
+
         $this->invoice = $invoice;
 
         $this->company = $company;
@@ -58,19 +58,19 @@ class UpdateOrCreateProduct implements ShouldQueue
         MultiDB::setDB($this->company->db);
 
         foreach ($this->products as $item) {
-
-            if(empty($item->product_key))
+            if (empty($item->product_key)) {
                 continue;
+            }
 
             $product = Product::firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
-                
+
             $product->product_key = $item->product_key;
             $product->notes = isset($item->notes) ? $item->notes : '';
             //$product->cost = isset($item->cost) ? $item->cost : 0; //this value shouldn't be updated.
             $product->price = isset($item->cost) ? $item->cost : 0;
             $product->quantity = isset($item->quantity) ? $item->quantity : 0;
             $product->tax_name1 = isset($item->tax_name1) ? $item->tax_name1 : '';
-            $product->tax_rate1 = isset($item->tax_rate1) ? $item->tax_rate1 : 0 ;
+            $product->tax_rate1 = isset($item->tax_rate1) ? $item->tax_rate1 : 0;
             $product->tax_name2 = isset($item->tax_name2) ? $item->tax_name2 : '';
             $product->tax_rate2 = isset($item->tax_rate2) ? $item->tax_rate2 : 0;
             $product->tax_name3 = isset($item->tax_name3) ? $item->tax_name3 : '';

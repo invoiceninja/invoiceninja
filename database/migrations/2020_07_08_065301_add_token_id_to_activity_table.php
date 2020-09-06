@@ -29,6 +29,5 @@ class AddTokenIdToActivityTable extends Migration
      */
     public function down()
     {
-
     }
 }

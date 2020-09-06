@@ -34,6 +34,6 @@ class PaymentResponseRequest extends FormRequest
     {
         $input = $this->all();
 
-        return PaymentHash::whereRaw("BINARY `hash`= ?", [$input['payment_hash']])->first();
+        return PaymentHash::whereRaw('BINARY `hash`= ?', [$input['payment_hash']])->first();
     }
 }

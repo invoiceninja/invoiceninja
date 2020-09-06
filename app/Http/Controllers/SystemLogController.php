@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 
 class SystemLogController extends BaseController
 {
-
     use MakesHash;
 
     protected $entity_type = SystemLog::class;
@@ -18,7 +17,7 @@ class SystemLogController extends BaseController
     protected $entity_transformer = SystemLogTransformer::class;
 
     /**
-     * Show the list of Invoices
+     * Show the list of Invoices.
      *
      * @param      \App\Filters\InvoiceFilters  $filters  The filters
      *
@@ -56,7 +55,6 @@ class SystemLogController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(SystemLogFilters $filters)
     {
@@ -74,9 +72,8 @@ class SystemLogController extends BaseController
     {
         $error = [
             'message' => 'Cannot create system log',
-            'errors' => new \stdClass
+            'errors' => new \stdClass,
         ];
-
 
         return response()->json($error, 400);
     }
@@ -89,15 +86,12 @@ class SystemLogController extends BaseController
      */
     public function store(Request $request)
     {
-
         $error = [
             'message' => 'Cannot store system log',
-            'errors' => new \stdClass
+            'errors' => new \stdClass,
         ];
 
-
         return response()->json($error, 400);
-        
     }
 
     /**
@@ -150,7 +144,6 @@ class SystemLogController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(Request $request, SystemLog $system_log)
     {
@@ -167,9 +160,8 @@ class SystemLogController extends BaseController
     {
         $error = [
             'message' => 'Cannot edit system log',
-            'errors' => new \stdClass
+            'errors' => new \stdClass,
         ];
-
 
         return response()->json($error, 400);
     }
@@ -185,9 +177,8 @@ class SystemLogController extends BaseController
     {
         $error = [
             'message' => 'Cannot update system log',
-            'errors' => new \stdClass
+            'errors' => new \stdClass,
         ];
-
 
         return response()->json($error, 400);
     }
@@ -202,9 +193,8 @@ class SystemLogController extends BaseController
     {
         $error = [
             'message' => 'Cannot destroy system log',
-            'errors' => new \stdClass
+            'errors' => new \stdClass,
         ];
-
 
         return response()->json($error, 400);
     }

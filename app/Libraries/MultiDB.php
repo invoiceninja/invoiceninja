@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -17,7 +17,7 @@ use App\Models\CompanyToken;
 use App\Models\User;
 
 /**
- * Class MultiDB
+ * Class MultiDB.
  *
  * Caution!
  *
@@ -32,8 +32,6 @@ use App\Models\User;
  * Even that may be problematic, and we
  * may need to know the current DB connection
  * so that we can fall back gracefully.
- *
- * @package App\Libraries
  */
 class MultiDB
 {
@@ -45,7 +43,6 @@ class MultiDB
      * @param $email
      * @return bool
      */
-
     public static function getDbs() : array
     {
         return self::$dbs;
@@ -59,7 +56,7 @@ class MultiDB
 
         //multi-db active
         foreach (self::$dbs as $db) {
-            if (Company::on($db)->whereSubdomain($subdomain)->get()->count() >=1) {
+            if (Company::on($db)->whereSubdomain($subdomain)->get()->count() >= 1) {
                 return false;
             }
         }
@@ -77,12 +74,13 @@ class MultiDB
 
         //multi-db active
         foreach (self::$dbs as $db) {
-            if (User::on($db)->where(['email' => $email])->get()->count() >=1) { // if user already exists, validation will fail
+            if (User::on($db)->where(['email' => $email])->get()->count() >= 1) { // if user already exists, validation will fail
                 return true;
             }
         }
 
         self::setDefaultDatabase();
+
         return false;
     }
 
@@ -102,17 +100,19 @@ class MultiDB
     public static function checkUserAndCompanyCoExist($email, $company_key) :bool
     {
         foreach (self::$dbs as $db) {
-            if (User::on($db)->where(['email' => $email])->get()->count() >=1) { // if user already exists, validation will fail
-                if (Company::on($db)->where(['company_key' => $company_key])->get()->count() >=1) {
+            if (User::on($db)->where(['email' => $email])->get()->count() >= 1) { // if user already exists, validation will fail
+                if (Company::on($db)->where(['company_key' => $company_key])->get()->count() >= 1) {
                     return true;
                 } else {
                     self::setDefaultDatabase();
+
                     return false;
                 }
             }
         }
 
         self::setDefaultDatabase();
+
         return true;
     }
 
@@ -137,31 +137,31 @@ class MultiDB
         }
 
         self::setDefaultDatabase();
-        
+
         return null;
     }
 
     public static function contactFindAndSetDb($token) :bool
     {
         foreach (self::$dbs as $db) {
-            if ($ct = ClientContact::on($db)->whereRaw("BINARY `token`= ?", [$token])->first()) {
+            if ($ct = ClientContact::on($db)->whereRaw('BINARY `token`= ?', [$token])->first()) {
                 self::setDb($ct->company->db);
-                
+
                 return true;
             }
         }
 
         self::setDefaultDatabase();
+
         return false;
     }
 
     public static function userFindAndSetDb($email) : bool
     {
 
-
             //multi-db active
         foreach (self::$dbs as $db) {
-            if (User::on($db)->where(['email' => $email])->get()->count() >=1) { // if user already exists, validation will fail
+            if (User::on($db)->where(['email' => $email])->get()->count() >= 1) { // if user already exists, validation will fail
                 return true;
             }
         }
@@ -172,11 +172,13 @@ class MultiDB
     public static function findAndSetDb($token) :bool
     {
         foreach (self::$dbs as $db) {
-            if ($ct = CompanyToken::on($db)->whereRaw("BINARY `token`= ?", [$token])->first()) {
+            if ($ct = CompanyToken::on($db)->whereRaw('BINARY `token`= ?', [$token])->first()) {
                 self::setDb($ct->company->db);
+
                 return true;
             }
         }
+
         return false;
     }
 
@@ -185,9 +187,11 @@ class MultiDB
         foreach (self::$dbs as $db) {
             if ($company = Company::on($db)->where('company_key', $company_key)->first()) {
                 self::setDb($company->db);
+
                 return true;
             }
         }
+
         return false;
     }
 
@@ -196,11 +200,13 @@ class MultiDB
         foreach (self::$dbs as $db) {
             if ($company = Company::on($db)->whereSubdomain($subdomain)->first()) {
                 self::setDb($company->db);
+
                 return true;
             }
         }
 
         self::setDefaultDatabase();
+
         return false;
     }
 
@@ -209,13 +215,15 @@ class MultiDB
         $class = 'App\Models\\'.ucfirst($entity).'Invitation';
 
         foreach (self::$dbs as $db) {
-            if ($invite = $class::on($db)->whereRaw("BINARY `key`= ?", [$invitation_key])->first()) {
+            if ($invite = $class::on($db)->whereRaw('BINARY `key`= ?', [$invitation_key])->first()) {
                 self::setDb($db);
+
                 return true;
             }
         }
 
         self::setDefaultDatabase();
+
         return false;
     }
 

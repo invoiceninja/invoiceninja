@@ -21,7 +21,6 @@ class SetWebDb
             MultiDB::setDB(Cookie::get('db'));
         }
 
-
         return $next($request);
     }
 }

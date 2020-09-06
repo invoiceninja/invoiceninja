@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -35,7 +35,7 @@ class InvoiceController extends Controller
     {
         return $this->render('invoices.index');
     }
-    
+
     /**
      * Show specific invoice.
      *
@@ -70,14 +70,13 @@ class InvoiceController extends Controller
         $transformed_ids = $this->transformKeys($request->invoices);
 
         if ($request->input('action') == 'payment') {
-            return $this->makePayment((array)$transformed_ids);
+            return $this->makePayment((array) $transformed_ids);
         } elseif ($request->input('action') == 'download') {
-            return $this->downloadInvoicePDF((array)$transformed_ids);
+            return $this->downloadInvoicePDF((array) $transformed_ids);
         }
 
         return redirect()->back();
     }
-
 
     private function makePayment(array $ids)
     {
@@ -98,6 +97,7 @@ class InvoiceController extends Controller
         $invoices->map(function ($invoice) {
             $invoice->balance = Number::formatValue($invoice->balance, $invoice->client->currency());
             $invoice->partial = Number::formatValue($invoice->partial, $invoice->client->currency());
+
             return $invoice;
         });
 
@@ -133,30 +133,30 @@ class InvoiceController extends Controller
                             ->get();
 
         //generate pdf's of invoices locally
-        if (!$invoices || $invoices->count() == 0) {
+        if (! $invoices || $invoices->count() == 0) {
             return back()->with(['message' => ctrans('texts.no_items_selected')]);
         }
 
         //if only 1 pdf, output to buffer for download
         if ($invoices->count() == 1) {
-            return response()->streamDownload(function () use($invoices) {
+            return response()->streamDownload(function () use ($invoices) {
                 echo file_get_contents($invoices->first()->pdf_file_path());
             }, basename($invoices->first()->pdf_file_path()));
             //return response()->download(TempFile::path($invoices->first()->pdf_file_path()), basename($invoices->first()->pdf_file_path()));
         }
 
-        # enable output of HTTP headers
+        // enable output of HTTP headers
         $options = new Archive();
         $options->setSendHttpHeaders(true);
 
-        # create a new zipstream object
-        $zip = new ZipStream(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')).".zip", $options);
+        // create a new zipstream object
+        $zip = new ZipStream(date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip', $options);
 
         foreach ($invoices as $invoice) {
             $zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
         }
 
-        # finish the zip stream
+        // finish the zip stream
         $zip->finish();
     }
 }

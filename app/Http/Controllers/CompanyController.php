@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -42,8 +42,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Class CompanyController
- * @package App\Http\Controllers
+ * Class CompanyController.
  */
 class CompanyController extends BaseController
 {
@@ -57,7 +56,7 @@ class CompanyController extends BaseController
 
     protected $company_repo;
 
-    public    $forced_includes = [];
+    public $forced_includes = [];
 
     /**
      * CompanyController constructor.
@@ -106,7 +105,6 @@ class CompanyController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index()
     {
@@ -152,12 +150,11 @@ class CompanyController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateCompanyRequest $request)
     {
         $company = CompanyFactory::create(auth()->user()->company()->account->id);
-        
+
         return $this->itemResponse($company);
     }
 
@@ -198,7 +195,6 @@ class CompanyController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreCompanyRequest $request)
     {
@@ -207,7 +203,7 @@ class CompanyController extends BaseController
         $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
 
         CreateCompanyPaymentTerms::dispatchNow($company, auth()->user());
-        
+
         $company = $this->company_repo->save($request->all(), $company);
 
         $this->uploadLogo($request->file('company_logo'), $company, $company);
@@ -237,9 +233,9 @@ class CompanyController extends BaseController
 
         $this->entity_transformer = CompanyUserTransformer::class;
         $this->entity_type = CompanyUser::class;
-        
+
         $ct = CompanyUser::whereUserId(auth()->user()->id)->whereCompanyId($company->id);
-        
+
         return $this->listResponse($ct);
     }
 
@@ -291,7 +287,6 @@ class CompanyController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowCompanyRequest $request, Company $company)
     {
@@ -346,7 +341,6 @@ class CompanyController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditCompanyRequest $request, Company $company)
     {
@@ -402,7 +396,6 @@ class CompanyController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateCompanyRequest $request, Company $company)
     {
@@ -462,33 +455,28 @@ class CompanyController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
-  
         $company_count = $company->account->companies->count();
         $account = $company->account;
-        
+
         if ($company_count == 1) {
-        
             $company->company_users->each(function ($company_user) {
                 $company_user->user->forceDelete();
             });
 
-            if(Ninja::isHosted())
+            if (Ninja::isHosted()) {
                 RefundCancelledAccount::dispatchNow($account);
+            }
 
             $account->delete();
-
         } else {
-            
             $company_id = $company->id;
             $company->delete();
 
             //If we are deleting the default companies, we'll need to make a new company the default.
             if ($account->default_company_id == $company_id) {
-            
                 $new_default_company = Company::whereAccountId($account->id)->first();
                 $account->default_company_id = $new_default_company->id;
                 $account->save();
@@ -497,5 +485,4 @@ class CompanyController extends BaseController
 
         return response()->json(['message' => 'success'], 200);
     }
-
 }

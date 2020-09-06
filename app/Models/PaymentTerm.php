@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -31,7 +31,7 @@ class PaymentTerm extends BaseModel
     protected $dates = ['deleted_at'];
 
     protected $fillable = ['num_days'];
-    
+
     public function getNumDays()
     {
         return $this->num_days == -1 ? 0 : $this->num_days;
@@ -51,7 +51,7 @@ class PaymentTerm extends BaseModel
         ->sort()
         ->values()
         ->all();
-        
+
         return $default_terms;
     }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -37,8 +37,8 @@ class ProductController extends BaseController
     protected $product_repo;
 
     /**
-      * ProductController constructor.
-      */
+     * ProductController constructor.
+     */
     public function __construct(ProductRepository $product_repo)
     {
         parent::__construct();
@@ -47,8 +47,6 @@ class ProductController extends BaseController
     }
 
     /**
-     *
-      *
      * @OA\Get(
      *      path="/api/v1/products",
      *      operationId="getProducts",
@@ -81,15 +79,13 @@ class ProductController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function index(ProductFilters $filters)
     {
         $products = Product::filter($filters);
-        
+
         return $this->listResponse($products);
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -128,7 +124,6 @@ class ProductController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function create(CreateProductRequest $request)
     {
@@ -175,7 +170,6 @@ class ProductController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function store(StoreProductRequest $request)
     {
@@ -232,7 +226,6 @@ class ProductController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function show(ShowProductRequest $request, Product $product)
     {
@@ -286,7 +279,6 @@ class ProductController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function edit(EditProductRequest $request, Product $product)
     {
@@ -342,14 +334,13 @@ class ProductController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
         if ($request->entityIsDeleted($product)) {
             return $request->disallowUpdate();
         }
-        
+
         $product = $this->product_repo->save($request->all(), $product);
 
         return $this->itemResponse($product);
@@ -402,7 +393,6 @@ class ProductController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function destroy(DestroyProductRequest $request, Product $product)
     {
@@ -412,7 +402,7 @@ class ProductController extends BaseController
     }
 
     /**
-     * Perform bulk actions on the list view
+     * Perform bulk actions on the list view.
      *
      * @return Collection
      *
@@ -462,12 +452,11 @@ class ProductController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function bulk()
     {
         $action = request()->input('action');
-        
+
         $ids = request()->input('ids');
 
         $products = Product::withTrashed()->find($this->transformKeys($ids));

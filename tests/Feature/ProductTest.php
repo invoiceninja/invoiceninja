@@ -44,20 +44,16 @@ class ProductTest extends TestCase
         );
 
         $this->makeTestData();
-
     }
 
     public function testProductList()
     {
-
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/products');
 
         $response->assertStatus(200);
-
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -77,7 +73,7 @@ class ProductTest extends TestCase
                 'custom_value2' => 'custom',
                 'custom_value3' => 'custom',
                 'custom_value4' => 'custom',
-                'is_deleted' => 0
+                'is_deleted' => 0,
             ]
         )
             ->assertStatus(200);
@@ -85,7 +81,7 @@ class ProductTest extends TestCase
         $product = Product::all()->first();
 
         $product_update = [
-            'notes' => 'CHANGE'
+            'notes' => 'CHANGE',
         ];
 
         $response = $this->withHeaders([
@@ -93,7 +89,6 @@ class ProductTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/products/'.$this->encodePrimaryKey($product->id), $product_update)
             ->assertStatus(200);
-
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

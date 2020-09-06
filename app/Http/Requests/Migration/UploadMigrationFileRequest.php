@@ -27,7 +27,7 @@ class UploadMigrationFileRequest extends FormRequest
             'migration' => [],
         ];
 
-        /** We'll skip mime validation while running tests. */
+        /* We'll skip mime validation while running tests. */
         if (app()->environment() !== 'testing') {
             $rules['migration'] = ['required', 'file', 'mimes:zip'];
         }

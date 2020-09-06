@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -27,7 +27,7 @@ class CloneCreditFactory
         $clone_credit->user_id = $user_id;
         $clone_credit->balance = $credit->amount;
         $clone_credit->line_items = $credit->line_items;
-        
+
         return $clone_credit;
     }
 }

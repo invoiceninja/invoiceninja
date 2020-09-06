@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -35,7 +35,6 @@ class Bank extends StaticModel
 
     public function getEntityType()
     {
-        return Bank::class;
+        return self::class;
     }
-
 }

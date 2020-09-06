@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,7 +28,7 @@ class VendorFactory
         $vendor->paid_to_date = 0;
         $vendor->country_id = 4;
         $vendor->is_deleted = 0;
-        
+
         $vendor_contact = VendorContactFactory::create($company_id, $user_id);
         $vendor->contacts->add($vendor_contact);
 

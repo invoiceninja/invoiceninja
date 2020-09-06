@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -8,6 +8,7 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
+
 namespace App\Transformers;
 
 use App\Models\PaymentTerm;
@@ -22,12 +23,11 @@ class PaymentTermTransformer extends EntityTransformer
         return [
             'id'          => (string) $this->encodePrimaryKey($payment_term->id),
             'num_days'    => (int) $payment_term->num_days,
-            'name'        => (string) ctrans('texts.payment_terms_net') . ' ' . $payment_term->getNumDays(),
+            'name'        => (string) ctrans('texts.payment_terms_net').' '.$payment_term->getNumDays(),
             'is_deleted'  => (bool) $payment_term->is_deleted,
             'created_at'  => (int) $payment_term->created_at,
             'updated_at'  => (int) $payment_term->updated_at,
             'archived_at' => (int) $payment_term->deleted_at,
         ];
     }
-
 }

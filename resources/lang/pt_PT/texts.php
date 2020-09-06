@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
 
     'organization' => 'Organização',
     'name' => 'Nome',
@@ -1007,7 +1007,6 @@ $LANG = array(
     'trial_success' => 'Ativado duas semanas de teste para testar o plano Pro',
     'overdue' => 'Vencido',
 
-
     'white_label_text' => 'Comprar UM ANO da licença de marca branca por $:price para remover o branding do Invoice Ninja das notas de pagamento e do portal do cliente.',
     'user_email_footer' => 'Para ajustar as suas definições de notificações de e-mail aceda :link',
     'reset_password_footer' => 'Se não solicitou a redefinição da palavra-passe por favor envie um e-mail para o nosso suporte: :email',
@@ -1187,7 +1186,6 @@ $LANG = array(
     'enterprise_plan_features' => 'O plano Enterprise adiciona suporte a multiplos utilizadores e anexos de ficheiros, :link para ver a lista completa de funcionalidades.',
     'return_to_app' => 'Return To App',
 
-
     // Payment updates
     'refund_payment' => 'Reembolsar Pagamento',
     'refund_max' => 'Máx:',
@@ -1296,7 +1294,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'braintree_paypal_help_link_text' => 'ligar o PayPal à sua conta BrainTree',
     'token_billing_braintree_paypal' => 'Guardar detalhes do pagamento',
     'add_paypal_account' => 'Adicionar Conta PayPal',
-
 
     'no_payment_method_specified' => 'Nenhum método de pagamento definido',
     'chart_type' => 'Tipo de Gráfico',
@@ -2857,6 +2854,6 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
     'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
-);
+];
 
 return $LANG;

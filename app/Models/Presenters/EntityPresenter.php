@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,13 +14,12 @@ namespace App\Models\Presenters;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Laracasts\Presenter\Presenter;
+use stdClass;
 use URL;
 use Utils;
-use stdClass;
 
 /**
- * Class EntityPresenter
- * @package App\Models\Presenters
+ * Class EntityPresenter.
  */
 class EntityPresenter extends Presenter
 {
@@ -34,23 +33,14 @@ class EntityPresenter extends Presenter
         return $this->encodePrimaryKey($this->entity->id);
     }
 
-    /**
-     *
-     */
     public function url()
     {
     }
 
-    /**
-     *
-     */
     public function path()
     {
     }
 
-    /**
-     *
-     */
     public function editUrl()
     {
     }
@@ -62,23 +52,14 @@ class EntityPresenter extends Presenter
     {
     }
 
-    /**
-     *
-     */
     public function statusColor()
     {
     }
 
-    /**
-     *
-     */
     public function link()
     {
     }
 
-    /**
-     *
-     */
     public function titledName()
     {
     }
@@ -134,9 +115,9 @@ class EntityPresenter extends Presenter
         }
 
         if ($swap) {
-            return $postalCode . ' ' . $str;
+            return $postalCode.' '.$str;
         } else {
-            return $str . ' ' . $postalCode;
+            return $str.' '.$postalCode;
         }
     }
 

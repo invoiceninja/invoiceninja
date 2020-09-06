@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -32,7 +32,7 @@ class ClientFactory
         $client->is_deleted = 0;
         $client->client_hash = Str::random(40);
         $client->settings = ClientSettings::defaults();
-        
+
         // $client_contact = ClientContactFactory::create($company_id, $user_id);
         // $client->contacts->add($client_contact);
 

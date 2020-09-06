@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -26,7 +26,6 @@ class InvoiceSumInclusive
     use Balancer;
     use CustomValuer;
     use Discounter;
-
     use NumberFormatter;
 
     protected $invoice;
@@ -46,15 +45,15 @@ class InvoiceSumInclusive
     private $total_tax_map;
 
     private $sub_total;
+
     /**
-     * Constructs the object with Invoice and Settings object
+     * Constructs the object with Invoice and Settings object.
      *
      * @param      \App\Models\Invoice  $invoice   The invoice
      */
     public function __construct($invoice)
     {
         $this->invoice = $invoice;
-
 
         $this->tax_map = new Collection;
     }
@@ -120,28 +119,27 @@ class InvoiceSumInclusive
             $amount = $this->formatValue(($this->sub_total - $this->invoice->discount), 2);
         }
 
-        if ($this->invoice->discount > 0 && !$this->invoice->is_amount_discount) {
-            $amount = $this->formatValue(($this->sub_total - ($this->sub_total * ($this->invoice->discount/100))), 2);
+        if ($this->invoice->discount > 0 && ! $this->invoice->is_amount_discount) {
+            $amount = $this->formatValue(($this->sub_total - ($this->sub_total * ($this->invoice->discount / 100))), 2);
         }
 
         if ($this->invoice->tax_rate1 > 0) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate1, $amount);
             $this->total_taxes += $tax;
 
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1 . ' ' . $this->invoice->tax_rate1.'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.$this->invoice->tax_rate1.'%', 'total' => $tax];
         }
-
 
         if ($this->invoice->tax_rate2 > 0) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate2, $amount);
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2. ' ' . $this->invoice->tax_rate2.'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.$this->invoice->tax_rate2.'%', 'total' => $tax];
         }
 
         if ($this->invoice->tax_rate3 > 0) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate3, $amount);
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3 . ' ' . $this->invoice->tax_rate3.'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.$this->invoice->tax_rate3.'%', 'total' => $tax];
         }
 
         return $this;
@@ -162,7 +160,7 @@ class InvoiceSumInclusive
 
     private function calculatePartial()
     {
-        if (!isset($this->invoice->id) && isset($this->invoice->partial)) {
+        if (! isset($this->invoice->id) && isset($this->invoice->partial)) {
             $this->invoice->partial = max(0, min($this->formatValue($this->invoice->partial, 2), $this->invoice->balance));
         }
 
@@ -181,7 +179,7 @@ class InvoiceSumInclusive
         //Build invoice values here and return Invoice
         $this->setCalculatedAttributes();
         $this->invoice->save();
-        
+
         return $this->invoice;
     }
 
@@ -190,7 +188,7 @@ class InvoiceSumInclusive
         //Build invoice values here and return Invoice
         $this->setCalculatedAttributes();
         $this->invoice->save();
-        
+
         return $this->invoice;
     }
 
@@ -199,10 +197,9 @@ class InvoiceSumInclusive
         //Build invoice values here and return Invoice
         $this->setCalculatedAttributes();
         $this->invoice->save();
-        
+
         return $this->invoice;
     }
-
 
     /**
      * Build $this->invoice variables after
@@ -235,6 +232,7 @@ class InvoiceSumInclusive
     public function setSubTotal($value)
     {
         $this->sub_total = $value;
+
         return $this;
     }
 

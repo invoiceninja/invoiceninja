@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class CompanyGateway extends BaseModel
 {
     use SoftDeletes;
-    
+
     protected $casts = [
         'fees_and_limits' => 'object',
         'updated_at' => 'timestamp',
@@ -64,7 +64,7 @@ class CompanyGateway extends BaseModel
 
     public function getEntityType()
     {
-        return CompanyGateway::class;
+        return self::class;
     }
 
     public function company()
@@ -82,7 +82,7 @@ class CompanyGateway extends BaseModel
         if ($gateway_type_id == 'token') {
             $gateway_type_id = 1;
         }
-        
+
         return GatewayType::find($gateway_type_id)->alias;
     }
 
@@ -96,14 +96,14 @@ class CompanyGateway extends BaseModel
 
     private function driver_class()
     {
-        $class = 'App\\PaymentDrivers\\' . $this->gateway->provider . 'PaymentDriver';
+        $class = 'App\\PaymentDrivers\\'.$this->gateway->provider.'PaymentDriver';
         //$class = str_replace('\\', '', $class);
         $class = str_replace('_', '', $class);
 
         if (class_exists($class)) {
             return $class;
         } else {
-            return 'App\\PaymentDrivers\\BasePaymentDriver';
+            return \App\PaymentDrivers\BasePaymentDriver::class;
         }
     }
 
@@ -138,7 +138,6 @@ class CompanyGateway extends BaseModel
     {
         return object_get($this->getConfig(), $field, false);
     }
-
 
     /**
      * @return bool
@@ -202,25 +201,28 @@ class CompanyGateway extends BaseModel
     }
 
     /**
-     * Returns the current test mode of the gateway
-     * 
-     * @return boolean whether the gateway is in testmode or not.
+     * Returns the current test mode of the gateway.
+     *
+     * @return bool whether the gateway is in testmode or not.
      */
     public function isTestMode() :bool
     {
         $config = $this->getConfig();
 
-        if($this->gateway->provider == 'Stripe' && strpos($config->publishableKey, 'test'))
+        if ($this->gateway->provider == 'Stripe' && strpos($config->publishableKey, 'test')) {
             return true;
+        }
 
-        if($config && property_exists($config, 'testMode') && $config->testMode)
+        if ($config && property_exists($config, 'testMode') && $config->testMode) {
             return true;
+        }
 
         return false;
     }
+
     /**
      * Get Publishable Key
-     * Only works for STRIPE and PAYMILL
+     * Only works for STRIPE and PAYMILL.
      * @return string The Publishable key
      */
     public function getPublishableKey() :string
@@ -230,12 +232,13 @@ class CompanyGateway extends BaseModel
 
     public function getFeesAndLimits()
     {
-        if (is_null($this->fees_and_limits)) 
+        if (is_null($this->fees_and_limits)) {
             return false;
+        }
 
         $fees_and_limits = new \stdClass;
 
-        foreach($this->fees_and_limits as $key => $value) {
+        foreach ($this->fees_and_limits as $key => $value) {
             $fees_and_limits = $this->fees_and_limits->{$key};
         }
 
@@ -243,7 +246,7 @@ class CompanyGateway extends BaseModel
     }
 
     /**
-     * Returns the formatted fee amount for the gateway
+     * Returns the formatted fee amount for the gateway.
      *
      * @param  float $amount    The payment amount
      * @param  Client $client   The client object
@@ -253,7 +256,7 @@ class CompanyGateway extends BaseModel
     {
         $label = '';
 
-        if (!$this->feesEnabled()) {
+        if (! $this->feesEnabled()) {
             return $label;
         }
 
@@ -261,7 +264,7 @@ class CompanyGateway extends BaseModel
 
         if ($fee > 0) {
             $fee = Number::formatMoney(round($fee, 2), $client);
-            $label = ' - ' . $fee . ' ' . ctrans('texts.fee');
+            $label = ' - '.$fee.' '.ctrans('texts.fee');
         }
 
         return $label;
@@ -269,11 +272,11 @@ class CompanyGateway extends BaseModel
 
     public function calcGatewayFee($amount, $include_taxes = false)
     {
-
         $fees_and_limits = $this->getFeesAndLimits();
 
-        if(!$fees_and_limits)
+        if (! $fees_and_limits) {
             return 0;
+        }
 
         $fee = 0;
 
@@ -281,31 +284,31 @@ class CompanyGateway extends BaseModel
             $fee += $fees_and_limits->fee_amount;
             info("fee after adding fee amount = {$fee}");
         }
-        
+
         if ($fees_and_limits->fee_percent) {
             $fee += $amount * $fees_and_limits->fee_percent / 100;
             info("fee after adding fee percent = {$fee}");
         }
 
-        /* Cap fee if we have to here. */        
-        if($fees_and_limits->fee_cap > 0 && ($fee > $fees_and_limits->fee_cap))
+        /* Cap fee if we have to here. */
+        if ($fees_and_limits->fee_cap > 0 && ($fee > $fees_and_limits->fee_cap)) {
             $fee = $fees_and_limits->fee_cap;
+        }
 
         $pre_tax_fee = $fee;
 
         /**/
-        if($include_taxes)
-        {
+        if ($include_taxes) {
             if ($fees_and_limits->fee_tax_rate1) {
                 $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100;
                 info("fee after adding fee tax 1 = {$fee}");
             }
-            
+
             if ($fees_and_limits->fee_tax_rate2) {
                 $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100;
                 info("fee after adding fee tax 2 = {$fee}");
             }
-             
+
             if ($fees_and_limits->fee_tax_rate3) {
                 $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100;
                 info("fee after adding fee tax 3 = {$fee}");
@@ -316,10 +319,10 @@ class CompanyGateway extends BaseModel
     }
 
     /**
-      * we need to average out the gateway fees across all the invoices
-      * so lets iterate.
-      *
-      * we MAY need to adjust the final fee to ensure our rounding makes sense!
+     * we need to average out the gateway fees across all the invoices
+     * so lets iterate.
+     *
+     * we MAY need to adjust the final fee to ensure our rounding makes sense!
      */
     public function calcGatewayFeeObject($amount, $invoice_count)
     {
@@ -329,10 +332,11 @@ class CompanyGateway extends BaseModel
 
         $fees_and_limits = $this->getFeesAndLimits();
 
-        if(!$fees_and_limits)
+        if (! $fees_and_limits) {
             return $fee_object;
+        }
 
-        $fee_component_amount  = $fees_and_limits->fee_amount ?: 0;
+        $fee_component_amount = $fees_and_limits->fee_amount ?: 0;
         $fee_component_percent = $fees_and_limits->fee_percent ? ($amount * $fees_and_limits->fee_percent / 100) : 0;
 
         $combined_fee_component = $fee_component_amount + $fee_component_percent;
@@ -345,10 +349,9 @@ class CompanyGateway extends BaseModel
 
         $fee_component_tax_name3 = $fees_and_limits->fee_tax_name3 ?: '';
         $fee_component_tax_rate3 = $fees_and_limits->fee_tax_rate3 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate3 / 100) : 0;
-
     }
 
-    public function resolveRouteBinding($value)
+    public function resolveRouteBinding($value, $field = NULL)
     {
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();

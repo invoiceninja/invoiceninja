@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
 
 /**
- * GmailTransportConfig
+ * GmailTransportConfig.
  */
 class GmailTransportConfig
 {
@@ -40,7 +40,6 @@ class GmailTransportConfig
         Config::set('mail.driver', 'gmail');
         Config::set('services.gmail.token', $user->oauth_user_token);
         (new MailServiceProvider(app()))->register();
-
 
         Mail::to('david@romulus.com.au')
         ->send(new SupportMessageSent('a cool message'));

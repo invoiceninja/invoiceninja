@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,9 +21,9 @@ trait AppSetup
         if (Ninja::isNinja()) {  // Is this the invoice ninja production system?
             return Ninja::isNinja();
         }
-        
+
         $check = SystemHealth::check();
 
-        return $check['system_health'] == "true";
+        return $check['system_health'] == 'true';
     }
 }

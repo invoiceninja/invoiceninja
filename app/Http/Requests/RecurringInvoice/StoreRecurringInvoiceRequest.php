@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -20,18 +20,16 @@ class StoreRecurringInvoiceRequest extends Request
 {
     use MakesHash;
     use CleanLineItems;
-    
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->can('create', RecurringInvoice::class);
     }
-
 
     public function rules()
     {
@@ -41,7 +39,7 @@ class StoreRecurringInvoiceRequest extends Request
             $documents = count($this->input('documents'));
 
             foreach (range(0, $documents) as $index) {
-                $rules['documents.' . $index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+                $rules['documents.'.$index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
@@ -56,8 +54,6 @@ class StoreRecurringInvoiceRequest extends Request
         return $rules;
     }
 
-
-  
     protected function prepareForValidation()
     {
         $input = $this->all();
@@ -76,7 +72,7 @@ class StoreRecurringInvoiceRequest extends Request
 
         if (isset($input['client_contacts'])) {
             foreach ($input['client_contacts'] as $key => $contact) {
-                if (!array_key_exists('send_email', $contact) || !array_key_exists('id', $contact)) {
+                if (! array_key_exists('send_email', $contact) || ! array_key_exists('id', $contact)) {
                     unset($input['client_contacts'][$key]);
                 }
             }

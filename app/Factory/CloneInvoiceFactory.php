@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -27,7 +27,7 @@ class CloneInvoiceFactory
         $clone_invoice->balance = $invoice->amount;
         $clone_invoice->amount = $invoice->amount;
         $clone_invoice->line_items = $invoice->line_items;
-        
+
         return $clone_invoice;
     }
 }

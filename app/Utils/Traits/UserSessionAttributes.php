@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,12 +12,10 @@
 namespace App\Utils\Traits;
 
 /**
- * Class UserSessionAttributes
- * @package App\Utils\Traits
+ * Class UserSessionAttributes.
  */
 trait UserSessionAttributes
 {
-
     /**
      * @param $value
      */

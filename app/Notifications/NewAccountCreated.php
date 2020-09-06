@@ -21,7 +21,6 @@ class NewAccountCreated extends Notification implements ShouldQueue
      *
      * @return void
      */
-    
     protected $user;
 
     protected $company;
@@ -43,7 +42,7 @@ class NewAccountCreated extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['slack','mail'];
+        return ['slack', 'mail'];
     }
 
     /**
@@ -54,7 +53,7 @@ class NewAccountCreated extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $user_name = $this->user->first_name . " " . $this->user->last_name;
+        $user_name = $this->user->first_name.' '.$this->user->last_name;
         $email = $this->user->email;
         $ip = $this->user->ip;
 
@@ -67,12 +66,11 @@ class NewAccountCreated extends Notification implements ShouldQueue
             'logo' => $this->company->present()->logo(),
         ];
 
-
         return (new MailMessage)
                     ->subject(ctrans('texts.new_signup'))
                     ->withSwiftMessage(function ($message) {
-                            $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
-                        })
+                        $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
+                    })
                     ->markdown('email.admin.generic', $data);
     }
 
@@ -93,7 +91,7 @@ class NewAccountCreated extends Notification implements ShouldQueue
     {
         $this->user->setCompany($this->company);
 
-        $user_name = $this->user->first_name . " " . $this->user->last_name;
+        $user_name = $this->user->first_name.' '.$this->user->last_name;
         $email = $this->user->email;
         $ip = $this->user->ip;
 

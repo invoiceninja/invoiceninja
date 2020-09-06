@@ -41,13 +41,13 @@ class ImportTest extends TestCase
 
         $this->makeTestData();
 
-        $migration_file = base_path() . '/tests/Unit/Migration/migration.json';
+        $migration_file = base_path().'/tests/Unit/Migration/migration.json';
         $this->migration_array = json_decode(file_get_contents($migration_file), 1);
     }
 
     public function testImportClassExists()
     {
-        $status = class_exists('App\Jobs\Util\Import');
+        $status = class_exists(\App\Jobs\Util\Import::class);
 
         $this->assertTrue($status);
     }
@@ -130,7 +130,6 @@ class ImportTest extends TestCase
 //         $this->assertGreaterThan(1, count($this->migration_array));
 
 //     }
-
 
 //     public function testAllImport()
 //     {
@@ -216,7 +215,6 @@ class ImportTest extends TestCase
 //     //     Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
 //     //     $this->assertGreaterThan($original_number, Invoice::count());
-
 
 //     //     $quote = Quote::whereNumber('0021')
 //     //         ->whereDiscount('0.00')
@@ -449,7 +447,6 @@ class ImportTest extends TestCase
 //         $this->assertTrue(true, 'ClientGatewayTokens importing not completed yet.');
 
 //     }
-
 
 //     public function testDocumentsImport()
 //     {

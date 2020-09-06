@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,6 +28,7 @@ class PaymentNotification implements ShouldQueue
     public $payment;
 
     private $company;
+
     /**
      * Create a new job instance.
      *

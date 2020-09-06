@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -116,7 +116,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         $state = array_merge($state, $request->all());
         $state['store_card'] = boolval($state['store_card']);
 
-        if ($request->has('token') && !is_null($request->token)) {
+        if ($request->has('token') && ! is_null($request->token)) {
             $method = new IdSource($state['token']);
             $payment = new CheckoutPayment($method, $state['currency']);
             $payment->amount = $state['value'];
@@ -126,7 +126,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
             $payment->amount = $state['value'];
 
             if ($this->client->currency()->code === 'EUR') {
-                $payment->{"3ds"} = ['enabled' => true];
+                $payment->{'3ds'} = ['enabled' => true];
             }
         }
 
@@ -165,7 +165,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         ];
 
         $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
-        $payment_hash = PaymentHash::whereRaw("BINARY `hash`= ?", [$state['payment_hash']])->firstOrFail();
+        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$state['payment_hash']])->firstOrFail();
         $this->attachInvoices($payment, $payment_hash);
         $payment->service()->updateInvoicePayment($payment_hash);
 
@@ -173,7 +173,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
         $logger_message = [
             'server_response' => $state['payment_response'],
-            'data' => $data
+            'data' => $data,
         ];
 
         SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_CHECKOUT, $this->client);
@@ -205,7 +205,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
         $logger_message = [
             'server_response' => $state['payment_response'],
-            'data' => $data
+            'data' => $data,
         ];
 
         SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_CHECKOUT, $this->client);
@@ -233,7 +233,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         // throw new \Exception('Failed to process the payment: ' . $state['payment_response']->response_summary, 1);
 
         return render('gateways.unsuccessful', [
-            'code' => $state['payment_response']->response_code
+            'code' => $state['payment_response']->response_code,
         ]);
     }
 
@@ -318,6 +318,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         }
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) {}
-
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    {
+    }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -44,8 +44,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Class MockAccountData
- * @package Tests\Unit
+ * Class MockAccountData.
  */
 trait MockAccountData
 {
@@ -71,9 +70,9 @@ trait MockAccountData
 
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
-        
+
         foreach ($cached_tables as $name => $class) {
-            
+
             // check that the table exists in case the migration is pending
             if (! Schema::hasTable((new $class())->getTable())) {
                 continue;
@@ -101,17 +100,17 @@ trait MockAccountData
         $settings = CompanySettings::defaults();
 
         $settings->company_logo = 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
-        $settings->website      = 'www.invoiceninja.com';
-        $settings->address1     = 'Address 1';
-        $settings->address2     = 'Address 2';
-        $settings->city         = 'City';
-        $settings->state        = 'State';
-        $settings->postal_code  = 'Postal Code';
-        $settings->phone        = '555-343-2323';
-        $settings->email        = 'user@example.com';
-        $settings->country_id   = '840';
+        $settings->website = 'www.invoiceninja.com';
+        $settings->address1 = 'Address 1';
+        $settings->address2 = 'Address 2';
+        $settings->city = 'City';
+        $settings->state = 'State';
+        $settings->postal_code = 'Postal Code';
+        $settings->phone = '555-343-2323';
+        $settings->email = 'user@example.com';
+        $settings->country_id = '840';
         $settings->vat_number = 'vat number';
-        $settings->id_number  = 'id number';
+        $settings->id_number = 'id number';
 
         $this->company->settings = $settings;
         $this->company->save();
@@ -121,13 +120,13 @@ trait MockAccountData
 
         $this->user = User::whereEmail('user@example.com')->first();
 
-        if (!$this->user) {
+        if (! $this->user) {
             $this->user = factory(\App\Models\User::class)->create([
                 'account_id' => $this->account->id,
-                'confirmation_code' => $this->createDbHash(config('database.default'))
+                'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
         }
-        
+
         $this->user->password = Hash::make('ALongAndBriliantPassword');
 
         $cu = CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
@@ -147,12 +146,10 @@ trait MockAccountData
 
         $company_token->save();
 
-
         $this->client = factory(\App\Models\Client::class)->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
             ]);
-
 
         $contact = factory(\App\Models\ClientContact::class)->create([
                 'user_id' => $this->user->id,
@@ -166,13 +163,12 @@ trait MockAccountData
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
-                'send_email' => true
+                'send_email' => true,
             ]);
-        
 
-         // $rels = collect($contact, $contact2);
-         // $this->client->setRelation('contacts', $rels);
-         // $this->client->save();
+        // $rels = collect($contact, $contact2);
+        // $this->client->setRelation('contacts', $rels);
+        // $this->client->save();
 
         $gs = new GroupSetting;
         $gs->name = 'Test';
@@ -186,8 +182,8 @@ trait MockAccountData
 
         $this->client->group_settings_id = $gs->id;
         $this->client->save();
- 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $this->client->id;
 
         // $this->invoice = factory(\App\Models\Invoice::class)->create([
@@ -195,7 +191,6 @@ trait MockAccountData
         //         'client_id' => $this->client->id,
         //         'company_id' => $this->company->id,
         //     ]);
-
 
         $this->invoice->line_items = $this->buildLineItems();
         $this->invoice->uses_inclusive_taxes = false;
@@ -215,14 +210,14 @@ trait MockAccountData
         //$this->invoice->service()->createInvitations()->markSent();
         //$this->invoice->service()->createInvitations();
 
-            factory(\App\Models\InvoiceInvitation::class)->create([
+        factory(\App\Models\InvoiceInvitation::class)->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact->id,
                 'invoice_id' => $this->invoice->id,
             ]);
 
-            factory(\App\Models\InvoiceInvitation::class)->create([
+        factory(\App\Models\InvoiceInvitation::class)->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact2->id,
@@ -246,20 +241,20 @@ trait MockAccountData
         $this->quote_calc->build();
 
         $this->quote = $this->quote_calc->getQuote();
-        
+
         $this->quote->status_id = Quote::STATUS_SENT;
         $this->quote->number = $this->getNextQuoteNumber($this->client);
 
         //$this->quote->service()->createInvitations()->markSent();
 
-            factory(\App\Models\QuoteInvitation::class)->create([
+        factory(\App\Models\QuoteInvitation::class)->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact->id,
                 'quote_id' => $this->quote->id,
             ]);
 
-            factory(\App\Models\QuoteInvitation::class)->create([
+        factory(\App\Models\QuoteInvitation::class)->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact2->id,
@@ -281,7 +276,7 @@ trait MockAccountData
         $this->credit->uses_inclusive_taxes = false;
 
         $this->credit->save();
-        
+
         $this->credit->service()->createInvitations()->markSent();
 
         $this->credit_calc = new InvoiceSum($this->credit);
@@ -298,12 +293,12 @@ trait MockAccountData
                                         ->whereInvoiceId($this->invoice->id)
                                         ->first();
 
-            if (!$invitation && $contact->send_email) {
+            if (! $invitation && $contact->send_email) {
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send_email) {
+            } elseif ($invitation && ! $contact->send_email) {
                 $invitation->delete();
             }
         });
@@ -324,7 +319,7 @@ trait MockAccountData
         $recurring_invoice->remaining_cycles = 2;
         $recurring_invoice->start_date = Carbon::now();
         $recurring_invoice->save();
-        
+
         $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
 
@@ -334,7 +329,7 @@ trait MockAccountData
         $recurring_invoice->remaining_cycles = 2;
         $recurring_invoice->start_date = Carbon::now();
         $recurring_invoice->save();
-        
+
         $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
 
@@ -344,7 +339,7 @@ trait MockAccountData
         $recurring_invoice->remaining_cycles = 2;
         $recurring_invoice->start_date = Carbon::now();
         $recurring_invoice->save();
-        
+
         $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
 
@@ -354,10 +349,9 @@ trait MockAccountData
         $recurring_invoice->remaining_cycles = 2;
         $recurring_invoice->start_date = Carbon::now();
         $recurring_invoice->save();
-        
+
         $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
-
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
         $recurring_invoice->next_send_date = Carbon::now()->addMinutes(20);
@@ -365,7 +359,7 @@ trait MockAccountData
         $recurring_invoice->remaining_cycles = 2;
         $recurring_invoice->start_date = Carbon::now();
         $recurring_invoice->save();
-        
+
         $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
 
@@ -375,7 +369,7 @@ trait MockAccountData
         $recurring_invoice->remaining_cycles = 2;
         $recurring_invoice->start_date = Carbon::now();
         $recurring_invoice->save();
-        
+
         $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
         $recurring_invoice->save();
 
@@ -387,7 +381,6 @@ trait MockAccountData
         $gs->save();
 
         if (config('ninja.testvars.stripe')) {
-
             $data = [];
             $data[1]['min_limit'] = 234;
             $data[1]['max_limit'] = 65317;
@@ -423,11 +416,8 @@ trait MockAccountData
             $cg->fees_and_limits = $data;
             $cg->config = encrypt(config('ninja.testvars.stripe'));
             $cg->save();
-
         }
     }
-
-
 
     private function buildLineItems()
     {
@@ -435,7 +425,7 @@ trait MockAccountData
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost =10;
+        $item->cost = 10;
 
         $line_items[] = $item;
 

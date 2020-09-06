@@ -16,6 +16,7 @@ class RefundCancelledAccount implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $account;
+
     /**
      * Create a new job instance.
      *
@@ -34,18 +35,21 @@ class RefundCancelledAccount implements ShouldQueue
     public function handle()
     {
         // if free plan, return
-        if(Ninja::isSelfHost() || $this->account->isFreeHostedClient())
+        if (Ninja::isSelfHost() || $this->account->isFreeHostedClient()) {
             return;
-        
+        }
+
         $plan_details = $this->account->getPlanDetails();
 
         /* Trial user cancelling early.... */
-        if($plan_details['trial_active'])
+        if ($plan_details['trial_active']) {
             return;
-    
+        }
+
         /* Is the plan Active? */
-        if(!$plan_details['active'])
+        if (! $plan_details['active']) {
             return;
+        }
 
         /* Refundable client! */
 
@@ -74,5 +78,4 @@ class RefundCancelledAccount implements ShouldQueue
 
         return $pro_rata_refund;
     }
-
 }

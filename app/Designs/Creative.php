@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -19,7 +19,6 @@ class Creative extends AbstractDesign
     public function __construct()
     {
     }
-
 
     public function includes()
     {
@@ -41,7 +40,6 @@ margin-top: 6mm;
 $custom_css
 </style>';
     }
-
 
     public function header()
     {
@@ -113,7 +111,6 @@ $custom_css
     {
         return '';
     }
-
 
     public function product()
     {

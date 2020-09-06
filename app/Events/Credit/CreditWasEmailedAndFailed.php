@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -23,15 +23,15 @@ class CreditWasEmailedAndFailed
     public $credit;
 
     public $errors;
-    
+
     public $company;
-    
+
     public $event_vars;
 
     public function __construct(Credit $credit, $company, array $errors, array $event_vars)
     {
         $this->credit = $credit;
-        
+
         $this->company = $company;
 
         $this->errors = $errors;

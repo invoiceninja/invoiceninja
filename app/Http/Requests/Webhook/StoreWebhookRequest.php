@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,13 +15,11 @@ use App\Http\Requests\Request;
 
 class StoreWebhookRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return auth()->user()->isAdmin();
@@ -38,7 +36,6 @@ class StoreWebhookRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-          
 
         $this->replace($input);
     }

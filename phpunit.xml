@@ -61,7 +61,7 @@
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
-        <env name="MAIL_DRIVER" value="array"/>
+        <env name="MAIL_MAILER" value="array"/>
     </php>
     <logging>
         <log type="coverage-clover" target="coverage.xml"/>

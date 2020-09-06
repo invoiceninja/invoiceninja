@@ -1,4 +1,6 @@
-<?php return array(
+<?php
+
+return [
 
     // Markup
     ////////////////////////////////////////////////////////////////////
@@ -52,14 +54,14 @@
     'capitalize_translations' => true,
 
     // An array of attributes to automatically translate
-    'translatable'            => array(
+    'translatable'            => [
         'help',
         'inlineHelp',
         'blockHelp',
         'placeholder',
         'data_placeholder',
         'label',
-    ),
+    ],
 
     // Framework
     ////////////////////////////////////////////////////////////////////
@@ -67,141 +69,140 @@
     // The framework to be used by Former
     'framework'               => 'TwitterBootstrap4',
 
-    'TwitterBootstrap4'       => array(
+    'TwitterBootstrap4'       => [
 
         // Map Former-supported viewports to Bootstrap 4 equivalents
-        'viewports'   => array(
+        'viewports'   => [
             'large'  => 'lg',
             'medium' => 'md',
             'small'  => 'sm',
             'mini'   => 'xs',
-        ),
+        ],
         // Width of labels for horizontal forms expressed as viewport => grid columns
-        'labelWidths' => array(
+        'labelWidths' => [
             'large' => 2,
             'small' => 4,
-        ),
+        ],
         // HTML markup and classes used by Bootstrap 5 for icons
-        'icon'        => array(
+        'icon'        => [
             'tag'    => 'i',
             'set'    => 'fa',
             'prefix' => 'fa',
-        ),
+        ],
 
-    ),
+    ],
 
-    'TwitterBootstrap3'       => array(
+    'TwitterBootstrap3'       => [
 
         // Map Former-supported viewports to Bootstrap 3 equivalents
-        'viewports'   => array(
+        'viewports'   => [
             'large'  => 'lg',
             'medium' => 'md',
             'small'  => 'sm',
             'mini'   => 'xs',
-        ),
+        ],
         // Width of labels for horizontal forms expressed as viewport => grid columns
-        'labelWidths' => array(
+        'labelWidths' => [
             'large' => 2,
             'small' => 4,
-        ),
+        ],
         // HTML markup and classes used by Bootstrap 3 for icons
-        'icon'        => array(
+        'icon'        => [
             'tag'    => 'span',
             'set'    => 'glyphicon',
             'prefix' => 'glyphicon',
-        ),
+        ],
 
-    ),
+    ],
 
-    'Nude'                    => array(  // No-framework markup
-        'icon' => array(
+    'Nude'                    => [  // No-framework markup
+        'icon' => [
             'tag'    => 'i',
             'set'    => null,
             'prefix' => 'icon',
-        ),
-    ),
+        ],
+    ],
 
-    'TwitterBootstrap'        => array( // Twitter Bootstrap version 2
-        'icon' => array(
+    'TwitterBootstrap'        => [ // Twitter Bootstrap version 2
+        'icon' => [
             'tag'    => 'i',
             'set'    => null,
             'prefix' => 'icon',
-        ),
-    ),
+        ],
+    ],
 
-    'ZurbFoundation5'         => array(
+    'ZurbFoundation5'         => [
         // Map Former-supported viewports to Foundation 5 equivalents
-        'viewports'           => array(
+        'viewports'           => [
             'large'  => 'large',
             'medium' => null,
             'small'  => 'small',
             'mini'   => null,
-        ),
+        ],
         // Width of labels for horizontal forms expressed as viewport => grid columns
-        'labelWidths'         => array(
+        'labelWidths'         => [
             'small' => 3,
-        ),
+        ],
         // Classes to be applied to wrapped labels in horizontal forms
-        'wrappedLabelClasses' => array('right', 'inline'),
+        'wrappedLabelClasses' => ['right', 'inline'],
         // HTML markup and classes used by Foundation 5 for icons
-        'icon'                => array(
+        'icon'                => [
             'tag'    => 'i',
             'set'    => null,
             'prefix' => 'fi',
-        ),
+        ],
         // CSS for inline validation errors
-        'error_classes'       => array('class' => 'error'),
-    ),
+        'error_classes'       => ['class' => 'error'],
+    ],
 
-    'ZurbFoundation4'         => array(
+    'ZurbFoundation4'         => [
         // Foundation 4 also has an experimental "medium" breakpoint
         // explained at http://foundation.zurb.com/docs/components/grid.html
-        'viewports'           => array(
+        'viewports'           => [
             'large'  => 'large',
             'medium' => null,
             'small'  => 'small',
             'mini'   => null,
-        ),
+        ],
         // Width of labels for horizontal forms expressed as viewport => grid columns
-        'labelWidths'         => array(
+        'labelWidths'         => [
             'small' => 3,
-        ),
+        ],
         // Classes to be applied to wrapped labels in horizontal forms
-        'wrappedLabelClasses' => array('right', 'inline'),
+        'wrappedLabelClasses' => ['right', 'inline'],
         // HTML markup and classes used by Foundation 4 for icons
-        'icon'                => array(
+        'icon'                => [
             'tag'    => 'i',
             'set'    => 'general',
             'prefix' => 'foundicon',
-        ),
+        ],
         // CSS for inline validation errors
-        'error_classes'       => array('class' => 'alert-box radius warning'),
-    ),
+        'error_classes'       => ['class' => 'alert-box radius warning'],
+    ],
 
-    'ZurbFoundation'          => array( // Foundation 3
-        'viewports'           => array(
+    'ZurbFoundation'          => [ // Foundation 3
+        'viewports'           => [
             'large'  => '',
             'medium' => null,
             'small'  => 'mobile-',
             'mini'   => null,
-        ),
+        ],
         // Width of labels for horizontal forms expressed as viewport => grid columns
-        'labelWidths'         => array(
+        'labelWidths'         => [
             'large' => 2,
             'small' => 4,
-        ),
+        ],
         // Classes to be applied to wrapped labels in horizontal forms
-        'wrappedLabelClasses' => array('right', 'inline'),
+        'wrappedLabelClasses' => ['right', 'inline'],
         // HTML markup and classes used by Foundation 3 for icons
-        'icon'                => array(
+        'icon'                => [
             'tag'    => 'i',
             'set'    => null,
             'prefix' => 'fi',
-        ),
+        ],
         // CSS for inline validation errors
         // should work for Zurb 2 and 3
-        'error_classes'       => array('class' => 'alert-box alert error'),
-    ),
+        'error_classes'       => ['class' => 'alert-box alert error'],
+    ],
 
-
-);
+];

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -26,9 +26,8 @@ class StoreUserRequest extends Request
      *
      * @return bool
      */
-
     public function authorize() : bool
-    {   
+    {
         return auth()->user()->isAdmin();
     }
 
@@ -43,7 +42,7 @@ class StoreUserRequest extends Request
             $rules['email'] = new ValidUserForCompany();
         }
 
-        if(auth()->user()->company()->account->isFreeHostedClient()){
+        if (auth()->user()->company()->account->isFreeHostedClient()) {
             $rules['hosted_users'] = new CanAddUserRule(auth()->user()->company()->account);
         }
 
@@ -55,15 +54,15 @@ class StoreUserRequest extends Request
         $input = $this->all();
 
         if (isset($input['company_user'])) {
-            if (!isset($input['company_user']['is_admin'])) {
+            if (! isset($input['company_user']['is_admin'])) {
                 $input['company_user']['is_admin'] = false;
             }
 
-            if (!isset($input['company_user']['permissions'])) {
+            if (! isset($input['company_user']['permissions'])) {
                 $input['company_user']['permissions'] = '';
             }
 
-            if (!isset($input['company_user']['settings'])) {
+            if (! isset($input['company_user']['settings'])) {
                 //$input['company_user']['settings'] = DefaultSettings::userSettings();
                 $input['company_user']['settings'] = null;
             }
@@ -83,7 +82,7 @@ class StoreUserRequest extends Request
     {
         $user = MultiDB::hasUser(['email' => $this->input('email')]);
 
-        if (!$user) {
+        if (! $user) {
             $user = UserFactory::create(auth()->user()->account->id);
         }
 

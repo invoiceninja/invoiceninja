@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,12 +16,10 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class NewUniqueUserRule
- * @package App\Http\ValidationRules
+ * Class NewUniqueUserRule.
  */
 class NewUniqueUserRule implements Rule
 {
-
     /**
      * @param string $attribute
      * @param mixed $value

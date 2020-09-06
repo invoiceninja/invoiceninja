@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -23,18 +23,18 @@ use Illuminate\Http\Request;
 class ProfileController extends BaseController
 {
     use MakesHash;
-    
+
     protected $entity_type = Company::class;
 
     protected $entity_transformer = CompanyShopProfileTransformer::class;
-
 
     public function show(Request $request)
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
-        if(!$company->enable_shop_api)
-            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass],403);
+        if (! $company->enable_shop_api) {
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass], 403);
+        }
 
         return $this->itemResponse($company);
     }

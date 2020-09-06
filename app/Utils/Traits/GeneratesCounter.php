@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,8 +21,7 @@ use App\Models\Timezone;
 use Illuminate\Support\Carbon;
 
 /**
- * Class GeneratesCounter
- * @package App\Utils\Traits
+ * Class GeneratesCounter.
  */
 trait GeneratesCounter
 {
@@ -63,15 +62,13 @@ trait GeneratesCounter
         //Return a valid counter
         $pattern = $client->getSetting('invoice_number_pattern');
         $padding = $client->getSetting('counter_padding');
-        
+
         $invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $pattern);
 
         $this->incrementCounter($counter_entity, 'invoice_number_counter');
 
-
         return $invoice_number;
     }
-
 
     /**
      * Gets the next credit number.
@@ -138,7 +135,7 @@ trait GeneratesCounter
         //Return a valid counter
         $pattern = $client->getSetting('quote_number_pattern');
         $padding = $client->getSetting('counter_padding');
-        
+
         $quote_number = $this->checkEntityNumber(Quote::class, $client, $counter, $padding, $pattern);
 
         $this->incrementCounter($counter_entity, $used_counter);
@@ -182,7 +179,7 @@ trait GeneratesCounter
     }
 
     /**
-     * Payment Number Generator
+     * Payment Number Generator.
      * @return string The payment number
      */
     public function getNextPaymentNumber(Client $client) :string
@@ -216,7 +213,7 @@ trait GeneratesCounter
             $this->incrementCounter($client->company, 'payment_number_counter');
         }
 
-        return (string)$payment_number;
+        return (string) $payment_number;
     }
 
     /**
@@ -241,13 +238,12 @@ trait GeneratesCounter
         return $client_number;
     }
 
-    
     /**
      * Determines if it has shared counter.
      *
      * @param      \App\Models\Client  $client  The client
      *
-     * @return     boolean             True if has shared counter, False otherwise.
+     * @return     bool             True if has shared counter, False otherwise.
      */
     public function hasSharedCounter(Client $client) : bool
     {
@@ -255,11 +251,11 @@ trait GeneratesCounter
     }
 
     /**
-     * Checks that the number has not already been used
+     * Checks that the number has not already been used.
      *
      * @param      Collection  $entity   The entity ie App\Models\Client, Invoice, Quote etc
-     * @param      integer  $counter  The counter
-     * @param      integer   $padding  The padding
+     * @param      int  $counter  The counter
+     * @param      int   $padding  The padding
      *
      * @return     string   The padded and prefixed invoice number
      */
@@ -271,7 +267,7 @@ trait GeneratesCounter
             $number = $this->padCounter($counter, $padding);
 
             $number = $this->applyNumberPattern($client, $number, $pattern);
-        
+
             if ($class == Invoice::class || $class == RecurringInvoice::class) {
                 $check = $class::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->first();
             } elseif ($class == Client::class) {
@@ -287,29 +283,27 @@ trait GeneratesCounter
             $counter++;
         } while ($check);
 
-
         return $number;
     }
 
-
     /**
-     * Saves counters at both the company and client level
+     * Saves counters at both the company and client level.
      *
      * @param      \App\Models\Client                 $client        The client
-     * @param      \App\Models\Client|integer|string  $counter_name  The counter name
+     * @param      \App\Models\Client|int|string  $counter_name  The counter name
      */
     private function incrementCounter($entity, string $counter_name) :void
     {
         $settings = $entity->settings;
-        
-        if ($counter_name == 'invoice_number_counter' && !property_exists($entity->settings, 'invoice_number_counter')) {
+
+        if ($counter_name == 'invoice_number_counter' && ! property_exists($entity->settings, 'invoice_number_counter')) {
             $settings->invoice_number_counter = 0;
         }
 
         $settings->{$counter_name} = $settings->{$counter_name} + 1;
-        
+
         $entity->settings = $settings;
-        
+
         $entity->save();
     }
 
@@ -319,11 +313,11 @@ trait GeneratesCounter
             return $counter;
         }
 
-        return  $prefix . $counter;
+        return  $prefix.$counter;
     }
 
     /**
-     * Pads a number with leading 000000's
+     * Pads a number with leading 000000's.
      *
      * @param      int  $counter  The counter
      * @param      int  $padding  The padding
@@ -335,10 +329,9 @@ trait GeneratesCounter
         return str_pad($counter, $padding, '0', STR_PAD_LEFT);
     }
 
-
     /**
      * If we are using counter reset,
-     * check if we need to reset here
+     * check if we need to reset here.
      *
      * @param  Client $client client entity
      * @return void
@@ -396,9 +389,8 @@ trait GeneratesCounter
         $client->company->save();
     }
 
-
     /**
-     * { function_description }
+     * { function_description }.
      *
      * @param      \App\Models\Client  $client   The client
      * @param      string              $counter  The counter
@@ -408,7 +400,7 @@ trait GeneratesCounter
      */
     private function applyNumberPattern(Client $client, string $counter, $pattern) :string
     {
-        if (!$pattern) {
+        if (! $pattern) {
             return $counter;
         }
 
@@ -455,7 +447,7 @@ trait GeneratesCounter
 
         $search[] = '{$id_number}';
         $replace[] = $client->id_number;
-        
+
         return str_replace($search, $replace, $pattern);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -46,18 +46,18 @@ class PaymentUpdatedActivity implements ShouldQueue
         $payment = $event->payment;
 
         $invoices = $payment->invoices;
-        
+
         $fields = new \stdClass;
 
         $fields->payment_id = $payment->id;
-           $fields->client_id = $payment->client_id;
+        $fields->client_id = $payment->client_id;
         $fields->user_id = $payment->user_id;
         $fields->company_id = $payment->company_id;
         $fields->activity_type_id = Activity::UPDATE_PAYMENT;
 
         $this->activity_repo->save($fields, $payment, $event->event_vars);
 
-        // foreach ($invoices as $invoice) { 
+        // foreach ($invoices as $invoice) {
         // //todo we may need to add additional logic if in the future we apply payments to other entity Types, not just invoices
         //     $fields->invoice_id = $invoice->id;
 

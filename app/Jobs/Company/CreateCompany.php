@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -32,7 +32,6 @@ class CreateCompany
      *
      * @return void
      */
-
     public function __construct(array $request, $account)
     {
         $this->request = $request;
@@ -49,7 +48,7 @@ class CreateCompany
     {
         $settings = CompanySettings::defaults();
 
-        $settings->name = isset($this->request['name']) ? $this->request['name'] :  '';
+        $settings->name = isset($this->request['name']) ? $this->request['name'] : '';
 
         $company = new Company();
         $company->account_id = $this->account->id;

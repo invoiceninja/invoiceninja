@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,14 +16,12 @@ use App\Libraries\OAuth\Providers\Google;
 use Laravel\Socialite\Facades\Socialite;
 
 /**
- * Class OAuth
- * @package App\Libraries
+ * Class OAuth.
  */
 class OAuth
 {
-
     /**
-     * Socialite Providers
+     * Socialite Providers.
      */
     const SOCIAL_GOOGLE = 1;
     const SOCIAL_FACEBOOK = 2;
@@ -35,14 +33,12 @@ class OAuth
     /**
      * @param Socialite $user
      */
-
     public static function handleAuth(object $user, string $provider)
     {
         /** 1. Ensure user arrives on the correct provider **/
-
         $query = [
             'oauth_user_id' =>$user->getId(),
-            'oauth_provider_id'=>$provider
+            'oauth_provider_id'=>$provider,
         ];
 
         if ($user = MultiDB::hasUser($query)) {
@@ -57,7 +53,7 @@ class OAuth
     {
         $name = trim($name);
         $last_name = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
-        $first_name = trim(preg_replace('#' . preg_quote($last_name, '/') . '#', '', $name));
+        $first_name = trim(preg_replace('#'.preg_quote($last_name, '/').'#', '', $name));
 
         return [$first_name, $last_name];
     }
@@ -104,6 +100,7 @@ class OAuth
             case 'google':
                 $this->provider_instance = new Google();
                 $this->provider_id = self::SOCIAL_GOOGLE;
+
                 return $this;
 
             default:
@@ -122,7 +119,7 @@ class OAuth
 
         $data = [
             'oauth_user_id' => $oauth_user_id,
-            'oauth_provider_id' => $this->provider_id
+            'oauth_provider_id' => $this->provider_id,
         ];
 
         if ($this->provider_instance) {

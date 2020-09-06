@@ -1,6 +1,6 @@
 <?php
 /**
- * Quote Ninja (https://quoteninja.com)
+ * Quote Ninja (https://quoteninja.com).
  *
  * @link https://github.com/quoteninja/quoteninja source repository
  *
@@ -17,8 +17,7 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
- * Class UniqueQuoteNumberRule
- * @package App\Http\ValidationRules
+ * Class UniqueQuoteNumberRule.
  */
 class UniqueQuoteNumberRule implements Rule
 {
@@ -29,7 +28,7 @@ class UniqueQuoteNumberRule implements Rule
         $this->input = $input;
     }
 
-     /**
+    /**
      * @param string $attribute
      * @param mixed $value
      * @return bool
@@ -44,26 +43,26 @@ class UniqueQuoteNumberRule implements Rule
      */
     public function message()
     {
-        return "Quote number already taken";
+        return 'Quote number already taken';
     }
 
     /**
      * @param $email
      *
      * //off,when_sent,when_paid
-     * 
+     *
      * @return bool
      */
     private function checkIfQuoteNumberUnique() : bool
     {
-
         $quote = Quote::where('client_id', $this->input['client_id'])
                         ->where('number', $this->input['number'])
                         ->withTrashed()
                         ->exists();
 
-        if($quote)
+        if ($quote) {
             return false;
+        }
 
         return true;
     }

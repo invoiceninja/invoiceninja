@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -26,7 +26,7 @@ use App\Transformers\SystemLogTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
- * class ClientTransformer
+ * class ClientTransformer.
  */
 class ClientTransformer extends EntityTransformer
 {
@@ -49,7 +49,6 @@ class ClientTransformer extends EntityTransformer
         'system_logs',
     ];
 
-
     /**
      * @param Client $client
      *
@@ -68,7 +67,7 @@ class ClientTransformer extends EntityTransformer
 
         return $this->includeCollection($client->documents, $transformer, Document::class);
     }
-    
+
     /**
      * @param Client $client
      *
@@ -117,11 +116,11 @@ class ClientTransformer extends EntityTransformer
             'website' => $client->website ?: '',
             'private_notes' => $client->private_notes ?: '',
             'balance' => (float) $client->balance,
-            'group_settings_id' => isset($client->group_settings_id) ? (string)$this->encodePrimaryKey($client->group_settings_id) : '',
+            'group_settings_id' => isset($client->group_settings_id) ? (string) $this->encodePrimaryKey($client->group_settings_id) : '',
             'paid_to_date' => (float) $client->paid_to_date,
             'credit_balance' => (float) $client->credit_balance,
-            'last_login' => (int)$client->last_login,
-            'size_id' => (string)$client->size_id,
+            'last_login' => (int) $client->last_login,
+            'size_id' => (string) $client->size_id,
             'public_notes' => $client->public_notes ?: '',
         //    'currency_id' => (string)$client->currency_id,
             'address1' => $client->address1 ?: '',
@@ -130,8 +129,8 @@ class ClientTransformer extends EntityTransformer
             'city' => $client->city ?: '',
             'state' => $client->state ?: '',
             'postal_code' => $client->postal_code ?: '',
-            'country_id' => (string)$client->country_id ?: '',
-            'industry_id' => (string)$client->industry_id ?: '',
+            'country_id' => (string) $client->country_id ?: '',
+            'industry_id' => (string) $client->industry_id ?: '',
             'custom_value1' => $client->custom_value1 ?: '',
             'custom_value2' => $client->custom_value2 ?: '',
             'custom_value3' => $client->custom_value3 ?: '',
@@ -141,15 +140,15 @@ class ClientTransformer extends EntityTransformer
             'shipping_city' => $client->shipping_city ?: '',
             'shipping_state' => $client->shipping_state ?: '',
             'shipping_postal_code' => $client->shipping_postal_code ?: '',
-            'shipping_country_id' => (string)$client->shipping_country_id ?: '',
+            'shipping_country_id' => (string) $client->shipping_country_id ?: '',
             'settings' => $client->settings ?: new \stdClass,
             'is_deleted' => (bool) $client->is_deleted,
             'vat_number' => $client->vat_number ?: '',
             'id_number' => $client->id_number ?: '',
-            'updated_at' => (int)$client->updated_at,
-            'archived_at' => (int)$client->deleted_at,
-            'created_at' => (int)$client->created_at,
-            'display_name' => $client->present()->name()
+            'updated_at' => (int) $client->updated_at,
+            'archived_at' => (int) $client->deleted_at,
+            'created_at' => (int) $client->created_at,
+            'display_name' => $client->present()->name(),
         ];
     }
 }

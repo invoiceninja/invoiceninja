@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -34,7 +34,7 @@ class PaymentTransformer extends EntityTransformer
          'client',
          'invoices',
          'paymentables',
-         'documents'
+         'documents',
     ];
 
     public function __construct($serializer = null)
@@ -68,6 +68,7 @@ class PaymentTransformer extends EntityTransformer
     public function includeDocuments(Payment $payment)
     {
         $transformer = new DocumentTransformer($this->serializer);
+
         return $this->includeCollection($payment->documents, $transformer, Document::class);
     }
 
@@ -83,9 +84,9 @@ class PaymentTransformer extends EntityTransformer
             'transaction_reference' => $payment->transaction_reference ?: '',
             'date' => $payment->date ?: '',
             'is_manual' => (bool) $payment->is_manual,
-            'created_at' => (int)$payment->created_at,
-            'updated_at' => (int)$payment->updated_at,
-            'archived_at' => (int)$payment->deleted_at,
+            'created_at' => (int) $payment->created_at,
+            'updated_at' => (int) $payment->updated_at,
+            'archived_at' => (int) $payment->deleted_at,
             'is_deleted' => (bool) $payment->is_deleted,
             'type_id' => (string) $payment->type_id ?: '',
             'invitation_id' => (string) $payment->invitation_id ?: '',

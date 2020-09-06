@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,14 +15,12 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class MakesDates
- * @package App\Utils\Traits
+ * Class MakesDates.
  */
 trait MakesDates
 {
-
     /**
-     * Converts from UTC to client timezone
+     * Converts from UTC to client timezone.
      * @param  datetime 	object 		$utc_date
      * @param  string 		$timezone 	ie Australia/Sydney
      * @return Carbon           		Carbon object
@@ -32,12 +30,12 @@ trait MakesDates
         if (is_string($utc_date)) {
             $utc_date = $this->convertToDateObject($utc_date);
         }
-        
+
         return $utc_date->setTimezone(new \DateTimeZone($timezone));
     }
 
     /**
-     * Converts from client timezone to UTC
+     * Converts from client timezone to UTC.
      * @param  datetime 	object 		$utc_date
      * @param  string 		$timezone 	ie Australia/Sydney
      * @return Carbon           		Carbon object
@@ -52,17 +50,17 @@ trait MakesDates
     }
 
     /**
-     * Formats a date
+     * Formats a date.
      * @param  Carbon/String $date   Carbon object or date string
      * @param  string $format The date display format
      * @return string         The formatted date
      */
     public function formatDate($date, string $format) :string
     {
-        if (!$date || strlen($date) < 1) {
+        if (! $date || strlen($date) < 1) {
             return '';
         }
-        
+
         if (is_string($date)) {
             $date = $this->convertToDateObject($date);
         }
@@ -70,9 +68,8 @@ trait MakesDates
         return $date->format($format);
     }
 
-
     /**
-     * Formats a date
+     * Formats a date.
      * @param  Carbon/String $date   Carbon object or date string
      * @param  string $format The date display format
      * @return string         The formatted date

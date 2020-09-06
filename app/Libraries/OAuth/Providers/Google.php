@@ -7,6 +7,7 @@ class Google implements ProviderInterface
     public function getTokenResponse($token)
     {
         $client = new \Google_Client();
+
         return $client->verifyIdToken($token);
     }
 
@@ -24,5 +25,4 @@ class Google implements ProviderInterface
     {
         return $payload['name'];
     }
-
 }

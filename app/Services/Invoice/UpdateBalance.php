@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -25,7 +25,6 @@ class UpdateBalance extends AbstractService
         $this->invoice = $invoice;
         $this->balance_adjustment = $balance_adjustment;
     }
-
 
     public function run()
     {

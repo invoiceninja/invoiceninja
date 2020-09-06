@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,7 +16,7 @@ use App\Models\RecurringInvoice;
 use Illuminate\Http\Request;
 
 /**
- * RecurringInvoiceRepository
+ * RecurringInvoiceRepository.
  */
 class RecurringInvoiceRepository extends BaseRepository
 {
@@ -24,17 +24,17 @@ class RecurringInvoiceRepository extends BaseRepository
     {
         return RecurringInvoice::class;
     }
-    
+
     public function save($data, RecurringInvoice $invoice) : ?RecurringInvoice
     {
         $invoice->fill($data);
-        
+
         $invoice->save();
 
         $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
 
         $invoice = $invoice_calc->build()->getInvoice();
-        
+
         return $invoice;
     }
 }

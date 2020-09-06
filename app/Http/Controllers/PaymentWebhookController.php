@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -30,7 +30,7 @@ class PaymentWebhookController extends Controller
         $payment = Payment::where('transaction_reference', $transaction_reference)->first();
 
         if (is_null($payment)) {
-            return response([], 404); /** Record event, throw an exception.. */
+            return response([], 404); /* Record event, throw an exception.. */
         }
 
         return $request

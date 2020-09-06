@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
 
     'organization' => 'Organisation',
     'name' => 'Namn',
@@ -1015,7 +1015,6 @@ $LANG = array(
     'trial_success' => 'Lyckades aktivera två veckors gratis testversion för Pro nivå',
     'overdue' => 'Försenat',
 
-
     'white_label_text' => 'Köp ETT ÅR white label licens för $:price för att ta bort bort Invoice Ninja referens från faktura och klient portal.',
     'user_email_footer' => 'För att anpassa dina e-post notifieringar gå till :link',
     'reset_password_footer' => 'Om du inte begärt en återställning av ditt lösenord så var snäll och e-posta vår support: :email',
@@ -1195,7 +1194,6 @@ $LANG = array(
     'enterprise_plan_features' => 'Enterprise plan ger support för flera användare och bifogade filer, :link för att se lista av funktioner.',
     'return_to_app' => 'Återgå till Appen',
 
-
     // Payment updates
     'refund_payment' => 'Återbetala betalning',
     'refund_max' => 'Max:',
@@ -1304,7 +1302,6 @@ När ni har pengarna, kom tillbaka till denna betalningsmetods sida och klicka p
     'braintree_paypal_help_link_text' => 'Koppla PayPal till ditt BrainTree-konto',
     'token_billing_braintree_paypal' => 'Spara betalnings detaljer',
     'add_paypal_account' => 'Lägg till PayPal konto',
-
 
     'no_payment_method_specified' => 'Ingen betalningsmetod angiven',
     'chart_type' => 'Diagramtyp',
@@ -2872,6 +2869,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'mobile_refresh_warning' => 'If you\'re using the mobile app you may need to do a full refresh.',
     'enable_proposals_for_background' => 'To upload a background image :link to enable the proposals module.',
 
-);
+];
 
 return $LANG;

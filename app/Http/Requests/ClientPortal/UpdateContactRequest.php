@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,13 +18,12 @@ use Zend\Diactoros\Response\JsonResponse;
 class UpdateContactRequest extends Request
 {
     use MakesHash;
-    
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-
     public function authorize() : bool
     {
         return $this->encodePrimaryKey(auth()->user()->id) === request()->segment(3);
@@ -35,7 +34,7 @@ class UpdateContactRequest extends Request
         return [
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required|email|unique:client_contacts,email,' . auth()->user()->id,
+            'email' => 'required|email|unique:client_contacts,email,'.auth()->user()->id,
             'password' => 'sometimes|nullable|min:6|confirmed',
         ];
     }

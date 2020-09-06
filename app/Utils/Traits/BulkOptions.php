@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -35,7 +35,7 @@ trait BulkOptions
     public static $DEFAULT_QUEUE = 'bulk_processing';
 
     /**
-     * Available bulk options - used in requests (eg. BulkClientRequests)
+     * Available bulk options - used in requests (eg. BulkClientRequests).
      *
      * @return array
      * @var array

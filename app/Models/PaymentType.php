@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -19,7 +19,7 @@ class PaymentType extends StaticModel
      * @var bool
      */
     public $timestamps = false;
-    
+
     const CREDIT = 1;
     const ACH = 4;
     const VISA = 5;

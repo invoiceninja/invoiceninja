@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -43,7 +43,7 @@ class InvoiceService
 
     /**
      * Marks as invoice as paid
-     * and executes child sub functions
+     * and executes child sub functions.
      * @return $this InvoiceService object
      */
     public function markPaid()
@@ -54,7 +54,7 @@ class InvoiceService
     }
 
     /**
-     * Applies the invoice number
+     * Applies the invoice number.
      * @return $this InvoiceService object
      */
     public function applyNumber()
@@ -79,18 +79,18 @@ class InvoiceService
 
     public function addGatewayFee(CompanyGateway $company_gateway, float $amount)
     {
-
         $this->invoice = (new AddGatewayFee($company_gateway, $this->invoice, $amount))->run();
 
         return $this;
     }
+
     /**
-     * Update an invoice balance
-     * 
+     * Update an invoice balance.
+     *
      * @param  float $balance_adjustment The amount to adjust the invoice by
      * a negative amount will REDUCE the invoice balance, a positive amount will INCREASE
      * the invoice balance
-     * 
+     *
      * @return InvoiceService                     Parent class object
      */
     public function updateBalance($balance_adjustment)
@@ -171,11 +171,12 @@ class InvoiceService
     /* One liners */
     public function setDueDate()
     {
-        if($this->invoice->due_date != '' || $this->invoice->client->getSetting('payment_terms') == '')
+        if ($this->invoice->due_date != '' || $this->invoice->client->getSetting('payment_terms') == '') {
             return $this;
+        }
 
         $this->invoice->due_date = Carbon::parse($this->invoice->date)->addDays($this->invoice->client->getSetting('payment_terms'));
-        
+
         return $this;
     }
 
@@ -188,29 +189,24 @@ class InvoiceService
 
     public function toggleFeesPaid()
     {
-
         $this->invoice->line_items = collect($this->invoice->line_items)
                                      ->map(function ($item) {
+                                         if ($item->type_id == '3') {
+                                             $item->type_id = '4';
+                                         }
 
-                                            if($item->type_id == '3')
-                                                $item->type_id = '4';
-                                            
-                                            return $item;
-
-                                      })->toArray();
+                                         return $item;
+                                     })->toArray();
 
         return $this;
     }
 
     public function removeUnpaidGatewayFees()
     {
-
         $this->invoice->line_items = collect($this->invoice->line_items)
                                      ->reject(function ($item) {
-
-                                            return $item->type_id == '3';
-
-                                      })->toArray();
+                                         return $item->type_id == '3';
+                                     })->toArray();
 
         return $this;
     }
@@ -250,17 +246,15 @@ class InvoiceService
                 break;
 
             default:
-                # code...
+                // code...
                 break;
         }
-    
+
         return $this;
     }
 
-
-
     /**
-     * Saves the invoice
+     * Saves the invoice.
      * @return Invoice object
      */
     public function save() :?Invoice

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -13,14 +13,11 @@ namespace App\Utils;
 
 class TempFile
 {
+    public static function path($url) :string
+    {
+        $temp_path = tempnam(sys_get_temp_dir(), basename($url));
+        copy($url, $temp_path);
 
-	public static function path($url) :string
-	{
-
-		$temp_path = tempnam(sys_get_temp_dir(), basename($url));
-		copy($url, $temp_path);
-
-		return $temp_path;
-	}
-
+        return $temp_path;
+    }
 }

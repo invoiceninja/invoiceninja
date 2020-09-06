@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,13 +14,13 @@ namespace App\Mail\Admin;
 use App\Models\User;
 use App\Utils\Number;
 
-class PaymentFailureObject 
+class PaymentFailureObject
 {
-	public $client;
+    public $client;
 
-	public $message;
+    public $message;
 
-	public $company;
+    public $company;
 
     public $amount;
 
@@ -34,19 +34,19 @@ class PaymentFailureObject
 
     public function build()
     {
-    	$mail_obj = new \stdClass;
-    	$mail_obj->amount = $this->getAmount();
-    	$mail_obj->subject = $this->getSubject();
-    	$mail_obj->data = $this->getData();
-    	$mail_obj->markdown = 'email.admin.generic';
-    	$mail_obj->tag = $this->company->company_key;
-    	
-    	return $mail_obj;
+        $mail_obj = new \stdClass;
+        $mail_obj->amount = $this->getAmount();
+        $mail_obj->subject = $this->getSubject();
+        $mail_obj->data = $this->getData();
+        $mail_obj->markdown = 'email.admin.generic';
+        $mail_obj->tag = $this->company->company_key;
+
+        return $mail_obj;
     }
 
     private function getAmount()
     {
-    	return Number::formatMoney($this->amount, $this->client);
+        return Number::formatMoney($this->amount, $this->client);
     }
 
     private function getSubject()
@@ -62,7 +62,7 @@ class PaymentFailureObject
     {
         $signature = $this->client->getSetting('email_signature');
 
-    	$data = [
+        $data = [
             'title' => ctrans(
                 'texts.payment_failed_subject',
                 ['client' => $this->client->present()->name()]
@@ -80,4 +80,4 @@ class PaymentFailureObject
 
         return $data;
     }
-} 
+}

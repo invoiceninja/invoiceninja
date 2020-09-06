@@ -19,8 +19,9 @@ class NinjaTranslator extends Translator
     {
         list($namespace, $group, $item) = $this->parseKey($key);
 
-        if(null === $locale)
+        if (null === $locale) {
             $locale = $this->locale;
+        }
 
         // Load given group defaults if exists
         $this->load($namespace, $group, $locale);
@@ -30,19 +31,16 @@ class NinjaTranslator extends Translator
 
     public function replace($items, $locale = null)
     {
-
-        if(null === $locale)
+        if (null === $locale) {
             $locale = $this->locale;
-
-        foreach($items as $key => $value)
-        {
-
-            list($namespace, $group, $item) = $this->parseKey($key);
-        
-            $this->load($namespace, $group, $locale);
-
-	        Arr::set($this->loaded[$namespace][$group][$locale], $item, $value);
         }
 
+        foreach ($items as $key => $value) {
+            list($namespace, $group, $item) = $this->parseKey($key);
+
+            $this->load($namespace, $group, $locale);
+
+            Arr::set($this->loaded[$namespace][$group][$locale], $item, $value);
+        }
     }
 }

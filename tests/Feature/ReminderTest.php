@@ -26,7 +26,6 @@ use Tests\TestCase;
  * @test
  * @covers App\Jobs\Util\ReminderJob
  */
-
 class ReminderTest extends TestCase
 {
     use MakesHash;
@@ -84,6 +83,4 @@ class ReminderTest extends TestCase
 
         ReminderJob::dispatchNow();
     }
-
-
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -38,8 +38,8 @@ trait DesignHelpers
 
     /**
      * Initialize local dom document instance. Used for getting raw HTML out of template.
-     * 
-     * @return $this 
+     *
+     * @return $this
      */
     public function document(): self
     {
@@ -56,10 +56,10 @@ trait DesignHelpers
 
     /**
      * Get specific section HTML.
-     * 
-     * @param string $section 
-     * @param bool $id 
-     * @return null|string 
+     *
+     * @param string $section
+     * @param bool $id
+     * @return null|string
      */
     public function getSectionHTML(string $section, $id = true): ?string
     {
@@ -88,15 +88,15 @@ trait DesignHelpers
     /**
      * This method will help us decide either we show
      * one "tax rate" column in the table or 3 custom tax rates.
-     * 
+     *
      * Logic below will help us calculate that & inject the result in the
      * global state of the $context (design state).
-     * 
+     *
      * @return void
      */
     public function processTaxColumns(): void
     {
-        if (in_array('$product.tax', (array)$this->context['pdf_variables']['product_columns'])) {
+        if (in_array('$product.tax', (array) $this->context['pdf_variables']['product_columns'])) {
             $line_items = collect($this->entity->line_items);
 
             $tax1 = $line_items->where('tax_name1', '<>', '')->where('type_id', 1)->count();
@@ -126,23 +126,23 @@ trait DesignHelpers
 
     /**
      * Calculates the remaining colspans.
-     * 
-     * @param int $taken 
-     * @return int 
+     *
+     * @param int $taken
+     * @return int
      */
     public function calculateColspan(int $taken): int
     {
         $total = (int) count($this->context['pdf_variables']['product_columns']);
 
-        return (int)$total - $taken;
+        return (int) $total - $taken;
     }
 
     /**
      * Return "true" or "false" based on null or empty check.
      * We need to return false as string because of HTML parsing.
-     * 
-     * @param mixed $property 
-     * @return string 
+     *
+     * @param mixed $property
+     * @return string
      */
     public function toggleHiddenProperty($property): string
     {

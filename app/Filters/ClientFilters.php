@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -18,13 +18,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * ClientFilters
+ * ClientFilters.
  */
 class ClientFilters extends QueryFilters
 {
-
     /**
-     * Filter by balance
+     * Filter by balance.
      *
      * @param  string $balance
      * @return Illuminate\Database\Query\Builder
@@ -37,28 +36,25 @@ class ClientFilters extends QueryFilters
     }
 
     /**
-     * Filter between balances
+     * Filter between balances.
      *
      * @param  string balance
      * @return Illuminate\Database\Query\Builder
      */
     public function between_balance(string $balance): Builder
     {
-        $parts = explode(":", $balance);
+        $parts = explode(':', $balance);
 
         return $this->builder->whereBetween('balance', [$parts[0], $parts[1]]);
     }
 
     public function email(string $email):Builder
     {
-        return 
-        
-        $this->builder->whereHas('contacts', function ($query) use ($email) {
-                
-          $query->where('email', $email);
-                
-        });
+        return
 
+        $this->builder->whereHas('contacts', function ($query) use ($email) {
+            $query->where('email', $email);
+        });
 
         //return $this->builder->where('email', $email);
     }
@@ -69,12 +65,11 @@ class ClientFilters extends QueryFilters
     }
 
     /**
-     * Filter based on search text
+     * Filter based on search text.
      *
      * @param  string query filter
      * @return Illuminate\Database\Query\Builder
      * @deprecated
-     *
      */
     public function filter(string $filter = '') : Builder
     {
@@ -97,7 +92,7 @@ class ClientFilters extends QueryFilters
 
     /**
      * Filters the list based on the status
-     * archived, active, deleted
+     * archived, active, deleted.
      *
      * @param  string filter
      * @return Illuminate\Database\Query\Builder
@@ -112,42 +107,43 @@ class ClientFilters extends QueryFilters
         $filters = explode(',', $filter);
 
         return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table . '.id');
+            $query->whereNull($table.'.id');
 
             if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table . '.deleted_at');
+                $query->orWhereNull($table.'.deleted_at');
             }
 
             if (in_array(parent::STATUS_ARCHIVED, $filters)) {
                 $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table . '.deleted_at');
+                    $query->whereNotNull($table.'.deleted_at');
 
                     if (! in_array($table, ['users'])) {
-                        $query->where($table . '.is_deleted', '=', 0);
+                        $query->where($table.'.is_deleted', '=', 0);
                     }
                 });
             }
 
             if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table . '.is_deleted', '=', 1);
+                $query->orWhere($table.'.is_deleted', '=', 1);
             }
         });
     }
 
     /**
-     * Sorts the list based on $sort
+     * Sorts the list based on $sort.
      *
      * @param  string sort formatted as column|asc
      * @return Illuminate\Database\Query\Builder
      */
     public function sort(string $sort) : Builder
     {
-        $sort_col = explode("|", $sort);
+        $sort_col = explode('|', $sort);
+
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
     /**
-     * Returns the base query
+     * Returns the base query.
      *
      * @param  int company_id
      * @return Illuminate\Database\Query\Builder
@@ -188,21 +184,20 @@ class ClientFilters extends QueryFilters
                 'clients.settings'
             );
 
-        /**
+        /*
          * If the user does not have permissions to view all invoices
          * limit the user to only the invoices they have created
          */
         if (Gate::denies('view-list', Client::class)) {
-            info("the gate!");
+            info('the gate!');
             $query->where('clients.user_id', '=', $user->id);
         }
-
 
         return $query;
     }
 
     /**
-     * Filters the query by the users company ID
+     * Filters the query by the users company ID.
      *
      * @param $company_id The company Id
      * @return Illuminate\Database\Query\Builder

@@ -22,7 +22,6 @@ use Tests\TestCase;
  * @test
  * @covers App\Http\Controllers\RecurringQuoteController
  */
-    
 class RecurringQuoteTest extends TestCase
 {
     use MakesHash;
@@ -43,15 +42,12 @@ class RecurringQuoteTest extends TestCase
             ThrottleRequests::class
         );
 
-                $this->makeTestData();
-
+        $this->makeTestData();
     }
 
     public function testRecurringQuoteList()
     {
-        
         factory(\App\Models\RecurringQuote::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
-
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -63,14 +59,11 @@ class RecurringQuoteTest extends TestCase
 
     public function testRecurringQuoteRESTEndPoints()
     {
-
-
         factory(\App\Models\RecurringQuote::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
         $RecurringQuote = RecurringQuote::where('user_id', $this->user->id)->first();
         $RecurringQuote->save();
 
-        
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
@@ -91,7 +84,6 @@ class RecurringQuoteTest extends TestCase
         ];
 
         $this->assertNotNull($RecurringQuote);
-
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

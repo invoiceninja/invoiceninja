@@ -46,7 +46,6 @@ class DesignApiTest extends TestCase
         Model::reguard();
     }
 
-
     public function testDesignPost()
     {
         $design = [
@@ -55,20 +54,18 @@ class DesignApiTest extends TestCase
             'product' => 'product',
             'task' => 'task',
             'footer' => 'footer',
-            'header' => 'header'
+            'header' => 'header',
         ];
 
         $data = [
             'name' => $this->faker->firstName,
-            'design' => $design
+            'design' => $design,
         ];
-
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/designs', $data);
-
 
         $response->assertStatus(200);
 
@@ -80,7 +77,7 @@ class DesignApiTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/designs');
 
         $response->assertStatus(200);
@@ -89,7 +86,7 @@ class DesignApiTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->get('/api/v1/designs/'.$this->id);
 
         $response->assertStatus(200);
@@ -100,13 +97,12 @@ class DesignApiTest extends TestCase
 
         $data = [
             'name' => $this->faker->firstName,
-            'design' => $design
+            'design' => $design,
         ];
-
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/designs/'.$this->id, $data);
 
         $response->assertStatus(200);
@@ -116,12 +112,10 @@ class DesignApiTest extends TestCase
         $this->assertEquals($data['name'], $arr['data']['name']);
         $this->assertEquals($data['design'], $arr['data']['design']);
 
-
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token
+            'X-API-TOKEN' => $this->token,
         ])->delete('/api/v1/designs/'.$this->id, $data);
-
 
         $response->assertStatus(200);
 
@@ -129,10 +123,9 @@ class DesignApiTest extends TestCase
 
         $design = Design::whereId($this->decodePrimaryKey($this->id))->withTrashed()->first();
 
-        $this->assertTrue((bool)$design->is_deleted);
+        $this->assertTrue((bool) $design->is_deleted);
         $this->assertGreaterThan(0, $design->deleted_at);
     }
-
 
     public function testDesignArchive()
     {
@@ -142,17 +135,17 @@ class DesignApiTest extends TestCase
             'product' => 'product',
             'task' => 'task',
             'footer' => 'footer',
-            'header' => 'header'
+            'header' => 'header',
         ];
 
         $data = [
             'name' => $this->faker->firstName,
-            'design' => $design
+            'design' => $design,
         ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token
+                'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/designs', $data);
 
         $response->assertStatus(200);
@@ -165,7 +158,7 @@ class DesignApiTest extends TestCase
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token
+            'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/designs/bulk?action=archive', $data);
 
         $response->assertStatus(200);
@@ -176,7 +169,7 @@ class DesignApiTest extends TestCase
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token
+            'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/designs/bulk?action=restore', $data);
 
         $response->assertStatus(200);
@@ -187,25 +180,25 @@ class DesignApiTest extends TestCase
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token
+            'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/designs/bulk?action=delete', $data);
 
         $response->assertStatus(200);
 
         $design = Design::where('id', $this->decodePrimaryKey($arr['data']['id']))->withTrashed()->first();
 
-        $this->assertTrue((bool)$design->is_deleted);
+        $this->assertTrue((bool) $design->is_deleted);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token
+            'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/designs/bulk?action=restore', $data);
 
         $response->assertStatus(200);
 
         $design = Design::where('id', $this->decodePrimaryKey($arr['data']['id']))->withTrashed()->first();
 
-        $this->assertFalse((bool)$design->is_deleted);
+        $this->assertFalse((bool) $design->is_deleted);
         $this->assertNull($design->deleted_at);
     }
 }

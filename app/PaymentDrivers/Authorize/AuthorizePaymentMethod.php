@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -15,8 +15,8 @@ namespace App\PaymentDrivers\Authorize;
 use App\Exceptions\GenericPaymentDriverFailure;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
-use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
+use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\CreateCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\CreateCustomerProfileRequest;
 use net\authorize\api\contract\v1\CustomerAddressType;
@@ -30,9 +30,7 @@ use net\authorize\api\controller\CreateCustomerProfileController;
 use net\authorize\api\controller\GetCustomerPaymentProfileController;
 
 /**
- * Class AuthorizePaymentMethod
- * @package App\PaymentDrivers\AuthorizePaymentMethod
- *
+ * Class AuthorizePaymentMethod.
  */
 class AuthorizePaymentMethod
 {
@@ -58,10 +56,9 @@ class AuthorizePaymentMethod
                 break;
 
             default:
-                # code...
+                // code...
                 break;
         }
-
     }
 
     public function authorizeResponseView($data)
@@ -77,10 +74,9 @@ class AuthorizePaymentMethod
                 break;
 
             default:
-                # code...
+                // code...
                 break;
         }
-
     }
 
     public function authorizeCreditCard()
@@ -94,17 +90,15 @@ class AuthorizePaymentMethod
 
     public function authorizeBankTransfer()
     {
-        
     }
 
     public function authorizeCreditCardResponse($data)
     {
         $client_profile_id = null;
 
-        if($client_gateway_token = $this->authorize->findClientGatewayRecord()){
+        if ($client_gateway_token = $this->authorize->findClientGatewayRecord()) {
             $payment_profile = $this->addPaymentMethodToClient($client_gateway_token->gateway_customer_reference, $data);
-        }
-        else{
+        } else {
             $gateway_customer_reference = (new AuthorizeCreateCustomer($this->authorize, $this->authorize->client))->create($data);
             $payment_profile = $this->addPaymentMethodToClient($gateway_customer_reference, $data);
         }
@@ -112,17 +106,15 @@ class AuthorizePaymentMethod
         $this->createClientGatewayToken($payment_profile, $gateway_customer_reference);
 
         return redirect()->route('client.payment_methods.index');
-
     }
 
     public function authorizeBankTransferResponse($data)
     {
-        
     }
 
     public function createClientGatewayToken($payment_profile, $gateway_customer_reference)
     {
-      //  info(print_r($payment_profile,1));
+        //  info(print_r($payment_profile,1));
 
         $client_gateway_token = new ClientGatewayToken();
         $client_gateway_token->company_id = $this->authorize->client->company_id;
@@ -142,7 +134,7 @@ class AuthorizePaymentMethod
         $payment_meta = new \stdClass;
         $payment_meta->exp_month = 'xx';
         $payment_meta->exp_year = 'xx';
-        $payment_meta->brand =  $payment_profile->getPaymentProfile()->getPayment()->getCreditCard()->getCardType();
+        $payment_meta->brand = $payment_profile->getPaymentProfile()->getPayment()->getCreditCard()->getCardType();
         $payment_meta->last4 = $payment_profile->getPaymentProfile()->getPayment()->getCreditCard()->getCardNumber();
         $payment_meta->type = $this->payment_method;
 
@@ -151,13 +143,12 @@ class AuthorizePaymentMethod
 
     public function addPaymentMethodToClient($gateway_customer_reference, $data)
     {
-
-        error_reporting (E_ALL & ~E_DEPRECATED);
+        error_reporting(E_ALL & ~E_DEPRECATED);
 
         $this->authorize->init();
-    
+
         // Set the transaction's refId
-        $refId = 'ref' . time();
+        $refId = 'ref'.time();
 
         // Set the payment data for the payment profile to a token obtained from Accept.js
         $op = new OpaqueDataType();
@@ -168,8 +159,8 @@ class AuthorizePaymentMethod
 
         $contact = $this->authorize->client->primary_contact()->first();
 
-        if($contact){
-        // Create the Bill To info for new payment type
+        if ($contact) {
+            // Create the Bill To info for new payment type
             $billto = new CustomerAddressType();
             $billto->setFirstName($contact->present()->first_name());
             $billto->setLastName($contact->present()->last_name());
@@ -179,9 +170,10 @@ class AuthorizePaymentMethod
             $billto->setState($this->authorize->client->state);
             $billto->setZip($this->authorize->client->postal_code);
 
-            if($this->authorize->client->country_id)
+            if ($this->authorize->client->country_id) {
                 $billto->setCountry($this->authorize->client->country->name);
-            
+            }
+
             $billto->setPhoneNumber($this->authorize->client->phone);
         }
 
@@ -189,8 +181,9 @@ class AuthorizePaymentMethod
         $paymentprofile = new CustomerPaymentProfileType();
         $paymentprofile->setCustomerType('individual');
 
-        if($billto)
+        if ($billto) {
             $paymentprofile->setBillTo($billto);
+        }
 
         $paymentprofile->setPayment($paymentOne);
         $paymentprofile->setDefaultPaymentProfile(true);
@@ -203,40 +196,37 @@ class AuthorizePaymentMethod
         // Add an existing profile id to the request
         $paymentprofilerequest->setCustomerProfileId($gateway_customer_reference);
         $paymentprofilerequest->setPaymentProfile($paymentprofile);
-        $paymentprofilerequest->setValidationMode("liveMode");
+        $paymentprofilerequest->setValidationMode('liveMode');
 
         // Create the controller and get the response
         $controller = new CreateCustomerPaymentProfileController($paymentprofilerequest);
         $response = $controller->executeWithApiResponse($this->authorize->mode());
 
-        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") ) {
+        if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
             return $this->getPaymentProfile($gateway_customer_reference, $response->getCustomerPaymentProfileId());
         } else {
-
             $errorMessages = $response->getMessages()->getMessage();
 
-            $message = "Unable to add customer to Authorize.net gateway";
+            $message = 'Unable to add customer to Authorize.net gateway';
 
-            if(is_array($errorMessages))
-                $message = $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText();
+            if (is_array($errorMessages)) {
+                $message = $errorMessages[0]->getCode().'  '.$errorMessages[0]->getText();
+            }
 
             throw new GenericPaymentDriverFailure($message);
-
         }
-
     }
 
     public function getPaymentProfile($gateway_customer_reference, $payment_profile_id)
     {
-
-        error_reporting (E_ALL & ~E_DEPRECATED);
+        error_reporting(E_ALL & ~E_DEPRECATED);
 
         $this->authorize->init();
-    
-        // Set the transaction's refId
-        $refId = 'ref' . time();
 
-            //request requires customerProfileId and customerPaymentProfileId
+        // Set the transaction's refId
+        $refId = 'ref'.time();
+
+        //request requires customerProfileId and customerPaymentProfileId
         $request = new GetCustomerPaymentProfileRequest();
         $request->setMerchantAuthentication($this->authorize->merchant_authentication);
         $request->setRefId($refId);
@@ -246,22 +236,20 @@ class AuthorizePaymentMethod
         $controller = new GetCustomerPaymentProfileController($request);
         $response = $controller->executeWithApiResponse($this->authorize->mode());
 
-        if(($response != null) && ($response->getMessages()->getResultCode() == "Ok")) {
+        if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
             return $response;
-        }
-        else if($response){
-
+        } elseif ($response) {
             $errorMessages = $response->getMessages()->getMessage();
 
-            $message = "Unable to add payment method to Authorize.net gateway";
+            $message = 'Unable to add payment method to Authorize.net gateway';
 
-            if(is_array($errorMessages))
-                $message = $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText();
+            if (is_array($errorMessages)) {
+                $message = $errorMessages[0]->getCode().'  '.$errorMessages[0]->getText();
+            }
 
             throw new GenericPaymentDriverFailure($message);
+        } else {
+            throw new GenericPaymentDriverFailure('Error communicating with Authorize.net');
         }
-        else
-            throw new GenericPaymentDriverFailure("Error communicating with Authorize.net");
     }
-    
 }

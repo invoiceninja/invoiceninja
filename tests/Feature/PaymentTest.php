@@ -32,7 +32,6 @@ use Tests\TestCase;
  * @test
  * @covers App\Http\Controllers\PaymentController
  */
-    
 class PaymentTest extends TestCase
 {
     use MakesHash;
@@ -65,13 +64,13 @@ class PaymentTest extends TestCase
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
-                'is_primary' => 1
+                'is_primary' => 1,
             ]);
 
             factory(\App\Models\ClientContact::class, 1)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
-                'company_id' => $this->company->id
+                'company_id' => $this->company->id,
             ]);
         });
 
@@ -115,7 +114,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
         $this->invoice->line_items = $this->buildLineItems();
@@ -133,7 +132,7 @@ class PaymentTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/11',
@@ -157,7 +156,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -178,7 +177,7 @@ class PaymentTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -196,7 +195,7 @@ class PaymentTest extends TestCase
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
         }
-        
+
         if ($response) {
             $arr = $response->json();
             $response->assertStatus(200);
@@ -217,7 +216,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -240,7 +239,6 @@ class PaymentTest extends TestCase
 
         ];
 
-
         $response = false;
 
         try {
@@ -252,7 +250,7 @@ class PaymentTest extends TestCase
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
         }
-    
+
         if ($response) {
             $response->assertStatus(200);
         }
@@ -271,9 +269,8 @@ class PaymentTest extends TestCase
             'company_id' =>$this->company->id,
             'is_primary' => true,
         ]);
-    
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
         $this->invoice->partial = 2.0;
@@ -289,21 +286,20 @@ class PaymentTest extends TestCase
         $this->invoice->save();
         $this->invoice->service()->markSent()->save();
 
-
         $data = [
             'amount' => 2.0,
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 2.0
+                'amount' => 2.0,
                 ],
             ],
             'date' => '2019/12/12',
         ];
 
         $response = false;
-        
+
         try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -313,7 +309,7 @@ class PaymentTest extends TestCase
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
         }
-    
+
         if ($response) {
             $response->assertStatus(200);
 
@@ -347,12 +343,12 @@ class PaymentTest extends TestCase
                 'user_id' => $this->user->id,
                 'client_id' => $client->id,
                 'company_id' => $this->company->id,
-                'is_primary' => 1
+                'is_primary' => 1,
             ]);
 
         $client->setRelation('contacts', $client_contact);
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
         $this->invoice->partial = 5.0;
@@ -378,7 +374,7 @@ class PaymentTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 6.0
+                'amount' => 6.0,
                 ],
             ],
             'date' => '2019/12/12',
@@ -397,7 +393,7 @@ class PaymentTest extends TestCase
 
         $arr = $response->json();
         $response->assertStatus(200);
-            
+
         $payment_id = $arr['data']['id'];
 
         $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
@@ -431,11 +427,10 @@ class PaymentTest extends TestCase
                 'user_id' => $this->user->id,
                 'client_id' => $client->id,
                 'company_id' => $this->company->id,
-                'send_email' => true
+                'send_email' => true,
             ]);
 
-
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
         $this->invoice->partial = 5.0;
@@ -451,14 +446,13 @@ class PaymentTest extends TestCase
         $this->invoice->save();
         $this->invoice->service()->markSent()->save();
 
-
         $data = [
             'amount' => 2.0,
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 2.0
+                'amount' => 2.0,
                 ],
             ],
             'date' => '2019/12/12',
@@ -505,12 +499,12 @@ class PaymentTest extends TestCase
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
-                'send_email' => true
+                'send_email' => true,
             ]);
 
         $client->setRelation('contact', $contact);
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
         $this->invoice->partial = 5.0;
@@ -534,7 +528,7 @@ class PaymentTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 2.0
+                'amount' => 2.0,
                 ],
             ],
             'date' => '2019/12/12',
@@ -552,7 +546,6 @@ class PaymentTest extends TestCase
         }
     }
 
-
     public function testPaymentChangesBalancesCorrectly()
     {
         $this->invoice = null;
@@ -560,7 +553,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
         $this->invoice->line_items = $this->buildLineItems();
@@ -575,14 +568,13 @@ class PaymentTest extends TestCase
         $this->invoice->save();
         $this->invoice->service()->markSent()->save();
 
-
         $data = [
             'amount' => 2.0,
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 2.0
+                'amount' => 2.0,
                 ],
             ],
             'date' => '2019/12/12',
@@ -621,7 +613,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
         $this->invoice->line_items = $this->buildLineItems();
@@ -641,7 +633,6 @@ class PaymentTest extends TestCase
         $payment->client_id = $client->id;
         $payment->date = now();
         $payment->save();
-
 
         $data = [
             'amount' => 2.0,
@@ -668,7 +659,6 @@ class PaymentTest extends TestCase
         }
     }
 
-
     public function testUpdatePaymentValidationPasses()
     {
         $this->invoice = null;
@@ -676,7 +666,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
         $this->invoice->line_items = $this->buildLineItems();
@@ -698,7 +688,6 @@ class PaymentTest extends TestCase
         $payment->number = $client->getNextPaymentNumber($client);
         $payment->save();
 
-
         $data = [
             'amount' => 10.0,
             'client_id' => $this->encodePrimaryKey($client->id),
@@ -706,7 +695,7 @@ class PaymentTest extends TestCase
                     [
                         'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
                         'amount' => 10,
-                    ]
+                    ],
                 ],
             'date' => '2019/12/12',
         ];
@@ -730,7 +719,6 @@ class PaymentTest extends TestCase
         }
     }
 
-
     public function testDoublePaymentTestWithInvalidAmounts()
     {
         $this->invoice = null;
@@ -738,7 +726,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
         $this->invoice->line_items = $this->buildLineItems();
@@ -760,7 +748,7 @@ class PaymentTest extends TestCase
                     [
                         'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
                         'amount' => 10,
-                    ]
+                    ],
                 ],
             'date' => '2019/12/12',
         ];
@@ -778,9 +766,9 @@ class PaymentTest extends TestCase
         }
 
         $response->assertStatus(200);
-             
+
         $arr = $response->json();
-            
+
         $payment_id = $arr['data']['id'];
 
         $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
@@ -789,7 +777,7 @@ class PaymentTest extends TestCase
         $this->assertEquals($payment->applied, 10);
 
         $this->invoice = null;
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
         $this->invoice->line_items = $this->buildLineItems();
@@ -804,7 +792,6 @@ class PaymentTest extends TestCase
         $this->invoice->save();
         $this->invoice->service()->markSent()->save();
 
-
         $data = [
             'amount' => 15.0,
             'client_id' => $this->encodePrimaryKey($client->id),
@@ -812,11 +799,10 @@ class PaymentTest extends TestCase
                     [
                         'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
                         'amount' => 10,
-                    ]
+                    ],
                 ],
             'date' => '2019/12/12',
         ];
-
 
         $response = false;
 
@@ -832,7 +818,6 @@ class PaymentTest extends TestCase
         }
     }
 
-
     public function testDoublePaymentTestWithValidAmounts()
     {
         $this->invoice = null;
@@ -840,7 +825,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
         $this->invoice->line_items = $this->buildLineItems();
@@ -862,7 +847,7 @@ class PaymentTest extends TestCase
                     [
                         'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
                         'amount' => 10,
-                    ]
+                    ],
                 ],
             'date' => '2019/12/12',
         ];
@@ -871,11 +856,11 @@ class PaymentTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments/', $data);
-        
+
         $response->assertStatus(200);
-             
+
         $arr = $response->json();
-            
+
         $payment_id = $arr['data']['id'];
 
         $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
@@ -899,7 +884,6 @@ class PaymentTest extends TestCase
         // $this->invoice->save();
         // $this->invoice->service()->markSent()->save();
 
-
         // $data = [
         //     'amount' => 20.0,
         //     'client_id' => $this->encodePrimaryKey($client->id),
@@ -911,7 +895,6 @@ class PaymentTest extends TestCase
         //         ],
         //     'date' => '2019/12/12',
         // ];
-
 
         // $response = false;
 
@@ -928,19 +911,18 @@ class PaymentTest extends TestCase
         // }
 
         // $response->assertStatus(200);
-        
+
         // $arr = $response->json();
 
         // $this->assertEquals(20, $arr['data']['applied']);
     }
-
 
     public function testStorePaymentWithNoAmountField()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -960,7 +942,7 @@ class PaymentTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -978,7 +960,7 @@ class PaymentTest extends TestCase
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
         }
-        
+
         if ($response) {
             $arr = $response->json();
             $response->assertStatus(200);
@@ -995,13 +977,12 @@ class PaymentTest extends TestCase
         }
     }
 
-
     public function testStorePaymentWithZeroAmountField()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -1022,7 +1003,7 @@ class PaymentTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -1038,7 +1019,7 @@ class PaymentTest extends TestCase
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
         }
-        
+
         $response->assertStatus(200);
 
         $arr = $response->json();
@@ -1046,7 +1027,7 @@ class PaymentTest extends TestCase
         $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
 
         $this->assertEquals(round($payment->amount, 2), $this->invoice->amount);
-    
+
         $this->assertEquals(round($payment->applied, 2), $this->invoice->amount);
     }
 
@@ -1058,8 +1039,7 @@ class PaymentTest extends TestCase
         $client2 = ClientFactory::create($this->company->id, $this->user->id);
         $client2->save();
 
-
-        $invoice1 = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $invoice1 = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice1->client_id = $client1->id;
         $invoice1->status_id = Invoice::STATUS_SENT;
 
@@ -1074,7 +1054,7 @@ class PaymentTest extends TestCase
         $invoice1 = $invoice_calc->getInvoice();
         $invoice1->save();
 
-        $invoice2 = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $invoice2 = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice2->client_id = $client2->id;
         $invoice2->status_id = Invoice::STATUS_SENT;
 
@@ -1095,12 +1075,12 @@ class PaymentTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $invoice1->hashed_id,
-                'amount' => $invoice1->amount
+                'amount' => $invoice1->amount,
                 ],
                 [
                 'invoice_id' => $invoice2->hashed_id,
-                'amount' => $invoice2->amount
-                ]
+                'amount' => $invoice2->amount,
+                ],
             ],
             'date' => '2020/12/12',
 
@@ -1117,13 +1097,12 @@ class PaymentTest extends TestCase
         }
     }
 
-
     public function testPaymentWithSameInvoiceMultipleTimes()
     {
         $client1 = ClientFactory::create($this->company->id, $this->user->id);
         $client1->save();
 
-        $invoice1 = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $invoice1 = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice1->client_id = $client1->id;
         $invoice1->status_id = Invoice::STATUS_SENT;
 
@@ -1138,19 +1117,18 @@ class PaymentTest extends TestCase
         $invoice1 = $invoice_calc->getInvoice();
         $invoice1->save();
 
-
         $data = [
             'amount' => $invoice1->amount,
             'client_id' => $client1->hashed_id,
             'invoices' => [
                 [
                 'invoice_id' => $invoice1->hashed_id,
-                'amount' => 1
+                'amount' => 1,
                 ],
                 [
                 'invoice_id' => $invoice1->hashed_id,
-                'amount' => 1
-                ]
+                'amount' => 1,
+                ],
             ],
             'date' => '2020/12/12',
 
@@ -1171,13 +1149,12 @@ class PaymentTest extends TestCase
         $this->assertNull($response);
     }
 
-
     public function testStorePaymentWithCredits()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -1207,20 +1184,19 @@ class PaymentTest extends TestCase
         $credit = $this->credit_calc->getCredit();
         $credit->save(); //$10 credit
 
-
         $data = [
             'amount' => $this->invoice->amount,
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 5
+                'amount' => 5,
                 ],
             ],
             'credits' => [
                 [
                 'credit_id' => $credit->id,
-                'amount' => 5
+                'amount' => 5,
                 ],
             ],
             'date' => '2020/12/12',
@@ -1238,7 +1214,7 @@ class PaymentTest extends TestCase
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
         }
-        
+
         if ($response) {
             $arr = $response->json();
             $response->assertStatus(200);
@@ -1253,17 +1229,16 @@ class PaymentTest extends TestCase
         }
     }
 
-
     public function testStorePaymentExchangeRate()
     {
         $settings = ClientSettings::defaults();
-        $settings->currency_id = "2";
+        $settings->currency_id = '2';
 
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->settings = $settings;
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
 
@@ -1284,7 +1259,7 @@ class PaymentTest extends TestCase
             'invoices' => [
                 [
                 'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount
+                'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -1302,7 +1277,7 @@ class PaymentTest extends TestCase
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
         }
-        
+
         if ($response) {
             $arr = $response->json();
             $response->assertStatus(200);
@@ -1311,14 +1286,11 @@ class PaymentTest extends TestCase
 
             $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
 
-info($payment);
+            info($payment);
 
             $this->assertNotNull($payment);
             $this->assertNotNull($payment->invoices());
             $this->assertEquals(1, $payment->invoices()->count());
-
-
         }
     }
-
 }

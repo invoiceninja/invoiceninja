@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -28,7 +28,6 @@ class ClientPortalEnabled
         if (auth()->user()->client->getSetting('enable_client_portal') === false) {
             return redirect()->to('client/dashboard');
         }
-
 
         return $next($request);
     }

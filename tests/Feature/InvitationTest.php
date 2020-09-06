@@ -29,7 +29,6 @@ use Tests\TestCase;
  * @test
  * @covers App\Models\InvoiceInvitation
  */
-
 class InvitationTest extends TestCase
 {
     use MakesHash;
@@ -59,11 +58,10 @@ class InvitationTest extends TestCase
 
         $user = User::where('email', 'user@example.com')->first();
 
-        if(!$user)
-        {
+        if (! $user) {
             $user = factory(\App\Models\User::class)->create([
                 'account_id' => $account->id,
-                'confirmation_code' => $this->createDbHash(config('database.default'))
+                'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
         }
 
@@ -73,7 +71,7 @@ class InvitationTest extends TestCase
                                     'edit_client',
                                     'edit_invoice',
                                     'create_invoice',
-                                    'create_client'
+                                    'create_client',
                                 ]);
 
         $userSettings = DefaultSettings::userSettings();
@@ -93,13 +91,13 @@ class InvitationTest extends TestCase
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
-                'is_primary' => 1
+                'is_primary' => 1,
             ]);
 
             factory(\App\Models\ClientContact::class, 2)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
-                'company_id' => $company->id
+                'company_id' => $company->id,
             ]);
         });
 
@@ -112,7 +110,6 @@ class InvitationTest extends TestCase
         $this->assertNotNull($invoice);
         $this->assertNotNull($invoice->client);
         $this->assertNotNull($invoice->client->primary_contact);
-
 
         $i = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
         $i->client_contact_id = $client->primary_contact->first()->id;

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,8 +12,7 @@
 namespace App\Http\Controllers;
 
 /**
- * Class ClientStatementController
- * @package App\Http\Controllers
+ * Class ClientStatementController.
  */
 class ClientStatementController extends BaseController
 {
@@ -33,7 +32,7 @@ class ClientStatementController extends BaseController
 
     /**
      * Updates the show view data dependent on
-     * configured variables
+     * configured variables.
      * @return json
      */
     public function update()

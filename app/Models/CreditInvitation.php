@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -42,7 +42,7 @@ class CreditInvitation extends BaseModel
 
     public function getEntityType()
     {
-        return CreditInvitation::class;
+        return self::class;
     }
 
     // public function getSignatureDateAttribute($value)
@@ -76,7 +76,7 @@ class CreditInvitation extends BaseModel
     //     }
     //     return $value;
     // }
-    
+
     public function entityType()
     {
         return Credit::class;
@@ -127,9 +127,9 @@ class CreditInvitation extends BaseModel
 
     public function pdf_file_path()
     {
-        $storage_path = Storage::url($this->credit->client->quote_filepath() . $this->credit->number . '.pdf');
+        $storage_path = Storage::url($this->credit->client->quote_filepath().$this->credit->number.'.pdf');
 
-        if (!Storage::exists($this->credit->client->credit_filepath() . $this->credit->number . '.pdf')) {
+        if (! Storage::exists($this->credit->client->credit_filepath().$this->credit->number.'.pdf')) {
             event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
             CreateCreditPdf::dispatchNow($this);
         }

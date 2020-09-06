@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -14,8 +14,7 @@ namespace App\Policies;
 use App\Models\TaxRate;
 
 /**
- * Class TaxRatePolicy
- * @package App\Policies
+ * Class TaxRatePolicy.
  */
 class TaxRatePolicy extends EntityPolicy
 {

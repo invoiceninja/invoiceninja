@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -46,7 +46,7 @@ class PaymentArchivedActivity implements ShouldQueue
         $payment = $event->payment;
 
         $invoices = $payment->invoices;
-        
+
         $fields = new \stdClass;
 
         $fields->payment_id = $payment->id;
@@ -66,6 +66,5 @@ class PaymentArchivedActivity implements ShouldQueue
         // }
 
         $this->activity_repo->save($fields, $payment, $event->event_vars);
-
     }
 }

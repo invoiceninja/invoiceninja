@@ -26,7 +26,6 @@ use Tests\TestCase;
  * @test
  * @covers App\Services\Invoice\HandleReversal
  */
-    
 class ReverseInvoiceTest extends TestCase
 {
     use MakesHash;
@@ -59,8 +58,8 @@ class ReverseInvoiceTest extends TestCase
 
         $first_payment = $this->invoice->payments->first();
 
-        $this->assertEquals((float)$first_payment->amount, (float)$this->invoice->amount);
-        $this->assertEquals((float)$first_payment->applied, (float)$this->invoice->amount);
+        $this->assertEquals((float) $first_payment->amount, (float) $this->invoice->amount);
+        $this->assertEquals((float) $first_payment->applied, (float) $this->invoice->amount);
 
         $this->assertTrue($this->invoice->invoiceReversable($this->invoice));
 
@@ -88,8 +87,8 @@ class ReverseInvoiceTest extends TestCase
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->cost = (float)$total_paid;
-        $item->notes = "Credit for reversal of ".$this->invoice->number;
+        $item->cost = (float) $total_paid;
+        $item->notes = 'Credit for reversal of '.$this->invoice->number;
 
         $line_items[] = $item;
 
@@ -107,7 +106,7 @@ class ReverseInvoiceTest extends TestCase
                 ->markSent()->save();
 
         /* Set invoice balance to 0 */
-        $this->invoice->ledger()->updateInvoiceBalance($balance_remaining*-1, $item->notes)->save();
+        $this->invoice->ledger()->updateInvoiceBalance($balance_remaining * -1, $item->notes)->save();
 
         /* Set invoice status to reversed... somehow*/
         $this->invoice->service()->setStatus(Invoice::STATUS_REVERSED)->save();
@@ -123,7 +122,6 @@ class ReverseInvoiceTest extends TestCase
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
     }
 
-
     public function testReversalViaAPI()
     {
         $this->assertEquals($this->client->balance, $this->invoice->balance);
@@ -136,8 +134,8 @@ class ReverseInvoiceTest extends TestCase
 
         $this->invoice = $this->invoice->service()->markPaid()->save();
 
-        $this->assertEquals($this->client->balance, ($this->invoice->balance*-1));
-        $this->assertEquals($this->client->paid_to_date, ($client_paid_to_date+$invoice_balance));
+        $this->assertEquals($this->client->balance, ($this->invoice->balance * -1));
+        $this->assertEquals($this->client->paid_to_date, ($client_paid_to_date + $invoice_balance));
         $this->assertEquals(0, $this->invoice->balance);
         $this->assertEquals(Invoice::STATUS_PAID, $this->invoice->status_id);
 
@@ -163,6 +161,6 @@ class ReverseInvoiceTest extends TestCase
         $this->assertEquals(Invoice::STATUS_REVERSED, $this->invoice->status_id);
         $this->assertEquals(0, $this->invoice->balance);
         $this->assertEquals($this->client->paid_to_date, ($client_paid_to_date));
-        $this->assertEquals($this->client->balance, ($client_balance-$invoice_balance));
+        $this->assertEquals($this->client->balance, ($client_balance - $invoice_balance));
     }
 }

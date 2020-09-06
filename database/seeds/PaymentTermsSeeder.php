@@ -23,6 +23,5 @@ class PaymentTermsSeeder extends Seeder
         foreach ($paymentTerms as $paymentTerm) {
             PaymentTerm::create($paymentTerm);
         }
-
     }
 }

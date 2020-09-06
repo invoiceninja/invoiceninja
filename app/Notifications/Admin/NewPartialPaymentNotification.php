@@ -22,7 +22,6 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
      *
      * @return void
      */
-    
     protected $payment;
 
     protected $company;
@@ -58,17 +57,16 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-                //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
-
+        //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
 
         $amount = Number::formatMoney($this->payment->amount, $this->payment->client);
-        
+
         $invoice_texts = ctrans('texts.invoice_number_short');
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_texts .= $invoice->number . ',';
+            $invoice_texts .= $invoice->number.',';
         }
-        
+
         $invoice_texts = substr($invoice_texts, 0, -1);
 
         $data = [
@@ -83,12 +81,11 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
                 'invoice' => $invoice_texts,
             ]
             ),
-            'url' => config('ninja.app_url') . 'payments/' . $this->payment->hashed_id,
+            'url' => config('ninja.app_url').'payments/'.$this->payment->hashed_id,
             'button' => ctrans('texts.view_payment'),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),
         ];
-
 
         return (new MailMessage)
                     ->subject(
@@ -98,8 +95,8 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
                         )
                     )->markdown('email.admin.generic', $data)
                     ->withSwiftMessage(function ($message) {
-                            $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
-                        });
+                        $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
+                    });
     }
 
     /**
@@ -122,21 +119,21 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
         $invoice_texts = ctrans('texts.invoice_number_short');
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_texts .= $invoice->number . ',';
+            $invoice_texts .= $invoice->number.',';
         }
-        
+
         $invoice_texts = substr($invoice_texts, 0, -1);
 
         return (new SlackMessage)
                 ->success()
                 //->to("#devv2")
-                ->from("System")
+                ->from('System')
                 ->image($logo)
                 ->content(ctrans(
                     'texts.notification_payment_paid',
                     ['amount' => $amount,
                     'client' => $this->payment->client->present()->name(),
-                    'invoice' => $invoice_texts]
+                    'invoice' => $invoice_texts, ]
                 ));
     }
 }

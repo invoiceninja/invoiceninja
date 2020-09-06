@@ -14,44 +14,35 @@ class CurrencyApiTest extends TestCase
 {
     public function setUp() :void
     {
-
         parent::setUp();
-    
     }
 
     public function testCurrencyConversionWorking()
     {
+        $converter = new CurrencyApi();
 
-    	$converter = new CurrencyApi();
+        $converted_amount = $converter->convert(100, 1, 2);
 
-    	$converted_amount = $converter->convert(100,1,2);
-
-    	$this->assertIsFloat($converted_amount);
-
+        $this->assertIsFloat($converted_amount);
     }
 
+    public function testExchangeRate()
+    {
+        $converter = new CurrencyApi();
 
-	public function testExchangeRate()
-	{
-		
-    	$converter = new CurrencyApi();
+        $exchange_rate = $converter->exchangeRate(1, 2);
 
-		$exchange_rate =  $converter->exchangeRate(1, 2);
+        $this->assertIsNumeric($exchange_rate);
+    }
 
-    	$this->assertIsNumeric($exchange_rate);
+    public function testExchangeRateWithDate()
+    {
+        $date = Carbon::parse('2020-03-08');
 
-	}
+        $converter = new CurrencyApi();
 
+        $exchange_rate = $converter->exchangeRate(1, 2, $date);
 
-	public function testExchangeRateWithDate()
-	{
-		$date = Carbon::parse('2020-03-08');
-
-    	$converter = new CurrencyApi();
-
-		$exchange_rate =  $converter->exchangeRate(1, 2, $date);
-
-    	$this->assertIsNumeric($exchange_rate);
-
-	}
+        $this->assertIsNumeric($exchange_rate);
+    }
 }

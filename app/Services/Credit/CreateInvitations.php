@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -8,7 +8,6 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-
 
 namespace App\Services\Credit;
 
@@ -36,12 +35,12 @@ class CreateInvitations extends AbstractService
                 ->whereCreditId($this->credit->id)
                 ->first();
 
-            if (!$invitation) {
+            if (! $invitation) {
                 $ii = CreditInvitationFactory::create($this->credit->company_id, $this->credit->user_id);
                 $ii->credit_id = $this->credit->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send_email) {
+            } elseif ($invitation && ! $contact->send_email) {
                 $invitation->delete();
             }
         });

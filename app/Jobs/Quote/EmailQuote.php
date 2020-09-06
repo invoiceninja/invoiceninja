@@ -61,7 +61,6 @@ class EmailQuote implements ShouldQueue
         }
 
         $this->quote_invitation->quote->service()->markSent()->save();
-        
     }
 
     private function logMailError($errors)

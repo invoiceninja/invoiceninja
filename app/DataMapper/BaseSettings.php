@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -12,7 +12,7 @@
 namespace App\DataMapper;
 
 /**
- * ClientSettings
+ * ClientSettings.
  */
 class BaseSettings
 {
@@ -22,7 +22,7 @@ class BaseSettings
             $obj->{$key} = $value;
         }
     }
-    
+
     public static function setCasts($obj, $casts)
     {
         foreach ($casts as $key => $value) {
@@ -46,7 +46,7 @@ class BaseSettings
                 return is_null($value) ? '' : (string) $value;
             case 'bool':
             case 'boolean':
-                return (bool)($value);
+                return (bool) ($value);
             case 'object':
                 return json_decode($value);
             case 'array':

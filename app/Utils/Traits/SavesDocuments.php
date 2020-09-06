@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -27,7 +27,7 @@ trait SavesDocuments
             $company = $entity->company;
         }
 
-        if (!$account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+        if (! $account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             return false;
         }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -13,8 +13,8 @@ namespace App\Http\Controllers;
 
 use App\Utils\Ninja;
 use Composer\Factory;
-use Composer\IO\NullIO;
 use Composer\Installer;
+use Composer\IO\NullIO;
 use Cz\Git\GitException;
 use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -30,8 +30,6 @@ class SelfUpdateController extends BaseController
     }
 
     /**
-     *
-     *
      * @OA\Post(
      *      path="/api/v1/self-update",
      *      operationId="selfUpdate",
@@ -59,11 +57,10 @@ class SelfUpdateController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     *
      */
     public function update()
     {
-        define('STDIN',fopen("php://stdin","r"));
+        define('STDIN', fopen('php://stdin', 'r'));
 
         if (Ninja::isNinja()) {
             return response()->json(['message' => 'Self update not available on this system.'], 403);
@@ -72,17 +69,16 @@ class SelfUpdateController extends BaseController
         /* .git MUST be owned/writable by the webserver user */
         $repo = new GitRepository(base_path());
 
-        info("Are there changes to pull? " . $repo->hasChanges());
+        info('Are there changes to pull? '.$repo->hasChanges());
 
-        try{
-        $res = $repo->pull();
-        }
-        catch(GitException $e) {
+        try {
+            $res = $repo->pull();
+        } catch (GitException $e) {
             info($e->getMessage());
-            return response()->json(['message'=>$e->getMessage()], 500);
 
+            return response()->json(['message'=>$e->getMessage()], 500);
         }
-        info("Are there any changes to pull? " . $repo->hasChanges());
+        info('Are there any changes to pull? '.$repo->hasChanges());
 
         Artisan::call('ninja:post-update');
 

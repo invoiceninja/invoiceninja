@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -16,16 +16,15 @@ use App\Utils\Traits\MakesHash;
 
 /**
  * Class VendorContactTransformer.
- *
  */
 class VendorContactTransformer extends EntityTransformer
 {
     use MakesHash;
+
     /**
      * @param ClientContact $vendor
      *
      * @return array
-     *
      */
     public function transform(VendorContact $vendor)
     {
@@ -34,9 +33,9 @@ class VendorContactTransformer extends EntityTransformer
             'first_name' => $vendor->first_name ?: '',
             'last_name' => $vendor->last_name ?: '',
             'email' => $vendor->email ?: '',
-            'created_at' => (int)$vendor->created_at,
-            'updated_at' => (int)$vendor->updated_at,
-            'archived_at' => (int)$vendor->deleted_at,
+            'created_at' => (int) $vendor->created_at,
+            'updated_at' => (int) $vendor->updated_at,
+            'archived_at' => (int) $vendor->deleted_at,
             'is_primary' => (bool) $vendor->is_primary,
             'phone' => $vendor->phone ?: '',
             'custom_value1' => $vendor->custom_value1 ?: '',

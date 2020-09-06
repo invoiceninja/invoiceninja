@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -21,7 +21,6 @@ class EditPaymentRequest extends Request
      *
      * @return bool
      */
-
     public function authorize()
     {
         return auth()->user()->can('edit', $this->payment);
@@ -30,10 +29,9 @@ class EditPaymentRequest extends Request
     public function rules()
     {
         $rules = [];
-        
+
         return $rules;
     }
-
 
     protected function prepareForValidation()
     {

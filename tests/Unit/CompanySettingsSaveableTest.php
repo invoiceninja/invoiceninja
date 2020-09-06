@@ -11,42 +11,34 @@ use Tests\TestCase;
  */
 class CompanySettingsSaveableTest extends TestCase
 {
-
-   public function setUp() :void
+    public function setUp() :void
     {
-
         parent::setUp();
-    
     }
 
     public function testSettingsSaverWithFreePlan()
     {
+        $filtered = $this->filterSaver(CompanySettings::defaults());
 
-    	$filtered = $this->filterSaver(CompanySettings::defaults());
+        $this->assertTrue(property_exists($filtered, 'timezone_id'));
 
-    	$this->assertTrue(property_exists($filtered, 'timezone_id'));
+        $this->assertTrue(property_exists(CompanySettings::defaults(), 'timezone_id'));
 
-    	$this->assertTrue(property_exists(CompanySettings::defaults(), 'timezone_id'));
+        $this->assertTrue(property_exists(CompanySettings::defaults(), 'auto_archive_invoice'));
 
-    	$this->assertTrue(property_exists(CompanySettings::defaults(), 'auto_archive_invoice'));
-
-    	$this->assertFalse(property_exists($filtered, 'auto_archive_invoice'));
-
+        $this->assertFalse(property_exists($filtered, 'auto_archive_invoice'));
     }
 
     private function filterSaver($settings)
     {
+        $saveable_cast = CompanySettings::$free_plan_casts;
 
-    	$saveable_cast = CompanySettings::$free_plan_casts;
-
-        foreach($settings as $key => $value){
-
-            if(!array_key_exists($key, $saveable_cast))
+        foreach ($settings as $key => $value) {
+            if (! array_key_exists($key, $saveable_cast)) {
                 unset($settings->{$key});
-
+            }
         }
 
         return $settings;
-
     }
 }

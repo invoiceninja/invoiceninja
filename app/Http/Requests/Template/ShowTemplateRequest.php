@@ -1,6 +1,6 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -33,7 +33,7 @@ class ShowTemplateRequest extends Request
     public function rules()
     {
         return [
-            "template" => "sometimes",
+            'template' => 'sometimes',
         ];
     }
 

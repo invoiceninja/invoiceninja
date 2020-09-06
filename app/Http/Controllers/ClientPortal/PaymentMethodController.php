@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com)
+ * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -140,6 +140,7 @@ class PaymentMethodController extends Controller
             $payment_method->delete();
         } catch (\Exception $e) {
             Log::error(json_encode($e));
+
             return back();
         }
 

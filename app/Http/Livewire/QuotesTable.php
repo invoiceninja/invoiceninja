@@ -30,7 +30,7 @@ class QuotesTable extends Component
             ->paginate($this->per_page);
 
         return render('components.livewire.quotes-table', [
-            'quotes' => $query
+            'quotes' => $query,
         ]);
     }
 }

@@ -10,10 +10,9 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test 
+ * @test
  * @covers App\Http\ValidationRules\Invoice\LockedInvoiceRule
  */
-
 class CheckLockedInvoiceValidationTest extends TestCase
 {
     use MockAccountData;
@@ -32,14 +31,12 @@ class CheckLockedInvoiceValidationTest extends TestCase
             'po_number' => 'test',
         ];
 
-         try {
-
+        try {
             $response = $this->withHeaders([
                     'X-API-SECRET' => config('ninja.api_secret'),
                     'X-API-TOKEN' => $this->token,
                 ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $invoice_update)
                 ->assertStatus(200);
-
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
 
@@ -66,13 +63,11 @@ class CheckLockedInvoiceValidationTest extends TestCase
 
         $this->assertEquals($this->invoice->status_id, \App\Models\Invoice::STATUS_SENT);
 
-         try {
-
+        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $invoice_update);
-
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
 
@@ -83,15 +78,13 @@ class CheckLockedInvoiceValidationTest extends TestCase
         if ($response) {
             $response->assertStatus(302);
         }
-
     }
-
 
     public function testValidationFailsForLockedInvoiceWhenPaid()
     {
         $this->company->settings->lock_invoices = 'when_paid';
         $this->company->save();
-        
+
         $settings = $this->client->settings;
         $settings->lock_invoices = 'when_paid';
         $this->client->settings = $settings;
@@ -105,13 +98,11 @@ class CheckLockedInvoiceValidationTest extends TestCase
 
         $this->assertEquals($this->invoice->status_id, \App\Models\Invoice::STATUS_PAID);
 
-         try {
-
+        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $invoice_update);
-
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
 
@@ -122,6 +113,5 @@ class CheckLockedInvoiceValidationTest extends TestCase
         if ($response) {
             $response->assertStatus(302);
         }
-
     }
 }
