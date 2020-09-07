@@ -59,8 +59,9 @@ class PostUpdate extends Command
         $input = new ArrayInput(array('command' => 'install'));
         $application = new Application();
         $application->setAutoExit(false); 
-        $application->run($input);
+        $out = $application->run($input);
 
+        print_r($out);
         echo "Done.";
 
         // $composer_data = [
