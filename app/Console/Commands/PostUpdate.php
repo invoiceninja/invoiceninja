@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Console\Commands;
 
@@ -35,6 +44,7 @@ class PostUpdate extends Command
      */
     public function handle()
     {
+      
         set_time_limit(0);
 
         info('running post update');
@@ -51,62 +61,16 @@ class PostUpdate extends Command
             \Log::error("I wasn't able to optimize.");
         }
 
-// Composer\Factory::getHomeDir() method 
-// needs COMPOSER_HOME environment variable set
+        /* For the following to work, the web user (www-data) must own all the directories */
+
         putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
 
-        // call `composer install` command programmatically
         $input = new ArrayInput(array('command' => 'install'));
         $application = new Application();
         $application->setAutoExit(false); 
-        $out = $application->run($input);
+        $application->run($input);
 
-        print_r($out);
         echo "Done.";
 
-        // $composer_data = [
-        //   'url' => 'https://getcomposer.org/composer.phar',
-        //   'dir' => __DIR__.'/.code',
-        //   'bin' => __DIR__.'/.code/composer.phar',
-        //   'json' => __DIR__.'/.code/composer.json',
-        //   'conf' => [
-        //     'autoload' => [
-        //       'psr-4' => [
-        //         '' => 'local/',
-        //       ],
-        //     ],
-        //   ],
-        // ];
-
-        // if (! is_dir($composer_data['dir'])) {
-        //     mkdir($composer_data['dir'], 0777, true);
-        // }
-
-        // if (! is_dir("{$composer_data['dir']}/local")) {
-        //     mkdir("{$composer_data['dir']}/local", 0777, true);
-        // }
-
-        // copy($composer_data['url'], $composer_data['bin']);
-        // require_once "phar://{$composer_data['bin']}/src/bootstrap.php";
-
-        // $conf_json = json_encode($composer_data['conf'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        // file_put_contents($composer_data['json'], $conf_json);
-        // chdir($composer_data['dir']);
-        // putenv("COMPOSER_HOME={$composer_data['dir']}");
-        // putenv('OSTYPE=OS400');
-        // $app = new \Composer\Console\Application();
-
-        // $factory = new \Composer\Factory();
-        // $output = $factory->createOutput();
-
-        // $input = new \Symfony\Component\Console\Input\ArrayInput([
-        //   'command' => 'install',
-        // ]);
-        // $input->setInteractive(false);
-        // echo '<pre>';
-        // $cmdret = $app->doRun($input, $output);
-        // echo 'end!';
-
-        // \Log::error(print_r($cmdret, 1));
     }
 }
