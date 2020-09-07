@@ -31,10 +31,12 @@ class QueryLogging
      */
     public function handle(Request $request, Closure $next)
     {
+
+        $timeStart = microtime(true);
+
         // Enable query logging for development
         if (config('ninja.app_env') != 'production') {
             DB::enableQueryLog();
-            $timeStart = microtime(true);
         }
 
         $response = $next($request);
