@@ -51,49 +51,61 @@ class PostUpdate extends Command
             \Log::error("I wasn't able to optimize.");
         }
 
-        $composer_data = [
-          'url' => 'https://getcomposer.org/composer.phar',
-          'dir' => __DIR__.'/.code',
-          'bin' => __DIR__.'/.code/composer.phar',
-          'json' => __DIR__.'/.code/composer.json',
-          'conf' => [
-            'autoload' => [
-              'psr-4' => [
-                '' => 'local/',
-              ],
-            ],
-          ],
-        ];
+// Composer\Factory::getHomeDir() method 
+// needs COMPOSER_HOME environment variable set
+        putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
 
-        if (! is_dir($composer_data['dir'])) {
-            mkdir($composer_data['dir'], 0777, true);
-        }
+        // call `composer install` command programmatically
+        $input = new ArrayInput(array('command' => 'install'));
+        $application = new Application();
+        $application->setAutoExit(false); 
+        $application->run($input);
 
-        if (! is_dir("{$composer_data['dir']}/local")) {
-            mkdir("{$composer_data['dir']}/local", 0777, true);
-        }
+        echo "Done.";
 
-        copy($composer_data['url'], $composer_data['bin']);
-        require_once "phar://{$composer_data['bin']}/src/bootstrap.php";
+        // $composer_data = [
+        //   'url' => 'https://getcomposer.org/composer.phar',
+        //   'dir' => __DIR__.'/.code',
+        //   'bin' => __DIR__.'/.code/composer.phar',
+        //   'json' => __DIR__.'/.code/composer.json',
+        //   'conf' => [
+        //     'autoload' => [
+        //       'psr-4' => [
+        //         '' => 'local/',
+        //       ],
+        //     ],
+        //   ],
+        // ];
 
-        $conf_json = json_encode($composer_data['conf'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        file_put_contents($composer_data['json'], $conf_json);
-        chdir($composer_data['dir']);
-        putenv("COMPOSER_HOME={$composer_data['dir']}");
-        putenv('OSTYPE=OS400');
-        $app = new \Composer\Console\Application();
+        // if (! is_dir($composer_data['dir'])) {
+        //     mkdir($composer_data['dir'], 0777, true);
+        // }
 
-        $factory = new \Composer\Factory();
-        $output = $factory->createOutput();
+        // if (! is_dir("{$composer_data['dir']}/local")) {
+        //     mkdir("{$composer_data['dir']}/local", 0777, true);
+        // }
 
-        $input = new \Symfony\Component\Console\Input\ArrayInput([
-          'command' => 'install',
-        ]);
-        $input->setInteractive(false);
-        echo '<pre>';
-        $cmdret = $app->doRun($input, $output);
-        echo 'end!';
+        // copy($composer_data['url'], $composer_data['bin']);
+        // require_once "phar://{$composer_data['bin']}/src/bootstrap.php";
 
-        \Log::error(print_r($cmdret, 1));
+        // $conf_json = json_encode($composer_data['conf'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        // file_put_contents($composer_data['json'], $conf_json);
+        // chdir($composer_data['dir']);
+        // putenv("COMPOSER_HOME={$composer_data['dir']}");
+        // putenv('OSTYPE=OS400');
+        // $app = new \Composer\Console\Application();
+
+        // $factory = new \Composer\Factory();
+        // $output = $factory->createOutput();
+
+        // $input = new \Symfony\Component\Console\Input\ArrayInput([
+        //   'command' => 'install',
+        // ]);
+        // $input->setInteractive(false);
+        // echo '<pre>';
+        // $cmdret = $app->doRun($input, $output);
+        // echo 'end!';
+
+        // \Log::error(print_r($cmdret, 1));
     }
 }
