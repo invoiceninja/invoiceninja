@@ -33,16 +33,17 @@ class EntityViewController extends Controller
 
         $key = $entity_type.'_id';
 
-        $invitation = $invitation_entity::whereRaw('BINARY `key`= ?', [$invitation_key])->firstOrFail();
+        $invitation = $invitation_entity::whereRaw('BINARY `key`= ?', [$invitation_key])
+                                        ->with('contact.client')
+                                        ->firstOrFail();
 
         $contact = $invitation->contact;
+        $client = $contact->client;
+        $entity = $invitation->{$entity_type};
 
         if (is_null($contact->password) || empty($contact->password)) {
             return redirect("/client/password/reset?email={$contact->email}");
         }
-
-        $entity_class = sprintf('App\\Models\\%s', ucfirst($entity_type));
-        $entity = $entity_class::findOrFail($invitation->{$key});
 
         if ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
             session()->flash("{$entity_type}_VIEW_{$entity->hashed_id}", true);

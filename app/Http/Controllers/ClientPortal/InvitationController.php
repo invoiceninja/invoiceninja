@@ -37,29 +37,34 @@ class InvitationController extends Controller
 
         $entity_obj = 'App\Models\\'.ucfirst($entity).'Invitation';
 
-        $invitation = $entity_obj::whereRaw('BINARY `key`= ?', [$invitation_key])->first();
+        $invitation = $entity_obj::whereRaw('BINARY `key`= ?', [$invitation_key])
+                                    ->with('contact.client')
+                                    ->firstOrFail();
 
-        if ($invitation) {
-            if ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
-                $this->middleware('auth:contact');
-            } else {
-                auth()->guard('contact')->login($invitation->contact, true);
-            }
+        /* Return early if we have the correct client_hash embedded */
 
-            if (! request()->has('silent') && ! $invitation->viewed_date) {
-//            if (!request()->has('silent')) {
-
-                $invitation->markViewed();
-
-                event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
-
-                $this->fireEntityViewedEvent($invitation, $entity);
-            }
-
-            return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
-        } else {
-            abort(404);
+        if(request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
+            auth()->guard('contact')->login($invitation->contact, true);
         }
+        else if ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
+            $this->middleware('auth:contact');
+        } 
+        else {
+            auth()->guard('contact')->login($invitation->contact, true);
+        }
+
+        if (auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
+
+            $invitation->markViewed();
+
+            event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
+
+            $this->fireEntityViewedEvent($invitation, $entity);
+        }
+
+        return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
+
+
     }
 
     private function fireEntityViewedEvent($invitation, $entity_string)
