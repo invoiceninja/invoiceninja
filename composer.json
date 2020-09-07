@@ -64,7 +64,6 @@
         "wildbit/postmark-php": "^2.6",
         "anahkiasen/former": "^4.2",
         "barryvdh/laravel-debugbar": "^3.4",
-        "beyondcode/laravel-dump-server": "^1.4",
         "darkaonline/l5-swagger": "^7.0",
         "filp/whoops": "^2.7",
         "laravel/dusk": "^6.5",

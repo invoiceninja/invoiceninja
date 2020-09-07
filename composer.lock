@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4d039108d962b9867965e21ed58eec6a",
+    "content-hash": "1e9eef01abf64118b10e9fc2dff9c5e9",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -1946,16 +1946,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.144",
+            "version": "v0.145",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "74c5fc850d9ce441c6b3e52af11b986cd11d379a"
+                "reference": "96de5dabadb693f161a31a1a1e018882fa05816e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/74c5fc850d9ce441c6b3e52af11b986cd11d379a",
-                "reference": "74c5fc850d9ce441c6b3e52af11b986cd11d379a",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/96de5dabadb693f161a31a1a1e018882fa05816e",
+                "reference": "96de5dabadb693f161a31a1a1e018882fa05816e",
                 "shasum": ""
             },
             "require": {
@@ -1979,7 +1979,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2020-08-30T00:24:57+00:00"
+            "time": "2020-09-05T00:24:41+00:00"
         },
         {
             "name": "google/auth",
@@ -6151,27 +6151,27 @@
         },
         {
             "name": "sentry/sentry-laravel",
-            "version": "1.8.0",
+            "version": "1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-laravel.git",
-                "reference": "912731d2b704fb6a97cef89c7a8b5c367cbf6088"
+                "reference": "8567e70d03081cbc04e35eb3fa7389d06816196e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/912731d2b704fb6a97cef89c7a8b5c367cbf6088",
-                "reference": "912731d2b704fb6a97cef89c7a8b5c367cbf6088",
+                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/8567e70d03081cbc04e35eb3fa7389d06816196e",
+                "reference": "8567e70d03081cbc04e35eb3fa7389d06816196e",
                 "shasum": ""
             },
             "require": {
-                "illuminate/support": "5.0 - 5.8 | ^6.0 | ^7.0",
+                "illuminate/support": "5.0 - 5.8 | ^6.0 | ^7.0 | ^8.0",
                 "php": "^7.1",
                 "sentry/sdk": "^2.1"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "2.14.*",
-                "laravel/framework": "^6.0",
-                "orchestra/testbench": "^3.9",
+                "friendsofphp/php-cs-fixer": "2.16.*",
+                "laravel/framework": "^7.0",
+                "orchestra/testbench": "^5.0",
                 "phpunit/phpunit": "^8.0"
             },
             "type": "library",
@@ -6226,7 +6226,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2020-06-02T12:39:20+00:00"
+            "time": "2020-09-07T07:16:41+00:00"
         },
         {
             "name": "spatie/browsershot",
@@ -9460,67 +9460,6 @@
             "time": "2020-08-30T07:08:17+00:00"
         },
         {
-            "name": "beyondcode/laravel-dump-server",
-            "version": "1.4.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/beyondcode/laravel-dump-server.git",
-                "reference": "1f1d18a2e43f96fd67c9f0269c53f8c3814867d9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/beyondcode/laravel-dump-server/zipball/1f1d18a2e43f96fd67c9f0269c53f8c3814867d9",
-                "reference": "1f1d18a2e43f96fd67c9f0269c53f8c3814867d9",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/console": "5.6.*|5.7.*|5.8.*|^6.0|^7.0",
-                "illuminate/http": "5.6.*|5.7.*|5.8.*|^6.0|^7.0",
-                "illuminate/support": "5.6.*|5.7.*|5.8.*|^6.0|^7.0",
-                "php": "^7.1",
-                "symfony/var-dumper": "^5.0"
-            },
-            "require-dev": {
-                "larapack/dd": "^1.0",
-                "phpunit/phpunit": "^7.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "BeyondCode\\DumpServer\\DumpServerServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "BeyondCode\\DumpServer\\": "src"
-                },
-                "files": [
-                    "helpers.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marcel Pociot",
-                    "email": "marcel@beyondco.de",
-                    "homepage": "https://beyondco.de",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Symfony Var-Dump Server for Laravel",
-            "homepage": "https://github.com/beyondcode/laravel-dump-server",
-            "keywords": [
-                "beyondcode",
-                "laravel-dump-server"
-            ],
-            "time": "2020-03-04T15:23:26+00:00"
-        },
-        {
             "name": "darkaonline/l5-swagger",
             "version": "7.0.1",
             "source": {
@@ -11053,6 +10992,7 @@
             "keywords": [
                 "tokenizer"
             ],
+            "abandoned": true,
             "time": "2019-09-17T06:23:10+00:00"
         },
         {
