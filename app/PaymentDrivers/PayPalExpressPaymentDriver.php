@@ -262,6 +262,13 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
     {
+        $payment_meta = new \stdClass;
+        $payment_meta->exp_month = 'xx';
+        $payment_meta->exp_year = 'xx';
+        $payment_meta->brand = 'PayPal';
+        $payment_meta->last4 = 'xxxx';
+        $payment_meta->type = GatewayType::PAYPAL;
+
         $payment = parent::createPayment($data, $status);
 
         $client_contact = $this->getContact();
@@ -271,6 +278,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $payment->type_id = PaymentType::PAYPAL;
         $payment->transaction_reference = $data['PAYMENTINFO_0_TRANSACTIONID'];
         $payment->client_contact_id = $client_contact_id;
+        $payment->meta = $payment_meta;
         $payment->save();
 
         return $payment;
