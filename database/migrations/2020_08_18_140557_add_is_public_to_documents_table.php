@@ -47,6 +47,16 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->boolean('auto_bill')->default(0);
             $table->unsignedInteger('design_id')->nullable();
             $table->boolean('uses_inclusive_taxes')->default(0);
+            $table->string('custom_surcharge1')->nullable();
+            $table->string('custom_surcharge2')->nullable();
+            $table->string('custom_surcharge3')->nullable();
+            $table->string('custom_surcharge4')->nullable();
+            $table->boolean('custom_surcharge_tax1')->default(false);
+            $table->boolean('custom_surcharge_tax2')->default(false);
+            $table->boolean('custom_surcharge_tax3')->default(false);
+            $table->boolean('custom_surcharge_tax4')->default(false);
+
+            $table->decimal('exchange_rate', 13, 6)->default(1);
         });
 
         Schema::table('companies', function ($table) {
