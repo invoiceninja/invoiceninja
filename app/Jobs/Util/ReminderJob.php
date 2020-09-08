@@ -56,15 +56,18 @@ class ReminderJob implements ShouldQueue
                 $this->processReminders($db);
             }
         }
-        
+
     }
 
     private function processReminders($db = null)
     {
 
         Invoice::where('next_send_date', Carbon::today()->format('Y-m-d'))->with('invitations')->cursor()->each(function ($invoice) {
-        
+
             if ($invoice->isPayable()) {
+
+                $reminder_template = $invoice->calculateTemplate();    
+                $invoice->service()->touchReminder($this->reminder_template)->save();
 
                 $invoice->invitations->each(function ($invitation) use ($invoice) {
                     $email_builder = (new InvoiceEmail())->build($invitation);
