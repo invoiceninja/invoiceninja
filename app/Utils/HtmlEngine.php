@@ -271,6 +271,11 @@ class HtmlEngine
         $data['$company3'] = ['value' => $this->settings->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
         $data['$company4'] = ['value' => $this->settings->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
 
+        $data['$custom_surcharge1'] = ['value' => $this->entity->custom_surcharge1, 'label' => $this->makeCustomField('custom_surcharge1')];
+        $data['$custom_surcharge2'] = ['value' => $this->entity->custom_surcharge2, 'label' => $this->makeCustomField('custom_surcharge2')];
+        $data['$custom_surcharge3'] = ['value' => $this->entity->custom_surcharge3, 'label' => $this->makeCustomField('custom_surcharge3')];
+        $data['$custom_surcharge4'] = ['value' => $this->entity->custom_surcharge4, 'label' => $this->makeCustomField('custom_surcharge4')];
+
         $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$product.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$product.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];

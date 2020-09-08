@@ -222,6 +222,9 @@ class CompanySettings extends BaseSettings
     public $font_size = 9;
     public $primary_font = 'Roboto';
     public $secondary_font = 'Roboto';
+    public $primary_color = '#4caf50';
+    public $secondary_color = '#2196f3';
+
     public $hide_paid_to_date = false;
     public $embed_documents = false;
     public $all_pages_header = false;
@@ -241,6 +244,8 @@ class CompanySettings extends BaseSettings
     public $client_portal_allow_over_payment = false;
 
     public static $casts = [
+        'primary_color' => 'string',
+        'secondary_color' => 'string',
         'client_portal_allow_under_payment'  => 'bool',
         'client_portal_allow_over_payment'   => 'bool',
         'auto_bill'                          => 'string',
