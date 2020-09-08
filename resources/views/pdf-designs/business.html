@@ -13,6 +13,18 @@
                 font-size: 14px;
             }
 
+            @page {
+                margin-top: 1cm;
+                margin-bottom: 1cm;
+            }
+
+            @media print {
+                body {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+
             .header-container {
                 display: grid;
                 grid-template-columns: 1.8fr 1fr 1fr;
