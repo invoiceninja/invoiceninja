@@ -898,7 +898,7 @@
                 model.invoice().addItem(); // add blank item
             @else
                 // set the default account tax rate
-                @if ($account->invoice_taxes)
+                @if ($account->invoice_taxes && !$invoice->tax_name1 && !$invoice->tax_name2)
 					@if (! empty($account->tax_name1))
 						model.invoice().tax_rate1("{{ $account->tax_rate1 }}");
 						model.invoice().tax_name1({!! json_encode($account->tax_name1) !!});
