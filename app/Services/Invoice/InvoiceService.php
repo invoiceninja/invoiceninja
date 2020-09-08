@@ -17,6 +17,7 @@ use App\Models\Payment;
 use App\Services\Client\ClientService;
 use App\Services\Invoice\ApplyNumber;
 use App\Services\Invoice\ApplyPayment;
+use App\Services\Invoice\ApplyRecurringNumber;
 use App\Services\Invoice\AutoBillInvoice;
 use App\Services\Invoice\CreateInvitations;
 use App\Services\Invoice\GetInvoicePdf;
@@ -60,6 +61,18 @@ class InvoiceService
     public function applyNumber()
     {
         $this->invoice = (new ApplyNumber($this->invoice->client, $this->invoice))->run();
+
+        return $this;
+    }
+
+
+    /**
+     * Applies the recurring invoice number.
+     * @return $this InvoiceService object
+     */
+    public function applyRecurringNumber()
+    {
+        $this->invoice = (new ApplyRecurringNumber($this->invoice->client, $this->invoice))->run();
 
         return $this;
     }

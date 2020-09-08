@@ -65,7 +65,7 @@ class PostUpdate extends Command
 
         putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
 
-        $input = new ArrayInput(array('command' => 'install'));
+        $input = new ArrayInput(array('command' => 'install', '--no-dev' => 'true'));
         $application = new Application();
         $application->setAutoExit(false); 
         $application->run($input);

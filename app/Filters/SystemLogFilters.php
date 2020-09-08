@@ -51,23 +51,13 @@ class SystemLogFilters extends QueryFilters
      */
     public function filter(string $filter = '') : Builder
     {
+        
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return $this->builder;
 
-        // return  $this->builder->where(function ($query) use ($filter) {
-        //     $query->where('vendors.name', 'like', '%'.$filter.'%')
-        //                   ->orWhere('vendors.id_number', 'like', '%'.$filter.'%')
-        //                   ->orWhere('vendor_contacts.first_name', 'like', '%'.$filter.'%')
-        //                   ->orWhere('vendor_contacts.last_name', 'like', '%'.$filter.'%')
-        //                   ->orWhere('vendor_contacts.email', 'like', '%'.$filter.'%')
-        //                   ->orWhere('vendors.custom_value1', 'like', '%'.$filter.'%')
-        //                   ->orWhere('vendors.custom_value2', 'like', '%'.$filter.'%')
-        //                   ->orWhere('vendors.custom_value3', 'like', '%'.$filter.'%')
-        //                   ->orWhere('vendors.custom_value4', 'like', '%'.$filter.'%');
-        // });
     }
 
     /**
@@ -102,8 +92,6 @@ class SystemLogFilters extends QueryFilters
      */
     public function entityFilter()
     {
-
-        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
         return $this->builder->company();
     }
 }
