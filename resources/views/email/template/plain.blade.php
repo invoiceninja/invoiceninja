@@ -7,6 +7,13 @@
 
 <body class="bg-white p-4">
 	{!! $body !!}
+
+
+	    @if($signature)
+        	<div style="margin-top: 20px">
+        		{!! $signature !!}
+    		</div>
+    	@endif
 </body>
 
 <footer class="p-4">

@@ -37,7 +37,7 @@ class GroupSettingTest extends TestCase
         $settings->currency_id = 1;
 
         $data = [
-            'name' => 'test',
+            'name' => 'testX',
             'settings' => $settings,
         ];
 
@@ -50,7 +50,7 @@ class GroupSettingTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertEquals('test', $arr['data']['name']);
+        $this->assertEquals('testX', $arr['data']['name']);
         $this->assertEquals(0, $arr['data']['archived_at']);
     }
 
@@ -60,7 +60,7 @@ class GroupSettingTest extends TestCase
         $settings->currency_id = 1;
 
         $data = [
-            'name' => 'test',
+            'name' => 'testY',
             'settings' => $settings,
         ];
 

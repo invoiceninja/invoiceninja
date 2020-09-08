@@ -74,22 +74,6 @@ class AutoBillInvoice extends AbstractService
 
         $payment = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $payment_hash);
 
-        //this is redundant - taken care of much further down.
-        // if($payment){
-
-        //     if($this->invoice->partial > 0)
-        //         $amount = $this->invoice->partial;
-        //     else
-        //         $amount = $this->invoice->balance;
-
-        //     $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $amount)->save();
-
-        // }
-        // else
-        // {
-        //     //TODO autobill failed
-        // }
-
         return $this->invoice;
     }
 

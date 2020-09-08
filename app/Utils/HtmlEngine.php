@@ -234,6 +234,10 @@ class HtmlEngine
         $data['$client.country'] = &$data['$country'];
         $data['$client.email'] = &$data['$email'];
 
+
+        $data['$client.balance'] = ['value' => $this->client->balance, 'label' => ctrans('texts.balance')];
+        $data['$paid_to_date'] = ['value' => $this->client->paid_to_date, 'label' => ctrans('texts.paid_to_date')];
+
         $data['$contact.full_name'] = ['value' => $this->contact->present()->name(), 'label' => ctrans('texts.name')];
         $data['$contact.email'] = ['value' => $this->contact->email, 'label' => ctrans('texts.email')];
         $data['$contact.phone'] = ['value' => $this->contact->phone, 'label' => ctrans('texts.phone')];
@@ -270,6 +274,11 @@ class HtmlEngine
         $data['$company2'] = ['value' => $this->settings->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];
         $data['$company3'] = ['value' => $this->settings->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
         $data['$company4'] = ['value' => $this->settings->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
+
+        $data['$custom_surcharge1'] = ['value' => $this->entity->custom_surcharge1, 'label' => $this->makeCustomField('custom_surcharge1')];
+        $data['$custom_surcharge2'] = ['value' => $this->entity->custom_surcharge2, 'label' => $this->makeCustomField('custom_surcharge2')];
+        $data['$custom_surcharge3'] = ['value' => $this->entity->custom_surcharge3, 'label' => $this->makeCustomField('custom_surcharge3')];
+        $data['$custom_surcharge4'] = ['value' => $this->entity->custom_surcharge4, 'label' => $this->makeCustomField('custom_surcharge4')];
 
         $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$product.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];

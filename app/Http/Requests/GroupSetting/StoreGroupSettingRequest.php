@@ -31,7 +31,9 @@ class StoreGroupSettingRequest extends Request
 
     public function rules()
     {
-        $rules['name'] = 'required';
+        
+        $rules['name'] = 'required|unique:group_settings,name,null,null,company_id,'.auth()->user()->companyId();
+
         $rules['settings'] = new ValidClientGroupSettingsRule();
 
         return $rules;

@@ -44,12 +44,8 @@ class AddIsPublicToDocumentsTable extends Migration
         });
 
         Schema::table('recurring_invoices', function ($table) {
-            $table->string('auto_bill');
+            $table->boolean('auto_bill')->default(0);
         });
-
-        // Schema::table('recurring_expenses', function ($table) {
-        //     $table->string('auto_bill');
-        // });
 
         Schema::table('companies', function ($table) {
             $table->enum('default_auto_bill', ['off', 'always', 'optin', 'optout'])->default('off');
