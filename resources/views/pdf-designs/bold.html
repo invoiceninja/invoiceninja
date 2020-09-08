@@ -89,8 +89,14 @@
             padding: 2rem;
             font-size: 1.5rem;
         }
+        #product-table > thead > tr > th:last-child {
+            text-align: right;
+        }
         #product-table > tbody > tr > td {
             padding: 1.5rem;
+        }
+        #product-table > tbody > tr > td:last-child {
+            text-align: right;
         }
         #product-table > tbody > tr > td:first-child {
             font-weight: bold;
@@ -98,22 +104,33 @@
         #product-table > tbody > tr:nth-child(odd) {
             background-color: #ebebeb;
         }
-        #product-table > tfoot > tr > td {
-            padding: 1.5rem;
+
+        #product-table-footer > * {
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr;
+            padding-top: 1.2rem;
+            padding-left: 1.2rem;
+            gap: 20px;
         }
-        #product-table > tfoot [data-element='balance-due-label'],
-        #product-table > tfoot [data-element='balance-due'] {
+        #product-table-footer
+            > *
+            [data-element='product-table-balance-due-label'],
+        #product-table-footer > * [data-element='product-table-balance-due'] {
             font-weight: bold;
             font-size: 1.4rem;
         }
-        #product-table > tfoot [data-element='balance-due'] {
+        #product-table-footer > * [data-element='product-table-balance-due'] {
             color: #35a39a;
+        }
+        #product-table-footer > * > :last-child {
+            text-align: right;
+            padding-right: 1.5rem;
         }
     </style>
 
     <body id="body">
         <div class="header-wrapper" id="header">
-            <div> <!-- Empty space placeholder--> </div>
+            <div><!-- Empty space placeholder--></div>
 
             <div id="company-details"></div>
             <div id="company-address"></div>
@@ -134,6 +151,8 @@
         </div>
 
         <table id="product-table" cellspacing="0"></table>
+        
+        <div id="product-table-footer" cellspacing="0"></div>
 
         <footer id="footer"></footer>
     </body>

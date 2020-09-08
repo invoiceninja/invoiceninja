@@ -4,12 +4,13 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <style>
+        <style id="style">
             body {
                 margin: 2rem;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
                 font-family: Arial, Helvetica, sans-serif;
+                font-size: 14px;
             }
 
             .header-container {
@@ -98,28 +99,19 @@
             }
             #product-table > thead > tr > th:last-child {
                 border-top-right-radius: 1rem;
+                text-align: right;
             }
             #product-table > tbody > tr > td {
                 padding: 1rem;
+            }
+            #product-table > tbody > tr > td:last-child {
+                text-align: right;
             }
             #product-table > tbody > tr:nth-child(odd) > td {
                 background: #e8e8e8;
             }
             #product-table > tbody > tr:nth-child(even) > td {
                 background: #f7f7f7;
-            }
-            #product-table > tfoot > tr > td {
-                padding: 1rem;
-                background: #e8e8e8;
-            }
-            #product-table > tfoot > tr:nth-last-child(1) > td:first-child {
-                border-bottom-left-radius: 1rem;
-            }
-            #product-table > tfoot > tr:nth-last-child(1) > td:last-child {
-                border-bottom-right-radius: 1rem;
-            }
-            #product-table > tfoot > td {
-                border: none !important;
             }
 
             [data-element='product-table-balance-due-label'],
@@ -133,6 +125,37 @@
                     margin-top: 0;
                     margin-right: 0;
                 }
+            }
+            #product-table-footer > *:last-child {
+                border-bottom-left-radius: 1rem;
+                border-bottom-right-radius: 1rem;
+            }
+            #product-table-footer > * {
+                background-color: #f7f7f7;
+                display: grid;
+                grid-template-columns: 3fr 1fr 1fr;
+                gap: 20px;
+                padding-left: 1rem;
+                padding-top: 0.5rem;
+                padding-bottom: 0.8rem;
+            }
+            #product-table-footer
+                > *
+                [data-element='product-table-balance-due-label'],
+            #product-table-footer
+                > *
+                [data-element='product-table-balance-due'] {
+                font-weight: bold;
+                font-size: 1.2rem;
+            }
+            #product-table-footer
+                > *
+                [data-element='product-table-balance-due'] {
+                color: red;
+            }
+            #product-table-footer > * > :last-child {
+                text-align: right;
+                padding-right: 1rem;
             }
         </style>
     </head>
@@ -159,6 +182,8 @@
         </div>
 
         <table id="product-table" cellspacing="0"></table>
+
+        <div id="product-table-footer" cellspacing="0"></div>
 
         <footer id="footer"></footer>
     </body>
