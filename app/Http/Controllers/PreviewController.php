@@ -173,7 +173,11 @@ class PreviewController extends BaseController
 
         $html = new HtmlEngine(null, $invoice->invitations()->first(), 'invoice');
 
-        $design = new Design(strtolower(request()->design['name']));
+        if (isset(request()->design['name'])) {
+            $design = new Design(strtolower(request()->design['name']));
+        } else {
+            $design = new Design(Design::CUSTOM, ['custom_partials' => request()->design['design']]);
+        }
 
         // $designer = new Designer($entity_obj, $design_object, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
         // $html = $this->generateEntityHtml($designer, $entity_obj);
@@ -193,7 +197,7 @@ class PreviewController extends BaseController
             ->design($design)
             ->build();
 
-        info($maker->getCompiledHTML(true));
+        // info($maker->getCompiledHTML(true));
 
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 

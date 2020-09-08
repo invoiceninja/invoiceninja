@@ -45,6 +45,7 @@ class Design extends BaseDesign
     const MODERN = 'modern';
     const PLAIN = 'plain';
     const PLAYFUL = 'playful';
+    const CUSTOM = 'custom';
 
     public function __construct(string $design = null, array $options = [])
     {
@@ -55,6 +56,12 @@ class Design extends BaseDesign
 
     public function html(): ?string
     {
+        if ($this->design == 'custom.html') {
+            return $this->composeFromPartials(
+                $this->options['custom_partials']
+            );
+        }
+
         $path = isset($this->options['custom_path'])
             ? $this->options['custom_path']
             : config('ninja.designs.base_path');

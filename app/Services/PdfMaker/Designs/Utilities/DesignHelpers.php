@@ -186,4 +186,15 @@ trait DesignHelpers
 
         return false;
     }
+
+    public function composeFromPartials(array $partials)
+    {
+        $html = '';
+
+        $html .= $partials['header'];
+        $html .= $partials['body'];
+        $html .= $partials['footer'];
+
+        return $html;
+    }
 }
