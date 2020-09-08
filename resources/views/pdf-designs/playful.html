@@ -11,6 +11,11 @@
                 font-size: 14px;
             }
 
+            @page {
+                margin-top: 1cm;
+                margin-bottom: 1cm;
+            }
+
             body {
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
@@ -98,6 +103,9 @@
                 background: #009e90;
                 color: white;
             }
+            #product-table > thead tr > th:last-child {
+                text-align: right;
+            }
             #product-table > thead tr > th:first-child {
                 border-top-left-radius: 10px;
                 border-bottom-left-radius: 10px;
@@ -113,22 +121,33 @@
             #product-table > tbody > tr > td:first-child {
                 color: #bb3a24;
             }
-            #product-table > tfoot > tr > td {
-                padding: 1rem;
+            #product-table > tbody > tr > td:last-child {
+                text-align: right;
             }
-            #product-table
-                > tfoot
-                [data-element='product-table-balance-due-label'] {
-                background-color: #009e90;
-                color: white;
-                border-top-left-radius: 10px;
-                border-bottom-left-radius: 10px;
+
+            #product-table-footer > * {
+                display: grid;
+                grid-template-columns: 3fr 1fr 1fr;
+                padding-top: 1rem;
+                padding-left: 1rem;
+                gap: 20px;
             }
-            #product-table > tfoot [data-element='product-table-balance-due'] {
-                background-color: #009e90;
-                color: white;
-                border-top-right-radius: 10px;
-                border-bottom-right-radius: 10px;
+            #product-table-footer
+                > *
+                [data-element='product-table-balance-due-label'],
+            #product-table-footer
+                > *
+                [data-element='product-table-balance-due'] {
+                font-weight: bold;
+            }
+            #product-table-footer
+                > *
+                [data-element='product-table-balance-due'] {
+                color: #009e90;
+            }
+            #product-table-footer > * > :last-child {
+                text-align: right;
+                padding-right: 1rem;
             }
         </style>
     </head>
@@ -167,6 +186,8 @@
         </div>
 
         <table id="product-table" cellspacing="0"></table>
+
+        <div id="product-table-footer" cellspacing="0"></div>
 
         <footer id="footer"></footer>
     </body>

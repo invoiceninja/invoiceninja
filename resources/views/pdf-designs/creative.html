@@ -11,6 +11,11 @@
                 font-size: 14px;
             }
 
+            @page {
+                margin-top: 1cm;
+                margin-bottom: 1cm;
+            }
+
             body {
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
@@ -85,21 +90,40 @@
                 font-size: 1.1rem;
                 padding: 1rem;
             }
+            #product-table > thead > tr > th:last-child {
+                text-align: right;
+            }
+            #product-table > tbody > tr > td:last-child {
+                text-align: right;
+            }
             #product-table > tbody > tr > td {
                 padding: 1rem;
             }
             #product-table > tbody > tr:nth-child(odd) {
                 background-color: #e8e8e8;
             }
-            #product-table > tfoot > tr > td {
-                padding: 1rem;
+
+            #product-table-footer > * {
+                display: grid;
+                grid-template-columns: 3fr 1fr 1fr;
+                padding-top: 1rem;
             }
-            #product-table > tfoot > tr:last-child > td {
-                border-top: 5px solid #b21c53;
-            }
-            #product-table > tfoot [data-element='product-table-balance-due'] {
-                color: #b21c53;
+            #product-table-footer
+                > *
+                [data-element='product-table-balance-due'] {
                 font-weight: bold;
+                color: #b21c53;
+            }
+            #product-table-footer > * > * {
+                padding-left: 1rem;
+            }
+            #product-table-footer > *:last-child > * {
+                border-top: 5px solid #b21c53;
+                padding-top: 1rem;
+            }
+            #product-table-footer > * > :last-child {
+                text-align: right;
+                padding-right: 1rem;
             }
         </style>
     </head>
@@ -130,6 +154,8 @@
         </div>
 
         <table id="product-table" cellspacing="0"></table>
+
+        <div id="product-table-footer" cellspacing="0"></div>
 
         <footer id="footer"></footer>
     </body>

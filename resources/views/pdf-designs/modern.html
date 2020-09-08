@@ -11,6 +11,11 @@
                 font-size: 14px;
             }
 
+            @page {
+                margin-top: 1cm;
+                margin-bottom: 1cm;
+            }
+
             body {
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
@@ -79,6 +84,9 @@
                 background-color: #3f3e3c;
                 color: white;
             }
+            #product-table > thead > tr > th:last-child {
+                text-align: right;
+            }
             #product-table > tbody > tr > td {
                 border-bottom: 1px solid #3f3e3c;
                 padding: 1rem;
@@ -86,19 +94,8 @@
             #product-table > tbody > tr > td:first-child {
                 font-weight: bold;
             }
-            #product-table > tfoot > tr > td {
-                padding: 1rem;
-            }
-            #product-table > tfoot [data-element='balance-due-row'] > td {
-                background-color: #3f3e3c;
-                color: white;
-            }
-            #product-table > tfoot [data-element='balance-due-label'] {
-                font-weight: bold;
-                font-size: 1.2rem;
-            }
-            #product-table > tfoot [data-element='balance-due'] {
-                font-size: 1.2rem;
+            #product-table > tbody > tr > td:last-child {
+                text-align: right;
             }
 
             .footer-wrapper {
@@ -120,6 +117,36 @@
             #company-address > *,
             #company-details > * {
                 margin-bottom: 0.5rem;
+            }
+
+            #product-table-footer > * {
+                display: grid;
+                grid-template-columns: 3fr 1fr 1fr;
+                margin-top: 1.5rem;
+                margin-right: 1.5rem;
+                margin-left: 1.5rem;
+            }
+            #product-table-footer
+                > *
+                [data-element='product-table-balance-due-label'],
+            #product-table-footer
+                > *
+                [data-element='product-table-balance-due'] {
+                font-weight: bold;
+                font-size: 1.3rem;
+            }
+            #product-table-footer > * > * {
+                padding-left: 1.5rem;
+            }
+            #product-table-footer > * > :last-child {
+                text-align: right;
+                padding-right: 1rem;
+            }
+            #product-table-footer > *:last-child {
+                background-color: #3f3e3c;
+                color: white;
+                padding-top: 0.7rem;
+                padding-bottom: 0.7rem;
             }
         </style>
     </head>
@@ -143,17 +170,19 @@
 
         <div class="table-wrapper">
             <table id="product-table" cellspacing="0"></table>
+
+            <div id="product-table-footer" cellspacing="0"></div>
         </div>
-        
+
         <div class="footer-wrapper">
             <div>
                 <!-- Placeholder for offset -->
             </div>
-            
+
             <div id="company-details"></div>
             <div id="company-address"></div>
         </div>
-        
+
         <footer id="footer"></footer>
     </body>
 </html>
