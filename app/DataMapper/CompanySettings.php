@@ -109,6 +109,7 @@ class CompanySettings extends BaseSettings
     public $counter_padding = 4;
 
     public $auto_bill = 'off'; //off,always,optin,optout
+    public $auto_bill_date = 'on_due_date'; // on_due_date , on_send_date
 
     public $design = 'views/pdf/design1.blade.php';
 
@@ -241,11 +242,14 @@ class CompanySettings extends BaseSettings
     public $client_portal_privacy_policy = '';
     public $client_portal_enable_uploads = false;
     public $client_portal_allow_under_payment = false;
+    public $client_portal_under_payment_minimum = 0;
     public $client_portal_allow_over_payment = false;
 
     public static $casts = [
-        'primary_color' => 'string',
-        'secondary_color' => 'string',
+        'client_portal_under_payment_minimum'=> 'float',
+        'auto_bill_date'                     => 'string',
+        'primary_color'                      => 'string',
+        'secondary_color'                    => 'string',
         'client_portal_allow_under_payment'  => 'bool',
         'client_portal_allow_over_payment'   => 'bool',
         'auto_bill'                          => 'string',
