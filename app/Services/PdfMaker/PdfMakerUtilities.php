@@ -55,7 +55,7 @@ trait PdfMakerUtilities
 
             if (isset($element['tag'])) {
                 $node = $this->document->getElementsByTagName($element['tag'])->item(0);
-            } elseif (! is_null($this->document->getElementById($element['id']))) {
+            } elseif (!is_null($this->document->getElementById($element['id']))) {
                 $node = $this->document->getElementById($element['id']);
             } else {
                 continue;
@@ -80,7 +80,7 @@ trait PdfMakerUtilities
         $processed = [];
 
         foreach ($children as $child) {
-            if (! isset($child['order'])) {
+            if (!isset($child['order'])) {
                 $child['order'] = 0;
             }
 
@@ -163,7 +163,11 @@ trait PdfMakerUtilities
 
     public function processOptions()
     {
-        if (! isset($this->options['all_pages_header']) && ! isset($this->options['all_pages_footer'])) {
+        if (!isset($this->options['all_pages_header']) || $this->options['all_pages_header'] == false) {
+            return;
+        }
+        
+        if (!isset($this->options['all_pages_footer']) || $this->options['all_pages_footer'] == false) {
             return;
         }
 
@@ -264,6 +268,8 @@ trait PdfMakerUtilities
 
             $this->document->getElementById('repeat-content')->appendChild($clone);
         }
+
+        info($this->data['options']);
 
         if (
             $header = $this->document->getElementById('header') &&
