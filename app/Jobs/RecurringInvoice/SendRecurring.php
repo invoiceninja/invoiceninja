@@ -11,7 +11,10 @@
 
 namespace App\Jobs\RecurringInvoice;
 
+use App\Events\Invoice\InvoiceWasEmailed;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
+use App\Helpers\Email\InvoiceEmail;
+use App\Jobs\Invoice\EmailInvoice;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\GeneratesCounter;
@@ -53,29 +56,40 @@ class SendRecurring implements ShouldQueue
 
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
-        $invoice->number = $this->getNextRecurringInvoiceNumber($this->recurring_invoice->client);
-        $invoice->status_id = Invoice::STATUS_SENT;
-        $invoice->save();
+        $invoice = $invoice->service()
+                           ->markSent()
+                           ->applyRecurringNumber()
+                           ->createInvitations()
+                           ->save();
 
-        // Queue: Emails for invoice
-        // foreach invoice->invitations
+       $invoice->invitations->each(function ($invitation) use ($invoice) {
 
-        // Fire Payment if auto-bill is enabled
-        if ($this->recurring_invoice->settings->auto_bill) {
-            //PAYMENT ACTION HERE TODO
+            $email_builder = (new InvoiceEmail())->build($invitation);
 
-            // Clean up recurring invoice object
+            EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
 
-            $this->recurring_invoice->remaining_cycles = $this->recurring_invoice->remainingCycles();
-        }
+            info("Firing email for invoice {$invoice->number}");
+
+        });
+
+        /* Set next date here to prevent a recurring loop forming */
+        $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate()->format('Y-m-d');
+        $this->recurring_invoice->remaining_cycles = $this->recurring_invoice->remainingCycles();
         $this->recurring_invoice->last_sent_date = date('Y-m-d');
 
-        if ($this->recurring_invoice->remaining_cycles != 0) {
-            $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate()->format('Y-m-d');
-        } else {
+        /* Set completed if we don't have any more cycles remaining*/
+        if ($this->recurring_invoice->remaining_cycles == 0) 
             $this->recurring_invoice->setCompleted();
-        }
 
         $this->recurring_invoice->save();
+
+        if ($invoice->invitations->count() > 0) 
+            event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
+
+        // Fire Payment if auto-bill is enabled
+        if ($this->recurring_invoice->auto_bill) 
+            $invoice->service()->autoBill()->save();
+
     }
+
 }

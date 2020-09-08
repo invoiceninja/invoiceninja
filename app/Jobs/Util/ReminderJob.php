@@ -56,14 +56,16 @@ class ReminderJob implements ShouldQueue
                 $this->processReminders($db);
             }
         }
+        
     }
 
     private function processReminders($db = null)
     {
-        $invoices = Invoice::where('next_send_date', Carbon::today()->format('Y-m-d'))->get();
 
-        $invoices->each(function ($invoice) {
+        Invoice::where('next_send_date', Carbon::today()->format('Y-m-d'))->with('invitations')->cursor()->each(function ($invoice) {
+        
             if ($invoice->isPayable()) {
+
                 $invoice->invitations->each(function ($invitation) use ($invoice) {
                     $email_builder = (new InvoiceEmail())->build($invitation);
 
@@ -72,13 +74,18 @@ class ReminderJob implements ShouldQueue
                     info("Firing email for invoice {$invoice->number}");
                 });
 
-                if ($invoice->invitations->count() > 0) {
+                if ($invoice->invitations->count() > 0) 
                     event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
-                }
+                
+
             } else {
+
                 $invoice->next_send_date = null;
                 $invoice->save();
+
             }
+        
         });
+
     }
 }
