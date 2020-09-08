@@ -93,6 +93,10 @@ class Design extends BaseDesign
                 'id' => 'product-table',
                 'elements' => $this->productTable(),
             ],
+            'product-table-footer' => [
+                'id' => 'product-table-footer',
+                'elements' => $this->tableFooter(),
+            ],
             'footer-elements' => [
                 'id' => 'footer',
                 'elements' => [
@@ -166,7 +170,6 @@ class Design extends BaseDesign
         return  [
             ['element' => 'thead', 'elements' => $this->buildTableHeader()],
             ['element' => 'tbody', 'elements' => $this->buildTableBody()],
-            ['element' => 'tfoot', 'elements' => $this->tableFooter()],
         ];
     }
 
@@ -211,8 +214,8 @@ class Design extends BaseDesign
         $variables = $this->context['pdf_variables']['total_columns'];
 
         $elements = [
-            ['element' => 'tr', 'elements' => [
-                ['element' => 'td', 'content' => '$entity.public_notes', 'properties' => ['colspan' => '100%']],
+            ['element' => 'div', 'elements' => [
+                ['element' => 'span', 'content' => '$entity.public_notes', 'properties' => ['data-element' => 'product-table-public-notes-label']],
             ]],
         ];
 
@@ -221,10 +224,10 @@ class Design extends BaseDesign
                 continue;
             }
 
-            $elements[] = ['element' => 'tr', 'elements' => [
-                ['element' => 'td', 'properties' => ['colspan' => $this->calculateColspan(2)]],
-                ['element' => 'td', 'content' => $variable.'_label'],
-                ['element' => 'td', 'content' => $variable],
+            $elements[] = ['element' => 'div', 'elements' => [
+                ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
+                ['element' => 'span', 'content' => $variable.'_label'],
+                ['element' => 'span', 'content' => $variable],
             ]];
         }
 
