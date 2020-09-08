@@ -105,10 +105,6 @@ class InvoiceTransformer extends EntityTransformer
             'date' => $invoice->date ?: '',
             'last_sent_date' => $invoice->last_sent_date ?: '',
             'next_send_date' => $invoice->date ?: '',
-            'reminder1_sent' => $invoice->reminder1_sent ?: '',
-            'reminder2_sent' => $invoice->reminder2_sent ?: '',
-            'reminder3_sent' => $invoice->reminder3_sent ?: '',
-            'reminder_last_sent' => $invoice->reminder_last_sent ?: '',
             'due_date' => $invoice->due_date ?: '',
             'terms' => $invoice->terms ?: '',
             'public_notes' => $invoice->public_notes ?: '',
@@ -142,6 +138,10 @@ class InvoiceTransformer extends EntityTransformer
             'custom_surcharge_tax4' => (bool) $invoice->custom_surcharge_tax4,
             'line_items' => $invoice->line_items ?: (array) [],
             'entity_type' => 'invoice',
+            'reminder1_sent' => $invoice->reminder1_sent ?: '',
+            'reminder2_sent' => $invoice->reminder2_sent ?: '',
+            'reminder3_sent' => $invoice->reminder3_sent ?: '',
+            'reminder_last_sent' => $invoice->reminder_last_sent ?: '',
         ];
     }
 }
