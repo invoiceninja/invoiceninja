@@ -234,6 +234,10 @@ class HtmlEngine
         $data['$client.country'] = &$data['$country'];
         $data['$client.email'] = &$data['$email'];
 
+
+        $data['$client.balance'] = ['value' => $this->client->balance, 'label' => ctrans('texts.balance')];
+        $data['$paid_to_date'] = ['value' => $this->client->paid_to_date, 'label' => ctrans('texts.paid_to_date')];
+
         $data['$contact.full_name'] = ['value' => $this->contact->present()->name(), 'label' => ctrans('texts.name')];
         $data['$contact.email'] = ['value' => $this->contact->email, 'label' => ctrans('texts.email')];
         $data['$contact.phone'] = ['value' => $this->contact->phone, 'label' => ctrans('texts.phone')];

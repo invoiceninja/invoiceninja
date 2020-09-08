@@ -237,7 +237,6 @@ trait MakesInvoiceValues
 
         $data['$entity_number'] = &$data['$number'];
 
-        //$data['$paid_to_date'] = ;
         $data['$invoice.discount'] = ['value' => Number::formatMoney($calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
         $data['$discount'] = &$data['$invoice.discount'];
         $data['$subtotal'] = ['value' => Number::formatMoney($calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
@@ -314,6 +313,10 @@ trait MakesInvoiceValues
         $data['$email'] = ['value' => isset($contact) ? $contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
         $data['$client_name'] = ['value' => $this->present()->clientName() ?: '&nbsp;', 'label' => ctrans('texts.client_name')];
         $data['$client.name'] = &$data['$client_name'];
+        $data['$client.balance'] = ['value' => $this->client->balance, 'label' => ctrans('texts.balance')];
+        
+        $data['$paid_to_date'] = ['value' => $this->client->paid_to_date, 'label' => ctrans('texts.paid_to_date')];
+
         $data['$client.address1'] = &$data['$address1'];
         $data['$client.address2'] = &$data['$address2'];
         $data['$client_address'] = ['value' => $this->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
