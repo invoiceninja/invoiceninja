@@ -6,30 +6,17 @@
 
         <style id="style">
             * {
-                margin: 0;
-                padding: 0;
-                font-size: 14px;
+                font-size: '$font-size';
             }
 
             @page {
-                margin-top: 1cm;
-                margin-bottom: 1cm;
+                margin: 1cm;
             }
 
             body {
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
                 font-family: Arial, Helvetica, sans-serif;
-            }
-
-            @media print {
-                body {
-                    margin: 0;
-                    padding: 0;
-                }
-            }
-            body {
-                margin: 2rem;
             }
 
             .header-wrapper {
@@ -151,8 +138,10 @@
         </style>
     </head>
 
+    <div id="header"></div>
+
     <body id="body">
-        <div class="header-wrapper" id="header">
+        <div class="header-wrapper">
             <div class="header-left-side-wrapper">
                 <p class="header-text-label">$from_label:</p>
 
@@ -185,8 +174,8 @@
                 <span class="entity-property-value">$entity_number</span>
             </span>
             <span>
-                <span class="entity-property-label">$entity_date_label:</span>
-                <span class="entity-property-value">$entity_date</span>
+                <span class="entity-property-label">$date_label:</span>
+                <span class="entity-property-value">$date</span>
             </span>
             <span>
                 <span class="entity-property-label">$payment_due_label:</span>
@@ -205,7 +194,7 @@
         <table id="product-table" cellspacing="0"></table>
 
         <div id="product-table-footer" cellspacing="0"></div>
-
-        <footer id="footer"></footer>
     </body>
+
+    <div id="footer"><!-- Your footer content here --></div>
 </html>

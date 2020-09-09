@@ -71,14 +71,8 @@ class PdfMaker
 
     public function getCompiledHTML($final = false)
     {
-        if ($final) {
-            $html = $this->document->saveXML();
-
-            $filtered = strtr($html, $this->filters);
-
-            return $filtered;
-        }
-
-        return $this->document->saveXML();
+        $html =  $this->document->saveHTML();
+    
+        return str_replace('%24', '$', $html);
     }
 }

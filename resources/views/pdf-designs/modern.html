@@ -6,14 +6,7 @@
 
         <style id="style">
             * {
-                margin: 0;
-                padding: 0;
-                font-size: 14px;
-            }
-
-            @page {
-                margin-top: 1cm;
-                margin-bottom: 1cm;
+                font-size: '$font-size';
             }
 
             body {
@@ -22,12 +15,6 @@
                 font-family: Arial, Helvetica, sans-serif;
             }
 
-            @media print {
-                body {
-                    margin: 0;
-                    padding: 0;
-                }
-            }
             .header-container {
                 background-color: #f46521;
                 color: white;
@@ -100,8 +87,6 @@
 
             .footer-wrapper {
                 display: grid;
-                position: fixed;
-                bottom: 0;
                 width: 100%;
                 padding: 1.5rem;
                 grid-template-columns: 2fr 1fr 1fr;
@@ -151,13 +136,13 @@
         </style>
     </head>
 
+    <div class="header-container" id="header">
+        <h1 class="company-name">$company.name</h1>
+
+        <table id="entity-details" cellspacing="0"></table>
+    </div>
+
     <body id="body">
-        <div class="header-container" id="header">
-            <h1 class="company-name">$company.name</h1>
-
-            <table id="entity-details" cellspacing="0"></table>
-        </div>
-
         <div class="logo-client-wrapper">
             <img
                 class="company-logo"
@@ -173,16 +158,14 @@
 
             <div id="product-table-footer" cellspacing="0"></div>
         </div>
+    </body>
 
-        <div class="footer-wrapper">
-            <div>
-                <!-- Placeholder for offset -->
-            </div>
-
-            <div id="company-details"></div>
-            <div id="company-address"></div>
+    <div class="footer-wrapper" id="footer">
+        <div>
+            <!-- Placeholder for offset -->
         </div>
 
-        <footer id="footer"></footer>
-    </body>
+        <div id="company-details"></div>
+        <div id="company-address"></div>
+    </div>
 </html>

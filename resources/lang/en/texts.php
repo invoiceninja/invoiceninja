@@ -3266,4 +3266,6 @@ return [
     'add_payment_method_first' => 'add payment method',
 
     'no_items_selected' => 'No items selected.',
+
+    'payment_due' => 'Payment due',
 ];
