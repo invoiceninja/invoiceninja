@@ -7,23 +7,16 @@
 
         <style id="style">
             body {
-                margin: 2rem;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
                 font-family: Arial, Helvetica, sans-serif;
+                font-size: '$font-size';
             }
 
             @page {
-                margin-top: 1cm;
-                margin-bottom: 1cm;
+                margin: 1cm;
             }
 
-            @media print {
-                body {
-                    margin-top: 0;
-                    margin-right: 0;
-                }
-            }
             .header-container {
                 display: grid;
                 grid-template-columns: 1fr 1fr 1fr;
@@ -134,8 +127,10 @@
         </style>
     </head>
 
+    <div id="header"></div>
+
     <body id="body">
-        <div class="header-container" id="header">
+        <div class="header-container">
             <img
                 class="company-logo"
                 src="$company.logo"
@@ -157,7 +152,7 @@
         <table id="product-table" cellspacing="0"></table>
 
         <div id="product-table-footer" cellspacing="0"></div>
-
-        <footer id="footer"></footer>
     </body>
+    
+    <div id="footer"><!-- Your footer content here --></div>
 </html>

@@ -6,9 +6,7 @@
 
         <style id="style">
             * {
-                margin: 0;
-                padding: 0;
-                font-size: 14px;
+                font-size: '$font-size';
             }
 
             @page {
@@ -128,8 +126,10 @@
         </style>
     </head>
 
+    <div id="header"></div>
+
     <body id="body">
-        <div class="header-wrapper" id="header">
+        <div class="header-wrapper">
             <div id="client-details"></div>
 
             <div class="company-info-wrapper">
@@ -156,7 +156,7 @@
         <table id="product-table" cellspacing="0"></table>
 
         <div id="product-table-footer" cellspacing="0"></div>
-
-        <footer id="footer"></footer>
     </body>
+
+    <div id="footer"><!-- Your footer content here --></div>
 </html>
