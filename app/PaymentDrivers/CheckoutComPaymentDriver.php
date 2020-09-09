@@ -21,6 +21,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\BaseDriver;
 use App\PaymentDrivers\CheckoutCom\Utilities;
 use App\Utils\Ninja;
 use App\Utils\Traits\SystemLogTrait;
@@ -30,7 +31,7 @@ use Checkout\Models\Payments\IdSource;
 use Checkout\Models\Payments\Payment as CheckoutPayment;
 use Checkout\Models\Payments\TokenSource;
 
-class CheckoutComPaymentDriver extends BasePaymentDriver
+class CheckoutComPaymentDriver extends BaseDriver
 {
     use SystemLogTrait, Utilities;
 
@@ -38,16 +39,16 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     public $company_gateway;
 
     /* The Invitation */
-    protected $invitation;
+    public $invitation;
 
     /* Gateway capabilities */
-    protected $refundable = true;
+    public $refundable = true;
 
     /* Token billing */
-    protected $token_billing = true;
+    public $token_billing = true;
 
     /* Authorise payment methods */
-    protected $can_authorise_credit_card = true;
+    public $can_authorise_credit_card = true;
 
     /** Instance of \Checkout\CheckoutApi */
     public $gateway;
@@ -55,6 +56,16 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     public static $methods = [
         GatewayType::CREDIT_CARD => '',
     ];
+
+    /**
+     * Returns the default gateway type.
+     */
+    public function gatewayTypes()
+    {
+        return [
+            GatewayType::CREDIT_CARD,
+        ];
+    }
 
     /** Since with Checkout.com we handle only credit cards, this method should be empty. */
     public function setPaymentMethod($string = null)
@@ -92,6 +103,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     public function processPaymentView(array $data)
     {
         $data['gateway'] = $this;
+        $data['company_gateway'] = $this->company_gateway;
         $data['client'] = $this->client;
         $data['currency'] = $this->client->getCurrencyCode();
         $data['value'] = $this->convertToCheckoutAmount($data['amount_with_fee'], $this->client->getCurrencyCode());
@@ -288,7 +300,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         }
     }
 
-    public function refund(Payment $payment, $amount)
+    public function refund(Payment $payment, $amount, $return_client_response = false)
     {
         $this->init();
 

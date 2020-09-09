@@ -15,10 +15,8 @@
         @csrf
         <input type="hidden" name="gateway_response">
         <input type="hidden" name="store_card">
-        @foreach($invoices as $invoice)
-            <input type="hidden" name="hashed_ids[]" value="{{ $invoice->hashed_id }}">
-        @endforeach
-        <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
+        <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
+        <input type="hidden" name="company_gateway_id" value="{{ $company_gateway->id }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
         <input type="hidden" name="value" value="{{ $value }}">
         <input type="hidden" name="raw_value" value="{{ $raw_value }}">
@@ -50,11 +48,23 @@
                         </dd>
                     </div>
                     <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 flex items-center">
+                        <dt class="text-sm leading-5 font-medium text-gray-500">
+                            {{ ctrans('texts.subtotal') }}
+                        </dt>
+                        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ App\Utils\Number::formatMoney($total['invoice_totals'], $client) }}
+                        </dd>
+                        <dt class="text-sm leading-5 font-medium text-gray-500">
+                            {{ ctrans('texts.gateway_fees') }}
+                        </dt>
+                        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ App\Utils\Number::formatMoney($total['fee_total'], $client) }}
+                        </dd>
                         <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
                             {{ ctrans('texts.amount') }}
                         </dt>
                         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                            <span class="font-bold">{{ App\Utils\Number::formatMoney($amount, $client) }}</span>
+                            <span class="font-bold">{{ App\Utils\Number::formatMoney($total['amount_with_fee'], $client) }}</span>
                         </dd>
                     </div>
                     @isset($token)
