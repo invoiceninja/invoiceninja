@@ -47,6 +47,8 @@ class StoreDesignRequest extends Request
             $input['design']['task'] = '';
         }
 
+        $input['design'] = htmlspecialchars($input['design']);
+        
         $this->replace($input);
     }
 }

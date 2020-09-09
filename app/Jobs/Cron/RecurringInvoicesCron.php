@@ -37,7 +37,7 @@ class RecurringInvoicesCron
     public function handle() : void
     {
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
-        info("Sending recurring invoices {Carbon::now()->format('Y-m-d h:i:s')}");
+        info("Sending recurring invoices ".Carbon::now()->format('Y-m-d h:i:s'));
 
         if (! config('ninja.db.multi_db_enabled')) {
 

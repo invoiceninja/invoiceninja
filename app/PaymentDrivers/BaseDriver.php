@@ -16,6 +16,7 @@ use App\Events\Invoice\InvoiceWasPaid;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
@@ -192,4 +193,21 @@ class BaseDriver extends AbstractPaymentDriver
             }
         });
     }
+
+    /**
+     * Return the contact if possible.
+     *
+     * @return ClientContact The ClientContact object
+     */
+    public function getContact()
+    {
+        if ($this->invitation) {
+            return ClientContact::find($this->invitation->client_contact_id);
+        } elseif (auth()->guard('contact')->user()) {
+            return auth()->user();
+        } else {
+            return false;
+        }
+    }
+
 }
