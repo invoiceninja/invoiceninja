@@ -315,6 +315,8 @@ class HtmlEngine
         $data['_rate2'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['_rate3'] = ['value' => '', 'label' => ctrans('texts.tax')];
 
+        $data['$font-size'] = ['value' => $this->settings->font_size . 'px', 'label' => ''];
+
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label3']              = ['value' => '', 'label' => ctrans('texts.')];

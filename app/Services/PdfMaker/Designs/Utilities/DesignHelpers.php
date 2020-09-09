@@ -79,7 +79,7 @@ trait DesignHelpers
                 $document->importNode($element, true)
             );
 
-            $html = $this->document->saveHTML();
+            $html = $document->saveHTML();
 
             return str_replace('%24', '$', $html);
         }
