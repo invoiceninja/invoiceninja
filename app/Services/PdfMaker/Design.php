@@ -67,7 +67,7 @@ class Design extends BaseDesign
             : config('ninja.designs.base_path');
 
         return file_get_contents(
-            $path.$this->design
+            $path . $this->design
         );
     }
 
@@ -164,7 +164,7 @@ class Design extends BaseDesign
 
         foreach ($variables as $variable) {
             $elements[] = ['element' => 'tr', 'properties' => ['hidden' => $this->entityVariableCheck($variable)], 'elements' => [
-                ['element' => 'th', 'content' => $variable.'_label'],
+                ['element' => 'th', 'content' => $variable . '_label'],
                 ['element' => 'th', 'content' => $variable],
             ]];
         }
@@ -187,7 +187,7 @@ class Design extends BaseDesign
         $elements = [];
 
         foreach ($this->context['pdf_variables']["{$this->type}_columns"] as $column) {
-            $elements[] = ['element' => 'th', 'content' => $column.'_label'];
+            $elements[] = ['element' => 'th', 'content' => $column . '_label'];
         }
 
         return $elements;
@@ -226,6 +226,22 @@ class Design extends BaseDesign
             ]],
         ];
 
+        foreach (['discount', 'custom_surcharge1', 'custom_surcharge2', 'custom_surcharge3', 'custom_surcharge4'] as $property) {
+            $variable = sprintf('%s%s', '$', $property);
+
+            if (
+                !is_null($this->entity->{$property}) ||
+                !empty($this->entity->{$property}) ||
+                $this->entity->{$property} !== 0
+            ) {
+                continue;
+            }
+
+            $variables = array_filter($variables, function ($m) use ($variable) {
+                return $m != $variable;
+            });
+        }
+
         foreach ($variables as $variable) {
             if ($variable == '$total_taxes' || $variable == '$line_taxes') {
                 continue;
@@ -233,7 +249,7 @@ class Design extends BaseDesign
 
             $elements[] = ['element' => 'div', 'elements' => [
                 ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
-                ['element' => 'span', 'content' => $variable.'_label'],
+                ['element' => 'span', 'content' => $variable . '_label'],
                 ['element' => 'span', 'content' => $variable],
             ]];
         }

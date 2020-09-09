@@ -104,6 +104,7 @@ class HtmlEngine
         //$data['$invoice_date']           = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
         $data['$invoice.date'] = &$data['$date'];
         $data['$due_date'] = ['value' => $this->entity->due_date ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
+        $data['$payment_due'] = ['value' => $this->entity->due_date ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
         $data['$invoice.due_date'] = &$data['$due_date'];
         $data['$invoice.number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
         $data['$invoice.po_number'] = ['value' => $this->entity->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
@@ -154,6 +155,7 @@ class HtmlEngine
         $data['$partial_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         $data['$total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.total')];
         $data['$amount'] = &$data['$total'];
+        $data['$amount_due'] = ['value' => &$data['$total']['value'], 'label' => ctrans('texts.amount_due')];
         $data['$quote.total'] = &$data['$total'];
         $data['$invoice.total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.invoice_total')];
         $data['$invoice.amount'] = &$data['$total'];
@@ -275,10 +277,10 @@ class HtmlEngine
         $data['$company3'] = ['value' => $this->settings->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
         $data['$company4'] = ['value' => $this->settings->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
 
-        $data['$custom_surcharge1'] = ['value' => $this->entity->custom_surcharge1, 'label' => $this->makeCustomField('custom_surcharge1')];
-        $data['$custom_surcharge2'] = ['value' => $this->entity->custom_surcharge2, 'label' => $this->makeCustomField('custom_surcharge2')];
-        $data['$custom_surcharge3'] = ['value' => $this->entity->custom_surcharge3, 'label' => $this->makeCustomField('custom_surcharge3')];
-        $data['$custom_surcharge4'] = ['value' => $this->entity->custom_surcharge4, 'label' => $this->makeCustomField('custom_surcharge4')];
+        $data['$custom_surcharge1'] = ['value' => $this->entity->custom_surcharge1 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge1')];
+        $data['$custom_surcharge2'] = ['value' => $this->entity->custom_surcharge2 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge2')];
+        $data['$custom_surcharge3'] = ['value' => $this->entity->custom_surcharge3 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge3')];
+        $data['$custom_surcharge4'] = ['value' => $this->entity->custom_surcharge4 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge4')];
 
         $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$product.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];

@@ -173,14 +173,7 @@ class PreviewController extends BaseController
 
         $html = new HtmlEngine(null, $invoice->invitations()->first(), 'invoice');
 
-        if (isset(request()->design['name'])) {
-            $design = new Design(strtolower(request()->design['name']));
-        } else {
-            $design = new Design(Design::CUSTOM, ['custom_partials' => request()->design['design']]);
-        }
-
-        // $designer = new Designer($entity_obj, $design_object, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
-        // $html = $this->generateEntityHtml($designer, $entity_obj);
+        $design = new Design(Design::CUSTOM, ['custom_partials' => request()->design['design']]);
 
         $state = [
             'template' => $design->elements([
