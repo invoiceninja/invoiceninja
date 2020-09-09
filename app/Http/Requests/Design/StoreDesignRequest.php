@@ -47,6 +47,10 @@ class StoreDesignRequest extends Request
             $input['design']['task'] = '';
         }
 
+        if (! array_key_exists('includes', $input['design']) || is_null($input['design']['includes'])) {
+            $input['design']['includes'] = '';
+        }
+        
         $this->replace($input);
     }
 }
