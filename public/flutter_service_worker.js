@@ -20,13 +20,13 @@ const RESOURCES = {
 "assets/assets/images/payment_types/other.png": "d936e11fa3884b8c9f1bd5c914be8629",
 "assets/assets/images/payment_types/visa.png": "3ddc4a4d25c946e8ad7e6998f30fd4e3",
 "assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
-"assets/NOTICES": "2ea764e7f73033bab6d857b898e4a688",
+"assets/NOTICES": "9eef57a7772ab70663faf36b6e8eafce",
 "assets/AssetManifest.json": "ea09ed4b9b8b6c83d6896248aac7c527",
-"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "6a2ddad1092a0a1c326b6d0e738e682b",
+"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "b0fd91bb29dcb296a9a37f8bda0a2d85",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/fonts/MaterialIcons-Regular.otf": "a68d2a28c526b3b070aefca4bac93d25",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
-"main.dart.js": "98bee7c99840597b81d4b62e1b863364",
+"main.dart.js": "152fc42b888e5c0cbd1fbcf6db4c6542",
 "/": "e65799be52f7bbcaf39d78046726b95a",
 "manifest.json": "77215c1737c7639764e64a192be2f7b8"
 };
