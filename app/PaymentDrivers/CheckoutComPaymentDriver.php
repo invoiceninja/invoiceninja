@@ -67,13 +67,20 @@ class CheckoutComPaymentDriver extends BaseDriver
         ];
     }
 
-    /** Since with Checkout.com we handle only credit cards, this method should be empty. */
-    public function setPaymentMethod($string = null)
+    /** 
+     * Since with Checkout.com we handle only credit cards, this method should be empty.
+     * @param $string payment_method string
+     */
+    public function setPaymentMethod($payment_method = null)
     {
         return $this;
     }
 
-    public function init()
+    /**
+     * Initialize the checkout payment driver
+     * @return $this
+     */
+    public function init() 
     {
         $config = [
             'secret' =>  $this->company_gateway->getConfigField('secretApiKey'),
@@ -82,8 +89,15 @@ class CheckoutComPaymentDriver extends BaseDriver
         ];
 
         $this->gateway = new CheckoutApi($config['secret'], $config['sandbox'], $config['public']);
+
+        return $this;
     }
 
+    /**
+     * Process different view depending on payment type
+     * @param  int      $gateway_type_id    The gateway type
+     * @return string                       The view string
+     */
     public function viewForType($gateway_type_id)
     {
         if ($gateway_type_id == GatewayType::CREDIT_CARD) {
@@ -95,11 +109,23 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
     }
 
+    /**
+     * Authorization view
+     * 
+     * @param  array $data  Payment data array
+     * @return view         Authorization View
+     */
     public function authorizeView($data)
     {
         return render('gateways.checkout.authorize');
     }
 
+    /**
+     * Payment View
+     * 
+     * @param  array  $data Payment data array
+     * @return view         The payment view
+     */
     public function processPaymentView(array $data)
     {
         $data['gateway'] = $this;
@@ -113,6 +139,12 @@ class CheckoutComPaymentDriver extends BaseDriver
         return render($this->viewForType($data['payment_method_id']), $data);
     }
 
+    /**
+     * Process the payment response
+     * 
+     * @param  Request $request The payment request
+     * @return view             The payment response view
+     */
     public function processPaymentResponse($request)
     {
         $this->init();
@@ -123,6 +155,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             'raw_value' => $request->raw_value,
             'currency' => $request->currency,
             'payment_hash' =>$request->payment_hash,
+            'reference' => $request->payment_hash,
         ];
 
         $state = array_merge($state, $request->all());
@@ -132,10 +165,12 @@ class CheckoutComPaymentDriver extends BaseDriver
             $method = new IdSource($state['token']);
             $payment = new CheckoutPayment($method, $state['currency']);
             $payment->amount = $state['value'];
+            $payment->reference = $state['reference'];
         } else {
             $method = new TokenSource($state['server_response']->cardToken);
             $payment = new CheckoutPayment($method, $state['currency']);
             $payment->amount = $state['value'];
+            $payment->reference = $state['reference'];
 
             if ($this->client->currency()->code === 'EUR') {
                 $payment->{'3ds'} = ['enabled' => true];
@@ -162,6 +197,12 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
     }
 
+    /**
+     * Process a successful payment response
+     * 
+     * @param  array $state  The state array
+     * @return view          The response
+     */
     public function processSuccessfulPayment($state)
     {
         $state['charge_id'] = $state['payment_response']->id;
@@ -178,6 +219,9 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$state['payment_hash']])->firstOrFail();
+        $payment_hash->payment_id = $payment->id;
+        $payment_hash->save();
+        
         $this->attachInvoices($payment, $payment_hash);
         $payment->service()->updateInvoicePayment($payment_hash);
 
@@ -251,17 +295,19 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function processInternallyFailedPayment($e, $state)
     {
-        $message = json_decode($e->getBody());
+        $error_message = json_decode($e->getBody());
 
-        PaymentFailureMailer::dispatch($this->client, $message->error_type, $this->client->company, $state['value']);
+        PaymentFailureMailer::dispatch($this->client, $error_message->message, $this->client->company, $state['value']);
 
         $message = [
             'server_response' => $state['server_response'],
-            'data' => $message,
+            'data' => $e->getBody(),
         ];
 
         SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client);
-
+        
+        //todo push to a error page with the exception message.
+        
         throw new \Exception('Failed to process the payment.', 1);
     }
 

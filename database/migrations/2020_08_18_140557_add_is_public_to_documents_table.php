@@ -40,7 +40,11 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->decimal('fee_total', 16, 4);
             $table->unsignedInteger('fee_invoice_id')->nullable();
             $table->mediumText('data');
+            $table->unsignedInteger('payment_id')->nullable();
             $table->timestamps(6);
+
+            $table->foreign('payment_id')->references('id')->on('payments')->onDelete('cascade')->onUpdate('cascade');
+
         });
 
         Schema::table('recurring_invoices', function ($table) {

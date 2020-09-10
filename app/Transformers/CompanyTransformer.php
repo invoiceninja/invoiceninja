@@ -29,6 +29,7 @@ use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Models\SystemLog;
 use App\Models\Task;
 use App\Models\TaxRate;
@@ -40,6 +41,7 @@ use App\Transformers\CompanyTokenTransformer;
 use App\Transformers\CreditTransformer;
 use App\Transformers\DocumentTransformer;
 use App\Transformers\PaymentTermTransformer;
+use App\Transformers\RecurringInvoiceTransformer;
 use App\Transformers\SystemLogTransformer;
 use App\Transformers\TaskTransformer;
 use App\Transformers\WebhookTransformer;
@@ -70,6 +72,7 @@ class CompanyTransformer extends EntityTransformer
         'clients',
         'contacts',
         'invoices',
+        'recurring_invoices',
         'tax_rates',
         'products',
         'country',
@@ -245,6 +248,13 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new InvoiceTransformer($this->serializer);
 
         return $this->includeCollection($company->invoices, $transformer, Invoice::class);
+    }
+
+    public function includeRecurringInvoices(Company $company)
+    {
+        $transformer = new RecurringInvoiceTransformer($this->serializer);
+
+        return $this->includeCollection($company->recurring_invoices, $transformer, RecurringInvoice::class);
     }
 
     public function includeQuotes(Company $company)

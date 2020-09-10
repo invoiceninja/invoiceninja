@@ -104,6 +104,9 @@ class AuthorizeCreditCard
             $payment = $this->createPaymentRecord($data, $amount);
             $payment->meta = $cgt->meta;
             $payment->save();
+            
+            $payment_hash->payment_id = $payment->id;
+            $payment_hash->save();
 
             $this->authorize->attachInvoices($payment, $payment_hash);
             $payment->service()->updateInvoicePayment($payment_hash);
@@ -144,6 +147,9 @@ class AuthorizeCreditCard
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
         $payment = $this->createPaymentRecord($data, $amount);
+        
+        $payment_hash->payment_id = $payment->id;
+        $payment_hash->save();
 
         $this->authorize->attachInvoices($payment, $payment_hash);
 

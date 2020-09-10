@@ -6,6 +6,7 @@
     <meta name="customer-email" content="{{ $customer_email }}">
     <meta name="value" content="{{ $value }}">
     <meta name="currency" content="{{ $currency }}">
+    <meta name="reference" content="{{ $payment_hash }}">
 
     <script src="{{ asset('js/clients/payments/checkout.com.js') }}"></script>
 @endpush
@@ -15,6 +16,7 @@
         @csrf
         <input type="hidden" name="gateway_response">
         <input type="hidden" name="store_card">
+        <input type="hidden" name="reference" value="{{ $payment_hash }}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="company_gateway_id" value="{{ $company_gateway->id }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">

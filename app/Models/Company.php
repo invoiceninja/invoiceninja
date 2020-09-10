@@ -29,6 +29,7 @@ use App\Models\Language;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\Product;
+use App\Models\RecurringInvoice;
 use App\Models\TaxRate;
 use App\Models\Timezone;
 use App\Models\Traits\AccountTrait;
@@ -238,6 +239,14 @@ class Company extends BaseModel
     public function invoices()
     {
         return $this->hasMany(Invoice::class)->withTrashed();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function recurring_invoices()
+    {
+        return $this->hasMany(RecurringInvoice::class)->withTrashed();
     }
 
     /**
