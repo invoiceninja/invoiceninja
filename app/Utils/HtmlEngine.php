@@ -141,8 +141,6 @@ class HtmlEngine
         }
 
         $data['$entity_number'] = &$data['$number'];
-
-        //$data['$paid_to_date'] = ;
         $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
         $data['$discount'] = &$data['$invoice.discount'];
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
@@ -236,9 +234,8 @@ class HtmlEngine
         $data['$client.country'] = &$data['$country'];
         $data['$client.email'] = &$data['$email'];
 
-
-        $data['$client.balance'] = ['value' => $this->client->balance, 'label' => ctrans('texts.balance')];
-        $data['$paid_to_date'] = ['value' => $this->client->paid_to_date, 'label' => ctrans('texts.paid_to_date')];
+        $data['$client.balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
+        $data['$paid_to_date'] = ['value' => Number::formatMoney($this->client->paid_to_date, $this->client), 'label' => ctrans('texts.paid_to_date')];
 
         $data['$contact.full_name'] = ['value' => $this->contact->present()->name(), 'label' => ctrans('texts.name')];
         $data['$contact.email'] = ['value' => $this->contact->email, 'label' => ctrans('texts.email')];

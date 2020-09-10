@@ -195,6 +195,24 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     /**
+     * In case of a payment failure we should always 
+     * return the invoice to its original state
+     * 
+     * @param  PaymentHash $payment_hash The payment hash containing the list of invoices
+     * @return void                    
+     */
+    public function unWindGatewayFees(PaymentHash $payment_hash)
+    {
+
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->get();
+
+        $invoices->each(function ($invoice) {
+            $invoice->service()->removeUnpaidGatewayFees();
+        });
+        
+    }
+
+    /**
      * Return the contact if possible.
      *
      * @return ClientContact The ClientContact object

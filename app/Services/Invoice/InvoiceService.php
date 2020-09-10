@@ -11,6 +11,7 @@
 
 namespace App\Services\Invoice;
 
+use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -211,6 +212,8 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
+        $this->invoice = $this->invoice->calc()->getInvoice();
+
         return $this;
     }
 
@@ -220,6 +223,8 @@ class InvoiceService
                                      ->reject(function ($item) {
                                          return $item->type_id == '3';
                                      })->toArray();
+
+        $this->invoice = $this->invoice->calc()->getInvoice();
 
         return $this;
     }
@@ -237,6 +242,20 @@ class InvoiceService
     public function updatePartial($amount)
     {
         $this->invoice->partial += $amount;
+
+        return $this;
+    }
+
+    /**
+     * Sometimes we need to refresh the 
+     * PDF when it is updated etc.
+     * @return void
+     */
+    public function touchPdf()
+    {
+        $this->invoice->invitations->each(function ($invitation){
+            CreateInvoicePdf::dispatch($invitation);
+        });
 
         return $this;
     }

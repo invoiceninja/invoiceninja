@@ -6,8 +6,10 @@
         {{ ctrans('texts.payment_error_code', ['code' => isset($code) ? $code : '']) }}
     </span>
 
-    <span class="mt-6 block">{{ ctrans('texts.common_codes') }}:</span>
-    <ul>
-        <li>{{ ctrans('texts.payment_error_code_20087') }}.</li>
-    </ul>
+    @if($message)
+	    <span class="mt-6 block">{{ ctrans('texts.message') }}:</span>
+	    <ul>
+	        <li>{{ $message }}.</li>
+	    </ul>
+    @endif
 @endsection
