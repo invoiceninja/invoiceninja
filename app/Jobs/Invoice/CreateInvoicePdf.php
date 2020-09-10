@@ -84,11 +84,6 @@ class CreateInvoicePdf implements ShouldQueue
         $invoice_design_id = $this->invoice->design_id ? $this->invoice->design_id : $this->decodePrimaryKey($this->invoice->client->getSetting('invoice_design_id'));
 
         $design = Design::find($invoice_design_id);
-
-        if (!$design) {
-            $design = Design::first();
-        }
-
         $html = new HtmlEngine(null, $this->invitation, 'invoice');
 
         $template = new PdfMakerDesign(strtolower($design->name));
