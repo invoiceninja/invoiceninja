@@ -155,6 +155,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             'raw_value' => $request->raw_value,
             'currency' => $request->currency,
             'payment_hash' =>$request->payment_hash,
+            'reference' => $request->payment_hash,
         ];
 
         $state = array_merge($state, $request->all());
@@ -164,10 +165,12 @@ class CheckoutComPaymentDriver extends BaseDriver
             $method = new IdSource($state['token']);
             $payment = new CheckoutPayment($method, $state['currency']);
             $payment->amount = $state['value'];
+            $payment->reference = $state['reference'];
         } else {
             $method = new TokenSource($state['server_response']->cardToken);
             $payment = new CheckoutPayment($method, $state['currency']);
             $payment->amount = $state['value'];
+            $payment->reference = $state['reference'];
 
             if ($this->client->currency()->code === 'EUR') {
                 $payment->{'3ds'} = ['enabled' => true];
