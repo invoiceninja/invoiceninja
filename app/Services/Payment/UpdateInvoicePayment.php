@@ -75,7 +75,9 @@ class UpdateInvoicePayment
                 ->updateBalance($paid_amount * -1)
                 ->save();
 
+            info("firing invoice was updated event");
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
+            info("fired invoice was updated event");
         });
 
         return $this->payment;

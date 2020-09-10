@@ -295,17 +295,19 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function processInternallyFailedPayment($e, $state)
     {
-        $message = json_decode($e->getBody());
+        $error_message = json_decode($e->getBody());
 
-        PaymentFailureMailer::dispatch($this->client, $message->error_type, $this->client->company, $state['value']);
+        PaymentFailureMailer::dispatch($this->client, $error_message->message, $this->client->company, $state['value']);
 
         $message = [
             'server_response' => $state['server_response'],
-            'data' => $message,
+            'data' => $e->getBody(),
         ];
 
         SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client);
-
+        
+        //todo push to a error page with the exception message.
+        
         throw new \Exception('Failed to process the payment.', 1);
     }
 
