@@ -136,6 +136,9 @@ class AuthorizeCreditCard
         $response = $data['response'];
 
         if ($response != null && $response->getMessages()->getResultCode() == 'Ok') {
+
+           $this->authorize->confirmGatewayFee($request);
+
             return $this->processSuccessfulResponse($data, $request);
         }
 

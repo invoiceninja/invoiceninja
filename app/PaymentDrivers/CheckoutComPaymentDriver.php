@@ -182,17 +182,26 @@ class CheckoutComPaymentDriver extends BaseDriver
             $state['payment_response'] = $response;
 
             if ($response->status === 'Authorized') {
+               $this->confirmGatewayFee($request);
+
                 return $this->processSuccessfulPayment($state);
             }
 
             if ($response->status === 'Pending') {
+                $this->confirmGatewayFee($request);
+
                 return $this->processPendingPayment($state);
             }
 
             if ($response->status === 'Declined') {
+                $this->unWindGatewayFees($request->payment_hash);
+
                 return $this->processUnsuccessfulPayment($state);
             }
         } catch (CheckoutHttpException $e) {
+
+            $this->unWindGatewayFees($request->payment_hash);
+
             return $this->processInternallyFailedPayment($e, $state);
         }
     }
