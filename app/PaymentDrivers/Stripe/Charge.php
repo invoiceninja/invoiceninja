@@ -167,6 +167,9 @@ class Charge
         $payment->meta = $cgt->meta;
         $payment->save();
 
+        $payment_hash->payment_id = $payment->id;
+        $payment_hash->save();
+        
         $this->stripe->attachInvoices($payment, $payment_hash);
 
         $payment->service()->updateInvoicePayment($payment_hash);

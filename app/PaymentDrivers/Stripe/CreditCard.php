@@ -197,6 +197,11 @@ class CreditCard
 
         $payment = $this->stripe->createPayment($data, $status = Payment::STATUS_COMPLETED);
         $payment->meta = $payment_meta;
+        $payment->save();
+
+        $payment_hash = $state['payment_hash'];
+        $payment_hash->payment_id = $payment->id;
+        $payment_hash->save();
 
         $payment = $this->stripe->attachInvoices($payment, $state['payment_hash']);
 

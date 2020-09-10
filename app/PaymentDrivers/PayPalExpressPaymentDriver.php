@@ -162,6 +162,10 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         $payment = $this->createPayment($response->getData());
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
+
+        $payment_hash->payment_id = $payment->id;
+        $payment_hash->save();
+        
         $this->attachInvoices($payment, $payment_hash);
         $payment->service()->updateInvoicePayment($payment_hash);
 

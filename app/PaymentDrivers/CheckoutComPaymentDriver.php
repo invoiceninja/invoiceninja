@@ -219,6 +219,9 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$state['payment_hash']])->firstOrFail();
+        $payment_hash->payment_id = $payment->id;
+        $payment_hash->save();
+        
         $this->attachInvoices($payment, $payment_hash);
         $payment->service()->updateInvoicePayment($payment_hash);
 
