@@ -70,6 +70,7 @@ class BaseController extends Controller
           'company.clients.contacts',
           'company.clients.gateway_tokens',
           'company.products',
+          'company.recurring_invoices',
           'company.invoices.invitations.contact',
           'company.invoices.invitations.company',
           'company.invoices.documents',
@@ -212,6 +213,9 @@ class BaseController extends Controller
             },
             'company.products' => function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at);
+            },
+            'company.recurring_invoices'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('company');
             },
             'company.invoices'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at)->with('invitations', 'company', 'documents');

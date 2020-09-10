@@ -67,13 +67,20 @@ class CheckoutComPaymentDriver extends BaseDriver
         ];
     }
 
-    /** Since with Checkout.com we handle only credit cards, this method should be empty. */
-    public function setPaymentMethod($string = null)
+    /** 
+     * Since with Checkout.com we handle only credit cards, this method should be empty.
+     * @param $string payment_method string
+     */
+    public function setPaymentMethod($payment_method = null)
     {
         return $this;
     }
 
-    public function init()
+    /**
+     * Initialize the checkout payment driver
+     * @return $this
+     */
+    public function init() 
     {
         $config = [
             'secret' =>  $this->company_gateway->getConfigField('secretApiKey'),
@@ -82,8 +89,15 @@ class CheckoutComPaymentDriver extends BaseDriver
         ];
 
         $this->gateway = new CheckoutApi($config['secret'], $config['sandbox'], $config['public']);
+
+        return $this;
     }
 
+    /**
+     * Process different view depending on payment type
+     * @param  int      $gateway_type_id    The gateway type
+     * @return string                       The view string
+     */
     public function viewForType($gateway_type_id)
     {
         if ($gateway_type_id == GatewayType::CREDIT_CARD) {
@@ -95,11 +109,23 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
     }
 
+    /**
+     * Authorization view
+     * 
+     * @param  array $data  Payment data array
+     * @return view         Authorization View
+     */
     public function authorizeView($data)
     {
         return render('gateways.checkout.authorize');
     }
 
+    /**
+     * Payment View
+     * 
+     * @param  array  $data Payment data array
+     * @return view         The payment view
+     */
     public function processPaymentView(array $data)
     {
         $data['gateway'] = $this;
@@ -113,6 +139,12 @@ class CheckoutComPaymentDriver extends BaseDriver
         return render($this->viewForType($data['payment_method_id']), $data);
     }
 
+    /**
+     * Process the payment response
+     * 
+     * @param  Request $request The payment request
+     * @return view             The payment response view
+     */
     public function processPaymentResponse($request)
     {
         $this->init();
@@ -162,6 +194,12 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
     }
 
+    /**
+     * Process a successful payment response
+     * 
+     * @param  array $state  The state array
+     * @return view          The response
+     */
     public function processSuccessfulPayment($state)
     {
         $state['charge_id'] = $state['payment_response']->id;
