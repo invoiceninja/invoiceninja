@@ -207,6 +207,13 @@ class Import implements ShouldQueue
     private function processCompany(array $data): void
     {
         Company::unguard();
+        
+        if (
+            $data['settings']['invoice_design_id'] > 9 ||
+            $data['settings']['invoice_design_id'] > "9"
+        ) {
+            $data['settings']['invoice_design_id'] = 1;
+        }
 
         $data = $this->transformCompanyData($data);
 
