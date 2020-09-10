@@ -71,6 +71,7 @@ class CreateInvoicePdf implements ShouldQueue
 
     public function handle()
     {
+
         if (config('ninja.phantomjs_key')) {
             return (new Phantom)->generate($this->invitation);
         }
@@ -110,8 +111,6 @@ class CreateInvoicePdf implements ShouldQueue
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0775);
-
-        //info($maker->getCompiledHTML(true));
 
         $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
 
