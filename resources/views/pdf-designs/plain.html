@@ -85,11 +85,15 @@
             #product-table > tbody > tr > td:last-child {
                 text-align: right;
             }
+            
+            #product-table-footer {
+                page-break-inside: avoid;
+            }
 
             #product-table-footer > * {
                 display: grid;
                 grid-template-columns: 3fr 1fr 1fr;
-                padding-top: 1rem;
+                padding-top: .5rem;
                 padding-left: 1rem;
                 gap: 20px;
             }
