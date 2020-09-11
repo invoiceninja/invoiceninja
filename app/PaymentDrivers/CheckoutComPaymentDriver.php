@@ -182,12 +182,14 @@ class CheckoutComPaymentDriver extends BaseDriver
             $state['payment_response'] = $response;
 
             if ($response->status === 'Authorized') {
+                
                $this->confirmGatewayFee($request);
 
                 return $this->processSuccessfulPayment($state);
             }
 
             if ($response->status === 'Pending') {
+
                 $this->confirmGatewayFee($request);
 
                 return $this->processPendingPayment($state);
