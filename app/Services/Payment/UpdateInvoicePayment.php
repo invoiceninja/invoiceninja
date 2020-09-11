@@ -73,11 +73,11 @@ class UpdateInvoicePayment
             $invoice->service() //caution what if we amount paid was less than partial - we wipe it!
                 ->clearPartial()
                 ->updateBalance($paid_amount * -1)
+                ->updateStatus()
                 ->save();
 
-            info("firing invoice was updated event");
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
-            info("fired invoice was updated event");
+
         });
 
         return $this->payment;

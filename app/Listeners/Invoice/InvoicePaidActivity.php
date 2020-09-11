@@ -45,6 +45,8 @@ class InvoicePaidActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
+        $event->invoice->service()->touchPdf();
+        
         $fields = new \stdClass;
 
         $fields->invoice_id = $event->invoice->id;

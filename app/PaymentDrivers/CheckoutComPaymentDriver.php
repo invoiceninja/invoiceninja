@@ -182,17 +182,28 @@ class CheckoutComPaymentDriver extends BaseDriver
             $state['payment_response'] = $response;
 
             if ($response->status === 'Authorized') {
+                
+               $this->confirmGatewayFee($request);
+
                 return $this->processSuccessfulPayment($state);
             }
 
             if ($response->status === 'Pending') {
+
+                $this->confirmGatewayFee($request);
+
                 return $this->processPendingPayment($state);
             }
 
             if ($response->status === 'Declined') {
+                $this->unWindGatewayFees($request->payment_hash);
+
                 return $this->processUnsuccessfulPayment($state);
             }
         } catch (CheckoutHttpException $e) {
+
+            $this->unWindGatewayFees($request->payment_hash);
+
             return $this->processInternallyFailedPayment($e, $state);
         }
     }
@@ -253,7 +264,7 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $payment = $this->createPayment($data, Payment::STATUS_PENDING);
 
-        $this->attachInvoices($payment, $state['hashed_ids']);
+        $this->attachInvoices($payment, $state['payment_hash']);
 
         $payment->service()->updateInvoicePayment();
 
@@ -269,9 +280,16 @@ class CheckoutComPaymentDriver extends BaseDriver
         try {
             return redirect($state['payment_response']->_links['redirect']['href']);
         } catch (\Exception $e) {
+
             SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client);
 
-            throw new \Exception('Failed to process the payment.', 1);
+            $this->unWindGatewayFees($state['payment_hash']);
+                
+            return render('gateways.unsuccessful', [
+                'code' => $state['payment_response']->response_code,
+                'message' => ctrans('texts.payment_error'),
+            ]);
+
         }
     }
 
@@ -290,6 +308,7 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         return render('gateways.unsuccessful', [
             'code' => $state['payment_response']->response_code,
+            'message' => ctrans('texts.payment_error'),
         ]);
     }
 
@@ -308,7 +327,12 @@ class CheckoutComPaymentDriver extends BaseDriver
         
         //todo push to a error page with the exception message.
         
-        throw new \Exception('Failed to process the payment.', 1);
+        //throw new \Exception('Failed to process the payment.', 1);
+
+       return render('gateways.unsuccessful', [
+            'code' => '500',
+            'message' => ctrans('texts.payment_error'),
+        ]);
     }
 
     public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment

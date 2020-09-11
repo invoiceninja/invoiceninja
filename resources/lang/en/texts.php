@@ -3268,4 +3268,5 @@ return [
     'no_items_selected' => 'No items selected.',
 
     'payment_due' => 'Payment due',
+    'account_balance' => 'Account balance',
 ];
