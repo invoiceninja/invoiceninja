@@ -592,11 +592,15 @@ trait MakesInvoiceValues
 
         foreach ($items as $key => $item) {
             if ($table_type == '$product' && $item->type_id != 1) {
-                continue;
+                if ($item->type_id != 4) {
+                    continue;
+                } 
             }
 
             if ($table_type == '$task' && $item->type_id != 2) {
-                continue;
+                if ($item->type_id != 4) {
+                    continue;
+                } 
             }
 
             $data[$key][$table_type.'.product_key'] = $item->product_key;
