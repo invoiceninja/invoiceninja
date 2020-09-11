@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -108,10 +109,11 @@ class HtmlEngine
         $data['$invoice.due_date'] = &$data['$due_date'];
         $data['$invoice.number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
         $data['$invoice.po_number'] = ['value' => $this->entity->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
-        $data['$line_taxes'] = ['value' => $this->makeLineTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
-        $data['$invoice.line_taxes'] = &$data['$line_taxes'];
-        $data['$total_taxes'] = ['value' => $this->makeTotalTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
-        $data['$invoice.total_taxes'] = &$data['$total_taxes'];
+        // $data['$line_taxes'] = ['value' => $this->makeLineTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
+        // $data['$invoice.line_taxes'] = &$data['$line_taxes'];
+        
+        // $data['$total_taxes'] = ['value' => $this->makeTotalTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
+        // $data['$invoice.total_taxes'] = &$data['$total_taxes'];
 
         if ($this->entity_string == 'invoice') {
             $data['$entity'] = ['value' => '', 'label' => ctrans('texts.invoice')];
