@@ -13,6 +13,12 @@
                 margin: 1cm;
             }
 
+            p {
+                margin: 0;
+                padding: 0;
+                page-break-after: always;
+            }
+
             body {
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
@@ -171,9 +177,9 @@
 
         <div id="product-table-footer" cellspacing="0"></div>
     </body>
-    
-    <footer id="footer">
-        <p class="thanks-label">$thanks_label!</p>
-        <hr class="double-border" />
-    </footer>
+
+    <p class="thanks-label">$thanks_label!</p>
+    <hr class="double-border" />
+
+    <div id="footer"></div>
 </html>
