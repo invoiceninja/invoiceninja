@@ -22,10 +22,6 @@
                 <input wire:model="status" value="overdue" type="checkbox" class="cursor-pointer form-checkbox" id="overdue-checkbox">
                 <label for="overdue-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.overdue') }}</label>
             </div>
-            <div class="mr-3">
-                <input wire:model="status" value="gateway_fees" type="checkbox" class="cursor-pointer form-checkbox" id="gateway-fees-checkbox">
-                <label for="gateway-fees-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.gateway_fees') }}</label>
-            </div>
         </div>
     </div>
     <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
