@@ -68,7 +68,6 @@
                 margin-top: 1rem;
                 padding: 1rem;
                 border-top: 1px solid #009e90;
-                border-bottom: 1px solid #009e90;
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;
@@ -77,6 +76,10 @@
                 margin-top: 1rem;
                 padding: 1rem;
                 border-top: 1px solid #009e90;
+            }
+
+            .contact-wrapper-left-side,
+            .contact-wrapper-right-side {
                 border-bottom: 1px solid #009e90;
             }
 
@@ -117,10 +120,14 @@
                 text-align: right;
             }
 
+            #product-table-footer {
+                page-break-inside: avoid;
+            }
+
             #product-table-footer > * {
                 display: grid;
                 grid-template-columns: 3fr 1fr 1fr;
-                padding-top: 1rem;
+                padding-top: 0.5rem;
                 padding-left: 1rem;
                 gap: 20px;
             }
@@ -164,7 +171,7 @@
         </div>
 
         <div class="contacts-wrapper">
-            <div>
+            <div class="contact-wrapper-left-side">
                 <p class="contact-label">$to_label:</p>
                 <div class="company-info">
                     <div id="company-details"></div>
@@ -172,9 +179,8 @@
                 </div>
             </div>
 
-            <div>
+            <div class="contact-wrapper-right-side">
                 <p class="contact-label">$from_label:</p>
-
                 <div id="client-details"></div>
             </div>
         </div>
