@@ -14,6 +14,7 @@ namespace App\Services\PdfMaker;
 
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
+use App\Utils\Number;
 use App\Utils\Traits\MakesInvoiceValues;
 use Illuminate\Support\Str;
 
@@ -23,6 +24,9 @@ class Design extends BaseDesign
 
     /** @var App\Models\Invoice || @var App\Models\Quote */
     public $entity;
+
+    /** @var App\Models\Client */
+    public $client;
 
     /** Global state of the design, @var array */
     public $context;
@@ -243,15 +247,41 @@ class Design extends BaseDesign
         }
 
         foreach ($variables as $variable) {
-            if ($variable == '$total_taxes' || $variable == '$line_taxes') {
-                continue;
-            }
+            if ($variable == '$total_taxes') {
+                $taxes = $this->entity->calc()->getTotalTaxMap();
 
-            $elements[] = ['element' => 'div', 'elements' => [
-                ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
-                ['element' => 'span', 'content' => $variable . '_label'],
-                ['element' => 'span', 'content' => $variable],
-            ]];
+                if (!$taxes) {
+                    continue;
+                }
+
+                foreach ($taxes as $tax) {
+                    $elements[] = ['element' => 'div', 'elements' => [
+                        ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
+                        ['element' => 'span', 'content', 'content' => $tax['name']],
+                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->context['client'])],
+                    ]];
+                }
+            } elseif ($variable == '$line_taxes') {
+                $taxes = $this->entity->calc()->getTaxMap();
+
+                if (!$taxes) {
+                    continue;
+                }
+
+                foreach ($taxes as $tax) {
+                    $elements[] = ['element' => 'div', 'elements' => [
+                        ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
+                        ['element' => 'span', 'content', 'content' => $tax['name']],
+                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->context['client'])],
+                    ]];
+                }
+            } else {
+                $elements[] = ['element' => 'div', 'elements' => [
+                    ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
+                    ['element' => 'span', 'content' => $variable . '_label'],
+                    ['element' => 'span', 'content' => $variable],
+                ]];
+            }
         }
 
         return $elements;
