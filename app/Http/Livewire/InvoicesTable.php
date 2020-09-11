@@ -5,7 +5,6 @@ namespace App\Http\Livewire;
 use App\Models\Invoice;
 use App\Utils\Traits\WithSorting;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -57,27 +56,6 @@ class InvoicesTable extends Component
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('status_id', '<>', Invoice::STATUS_DRAFT)
             ->paginate($this->per_page);
-
-        if (in_array('gateway_fees', $this->status)) {
-            $transformed = $query
-                ->getCollection()
-                ->filter(function ($invoice) {
-                    $invoice['line_items'] = collect($invoice->line_items)
-                        ->filter(function ($item) {
-                            return $item->type_id == '4' || $item->type_id == 4;
-                        });
-
-                    return count($invoice['line_items']);
-                });
-
-            $query = new \Illuminate\Pagination\LengthAwarePaginator(
-                $transformed,
-                $transformed->count(),
-                $query->perPage(),
-                $query->currentPage(),
-                ['path' => request()->url(), 'query' => ['page' => $query->currentPage()]]
-            );
-        }
 
         return render('components.livewire.invoices-table', [
             'invoices' => $query,
