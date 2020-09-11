@@ -158,6 +158,8 @@ class CheckoutComPaymentDriver extends BaseDriver
             'reference' => $request->payment_hash,
         ];
 
+        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
+
         $state = array_merge($state, $request->all());
         $state['store_card'] = boolval($state['store_card']);
 
@@ -196,13 +198,13 @@ class CheckoutComPaymentDriver extends BaseDriver
             }
 
             if ($response->status === 'Declined') {
-                $this->unWindGatewayFees($request->payment_hash);
+                $this->unWindGatewayFees($payment_hash);
 
                 return $this->processUnsuccessfulPayment($state);
             }
         } catch (CheckoutHttpException $e) {
 
-            $this->unWindGatewayFees($request->payment_hash);
+            $this->unWindGatewayFees($payment_hash);
 
             return $this->processInternallyFailedPayment($e, $state);
         }
