@@ -16,7 +16,6 @@
             p {
                 margin: 0;
                 padding: 0;
-                page-break-after: always;
             }
 
             body {
@@ -112,11 +111,15 @@
                 padding-bottom: 1rem;
                 border-bottom: 4px solid;
             }
+            
+            #product-table-footer {
+                page-break-inside: avoid;
+            }
 
             #product-table-footer > * {
                 display: grid;
                 grid-template-columns: 3fr 1fr 1fr;
-                padding-top: 1rem;
+                padding-top: .5rem;
                 padding-left: 1rem;
                 gap: 20px;
             }
