@@ -201,6 +201,14 @@ class InvoiceService
         return $this;
     }
 
+    public function updateStatus()
+    {
+        if($this->invoice->balance == 0)
+            $this->setStatus(Invoice::STATUS_PAID);
+
+        return $this;
+    }
+
     public function toggleFeesPaid()
     {
         $this->invoice->line_items = collect($this->invoice->line_items)
