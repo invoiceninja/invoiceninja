@@ -234,9 +234,9 @@ class Design extends BaseDesign
             $variable = sprintf('%s%s', '$', $property);
 
             if (
-                !is_null($this->entity->{$property}) ||
-                !empty($this->entity->{$property}) ||
-                $this->entity->{$property} !== 0
+                !is_null($this->entity->{$property}) &&
+                !empty($this->entity->{$property}) &&
+                $this->entity->{$property} != 0
             ) {
                 continue;
             }
