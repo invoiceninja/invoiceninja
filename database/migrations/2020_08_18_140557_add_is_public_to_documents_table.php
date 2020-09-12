@@ -69,6 +69,8 @@ class AddIsPublicToDocumentsTable extends Migration
     
         Schema::table('recurring_invoices', function (Blueprint $table) {
             $table->integer('remaining_cycles')->nullable()->change();
+            $table->dropColumn('start_date');
+            $table->integer('due_date_days')->nullable();
         });
     }
 

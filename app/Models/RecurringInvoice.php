@@ -219,7 +219,11 @@ class RecurringInvoice extends BaseModel
     {
         if ($this->remaining_cycles == 0) {
             return 0;
-        } else {
+        } 
+        else if($this->remaining_cycles == -1) {
+            return -1;
+        }
+        else {
             return $this->remaining_cycles - 1;
         }
     }
@@ -298,5 +302,43 @@ class RecurringInvoice extends BaseModel
     public function recurringDates()
     {
         //todo send back a list of the next send dates and due dates
+    
+        /* Return early if nothing to send back! */        
+        if( $this->status_id == self::STATUS_COMPLETED ||
+            $this->status_id == self::STATUS_DRAFT ||
+            $this->status_id == self::STATUS_CANCELLED ||
+            $this->remaining_cycles == 0) {
+
+            return [];
+        }
+
+        /* Endless - lets send 10 back*/
+        $iterations = $this->remaining_cycles;
+
+        if($this->remaining_cycles == -1) 
+            $iterations = 10;
+            
+            $next_send_date = $this->next_send_date;
+            $due_date_days = $this->due_date_days;
+
+            if(!$due_date_days)
+                $due_date_days = 1;
+
+            $data = [];
+
+            for($x=0; $x<$iterations; $x++)
+            {
+
+                $data[] = [
+                    'next_send_date' => $next_send_date->format('Y-m-d'), 
+                    'due_date' => $next_send_date->addDays($due_date_days)->format('Y-m-d')
+                ];
+
+            }
+
+
+            return $data;
     }
+
+
 }
