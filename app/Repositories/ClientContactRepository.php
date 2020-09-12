@@ -58,12 +58,10 @@ class ClientContactRepository extends BaseRepository
 
             $update_contact->fill($contact);
 
-            if (array_key_exists('password', $contact)) {
-                if (strlen($contact['password']) == 0) {
-                    $update_contact->password = '';
-                } else {
-                    $update_contact->password = Hash::make($contact['password']);
-                }
+            if (array_key_exists('password', $contact) && strlen($contact['password']) > 1) {
+
+                $update_contact->password = Hash::make($contact['password']);
+                
             }
 
             $update_contact->save();

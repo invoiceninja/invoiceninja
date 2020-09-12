@@ -3269,4 +3269,5 @@ return [
 
     'payment_due' => 'Payment due',
     'account_balance' => 'Account balance',
+    'password_strength' => 'Password strength too weak',
 ];

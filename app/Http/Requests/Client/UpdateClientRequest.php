@@ -81,6 +81,9 @@ class UpdateClientRequest extends Request
             'email' => ctrans('validation.email', ['attribute' => 'email']),
             'name.required' => ctrans('validation.required', ['attribute' => 'name']),
             'required' => ctrans('validation.required', ['attribute' => 'email']),
+            'contacts.*.password.min' => ctrans('texts.password_strength'),
+            'contacts.*.password.regex' => ctrans('texts.password_strength'),
+            'contacts.*.password.string' => ctrans('texts.password_strength'),
         ];
     }
 
@@ -109,11 +112,12 @@ class UpdateClientRequest extends Request
                     if (strlen($contact['password']) == 0) {
                         $input['contacts'][$key]['password'] = '';
                     } else {
-                        $contact['password'] = str_replace('*', '', $contact['password']);
+                        $input['contacts'][$key]['password'] = str_replace('*', '', $contact['password']);
 
                         if (strlen($contact['password']) == 0) {
                             unset($input['contacts'][$key]['password']);
                         }
+
                     }
                 }
             }
