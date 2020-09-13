@@ -135,6 +135,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'frequency_id' => (string) $invoice->frequency_id,
             'remaining_cycles' => (int) $invoice->remaining_cycles,
             'recurring_dates' => (array) $invoice->recurringDates(),
+            'auto_bill' => (string) $invoice->auto_bill,
         ];
     }
 }
