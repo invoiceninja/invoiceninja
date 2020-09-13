@@ -49,7 +49,6 @@ class InvoiceToRecurringInvoiceFactory
         $recurring_invoice->client_id = $invoice->client_id;
         $recurring_invoice->company_id = $invoice->company_id;
         $recurring_invoice->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
-        $recurring_invoice->start_date = null;
         $recurring_invoice->last_sent_date = null;
         $recurring_invoice->next_send_date = null;
         $recurring_invoice->remaining_cycles = 0;

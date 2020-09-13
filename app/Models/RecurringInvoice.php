@@ -11,6 +11,8 @@
 
 namespace App\Models;
 
+use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -74,6 +76,7 @@ class RecurringInvoice extends BaseModel
         'po_number',
         'date',
         'due_date',
+        'due_date_days',
         'line_items',
         'settings',
         'footer',
@@ -93,7 +96,6 @@ class RecurringInvoice extends BaseModel
         'amount',
         'partial',
         'frequency_id',
-        'start_date',
     ];
 
     protected $casts = [
@@ -176,7 +178,7 @@ class RecurringInvoice extends BaseModel
 
     public function getStatusAttribute()
     {
-        if ($this->status_id == self::STATUS_ACTIVE && $this->start_date > Carbon::now()) { //marked as active, but yet to fire first cycle
+        if ($this->status_id == self::STATUS_ACTIVE && $this->next_send_date > Carbon::now()) { //marked as active, but yet to fire first cycle
             return self::STATUS_PENDING;
         } elseif ($this->status_id == self::STATUS_ACTIVE && $this->next_send_date > Carbon::now()) {
             return self::STATUS_COMPLETED;
@@ -215,11 +217,47 @@ class RecurringInvoice extends BaseModel
         }
     }
 
+    public function nextDateByFrequency($date)
+    {
+
+        switch ($this->frequency_id) {
+            case self::FREQUENCY_WEEKLY:
+                return Carbon::parse($date->addWeek());
+            case self::FREQUENCY_TWO_WEEKS:
+                return Carbon::parse($date->addWeeks(2));
+            case self::FREQUENCY_FOUR_WEEKS:
+                return Carbon::parse($date->addWeeks(4));
+            case self::FREQUENCY_MONTHLY:
+                return Carbon::parse($date->addMonthNoOverflow());
+            case self::FREQUENCY_TWO_MONTHS:
+                return Carbon::parse($date->addMonthsNoOverflow(2));
+            case self::FREQUENCY_THREE_MONTHS:
+                return Carbon::parse($date->addMonthsNoOverflow(3));
+            case self::FREQUENCY_FOUR_MONTHS:
+                return Carbon::parse($date->addMonthsNoOverflow(4));
+            case self::FREQUENCY_SIX_MONTHS:
+                return Carbon::parse($date->addMonthsNoOverflow(6));
+            case self::FREQUENCY_ANNUALLY:
+                return Carbon::parse($date->addYear());
+            case self::FREQUENCY_TWO_YEARS:
+                return Carbon::parse($date->addYears(2));
+            case self::FREQUENCY_THREE_YEARS:
+                return Carbon::parse($date->addYears(3));
+            default:
+                return null;
+        }
+
+    }
+
     public function remainingCycles() : int
     {
         if ($this->remaining_cycles == 0) {
             return 0;
-        } else {
+        } 
+        else if($this->remaining_cycles == -1) {
+            return -1;
+        }
+        else {
             return $this->remaining_cycles - 1;
         }
     }
@@ -295,8 +333,75 @@ class RecurringInvoice extends BaseModel
         }
     }
 
+    public function calc()
+    {
+        $invoice_calc = null;
+
+        if ($this->uses_inclusive_taxes) {
+            $invoice_calc = new InvoiceSumInclusive($this);
+        } else {
+            $invoice_calc = new InvoiceSum($this);
+        }
+
+        return $invoice_calc->build();
+    }
+
+    /* 
+     * Important to note when playing with carbon dates - in order 
+     * not to modify the original instance, always use a `->copy()`
+     * 
+     */
     public function recurringDates()
     {
-        //todo send back a list of the next send dates and due dates
+    info($this->next_send_date);
+        /* Return early if nothing to send back! */        
+        if( $this->status_id == self::STATUS_COMPLETED ||
+            $this->status_id == self::STATUS_DRAFT ||
+            $this->status_id == self::STATUS_CANCELLED ||
+            $this->remaining_cycles == 0 ||
+            !$this->next_send_date) {
+
+            return [];
+        }
+
+        /* Endless - lets send 10 back*/
+        $iterations = $this->remaining_cycles;
+
+        if($this->remaining_cycles == -1) 
+            $iterations = 10;
+            
+        $data = [];
+
+        $next_send_date = Carbon::parse($this->next_send_date)->copy();
+
+        for($x=0; $x<$iterations; $x++)
+        {
+
+            $next_due_date = $next_send_date->copy()->addDays($this->due_date_days);
+
+            $next_send_date = Carbon::parse($next_send_date);
+            $next_due_date = Carbon::parse($next_due_date);
+
+            $data[] = [
+                'next_send_date' => $next_send_date->format('Y-m-d'), 
+                'due_date' => $next_due_date->format('Y-m-d'),
+            ];
+
+            $next_send_date = $this->nextDateByFrequency($next_send_date);        
+
+        }
+
+        /*If no due date is set - unset the due_date value */
+        if(!$this->due_date_days || $this->due_date_days == 0){
+            
+            foreach($data as $key => $value)
+                $data[$key]['due_date'] = '';
+
+        }
+
+        return $data;
+    
     }
+
+
 }

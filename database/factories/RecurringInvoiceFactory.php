@@ -25,9 +25,8 @@ $factory->define(App\Models\RecurringInvoice::class, function (Faker $faker) {
         'due_date' => $faker->date(),
         'line_items' => false,
         'frequency_id' => App\Models\RecurringInvoice::FREQUENCY_MONTHLY,
-        'start_date' => $faker->date(),
-        'last_sent_date' => $faker->date(),
-        'next_send_date' => $faker->date(),
+        'last_sent_date' => now()->subMonth(),
+        'next_send_date' => now()->addMonthNoOverflow(),
         'remaining_cycles' => $faker->numberBetween(1, 10),
         'amount' => $faker->randomFloat(2, $min = 1, $max = 1000), // 48.8932
 

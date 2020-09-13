@@ -133,8 +133,8 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'line_items' => $invoice->line_items ?: (array) [],
             'entity_type' => 'recurring_invoice',
             'frequency_id' => (string) $invoice->frequency_id,
-            'start_date' => $invoice->start_date ?: '',
             'remaining_cycles' => (int) $invoice->remaining_cycles,
+            'recurring_dates' => (array) $invoice->recurringDates(),
         ];
     }
 }

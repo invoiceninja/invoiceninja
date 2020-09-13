@@ -101,5 +101,6 @@ class StoreRecurringInvoiceRequest extends Request
 
     public function messages()
     {
+        return [];
     }
 }
