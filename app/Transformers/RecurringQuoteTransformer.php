@@ -118,7 +118,6 @@ class RecurringQuoteTransformer extends EntityTransformer
             'custom_text_value2' => $quote->custom_text_value2 ?: '',
             'settings' => $quote->settings ?: '',
             'frequency_id' => (int) $quote->frequency_id,
-            'start_date' => $quote->start_date ?: '',
             'last_sent_date' => $quote->last_sent_date ?: '',
             'next_send_date' => $quote->next_send_date ?: '',
             'remaining_cycles' => (int) $quote->remaining_cycles,

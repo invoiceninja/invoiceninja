@@ -47,7 +47,6 @@ class RecurringQuoteFactory
         $quote->user_id = $user_id;
         $quote->company_id = $company_id;
         $quote->frequency_id = RecurringQuote::FREQUENCY_MONTHLY;
-        $quote->start_date = null;
         $quote->last_sent_date = null;
         $quote->next_send_date = null;
         $quote->remaining_cycles = 0;

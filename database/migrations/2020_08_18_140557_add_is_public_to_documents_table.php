@@ -71,6 +71,7 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->integer('remaining_cycles')->nullable()->change();
             $table->dropColumn('start_date');
             $table->integer('due_date_days')->nullable();
+            $table->date('partial_due_date')->nullable();
         });
     }
 

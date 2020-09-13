@@ -77,7 +77,7 @@ class RecurringQuote extends BaseModel
         'custom_value4',
         'amount',
         'frequency_id',
-        'start_date',
+        'due_date_days',
     ];
 
     protected $touches = [];
