@@ -131,7 +131,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'custom_surcharge_tax3' => (bool) $invoice->custom_surcharge_tax3,
             'custom_surcharge_tax4' => (bool) $invoice->custom_surcharge_tax4,
             'line_items' => $invoice->line_items ?: (array) [],
-            'entity_type' => 'recurring_invoice',
+            'entity_type' => 'recurringInvoice',
             'frequency_id' => (string) $invoice->frequency_id,
             'remaining_cycles' => (int) $invoice->remaining_cycles,
             'recurring_dates' => (array) $invoice->recurringDates(),

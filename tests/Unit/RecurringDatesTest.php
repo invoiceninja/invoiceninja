@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 namespace Tests\Unit;
 
 use App\Factory\CloneQuoteToInvoiceFactory;
@@ -52,7 +60,7 @@ class RecurringDatesTest extends TestCase
         $recurring_invoice->status_id = RecurringInvoice::STATUS_PENDING;
         $recurring_invoice->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
         $recurring_invoice->remaining_cycles = 5;
-        $recurring_invoice->due_date_days = 5;
+        $recurring_invoice->due_date_days = '5';
         $recurring_invoice->next_send_date = now();
 
         $recurring_invoice->save();

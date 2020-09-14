@@ -353,7 +353,7 @@ class RecurringInvoice extends BaseModel
      */
     public function recurringDates()
     {
-    info($this->next_send_date);
+
         /* Return early if nothing to send back! */        
         if( $this->status_id == self::STATUS_COMPLETED ||
             $this->status_id == self::STATUS_DRAFT ||
@@ -401,6 +401,42 @@ class RecurringInvoice extends BaseModel
 
         return $data;
     
+    }
+
+
+    private function calculateDueDate($terms, $date) 
+    {
+
+        switch ($terms) {
+            case 'client_terms':
+                return $this->calculateDateFromTerms($date);
+                break;
+            case 'first_of_month':
+                return $this->calculateFirstDayOfMonth($date);
+                break;
+            case 'last_of_month':
+                break;
+            default:
+                return $this->setDayOfMonth($date, $terms);
+                break;
+        }
+    }
+
+    /**
+     * Calculates a date based on the client payment terms.
+     * 
+     * @param  Carbon $date A given date
+     * @return NULL|Carbon  The date
+     */
+    public function calculateDateFromTerms($date) 
+    {
+
+        $client_payment_terms = $this->client->getSetting('payment_terms');
+
+        if($client_payment_terms == '')//no due date! return null;
+            return null;
+
+        return $date->copy()->addDays($client_payment_terms); //add the number of days in the payment terms to the date
     }
 
 
