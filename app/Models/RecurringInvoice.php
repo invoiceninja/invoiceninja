@@ -16,6 +16,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Recurring\HasRecurrence;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -29,6 +30,8 @@ class RecurringInvoice extends BaseModel
     use SoftDeletes;
     use Filterable;
     use MakesDates;
+    use HasRecurrence;
+
     /**
      * Invoice Statuses.
      */
@@ -353,7 +356,7 @@ class RecurringInvoice extends BaseModel
      */
     public function recurringDates()
     {
-    info($this->next_send_date);
+
         /* Return early if nothing to send back! */        
         if( $this->status_id == self::STATUS_COMPLETED ||
             $this->status_id == self::STATUS_DRAFT ||
@@ -387,7 +390,7 @@ class RecurringInvoice extends BaseModel
                 'due_date' => $next_due_date->format('Y-m-d'),
             ];
 
-            $next_send_date = $this->nextDateByFrequency($next_send_date);        
+            $next_send_date = $this->calculateDueDate($next_send_date);        
 
         }
 
@@ -401,6 +404,37 @@ class RecurringInvoice extends BaseModel
 
         return $data;
     
+    }
+
+
+    private function calculateDueDate($date) 
+    {
+
+        switch ($this->due_date_days) {
+            case 'terms':
+                return $this->calculateDateFromTerms($date);
+                break;
+            default:
+                return $this->setDayOfMonth($date, $this->due_date_days);
+                break;
+        }
+    }
+
+    /**
+     * Calculates a date based on the client payment terms.
+     * 
+     * @param  Carbon $date A given date
+     * @return NULL|Carbon  The date
+     */
+    public function calculateDateFromTerms($date) 
+    {
+
+        $client_payment_terms = $this->client->getSetting('payment_terms');
+
+        if($client_payment_terms == '')//no due date! return null;
+            return null;
+
+        return $date->copy()->addDays($client_payment_terms); //add the number of days in the payment terms to the date
     }
 
 
