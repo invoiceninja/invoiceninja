@@ -44,11 +44,11 @@ class MailRouter extends BaseMailerJob implements ShouldQueue
 
     public $to_user; //User or ClientContact
 
-    public $sending_method;
+    public $sending_method; //not sure if we even need this
 
     public $settings;
 
-    public function __construct(Mailable $mailable, Company $company, $to_user, string $sending_method)
+    public function __construct(Mailable $mailable, Company $company, $to_user, $sending_method = null)
     {
         $this->mailable = $mailable;
 
