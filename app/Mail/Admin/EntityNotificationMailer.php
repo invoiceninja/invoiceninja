@@ -35,7 +35,7 @@ class EntityNotificationMailer extends Mailable
      */
     public function build()
     {
-        return $this->from($this->mail_obj->from[0], $this->mail_obj->from[1]) //todo
+        return $this->from($this->mail_obj->from[0], $this->mail_obj->from[1])
                     ->subject($this->mail_obj->subject)
                     ->markdown($this->mail_obj->markdown, $this->mail_obj->data)
                     ->withSwiftMessage(function ($message) {

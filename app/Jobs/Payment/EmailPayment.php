@@ -7,6 +7,7 @@ use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Helpers\Email\BuildEmail;
+use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
@@ -21,7 +22,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
-class EmailPayment implements ShouldQueue
+class EmailPayment extends BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -52,6 +53,13 @@ class EmailPayment implements ShouldQueue
     public function handle()
     {
         if ($this->contact->email) {
+
+            MultiDB::setDb($this->payment->company->db); //this may fail if we don't pass the serialized object with the company record
+            //todo fix!!
+
+            //if we need to set an email driver do it now
+            $this->setMailDriver();
+
             Mail::to($this->contact->email, $this->contact->present()->name())
                 ->send(new TemplateEmail($this->email_builder, $this->contact->user, $this->contact->customer));
 

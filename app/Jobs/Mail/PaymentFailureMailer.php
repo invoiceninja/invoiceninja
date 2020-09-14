@@ -61,6 +61,8 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
 
         $this->amount = $amount;
 
+        $this->company = $company;
+
         $this->settings = $client->getMergedSettings();
     }
 
@@ -71,7 +73,6 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        info('entity payment failure mailer');
         //Set DB
         MultiDB::setDb($this->company->db);
 

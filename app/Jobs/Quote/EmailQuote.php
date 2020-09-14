@@ -6,6 +6,7 @@ use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Quote\QuoteWasEmailed;
 use App\Events\Quote\QuoteWasEmailedAndFailed;
+use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
@@ -20,7 +21,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
-class EmailQuote implements ShouldQueue
+class EmailQuote extends BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -28,15 +29,19 @@ class EmailQuote implements ShouldQueue
 
     public $email_builder;
 
+    public $company;
+
+    public $settings;
     /**
      * EmailQuote constructor.
      * @param BuildEmail $email_builder
      * @param QuoteInvitation $quote_invitation
      */
-    public function __construct($email_builder, QuoteInvitation $quote_invitation)
+    public function __construct($email_builder, QuoteInvitation $quote_invitation, Company $company)
     {
         $this->quote_invitation = $quote_invitation;
         $this->email_builder = $email_builder;
+        $this->company = $company;
     }
 
     /**
@@ -47,6 +52,12 @@ class EmailQuote implements ShouldQueue
      */
     public function handle()
     {
+        MultiDB::setDb($this->company->db);
+
+        $this->settings = $this->quote_invitation->contact->client->getMergedSettings();
+
+        $this->setMailDriver();
+
         Mail::to($this->quote_invitation->contact->email, $this->quote_invitation->contact->present()->name())
             ->send(
                 new TemplateEmail(

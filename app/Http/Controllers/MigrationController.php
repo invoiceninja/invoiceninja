@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use App\Console\Commands\ImportMigrations;
 use App\DataMapper\CompanySettings;
+use App\Jobs\Mail\MailRouter;
 use App\Jobs\Util\StartMigration;
 use App\Mail\ExistingMigration;
 use App\Models\Company;
@@ -245,7 +246,7 @@ class MigrationController extends BaseController
         if ($checks['same_keys'] && ! $checks['with_force']) {
             info('Migrating: Same company keys, no force provided.');
 
-            Mail::to($user)->send(new ExistingMigration());
+            MailRouter::dispatch(new ExistingMigration(), $company, $user);
 
             return response()->json([
                 '_id' => Str::uuid(),
@@ -258,7 +259,7 @@ class MigrationController extends BaseController
         if (! $checks['same_keys'] && $checks['existing_company'] && ! $checks['with_force']) {
             info('Migrating: Different keys, existing company with the key without the force option.');
 
-            Mail::to($user)->send(new ExistingMigration());
+            MailRouter::dispatch(new ExistingMigration(), $company, $user);
 
             return response()->json([
                 '_id' => Str::uuid(),
