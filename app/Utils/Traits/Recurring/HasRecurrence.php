@@ -12,6 +12,7 @@
 namespace App\Utils\Traits\Recurring;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 trait HasRecurrence
 {
@@ -39,7 +40,7 @@ trait HasRecurrence
     public function calculateLastDayOfMonth($date)
     {
         if($date->isLastOfMonth())
-            return $date->copy()->endOfMonth()->addMonthNoOverflow();
+            return $date->copy()->addMonthNoOverflow()->endOfMonth();
 
         return $date->copy()->endOfMonth();
     }
@@ -50,13 +51,19 @@ trait HasRecurrence
      * @param Carbon $date              The start date
      * @param String|Int $day_of_month  The day of the month
      */
-    public function setDateOfMonth($date, $day_of_month)
+    public function setDayOfMonth($date, $day_of_month)
     {
 
         $set_date = $date->copy()->setUnitNoOverflow('day', $day_of_month, 'month');
 
-        if($set_date->isPast())
-            return $set_date->addMonthNoOverflow();
+        //If the set date is less than the original date we need to add a month.
+        //If we are overflowing dates, then we need to diff the dates and ensure it doesn't equal 0
+        if($set_date->lte($date) || $set_date->diffInDays($date) == 0)
+            $set_date->addMonthNoOverflow();
+
+        if($day_of_month == '31')
+            $set_date->endOfMonth();
+
 
         return $set_date;
     }

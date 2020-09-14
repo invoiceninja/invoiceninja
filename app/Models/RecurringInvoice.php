@@ -16,6 +16,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Recurring\HasRecurrence;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -29,6 +30,8 @@ class RecurringInvoice extends BaseModel
     use SoftDeletes;
     use Filterable;
     use MakesDates;
+    use HasRecurrence;
+
     /**
      * Invoice Statuses.
      */
@@ -387,7 +390,7 @@ class RecurringInvoice extends BaseModel
                 'due_date' => $next_due_date->format('Y-m-d'),
             ];
 
-            $next_send_date = $this->nextDateByFrequency($next_send_date);        
+            $next_send_date = $this->calculateDueDate($next_send_date);        
 
         }
 
@@ -404,20 +407,15 @@ class RecurringInvoice extends BaseModel
     }
 
 
-    private function calculateDueDate($terms, $date) 
+    private function calculateDueDate($date) 
     {
 
-        switch ($terms) {
-            case 'client_terms':
+        switch ($this->due_date_days) {
+            case 'terms':
                 return $this->calculateDateFromTerms($date);
                 break;
-            case 'first_of_month':
-                return $this->calculateFirstDayOfMonth($date);
-                break;
-            case 'last_of_month':
-                break;
             default:
-                return $this->setDayOfMonth($date, $terms);
+                return $this->setDayOfMonth($date, $this->due_date_days);
                 break;
         }
     }
