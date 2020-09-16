@@ -13,6 +13,8 @@
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
                 font-family: Arial, Helvetica, sans-serif;
+                margin: 0;
+                padding: 0;
             }
 
             p {
@@ -29,7 +31,7 @@
                 padding: 1.5rem;
             }
             .header-container .company-name {
-                font-size: 2.5rem;
+                font-size: 2rem;
             }
 
             #entity-details {
@@ -92,15 +94,17 @@
             }
 
             .footer-wrapper {
+                margin-top: 1rem;
+                background-color: #f46521;
+                padding: 1rem;
+            }
+
+            .footer-content {
                 display: grid;
                 gap: 15px;
                 width: 100%;
-                padding: 1.5rem;
                 grid-template-columns: 1fr 1fr 1fr;
-                background-color: #f46521;
                 color: #fff4e9;
-                margin-right: 1rem;
-                margin-top: 1rem;
             }
 
             #company-address,
@@ -122,7 +126,7 @@
             #product-table-footer > * {
                 display: grid;
                 grid-template-columns: 3fr 1fr 1fr;
-                margin-top: .5rem;
+                margin-top: 0.5rem;
                 margin-right: 1.5rem;
                 margin-left: 1.5rem;
             }
@@ -175,14 +179,12 @@
         <div id="product-table-footer" cellspacing="0"></div>
     </body>
 
-    <div class="footer-wrapper">
-        <div>
-            <!-- Placeholder for offset -->
+    <div class="footer-wrapper" id="footer">
+        <div class="footer-content">
+            <div><!-- Placeholder for offset --></div>
+
+            <div id="company-details"></div>
+            <div id="company-address"></div>
         </div>
-
-        <div id="company-details"></div>
-        <div id="company-address"></div>
     </div>
-
-    <div id="footer"></div>
 </html>

@@ -161,7 +161,7 @@ trait DesignHelpers
 
     public function sharedFooterElements()
     {
-        return ['element' => 'div', 'properties' => ['style' => 'display: flex; justify-content: space-between; margin-top: 1.5rem'], 'elements' => [
+        return ['element' => 'div', 'properties' => ['style' => 'display: flex; justify-content: space-between; margin-top: 1.5rem; page-break-inside: avoid;'], 'elements' => [
             ['element' => 'img', 'properties' => ['src' => '$contact.signature', 'style' => 'height: 5rem;']],
             ['element' => 'img', 'properties' => ['src' => '$app_url/images/created-by-invoiceninja-new.png', 'style' => 'height: 5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false']],
         ]];
