@@ -136,6 +136,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'remaining_cycles' => (int) $invoice->remaining_cycles,
             'recurring_dates' => (array) $invoice->recurringDates(),
             'auto_bill' => (string) $invoice->auto_bill,
+            'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
             'due_date_days' => (string) $invoice->due_date_days ?: '',
         ];
     }

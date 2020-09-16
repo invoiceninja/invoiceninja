@@ -45,27 +45,27 @@ class Kernel extends ConsoleKernel
     {
 
         //$schedule->job(new RecurringInvoicesCron)->hourly();
-        $schedule->job(new VersionCheck)->daily();
+        $schedule->job(new VersionCheck)->daily()->withoutOverlapping();
 
-        $schedule->command('ninja:check-data')->daily();
+        $schedule->command('ninja:check-data')->daily()->withoutOverlapping();
 
-        $schedule->job(new ReminderJob)->daily();
+        $schedule->job(new ReminderJob)->daily()->withoutOverlapping();
 
-        $schedule->job(new CompanySizeCheck)->daily();
+        $schedule->job(new CompanySizeCheck)->daily()->withoutOverlapping();
 
-        $schedule->job(new UpdateExchangeRates)->daily();
+        $schedule->job(new UpdateExchangeRates)->daily()->withoutOverlapping();
 
-        $schedule->job(new RecurringInvoicesCron)->hourly();
+        $schedule->job(new RecurringInvoicesCron)->hourly()->withoutOverlapping();
 
         /* Run hosted specific jobs */
         if (Ninja::isHosted()) {
-            $schedule->job(new AdjustEmailQuota())->daily();
-            $schedule->job(new SendFailedEmails())->daily();
+            $schedule->job(new AdjustEmailQuota())->daily()->withoutOverlapping();
+            $schedule->job(new SendFailedEmails())->daily()->withoutOverlapping();
         }
         /* Run queue's in shared hosting with this*/
         if (Ninja::isSelfHost()) {
             $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
-            $schedule->command('queue:restart')->everyFiveMinutes(); //we need to add this as we are seeing cached queues mess up the system on first load.
+            $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping(); //we need to add this as we are seeing cached queues mess up the system on first load.
         }
     }
 

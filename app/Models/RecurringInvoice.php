@@ -99,6 +99,8 @@ class RecurringInvoice extends BaseModel
         'amount',
         'partial',
         'frequency_id',
+        'next_send_date',
+        'remaining_cycles',
     ];
 
     protected $casts = [

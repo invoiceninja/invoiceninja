@@ -48,7 +48,8 @@ class AddIsPublicToDocumentsTable extends Migration
         });
 
         Schema::table('recurring_invoices', function ($table) {
-            $table->boolean('auto_bill')->default(0);
+            $table->string('auto_bill')->default('off');
+            $table->boolean('auto_bill_enabled')->default(0);
             $table->unsignedInteger('design_id')->nullable();
             $table->boolean('uses_inclusive_taxes')->default(0);
             $table->string('custom_surcharge1')->nullable();
