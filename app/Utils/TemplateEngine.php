@@ -88,12 +88,23 @@ class TemplateEngine
     private function setTemplates()
     {
         if (strlen($this->subject) == 0 && strlen($this->template) > 1) {
+
             $subject_template = str_replace('template', 'subject', $this->template);
-            $this->subject = EmailTemplateDefaults::getDefaultTemplate($subject_template, $this->settings_entity->locale());
+
+            if(strlen($this->settings_entity->getSetting($subject_template)) > 1)
+                $this->subject = $this->settings_entity->getSetting($subject_template);
+            else
+                $this->subject = EmailTemplateDefaults::getDefaultTemplate($subject_template, $this->settings_entity->locale());
+
         }
 
         if (strlen($this->body) == 0 && strlen($this->template) > 1) {
-            $this->body = EmailTemplateDefaults::getDefaultTemplate($this->template, $this->settings_entity->locale());
+
+            if(strlen($this->settings_entity->getSetting($this->template)) > 1)
+                $this->body = $this->settings_entity->getSetting($this->template);
+            else
+                $this->body = EmailTemplateDefaults::getDefaultTemplate($this->template, $this->settings_entity->locale());
+
         }
 
         return $this;
@@ -131,9 +142,12 @@ class TemplateEngine
     private function entityValues($contact)
     {
         $data = $this->entity_obj->buildLabelsAndValues($contact);
+        // $arrKeysLength = array_map('strlen', array_keys($data));
+        // array_multisort($arrKeysLength, SORT_DESC, $data);
 
         $this->body = strtr($this->body, $data['labels']);
         $this->body = strtr($this->body, $data['values']);
+        $this->body = str_replace("\n", "<br>", $this->body);
 
         $this->subject = strtr($this->subject, $data['labels']);
         $this->subject = strtr($this->subject, $data['values']);
