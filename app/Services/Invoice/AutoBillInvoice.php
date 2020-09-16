@@ -46,7 +46,7 @@ class AutoBillInvoice extends AbstractService
         $this->invoice = $this->invoice->service()->markSent()->save();
 
         if ($this->invoice->balance > 0) {
-            $gateway_token = $this->getGateway($this->invoice->balance);
+            $gateway_token = $this->getGateway($this->invoice->balance); //todo what if it is only a partial amount?
         } else {
             return $this->invoice->service()->markPaid()->save();
         }

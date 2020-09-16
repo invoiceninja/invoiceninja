@@ -31,13 +31,15 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->public_notes = $recurring_invoice->public_notes;
         $invoice->private_notes = $recurring_invoice->private_notes;
         $invoice->date = date_create()->format($client->date_format());
-        $invoice->due_date = $recurring_invoice->due_date; //todo calculate based on terms
+        $invoice->due_date = $recurring_invoice->calculateDueDate($recurring_invoice->next_send_date);
         $invoice->is_deleted = $recurring_invoice->is_deleted;
         $invoice->line_items = $recurring_invoice->line_items;
         $invoice->tax_name1 = $recurring_invoice->tax_name1;
         $invoice->tax_rate1 = $recurring_invoice->tax_rate1;
         $invoice->tax_name2 = $recurring_invoice->tax_name2;
         $invoice->tax_rate2 = $recurring_invoice->tax_rate2;
+        $invoice->tax_name3 = $recurring_invoice->tax_name3;
+        $invoice->tax_rate3 = $recurring_invoice->tax_rate3;
         $invoice->custom_value1 = $recurring_invoice->custom_value1;
         $invoice->custom_value2 = $recurring_invoice->custom_value2;
         $invoice->custom_value3 = $recurring_invoice->custom_value3;
@@ -45,10 +47,12 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->amount = $recurring_invoice->amount;
         $invoice->balance = $recurring_invoice->balance;
         $invoice->user_id = $recurring_invoice->user_id;
+        $invoice->assigned_user_id = $recurring_invoice->assigned_user_id;
         $invoice->company_id = $recurring_invoice->company_id;
         $invoice->recurring_id = $recurring_invoice->id;
         $invoice->client_id = $client->id;
-        
+        $invoice->auto_bill_enabled = $recurring_invoice->auto_bill_enabled;
+
         return $invoice;
     }
 }
