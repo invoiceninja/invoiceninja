@@ -15,6 +15,7 @@ use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Events\User\UserEmailAddressChangedNewEmail;
 use App\Events\User\UserEmailAddressChangedOldEmail;
+use App\Events\User\UserWasCreated;
 use App\Factory\UserFactory;
 use App\Filters\UserFilters;
 use App\Http\Controllers\Traits\VerifiesUserEmail;
@@ -203,6 +204,8 @@ class UserController extends BaseController
         $user_agent = request()->input('token_name') ?: request()->server('HTTP_USER_AGENT');
 
         $ct = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
+
+        event(new UserWasCreated($user, $company, Ninja::eventVars()));
 
         return $this->itemResponse($user->fresh());
     }

@@ -17,6 +17,7 @@ use App\Factory\CompanyUserFactory;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 /**
@@ -24,6 +25,8 @@ use Illuminate\Http\Request;
  */
 class UserRepository extends BaseRepository
 {
+    use MakesHash;
+
     /**
      * Gets the class name.
      *
@@ -66,6 +69,10 @@ class UserRepository extends BaseRepository
         }
 
         $user->fill($details);
+
+        if(!$user->confirmation_code)
+            $user->confirmation_code = $this->createDbHash(config('database.default'));
+
         $user->account_id = $account->id;
         $user->save();
 

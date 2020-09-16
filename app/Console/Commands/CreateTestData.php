@@ -329,7 +329,7 @@ class CreateTestData extends Command
                 'company_id' => $company->id,
             ]);
 
-        $this->count = $this->count * 100;
+        $this->count = $this->count * 10;
 
         $this->info('Creating '.$this->count.' clients');
 

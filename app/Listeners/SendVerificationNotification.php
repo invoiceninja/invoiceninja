@@ -50,7 +50,11 @@ class SendVerificationNotification implements ShouldQueue
             $event->user->notify(new VerifyUser($event->user));
 
             Ninja::registerNinjaUser($event->user);
+
         } catch (\Exception $e) {
+            
+            info("I couldn't send the email " . $e->getMessage());
+
         }
     }
 }

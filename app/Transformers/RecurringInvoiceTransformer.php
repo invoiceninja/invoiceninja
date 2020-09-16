@@ -85,7 +85,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'assigned_user_id' => $this->encodePrimaryKey($invoice->assigned_user_id),
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
-            'client_id' => (string) $invoice->client_id,
+            'client_id' => (string) $this->encodePrimaryKey($invoice->client_id),
             'vendor_id' => (string) $this->encodePrimaryKey($invoice->vendor_id),
             'status_id' => (string) ($invoice->status_id ?: 1),
             'design_id' => (string) $this->encodePrimaryKey($invoice->design_id),
@@ -136,6 +136,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'remaining_cycles' => (int) $invoice->remaining_cycles,
             'recurring_dates' => (array) $invoice->recurringDates(),
             'auto_bill' => (string) $invoice->auto_bill,
+            'due_date_days' => (string) $invoice->due_date_days ?: '',
         ];
     }
 }
