@@ -161,10 +161,11 @@ trait DesignHelpers
 
     public function sharedFooterElements()
     {
-        return ['element' => 'div', 'properties' => ['style' => 'display: flex; justify-content: space-between; margin-top: 1.5rem; page-break-inside: avoid;'], 'elements' => [
-            ['element' => 'img', 'properties' => ['src' => '$contact.signature', 'style' => 'height: 5rem;']],
-            ['element' => 'img', 'properties' => ['src' => '$app_url/images/created-by-invoiceninja-new.png', 'style' => 'height: 5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false']],
-        ]];
+        // return ['element' => 'div', 'properties' => ['style' => 'display: flex; justify-content: space-between; margin-top: 1.5rem; page-break-inside: avoid;'], 'elements' => [
+        //     ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false']],
+        // ]];
+
+        return ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 3rem; position: fixed; bottom: 0; left: 0; padding: 5px; margin: 5px;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']];
     }
 
     public function entityVariableCheck(string $variable): bool
