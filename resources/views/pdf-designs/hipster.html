@@ -9,11 +9,6 @@
                 font-size: '$font-size';
             }
 
-            @page {
-                margin: 1cm;
-            }
-
-            
             p {
                 margin: 0;
                 padding: 0;
@@ -25,11 +20,14 @@
                 font-family: Arial, Helvetica, sans-serif;
             }
 
+            @page { margin: 1cm; }
+
             .header-wrapper {
                 display: grid;
                 grid-template-columns: 1.2fr 1.8fr;
                 gap: 20px;
             }
+            
             .header-wrapper .header-text-label {
                 font-size: 1.1rem;
                 color: #bba238;
@@ -124,7 +122,7 @@
             #product-table-footer > * {
                 display: grid;
                 grid-template-columns: 3fr 1fr 1fr;
-                padding-top: .5rem;
+                padding-top: 0.5rem;
                 padding-left: 1rem;
                 gap: 20px;
             }
