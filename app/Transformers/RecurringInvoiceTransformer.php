@@ -11,8 +11,12 @@
 
 namespace App\Transformers;
 
+use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
+use App\Models\RecurringInvoiceInvitation;
+use App\Transformers\DocumentTransformer;
+use App\Transformers\RecurringInvoiceInvitationTransformer;
 use App\Utils\Traits\MakesHash;
 
 class RecurringInvoiceTransformer extends EntityTransformer
@@ -20,14 +24,15 @@ class RecurringInvoiceTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
-    //    'invoice_items',
+        'invitations',
+        'documents',
     ];
 
     protected $availableIncludes = [
-    //    'invitations',
+        'invitations',
+        'documents',
     //    'payments',
     //    'client',
-    //    'documents',
     ];
 
     /*
@@ -58,25 +63,21 @@ class RecurringInvoiceTransformer extends EntityTransformer
 
             return $this->includeItem($invoice->client, $transformer, ENTITY_CLIENT);
         }
-
-        public function includeExpenses(Invoice $invoice)
-        {
-            $transformer = new ExpenseTransformer($this->account, $this->serializer);
-
-            return $this->includeCollection($invoice->expenses, $transformer, ENTITY_EXPENSE);
-        }
-
-        public function includeDocuments(Invoice $invoice)
-        {
-            $transformer = new DocumentTransformer($this->account, $this->serializer);
-
-            $invoice->documents->each(function ($document) use ($invoice) {
-                $document->setRelation('invoice', $invoice);
-            });
-
-            return $this->includeCollection($invoice->documents, $transformer, ENTITY_DOCUMENT);
-        }
     */
+    public function includeInvitations(RecurringInvoice $invoice)
+    {
+        $transformer = new RecurringInvoiceInvitationTransformer($this->serializer);
+
+        return $this->includeCollection($invoice->invitations, $transformer, RecurringInvoiceInvitation::class);
+    }
+
+    public function includeDocuments(RecurringInvoice $invoice)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+
+        return $this->includeCollection($invoice->documents, $transformer, Document::class);
+    }
+    
     public function transform(RecurringInvoice $invoice)
     {
         return [

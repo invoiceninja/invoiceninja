@@ -181,6 +181,11 @@ class RecurringInvoice extends BaseModel
         $this->morphMany(RecurringInvoiceInvitation::class);
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+    
     public function getStatusAttribute()
     {
         if ($this->status_id == self::STATUS_ACTIVE && $this->next_send_date > Carbon::now()) { //marked as active, but yet to fire first cycle
