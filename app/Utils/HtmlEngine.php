@@ -317,6 +317,8 @@ class HtmlEngine
 
         $data['$font-size'] = ['value' => $this->settings->font_size . 'px', 'label' => ''];
 
+        $data['$invoiceninja.whitelabel'] = ['value' => asset('images/created-by-invoiceninja-new.png'), 'label' => ''];
+
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label3']              = ['value' => '', 'label' => ctrans('texts.')];
