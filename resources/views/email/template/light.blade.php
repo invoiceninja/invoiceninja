@@ -1,10 +1,10 @@
-@component('email.template.master', ['design' => 'light'])
+@component('email.template.master', ['design' => 'light', 'settings' => $settings])
 
 @slot('header')
     @component('email.components.header', ['p' => $body, 'logo' => 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png'])
         
         @if(isset($title))
-        {{$title}}
+            {{$title}}
         @endif
 
     @endcomponent
