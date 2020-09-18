@@ -19,6 +19,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
@@ -82,17 +83,12 @@ class CreateQuotePdf implements ShouldQueue
         $quote_design_id = $this->quote->design_id ? $this->quote->design_id : $this->decodePrimaryKey($this->quote->client->getSetting('quote_design_id'));
 
         $design = Design::find($quote_design_id);
-
         $html = new HtmlEngine(null, $this->invitation, 'quote');
 
-        $design_namespace = 'App\Services\PdfMaker\Designs\\'.$design->name;
-
-        $design_class = new $design_namespace();
-
-        $pdf_variables = json_decode(json_encode($this->quote->company->settings->pdf_variables), 1);
+        $template = new PdfMakerDesign(strtolower($design->name));
 
         $state = [
-            'template' => $design_class->elements([
+            'template' => $template->elements([
                 'client' => $this->quote->client,
                 'entity' => $this->quote,
                 'pdf_variables' => (array) $this->quote->company->settings->pdf_variables,
@@ -107,7 +103,7 @@ class CreateQuotePdf implements ShouldQueue
         $maker = new PdfMakerService($state);
 
         $maker
-            ->design($design_namespace)
+            ->design($template)
             ->build();
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
