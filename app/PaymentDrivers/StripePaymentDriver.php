@@ -49,9 +49,13 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public $can_authorise_credit_card = true;
 
+    /** @var \Stripe\StripeClient */
+    protected $stripe;
+
     protected $customer_reference = 'customerReferenceParam';
 
     protected $payment_method;
+
 
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
@@ -81,6 +85,10 @@ class StripePaymentDriver extends BasePaymentDriver
      */
     public function init(): void
     {
+        $this->stripe = new \Stripe\StripeClient(
+            $this->company_gateway->getConfigField('apiKey')
+        );
+
         Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
     }
 
@@ -313,36 +321,40 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function refund(Payment $payment, $amount)
     {
-        $this->gateway();
+        $this->init();
 
-        $response = $this->gateway
-            ->refund(['transactionReference' => $payment->transaction_reference, 'amount' => $amount, 'currency' => $payment->client->getCurrencyCode()])
-            ->send();
+        $response = $this->stripe
+            ->refunds
+            ->create(['charge' => $payment->transaction_reference, 'amount' => $amount]);
 
-        if ($response->isSuccessful()) {
-            SystemLogger::dispatch([
-                'server_response' => $response->getMessage(), 'data' => request()->all(),
+        // $response = $this->gateway
+        //     ->refund(['transactionReference' => $payment->transaction_reference, 'amount' => $amount, 'currency' => $payment->client->getCurrencyCode()])
+        //     ->send();
+
+        info($response);
+
+        if ($response->status == $response::STATUS_SUCCEEDED) {
+            SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),
             ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client);
 
             return [
-                'transaction_reference' => $response->getData()['id'],
-                'transaction_response' => json_encode($response->getData()),
-                'success' => $response->getData()['refunded'],
-                'description' => $response->getData()['description'],
-                'code' => $response->getCode(),
+                'transaction_reference' => $response->charge,
+                'transaction_response' => json_encode($response),
+                'success' => $response->status == $response::STATUS_SUCCEEDED ? true : false,
+                'description' => $response->metadata,
+                'code' => $response,
             ];
         }
 
-        SystemLogger::dispatch([
-            'server_response' => $response->getMessage(), 'data' => request()->all(),
+        SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),
         ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
 
         return [
             'transaction_reference' => null,
-            'transaction_response' => json_encode($response->getData()),
+            'transaction_response' => json_encode($response),
             'success' => false,
-            'description' => $response->getData()['error']['message'],
-            'code' => $response->getData()['error']['code'],
+            'description' => $response->failure_reason,
+            'code' => 422,
         ];
     }
 
