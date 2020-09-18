@@ -48,7 +48,8 @@ class AddIsPublicToDocumentsTable extends Migration
         });
 
         Schema::table('recurring_invoices', function ($table) {
-            $table->boolean('auto_bill')->default(0);
+            $table->string('auto_bill')->default('off');
+            $table->boolean('auto_bill_enabled')->default(0);
             $table->unsignedInteger('design_id')->nullable();
             $table->boolean('uses_inclusive_taxes')->default(0);
             $table->string('custom_surcharge1')->nullable();
@@ -59,19 +60,40 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->boolean('custom_surcharge_tax2')->default(false);
             $table->boolean('custom_surcharge_tax3')->default(false);
             $table->boolean('custom_surcharge_tax4')->default(false);
+            $table->integer('remaining_cycles')->nullable()->change();
+            $table->dropColumn('start_date');
+            $table->string('due_date_days')->nullable();
+            $table->date('partial_due_date')->nullable();
 
             $table->decimal('exchange_rate', 13, 6)->default(1);
+        });
+
+        Schema::table('invoices', function ($table) {
+            $table->boolean('auto_bill_enabled')->default(0);
         });
 
         Schema::table('companies', function ($table) {
             $table->enum('default_auto_bill', ['off', 'always', 'optin', 'optout'])->default('off');
         });
     
-        Schema::table('recurring_invoices', function (Blueprint $table) {
-            $table->integer('remaining_cycles')->nullable()->change();
-            $table->dropColumn('start_date');
-            $table->string('due_date_days')->nullable();
-            $table->date('partial_due_date')->nullable();
+        Schema::create('recurring_invoice_invitations', function ($t) {
+            $t->increments('id');
+            $t->unsignedInteger('company_id');
+            $t->unsignedInteger('user_id');
+            $t->unsignedInteger('client_contact_id');
+            $t->unsignedInteger('recurring_invoice_id')->index();
+            $t->string('key')->index();
+
+            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade')->onUpdate('cascade');
+            $t->foreign('recurring_invoice_id')->references('id')->on('recurring_invoices')->onDelete('cascade')->onUpdate('cascade');
+            $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
+
+            $t->timestamps(6);
+            $t->softDeletes('deleted_at', 6);
+
+            $t->index(['deleted_at', 'recurring_invoice_id', 'company_id'], 'rec_co_del');
+            $t->unique(['client_contact_id', 'recurring_invoice_id'], 'cli_rec');
         });
     }
 

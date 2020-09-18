@@ -135,6 +135,7 @@ trait MakesTemplateData
         $data['$country'] = ['value' => 'USA', 'label' => ctrans('texts.country')];
         $data['$email'] = ['value' => 'user@example.com', 'label' => ctrans('texts.email')];
         $data['$client_name'] = ['value' => 'Joe Denkins', 'label' => ctrans('texts.client_name')];
+        $data['$client.balance'] = ['value' => '$100', 'label' => ctrans('texts.account_balance')];
         $data['$client.name'] = &$data['$client_name'];
         $data['$client.address1'] = &$data['$address1'];
         $data['$client.address2'] = &$data['$address2'];

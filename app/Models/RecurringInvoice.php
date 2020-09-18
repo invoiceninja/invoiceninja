@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
+use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Recurring\HasRecurrence;
@@ -99,6 +100,8 @@ class RecurringInvoice extends BaseModel
         'amount',
         'partial',
         'frequency_id',
+        'next_send_date',
+        'remaining_cycles',
     ];
 
     protected $casts = [
@@ -176,9 +179,14 @@ class RecurringInvoice extends BaseModel
 
     public function invitations()
     {
-        $this->morphMany(RecurringInvoiceInvitation::class);
+        return $this->hasMany(RecurringInvoiceInvitation::class);
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+    
     public function getStatusAttribute()
     {
         if ($this->status_id == self::STATUS_ACTIVE && $this->next_send_date > Carbon::now()) { //marked as active, but yet to fire first cycle
@@ -407,7 +415,7 @@ class RecurringInvoice extends BaseModel
     }
 
 
-    private function calculateDueDate($date) 
+    public function calculateDueDate($date) 
     {
 
         switch ($this->due_date_days) {

@@ -62,7 +62,7 @@ class SendRecurring implements ShouldQueue
                            ->createInvitations()
                            ->save();
 
-       $invoice->invitations->each(function ($invitation) use ($invoice) {
+        $invoice->invitations->each(function ($invitation) use ($invoice) {
 
             $email_builder = (new InvoiceEmail())->build($invitation);
 
@@ -71,6 +71,9 @@ class SendRecurring implements ShouldQueue
             info("Firing email for invoice {$invoice->number}");
 
         });
+
+        if($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $this->recurring_invoice->auto_bill_enabled)
+            $invoice->service()->autoBill()->save();
 
         /* Set next date here to prevent a recurring loop forming */
         $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate()->format('Y-m-d');
@@ -85,10 +88,6 @@ class SendRecurring implements ShouldQueue
 
         if ($invoice->invitations->count() > 0) 
             event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
-
-        // Fire Payment if auto-bill is enabled
-        if ($this->recurring_invoice->auto_bill) 
-            $invoice->service()->autoBill()->save();
 
     }
 
