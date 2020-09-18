@@ -304,7 +304,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $customer = \Stripe\Customer::create($data);
         }
 
-        if (! $customer) {
+        if (!$customer) {
             throw new \Exception('Unable to create gateway customer');
         }
 
@@ -379,7 +379,7 @@ class StripePaymentDriver extends BasePaymentDriver
      * @param  float $amount The amount of the payment
      * @return Payment       The payment object
      */
-    public function createPaymentRecord($data, $amount) :?Payment
+    public function createPaymentRecord($data, $amount): ?Payment
     {
         $payment = PaymentFactory::create($this->client->company_id, $this->client->user_id);
         $payment->client_id = $this->client->id;
@@ -394,5 +394,27 @@ class StripePaymentDriver extends BasePaymentDriver
         $payment->save();
 
         return $payment->service()->applyNumber()->save();
+    }
+
+    /**
+     * Detach payment method from the Stripe.
+     * https://stripe.com/docs/api/payment_methods/detach
+     * 
+     * @param \App\Models\ClientGatewayToken $token 
+     * @return bool 
+     */
+    public function detach(ClientGatewayToken $token)
+    {
+        $stripe = new \Stripe\StripeClient(
+            $this->company_gateway->getConfigField('apiKey')
+        );
+
+        try {
+            $response = $stripe->paymentMethods->detach($token->token);
+        } catch (\Exception $e) {
+            SystemLogger::dispatch([
+                'server_response' => $response, 'data' => request()->all(),
+            ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
+        }
     }
 }
