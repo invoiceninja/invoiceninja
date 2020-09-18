@@ -39,7 +39,7 @@ class RecurringInvoicesCronTest extends TestCase
     {
         parent::setUp();
 
-        RecurringInvoice::truncate();
+        //RecurringInvoice::truncate();
 
         $this->makeTestData();
     }
