@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
+use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Recurring\HasRecurrence;
@@ -178,7 +179,7 @@ class RecurringInvoice extends BaseModel
 
     public function invitations()
     {
-        $this->morphMany(RecurringInvoiceInvitation::class);
+        return $this->hasMany(RecurringInvoiceInvitation::class);
     }
 
     public function documents()
@@ -414,7 +415,7 @@ class RecurringInvoice extends BaseModel
     }
 
 
-    private function calculateDueDate($date) 
+    public function calculateDueDate($date) 
     {
 
         switch ($this->due_date_days) {
