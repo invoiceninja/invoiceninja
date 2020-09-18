@@ -89,6 +89,7 @@ class EntityPaidObject
             'button' => ctrans('texts.view_payment'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
+            'setting' => $settings,
         ];
 
         return $data;
