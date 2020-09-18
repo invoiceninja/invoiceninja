@@ -86,7 +86,7 @@
                                 {!! App\Models\Invoice::badgeForStatus($invoice->status) !!}
                             </td>
                             <td class="flex items-center justify-end px-6 py-4 text-sm font-medium leading-5 whitespace-no-wrap">
-                                @if($invoice->isPayable())
+                                @if($invoice->isPayable() && $invoice->balance > 0)
                                     <form action="{{ route('client.invoices.bulk') }}" method="post">
                                         @csrf
                                         <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">

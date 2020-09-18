@@ -87,7 +87,7 @@ class InvoiceController extends Controller
         $total = $invoices->sum('balance');
 
         $invoices = $invoices->filter(function ($invoice) {
-            return $invoice->isPayable();
+            return $invoice->isPayable() && $invoice->balance > 0;
         });
 
         if ($invoices->count() == 0) {
