@@ -37,6 +37,8 @@ class TemplateEngine
 
     private $settings_entity;
 
+    private $settings;
+
     public function __construct($body, $subject, $entity, $entity_id, $template)
     {
         $this->body = $body;
@@ -77,8 +79,10 @@ class TemplateEngine
     {
         if ($this->entity_obj) {
             $this->settings_entity = $this->entity_obj->client;
+            $this->settings = $this->settings_entity->getMergedSettings();
         } else {
             $this->settings_entity = auth()->user()->company();
+            $this->settings = $this->settings_entity->settings;
         }
 
         return $this;
@@ -168,6 +172,7 @@ class TemplateEngine
         $data['body'] = '$body';
         $data['footer'] = '';
         $data['signature'] = $this->settings_entity->getSetting('email_signature');
+        $data['settings'] = $this->settings;
 
         if ($email_style == 'custom') {
             $wrapper = $this->settings_entity->getSetting('email_style_custom');
