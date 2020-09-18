@@ -143,4 +143,15 @@ class AuthorizePaymentDriver extends BaseDriver
 
         return $this->payment_method->tokenBilling($cgt, $payment_hash);
     }
+
+    /**
+     * Detach payment method from Authorize.net.
+     * 
+     * @param \App\Models\ClientGatewayToken $token 
+     * @return void 
+     */
+    public function detach(ClientGatewayToken $token)
+    {
+        // Authorize.net doesn't support this feature.
+    }
 }

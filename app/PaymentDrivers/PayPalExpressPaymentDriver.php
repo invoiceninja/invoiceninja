@@ -322,4 +322,15 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
             'code' => $response->getData()['L_ERRORCODE0'],
         ];
     }
+
+    /**
+     * Detach payment method from PayPal.
+     * 
+     * @param \App\Models\ClientGatewayToken $token 
+     * @return void 
+     */
+    public function detach(ClientGatewayToken $token)
+    {
+        // PayPal doesn't support this feature.
+    }
 }
