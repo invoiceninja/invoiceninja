@@ -358,9 +358,6 @@ class DemoMode extends Command
 
     private function createInvoice($client, $assigned_user_id = null)
     {
-        // for($x=0; $x<$this->count; $x++){
-        //     dispatch(new CreateTestInvoiceJob($client));
-        // }
 
         $faker = \Faker\Factory::create();
 

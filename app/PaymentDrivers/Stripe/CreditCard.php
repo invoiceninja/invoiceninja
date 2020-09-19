@@ -61,10 +61,10 @@ class CreditCard
         $stripe_payment_method->attach(['customer' => $customer->id]);
 
         $payment_meta = new \stdClass;
-        $payment_meta->exp_month = $stripe_payment_method_obj['card']['exp_month'];
-        $payment_meta->exp_year = $stripe_payment_method_obj['card']['exp_year'];
-        $payment_meta->brand = $stripe_payment_method_obj['card']['brand'];
-        $payment_meta->last4 = $stripe_payment_method_obj['card']['last4'];
+        $payment_meta->exp_month = (string)$stripe_payment_method_obj['card']['exp_month'];
+        $payment_meta->exp_year = (string)$stripe_payment_method_obj['card']['exp_year'];
+        $payment_meta->brand = (string)$stripe_payment_method_obj['card']['brand'];
+        $payment_meta->last4 = (string)$stripe_payment_method_obj['card']['last4'];
         $payment_meta->type = GatewayType::CREDIT_CARD;
 
         $client_gateway_token = new ClientGatewayToken();

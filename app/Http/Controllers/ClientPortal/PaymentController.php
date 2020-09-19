@@ -73,12 +73,6 @@ class PaymentController extends Controller
      */
     public function process()
     {
-        //REFACTOR - Here the request will contain an array of invoices and the amount to be charged for the invoice
-        //REFACTOR - At this point, we will also need to modify the invoice to include a line item for a gateway fee if applicable
-        //           This is tagged with a type_id of 3 which is for a pending gateway fee.
-        //REFACTOR - In order to preserve state we should save the array of invoices and amounts and store it in db/cache and use a HASH
-        //           to rehydrate these values in the payment response.
-        // dd(request()->all());
 
         $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
         /*find invoices*/
