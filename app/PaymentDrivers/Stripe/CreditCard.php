@@ -163,19 +163,19 @@ class CreditCard
         $payment_method_object = $state['payment_method']->jsonSerialize();
 
         $state['payment_meta'] = [
-            'exp_month' => $payment_method_object['card']['exp_month'],
-            'exp_year' => $payment_method_object['card']['exp_year'],
-            'brand' => $payment_method_object['card']['brand'],
-            'last4' => $payment_method_object['card']['last4'],
-            'type' => $payment_method_object['type'],
+            'exp_month' => (string)$payment_method_object['card']['exp_month'],
+            'exp_year' => (string)$payment_method_object['card']['exp_year'],
+            'brand' => (string)$payment_method_object['card']['brand'],
+            'last4' => (string)$payment_method_object['card']['last4'],
+            'type' => GatewayType::CREDIT_CARD,
         ];
 
         $payment_meta = new \stdClass;
-        $payment_meta->exp_month = $payment_method_object['card']['exp_month'];
-        $payment_meta->exp_year = $payment_method_object['card']['exp_year'];
-        $payment_meta->brand = $payment_method_object['card']['brand'];
-        $payment_meta->last4 = $payment_method_object['card']['last4'];
-        $payment_meta->type = $payment_method_object['type'];
+        $payment_meta->exp_month = (string)$payment_method_object['card']['exp_month'];
+        $payment_meta->exp_year = (string)$payment_method_object['card']['exp_year'];
+        $payment_meta->brand = (string)$payment_method_object['card']['brand'];
+        $payment_meta->last4 = (string)$payment_method_object['card']['last4'];
+        $payment_meta->type = GatewayType::CREDIT_CARD;
 
         $payment_type = PaymentType::parseCardType($payment_method_object['card']['brand']);
 
