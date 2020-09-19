@@ -114,6 +114,7 @@ class PaymentRepository extends BaseRepository
 
             $payment->invoices()->saveMany($invoices);
 
+            //todo optimize this into a single query
             foreach ($data['invoices'] as $paid_invoice) {
                 $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
 
@@ -133,6 +134,7 @@ class PaymentRepository extends BaseRepository
             $credits = Credit::whereIn('id', $this->transformKeys(array_column($data['credits'], 'credit_id')))->get();
             $payment->credits()->saveMany($credits);
 
+            //todo optimize into a single query
             foreach ($data['credits'] as $paid_credit) {
                 $credit = Credit::find($this->decodePrimaryKey($paid_credit['credit_id']));
 
