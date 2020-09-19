@@ -206,6 +206,9 @@ class InvoiceService
         if($this->invoice->balance == 0)
             $this->setStatus(Invoice::STATUS_PAID);
 
+        if($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount)
+            $this->setStatus(Invoice::STATUS_PARTIAL);
+        
         return $this;
     }
 
