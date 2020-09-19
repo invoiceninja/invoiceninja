@@ -14,6 +14,7 @@ namespace App\Services\Payment;
 use App\Factory\PaymentFactory;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Services\Payment\ApplyNumber;
 use App\Services\Payment\DeletePayment;
 use App\Services\Payment\RefundPayment;
@@ -84,7 +85,7 @@ class PaymentService
         return (new DeletePayment($this->payment))->run();
     }
 
-    public function updateInvoicePayment($payment_hash = null) :?Payment
+    public function updateInvoicePayment(PaymentHash $payment_hash) :?Payment
     {
         return ((new UpdateInvoicePayment($this->payment, $payment_hash)))->run();
     }

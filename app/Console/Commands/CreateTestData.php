@@ -12,7 +12,6 @@
 namespace App\Console\Commands;
 
 use App\Console\Commands\TestData\CreateTestCreditJob;
-use App\Console\Commands\TestData\CreateTestInvoiceJob;
 use App\Console\Commands\TestData\CreateTestQuoteJob;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
@@ -463,9 +462,6 @@ class CreateTestData extends Command
 
     private function createInvoice($client)
     {
-        // for($x=0; $x<$this->count; $x++){
-        //     dispatch(new CreateTestInvoiceJob($client));
-        // }
 
         $faker = \Faker\Factory::create();
 

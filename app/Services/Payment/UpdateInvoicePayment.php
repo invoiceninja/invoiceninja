@@ -16,6 +16,8 @@ use App\Helpers\Email\PaymentEmail;
 use App\Jobs\Payment\EmailPayment;
 use App\Jobs\Util\SystemLogger;
 use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -28,7 +30,7 @@ class UpdateInvoicePayment
 
     public $payment_hash;
 
-    public function __construct($payment, $payment_hash)
+    public function __construct(Payment $payment, PaymentHash $payment_hash)
     {
         $this->payment = $payment;
         $this->payment_hash = $payment_hash;
@@ -41,6 +43,7 @@ class UpdateInvoicePayment
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
 
         collect($paid_invoices)->each(function ($paid_invoice) use ($invoices) {
+            
             $invoice = $invoices->first(function ($inv) use ($paid_invoice) {
                 return $paid_invoice->invoice_id == $inv->hashed_id;
             });
@@ -68,7 +71,7 @@ class UpdateInvoicePayment
 
             /*update paymentable record*/
             $pivot_invoice->pivot->amount = $paid_amount;
-            $pivot_invoice->save();
+            $pivot_invoice->pivot->save();
 
             $invoice->service() //caution what if we amount paid was less than partial - we wipe it!
                 ->clearPartial()

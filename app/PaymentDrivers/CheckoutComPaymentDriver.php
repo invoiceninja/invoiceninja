@@ -268,7 +268,7 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $this->attachInvoices($payment, $state['payment_hash']);
 
-        $payment->service()->updateInvoicePayment();
+        $payment->service()->updateInvoicePayment($state['payment_hash']);
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 

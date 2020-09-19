@@ -54,7 +54,8 @@ class ValidInvoicesRules implements Rule
         }
 
         $unique_array = [];
-
+        
+        //todo optimize this into a single query
         foreach ($this->input['invoices'] as $invoice) {
             $unique_array[] = $invoice['invoice_id'];
 

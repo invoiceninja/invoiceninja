@@ -1,4 +1,4 @@
-@component('email.template.master', ['design' => 'light'])
+@component('email.template.master', ['design' => 'light', 'settings' =>$settings])
 
 @slot('header')
     @component('email.components.header', ['p' => '', 'logo' => $url])
