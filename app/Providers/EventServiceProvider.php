@@ -225,6 +225,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasPaid::class => [
            InvoicePaidActivity::class,
+           CreateInvoicePdf::class,
         ],
         InvoiceWasViewed::class => [
             InvoiceViewedActivity::class,
@@ -238,6 +239,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasDeleted::class => [
             InvoiceDeletedActivity::class,
+            CreateInvoicePdf::class,
         ],
         InvoiceWasArchived::class => [
             InvoiceArchivedActivity::class,
@@ -247,6 +249,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasReversed::class => [
             InvoiceReversedActivity::class,
+            CreateInvoicePdf::class,
         ],
         InvoiceWasCancelled::class => [
             InvoiceCancelledActivity::class,

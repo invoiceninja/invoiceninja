@@ -84,6 +84,8 @@ class EntitySentObject
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
+            'settings' => $settings,
+
         ];
     }
 }
