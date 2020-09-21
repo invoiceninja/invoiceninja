@@ -84,12 +84,31 @@
                             </button>
                         </div>
                     @else
-                        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 flex items-center">
-                            <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
+                        <div class="{{ ($gateway->company_gateway->token_billing == 'optin' || $gateway->company_gateway->token_billing == 'optout') ? 'sm:grid' : 'hidden' }} bg-gray-50 px-4 py-5 sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm leading-5 font-medium text-gray-500">
                                 {{ ctrans('texts.token_billing_checkbox') }}
                             </dt>
                             <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                <input type="checkbox" id="store-card-checkbox" class="form-checkbox">
+                                <label class="mr-4">
+                                    <input 
+                                        type="radio"
+                                        class="form-radio cursor-pointer" 
+                                        name="token-billing-checkbox" 
+                                        id="proxy_is_default"
+                                        value="true"
+                                        {{ ($gateway->company_gateway->token_billing == 'always' || $gateway->company_gateway->token_billing == 'optout') ? 'checked' : '' }} />
+                                    <span class="ml-1 cursor-pointer">{{ ctrans('texts.yes') }}</span>
+                                </label>
+                                <label>
+                                    <input 
+                                        type="radio" 
+                                        class="form-radio cursor-pointer" 
+                                        name="token-billing-checkbox" 
+                                        id="proxy_is_default" 
+                                        value="false"
+                                        {{ ($gateway->company_gateway->token_billing == 'off' || $gateway->company_gateway->token_billing == 'optin') ? 'checked' : '' }} />
+                                    <span class="ml-1 cursor-pointer">{{ ctrans('texts.no') }}</span>
+                                </label>
                             </dd>
                         </div>
                         <div class="bg-white px-4 py-5 flex justify-end">
