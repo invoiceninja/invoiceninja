@@ -18,6 +18,7 @@ use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
@@ -102,7 +103,7 @@ class HandleReversal extends AbstractService
             $payment->credits()->save($credit);
 
             $paymentable_credit = $payment->credits()
-                                          ->wherePaymentableType('credits')
+                                          ->wherePaymentableType(Credit::class)
                                           ->wherePaymentableId($credit->id)
                                           ->first();
 

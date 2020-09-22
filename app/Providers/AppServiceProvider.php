@@ -57,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Relation::morphMap([
             'invoices'  => \App\Models\Invoice::class,
-            'credits'   => \App\Models\Credit::class,
+          //  'credits'   => \App\Models\Credit::class,
             'proposals' => \App\Models\Proposal::class,
         ]);
 
