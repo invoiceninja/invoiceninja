@@ -29,13 +29,13 @@ class ContactKeyLogin
     public function handle($request, Closure $next)
     {
 
-info("key login = " . $request->input('contact_key'));
+info("key login = " . $request->segment(3));
 
-        if ($request->has('contact_key') && config('ninja.db.multi_db_enabled')) {
+        if ($request->segment(3) && config('ninja.db.multi_db_enabled')) {
 
-            if (MultiDB::findAndSetDbByContactKey($request->input('contact_key'))) {
+            if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
                 
-                $client_contact = ClientContact::where('contact_key', $request->input('contact_key'))->first();
+                $client_contact = ClientContact::where('contact_key', $request->segment(3))->first();
                 Auth::guard('contact')->login($client_contact, true);
                 return redirect()->to('client/dashboard');
 
@@ -44,7 +44,7 @@ info("key login = " . $request->input('contact_key'));
         } 
         else if ($request->has('contact_key')) {
 
-            if($client_contact = ClientContact::where('contact_key', $request->input('contact_key'))->first()){
+            if($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()){
                 Auth::guard('contact')->login($client_contact, true);
                 return redirect()->to('client/dashboard');
             }
