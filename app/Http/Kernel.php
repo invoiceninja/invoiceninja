@@ -117,5 +117,6 @@ class Kernel extends HttpKernel
         'contact.register' => \App\Http\Middleware\ContactRegister::class,
         'shop_token_auth' => \App\Http\Middleware\Shop\ShopTokenAuth::class,
         'phantom_secret' => \App\Http\Middleware\PhantomSecret::class,
+        'contact_key_login' => \App\Http\Middleware\ContactKeyLogin::class,
     ];
 }

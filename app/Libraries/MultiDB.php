@@ -195,6 +195,20 @@ class MultiDB
         return false;
     }
 
+    public static function findAndSetDbByContactKey($contact_key) :bool
+    {
+        foreach (self::$dbs as $db) {
+            if ($client_contact = ClientContact::on($db)->where('contact_key', $contact_key)->first()) {
+                self::setDb($client_contact->company->db);
+
+                return true;
+            }
+        }
+
+        return false;        
+    }
+
+
     public static function findAndSetDbByDomain($subdomain) :bool
     {
         foreach (self::$dbs as $db) {
