@@ -13,6 +13,7 @@ namespace App\Repositories;
 
 use App\Models\Vendor;
 use App\Models\VendorContact;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
@@ -58,8 +59,16 @@ class VendorContactRepository extends BaseRepository
 
             $update_contact->fill($contact);
 
+            if (array_key_exists('password', $contact) && strlen($contact['password']) > 1) {
+
+                $update_contact->password = Hash::make($contact['password']);
+                
+            }
+
             $update_contact->save();
         });
+
+        $vendor->load('contacts');
 
         //always made sure we have one blank contact to maintain state
         if ($contacts->count() == 0) {

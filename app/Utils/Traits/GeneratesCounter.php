@@ -13,11 +13,13 @@ namespace App\Utils\Traits;
 
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\Timezone;
+use App\Models\Vendor;
 use Illuminate\Support\Carbon;
 
 /**
@@ -238,6 +240,28 @@ trait GeneratesCounter
         return $client_number;
     }
 
+
+    /**
+     * Gets the next client number.
+     *
+     * @param      \App\Models\Vendor  $vendor    The vendor
+     * @return     string                         The next vendor number.
+     */
+    public function getNextVendorNumber(Vendor $vendor) :string
+    {
+        $this->resetCompanyCounters($vendor->company);
+
+        $counter = $vendor->company->settings->vendor_number_counter;
+        $setting_entity = $vendor->company->settings->vendor_number_counter;
+
+        $vendor_number = $this->checkEntityNumber(Vendor::class, $vendor, $counter, $vendor->company->settings->counter_padding, $vendor->company->settings->vendor_number_pattern);
+
+        $this->incrementCounter($vendor->company, 'vendor_number_counter');
+
+        return $vendor_number;
+    }
+
+
     /**
      * Determines if it has shared counter.
      *
@@ -254,33 +278,29 @@ trait GeneratesCounter
      * Checks that the number has not already been used.
      *
      * @param      Collection  $entity   The entity ie App\Models\Client, Invoice, Quote etc
-     * @param      int  $counter  The counter
-     * @param      int   $padding  The padding
+     * @param      int         $counter  The counter
+     * @param      int         $padding  The padding
      *
-     * @return     string   The padded and prefixed invoice number
+     * @return     string   The padded and prefixed entity number
      */
-    private function checkEntityNumber($class, $client, $counter, $padding, $pattern)
+    private function checkEntityNumber($class, $entity, $counter, $padding, $pattern)
     {
         $check = false;
 
         do {
             $number = $this->padCounter($counter, $padding);
 
-            $number = $this->applyNumberPattern($client, $number, $pattern);
+            $number = $this->applyNumberPattern($entity, $number, $pattern);
 
-            if ($class == Invoice::class || $class == RecurringInvoice::class) {
-                $check = $class::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->first();
-            } elseif ($class == Client::class) {
-                $check = $class::whereCompanyId($client->company_id)->whereIdNumber($number)->withTrashed()->first();
-            } elseif ($class == Credit::class) {
-                $check = $class::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->first();
-            } elseif ($class == Quote::class) {
-                $check = $class::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->first();
-            } elseif ($class == Payment::class) {
-                $check = $class::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->first();
-            }
-
+            if ($class == Invoice::class || $class == RecurringInvoice::class) 
+                $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();
+            elseif ($class == Client::class || $class == Vendor::class) 
+                $check = $class::whereCompanyId($entity->company_id)->whereIdNumber($number)->withTrashed()->first();
+            else
+                $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();
+            
             $counter++;
+
         } while ($check);
 
         return $number;
@@ -389,16 +409,74 @@ trait GeneratesCounter
         $client->company->save();
     }
 
+    private function resetCompanyCounters($company)
+    {
+        $timezone = Timezone::find($company->settings->timezone_id);
+
+        $reset_date = Carbon::parse($company->settings->reset_counter_date, $timezone->name);
+
+        if (! $reset_date->isToday() || ! $company->settings->reset_counter_date) {
+            return false;
+        }
+
+        switch ($company->reset_counter_frequency_id) {
+            case RecurringInvoice::FREQUENCY_WEEKLY:
+                $reset_date->addWeek();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+                $reset_date->addWeeks(2);
+                break;
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+                $reset_date->addWeeks(4);
+                break;
+            case RecurringInvoice::FREQUENCY_MONTHLY:
+                $reset_date->addMonth();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+                $reset_date->addMonths(2);
+                break;
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+                $reset_date->addMonths(3);
+                break;
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+                $reset_date->addMonths(4);
+                break;
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+                $reset_date->addMonths(6);
+                break;
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
+                $reset_date->addYear();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+                $reset_date->addYears(2);
+                break;
+        }
+
+        $settings = $company->settings;
+        $settings->reset_counter_date = $reset_date->format('Y-m-d');
+        $settings->invoice_number_counter = 1;
+        $settings->quote_number_counter = 1;
+        $settings->credit_number_counter = 1;
+        $settings->vendor_number_counter = 1;
+        $settings->ticket_number_counter = 1;
+        $settings->payment_number_counter = 1;
+        $settings->task_number_counter = 1;
+        $settings->expense_number_counter = 1;
+
+        $company->settings = $settings;
+        $company->save();        
+    }
+
     /**
-     * { function_description }.
+     * Formats a entity number by pattern
      *
-     * @param      \App\Models\Client  $client   The client
-     * @param      string              $counter  The counter
-     * @param      null|string             $pattern  The pattern
+     * @param      \App\Models\BaseModel  $entity   The entity object
+     * @param      string                 $counter  The counter
+     * @param      null|string            $pattern  The pattern
      *
-     * @return     string              ( description_of_the_return_value )
+     * @return     string                The formatted number pattern
      */
-    private function applyNumberPattern(Client $client, string $counter, $pattern) :string
+    private function applyNumberPattern($entity, string $counter, $pattern) :string
     {
         if (! $pattern) {
             return $counter;
@@ -417,7 +495,7 @@ trait GeneratesCounter
         $replace[] = $counter;
 
         if (strstr($pattern, '{$user_id}')) {
-            $user_id = $client->user_id ? $client->user_id : 0;
+            $user_id = $entity->user_id ? $entity->user_id : 0;
             $search[] = '{$user_id}';
             $replace[] = str_pad(($user_id), 2, '0', STR_PAD_LEFT);
         }
@@ -429,24 +507,24 @@ trait GeneratesCounter
             $search[] = $matches[0];
 
             /* The following adjusts for the company timezone - may bork tests depending on the time of day the tests are run!!!!!!*/
-            $date = Carbon::now($client->company->timezone()->name)->format($format);
+            $date = Carbon::now($entity->company->timezone()->name)->format($format);
             $replace[] = str_replace($format, $date, $matches[1]);
         }
 
         $search[] = '{$custom1}';
-        $replace[] = $client->custom_value1;
+        $replace[] = $entity->custom_value1;
 
         $search[] = '{$custom2}';
-        $replace[] = $client->custom_value2;
+        $replace[] = $entity->custom_value2;
 
         $search[] = '{$custom3}';
-        $replace[] = $client->custom_value3;
+        $replace[] = $entity->custom_value3;
 
         $search[] = '{$custom4}';
-        $replace[] = $client->custom_value4;
+        $replace[] = $entity->custom_value4;
 
         $search[] = '{$id_number}';
-        $replace[] = $client->id_number;
+        $replace[] = $entity->id_number;
 
         return str_replace($search, $replace, $pattern);
     }

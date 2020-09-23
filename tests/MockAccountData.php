@@ -65,6 +65,8 @@ trait MockAccountData
 
     public $quote;
 
+    public $vendor;
+
     public function makeTestData()
     {
 
@@ -162,6 +164,26 @@ trait MockAccountData
         $contact2 = factory(\App\Models\ClientContact::class)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
+                'company_id' => $this->company->id,
+                'send_email' => true,
+            ]);
+
+        $this->vendor = factory(\App\Models\Vendor::class)->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $vendor_contact = factory(\App\Models\VendorContact::class)->create([
+                'user_id' => $this->user->id,
+                'vendor_id' => $this->vendor->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_email' => true,
+            ]);
+
+        $vendor_contact2 = factory(\App\Models\VendorContact::class)->create([
+                'user_id' => $this->user->id,
+                'vendor_id' => $this->vendor->id,
                 'company_id' => $this->company->id,
                 'send_email' => true,
             ]);

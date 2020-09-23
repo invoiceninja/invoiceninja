@@ -36,11 +36,11 @@ class RecurringInvoice extends BaseModel
     /**
      * Invoice Statuses.
      */
-    const STATUS_DRAFT = 2;
-    const STATUS_ACTIVE = 3;
-    const STATUS_CANCELLED = 4;
+    const STATUS_DRAFT = 1;
+    const STATUS_ACTIVE = 2;
+    const STATUS_PAUSED = 3;
+    const STATUS_COMPLETED = 4;
     const STATUS_PENDING = -1;
-    const STATUS_COMPLETED = -2;
 
     /**
      * Recurring intervals //todo MAP WHEN WE MIGRATE.
@@ -102,6 +102,7 @@ class RecurringInvoice extends BaseModel
         'frequency_id',
         'next_send_date',
         'remaining_cycles',
+        'auto_bill',
     ];
 
     protected $casts = [
@@ -189,13 +190,10 @@ class RecurringInvoice extends BaseModel
     
     public function getStatusAttribute()
     {
-        if ($this->status_id == self::STATUS_ACTIVE && $this->next_send_date > Carbon::now()) { //marked as active, but yet to fire first cycle
+        if ($this->status_id == self::STATUS_ACTIVE && $this->next_send_date > Carbon::now()) 
             return self::STATUS_PENDING;
-        } elseif ($this->status_id == self::STATUS_ACTIVE && $this->next_send_date > Carbon::now()) {
-            return self::STATUS_COMPLETED;
-        } else {
+        else 
             return $this->status_id;
-        }
     }
 
     public function nextSendDate() :?Carbon
@@ -288,16 +286,16 @@ class RecurringInvoice extends BaseModel
                 return '<h4><span class="badge badge-light">'.ctrans('texts.draft').'</span></h4>';
                 break;
             case self::STATUS_PENDING:
-                return '<h4><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h4>';
+                return '<h4><span class="badge badge-primary">'.ctrans('texts.pending').'</span></h4>';
                 break;
             case self::STATUS_ACTIVE:
-                return '<h4><span class="badge badge-primary">'.ctrans('texts.partial').'</span></h4>';
+                return '<h4><span class="badge badge-primary">'.ctrans('texts.active').'</span></h4>';
                 break;
             case self::STATUS_COMPLETED:
                 return '<h4><span class="badge badge-success">'.ctrans('texts.status_completed').'</span></h4>';
                 break;
-            case self::STATUS_CANCELLED:
-                return '<h4><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h4>';
+            case self::STATUS_PAUSED:
+                return '<h4><span class="badge badge-danger">'.ctrans('texts.paused').'</span></h4>';
                 break;
             default:
                 // code...
@@ -368,7 +366,7 @@ class RecurringInvoice extends BaseModel
         /* Return early if nothing to send back! */        
         if( $this->status_id == self::STATUS_COMPLETED ||
             $this->status_id == self::STATUS_DRAFT ||
-            $this->status_id == self::STATUS_CANCELLED ||
+            $this->status_id == self::STATUS_PAUSED ||
             $this->remaining_cycles == 0 ||
             !$this->next_send_date) {
 

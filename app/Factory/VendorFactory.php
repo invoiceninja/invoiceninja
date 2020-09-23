@@ -24,13 +24,10 @@ class VendorFactory
         $vendor->name = '';
         $vendor->website = '';
         $vendor->private_notes = '';
-        $vendor->balance = 0;
-        $vendor->paid_to_date = 0;
+        $vendor->public_notes = '';
         $vendor->country_id = 4;
         $vendor->is_deleted = 0;
-
-        $vendor_contact = VendorContactFactory::create($company_id, $user_id);
-        $vendor->contacts->add($vendor_contact);
+        $vendor->vendor_hash = Str::random(40);
 
         return $vendor;
     }
