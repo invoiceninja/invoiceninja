@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Models\Filterable;
 use App\Models\VendorContact;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,7 +22,8 @@ class Vendor extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
-
+    use GeneratesCounter;
+    
     protected $fillable = [
         'name',
         'id_number',
@@ -34,6 +36,7 @@ class Vendor extends BaseModel
         'postal_code',
         'country_id',
         'private_notes',
+        'public_notes',
         'currency_id',
         'website',
         'transaction_name',
@@ -62,6 +65,12 @@ class Vendor extends BaseModel
     {
         return self::class;
     }
+
+    public function primary_contact()
+    {
+        return $this->hasMany(VendorContact::class)->where('is_primary', true);
+    }
+
 
     public function documents()
     {

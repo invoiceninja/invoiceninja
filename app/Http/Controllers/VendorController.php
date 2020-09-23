@@ -11,7 +11,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\VendorFactory;
 use App\Filters\VendorFilters;
+use App\Http\Requests\Vendor\CreateVendorRequest;
+use App\Http\Requests\Vendor\DestroyVendorRequest;
+use App\Http\Requests\Vendor\EditVendorRequest;
+use App\Http\Requests\Vendor\ShowVendorRequest;
+use App\Http\Requests\Vendor\StoreVendorRequest;
+use App\Http\Requests\Vendor\UpdateVendorRequest;
 use App\Jobs\Entity\ActionEntity;
 use App\Jobs\Util\ProcessBulk;
 use App\Jobs\Util\UploadAvatar;
@@ -31,7 +38,6 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Class VendorController.
- * @covers App\Http\Controllers\VendorController
  */
 class VendorController extends BaseController
 {
@@ -266,7 +272,7 @@ class VendorController extends BaseController
             return $request->disallowUpdate();
         }
 
-        $vendor = $this->client_repo->save($request->all(), $vendor);
+        $vendor = $this->vendor_repo->save($request->all(), $vendor);
 
         $this->uploadLogo($request->file('company_logo'), $vendor->company, $vendor);
 
@@ -359,7 +365,7 @@ class VendorController extends BaseController
      */
     public function store(StoreVendorRequest $request)
     {
-        $vendor = $this->client_repo->save($request->all(), VendorFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $vendor = $this->vendor_repo->save($request->all(), VendorFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $vendor->load('contacts', 'primary_contact');
 
@@ -485,7 +491,7 @@ class VendorController extends BaseController
 
         $vendors->each(function ($vendor, $key) use ($action) {
             if (auth()->user()->can('edit', $vendor)) {
-                $this->client_repo->{$action}($vendor);
+                $this->vendor_repo->{$action}($vendor);
             }
         });
 

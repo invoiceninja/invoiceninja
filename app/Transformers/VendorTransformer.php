@@ -76,6 +76,7 @@ class VendorTransformer extends EntityTransformer
             'name' => $vendor->name ?: '',
             'website' => $vendor->website ?: '',
             'private_notes' => $vendor->private_notes ?: '',
+            'public_notes' => $vendor->public_notes ?: '',
             'last_login' => (int) $vendor->last_login,
             'address1' => $vendor->address1 ?: '',
             'address2' => $vendor->address2 ?: '',

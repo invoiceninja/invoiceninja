@@ -3272,4 +3272,5 @@ return [
     'password_strength' => 'Password strength too weak',
 
     'thanks' => 'Thanks',
+    'paused' => 'Paused',
 ];
