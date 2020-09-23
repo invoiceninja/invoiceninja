@@ -67,6 +67,8 @@ trait MockAccountData
 
     public $vendor;
 
+    public $expense;
+
     public function makeTestData()
     {
 
@@ -151,7 +153,7 @@ trait MockAccountData
         $this->client = factory(\App\Models\Client::class)->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
-            ]);
+        ]);
 
         $contact = factory(\App\Models\ClientContact::class)->create([
                 'user_id' => $this->user->id,
@@ -159,14 +161,14 @@ trait MockAccountData
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
                 'send_email' => true,
-            ]);
+        ]);
 
         $contact2 = factory(\App\Models\ClientContact::class)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
                 'send_email' => true,
-            ]);
+        ]);
 
         $this->vendor = factory(\App\Models\Vendor::class)->create([
             'user_id' => $this->user->id,
@@ -179,14 +181,19 @@ trait MockAccountData
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
                 'send_email' => true,
-            ]);
+        ]);
 
         $vendor_contact2 = factory(\App\Models\VendorContact::class)->create([
                 'user_id' => $this->user->id,
                 'vendor_id' => $this->vendor->id,
                 'company_id' => $this->company->id,
                 'send_email' => true,
-            ]);
+        ]);
+
+        $this->expense = factory(\App\Models\Expense::class)->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
 
         // $rels = collect($contact, $contact2);
         // $this->client->setRelation('contacts', $rels);
