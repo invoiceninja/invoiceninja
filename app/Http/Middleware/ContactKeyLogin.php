@@ -29,8 +29,6 @@ class ContactKeyLogin
     public function handle($request, Closure $next)
     {
 
-info("key login = " . $request->segment(3));
-
         if ($request->segment(3) && config('ninja.db.multi_db_enabled')) {
 
             if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
