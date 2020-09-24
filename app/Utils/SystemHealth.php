@@ -66,6 +66,7 @@ class SystemHealth
             'php_version' => [
                 'minimum_php_version' => (string) self::$php_version,
                 'current_php_version' => phpversion(),
+                'current_php_cli_version' => (string) self::checkPhpCli(),
                 'is_okay' => version_compare(phpversion(), self::$php_version, '>='),
             ],
             'env_writable' => self::checkEnvWritable(),
@@ -114,6 +115,21 @@ class SystemHealth
         }
 
         return $result;
+    }
+
+    private static function checkPhpCli()
+    {
+
+        try {
+            exec('php -v', $foo, $exitCode);
+
+            if ($exitCode === 0) {
+                return empty($foo[0]) ? 'Found php cli, but no version information' : $foo[0];
+            }
+        } catch (\Exception $e) {
+            return false;
+        }
+
     }
 
     private static function extensions() :array

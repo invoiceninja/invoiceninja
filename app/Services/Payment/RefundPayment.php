@@ -72,7 +72,9 @@ class RefundPayment
     {
         if ($this->refund_data['gateway_refund'] !== false && $this->total_refund > 0) {
             if ($this->payment->company_gateway) {
+
                 $response = $this->payment->company_gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
+
 
                 if ($response['success'] == false) {
                     throw new PaymentRefundFailed();

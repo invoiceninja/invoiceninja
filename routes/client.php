@@ -19,6 +19,8 @@ Route::get('view/{entity_type}/{invitation_key}', 'ClientPortal\EntityViewContro
 Route::get('view/{entity_type}/{invitation_key}/password', 'ClientPortal\EntityViewController@password')->name('client.entity_view.password');
 Route::post('view/{entity_type}/{invitation_key}/password', 'ClientPortal\EntityViewController@handlePassword');
 
+Route::get('client/key_login/{contact_key}', 'ClientPortal\ContactHashLoginController@login')->name('client.contact_login')->middleware(['contact_key_login']);
+
 //todo implement domain DB
 Route::group(['middleware' => ['auth:contact', 'locale'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit

@@ -82,6 +82,6 @@ class SelfUpdateController extends BaseController
 
         Artisan::call('ninja:post-update');
 
-        return response()->json(['message'=>$res], 200);
+        return response()->json(['message' => ''], 200);
     }
 }

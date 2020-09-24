@@ -83,7 +83,9 @@ class InvoiceRepository extends BaseRepository
             return;
         }
 
-        $invoice->service()->handleCancellation()->save();
+        $invoice->service()->markDeleted()->handleCancellation()->save();
+
+
 
         $invoice = parent::delete($invoice);
 

@@ -17,6 +17,7 @@ use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
+use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

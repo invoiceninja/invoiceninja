@@ -306,6 +306,16 @@ trait GeneratesCounter
         return $number;
     }
 
+
+    /*Check if a number is available for use. */
+    public function checkNumberAvailable($class, $entity, $number) :bool
+    {
+        if($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first())
+            return false;
+        
+        return true;
+    }
+
     /**
      * Saves counters at both the company and client level.
      *

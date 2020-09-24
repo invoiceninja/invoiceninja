@@ -24,6 +24,7 @@ use App\Services\Invoice\CreateInvitations;
 use App\Services\Invoice\GetInvoicePdf;
 use App\Services\Invoice\HandleCancellation;
 use App\Services\Invoice\HandleReversal;
+use App\Services\Invoice\MarkInvoiceDeleted;
 use App\Services\Invoice\MarkInvoicePaid;
 use App\Services\Invoice\MarkSent;
 use App\Services\Invoice\TriggeredActions;
@@ -150,6 +151,13 @@ class InvoiceService
     public function handleCancellation()
     {
         $this->invoice = (new HandleCancellation($this->invoice))->run();
+
+        return $this;
+    }
+
+    public function markDeleted()
+    {
+        $this->invoice = (new MarkInvoiceDeleted($this->invoice))->run();
 
         return $this;
     }

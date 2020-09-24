@@ -95,9 +95,24 @@ class StoreRecurringInvoiceRequest extends Request
         }
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
-        //$input['line_items'] = json_encode($input['line_items']);
-        $this->replace($input);
-    }
+        
+    if(isset($input['auto_bill']))
+        $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
+
+    $this->replace($input);
+}
+
+private function setAutoBillFlag($auto_bill)
+{
+    if($auto_bill == 'always')
+        return true;
+
+    if($auto_bill == 'off')
+        return false;
+
+    //todo do we need to handle optin / optout here?
+    
+}
 
     public function messages()
     {
