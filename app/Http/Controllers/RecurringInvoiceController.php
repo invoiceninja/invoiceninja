@@ -496,7 +496,7 @@ class RecurringInvoiceController extends BaseController
 
         $recurring_invoices->each(function ($recurring_invoice, $key) use ($action) {
             if (auth()->user()->can('edit', $recurring_invoice)) {
-                $this->recurring_invoice_repo->{$action}($recurring_invoice);
+                $this->performAction($recurring_invoice, $action, true);
             }
         });
 
@@ -573,37 +573,55 @@ class RecurringInvoiceController extends BaseController
      */
     public function action(ActionRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice, $action)
     {
+        return $this->performAction($recurring_invoice, $action);
+    }
+
+    private function performAction(RecurringInvoice $recurring_invoice, string $action, $bulk = false)
+    {
         switch ($action) {
-            case 'clone_to_RecurringInvoice':
-          //      $recurring_invoice = CloneRecurringInvoiceFactory::create($recurring_invoice, auth()->user()->id);
-          //      return $this->itemResponse($recurring_invoice);
-                break;
-            case 'clone_to_quote':
-            //    $recurring_invoice = CloneRecurringInvoiceToQuoteFactory::create($recurring_invoice, auth()->user()->id);
-                // todo build the quote transformer and return response here
-                break;
-            case 'history':
-                // code...
-                break;
-            case 'delivery_note':
-                // code...
-                break;
-            case 'mark_paid':
-                // code...
-                break;
             case 'archive':
-                // code...
+                $this->recurring_invoice_repo->archive($recurring_invoice);
+
+                if (! $bulk) {
+                    return $this->listResponse($recurring_invoice);
+                }
+                break;
+            case 'restore':
+                $this->recurring_invoice_repo->restore($recurring_invoice);
+
+                if (! $bulk) {
+                    return $this->listResponse($recurring_invoice);
+                }
                 break;
             case 'delete':
-                // code...
+                $this->recurring_invoice_repo->delete($recurring_invoice);
+
+                if (! $bulk) {
+                    return $this->listResponse($recurring_invoice);
+                }
                 break;
             case 'email':
                 //dispatch email to queue
                 break;
+            case 'start':
+                $recurring_invoice = $recurring_invoice->service()->start()->save();
+    
+                if (! $bulk) {
+                    $this->itemResponse($recurring_invoice);
+                }
+                break;
+            case 'stop':
+                $recurring_invoice = $recurring_invoice->service()->stop()->save();
+    
+                if (! $bulk) {
+                    $this->itemResponse($recurring_invoice);
+                }
 
+                break;
             default:
                 // code...
                 break;
         }
+
     }
 }

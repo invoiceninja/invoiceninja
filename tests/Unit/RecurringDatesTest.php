@@ -20,9 +20,11 @@ use App\Models\RecurringInvoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
+use Illuminate\Support\Carbon;
 
 /**
  * @test
+ * @covers \App\Models\RecurringInvoice
  */
 class RecurringDatesTest extends TestCase
 {
@@ -92,4 +94,13 @@ class RecurringDatesTest extends TestCase
         $this->assertEquals(5, count($recurring_invoice->recurringDates()));
 
     }
+
+    public function testCompareDatesLogic()
+    {
+        $date = now()->startOfDay()->format('Y-m-d');
+
+        $this->assertTrue(Carbon::parse($date)->lte(now()->startOfDay()));
+
+    }
+
 }

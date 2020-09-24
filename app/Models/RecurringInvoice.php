@@ -15,6 +15,7 @@ use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Filterable;
 use App\Models\RecurringInvoiceInvitation;
+use App\Services\Recurring\RecurringService;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Recurring\HasRecurrence;
@@ -190,7 +191,7 @@ class RecurringInvoice extends BaseModel
     
     public function getStatusAttribute()
     {
-        if ($this->status_id == self::STATUS_ACTIVE && $this->next_send_date > Carbon::now()) 
+        if ($this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) 
             return self::STATUS_PENDING;
         else 
             return $this->status_id;
@@ -443,5 +444,12 @@ class RecurringInvoice extends BaseModel
         return $date->copy()->addDays($client_payment_terms); //add the number of days in the payment terms to the date
     }
 
+    /**
+     * Service entry points.
+     */
+    public function service() :RecurringService
+    {
+        return new RecurringService($this);
+    }
 
 }

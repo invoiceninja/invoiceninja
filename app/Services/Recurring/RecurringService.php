@@ -23,4 +23,35 @@ class RecurringService
     }
 
     //set schedules - update next_send_dates
+    
+    /**
+     * Stops a recurring invoice 
+     * 
+     * @return $this RecurringService object
+     */
+    public function stop()
+    {
+    	$this->status_id = RecurringInvoice::STATUS_PAUSED;
+
+        return $this;
+    }
+
+    public function start()
+    {
+    	//make sure next_send_date is either now or in the future else return.
+    	if(Carbon::parse($this->recurring_entity->next_send_date)->lt(now()))
+    		return $this;
+
+    	$this->status_id = RecurringInvoice::STATUS_ACTIVE;
+
+    	return $this;
+
+    }
+
+    public function save()
+    {
+    	$this->recurring_entity->save();
+
+    	return $this->recurring_entity;
+    }
 }
