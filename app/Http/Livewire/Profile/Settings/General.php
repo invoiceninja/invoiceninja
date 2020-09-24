@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire\Profile\Settings;
 
+use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 
 class General extends Component
@@ -65,7 +66,7 @@ class General extends Component
         $data = $this->validate($this->rules);
 
          if (!empty($this->password)) {
-             $this->profile->password = encrypt($this->password);
+             $this->profile->password = Hash::make($this->password);
          }
 
         $this->profile
