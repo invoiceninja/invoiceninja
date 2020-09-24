@@ -37,7 +37,7 @@ class PersonalAddress extends Component
             'city' => auth()->user('contact')->client->city,
             'state' => auth()->user('contact')->client->state,
             'postal_code' => auth()->user('contact')->client->postal_code,
-            'country_id' => optional(auth()->user('contact')->client->country)->id,
+            'country_id' => auth()->user('contact')->client->country_id,
 
             'countries' => $countries,
             'saved' => ctrans('texts.save'),
