@@ -69,11 +69,17 @@ class BaseController extends Controller
           'company.company_gateways.gateway',
           'company.clients.contacts',
           'company.clients.gateway_tokens',
+          'company.clients.documents',
           'company.products',
+          'company.products.documents',
           'company.recurring_invoices',
           'company.invoices.invitations.contact',
           'company.invoices.invitations.company',
           'company.invoices.documents',
+          'company.recurring_invoices',
+          'company.recurring_invoices.invitations.contact',
+          'company.recurring_invoices.invitations.company',
+          'company.recurring_invoices.documents',
           'company.payments.paymentables',
           'company.quotes.invitations.contact',
           'company.quotes.invitations.company',
@@ -87,6 +93,7 @@ class BaseController extends Controller
           'company.tasks',
           'company.projects',
           'company.designs',
+          'company.documents',
           'company.webhooks',
           'company.tokens_hashed',
         ];
@@ -197,10 +204,10 @@ class BaseController extends Controller
         $query->with(
           [
             'company' => function ($query) use ($updated_at) {
-                $query->whereNotNull('updated_at');
+                $query->whereNotNull('updated_at')->with('documents');
             },
             'company.clients' => function ($query) use ($updated_at) {
-                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts');
+                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts', 'gateway_tokens','documents');
             },
             'company.tax_rates' => function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at);
@@ -212,7 +219,7 @@ class BaseController extends Controller
                 $query->whereNotNull('updated_at');
             },
             'company.products' => function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at);
+                $query->where('updated_at', '>=', $updated_at)->with('documents');
             },
             'company.recurring_invoices'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at)->with('company');
@@ -220,8 +227,11 @@ class BaseController extends Controller
             'company.invoices'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at)->with('invitations', 'company', 'documents');
             },
+            'company.recurring_invoices'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'company', 'documents');
+            },
             'company.payments'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('paymentables');
+                $query->where('updated_at', '>=', $updated_at)->with('paymentables','documents');
             },
             'company.quotes'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');

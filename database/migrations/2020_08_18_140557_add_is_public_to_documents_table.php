@@ -84,9 +84,9 @@ class AddIsPublicToDocumentsTable extends Migration
             $t->unsignedInteger('recurring_invoice_id')->index();
             $t->string('key')->index();
 
+            $t->foreign('recurring_invoice_id')->references('id')->on('recurring_invoices')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade')->onUpdate('cascade');
-            $t->foreign('recurring_invoice_id')->references('id')->on('recurring_invoices')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
 
             $t->timestamps(6);
@@ -104,5 +104,7 @@ class AddIsPublicToDocumentsTable extends Migration
      */
     public function down()
     {
+        
     }
+
 }

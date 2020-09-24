@@ -75,4 +75,15 @@ class CustomPaymentDriver extends BaseDriver
     public function processPaymentResponse($request)
     {
     }
+
+    /**
+     * Detach payment method from custom payment driver.
+     * 
+     * @param \App\Models\ClientGatewayToken $token 
+     * @return void 
+     */
+    public function detach(ClientGatewayToken $token)
+    {
+        // Driver doesn't support this feature.
+    }
 }

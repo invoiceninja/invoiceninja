@@ -191,9 +191,9 @@ class ACH
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
-        $this->stripe->attachInvoices($payment, $state['hashed_ids']);
+        $this->stripe->attachInvoices($payment, $state['hashed_ids']); //todo remove hashed_ids
 
-        $payment->service()->updateInvoicePayment();
+        $payment->service()->updateInvoicePayment();//inject payment_hash
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 

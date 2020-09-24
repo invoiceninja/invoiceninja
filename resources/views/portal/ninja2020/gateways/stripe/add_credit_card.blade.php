@@ -22,7 +22,7 @@
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
                             {{ ctrans('texts.add_credit_card') }}
                         </h3>
-                        <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
+                        <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">
                             {{ ctrans('texts.authorize_for_future_use') }}
                         </p>
                     </div>
@@ -43,18 +43,30 @@
                                     <div id="card-element"></div>
                                 </dd>
                             </div>
-                            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <div class="{{ ($gateway->token_billing == 'optin' || $gateway->token_billing == 'optout') ? 'sm:grid' : 'hidden' }} bg-gray-50 px-4 py-5 sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm leading-5 font-medium text-gray-500">
-                                    {{ ctrans('texts.save_as_default') }}
+                                    {{ ctrans('texts.token_billing_checkbox') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    <label for="yes" class="mr-4">
-                                        <input type="radio" class="form-radio cursor-pointer" name="proxy_is_default" {{ $client->getSetting('auto_bill') == 'on' ? 'checked': '' }} id="proxy_is_default" value="true">
-                                        <span class="ml-1">{{ ctrans('texts.yes') }}</span>
+                                    <label class="mr-4">
+                                        <input 
+                                            type="radio"
+                                            class="form-radio cursor-pointer" 
+                                            name="token-billing-checkbox" 
+                                            id="proxy_is_default"
+                                            value="true"
+                                            {{ ($gateway->token_billing == 'always' || $gateway->token_billing == 'optout') ? 'checked' : '' }} />
+                                        <span class="ml-1 cursor-pointer">{{ ctrans('texts.yes') }}</span>
                                     </label>
-                                    <label for="no">
-                                        <input type="radio" class="form-radio cursor-pointer" name="proxy_is_default" {{ $client->getSetting('auto_bill') == 'off' ? 'checked': '' }} id="proxy_is_default" value="false">
-                                        <span class="ml-1">{{ ctrans('texts.no') }}</span>
+                                    <label>
+                                        <input 
+                                            type="radio" 
+                                            class="form-radio cursor-pointer" 
+                                            name="token-billing-checkbox" 
+                                            id="proxy_is_default" 
+                                            value="false"
+                                            {{ ($gateway->token_billing == 'off' || $gateway->token_billing == 'optin') ? 'checked' : '' }} />
+                                        <span class="ml-1 cursor-pointer">{{ ctrans('texts.no') }}</span>
                                     </label>
                                 </dd>
                             </div>

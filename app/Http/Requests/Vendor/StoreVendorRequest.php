@@ -42,27 +42,24 @@ class StoreVendorRequest extends Request
         //$rules['settings'] = new ValidVendorGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
 
-        $contacts = request('contacts');
+        // $contacts = request('contacts');
 
-        if (is_array($contacts)) {
-            for ($i = 0; $i < count($contacts); $i++) {
+        // if (is_array($contacts)) {
+        //     for ($i = 0; $i < count($contacts); $i++) {
 
-                //$rules['contacts.' . $i . '.email'] = 'nullable|email|distinct';
-            }
-        }
+        //         //$rules['contacts.' . $i . '.email'] = 'nullable|email|distinct';
+        //     }
+        // }
 
         return $rules;
     }
 
     protected function prepareForValidation()
     {
-        $input = $this->all();
+        // $input = $this->all();
 
-        if (! isset($input['settings'])) {
-            $input['settings'] = VendorSettings::defaults();
-        }
 
-        $this->replace($input);
+        // $this->replace($input);
     }
 
     public function messages()

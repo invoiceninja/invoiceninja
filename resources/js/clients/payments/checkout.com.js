@@ -23,7 +23,7 @@ window.CKOConfig = {
 
         document.querySelector(
             'input[name="store_card"]'
-        ).value = document.getElementById('store-card-checkbox').checked ? 1 : 0;
+        ).value = document.querySelector('input[name=token-billing-checkbox]:checked').value;
         
         document.getElementById('server-response').submit();
     },

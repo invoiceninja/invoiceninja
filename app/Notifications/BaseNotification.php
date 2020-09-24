@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Notifications;
 
@@ -114,6 +123,7 @@ class BaseNotification extends Notification implements ShouldQueue
             'view_text' => ctrans('texts.view_'.$this->entity_string),
             'logo' => $this->entity->company->present()->logo(),
             'signature' => $this->settings->email_signature,
+            'settings' => $this->settings,
 
         ];
 

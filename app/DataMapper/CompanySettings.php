@@ -613,7 +613,6 @@ class CompanySettings extends BaseSettings
                 '$total_taxes',
                 '$line_taxes',
                 '$subtotal',
-                '$total',
                 '$discount',
                 '$custom_surcharge1',
                 '$custom_surcharge2',
@@ -621,6 +620,7 @@ class CompanySettings extends BaseSettings
                 '$custom_surcharge4',
                 '$paid_to_date',
                 '$client.balance',
+                '$total',
             ],
         ];
 

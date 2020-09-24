@@ -13,6 +13,7 @@ namespace Tests\Unit;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\DefaultSettings;
 use App\Factory\ClientFactory;
+use App\Factory\VendorFactory;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
@@ -291,6 +292,25 @@ class GeneratesCounterTest extends TestCase
         $client_number = $this->getNextClientNumber($cliz);
 
         $this->assertEquals($client_number, date('Y').'-'.str_pad($this->client->user_id, 2, '0', STR_PAD_LEFT).'-0002');
+    }
+
+    public function testVendorNumberPattern()
+    {
+        $settings = $this->company->settings;
+        $settings->vendor_number_pattern = '{$year}-{$user_id}-{$counter}';
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $vendor = VendorFactory::create($this->company->id, $this->user->id);
+        $vendor->save();
+
+        $vendor_number = $this->getNextVendorNumber($vendor);
+
+        $this->assertEquals($vendor_number, date('Y').'-'.str_pad($vendor->user_id, 2, '0', STR_PAD_LEFT).'-0001');
+
+        $vendor_number = $this->getNextVendorNumber($vendor);
+
+        $this->assertEquals($vendor_number, date('Y').'-'.str_pad($vendor->user_id, 2, '0', STR_PAD_LEFT).'-0002');
     }
 
     /*
