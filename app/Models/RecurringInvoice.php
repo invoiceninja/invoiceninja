@@ -202,27 +202,27 @@ class RecurringInvoice extends BaseModel
     {
         switch ($this->frequency_id) {
             case self::FREQUENCY_WEEKLY:
-                return Carbon::parse($this->next_send_date->addWeek());
+                return Carbon::parse($this->next_send_date)->addWeek();
             case self::FREQUENCY_TWO_WEEKS:
-                return Carbon::parse($this->next_send_date->addWeeks(2));
+                return Carbon::parse($this->next_send_date)->addWeeks(2);
             case self::FREQUENCY_FOUR_WEEKS:
-                return Carbon::parse($this->next_send_date->addWeeks(4));
+                return Carbon::parse($this->next_send_date)->addWeeks(4);
             case self::FREQUENCY_MONTHLY:
-                return Carbon::parse($this->next_send_date->addMonthNoOverflow());
+                return Carbon::parse($this->next_send_date)->addMonthNoOverflow();
             case self::FREQUENCY_TWO_MONTHS:
-                return Carbon::parse($this->next_send_date->addMonthsNoOverflow(2));
+                return Carbon::parse($this->next_send_date)->addMonthsNoOverflow(2);
             case self::FREQUENCY_THREE_MONTHS:
-                return Carbon::parse($this->next_send_date->addMonthsNoOverflow(3));
+                return Carbon::parse($this->next_send_date)->addMonthsNoOverflow(3);
             case self::FREQUENCY_FOUR_MONTHS:
-                return Carbon::parse($this->next_send_date->addMonthsNoOverflow(4));
+                return Carbon::parse($this->next_send_date)->addMonthsNoOverflow(4);
             case self::FREQUENCY_SIX_MONTHS:
-                return Carbon::parse($this->next_send_date->addMonthsNoOverflow(6));
+                return Carbon::parse($this->next_send_date)->addMonthsNoOverflow(6);
             case self::FREQUENCY_ANNUALLY:
-                return Carbon::parse($this->next_send_date->addYear());
+                return Carbon::parse($this->next_send_date)->addYear();
             case self::FREQUENCY_TWO_YEARS:
-                return Carbon::parse($this->next_send_date->addYears(2));
+                return Carbon::parse($this->next_send_date)->addYears(2);
             case self::FREQUENCY_THREE_YEARS:
-                return Carbon::parse($this->next_send_date->addYears(3));
+                return Carbon::parse($this->next_send_date)->addYears(3);
             default:
                 return null;
         }
@@ -233,27 +233,27 @@ class RecurringInvoice extends BaseModel
 
         switch ($this->frequency_id) {
             case self::FREQUENCY_WEEKLY:
-                return Carbon::parse($date->addWeek());
+                return Carbon::parse($date)->addWeek();
             case self::FREQUENCY_TWO_WEEKS:
-                return Carbon::parse($date->addWeeks(2));
+                return Carbon::parse($date)->addWeeks(2);
             case self::FREQUENCY_FOUR_WEEKS:
-                return Carbon::parse($date->addWeeks(4));
+                return Carbon::parse($date)->addWeeks(4);
             case self::FREQUENCY_MONTHLY:
-                return Carbon::parse($date->addMonthNoOverflow());
+                return Carbon::parse($date)->addMonthNoOverflow();
             case self::FREQUENCY_TWO_MONTHS:
-                return Carbon::parse($date->addMonthsNoOverflow(2));
+                return Carbon::parse($date)->addMonthsNoOverflow(2);
             case self::FREQUENCY_THREE_MONTHS:
-                return Carbon::parse($date->addMonthsNoOverflow(3));
+                return Carbon::parse($date)->addMonthsNoOverflow(3);
             case self::FREQUENCY_FOUR_MONTHS:
-                return Carbon::parse($date->addMonthsNoOverflow(4));
+                return Carbon::parse($date)->addMonthsNoOverflow(4);
             case self::FREQUENCY_SIX_MONTHS:
-                return Carbon::parse($date->addMonthsNoOverflow(6));
+                return Carbon::parse($date)->addMonthsNoOverflow(6);
             case self::FREQUENCY_ANNUALLY:
-                return Carbon::parse($date->addYear());
+                return Carbon::parse($date)->addYear();
             case self::FREQUENCY_TWO_YEARS:
-                return Carbon::parse($date->addYears(2));
+                return Carbon::parse($date)->addYears(2);
             case self::FREQUENCY_THREE_YEARS:
-                return Carbon::parse($date->addYears(3));
+                return Carbon::parse($date)->addYears(3);
             default:
                 return null;
         }
@@ -381,9 +381,15 @@ class RecurringInvoice extends BaseModel
         if($this->remaining_cycles == -1) 
             $iterations = 10;
             
+        $next_send_date = Carbon::parse($this->next_send_date)->copy();
+
         $data = [];
 
-        $next_send_date = Carbon::parse($this->next_send_date)->copy();
+            // $data[] = [
+            //     'next_send_date' => $next_send_date->format('Y-m-d'), 
+            //     'due_date' => $next_due_date->format('Y-m-d'),
+            // ];
+
 
         for($x=0; $x<$iterations; $x++)
         {
@@ -398,7 +404,7 @@ class RecurringInvoice extends BaseModel
                 'due_date' => $next_due_date->format('Y-m-d'),
             ];
 
-            $next_send_date = $this->calculateDueDate($next_send_date);        
+            $next_send_date = $this->nextDateByFrequency($next_send_date->format('Y-m-d'));        
 
         }
 

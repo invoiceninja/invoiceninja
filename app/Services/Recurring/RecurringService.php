@@ -12,6 +12,7 @@
 namespace App\Services\Recurring;
 
 use App\Models\RecurringInvoice;
+use Illuminate\Support\Carbon;
 
 class RecurringService
 {
@@ -42,7 +43,7 @@ class RecurringService
     	if(Carbon::parse($this->recurring_entity->next_send_date)->lt(now()))
     		return $this;
 
-    	$this->status_id = RecurringInvoice::STATUS_ACTIVE;
+    	$this->recurring_entity->status_id = RecurringInvoice::STATUS_ACTIVE;
 
     	return $this;
 
