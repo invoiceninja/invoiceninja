@@ -385,22 +385,16 @@ class RecurringInvoice extends BaseModel
 
         $data = [];
 
-            // $data[] = [
-            //     'next_send_date' => $next_send_date->format('Y-m-d'), 
-            //     'due_date' => $next_due_date->format('Y-m-d'),
-            // ];
-
-
         for($x=0; $x<$iterations; $x++)
         {
-
-            $next_due_date = $next_send_date->copy()->addDays($this->due_date_days);
+            // we don't add the days... we calc the day of the month!!
+            $next_due_date = $this->calculateDueDate($next_send_date->copy()->format('Y-m-d'));
 
             $next_send_date = Carbon::parse($next_send_date);
             $next_due_date = Carbon::parse($next_due_date);
 
             $data[] = [
-                'next_send_date' => $next_send_date->format('Y-m-d'), 
+                'send_date' => $next_send_date->format('Y-m-d'), 
                 'due_date' => $next_due_date->format('Y-m-d'),
             ];
 
@@ -442,13 +436,14 @@ class RecurringInvoice extends BaseModel
      */
     public function calculateDateFromTerms($date) 
     {
+        $new_date = Carbon::parse($date);
 
         $client_payment_terms = $this->client->getSetting('payment_terms');
 
         if($client_payment_terms == '')//no due date! return null;
             return null;
 
-        return $date->copy()->addDays($client_payment_terms); //add the number of days in the payment terms to the date
+        return $new_date->addDays($client_payment_terms); //add the number of days in the payment terms to the date
     }
 
     /**
