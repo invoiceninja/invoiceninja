@@ -7,100 +7,8 @@
 @endsection
 
 @section('body')
-
     <!-- Basic information: first & last name, e-mail address etc. -->
-    <div class="mt-2 sm:mt-6">
-        <div class="md:grid md:grid-cols-3 md:gap-6">
-            <div class="md:col-span-1">
-                <div class="sm:px-0">
-                    <h3 class="text-lg font-medium leading-6 text-gray-900">{{ ctrans('texts.profile') }}</h3>
-                    <p class="mt-1 text-sm leading-5 text-gray-500">
-                        @lang('texts.client_information_text')
-                    </p>
-                </div>
-            </div>
-            <div class="mt-5 md:mt-0 md:col-span-2">
-                <form action="{{ route('client.profile.update', auth()->user()->hashed_id) }}" method="POST"
-                      id="update_contact">
-                    @csrf
-                    @method('PUT')
-                    <div class="shadow overflow-hidden rounded">
-                        <div class="px-4 py-5 bg-white sm:p-6">
-                            <div class="grid grid-cols-6 gap-6">
-                                <div class="col-span-6 sm:col-span-3">
-                                    <label for="first_name" class="input-label">@lang('texts.first_name')</label>
-                                    <input id="first_name" class="input w-full" name="first_name"
-                                           value="{{ auth()->user()->first_name }}"/>
-                                    @error('first_name')
-                                    <div class="validation validation-fail">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-span-6 sm:col-span-3">
-                                    <label for="last_name" class="input-label">@lang('texts.last_name')</label>
-                                    <input id="last_name" class="input w-full" name="last_name"
-                                           value="{{ auth()->user()->last_name }}"/>
-                                    @error('last_name')
-                                    <div class="validation validation-fail">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-span-6 sm:col-span-4">
-                                    <label for="email_address" class="input-label">@lang('texts.email_address')</label>
-                                    <input id="email_address" class="input w-full" type="email" name="email"
-                                           value="{{ auth()->user()->email }}"/>
-                                    @error('email')
-                                    <div class="validation validation-fail">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-span-6 sm:col-span-4">
-                                    <label for="phone" class="input-label">@lang('texts.phone')</label>
-                                    <input id="phone" class="input w-full" name="phone" value="{{ auth()->user()->phone }}"/>
-                                    @error('phone')
-                                    <div class="validation validation-fail">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-span-6 sm:col-span-6 lg:col-span-3">
-                                    <label for="password" class="input-label">@lang('texts.password')</label>
-                                    <input id="password" class="input w-full" name="password" type="password"/>
-                                    @error('password')
-                                    <div class="validation validation-fail">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-span-6 sm:col-span-3 lg:col-span-3">
-                                    <label for="state" class="input-label">@lang('texts.confirm_password')</label>
-                                    <input id="state" class="input w-full" name="password_confirmation" type="password"/>
-                                    @error('password_confirmation')
-                                    <div class="validation validation-fail">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                        <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                            <button class="button button-primary">
-                                @lang('texts.save')
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    @livewire('profile.settings.general')
 
     <!-- Name, website & logo -->
     <div class="mt-10 sm:mt-6">
@@ -357,5 +265,4 @@
             </div>
         </div>
     </div>
-
 @endsection

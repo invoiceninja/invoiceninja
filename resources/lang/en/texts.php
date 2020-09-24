@@ -3279,4 +3279,6 @@ return [
     'over_payments_disabled' => 'Company doesn\'t support over payments.',
   
     'paused' => 'Paused',
+
+    'saved_at' => 'Saved at :time',
 ];
