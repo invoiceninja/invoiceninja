@@ -3272,4 +3272,9 @@ return [
     'password_strength' => 'Password strength too weak',
 
     'thanks' => 'Thanks',
+
+    'minimum_required_payment' => 'Minimum required payment is :amount',
+
+    'under_payments_disabled' => 'Company doesn\'t support under payments.',
+    'over_payments_disabled' => 'Company doesn\'t support over payments.',
 ];

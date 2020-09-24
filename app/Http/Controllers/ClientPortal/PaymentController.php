@@ -73,9 +73,10 @@ class PaymentController extends Controller
      */
     public function process()
     {
-
         $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
+
         /*find invoices*/
+
         $payable_invoices = request()->payable_invoices;
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payable_invoices, 'invoice_id')))->get();
 
@@ -91,15 +92,52 @@ class PaymentController extends Controller
                 ->with(['warning' => 'No payable invoices selected.']);
         }
 
-        /*iterate through invoices and add gateway fees and other payment metadata*/
+        $settings = auth()->user()->client->getMergedSettings();
 
+        /*iterate through invoices and add gateway fees and other payment metadata*/
         foreach ($payable_invoices as $key => $payable_invoice) {
+
             $payable_invoices[$key]['amount'] = Number::parseFloat($payable_invoice['amount']);
             $payable_invoice['amount'] = $payable_invoices[$key]['amount'];
 
             $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
                 return $payable_invoice['invoice_id'] == $inv->hashed_id;
             });
+
+            // Check if company supports over & under payments.
+            // In case it doesn't this is where process should stop.
+
+            $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), auth()->user()->client->currency()->precision);
+            $invoice_amount = Number::roundValue($invoice->amount, auth()->user()->client->currency()->precision);
+
+            if ($settings->client_portal_allow_under_payment == false && $settings->client_portal_allow_over_payment == false) {
+                $payable_invoice['amount'] = $invoice->amount;
+            } // We don't allow either of these, reset the amount to default invoice (to prevent inspect element payments).
+
+            if ($settings->client_portal_allow_under_payment) {
+                if ($payable_invoice['amount'] < $settings->client_portal_under_payment_minimum) {
+                    return redirect()
+                        ->route('client.invoices.index')
+                        ->with('message', ctrans('texts.minimum_required_payment', ['amount' => $settings->client_portal_under_payment_minimum]));
+                }
+            } else {
+                $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), auth()->user()->client->currency()->precision);
+                $invoice_amount = Number::roundValue($invoice->amount, auth()->user()->client->currency()->precision);
+
+                if ($payable_amount < $invoice_amount) {
+                    return redirect()
+                        ->route('client.invoices.index')
+                        ->with('message', ctrans('texts.under_payments_disabled'));
+                }
+            } // Make sure 'amount' from form is not lower than 'amount' from invoice.
+
+            if ($settings->client_portal_allow_over_payment == false) {
+                if ($payable_amount > $invoice_amount) {
+                    return redirect()
+                        ->route('client.invoices.index')
+                        ->with('message', ctrans('texts.over_payments_disabled'));
+                }
+            } // Make sure 'amount' from form is not higher than 'amount' from invoice.
 
             $payable_invoices[$key]['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             $payable_invoices[$key]['invoice_number'] = $invoice->number;
@@ -129,7 +167,7 @@ class PaymentController extends Controller
         $first_invoice = $invoices->first();
         $fee_totals = round($gateway->calcGatewayFee($invoice_totals, true), $first_invoice->client->currency()->precision);
 
-        if (! $first_invoice->uses_inclusive_taxes) {
+        if (!$first_invoice->uses_inclusive_taxes) {
             $fee_tax = 0;
             $fee_tax += round(($first_invoice->tax_rate1 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
             $fee_tax += round(($first_invoice->tax_rate2 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
