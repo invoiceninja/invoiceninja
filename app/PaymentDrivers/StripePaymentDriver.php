@@ -331,8 +331,6 @@ class StripePaymentDriver extends BasePaymentDriver
         //     ->refund(['transactionReference' => $payment->transaction_reference, 'amount' => $amount, 'currency' => $payment->client->getCurrencyCode()])
         //     ->send();
 
-        info($response);
-
         if ($response->status == $response::STATUS_SUCCEEDED) {
             SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),
             ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client);
