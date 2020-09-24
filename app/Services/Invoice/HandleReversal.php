@@ -18,6 +18,7 @@ use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
@@ -55,7 +56,7 @@ class HandleReversal extends AbstractService
         $total_paid = $this->invoice->amount - $this->invoice->balance;
 
         /*Adjust payment applied and the paymentables to the correct amount */
-        $paymentables = Paymentable::wherePaymentableType(Invoice::class)
+        $paymentables = Paymentable::wherePaymentableType('invoices')
                                     ->wherePaymentableId($this->invoice->id)
                                     ->get();
 
@@ -95,6 +96,23 @@ class HandleReversal extends AbstractService
             $credit->service()->markSent()->save();
         }
 
+        /*If there is a payment linked, then the credit needs to be linked back to that payment in case of refund*/
+        if($paymentables->count() > 0){
+
+            $payment = $paymentables->first()->payment;
+            $payment->credits()->save($credit);
+
+            $paymentable_credit = $payment->credits()
+                                          ->wherePaymentableType(Credit::class)
+                                          ->wherePaymentableId($credit->id)
+                                          ->first();
+
+            //harvest the credit record and add in the amount for the credit.
+            $paymentable_credit->pivot->amount = $total_paid;
+            $paymentable_credit->pivot->save();
+
+        }
+
         /* Set invoice balance to 0 */
         if ($this->invoice->balance != 0) {
             $this->invoice->ledger()->updateInvoiceBalance($balance_remaining * -1, $notes)->save();
@@ -119,37 +137,4 @@ class HandleReversal extends AbstractService
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
     }
 
-    // public function run2()
-    // {
-
-    //     /* Check again!! */
-    //     if (!$this->invoice->invoiceReversable($this->invoice)) {
-    //         return $this->invoice;
-    //     }
-
-    //     if($this->invoice->status_id == Invoice::STATUS_CANCELLED)
-    //         $this->invoice = $this->invoice->service()->reverseCancellation()->save();
-
-    //     //$balance_remaining = $this->invoice->balance;
-
-    //     //$total_paid = $this->invoice->amount - $this->invoice->balance;
-
-    //     /*Adjust payment applied and the paymentables to the correct amount */
-    //     $paymentables = Paymentable::wherePaymentableType(Invoice::class)
-    //                                 ->wherePaymentableId($this->invoice->id)
-    //                                 ->get();
-
-    //     $total_paid = 0;
-
-    //     $paymentables->each(function ($paymentable) use ($total_paid) {
-
-    //         $reversable_amount = $paymentable->amount - $paymentable->refunded;
-    //         $total_paid -= $reversable_amount;
-    //         $paymentable->amount = $paymentable->refunded;
-    //         $paymentable->save();
-    //     });
-
-    //     //Unwinding any payments made to this invoice
-
-    // }
 }

@@ -73,6 +73,8 @@ class UpdateInvoicePayment
             $pivot_invoice->pivot->amount = $paid_amount;
             $pivot_invoice->pivot->save();
 
+            $this->payment->applied += $paid_amount;
+
             $invoice->service() //caution what if we amount paid was less than partial - we wipe it!
                 ->clearPartial()
                 ->updateBalance($paid_amount * -1)
@@ -82,6 +84,8 @@ class UpdateInvoicePayment
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
 
         });
+        
+        $this->payment->save();
 
         return $this->payment;
     }

@@ -11,7 +11,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\ExpenseFactory;
 use App\Filters\ExpenseFilters;
+use App\Http\Requests\Expense\CreateExpenseRequest;
+use App\Http\Requests\Expense\DestroyExpenseRequest;
+use App\Http\Requests\Expense\EditExpenseRequest;
+use App\Http\Requests\Expense\ShowExpenseRequest;
+use App\Http\Requests\Expense\StoreExpenseRequest;
+use App\Http\Requests\Expense\UpdateExpenseRequest;
 use App\Jobs\Entity\ActionEntity;
 use App\Jobs\Util\ProcessBulk;
 use App\Jobs\Util\UploadAvatar;
@@ -266,7 +273,7 @@ class ExpenseController extends BaseController
             return $request->disallowUpdate();
         }
 
-        $expense = $this->client_repo->save($request->all(), $expense);
+        $expense = $this->expense_repo->save($request->all(), $expense);
 
         $this->uploadLogo($request->file('company_logo'), $expense->company, $expense);
 
@@ -359,11 +366,7 @@ class ExpenseController extends BaseController
      */
     public function store(StoreExpenseRequest $request)
     {
-        $expense = $this->client_repo->save($request->all(), ExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id));
-
-        $expense->load('contacts', 'primary_contact');
-
-        $this->uploadLogo($request->file('company_logo'), $expense->company, $expense);
+        $expense = $this->expense_repo->save($request->all(), ExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         return $this->itemResponse($expense);
     }
@@ -485,7 +488,7 @@ class ExpenseController extends BaseController
 
         $expenses->each(function ($expense, $key) use ($action) {
             if (auth()->user()->can('edit', $expense)) {
-                $this->client_repo->{$action}($expense);
+                $this->expense_repo->{$action}($expense);
             }
         });
 

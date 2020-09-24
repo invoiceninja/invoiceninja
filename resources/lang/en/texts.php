@@ -3277,4 +3277,6 @@ return [
 
     'under_payments_disabled' => 'Company doesn\'t support under payments.',
     'over_payments_disabled' => 'Company doesn\'t support over payments.',
+  
+    'paused' => 'Paused',
 ];

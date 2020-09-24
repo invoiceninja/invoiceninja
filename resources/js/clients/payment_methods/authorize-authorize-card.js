@@ -66,11 +66,6 @@ class AuthorizeAuthorizeCard {
 	}
 
     handle() {
-        //this.handleFormValidation();
-
-        // At this point as an small API you can request this.form.valid to check if input elements are valid.
-        // Note: this.form.valid will not handle empty fields.
-
         this.cardButton.addEventListener("click", () => {
             this.cardButton.disabled = !this.cardButton.disabled;
              this.handleAuthorization();

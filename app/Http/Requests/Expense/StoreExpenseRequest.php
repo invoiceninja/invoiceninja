@@ -9,17 +9,18 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\Vendor;
+namespace App\Http\Requests\Expense;
 
-use App\DataMapper\VendorSettings;
+use App\DataMapper\ExpenseSettings;
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\ValidVendorGroupSettingsRule;
-use App\Models\Vendor;
+use App\Http\ValidationRules\Expense\UniqueExpenseNumberRule;
+use App\Http\ValidationRules\ValidExpenseGroupSettingsRule;
+use App\Models\Expense;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
-class StoreVendorRequest extends Request
+class StoreExpenseRequest extends Request
 {
     use MakesHash;
 
@@ -30,7 +31,7 @@ class StoreVendorRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Vendor::class);
+        return auth()->user()->can('create', Expense::class);
     }
 
     public function rules()
@@ -38,9 +39,11 @@ class StoreVendorRequest extends Request
 
         /* Ensure we have a client name, and that all emails are unique*/
         //$rules['name'] = 'required|min:1';
-        $rules['id_number'] = 'unique:vendors,id_number,'.$this->id.',id,company_id,'.$this->company_id;
-        //$rules['settings'] = new ValidVendorGroupSettingsRule();
+        $rules['id_number'] = 'unique:expenses,id_number,'.$this->id.',id,company_id,'.$this->company_id;
+        //$rules['settings'] = new ValidExpenseGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
+
+        $rules['number'] = new UniqueExpenseNumberRule($this->all());
 
         // $contacts = request('contacts');
 

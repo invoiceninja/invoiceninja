@@ -92,6 +92,7 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
             'button' => ctrans('texts.account_login'),
             'signature' => $this->company->owner()->signature,
             'logo' => $this->company->present()->logo(),
+            'settings' => $this->settings,
         ];
     }
 }

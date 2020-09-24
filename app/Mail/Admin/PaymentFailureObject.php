@@ -76,6 +76,8 @@ class PaymentFailureObject
             ),
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
+            'settings' => $this->client->getMergedSettings(),
+
         ];
 
         return $data;
