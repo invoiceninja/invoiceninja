@@ -104,6 +104,7 @@ class RecurringInvoice extends BaseModel
         'next_send_date',
         'remaining_cycles',
         'auto_bill',
+        'auto_bill_enabled',
     ];
 
     protected $casts = [
