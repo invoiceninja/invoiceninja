@@ -36,7 +36,7 @@
                                 <div class="bg-white rounded-md shadow-xs">
                                     <div class="py-1">
                                         @foreach($payment_methods as $payment_method)
-                                        <a data-turbolinks="false" href="#" @click="{ open = false }" data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}" data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">
+                                        <a href="#" @click="{ open = false }" data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}" data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">
                                             {{ $payment_method['label'] }}
                                         </a>
                                         @endforeach
@@ -94,11 +94,11 @@
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                                     @if($invoice->po_number)
-                                    {{ $invoice->po_number }}
+                                        {{ $invoice->po_number }}
                                     @elseif($invoice->public_notes)
-                                    {{ $invoice->public_notes }}
+                                        {{ $invoice->public_notes }}
                                     @else
-                                    {{ $invoice->date}}
+                                        {{ $invoice->date}}
                                     @endif
                                 </dd>
                             </div>
@@ -108,9 +108,25 @@
                                 <dt class="text-sm font-medium leading-5 text-gray-500">
                                     {{ ctrans('texts.amount') }}
                                 </dt>
-                                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2 flex flex-col">
                                     <!-- App\Utils\Number::formatMoney($invoice->amount, $invoice->client) -->
-                                    <input type="text" name="payable_invoices[{{$key}}][amount]" value="{{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}">
+                                    <!-- Disabled input field don't send it's value with request. -->
+                                    @if(!$settings->client_portal_allow_under_payment && !$settings->client_portal_allow_over_payment)
+                                        <span class="mt-1 text-sm text-gray-800">{{ App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}</span>
+                                    @else
+                                        <div class="flex items-center">
+                                            <input 
+                                                type="text" 
+                                                class="input mt-0 mr-4 relative" 
+                                                name="payable_invoices[{{$key}}][amount]" 
+                                                value="{{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}"/>
+                                                <span class="mt-2">{{ $invoice->client->currency()->code }} ({{ $invoice->client->currency()->symbol }})</span>
+                                        </div>
+                                    @endif  
+
+                                    @if($settings->client_portal_allow_under_payment)
+                                        <span class="mt-1 text-sm text-gray-800">{{ ctrans('texts.minimum_payment') }}: {{ $settings->client_portal_under_payment_minimum }}</span>
+                                    @endif
                                 </dd>
                             </div>
                             @endif
@@ -122,10 +138,12 @@
         </div>
     </div>
 </form>
+
 @include('portal.ninja2020.invoices.includes.terms')
 @include('portal.ninja2020.invoices.includes.signature')
+
 @endsection
 
 @push('footer')
-<script src="{{ asset('js/clients/invoices/payment.js') }}"></script>
+    <script src="{{ asset('js/clients/invoices/payment.js') }}"></script>
 @endpush

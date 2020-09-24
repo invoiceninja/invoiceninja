@@ -72,18 +72,17 @@ class RefundPayment
     {
         if ($this->refund_data['gateway_refund'] !== false && $this->total_refund > 0) {
             if ($this->payment->company_gateway) {
-                
-                $response = $gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
 
-                if ($response['success']) {
+                $response = $this->payment->company_gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
+
+
+                if ($response['success'] == false) {
                     throw new PaymentRefundFailed();
                 }
 
                 $this->payment->refunded += $this->total_refund;
 
-                $this
-                    ->createActivity($gateway)
-                    ->updateCreditNoteBalance();
+                $this->createActivity($this->payment);
             }
         } else {
             $this->payment->refunded += $this->total_refund;
@@ -107,7 +106,7 @@ class RefundPayment
         $fields->user_id = $this->payment->user_id;
         $fields->company_id = $this->payment->company_id;
         $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
-        $fields->credit_id = $this->credit_note->id;
+        // $fields->credit_id = $this->credit_note->id; // TODO
         $fields->notes = json_encode($notes);
 
         if (isset($this->refund_data['invoices'])) {
