@@ -5,11 +5,11 @@ if(!isset($design)) $design = 'light';
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@yield('title')</title>
-</head>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title')</title>
+  </head>
 
 <style>
   :root {
@@ -57,6 +57,14 @@ if(!isset($design)) $design = 'light';
 
     </div>
   </div>
-</body>
 
+  <!-- Whitelabel -->
+  @if(!$whitelabel)
+    <div style="display: flex; flex-direction: row; justify-content: center; margin-top: 1rem; margin-bottom: 1rem;">
+      <a href="https://invoiceninja.com" target="_blank">
+        <img style="height: 4rem;" src="{{ asset('images/created-by-invoiceninja-new.png') }}" alt="Invoice Ninja">
+      </a>
+    </div>
+  @endif
+</body>
 </html>
