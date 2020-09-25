@@ -112,7 +112,11 @@
                                     <!-- App\Utils\Number::formatMoney($invoice->amount, $invoice->client) -->
                                     <!-- Disabled input field don't send it's value with request. -->
                                     @if(!$settings->client_portal_allow_under_payment && !$settings->client_portal_allow_over_payment)
-                                        <span class="mt-1 text-sm text-gray-800">{{ App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}</span>
+                                        <input 
+                                            name="payable_invoices[{{$key}}][amount]" 
+                                            value="{{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}"
+                                            class="mt-1 text-sm text-gray-800"
+                                            readonly />
                                     @else
                                         <div class="flex items-center">
                                             <input 
