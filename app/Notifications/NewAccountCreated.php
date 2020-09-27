@@ -73,6 +73,7 @@ class NewAccountCreated extends Notification implements ShouldQueue
             'button' => ctrans('texts.account_login'),
             'signature' => $this->company->settings->email_signature,
             'logo' => $this->company->present()->logo(),
+            'settings' => $this->company->settings, 
         ];
 
         return (new MailMessage)

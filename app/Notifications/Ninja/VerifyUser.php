@@ -32,9 +32,12 @@ class VerifyUser extends Notification implements ShouldQueue
      */
     protected $user;
 
-    public function __construct($user)
+    private $company;
+
+    public function __construct($user, $company)
     {
         $this->user = $user;
+        $this->company = $company;
     }
 
     /**
@@ -63,6 +66,7 @@ class VerifyUser extends Notification implements ShouldQueue
             'button' => ctrans('texts.button_confirmation_message'),
             'signature' => '',
             'logo' => 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png',
+            'settings' => $this->company->settings,
         ];
 
         return (new MailMessage)

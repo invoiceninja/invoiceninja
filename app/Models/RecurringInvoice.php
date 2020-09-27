@@ -200,6 +200,11 @@ class RecurringInvoice extends BaseModel
 
     public function nextSendDate() :?Carbon
     {
+        if(!$this->next_send_date){
+            return null;
+            // $this->next_send_date = now()->format('Y-m-d');
+        }
+
         switch ($this->frequency_id) {
             case self::FREQUENCY_WEEKLY:
                 return Carbon::parse($this->next_send_date)->addWeek();
