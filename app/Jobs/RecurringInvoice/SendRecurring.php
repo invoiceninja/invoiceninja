@@ -54,14 +54,18 @@ class SendRecurring implements ShouldQueue
      */
     public function handle() : void
     {
+        info(" in the handle ");
 
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
+        
         $invoice = $invoice->service()
                            ->markSent()
-                           ->applyRecurringNumber()
+                           ->applyNumber()
                            ->createInvitations()
                            ->save();
+
+       info("Invoice {$invoice->number} created");
 
         $invoice->invitations->each(function ($invitation) use ($invoice) {
 
@@ -76,6 +80,7 @@ class SendRecurring implements ShouldQueue
         if($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $this->recurring_invoice->auto_bill_enabled)
             $invoice->service()->autoBill()->save();
 
+        info("updating recurring invoice dates");
         /* Set next date here to prevent a recurring loop forming */
         $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate()->format('Y-m-d');
         $this->recurring_invoice->remaining_cycles = $this->recurring_invoice->remainingCycles();
@@ -84,6 +89,10 @@ class SendRecurring implements ShouldQueue
         /* Set completed if we don't have any more cycles remaining*/
         if ($this->recurring_invoice->remaining_cycles == 0) 
             $this->recurring_invoice->setCompleted();
+
+        info($this->recurring_invoice->next_send_date);
+        info($this->recurring_invoice->remaining_cycles);
+        info($this->recurring_invoice->last_sent_date);
 
         $this->recurring_invoice->save();
 

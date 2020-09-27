@@ -14,12 +14,15 @@ namespace App\Jobs\Cron;
 use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Libraries\MultiDB;
 use App\Models\RecurringInvoice;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class RecurringInvoicesCron
 {
+     use Dispatchable;
+
     /**
      * Create a new job instance.
      *
@@ -41,25 +44,34 @@ class RecurringInvoicesCron
 
         if (! config('ninja.db.multi_db_enabled')) {
 
-            $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', Carbon::now()->addMinutes(30))->cursor();
+            $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '=', now())->cursor();
 
-            Log::info(Carbon::now()->addMinutes(30).' Sending Recurring Invoices. Count = '.$recurring_invoices->count());
+                Log::info(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = '.$recurring_invoices->count().' On Database # '.$db);
 
-            $recurring_invoices->each(function ($recurring_invoice, $key) {
+                $recurring_invoices->each(function ($recurring_invoice, $key) {
+
+                info("Current date = " . now()->format("Y-m-d") . " Recurring date = " .$recurring_invoice->next_send_date);
+
                 SendRecurring::dispatch($recurring_invoice, $recurring_invoice->company->db);
+
             });
 
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
+
                 MultiDB::setDB($db);
 
-                $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', Carbon::now()->addMinutes(30))->cursor();
+                $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '=', now())->cursor();
 
-                Log::info(Carbon::now()->addMinutes(30).' Sending Recurring Invoices. Count = '.$recurring_invoices->count().' On Database # '.$db);
+                Log::info(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = '.$recurring_invoices->count().' On Database # '.$db);
 
                 $recurring_invoices->each(function ($recurring_invoice, $key) {
+
+                    info("Current date = " . now()->format("Y-m-d") . " Recurring date = " .$recurring_invoice->next_send_date);
+
                     SendRecurring::dispatch($recurring_invoice, $recurring_invoice->company->db);
+    
                 });
             }
         }

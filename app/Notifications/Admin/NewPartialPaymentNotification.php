@@ -94,6 +94,7 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
             'button' => ctrans('texts.view_payment'),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),
+            'settings' => $this->settings,
         ];
 
         return (new MailMessage)

@@ -96,6 +96,8 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
             'button' => ctrans('texts.view_invoice'),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),
+            'settings' => $this->settings,
+
         ];
 
         return (new MailMessage)

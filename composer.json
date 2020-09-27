@@ -48,7 +48,6 @@
         "maennchen/zipstream-php": "^1.2",
         "nwidart/laravel-modules": "^6.0",
         "omnipay/paypal": "^3.0",
-        "omnipay/stripe": "^3.0",
         "predis/predis": "^1.1",
         "sentry/sentry-laravel": "^1.8",
         "spatie/browsershot": "^3.37",

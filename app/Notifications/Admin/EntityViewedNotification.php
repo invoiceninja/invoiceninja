@@ -146,6 +146,8 @@ class EntityViewedNotification extends Notification implements ShouldQueue
             'button' => ctrans("texts.view_{$this->entity_name}"),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),
+            'settings' => $this->settings,
+
         ];
 
         return $data;
