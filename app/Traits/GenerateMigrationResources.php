@@ -353,6 +353,65 @@ trait GenerateMigrationResources
         return $credits;
     }
 
+    protected function getRecurringInvoices()
+    {
+        $invoices = [];
+
+        $export_invoices = Invoice::where('account_id', $this->account->id)
+            ->where('amount', '>=', '0')
+            ->where('is_recurring', true)
+            ->withTrashed()
+            ->get();        
+
+            //determine the status
+            //determine remaining cycles
+            //set the frequency_id
+
+        foreach ($export_invoices as $invoice) {
+            $invoices[] = [
+                'id' => $invoice->id,
+                'client_id' => $invoice->client_id,
+                'user_id' => $invoice->user_id,
+                'company_id' => $invoice->account_id,
+                'status_id' => $this->transformRecurringStatusId($invoice->invoice_status_id),
+                'design_id' => $invoice->invoice_design_id,
+                'number' => $invoice->invoice_number,
+                'discount' => $invoice->discount,
+                'is_amount_discount' => $invoice->is_amount_discount ?: false,
+                'po_number' => $invoice->po_number,
+                'date' => $invoice->invoice_date,
+                'last_sent_date' => $invoice->last_sent_date,
+                'due_date' => $invoice->due_date,
+                'uses_inclusive_taxes' => $this->account->inclusive_taxes,
+                'is_deleted' => $invoice->is_deleted,
+                'footer' => $invoice->invoice_footer,
+                'public_notes' => $invoice->public_notes,
+                'private_notes' => $invoice->private_notes,
+                'terms' => $invoice->terms,
+                'tax_name1' => $invoice->tax_name1,
+                'tax_name2' => $invoice->tax_name2,
+                'tax_rate1' => $invoice->tax_rate1,
+                'tax_rate2' => $invoice->tax_rate2,
+                'custom_value1' => $invoice->custom_value1,
+                'custom_value2' => $invoice->custom_value2,
+                'next_send_date' => null,
+                'amount' => $invoice->amount ?: 0,
+                'balance' => $invoice->balance ?: 0,
+                'partial' => $invoice->partial ?: 0,
+                'partial_due_date' => $invoice->partial_due_date,
+                'line_items' => $this->getInvoiceItems($invoice->invoice_items),
+                'created_at' => $invoice->created_at ? $invoice->created_at->toDateString() : null,
+                'updated_at' => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
+                'deleted_at' => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
+                //'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
+            ];
+        }
+
+        return $invoices;
+
+
+    }
+
     protected function getInvoices()
     {
         $invoices = [];
@@ -404,6 +463,35 @@ trait GenerateMigrationResources
         }
 
         return $invoices;
+    }
+
+    /*
+        V5
+        const STATUS_DRAFT = 1;
+        const STATUS_ACTIVE = 2;
+        const STATUS_PAUSED = 3;
+        const STATUS_COMPLETED = 4;
+        const STATUS_PENDING = -1;
+     */
+    private function transformRecurringStatusId($invoice)
+    {
+        if($invoice->is_deleted == FALSE &&
+           $invoice->deleted_at == NULL &&
+           $invoice->is_recurring == TRUE &&
+           $invoice->is_public == TRUE &&
+           $invoice->frequency_id > 0 &&
+           $invoice->start_date <= now() &&
+           ($invoice->end_date == NULL || $invoice->end_date >= now())) {
+
+            return 2;
+        }
+
+        if($invoice->is_public == 0)
+            return 1;
+
+        if($invoice->end_date < now())
+            return 4;
+
     }
 
     /*
