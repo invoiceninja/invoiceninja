@@ -1,4 +1,4 @@
-@component('email.template.master', ['design' => 'dark', 'settings' => $settings])
+@component('email.template.master', ['design' => 'dark', 'settings' => $settings, 'whitelabel' => $whitelabel])
 
 @slot('header')
     @component('email.components.header', ['p' => $body, 'logo' => 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png'])

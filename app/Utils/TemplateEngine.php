@@ -173,6 +173,7 @@ class TemplateEngine
         $data['footer'] = '';
         $data['signature'] = $this->settings_entity->getSetting('email_signature');
         $data['settings'] = $this->settings;
+        $data['whitelabel'] = $this->entity_obj->client->user->account->isPaid() ? true : false;
 
         if ($email_style == 'custom') {
             $wrapper = $this->settings_entity->getSetting('email_style_custom');
