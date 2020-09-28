@@ -18,10 +18,10 @@
         {{--- Former::select('database[default]')->label('driver')->options(['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'])
                 ->value(isset($_ENV['DB_TYPE']) ? $_ENV['DB_TYPE'] : 'mysql') ---}}
         {!! Former::plaintext('driver')->value('MySQL') !!}
-        {!! Former::text('database[type][host]')->label('host')->value(isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost') !!}
-        {!! Former::text('database[type][database]')->label('database')->value(isset($_ENV['DB_DATABASE']) ? $_ENV['DB_DATABASE'] : 'ninja') !!}
-        {!! Former::text('database[type][username]')->label('username')->value(isset($_ENV['DB_USERNAME']) ? $_ENV['DB_USERNAME'] : 'ninja') !!}
-        {!! Former::password('database[type][password]')->label('password')->value(isset($_ENV['DB_PASSWORD']) ? $_ENV['DB_PASSWORD'] : 'ninja') !!}
+        {!! Former::text('database[type][host]')->label('host')->value(HTMLUtils::getEnvForAccount('DB_HOST', 'localhost')) !!}
+        {!! Former::text('database[type][database]')->label('database')->value(HTMLUtils::getEnvForAccount('DB_DATABASE', 'ninja')) !!}
+        {!! Former::text('database[type][username]')->label('username')->value(HTMLUtils::getEnvForAccount('DB_USERNAME', 'ninja')) !!}
+        {!! Former::password('database[type][password]')->label('password')->value(HTMLUtils::getEnvForAccount('DB_PASSWORD', 'ninja')) !!}
         {!! Former::actions( Button::primary(trans('texts.test_connection'))->small()->withAttributes(['onclick' => 'testDatabase()']), '&nbsp;&nbsp;<span id="dbTestResult"/>' ) !!}
       </div>
     </div>
