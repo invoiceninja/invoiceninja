@@ -81,5 +81,16 @@ class PaymentLibrariesSeeder extends Seeder
                 Gateway::create($gateway);
             }
         }
+
+        Gateway::query()->update(['visible' => 0]);
+
+        Gateway::whereIn('id', [1,15,20,39])->update(['visible' => 1]);
+
+        Gateway::all()->each(function ($gateway){
+
+            $gateway->site_url = $gateway->getHelp();
+            $gateway->save();
+
+        });
     }
 }
