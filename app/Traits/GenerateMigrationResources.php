@@ -24,7 +24,9 @@ trait GenerateMigrationResources
     protected function getCompany()
     {
         return [
+            'referral_code' => $this->account->referral_code ?: '',
             'account_id' => $this->account->id,
+            'google_analytics_key' => $this->account->analytics_key ?: '',
             'industry_id' => $this->account->industry_id,
             'ip' => $this->account->ip,
             'company_key' => $this->account->account_key,
@@ -489,8 +491,12 @@ trait GenerateMigrationResources
                 'product_key' => $item->product_key,
                 'notes' => $item->notes,
                 'discount' => (float) $item->discount,
-                'tax_name1' => $item->tax_name1,
+                'tax_name1' => (string)$item->tax_name1,
                 'tax_rate1' => (float) $item->tax_rate1,
+                'tax_name2' => (string) $item->tax_name2,
+                'tax_rate2' => (float) $item->tax_rate2,
+                'tax_name3' => (string) '',
+                'tax_rate3' => (float) 0,
                 'date' => $item->created_at,
                 'custom_value1' => $item->custom_value1,
                 'custom_value2' => $item->custom_value2,
