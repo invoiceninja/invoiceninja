@@ -48,7 +48,7 @@ class DeletedUserActivity implements ShouldQueue
 
         $fields = new \stdClass;
 
-        if (auth()->user()->id) {
+        if (auth()->check()) {
             $fields->user_id = auth()->user()->id;
         } else {
             $fields->user_id = $event->user->id;
