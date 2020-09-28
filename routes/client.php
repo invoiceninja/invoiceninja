@@ -57,14 +57,12 @@ Route::group(['middleware' => ['auth:contact', 'locale'], 'prefix' => 'client', 
 
     Route::resource('credits', 'ClientPortal\CreditController')->only('index', 'show');
 
-    Route::post('document', 'ClientPortal\DocumentController@store')->name('document.store');
-    Route::delete('document', 'ClientPortal\DocumentController@destroy')->name('document.destroy');
 
     Route::get('client/switch_company/{contact}', 'ClientPortal\SwitchCompanyController')->name('switch_company');
 
-    Route::post('downloads/multiple', 'ClientPortal\DownloadController@downloadMultiple')->name('downloads.multiple');
-    Route::get('downloads/{download}/download', 'ClientPortal\DownloadController@download')->name('downloads.download');
-    Route::resource('downloads', 'ClientPortal\DownloadController')->only(['index', 'show']);
+    Route::post('documents/download_multiple', 'ClientPortal\DocumentController@downloadMultiple')->name('documents.download_multiple');
+    Route::get('documents/{document}/download', 'ClientPortal\DocumentController@download')->name('documents.download');
+    Route::resource('documents', 'ClientPortal\DocumentController')->only(['index', 'show']);
 
     Route::post('upload', 'ClientPortal\UploadController')->name('upload.store');
 
