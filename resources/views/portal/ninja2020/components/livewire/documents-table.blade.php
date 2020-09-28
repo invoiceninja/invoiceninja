@@ -59,30 +59,30 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($downloads as $download)
+                    @forelse($documents as $document)
                         <tr class="bg-white group hover:bg-gray-100">
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                <input type="checkbox" class="form-checkbox cursor-pointer" onchange="appendToElement('multiple-downloads', '{{ $download->hashed_id }}')" />
+                                <input type="checkbox" class="form-checkbox cursor-pointer" onchange="appendToElement('multiple-downloads', '{{ $document->hashed_id }}')" />
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ Illuminate\Support\Str::limit($download->name, 20) }}
+                                {{ Illuminate\Support\Str::limit($document->name, 20) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ ((new \ReflectionClass($download->documentable))->getShortName()) }}
+                                {{ ((new \ReflectionClass($document->documentable))->getShortName()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ App\Models\Document::$types[$download->type]['mime'] }}
+                                {{ App\Models\Document::$types[$document->type]['mime'] }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ $download->size / 1000 }} kB
+                                {{ $document->size / 1000 }} kB
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                <a href="{{ route('client.downloads.download', $download->hashed_id) }}" class="text-black hover:text-blue-600">
+                                <a href="{{ route('client.documents.download', $document->hashed_id) }}" class="text-black hover:text-blue-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download-cloud"><polyline points="8 17 12 21 16 17"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"></path></svg>
                                 </a>
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                <a href="{{ route('client.downloads.show', $download->hashed_id) }}" class="button-link">
+                                <a href="{{ route('client.documents.show', $document->hashed_id) }}" class="button-link">
                                     {{ ctrans('texts.view') }}
                                 </a>
                             </td>
@@ -99,11 +99,11 @@
         </div>
     </div>
     <div class="flex justify-center md:justify-between mt-6 mb-6">
-        @if($downloads->total() > 0)
+        @if($documents->total() > 0)
             <span class="text-gray-700 text-sm hidden md:block">
-                {{ ctrans('texts.showing_x_of', ['first' => $downloads->firstItem(), 'last' => $downloads->lastItem(), 'total' => $downloads->total()]) }}
+                {{ ctrans('texts.showing_x_of', ['first' => $documents->firstItem(), 'last' => $documents->lastItem(), 'total' => $documents->total()]) }}
             </span>
         @endif
-        {{ $downloads->links() }}
+        {{ $documents->links() }}
     </div>
 </div>

@@ -10,12 +10,16 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\Document;
+namespace App\Http\Requests\ClientPortal\Documents;
 
+use App\Models\Document;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
 
-class DownloadMultipleDocumentsRequest extends FormRequest
+class ShowDocumentRequest extends FormRequest
 {
+    use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -23,7 +27,7 @@ class DownloadMultipleDocumentsRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return auth()->user('contact')->client->id === $this->document->documentable->id;
     }
 
     /**
@@ -34,7 +38,7 @@ class DownloadMultipleDocumentsRequest extends FormRequest
     public function rules()
     {
         return [
-            'file_hash' => ['required'],
+            //
         ];
     }
 }

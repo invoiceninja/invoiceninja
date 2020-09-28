@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -12,124 +13,64 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\StoreDocumentRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use App\Http\Requests\ClientPortal\Documents\ShowDocumentRequest;
+use App\Http\Requests\Document\DownloadMultipleDocumentsRequest;
+use App\Models\Document;
+use App\Utils\TempFile;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Storage;
+use ZipStream\Option\Archive;
+use ZipStream\ZipStream;
 
 class DocumentController extends Controller
 {
+    use MakesHash;
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
     {
+        return render('documents.index');
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function create()
+    public function show(ShowDocumentRequest $request, Document $document)
     {
-        //
+        return render('documents.show', [
+            'document' => $document,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreDocumentRequest $request)
+    public function download(ShowDocumentRequest $request, Document $document)
     {
-        $contact = auth()->user();
-
-        Storage::makeDirectory('public/'.$contact->client->client_hash, 0775);
-
-        $path = Storage::putFile('public/'.$contact->client->client_hash, $request->file('file'));
-
-        $contact = auth()->user();
-        $contact->avatar_size = $request->file('file')->getSize();
-        $contact->avatar_type = $request->file('file')->getClientOriginalExtension();
-        $contact->avatar = Storage::url($path);
-        $contact->save();
-
-        return response()->json($contact);
-
-        /*
-        [2019-08-07 05:50:23] local.ERROR: array (
-          '_token' => '7KoEVRjB2Fq8XBVFRUFbhQFjKm4rY9h0AGSlpdj3',
-          'is_avatar' => '1',
-          'q' => '/client/document',
-          'file' =>
-          Illuminate\Http\UploadedFile::__set_state(array(
-             'test' => false,
-             'originalName' => 'family.jpg',
-             'mimeType' => 'image/jpeg',
-             'error' => 0,
-             'hashName' => NULL,
-          )),
-        )
-         */
+        return Storage::disk($document->disk)->download($document->url, $document->name);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function downloadMultiple(DownloadMultipleDocumentsRequest $request)
     {
-        //
-    }
+        $documents = Document::whereIn('id', $this->transformKeys($request->file_hash))
+            ->where('company_id', auth('contact')->user()->company->id)
+            ->get();
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
+        $documents->map(function ($document) {
+            if (auth()->user('contact')->client->id != $document->documentable->id) {
+                abort(401);
+            }
+        });
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+        $options = new Archive();
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy()
-    {
-        $contact = auth()->user();
+        $options->setSendHttpHeaders(true);
 
-        $file = basename($contact->avatar);
-        $image_path = 'public/'.$contact->client->client_hash.'/'.$file;
+        $zip = new ZipStream('files.zip', $options);
 
-        Storage::delete($image_path);
+        foreach ($documents as $document) {
+            $zip->addFileFromPath(basename($document->filePath()), TempFile::path($document->filePath()));
+        }
 
-        $contact->avatar = '';
-        $contact->avatar_type = '';
-        $contact->avatar_size = '';
-        $contact->save();
-
-        return response()->json($contact);
+        $zip->finish();
     }
 }

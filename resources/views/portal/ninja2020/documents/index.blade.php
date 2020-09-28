@@ -10,8 +10,8 @@
 @endsection
 
 @section('body')
-    <form action="{{ route('client.downloads.multiple') }}" method="post" id="multiple-downloads">
+    <form action="{{ route('client.documents.download_multiple') }}" method="post" id="multiple-downloads">
         @csrf
     </form>
-    @livewire('downloads-table')
+    @livewire('documents-table', ['client' => $client])
 @endsection

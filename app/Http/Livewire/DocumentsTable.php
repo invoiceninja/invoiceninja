@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
 namespace App\Http\Livewire;
 
 use App\Models\Document;
@@ -7,15 +17,22 @@ use App\Utils\Traits\WithSorting;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class DownloadsTable extends Component
+class DocumentsTable extends Component
 {
     use WithPagination, WithSorting;
+
+    public $client;
 
     public $per_page = 10;
 
     public $status = [
         'resources',
     ];
+
+    public function mount($client)
+    {
+        $this->client = $client;
+    }
 
     public function statusChange($status)
     {
@@ -28,8 +45,7 @@ class DownloadsTable extends Component
 
     public function render()
     {
-        // $query = auth('contact')->user()->client->documents();
-        $query = Document::query();
+        $query = $this->client->documents();
 
         if (in_array('resources', $this->status) && ! in_array('client', $this->status)) {
             $query = $query->where('documentable_type', '!=', \App\Models\Client::class);
@@ -40,12 +56,12 @@ class DownloadsTable extends Component
         }
 
         $query = $query
-            // ->where('is_public', true)
+            ->where('is_public', true)
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);
 
-        return render('components.livewire.downloads-table', [
-            'downloads' => $query,
+        return render('components.livewire.documents-table', [
+            'documents' => $query,
         ]);
     }
 }
