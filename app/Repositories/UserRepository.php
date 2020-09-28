@@ -105,6 +105,9 @@ class UserRepository extends BaseRepository
 
     public function destroy(array $data, User $user)
     {
+
+info("destroy user");
+
         if (array_key_exists('company_user', $data)) {
             $this->forced_includes = 'company_users';
 
@@ -118,9 +121,9 @@ class UserRepository extends BaseRepository
             $cu->forceDelete();
         }
 
-        $user->delete();
-
         event(new UserWasDeleted($user, $company, Ninja::eventVars()));
+
+        $user->delete();
 
         return $user->fresh();
     }
@@ -130,6 +133,9 @@ class UserRepository extends BaseRepository
      */
     public function delete($user)
     {
+
+info("delete user");
+
         $company = auth()->user()->company();
 
         $cu = CompanyUser::whereUserId($user->id)
@@ -141,11 +147,12 @@ class UserRepository extends BaseRepository
             $cu->delete();
         }
 
+        event(new UserWasDeleted($user, $company, Ninja::eventVars()));
+
         $user->is_deleted = true;
         $user->save();
         $user->delete();
 
-        event(new UserWasDeleted($user, $company, Ninja::eventVars()));
 
         return $user->fresh();
     }
