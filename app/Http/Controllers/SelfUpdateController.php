@@ -74,8 +74,8 @@ class SelfUpdateController extends BaseController
         try {
             $res = $repo->pull();
         } catch (GitException $e) {
-            info($e->getMessage());
 
+            info($e->getMessage());
             return response()->json(['message'=>$e->getMessage()], 500);
         }
         info('Are there any changes to pull? '.$repo->hasChanges());

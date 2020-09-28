@@ -51,6 +51,10 @@ class StoreDesignRequest extends Request
             $input['design']['includes'] = '';
         }
         
+        if (! array_key_exists('footer', $input['design']) || is_null($input['design']['footer'])) {
+            $input['design']['footer'] = '';
+        }
+        
         $this->replace($input);
     }
 }

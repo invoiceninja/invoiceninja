@@ -372,8 +372,6 @@ class RecurringInvoice extends BaseModel
 
         /* Return early if nothing to send back! */        
         if( $this->status_id == self::STATUS_COMPLETED ||
-            $this->status_id == self::STATUS_DRAFT ||
-            $this->status_id == self::STATUS_PAUSED ||
             $this->remaining_cycles == 0 ||
             !$this->next_send_date) {
 

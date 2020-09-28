@@ -44,9 +44,11 @@ class RecurringInvoicesCron
 
         if (! config('ninja.db.multi_db_enabled')) {
 
-            $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '=', now())->cursor();
+                $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '=', now())
+                                                        ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                                                        ->cursor();
 
-                Log::info(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = '.$recurring_invoices->count().' On Database # '.$db);
+                Log::info(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = '.$recurring_invoices->count());
 
                 $recurring_invoices->each(function ($recurring_invoice, $key) {
 
@@ -62,7 +64,9 @@ class RecurringInvoicesCron
 
                 MultiDB::setDB($db);
 
-                $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '=', now())->cursor();
+                $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '=', now())
+                                                        ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                                                        ->cursor();
 
                 Log::info(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = '.$recurring_invoices->count().' On Database # '.$db);
 

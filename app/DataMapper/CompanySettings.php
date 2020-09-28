@@ -610,17 +610,17 @@ class CompanySettings extends BaseSettings
                 '$task.line_total',
             ],
             'total_columns' => [
-                '$total_taxes',
-                '$line_taxes',
                 '$subtotal',
                 '$discount',
+                '$total_taxes',
+                '$line_taxes',
                 '$custom_surcharge1',
                 '$custom_surcharge2',
                 '$custom_surcharge3',
                 '$custom_surcharge4',
-                '$paid_to_date',
-                '$client.balance',
                 '$total',
+                '$paid_to_date',
+                '$outstanding',
             ],
         ];
 
