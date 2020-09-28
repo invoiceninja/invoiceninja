@@ -171,9 +171,8 @@ class TemplateEngine
         $data['title'] = '';
         $data['body'] = '$body';
         $data['footer'] = '';
-        $data['signature'] = $this->settings_entity->getSetting('email_signature');
-        $data['settings'] = $this->settings;
-        $data['whitelabel'] = $this->entity_obj->client->user->account->isPaid() ? true : false;
+        
+        $data = array_merge($data, Helpers::sharedEmailVariables($this->entity_obj->client));
 
         if ($email_style == 'custom') {
             $wrapper = $this->settings_entity->getSetting('email_style_custom');
