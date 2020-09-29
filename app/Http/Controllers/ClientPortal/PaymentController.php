@@ -111,7 +111,7 @@ class PaymentController extends Controller
             $invoice_amount = Number::roundValue($invoice->amount, auth()->user()->client->currency()->precision);
 
             if ($settings->client_portal_allow_under_payment == false && $settings->client_portal_allow_over_payment == false) {
-                $payable_invoice['amount'] = $invoice->amount;
+                $payable_invoice['amount'] = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), auth()->user()->client->currency()->precision);
             } // We don't allow either of these, reset the amount to default invoice (to prevent inspect element payments).
 
             if ($settings->client_portal_allow_under_payment) {
