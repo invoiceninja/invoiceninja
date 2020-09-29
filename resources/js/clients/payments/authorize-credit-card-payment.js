@@ -39,7 +39,9 @@ class AuthorizeAuthorizeCard {
         // send the bankData object instead of the cardData object.
         //
         // secureData.bankData = bankData;
-        processingOverlay(true);
+        document.getElementById('card_button').disabled = true;
+        document.querySelector('#card_button > svg').classList.remove('hidden');
+        document.querySelector('#card_button > span').classList.add('hidden');
 
 		Accept.dispatchData(secureData, this.responseHandler);
         
@@ -55,14 +57,15 @@ class AuthorizeAuthorizeCard {
     }
 
     responseHandler(response) {
-        processingOverlay(false);
-
 	    if (response.messages.resultCode === "Error") {
 	        var i = 0;
 
             var $errors = $('#errors'); // get the reference of the div
             $errors.show().html("<p>" + response.messages.message[i].code + ": " + response.messages.message[i].text + "</p>"); 
-            
+         
+            document.getElementById('card_button').disabled = false;
+            document.querySelector('#card_button > svg').classList.add('hidden');
+            document.querySelector('#card_button > span').classList.remove('hidden');
 	    }
 	    else if(response.messages.resultCode === "Ok"){
             
