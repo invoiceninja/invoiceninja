@@ -33,16 +33,19 @@ class ProcessAlipay {
 
         document.getElementById('pay-now').addEventListener('submit', (e) => {
             e.preventDefault();
-            processingOverlay(true);
-            document.getElementById('pay-now').disabled = true;
+            
+            document.getElementById('pay-now-button').disabled = true;
+            document.querySelector('#pay-now-button > svg').classList.add('hidden');
+            document.querySelector('#pay-now-button > span').classList.remove('hidden');
 
             this.stripe.createSource(data).then(function(result) {
                 if (result.hasOwnProperty('source')) {
                     return (window.location = result.source.redirect.url);
                 }
 
-                processingOverlay(false);
-                document.getElementById('pay-now').disabled = false;
+                document.getElementById('pay-now-button').disabled = false;
+                document.querySelector('#pay-now-button > svg').classList.remove('hidden');
+                document.querySelector('#pay-now-button > span').classList.add('hidden');
 
                 this.errors.textContent = '';
                 this.errors.textContent = result.error.message;
