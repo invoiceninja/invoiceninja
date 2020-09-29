@@ -37,8 +37,9 @@ class AuthorizeACH {
     };
 
     handleError = (message) => {
-        processingOverlay(false);
         document.getElementById('save-button').disabled = false;
+        document.querySelector('#save-button > svg').classList.add('hidden');
+        document.querySelector('#save-button > span').classList.remove('hidden');
 
         this.errors.textContent = '';
         this.errors.textContent = message;
@@ -54,10 +55,12 @@ class AuthorizeACH {
     };
 
     handleSubmit = (e) => {
-        processingOverlay(true);
         document.getElementById('save-button').disabled = true;
-
+        document.querySelector('#save-button > svg').classList.remove('hidden');
+        document.querySelector('#save-button > span').classList.add('hidden');
+        
         e.preventDefault();
+
         this.errors.textContent = '';
         this.errors.hidden = true;
 

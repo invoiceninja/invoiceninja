@@ -36,8 +36,9 @@ class AuthorizeStripeCard {
     }
 
     handleStripe(stripe, cardHolderName) {
-        processingOverlay(true);
         this.cardButton.disabled = true;
+        this.cardButton.querySelector('span').classList.add('hidden');
+        this.cardButton.querySelector('svg').classList.remove('hidden');
 
         stripe
             .handleCardSetup(this.clientSecret, this.cardElement, {
@@ -55,8 +56,9 @@ class AuthorizeStripeCard {
     }
 
     handleFailure(result) {
-        processingOverlay(false);
         this.cardButton.disabled = false;
+        this.cardButton.querySelector('span').classList.remove('hidden');
+        this.cardButton.querySelector('svg').classList.add('hidden');
 
         let errors = document.getElementById('errors');
 
