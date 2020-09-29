@@ -39,7 +39,8 @@ class ProcessStripePayment {
         this.payNowButton = payNowButton;
         this.payNowButton.disabled = true;
 
-        processingOverlay(true);
+        this.payNowButton.querySelector('svg').classList.remove('hidden');
+        this.payNowButton.querySelector('span').classList.add('hidden');
 
         this.stripe
             .handleCardPayment(payNowButton.dataset.secret, {
@@ -57,10 +58,13 @@ class ProcessStripePayment {
     completePaymentWithoutToken() {
         let payNowButton = document.getElementById('pay-now');
         this.payNowButton = payNowButton;
+        
+        this.payNowButton.disabled = true;
+
+        this.payNowButton.querySelector('svg').classList.remove('hidden');
+        this.payNowButton.querySelector('span').classList.add('hidden');
 
         let cardHolderName = document.getElementById('cardholder-name');
-
-        processingOverlay(true);
 
         this.stripe
             .handleCardPayment(payNowButton.dataset.secret, this.cardElement, {
@@ -82,8 +86,6 @@ class ProcessStripePayment {
     }
 
     handleSuccess(result) {
-        processingOverlay(false);
-
         document.querySelector(
             'input[name="gateway_response"]'
         ).value = JSON.stringify(result.paymentIntent);
@@ -107,8 +109,9 @@ class ProcessStripePayment {
         errors.textContent = message;
         errors.hidden = false;
 
-        processingOverlay(false);
         this.payNowButton.disabled = false;
+        this.payNowButton.querySelector('svg').classList.add('hidden');
+        this.payNowButton.querySelector('span').classList.remove('hidden');
     }
 
     handle() {
