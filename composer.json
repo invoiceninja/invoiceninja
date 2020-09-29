@@ -49,7 +49,7 @@
         "nwidart/laravel-modules": "^6.0",
         "omnipay/paypal": "^3.0",
         "predis/predis": "^1.1",
-        "sentry/sentry-laravel": "^1.8",
+        "sentry/sentry-laravel": "^2",
         "spatie/browsershot": "^3.37",
         "staudenmeir/eloquent-has-many-deep": "^1.11",
         "stripe/stripe-php": "^7.50",
