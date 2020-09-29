@@ -198,4 +198,20 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
         return asset('images/svg/user.svg');
     }
+
+    /**
+     * Provides a convenience login click for contacts to bypass the
+     * contact authentication layer
+     *     
+     * @return string URL
+     */
+    public function getLoginLink()
+    {
+
+        $domain = isset($this->company->portal_domain) ?: $this->company->domain();
+
+        return $domain . 'client/key_login/' . $this->contact_key;        
+
+    }
+    
 }

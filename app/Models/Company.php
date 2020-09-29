@@ -426,7 +426,7 @@ class Company extends BaseModel
     public function domain()
     {
         if (Ninja::isNinja()) {
-            return $this->subdomain.config('ninja.app_domain');
+            return $this->subdomain . config('ninja.app_domain');
         }
 
         return config('ninja.app_url');

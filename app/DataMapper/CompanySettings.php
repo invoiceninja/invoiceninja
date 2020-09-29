@@ -589,7 +589,7 @@ class CompanySettings extends BaseSettings
                 '$credit.po_number',
                 '$credit.date',
                 '$credit.balance',
-                '$credit.amount',
+                '$credit.total',
             ],
             'product_columns' => [
                 '$product.product_key',
