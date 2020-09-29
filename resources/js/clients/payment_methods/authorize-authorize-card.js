@@ -35,7 +35,9 @@ class AuthorizeAuthorizeCard {
         secureData.authData = authData;
         secureData.cardData = cardData;
 
-        processingOverlay(true);
+        document.getElementById('card_button').disabled = true;
+        document.querySelector('#card_button > svg').classList.remove('hidden');
+        document.querySelector('#card_button > span').classList.add('hidden');
 
 		Accept.dispatchData(secureData, this.responseHandler);
           return false;
@@ -43,8 +45,6 @@ class AuthorizeAuthorizeCard {
     }
 
     responseHandler(response) {
-        processingOverlay(false);
-
 	    if (response.messages.resultCode === "Error") {
 	        var i = 0;
 	        while (i < response.messages.message.length) {
@@ -53,7 +53,11 @@ class AuthorizeAuthorizeCard {
 	                response.messages.message[i].text
 	            );
 	            i = i + 1;
-	        }
+            }
+            
+            document.getElementById('card_button').disabled = false;
+            document.querySelector('#card_button > svg').classList.add('hidden');
+            document.querySelector('#card_button > span').classList.remove('hidden');
 	    }
 	    else if(response.messages.resultCode === "Ok"){
             
