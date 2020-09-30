@@ -29,37 +29,37 @@
             <table class="min-w-full mt-4 border border-gray-200 rounded shadow invoices-table">
                 <thead>
                     <tr>
-                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <label>
                                 <input type="checkbox" class="form-check form-check-parent">
                             </label>
                         </th>
-                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <span role="button" wire:click="sortBy('number')" class="cursor-pointer">
                                 {{ ctrans('texts.invoice_number') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <span role="button" wire:click="sortBy('date')" class="cursor-pointer">
                                 {{ ctrans('texts.invoice_date') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <span role="button" wire:click="sortBy('balance')" class="cursor-pointer">
                                 {{ ctrans('texts.balance') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <span role="button" wire:click="sortBy('due_date')" class="cursor-pointer">
                                 {{ ctrans('texts.due_date') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <span role="button" wire:click="sortBy('status_id')" class="cursor-pointer">
                                 {{ ctrans('texts.status') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
+                        <th class="px-white-3 border-b border-gray-200 bg-primary"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -91,12 +91,12 @@
                                         @csrf
                                         <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
                                         <input type="hidden" name="action" value="payment">
-                                        <button class="px-2 py-1 mr-3 text-xs uppercase button button-primary">
+                                        <button class="px-2 py-1 mr-3 text-xs uppercase button button-primary bg-primary">
                                             @lang('texts.pay_now')
                                         </button>
                                     </form>
                                 @endif
-                                <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}" class="button-link">
+                                <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}" class="button-link text-primary">
                                     @lang('texts.view')
                                 </a>
                             </td>

@@ -34,7 +34,7 @@
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                <button type="button" id="accept-terms-button" class="button button-primary">
+                <button type="button" id="accept-terms-button" class="button button-primary bg-primary">
                     {{ ctrans('texts.agree_to_terms', ['terms' => trans('texts.invoice_terms')]) }}
                 </button>
             </div>

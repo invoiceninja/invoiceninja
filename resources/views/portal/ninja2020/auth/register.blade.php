@@ -36,7 +36,7 @@
                         </span>
                     </span>
 
-                    <button class="button button-primary">{{ ctrans('texts.save') }}</button>
+                    <button class="button button-primary bg-blue-600">{{ ctrans('texts.save') }}</button>
                 </div>
             </form>
         </div>

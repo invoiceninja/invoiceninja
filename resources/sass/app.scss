@@ -33,9 +33,5 @@
     // hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-400 transition ease-in-out duration-150
 }
 
-.active-page {
-    @apply bg-blue-900 #{!important};
-}
-
 /* purgecss end ignore */
 @tailwind utilities;

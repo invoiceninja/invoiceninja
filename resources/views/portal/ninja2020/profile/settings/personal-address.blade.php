@@ -76,7 +76,7 @@
                     </div>
                 </div>
                 <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                    <button class="button button-primary">{{ $saved }}</button>
+                    <button class="button button-primary bg-primary">{{ $saved }}</button>
                 </div>
         </div>
         </form>

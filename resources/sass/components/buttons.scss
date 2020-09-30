@@ -1,5 +1,5 @@
 .button {
-    @apply rounded py-3 px-4 text-sm leading-4 transition duration-150 ease-in-out font-semibold;
+    @apply rounded py-3 px-4 text-sm leading-4 transition duration-150 ease-in-out;
 }
 
 button:disabled {
@@ -7,10 +7,10 @@ button:disabled {
 }
 
 .button-primary {
-    @apply bg-blue-500 text-white;
+    @apply text-white;
 
     &:hover {
-        @apply bg-blue-600;
+        @apply font-semibold;
     }
 }
 
@@ -35,10 +35,8 @@ button:disabled {
 }
 
 .button-link {
-    @apply text-blue-600;
-
     &:hover {
-        @apply text-blue-700 underline;
+        @apply font-semibold underline;
     }
 
     &:focus {
