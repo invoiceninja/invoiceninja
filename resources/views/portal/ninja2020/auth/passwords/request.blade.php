@@ -33,7 +33,7 @@
                             @enderror
                         </div>
                         <div class="mt-5">
-                            <button class="button button-primary button-block">{{ ctrans('texts.next_step') }}</button>
+                            <button class="button button-primary button-block bg-blue-600">{{ ctrans('texts.next_step') }}</button>
                         </div>
                     </form>
                 </div>

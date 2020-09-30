@@ -47,7 +47,7 @@
                             @enderror
                         </div>
                         <div class="mt-5">
-                            <button id="loginBtn" class="button button-primary button-block">
+                            <button id="loginBtn" class="button button-primary button-block bg-blue-600">
                                 {{ trans('texts.login') }}
                             </button>
                         </div>

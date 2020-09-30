@@ -2,7 +2,7 @@
     @apply items-center border border-gray-300 rounded mt-2 py-2 px-4 text-sm;
 
     &:focus {
-        @apply outline-none border-blue-500;
+        @apply outline-none bg-gray-50;
     }
 }
 

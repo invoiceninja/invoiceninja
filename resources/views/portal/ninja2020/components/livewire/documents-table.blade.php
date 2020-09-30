@@ -8,7 +8,7 @@
                 <option>15</option>
                 <option>20</option>
             </select>
-            <button x-on:click="document.getElementById('multiple-downloads').submit()" class="button button-primary py-2 ml-2">
+            <button x-on:click="document.getElementById('multiple-downloads').submit()" class="button button-primary bg-primary py-2 ml-2">
                 <span class="hidden md:block">
                     {{ ctrans('texts.download_selected') }}
                 </span>
@@ -31,31 +31,31 @@
             <table class="min-w-full shadow rounded border border-gray-200 mt-4 credits-table">
                 <thead>
                     <tr>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider" />
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider" />
+                        <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('name')" class="cursor-pointer">
                                 {{ ctrans('texts.name') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('documentable_type')" class="cursor-pointer">
                                 {{ ctrans('texts.resource') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('type')" class="cursor-pointer">
                                 {{ ctrans('texts.type') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('size')" class="cursor-pointer">
                                 {{ ctrans('texts.size') }}
                             </span>
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                             {{ ctrans('texts.download') }}
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider" />
+                        <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider" />
                     </tr>
                 </thead>
                 <tbody>
@@ -82,7 +82,7 @@
                                 </a>
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                <a href="{{ route('client.documents.show', $document->hashed_id) }}" class="button-link">
+                                <a href="{{ route('client.documents.show', $document->hashed_id) }}" class="button-link text-primary">
                                     {{ ctrans('texts.view') }}
                                 </a>
                             </td>

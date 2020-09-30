@@ -47,7 +47,7 @@
                         @else
                         <span class="inline-flex items-center text-sm">
                             <span>{{ ctrans('texts.to_pay_invoices') }} &nbsp;</span>
-                            <a class="button-link" href="{{ route('client.payment_methods.index') }}">{{ ctrans('texts.add_payment_method_first') }}.</a>
+                            <a class="button-link text-primary" href="{{ route('client.payment_methods.index') }}">{{ ctrans('texts.add_payment_method_first') }}.</a>
                         </span>
                         @endif
                     </div>
@@ -59,7 +59,7 @@
                     <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                         <h3 class="text-lg font-medium leading-6 text-gray-900">
                             {{ ctrans('texts.invoice') }}
-                            <a class="button-link" href="{{ route('client.invoice.show', $invoice->hashed_id) }}">
+                            <a class="button-link text-primary" href="{{ route('client.invoice.show', $invoice->hashed_id) }}">
                                 (#{{ $invoice->number }})
                             </a>
                         </h3>

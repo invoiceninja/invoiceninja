@@ -23,7 +23,7 @@
                             <div class="inline-flex rounded-md shadow-sm">
                                 <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
                                 <input type="hidden" name="action" value="payment">
-                                <button class="button button-primary">@lang('texts.pay_now')</button>
+                                <button class="button button-primary bg-primary">{{ ctrans('texts.pay_now') }}</button>
                             </div>
                         </div>
                     </div>

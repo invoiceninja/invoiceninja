@@ -79,7 +79,7 @@
                             </dd>
                         </div>
                         <div class="bg-white px-4 py-5 flex justify-end">
-                            <button class="button button-primary" onclick="document.getElementById('server-response').submit()">
+                            <button class="button button-primary bg-primary" onclick="document.getElementById('server-response').submit()">
                                 {{ ctrans('texts.pay_now') }}
                             </button>
                         </div>

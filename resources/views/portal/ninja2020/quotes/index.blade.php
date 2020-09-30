@@ -15,9 +15,9 @@
     <div class="flex justify-between items-center">
         <form action="{{ route('client.quotes.bulk') }}" method="post" id="bulkActions">
             @csrf
-            <button type="submit" class="button button-primary" name="action"
+            <button type="submit" class="button button-primary bg-primary" name="action"
                     value="download">{{ ctrans('texts.download') }}</button>
-            <button type="submit" class="button button-primary" name="action"
+            <button type="submit" class="button button-primary bg-primary" name="action"
                     value="approve">{{ ctrans('texts.approve') }}</button>
         </form>
     </div>

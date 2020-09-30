@@ -23,7 +23,7 @@
                         <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
                             <div class="inline-flex rounded-md shadow-sm">
                                 <input type="hidden" name="action" value="payment">
-                                <button class="button button-primary">@lang('texts.approve')</button>
+                                <button class="button button-primary bg-primary">{{ ctrans('texts.approve') }}</button>
                             </div>
                         </div>
                     </div>

@@ -88,7 +88,7 @@
                         {{ ctrans('texts.invoice_number') }}
                     </dt>
                     <div class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                        <a class="button-link" href="{{ route('client.invoice.show', ['invoice' => $invoice->hashed_id])}}">
+                        <a class="button-link text-primary" href="{{ route('client.invoice.show', ['invoice' => $invoice->hashed_id])}}">
                             {{ $invoice->number }}
                         </a>
                     </div>

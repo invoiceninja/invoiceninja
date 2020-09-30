@@ -1,20 +1,20 @@
 <div class="hidden md:flex md:flex-shrink-0">
     <div class="flex flex-col w-64">
-        <div class="flex items-center h-16 flex-shrink-0 px-4 bg-blue-900 justify-center">
+        <div class="flex items-center h-16 flex-shrink-0 px-4 bg-primary-darken justify-center">
             <a href="{{ route('client.dashboard') }}">
                 <img class="h-8 w-auto" src="{!! $settings->company_logo ?: asset('images/invoiceninja-white-logo.png') !!}" alt="{{ config('app.name') }}" />
             </a>
         </div>
         <div class="h-0 flex-1 flex flex-col overflow-y-auto">
-            <nav class="flex-1 py-4 bg-blue-800">
+            <nav class="flex-1 py-4 bg-primary">
                 @foreach($sidebar as $row)
-                <a class="group flex items-center p-4 text-sm leading-5 font-medium text-white bg-blue-800 hover:bg-blue-900 focus:outline-none focus:bg-blue-900 transition ease-in-out duration-150 {{ isActive($row['url']) }}" href="{{ route($row['url']) }}">
+                <a class="group flex items-center p-4 text-sm leading-5 font-medium text-white bg-primary hover:font-semibold focus:outline-none focus:bg-primary-darken transition ease-in-out duration-150 {{ isActive($row['url']) }}" href="{{ route($row['url']) }}">
                     <img src="{{ asset('images/svg/' . $row['icon'] . '.svg') }}" class="w-5 h-5 fill-current text-white mr-3" alt="" />
                     {{ $row['title'] }}
                 </a>
                 @endforeach
             </nav>
-            <div class="flex-shrink-0 flex bg-blue-800 p-4 justify-center">
+            <div class="flex-shrink-0 flex bg-primary p-4 justify-center">
                 <div class="flex items-center">
                     <a href="https://www.facebook.com/invoiceninja/">
                         <svg class="text-white hover:text-gray-300 mr-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

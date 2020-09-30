@@ -12,7 +12,7 @@
         <div class="relative" x-data="{ open: false }" x-on:click.away="open = false">
             <!-- Add payment method button -->
             @if($client->getCreditCardGateway() || $client->getBankTransferGateway())
-                <button x-on:click="open = !open" class="button button-primary">{{ ctrans('texts.add_payment_method') }}</button>
+                <button x-on:click="open = !open" class="button button-primary bg-primary">{{ ctrans('texts.add_payment_method') }}</button>
                 <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
                     <div class="py-1 rounded-md bg-white shadow-xs">
                         @if($client->getCreditCardGateway())
@@ -35,29 +35,29 @@
             <table class="min-w-full shadow rounded border border-gray-200 mt-4 payment-methods-table">
                 <thead>
                 <tr>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white  uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('created_at')" class="cursor-pointer">
                                 {{ ctrans('texts.created_at') }}
                             </span>
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white  uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('type_id')" class="cursor-pointer">
                                 {{ ctrans('texts.payment_type_id') }}
                             </span>
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white  uppercase tracking-wider">
                         {{ ctrans('texts.type') }}
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white  uppercase tracking-wider">
                         {{ ctrans('texts.expires') }}
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white  uppercase tracking-wider">
                         {{ ctrans('texts.card_number') }}
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white  uppercase tracking-wider">
                         {{ ctrans('texts.default') }}
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary"></th>
                 </tr>
                 </thead>
                 <tbody>

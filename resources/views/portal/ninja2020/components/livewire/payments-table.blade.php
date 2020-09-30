@@ -14,32 +14,32 @@
         <table class="min-w-full shadow rounded border border-gray-200 payments-table">
             <thead>
                 <tr>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                         <span role="button" wire:click="sortBy('date')" class="cursor-pointer">
                             {{ ctrans('texts.payment_date') }}
                         </span>
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                         <span role="button" wire:click="sortBy('type_id')" class="cursor-pointer">
                             {{ ctrans('texts.payment_type_id') }}
                         </span>
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                         <span role="button" wire:click="sortBy('amount')" class="cursor-pointer">
                             {{ ctrans('texts.amount') }}
                         </span>
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                         <span role="button" wire:click="sortBy('transaction_reference')" class="cursor-pointer">
                             {{ ctrans('texts.transaction_reference') }}
                         </span>
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                         <span role="button" wire:click="sortBy('status_id')" class="cursor-pointer">
                             {{ ctrans('texts.status') }}
                         </span>
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary"></th>
                 </tr>
             </thead>
             <tbody>

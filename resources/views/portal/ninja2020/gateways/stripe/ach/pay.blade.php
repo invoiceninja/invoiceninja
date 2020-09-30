@@ -49,7 +49,7 @@
                                 </dd>
                             </div>
                             <div class="bg-gray-50 px-4 py-5 flex justify-end">
-                                <button type="button" id="pay-now" class="button button-primary" onclick="document.getElementById('server-response').submit()">
+                                <button type="button" id="pay-now" class="button button-primary bg-primary" onclick="document.getElementById('server-response').submit()">
                                     {{ ctrans('texts.pay_now') }}
                                 </button>
                             </div>
@@ -57,7 +57,7 @@
                             <div class="bg-gray-50 px-4 py-5 sm:px-6 flex items-center">
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                                    <span>{{ ctrans('texts.bank_account_not_linked') }}</span>
-                                   <a class="button button-link" href="{{ route('client.payment_methods.index') }}">{{ ctrans('texts.add_payment_method') }}</a>
+                                   <a class="button button-link text-primary" href="{{ route('client.payment_methods.index') }}">{{ ctrans('texts.add_payment_method') }}</a>
                                 </dd>
                             </div>
                         @endif

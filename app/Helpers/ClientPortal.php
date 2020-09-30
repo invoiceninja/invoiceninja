@@ -10,6 +10,8 @@
  * @license https://opensource.org/licenses/AAL
  */
 
+use Illuminate\Support\Facades\Route;
+
 /**
  * Check if passed page is currently active.
  *
@@ -26,7 +28,7 @@ function isActive($page, bool $boolean = false)
     }
 
     if ($page == $current_page) {
-        return 'active-page';
+        return 'bg-primary-darken';
     }
 
     return false;
