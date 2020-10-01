@@ -5,6 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <style id="style">
+            :root {
+                --primary-color: $primary_color;
+                --secondary-color: $secondary_color;
+            }
+
             * {
                 margin: 0;
                 padding: 0;
@@ -66,7 +71,7 @@
             }
 
             .entity-details-wrapper {
-                background-color: #35a39a;
+                background-color: var(--primary-color);
                 padding: 1rem;
             }
 
@@ -133,7 +138,7 @@
             #product-table-footer
                 > *
                 [data-element='product-table-balance-due'] {
-                color: #35a39a;
+                color: var(--primary-color);
             }
             #product-table-footer > * > :last-child {
                 text-align: right;
