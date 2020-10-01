@@ -317,7 +317,7 @@ class HtmlEngine
         $data['_rate2'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['_rate3'] = ['value' => '', 'label' => ctrans('texts.tax')];
 
-        $data['$font-size'] = ['value' => $this->settings->font_size . 'px', 'label' => ''];
+        $data['$font_size'] = ['value' => $this->settings->font_size . 'px', 'label' => ''];
 
         $data['$invoiceninja.whitelabel'] = ['value' => asset('images/created-by-invoiceninja-new.png'), 'label' => ''];
 
