@@ -24,17 +24,23 @@ use App\Factory\InvoiceInvitationFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\Credit;
+use App\Models\Expense;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Quote;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
@@ -96,10 +102,11 @@ trait MockAccountData
             }
         }
 
-        $this->account = factory(\App\Models\Account::class)->create();
-        $this->company = factory(\App\Models\Company::class)->create([
-            'account_id' => $this->account->id,
-        ]);
+
+        $this->account = Account::factory()->create();
+        $this->company = Company::factory()->create([
+                            'account_id' => $this->account->id,
+                        ]);
 
         $settings = CompanySettings::defaults();
 
@@ -125,10 +132,11 @@ trait MockAccountData
         $this->user = User::whereEmail('user@example.com')->first();
 
         if (! $this->user) {
-            $this->user = factory(\App\Models\User::class)->create([
-                'account_id' => $this->account->id,
-                'confirmation_code' => $this->createDbHash(config('database.default')),
-            ]);
+
+            $this->user = User::factory()->create([
+                                'account_id' => $this->account->id,
+                                'confirmation_code' => $this->createDbHash(config('database.default')),
+                            ]);
         }
 
         $this->user->password = Hash::make('ALongAndBriliantPassword');
@@ -150,12 +158,12 @@ trait MockAccountData
 
         $company_token->save();
 
-        $this->client = factory(\App\Models\Client::class)->create([
+        $this->client = Client::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
         ]);
 
-        $contact = factory(\App\Models\ClientContact::class)->create([
+        $contact = ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
@@ -163,19 +171,21 @@ trait MockAccountData
                 'send_email' => true,
         ]);
 
-        $contact2 = factory(\App\Models\ClientContact::class)->create([
+
+        $contact2 = ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
                 'send_email' => true,
         ]);
 
-        $this->vendor = factory(\App\Models\Vendor::class)->create([
+        $this->vendor = Vendor::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
         ]);
 
-        $vendor_contact = factory(\App\Models\VendorContact::class)->create([
+
+        $vendor_contact = VendorContact::factory()->create([
                 'user_id' => $this->user->id,
                 'vendor_id' => $this->vendor->id,
                 'company_id' => $this->company->id,
@@ -183,21 +193,19 @@ trait MockAccountData
                 'send_email' => true,
         ]);
 
-        $vendor_contact2 = factory(\App\Models\VendorContact::class)->create([
+        $vendor_contact2 = VendorContact::factory()->create([
                 'user_id' => $this->user->id,
                 'vendor_id' => $this->vendor->id,
                 'company_id' => $this->company->id,
                 'send_email' => true,
         ]);
 
-        $this->expense = factory(\App\Models\Expense::class)->create([
+
+
+        $this->expense = Expense::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
         ]);
-
-        // $rels = collect($contact, $contact2);
-        // $this->client->setRelation('contacts', $rels);
-        // $this->client->save();
 
         $gs = new GroupSetting;
         $gs->name = 'Test';
@@ -238,15 +246,14 @@ trait MockAccountData
 
         //$this->invoice->service()->createInvitations()->markSent();
         //$this->invoice->service()->createInvitations();
-
-        factory(\App\Models\InvoiceInvitation::class)->create([
+        InvoiceInvitation::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact->id,
                 'invoice_id' => $this->invoice->id,
             ]);
 
-        factory(\App\Models\InvoiceInvitation::class)->create([
+        InvoiceInvitation::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact2->id,
@@ -255,7 +262,7 @@ trait MockAccountData
 
         $this->invoice->service()->markSent();
 
-        $this->quote = factory(\App\Models\Quote::class)->create([
+        $this->quote = Quote::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
@@ -276,14 +283,14 @@ trait MockAccountData
 
         //$this->quote->service()->createInvitations()->markSent();
 
-        factory(\App\Models\QuoteInvitation::class)->create([
+        QuoteInvitation::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact->id,
                 'quote_id' => $this->quote->id,
             ]);
 
-        factory(\App\Models\QuoteInvitation::class)->create([
+        QuoteInvitation::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact2->id,

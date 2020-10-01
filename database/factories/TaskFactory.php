@@ -11,12 +11,28 @@
 namespace Database\Factories;
 
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use Faker\Generator as Faker;
+use App\Models\Task;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
-$factory->define(App\Models\Task::class, function (Faker $faker) {
-    return [
-        'description' => $faker->text(50),
-    ];
-});
+class TaskFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Task::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+	    {
+	    return [
+	        'description' => $this->faker->text(50),
+	    ];
+	}
+}

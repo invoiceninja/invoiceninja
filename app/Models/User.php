@@ -22,6 +22,7 @@ use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\UserSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -40,7 +41,8 @@ class User extends Authenticatable implements MustVerifyEmail
     use UserSettings;
     use Filterable;
     use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
-
+    use HasFactory;
+    
     protected $guard = 'user';
 
     protected $dates = ['deleted_at'];

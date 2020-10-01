@@ -58,7 +58,7 @@ class LoginTest extends TestCase
     //     $user = factory(User::class)->create([
     //       //  'account_id' => $account->id,
     //     ]);
-    //     $company = factory(\App\Models\Company::class)->make([
+    //     $company = Company::factory()->make([
     //         'account_id' => $account->id,
     //     ]);
 
@@ -90,7 +90,7 @@ class LoginTest extends TestCase
     //     $user = factory(User::class)->create([
     //     //    'account_id' => $account->id,
     //     ]);
-    //     $company = factory(\App\Models\Company::class)->make([
+    //     $company = Company::factory()->make([
     //         'account_id' => $account->id,
     //     ]);
 
@@ -120,7 +120,7 @@ class LoginTest extends TestCase
     //     $user = factory(User::class)->create([
     //     //    'account_id' => $account->id,
     //     ]);
-    //     $company = factory(\App\Models\Company::class)->make([
+    //     $company = Company::factory()->make([
     //         'account_id' => $account->id,
     //     ]);
 
@@ -147,7 +147,7 @@ class LoginTest extends TestCase
             'password' => \Hash::make('123456'),
         ]);
 
-        $company = factory(\App\Models\Company::class)->create([
+        $company = Company::factory()->create([
             'account_id' => $account->id,
         ]);
 

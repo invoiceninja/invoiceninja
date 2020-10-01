@@ -12,6 +12,7 @@ namespace Tests\Feature;
 
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -41,15 +42,15 @@ class CreditTest extends TestCase
 
     public function testCreditsList()
     {
-        factory(Client::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
-            factory(\App\Models\ClientContact::class, 1)->create([
+        Client::factory()->count(3)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
             ]);
 
-            factory(\App\Models\ClientContact::class, 1)->create([
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
@@ -58,7 +59,7 @@ class CreditTest extends TestCase
 
         $client = Client::all()->first();
 
-        factory(Credit::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+        Credit::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

@@ -42,12 +42,12 @@ class UniqueEmailTest extends TestCase
 
         $this->rule = new NewUniqueUserRule();
 
-        $ac = factory(\App\Models\Account::class)->make();
+        $ac = Account::factory()->make();
         $ac->setHidden(['hashed_id']);
 
         $account = Account::on('db-ninja-01')->create($ac->toArray());
 
-        $company = factory(\App\Models\Company::class)->make([
+        $company = Company::factory()->make([
             'account_id' => $account->id,
         ]);
 
@@ -55,11 +55,11 @@ class UniqueEmailTest extends TestCase
 
         Company::on('db-ninja-01')->create($company->toArray());
 
-        $ac2 = factory(\App\Models\Account::class)->make();
+        $ac2 = Account::factory()->make();
         $ac2->setHidden(['hashed_id']);
         $account2 = Account::on('db-ninja-02')->create($ac2->toArray());
 
-        $company2 = factory(\App\Models\Company::class)->make([
+        $company2 = Company::factory()->make([
             'account_id' => $account2->id,
         ]);
 

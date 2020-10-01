@@ -107,7 +107,7 @@ class ImportMigrations extends Command
 
     public function getAccount(): Account
     {
-        return factory(\App\Models\Account::class)->create();
+        return Account::factory()->create();
     }
 
     public function getCompany(Account $account): Company

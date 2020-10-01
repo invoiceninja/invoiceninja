@@ -56,8 +56,8 @@ class InvitationTest extends TestCase
 
     public function testInvoiceCreationAfterInvoiceMarkedSent()
     {
-        $account = factory(\App\Models\Account::class)->create();
-        $company = factory(\App\Models\Company::class)->create([
+        $account = Account::factory()->create();
+        $company = Company::factory()->create([
                     'account_id' => $account->id,
                 ]);
 

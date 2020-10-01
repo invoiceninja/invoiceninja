@@ -93,8 +93,8 @@ class CreateTestData extends Command
     {
         $this->info('Creating Small Account and Company');
 
-        $account = factory(\App\Models\Account::class)->create();
-        $company = factory(\App\Models\Company::class)->create([
+        $account = Account::factory()->create();
+        $company = Company::factory()->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
         ]);
@@ -188,8 +188,8 @@ class CreateTestData extends Command
     {
         $this->info('Creating Medium Account and Company');
 
-        $account = factory(\App\Models\Account::class)->create();
-        $company = factory(\App\Models\Company::class)->create([
+        $account = Account::factory()->create();
+        $company = Company::factory()->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
         ]);
@@ -284,8 +284,8 @@ class CreateTestData extends Command
     {
         $this->info('Creating Large Account and Company');
 
-        $account = factory(\App\Models\Account::class)->create();
-        $company = factory(\App\Models\Company::class)->create([
+        $account = Account::factory()->create();
+        $company = Company::factory()->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
             'is_large' => true,

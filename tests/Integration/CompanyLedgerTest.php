@@ -19,6 +19,8 @@ use App\Factory\InvoiceItemFactory;
 use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Models\Account;
 use App\Models\Activity;
+use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyLedger;
 use App\Models\CompanyToken;
@@ -79,8 +81,8 @@ class CompanyLedgerTest extends TestCase
             }
         }
 
-        $this->account = factory(\App\Models\Account::class)->create();
-        $this->company = factory(\App\Models\Company::class)->create([
+        $this->account = Account::factory()->create();
+        $this->company = Company::factory()->create([
             'account_id' => $this->account->id,
         ]);
 
@@ -108,7 +110,7 @@ class CompanyLedgerTest extends TestCase
         $this->user = User::whereEmail('user@example.com')->first();
 
         if (! $this->user) {
-            $this->user = factory(\App\Models\User::class)->create([
+            $this->user = User::factory()->create([
                 'account_id' => $this->account->id,
                 'password' => Hash::make('ALongAndBriliantPassword'),
                 'confirmation_code' => $this->createDbHash(config('database.default')),
@@ -130,12 +132,12 @@ class CompanyLedgerTest extends TestCase
         $company_token->token = $this->token;
         $company_token->save();
 
-        $this->client = factory(\App\Models\Client::class)->create([
+        $this->client = Client::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
             ]);
 
-        factory(\App\Models\ClientContact::class, 1)->create([
+        ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,

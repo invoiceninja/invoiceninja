@@ -14,29 +14,47 @@ namespace Database\Factories;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
-use Faker\Generator as Faker;
+use App\Models\Invoice;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
-$factory->define(App\Models\Invoice::class, function (Faker $faker) {
-    return [
-        'status_id' => App\Models\Invoice::STATUS_SENT,
-        'number' => $faker->ean13(),
-        'discount' => $faker->numberBetween(1, 10),
-        'is_amount_discount' => (bool) random_int(0, 1),
-        'tax_name1' => 'GST',
-        'tax_rate1' => 10,
-        'tax_name2' => 'VAT',
-        'tax_rate2' => 17.5,
-        //'tax_name3' => 'THIRDTAX',
-        //'tax_rate3' => 5,
-        'custom_value1' => $faker->date,
-        'custom_value2' => rand(0, 1) ? 'yes' : 'no',
-        // 'custom_value3' => $faker->numberBetween(1,4),
-        // 'custom_value4' => $faker->numberBetween(1,4),
-        'is_deleted' => false,
-        'po_number' => $faker->text(10),
-        'date' => $faker->date(),
-        'due_date' => $faker->date(),
-        'line_items' => InvoiceItemFactory::generate(5),
-        'terms' => $faker->text(500),
-    ];
-});
+class InvoiceFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Invoice::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'status_id' => App\Models\Invoice::STATUS_SENT,
+            'number' => $this->faker->ean13(),
+            'discount' => $this->faker->numberBetween(1, 10),
+            'is_amount_discount' => (bool) random_int(0, 1),
+            'tax_name1' => 'GST',
+            'tax_rate1' => 10,
+            'tax_name2' => 'VAT',
+            'tax_rate2' => 17.5,
+            //'tax_name3' => 'THIRDTAX',
+            //'tax_rate3' => 5,
+            'custom_value1' => $this->faker->date,
+            'custom_value2' => rand(0, 1) ? 'yes' : 'no',
+            // 'custom_value3' => $this->faker->numberBetween(1,4),
+            // 'custom_value4' => $this->faker->numberBetween(1,4),
+            'is_deleted' => false,
+            'po_number' => $this->faker->text(10),
+            'date' => $this->faker->date(),
+            'due_date' => $this->faker->date(),
+            'line_items' => InvoiceItemFactory::generate(5),
+            'terms' => $this->faker->text(500),
+        ];
+    }
+}

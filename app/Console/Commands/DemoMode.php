@@ -18,10 +18,19 @@ use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\VersionCheck;
+use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\CompanyToken;
 use App\Models\Country;
+use App\Models\Credit;
+use App\Models\Expense;
 use App\Models\Product;
+use App\Models\Project;
+use App\Models\Quote;
+use App\Models\Task;
 use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Repositories\InvoiceRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
@@ -30,8 +39,8 @@ use Carbon\Carbon;
 use Composer\Composer;
 use Composer\Console\Application;
 use Composer\Factory;
-use Composer\Installer;
 use Composer\IO\NullIO;
+use Composer\Installer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -125,8 +134,8 @@ class DemoMode extends Command
 
         $this->info('Creating Small Account and Company');
 
-        $account = factory(\App\Models\Account::class)->create();
-        $company = factory(\App\Models\Company::class)->create([
+        $account = Account::factory()->create();
+        $company = Company::factory()->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
             'enabled_modules' => 32767,
@@ -155,7 +164,7 @@ class DemoMode extends Command
         $user = User::whereEmail('small@example.com')->first();
 
         if (! $user) {
-            $user = factory(\App\Models\User::class)->create([
+            $user = User::factory()->create([
                 'account_id' => $account->id,
                 'email' => 'small@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default')),
@@ -185,7 +194,7 @@ class DemoMode extends Command
         $u2 = User::where('email', 'demo@invoiceninja.com')->first();
 
         if (! $u2) {
-            $u2 = factory(\App\Models\User::class)->create([
+            $u2 = User::factory()->create([
                 'email'             => 'demo@invoiceninja.com',
                 'password'          => Hash::make('demo'),
                 'account_id' => $account->id,
@@ -211,7 +220,7 @@ class DemoMode extends Command
             ]);
         }
 
-        factory(\App\Models\Product::class, 50)->create([
+        Product::factory()->count(50)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
@@ -277,19 +286,19 @@ class DemoMode extends Command
         // dispatch(function () use ($company, $user) {
 
         // });
-        $client = factory(\App\Models\Client::class)->create([
+        $client = Client::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
 
-        factory(\App\Models\ClientContact::class)->create([
+        ClientContact::factory()->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
                     'company_id' => $company->id,
                     'is_primary' => 1,
                 ]);
 
-        factory(\App\Models\ClientContact::class, rand(1, 5))->create([
+        ClientContact::factory()->count(rand(1,5))->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
                     'company_id' => $company->id,
@@ -311,7 +320,7 @@ class DemoMode extends Command
 
     private function createExpense($client)
     {
-        factory(\App\Models\Expense::class, rand(1, 5))->create([
+        Expense::factory()->count(rand(1,5))->create([
                 'user_id' => $client->user_id,
                 'client_id' => $client->id,
                 'company_id' => $client->company_id,
@@ -320,19 +329,19 @@ class DemoMode extends Command
 
     private function createVendor($client, $assigned_user_id = null)
     {
-        $vendor = factory(\App\Models\Vendor::class)->create([
+        Vendor::factory()->count(1)->create([
                 'user_id' => $client->user_id,
                 'company_id' => $client->company_id,
             ]);
 
-        factory(\App\Models\VendorContact::class)->create([
+        VendorContact::factory()->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company_id,
                 'is_primary' => 1,
             ]);
 
-        factory(\App\Models\VendorContact::class, rand(1, 5))->create([
+        VendorContact::factory()->count(rand(1,5))->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company_id,
@@ -342,7 +351,7 @@ class DemoMode extends Command
 
     private function createTask($client, $assigned_user_id = null)
     {
-        $vendor = factory(\App\Models\Task::class)->create([
+        $vendor = Task::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company_id,
             ]);
@@ -350,7 +359,7 @@ class DemoMode extends Command
 
     private function createProject($client, $assigned_user_id = null)
     {
-        $vendor = factory(\App\Models\Project::class)->create([
+        $vendor = Project::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company_id,
             ]);
@@ -430,7 +439,7 @@ class DemoMode extends Command
         // }
         $faker = \Faker\Factory::create();
 
-        $credit = factory(\App\Models\Credit::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
+        $credit = Credit::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
 
         if ((bool) rand(0, 1)) {
             $dateable = Carbon::now()->subDays(rand(0, 90));
@@ -478,7 +487,7 @@ class DemoMode extends Command
     {
         $faker = \Faker\Factory::create();
 
-        $quote = factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company_id, 'client_id' => $client->id]);
+        $quote = Quote::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company_id, 'client_id' => $client->id]);
 
         if ((bool) rand(0, 1)) {
             $dateable = Carbon::now()->subDays(rand(1, 30));

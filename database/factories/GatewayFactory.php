@@ -10,19 +10,36 @@
  */
 namespace Database\Factories;
 
+use App\Models\Gateway;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
-use Faker\Generator as Faker;
+class GatewayFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Gateway::class;
 
-$factory->define(App\Models\Gateway::class, function (Faker $faker) {
-    return [
-        'key' => '3b6621f970ab18887c4f6dca78d3f8bb',
-        'visible' => true,
-        'sort_order' =>1,
-        'name' => 'demo',
-        'provider' =>  'test',
-        'is_offsite' => true,
-        'is_secure' => true,
-        'fields' => '',
-        'default_gateway_type_id' => 1,
-    ];
-});
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'key' => '3b6621f970ab18887c4f6dca78d3f8bb',
+            'visible' => true,
+            'sort_order' =>1,
+            'name' => 'demo',
+            'provider' =>  'test',
+            'is_offsite' => true,
+            'is_secure' => true,
+            'fields' => '',
+            'default_gateway_type_id' => 1,
+        ];
+    }
+}

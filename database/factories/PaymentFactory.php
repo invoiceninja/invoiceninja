@@ -11,18 +11,34 @@
 namespace Database\Factories;
 
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use App\Models\Payment;
-use Faker\Generator as Faker;
 
-$factory->define(App\Models\Payment::class, function (Faker $faker) {
-    return [
-        'is_deleted' => false,
-        'amount' => $faker->numberBetween(1, 10),
-        'date' => $faker->date(),
-        'transaction_reference' => $faker->text(10),
-        'type_id' => Payment::TYPE_CREDIT_CARD,
-        'status_id' => Payment::STATUS_COMPLETED,
-    ];
-});
+use App\Models\Payment;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
+class PaymentFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Payment::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+	    return [
+	        'is_deleted' => false,
+	        'amount' => $this->faker->numberBetween(1, 10),
+	        'date' => $this->faker->date(),
+	        'transaction_reference' => $this->faker->text(10),
+	        'type_id' => Payment::TYPE_CREDIT_CARD,
+	        'status_id' => Payment::STATUS_COMPLETED,
+	    ];
+	}
+}
