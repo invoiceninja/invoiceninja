@@ -15,6 +15,7 @@ use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceFactory;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -51,15 +52,15 @@ class InvoiceTest extends TestCase
 
     public function testInvoiceList()
     {
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
-            factory(\App\Models\ClientContact::class, 1)->create([
+        Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
             ]);
 
-            factory(\App\Models\ClientContact::class, 1)->create([
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
@@ -68,7 +69,7 @@ class InvoiceTest extends TestCase
 
         $client = Client::all()->first();
 
-        factory(\App\Models\Invoice::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+        Invoice::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -153,7 +154,7 @@ class InvoiceTest extends TestCase
     public function testUniqueNumberValidation()
     {
         /* stub a invoice in the DB that we will use to test against later */
-        $invoice = factory(\App\Models\Invoice::class)->create([
+        $invoice = Invoice::factory()->create([
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
             'company_id' => $this->company->id,

@@ -11,6 +11,7 @@
 
 namespace App\Libraries;
 
+use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
@@ -200,7 +201,6 @@ class MultiDB
         foreach (self::$dbs as $db) {
             if ($client_contact = ClientContact::on($db)->where('contact_key', $contact_key)->first()) {
                 self::setDb($client_contact->company->db);
-
                 return true;
             }
         }
@@ -208,6 +208,17 @@ class MultiDB
         return false;        
     }
 
+    public static function findAndSetDbByClientHash($client_hash) :bool
+    {
+        foreach (self::$dbs as $db) {
+            if ($client = Client::on($db)->where('client_hash', $client_hash)->first()) {
+                self::setDb($client->company->db);
+                return true;
+            }
+        }
+
+        return false;        
+    }
 
     public static function findAndSetDbByDomain($subdomain) :bool
     {

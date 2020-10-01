@@ -96,7 +96,7 @@ trait MakesTemplateData
         $data['$quote_total'] = ['value' => '$100.00', 'label' => ctrans('texts.quote_total')];
         $data['$quote.amount'] = &$data['$quote_total'];
         $data['$credit_total'] = ['value' => '$100.00', 'label' => ctrans('texts.credit_total')];
-        $data['$credit.amount'] = &$data['$credit_total'];
+        $data['$credit.total'] = &$data['$credit_total'];
         $data['$balance'] = ['value' => '$100.00', 'label' => ctrans('texts.balance')];
         $data['$invoice.balance'] = &$data['$balance'];
         $data['$taxes'] = ['value' => '$10.00', 'label' => ctrans('texts.taxes')];

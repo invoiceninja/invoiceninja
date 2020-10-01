@@ -1,13 +1,25 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Seeders;
+
 
 use App\Models\GatewayType;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class GatewayTypesSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $gateway_types = [
             ['id' => 1, 'alias' => 'credit_card', 'name' => 'Credit Card'],

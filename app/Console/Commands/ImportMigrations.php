@@ -78,7 +78,7 @@ class ImportMigrations extends Command
         $account = $this->getAccount();
         $company = $this->getCompany($account);
 
-        $user = factory(\App\Models\User::class)->create([
+        $user = User::factory()->create([
             'account_id' => $account->id,
             'email' => $this->faker->email,
             'confirmation_code' => $this->createDbHash(config('database.default')),
@@ -107,7 +107,7 @@ class ImportMigrations extends Command
 
     public function getAccount(): Account
     {
-        return factory(\App\Models\Account::class)->create();
+        return Account::factory()->create();
     }
 
     public function getCompany(Account $account): Company

@@ -70,6 +70,7 @@ class TemplateEmail extends Mailable
                 'signature' => $settings->email_signature,
                 'settings' => $settings,
                 'company' => $company,
+                'whitelabel' => $this->client->user->account->isPaid() ? true : false,
             ]);
 
         //conditionally attach files

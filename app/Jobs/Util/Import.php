@@ -130,7 +130,7 @@ class Import implements ShouldQueue
 
     public $timeout = 86400;
 
-    public $retryAfter = 86430;
+    public $backoff = 86430;
 
     /**
      * Create a new job instance.

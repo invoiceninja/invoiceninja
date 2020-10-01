@@ -24,12 +24,14 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class BaseModel extends Model
 {
     use MakesHash;
     use UserSessionAttributes;
-
+    use HasFactory;
+    
     //todo customise names of archived_at / updated_at columns
     ///const CREATED_AT = 'creation_date';
     //const UPDATED_AT = 'last_update';

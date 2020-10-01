@@ -17,7 +17,10 @@ class UpdateGatewayTableVisibleColumn extends Migration
         Gateway::query()->update(['visible' => 0]);
 
         Gateway::whereIn('id', [1,15,20,39])->update(['visible' => 1]);
+
     }
+
+
 
     /**
      * Reverse the migrations.

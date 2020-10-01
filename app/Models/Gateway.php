@@ -72,13 +72,15 @@ class Gateway extends StaticModel
             $link = 'https://dashboard.stripe.com/account/apikeys';
         } 
 
-        $key = 'texts.gateway_help_'.$this->id;
-        $str = trans($key, [
-            'link' => "<a href='$link' >Click here</a>",
-            'complete_link' => url('/complete'),
-        ]);
+        // $key = 'texts.gateway_help_'.$this->id;
+        // $str = trans($key, [
+        //     'link' => "<a href='$link' >Click here</a>",
+        //     'complete_link' => url('/complete'),
+        // ]);
 
-        return $key != $str ? $str : '';
+        return $link;
+        
+        //return $key != $str ? $str : '';
     }
 
 }

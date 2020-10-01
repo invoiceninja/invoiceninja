@@ -138,7 +138,7 @@ class UserTest extends TestCase
         $this->withoutMiddleware(PasswordProtection::class);
 
         /* Create New Company */
-        $company2 = factory(\App\Models\Company::class)->create([
+        $company2 = Company::factory()->create([
             'account_id' => $this->account->id,
         ]);
 

@@ -13,6 +13,7 @@ namespace Tests\Feature;
 use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
 use App\Utils\Traits\UserSessionAttributes;
@@ -58,7 +59,7 @@ class LoginTest extends TestCase
     //     $user = factory(User::class)->create([
     //       //  'account_id' => $account->id,
     //     ]);
-    //     $company = factory(\App\Models\Company::class)->make([
+    //     $company = Company::factory()->make([
     //         'account_id' => $account->id,
     //     ]);
 
@@ -90,7 +91,7 @@ class LoginTest extends TestCase
     //     $user = factory(User::class)->create([
     //     //    'account_id' => $account->id,
     //     ]);
-    //     $company = factory(\App\Models\Company::class)->make([
+    //     $company = Company::factory()->make([
     //         'account_id' => $account->id,
     //     ]);
 
@@ -120,7 +121,7 @@ class LoginTest extends TestCase
     //     $user = factory(User::class)->create([
     //     //    'account_id' => $account->id,
     //     ]);
-    //     $company = factory(\App\Models\Company::class)->make([
+    //     $company = Company::factory()->make([
     //         'account_id' => $account->id,
     //     ]);
 
@@ -140,14 +141,14 @@ class LoginTest extends TestCase
 
     public function testApiLogin()
     {
-        $account = factory(Account::class)->create();
-        $user = factory(User::class)->create([
+        $account = Account::factory()->create();
+        $user = User::factory()->create([
             'account_id' => $account->id,
             'email' => 'test@example.com',
             'password' => \Hash::make('123456'),
         ]);
 
-        $company = factory(\App\Models\Company::class)->create([
+        $company = Company::factory()->create([
             'account_id' => $account->id,
         ]);
 

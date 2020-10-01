@@ -1,10 +1,37 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Factories;
 
-use Faker\Generator as Faker;
+use App\Models\InvoiceInvitation;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-$factory->define(App\Models\InvoiceInvitation::class, function (Faker $faker) {
-    return [
-        'key' => Str::random(40),
-    ];
-});
+class InvoiceInvitationFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = InvoiceInvitation::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+	    return [
+	        'key' => Str::random(40),
+	    ];
+	}
+}

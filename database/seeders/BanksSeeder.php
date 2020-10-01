@@ -1,13 +1,24 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Seeders;
 
 use App\Models\Bank;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class BanksSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $this->createBanks();
     }
@@ -22,7 +33,7 @@ class BanksSeeder extends Seeder
         $banks = json_decode($banks);
 
         foreach ($banks as $bank) {
-            if (! DB::table('banks')->where('remote_id', '=', $bank->id)->count()) {
+            if (! \DB::table('banks')->where('remote_id', '=', $bank->id)->count()) {
                 if (! isset($bank->fid) || ! isset($bank->org)) {
                     continue;
                 }

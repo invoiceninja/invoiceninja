@@ -1,34 +1,61 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Factories;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use Faker\Generator as Faker;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringQuote;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
-$factory->define(App\Models\RecurringQuote::class, function (Faker $faker) {
-    return [
-        'status_id' => App\Models\RecurringQuote::STATUS_DRAFT,
-        'number' => $faker->text(256),
-        'discount' => $faker->numberBetween(1, 10),
-        'is_amount_discount' => $faker->boolean(),
-        'tax_name1' => 'GST',
-        'tax_rate1' => 10,
-        'tax_name2' => 'VAT',
-        'tax_rate2' => 17.5,
-        'tax_name3' => 'THIRDTAX',
-        'tax_rate3' => 5,
-        'custom_value1' => $faker->numberBetween(1, 4),
-        'custom_value2' => $faker->numberBetween(1, 4),
-        'custom_value3' => $faker->numberBetween(1, 4),
-        'custom_value4' => $faker->numberBetween(1, 4),
-        'is_deleted' => false,
-        'po_number' => $faker->text(10),
-        'date' => $faker->date(),
-        'due_date' => $faker->date(),
-        'line_items' => false,
-        'frequency_id' => App\Models\RecurringQuote::FREQUENCY_MONTHLY,
-        'start_date' => $faker->date(),
-        'last_sent_date' => $faker->date(),
-        'next_send_date' => $faker->date(),
-        'remaining_cycles' => $faker->numberBetween(1, 10),
-    ];
-});
+class RecurringQuoteFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = RecurringQuote::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+        {
+            return [
+                'status_id' => RecurringQuote::STATUS_DRAFT,
+                'number' => $this->faker->text(256),
+                'discount' => $this->faker->numberBetween(1, 10),
+                'is_amount_discount' => $this->faker->boolean(),
+                'tax_name1' => 'GST',
+                'tax_rate1' => 10,
+                'tax_name2' => 'VAT',
+                'tax_rate2' => 17.5,
+                'tax_name3' => 'THIRDTAX',
+                'tax_rate3' => 5,
+                'custom_value1' => $this->faker->numberBetween(1, 4),
+                'custom_value2' => $this->faker->numberBetween(1, 4),
+                'custom_value3' => $this->faker->numberBetween(1, 4),
+                'custom_value4' => $this->faker->numberBetween(1, 4),
+                'is_deleted' => false,
+                'po_number' => $this->faker->text(10),
+                'date' => $this->faker->date(),
+                'due_date' => $this->faker->date(),
+                'line_items' => false,
+                'frequency_id' => RecurringQuote::FREQUENCY_MONTHLY,
+                'start_date' => $this->faker->date(),
+                'last_sent_date' => $this->faker->date(),
+                'next_send_date' => $this->faker->date(),
+                'remaining_cycles' => $this->faker->numberBetween(1, 10),
+            ];
+        }
+}

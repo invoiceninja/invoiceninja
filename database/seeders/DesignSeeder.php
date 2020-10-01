@@ -1,15 +1,27 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Seeders;
+
 
 use App\Models\Bank;
 use App\Models\Design;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class DesignSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $this->createDesigns();
     }

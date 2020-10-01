@@ -1,14 +1,26 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Seeders;
+
 
 use App\Models\Gateway;
 use App\Models\GatewayType;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class PaymentLibrariesSeeder extends Seeder
 {
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $gateways = [
             ['id' => 1, 'name' => 'Authorize.Net', 'provider' => 'Authorize', 'sort_order' => 5, 'key' => '3b6621f970ab18887c4f6dca78d3f8bb', 'fields' => '{"apiLoginId":"","transactionKey":"","testMode":false,"developerMode":false,"liveEndpoint":"https:\/\/api2.authorize.net\/xml\/v1\/request.api","developerEndpoint":"https:\/\/apitest.authorize.net\/xml\/v1\/request.api"}
@@ -81,5 +93,16 @@ class PaymentLibrariesSeeder extends Seeder
                 Gateway::create($gateway);
             }
         }
+
+        Gateway::query()->update(['visible' => 0]);
+
+        Gateway::whereIn('id', [1,15,20,39])->update(['visible' => 1]);
+
+        Gateway::all()->each(function ($gateway){
+
+            $gateway->site_url = $gateway->getHelp();
+            $gateway->save();
+
+        });
     }
 }

@@ -1,12 +1,40 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Factories;
 
-use Faker\Generator as Faker;
+use App\Models\Account;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-$factory->define(App\Models\Account::class, function (Faker $faker) {
-    return [
-        'default_company_id' => 1,
-        'key' => Str::random(32),
-        'report_errors' => 1,
-    ];
-});
+class AccountFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Account::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+	    return [
+	        'default_company_id' => 1,
+	        'key' => Str::random(32),
+	        'report_errors' => 1,
+	    ];
+    }
+
+}

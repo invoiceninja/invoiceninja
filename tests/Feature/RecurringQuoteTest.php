@@ -55,7 +55,7 @@ class RecurringQuoteTest extends TestCase
 
     public function testRecurringQuoteList()
     {
-        factory(\App\Models\RecurringQuote::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+        RecurringQuote::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -67,7 +67,7 @@ class RecurringQuoteTest extends TestCase
 
     public function testRecurringQuoteRESTEndPoints()
     {
-        factory(\App\Models\RecurringQuote::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+        RecurringQuote::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
         $RecurringQuote = RecurringQuote::where('user_id', $this->user->id)->first();
         $RecurringQuote->save();

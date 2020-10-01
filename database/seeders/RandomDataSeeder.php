@@ -1,4 +1,14 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Seeders;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
@@ -21,13 +31,16 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
+use App\Models\Product;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Models\User;
 use App\Models\UserAccount;
 use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\QuoteRepository;
 use App\Utils\Ninja;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -72,19 +85,19 @@ class RandomDataSeeder extends Seeder
 
         $this->command->info('Running RandomDataSeeder');
 
-        Eloquent::unguard();
+        Model::unguard();
 
         $faker = \Faker\Factory::create();
 
-        $account = factory(\App\Models\Account::class)->create();
-        $company = factory(\App\Models\Company::class)->create([
+        $account = Account::factory()->create();
+        $company = Company::factory()->create([
             'account_id' => $account->id,
         ]);
 
         $account->default_company_id = $company->id;
         $account->save();
 
-        $user = factory(\App\Models\User::class)->create([
+        $user = User::factory()->create([
             'email'             => $faker->email,
             'account_id' => $account->id,
             'confirmation_code' => $this->createDbHash(config('database.default')),
@@ -111,7 +124,7 @@ class RandomDataSeeder extends Seeder
         $u2 = User::where('email', 'demo@invoiceninja.com')->first();
 
         if (! $u2) {
-            $u2 = factory(\App\Models\User::class)->create([
+            $u2 = User::factory()->create([
                 'email'             => 'demo@invoiceninja.com',
                 'password'          => Hash::make('demo'),
                 'account_id' => $account->id,
@@ -137,7 +150,7 @@ class RandomDataSeeder extends Seeder
             ]);
         }
 
-        $client = factory(\App\Models\Client::class)->create([
+        $client = Client::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
         ]);
@@ -155,15 +168,15 @@ class RandomDataSeeder extends Seeder
             'contact_key' => \Illuminate\Support\Str::random(40),
         ]);
 
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
-            factory(\App\Models\ClientContact::class, 1)->create([
+        Client::factory()->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+            ClientContact::factory()->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
                 'is_primary' => 1,
             ]);
 
-            factory(\App\Models\ClientContact::class, 5)->create([
+            ClientContact::factory()->count(5)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
@@ -171,10 +184,10 @@ class RandomDataSeeder extends Seeder
         });
 
         /* Product Factory */
-        factory(\App\Models\Product::class, 2)->create(['user_id' => $user->id, 'company_id' => $company->id]);
+        Product::factory()->count(2)->create(['user_id' => $user->id, 'company_id' => $company->id]);
 
         /* Invoice Factory */
-        factory(\App\Models\Invoice::class, 2)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        Invoice::factory()->count(2)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $invoices = Invoice::all();
         $invoice_repo = new InvoiceRepository();
@@ -228,7 +241,7 @@ class RandomDataSeeder extends Seeder
         });
 
         /*Credits*/
-        factory(\App\Models\Credit::class, 2)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        Credit::factory()->count(2)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $credits = Credit::cursor();
         $credit_repo = new CreditRepository();
@@ -253,12 +266,10 @@ class RandomDataSeeder extends Seeder
         });
 
         /* Recurring Invoice Factory */
-        factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
-
-        // factory(\App\Models\Payment::class,20)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id, 'settings' => ClientSettings::buildClientSettings($company->settings, $client->settings)]);
+        RecurringInvoice::factory()->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         /*Credits*/
-        factory(\App\Models\Quote::class, 1)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        Quote::factory()->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $quotes = Quote::cursor();
         $quote_repo = new QuoteRepository();

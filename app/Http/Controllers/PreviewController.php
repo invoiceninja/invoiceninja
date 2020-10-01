@@ -132,12 +132,12 @@ class PreviewController extends BaseController
     {
         DB::beginTransaction();
 
-        $client = factory(\App\Models\Client::class)->create([
+        $client = Client::factory()->create([
                 'user_id' => auth()->user()->id,
                 'company_id' => auth()->user()->company()->id,
             ]);
 
-        $contact = factory(\App\Models\ClientContact::class)->create([
+        $contact = ClientContact::factory()->create([
                 'user_id' => auth()->user()->id,
                 'company_id' => auth()->user()->company()->id,
                 'client_id' => $client->id,
@@ -145,13 +145,13 @@ class PreviewController extends BaseController
                 'send_email' => true,
             ]);
 
-        $invoice = factory(\App\Models\Invoice::class)->create([
+        $invoice = Invoice::factory()->create([
                     'user_id' => auth()->user()->id,
                     'company_id' => auth()->user()->company()->id,
                     'client_id' => $client->id,
                 ]);
 
-        $invitation = factory(\App\Models\InvoiceInvitation::class)->create([
+        $invitation = InvoiceInvitation::factory()->create([
                     'user_id' => auth()->user()->id,
                     'company_id' => auth()->user()->company()->id,
                     'invoice_id' => $invoice->id,

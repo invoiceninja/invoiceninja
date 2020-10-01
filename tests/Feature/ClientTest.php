@@ -134,15 +134,15 @@ class ClientTest extends TestCase
      */
     public function testClientRestEndPoints()
     {
-        factory(\App\Models\Client::class, 3)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
-            factory(\App\Models\ClientContact::class, 1)->create([
+        Client::factory()->count(3)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
             ]);
 
-            factory(\App\Models\ClientContact::class, 2)->create([
+            ClientContact::factory()->count(2)->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
@@ -204,15 +204,15 @@ class ClientTest extends TestCase
 
     public function testDefaultTimeZoneFromClientModel()
     {
-        $account = factory(\App\Models\Account::class)->create();
-        $company = factory(\App\Models\Company::class)->create([
+        $account = Account::factory()->create();
+        $company = Company::factory()->create([
                     'account_id' => $account->id,
                      ]);
 
         $account->default_company_id = $company->id;
         $account->save();
 
-        $user = factory(\App\Models\User::class)->create([
+        $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => $this->createDbHash(config('database.default')),
             'email' => 'whiz@gmail.com',
@@ -239,15 +239,15 @@ class ClientTest extends TestCase
             'is_locked' => 0,
         ]);
 
-        factory(\App\Models\Client::class, 3)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
-            factory(\App\Models\ClientContact::class, 1)->create([
+        Client::factory()->count(3)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+            ClientContact::factory()->create([
                     'user_id' => $user->id,
                     'client_id' => $c->id,
                     'company_id' => $company->id,
                     'is_primary' => 1,
                 ]);
 
-            factory(\App\Models\ClientContact::class, 2)->create([
+            ClientContact::factory()->count(2)->create([
                     'user_id' => $user->id,
                     'client_id' => $c->id,
                     'company_id' => $company->id,
@@ -270,15 +270,15 @@ class ClientTest extends TestCase
 
     public function testCreatingClientAndContacts()
     {
-        $account = factory(\App\Models\Account::class)->create();
-        $company = factory(\App\Models\Company::class)->create([
-                'account_id' => $account->id,
-                 ]);
+        $account = Account::factory()->create();
+        $company = Company::factory()->create([
+                    'account_id' => $account->id,
+                     ]);
 
         $account->default_company_id = $company->id;
         $account->save();
 
-        $user = factory(\App\Models\User::class)->create([
+        $user = User::factory()->create([
                 'account_id' => $account->id,
                 'confirmation_code' => $this->createDbHash(config('database.default')),
                 'email' => 'whiz@gmail.com',

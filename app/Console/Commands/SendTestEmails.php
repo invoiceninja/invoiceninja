@@ -20,8 +20,10 @@ use App\Factory\InvoiceInvitationFactory;
 use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Mail\TemplateEmail;
+use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Console\Command;
@@ -80,9 +82,10 @@ class SendTestEmails extends Command
         $user = User::whereEmail('user@example.com')->first();
 
         if (! $user) {
-            $account = factory(\App\Models\Account::class)->create();
+            
+            $account = Account::factory()->create();
 
-            $user = factory(\App\Models\User::class)->create([
+            $user = User::factory()->create([
                 'account_id' => $account->id,
                 'confirmation_code' => '123',
                 'email' => $faker->safeEmail,
@@ -90,7 +93,7 @@ class SendTestEmails extends Command
                 'last_name' => 'Doe',
             ]);
 
-            $company = factory(\App\Models\Company::class)->create([
+            $company = Company::factory()->create([
                 'account_id' => $account->id,
             ]);
 
@@ -115,7 +118,7 @@ class SendTestEmails extends Command
             $client = ClientFactory::create($company->id, $user->id);
             $client->save();
 
-            factory(\App\Models\ClientContact::class, 1)->create([
+            ClientContact::factory()->create([
                 'user_id' => $user->id,
                 'client_id' => $client->id,
                 'company_id' => $company->id,
@@ -124,7 +127,7 @@ class SendTestEmails extends Command
                 'email' => $faker->safeEmail,
             ]);
 
-            factory(\App\Models\ClientContact::class, 1)->create([
+            ClientContact::factory()->create([
                 'user_id' => $user->id,
                 'client_id' => $client->id,
                 'company_id' => $company->id,

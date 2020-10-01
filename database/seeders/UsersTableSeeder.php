@@ -1,4 +1,15 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Seeders;
+
 
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
@@ -7,6 +18,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\User;
 use App\Models\UserAccount;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class UsersTableSeeder extends Seeder
@@ -22,12 +34,12 @@ class UsersTableSeeder extends Seeder
     {
         $this->command->info('Running UsersTableSeeder');
 
-        Eloquent::unguard();
+        Model::unguard();
 
         $faker = \Faker\Factory::create();
 
-        $account = factory(\App\Models\Account::class)->create();
-        $company = factory(\App\Models\Company::class)->create([
+        $account = Account::factory()->create();
+        $company = Company::factory()->create([
             'account_id' => $account->id,
             'domain' => 'ninja.test',
         ]);
@@ -35,7 +47,7 @@ class UsersTableSeeder extends Seeder
         $account->default_company_id = $company->id;
         $account->save();
 
-        $user = factory(\App\Models\User::class)->create([
+        $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => $this->createDbHash(config('database.default')),
         ]);
@@ -59,7 +71,7 @@ class UsersTableSeeder extends Seeder
             'is_locked' => 0,
         ]);
 
-        $client = factory(\App\Models\Client::class)->create([
+        $client = Client::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
         ]);
@@ -74,15 +86,15 @@ class UsersTableSeeder extends Seeder
             'client_id' =>$client->id,
         ]);
 
-        factory(\App\Models\Client::class, 20)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
-            factory(\App\Models\ClientContact::class, 1)->create([
+        Client::factory()->count(20)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+            ClientContact::factory()->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
                 'is_primary' => 1,
             ]);
 
-            factory(\App\Models\ClientContact::class, 10)->create([
+            ClientContact::factory()->count(10)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,

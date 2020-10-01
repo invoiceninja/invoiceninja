@@ -3,7 +3,13 @@
     "description": "Invoices, expenses & time-tracking built with Laravel",
     "keywords": [
         "invoice",
-        "laravel"
+        "laravel",
+        "invoicing",
+        "time tracking",
+        "expenses",
+        "CRM",
+        "Credit card billing",
+        "projects"
     ],
     "license": "Attribution Assurance License",
     "authors": [
@@ -26,19 +32,19 @@
         "cleverit/ubl_invoice": "^1.3",
         "composer/composer": "^1.10",
         "czproject/git-php": "^3.17",
-        "dacastro4/laravel-gmail": "^4.0",
+        "turbo124/laravel-gmail": "^5.0",
         "doctrine/dbal": "^2.10",
         "fedeisas/laravel-mail-css-inliner": "^3",
         "fideloper/proxy": "^4.2",
         "fzaninotto/faker": "^1.4",
         "google/apiclient": "^2.7",
-        "guzzlehttp/guzzle": "^6.5",
+        "guzzlehttp/guzzle": "^7.0.1",
         "hashids/hashids": "^3.0",
         "intervention/image": "^2.5",
         "laracasts/presenter": "^0.2.1",
-        "laravel/framework": "^7.27",
+        "laravel/framework": "^8.0",
         "laravel/slack-notification-channel": "^2.2",
-        "laravel/socialite": "^4.4",
+        "laravel/socialite": "^5",
         "laravel/tinker": "^2.0",
         "league/flysystem-aws-s3-v3": "~1.0",
         "league/flysystem-cached-adapter": "^1.1",
@@ -49,33 +55,31 @@
         "nwidart/laravel-modules": "^6.0",
         "omnipay/paypal": "^3.0",
         "predis/predis": "^1.1",
-        "sentry/sentry-laravel": "^1.8",
+        "sentry/sentry-laravel": "^2",
         "spatie/browsershot": "^3.37",
         "staudenmeir/eloquent-has-many-deep": "^1.11",
         "stripe/stripe-php": "^7.50",
         "turbo124/beacon": "^1",
         "webpatser/laravel-countries": "dev-master#75992ad",
-        "laravel/ui": "^2.0"
+        "laravel/ui": "^3.0"
     },
     "require-dev": {
-        "wildbit/postmark-php": "^2.6",
+        "wildbit/postmark-php": "^4.0",
         "anahkiasen/former": "^4.2",
         "barryvdh/laravel-debugbar": "^3.4",
-        "darkaonline/l5-swagger": "^7.0",
+        "darkaonline/l5-swagger": "^8.0",
         "filp/whoops": "^2.7",
         "mockery/mockery": "^1.3.1",
-        "nunomaduro/collision": "^4.1",
-        "phpunit/phpunit": "^8.5",
+        "nunomaduro/collision": "^5.0",
+        "phpunit/phpunit": "^9.0",
         "fzaninotto/faker": "^1.9.1",
-        "facade/ignition": "^2.0"
+        "facade/ignition": "^2.3.6"
     },
     "autoload": {
-        "classmap": [
-            "database/seeds",
-            "database/factories"
-        ],
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
             "app/Libraries/OFX.php"

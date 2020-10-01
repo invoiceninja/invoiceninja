@@ -1,7 +1,19 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Seeders;
 
 use App\Models\Country;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
+use Webpatser\Countries\Countries;
 
 class CountriesSeeder extends Seeder
 {
@@ -12,9 +24,10 @@ class CountriesSeeder extends Seeder
      */
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
-        $countries = Countries::getList();
+        $countries_object = new Countries;
+        $countries = $countries_object->getList();
 
         foreach ($countries as $countryId => $country) {
             if ($record = Country::whereCountryCode($country['country-code'])->first()) {

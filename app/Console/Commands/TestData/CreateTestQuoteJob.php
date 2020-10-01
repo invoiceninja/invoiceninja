@@ -55,7 +55,7 @@ class CreateTestQuoteJob implements ShouldQueue
     {
         $faker = \Faker\Factory::create();
 
-        $quote = factory(\App\Models\Quote::class)->create(['user_id' => $this->client->user->id, 'company_id' => $this->client->company->id, 'client_id' => $this->client->id]);
+        $quote = Quote::factory()->create(['user_id' => $this->client->user->id, 'company_id' => $this->client->company->id, 'client_id' => $this->client->id]);
         $quote->date = $faker->date();
 
         $quote->line_items = $this->buildLineItems(rand(1, 10));

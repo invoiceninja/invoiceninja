@@ -332,11 +332,11 @@ class Designer
     private function creditDetails(Company $company)
     {
         $data = [
-            '$credit.credit_number'  => '<span class="flex justify-between items-center">$credit.number_label<span></span><span>$credit.number</span></span>',
+            '$credit.number'  => '<span class="flex justify-between items-center">$credit.number_label<span></span><span>$credit.number</span></span>',
             '$credit.po_number'      => '<span class="flex justify-between items-center">$credit.po_number_label<span></span><span>$credit.po_number</span></span>',
-            '$credit.credit_date'    => '<span class="flex justify-between items-center">$credit.date_label<span></span><span>$credit.date</span></span>',
-            '$credit.credit_balance' => '<span class="flex justify-between items-center">$credit.balance_label<span></span><span>$credit.balance</span></span>',
-            '$credit.credit_amount'  => '<span class="flex justify-between items-center">$credit.amount_label<span></span><span>$credit.amount</span></span>',
+            '$credit.date'    => '<span class="flex justify-between items-center">$credit.date_label<span></span><span>$credit.date</span></span>',
+            '$credit.balance' => '<span class="flex justify-between items-center">$credit.balance_label<span></span><span>$credit.balance</span></span>',
+            '$credit.total'  => '<span class="flex justify-between items-center">$credit.total_label<span></span><span>$credit.total</span></span>',
             '$credit.partial_due'    => '<span class="flex justify-between items-center">$credit.partial_due_label<span></span><span>$credit.partial_due</span></span>',
             '$credit.custom1'        => '<span class="flex justify-between items-center">$credit.custom1_label<span></span><span>$credit.custom1</span></span>',
             '$credit.custom2'        => '<span class="flex justify-between items-center">$credit.custom2_label<span></span><span>$credit.custom2</span></span>',

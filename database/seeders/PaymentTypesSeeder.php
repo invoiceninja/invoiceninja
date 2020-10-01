@@ -1,6 +1,18 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Seeders;
+
 
 use App\Models\PaymentType;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class PaymentTypesSeeder extends Seeder
@@ -22,7 +34,7 @@ class PaymentTypesSeeder extends Seeder
 
     public function run()
     {
-        Eloquent::unguard();
+        Model::unguard();
 
         $paymentTypes = [
 //            ['name' => 'Apply Credit'],

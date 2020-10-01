@@ -14,12 +14,13 @@ namespace App\Models;
 use App\Models\Company;
 use App\Models\Language;
 use App\Models\User;
-use App\Notifications\ClientContactResetPassword;
 use App\Notifications\ClientContactResetPassword as ResetPasswordNotification;
+use App\Notifications\ClientContactResetPassword;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -33,6 +34,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     use MakesHash;
     use PresentableTrait;
     use SoftDeletes;
+    use HasFactory;
 
     /* Used to authenticate a vendor */
     protected $guard = 'vendor';

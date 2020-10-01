@@ -1,28 +1,48 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+namespace Database\Factories;
 
-use Faker\Generator as Faker;
+use App\Models\Account;
+use App\Models\ClientContact;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
-/*
-|--------------------------------------------------------------------------
-| Model Factories
-|--------------------------------------------------------------------------
-|
-| This directory should contain each of the model factory definitions for
-| your application. Factories provide a convenient way to generate new
-| model instances for testing / seeding your application's database.
-|
-*/
+class ClientContactFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = ClientContact::class;
 
-$factory->define(App\Models\ClientContact::class, function (Faker $faker) {
-    return [
-        'first_name' => $faker->firstName,
-        'last_name' => $faker->lastName,
-        'phone' => $faker->phoneNumber,
-        'email_verified_at' => now(),
-        'email' => $faker->unique()->safeEmail,
-        'send_email' => true,
-        'password' => bcrypt('password'),
-        'remember_token' => \Illuminate\Support\Str::random(10),
-        'contact_key' => \Illuminate\Support\Str::random(40),
-    ];
-});
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
+            'phone' => $this->faker->phoneNumber,
+            'email_verified_at' => now(),
+            'email' => $this->faker->unique()->safeEmail,
+            'send_email' => true,
+            'password' => bcrypt('password'),
+            'remember_token' => \Illuminate\Support\Str::random(10),
+            'contact_key' => \Illuminate\Support\Str::random(40),
+        ];
+    }
+
+}
+
