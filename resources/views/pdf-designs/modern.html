@@ -5,6 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <style id="style">
+            :root {
+                --primary-color: $primary_color;
+                --secondary-color: $secondary_color;
+            }
+
             * {
                 font-size: '$font-size';
             }
@@ -24,7 +29,7 @@
             }
 
             .header-container {
-                background-color: #f46521;
+                background-color: var(--primary-color);
                 color: white;
                 display: grid;
                 grid-template-columns: 1.5fr 1fr;
@@ -79,14 +84,14 @@
             }
             #product-table > thead > tr > th {
                 padding: 0.8rem;
-                background-color: #3f3e3c;
+                background-color: var(--secondary-color);
                 color: white;
             }
             #product-table > thead > tr > th:last-child {
                 text-align: right;
             }
             #product-table > tbody > tr > td {
-                border-bottom: 1px solid #3f3e3c;
+                border-bottom: 1px solid var(--secondary-color);
                 padding: 1rem;
             }
             #product-table > tbody > tr > td:first-child {
@@ -98,7 +103,7 @@
 
             .footer-wrapper {
                 margin-top: 1rem;
-                background-color: #f46521;
+                background-color: var(--primary-color);
                 padding: 1rem;
                 height: 160px;
                 width: 100%;
@@ -154,7 +159,7 @@
                 padding-right: 1rem;
             }
             #product-table-footer > *:last-child {
-                background-color: #3f3e3c;
+                background-color: var(--secondary-color);
                 color: white;
                 padding-top: 0.7rem;
                 padding-bottom: 0.7rem;
