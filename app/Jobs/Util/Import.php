@@ -22,6 +22,7 @@ use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Factory\ProductFactory;
 use App\Factory\QuoteFactory;
+use App\Factory\RecurringInvoiceFactory;
 use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
@@ -99,6 +100,7 @@ class Import implements ShouldQueue
         'clients',
         'products',
         'invoices',
+        'recurring_invoices',
         'quotes',
         'payments',
         'credits',
@@ -476,6 +478,57 @@ class Import implements ShouldQueue
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
         $product_repository = null;
+    }
+
+    private function processRecurringInvoices(array $data) :void
+    {
+        RecurringInvoice::unguard();
+
+        $rules = [
+            '*.client_id' => ['required'],
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
+        }
+
+        $invoice_repository = new InvoiceMigrationRepository();
+
+        foreach ($data as $key => $resource) {
+            $modified = $resource;
+
+            if (array_key_exists('client_id', $resource) && ! array_key_exists('clients', $this->ids)) {
+                throw new ResourceDependencyMissing('Processing invoices failed, because of missing dependency - clients.');
+            }
+
+            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['user_id'] = $this->processUserId($resource);
+            $modified['company_id'] = $this->company->id;
+            $modified['line_items'] = $this->cleanItems($modified['line_items']);
+
+            unset($modified['id']);
+
+            $invoice = $invoice_repository->save(
+                $modified,
+                RecurringInvoiceFactory::create($this->company->id, $modified['user_id'])
+            );
+
+            $key = "recurring_invoices_{$resource['id']}";
+
+            $this->ids['recurring_invoices'][$key] = [
+                'old' => $resource['id'],
+                'new' => $invoice->id,
+            ];
+        }
+
+        RecurringInvoice::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $invoice_repository = null;
+
     }
 
     private function processInvoices(array $data): void
