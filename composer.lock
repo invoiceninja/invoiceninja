@@ -108,16 +108,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.157.0",
+            "version": "3.158.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "ad2c0183d7ebc695acb1ba39d528f2328f2c0de3"
+                "reference": "59345aa45161a8f83c3a0027a7df9567ae72cc85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ad2c0183d7ebc695acb1ba39d528f2328f2c0de3",
-                "reference": "ad2c0183d7ebc695acb1ba39d528f2328f2c0de3",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/59345aa45161a8f83c3a0027a7df9567ae72cc85",
+                "reference": "59345aa45161a8f83c3a0027a7df9567ae72cc85",
                 "shasum": ""
             },
             "require": {
@@ -189,7 +189,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2020-09-30T18:58:20+00:00"
+            "time": "2020-10-01T18:41:53+00:00"
         },
         {
             "name": "brick/math",
@@ -5928,16 +5928,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "3.0.0",
+            "version": "3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "b77ff3783060ce3213011ddae369e550ec985dc8"
+                "reference": "b39248013660036d222681a359990284904a5db3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/b77ff3783060ce3213011ddae369e550ec985dc8",
-                "reference": "b77ff3783060ce3213011ddae369e550ec985dc8",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/b39248013660036d222681a359990284904a5db3",
+                "reference": "b39248013660036d222681a359990284904a5db3",
                 "shasum": ""
             },
             "require": {
@@ -6024,20 +6024,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2020-09-28T07:11:32+00:00"
+            "time": "2020-10-01T12:10:56+00:00"
         },
         {
             "name": "sentry/sentry-laravel",
-            "version": "2.0.0",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-laravel.git",
-                "reference": "ed8f28507f18474223df7de4c86e210c09dda630"
+                "reference": "3c6b1da08087f428ab1a188af35483eb76ef6b1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/ed8f28507f18474223df7de4c86e210c09dda630",
-                "reference": "ed8f28507f18474223df7de4c86e210c09dda630",
+                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/3c6b1da08087f428ab1a188af35483eb76ef6b1e",
+                "reference": "3c6b1da08087f428ab1a188af35483eb76ef6b1e",
                 "shasum": ""
             },
             "require": {
@@ -6048,6 +6048,7 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "2.16.*",
                 "laravel/framework": "^7.0",
+                "mockery/mockery": "1.3.*",
                 "orchestra/testbench": "^5.0",
                 "phpunit/phpunit": "^8.0"
             },
@@ -6104,7 +6105,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2020-09-28T08:31:49+00:00"
+            "time": "2020-10-01T12:14:37+00:00"
         },
         {
             "name": "spatie/browsershot",
@@ -12029,16 +12030,16 @@
         },
         {
             "name": "swagger-api/swagger-ui",
-            "version": "v3.34.0",
+            "version": "v3.35.0",
             "source": {
                 "type": "git",
-                "url": "git@github.com:swagger-api/swagger-ui.git",
-                "reference": "c20a8c479eaa7897a2ddabcaf5f75e6d41f4525c"
+                "url": "https://github.com/swagger-api/swagger-ui.git",
+                "reference": "db2cca8e8691f48c1e27a543e1cee97e760c0742"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/c20a8c479eaa7897a2ddabcaf5f75e6d41f4525c",
-                "reference": "c20a8c479eaa7897a2ddabcaf5f75e6d41f4525c",
+                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/db2cca8e8691f48c1e27a543e1cee97e760c0742",
+                "reference": "db2cca8e8691f48c1e27a543e1cee97e760c0742",
                 "shasum": ""
             },
             "type": "library",
@@ -12082,7 +12083,7 @@
                 "swagger",
                 "ui"
             ],
-            "time": "2020-09-18T18:46:18+00:00"
+            "time": "2020-10-01T18:14:37+00:00"
         },
         {
             "name": "symfony/debug",
