@@ -336,6 +336,8 @@ trait GenerateMigrationResources
                 'tax_name2' => $credit->tax_name2,
                 'tax_rate1' => $credit->tax_rate1,
                 'tax_rate2' => $credit->tax_rate2,
+                'tax_name3' => '',
+                'tax_rate3' => 0,
                 'custom_value1' => $credit->custom_value1,
                 'custom_value2' => $credit->custom_value2,
                 'next_send_date' => null,
@@ -353,64 +355,6 @@ trait GenerateMigrationResources
         return $credits;
     }
 
-    protected function getRecurringInvoices()
-    {
-        $invoices = [];
-
-        $export_invoices = Invoice::where('account_id', $this->account->id)
-            ->where('amount', '>=', '0')
-            ->where('is_recurring', true)
-            ->withTrashed()
-            ->get();        
-
-            //determine the status
-            //determine remaining cycles
-            //set the frequency_id
-
-        foreach ($export_invoices as $invoice) {
-            $invoices[] = [
-                'id' => $invoice->id,
-                'client_id' => $invoice->client_id,
-                'user_id' => $invoice->user_id,
-                'company_id' => $invoice->account_id,
-                'status_id' => $this->transformRecurringStatusId($invoice->invoice_status_id),
-                'design_id' => $invoice->invoice_design_id,
-                'number' => $invoice->invoice_number,
-                'discount' => $invoice->discount,
-                'is_amount_discount' => $invoice->is_amount_discount ?: false,
-                'po_number' => $invoice->po_number,
-                'date' => $invoice->invoice_date,
-                'last_sent_date' => $invoice->last_sent_date,
-                'due_date' => $invoice->due_date,
-                'uses_inclusive_taxes' => $this->account->inclusive_taxes,
-                'is_deleted' => $invoice->is_deleted,
-                'footer' => $invoice->invoice_footer,
-                'public_notes' => $invoice->public_notes,
-                'private_notes' => $invoice->private_notes,
-                'terms' => $invoice->terms,
-                'tax_name1' => $invoice->tax_name1,
-                'tax_name2' => $invoice->tax_name2,
-                'tax_rate1' => $invoice->tax_rate1,
-                'tax_rate2' => $invoice->tax_rate2,
-                'custom_value1' => $invoice->custom_value1,
-                'custom_value2' => $invoice->custom_value2,
-                'next_send_date' => null,
-                'amount' => $invoice->amount ?: 0,
-                'balance' => $invoice->balance ?: 0,
-                'partial' => $invoice->partial ?: 0,
-                'partial_due_date' => $invoice->partial_due_date,
-                'line_items' => $this->getInvoiceItems($invoice->invoice_items),
-                'created_at' => $invoice->created_at ? $invoice->created_at->toDateString() : null,
-                'updated_at' => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
-                'deleted_at' => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
-                //'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
-            ];
-        }
-
-        return $invoices;
-
-
-    }
 
     protected function getInvoices()
     {
@@ -463,6 +407,146 @@ trait GenerateMigrationResources
         }
 
         return $invoices;
+    }
+
+    protected function getRecurringInvoices()
+    {
+        $invoices = [];
+
+        $export_invoices = Invoice::where('account_id', $this->account->id)
+            ->where('amount', '>=', '0')
+            ->where('is_recurring', true)
+            ->withTrashed()
+            ->get();        
+
+        foreach ($export_invoices as $invoice) {
+            $invoices[] = [
+                'id' => $invoice->id,
+                'client_id' => $invoice->client_id,
+                'user_id' => $invoice->user_id,
+                'company_id' => $invoice->account_id,
+                'status_id' => $this->transformRecurringStatusId($invoice->invoice_status_id),
+                'design_id' => $invoice->invoice_design_id,
+                'number' => '',
+                //'number' => $invoice->invoice_number,
+                'discount' => $invoice->discount,
+                'is_amount_discount' => $invoice->is_amount_discount ?: false,
+                'po_number' => $invoice->po_number,
+                'date' => $invoice->invoice_date,
+                'last_sent_date' => $invoice->last_sent_date,
+                'due_date' => $invoice->due_date,
+                'uses_inclusive_taxes' => $this->account->inclusive_taxes,
+                'is_deleted' => $invoice->is_deleted,
+                'footer' => $invoice->invoice_footer,
+                'public_notes' => $invoice->public_notes,
+                'private_notes' => $invoice->private_notes,
+                'terms' => $invoice->terms,
+                'tax_name1' => $invoice->tax_name1,
+                'tax_name2' => $invoice->tax_name2,
+                'tax_rate1' => $invoice->tax_rate1,
+                'tax_rate2' => $invoice->tax_rate2,
+                'tax_name3' => '',
+                'tax_rate3' => 0,
+                'custom_value1' => $invoice->custom_value1,
+                'custom_value2' => $invoice->custom_value2,
+                'custom_value3' => '',
+                'custom_value4' => '',
+                'next_send_date' => $invoice->getNextSendDate()->format('Y-m-d'),
+                'amount' => $invoice->amount ?: 0,
+                'balance' => $invoice->balance ?: 0,
+                'partial' => $invoice->partial ?: 0,
+                'partial_due_date' => $invoice->partial_due_date,
+                'line_items' => $this->getInvoiceItems($invoice->invoice_items),
+                'created_at' => $invoice->created_at ? $invoice->created_at->toDateString() : null,
+                'updated_at' => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
+                'deleted_at' => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
+                'frequency_id' => $this->transformFrequencyId($invoice),
+                'due_date_days' => $this->transformDueDate($invoice),
+                //'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
+            ];
+        }
+
+        return $invoices;
+
+
+    }
+
+    private function transformDueDate($invoice)
+    {
+        //weekly recurring invoice get the payment terms
+        if($invoice->frequency_id == 1)
+            return 'terms';   
+
+        $due_date_parts = explode("-", $invoice->due_date);
+            return (string)$due_date_parts[2];
+    }
+
+    //v4
+    // define('FREQUENCY_WEEKLY', 1);
+    // define('FREQUENCY_TWO_WEEKS', 2);
+    // define('FREQUENCY_FOUR_WEEKS', 3);
+    // define('FREQUENCY_MONTHLY', 4);
+    // define('FREQUENCY_TWO_MONTHS', 5);
+    // define('FREQUENCY_THREE_MONTHS', 6);
+    // define('FREQUENCY_FOUR_MONTHS', 7);
+    // define('FREQUENCY_SIX_MONTHS', 8);
+    // define('FREQUENCY_ANNUALLY', 9);
+    // define('FREQUENCY_TWO_YEARS', 10);
+
+    //v5
+    // const FREQUENCY_DAILY = 1;
+    // const FREQUENCY_WEEKLY = 2;
+    // const FREQUENCY_TWO_WEEKS = 3;
+    // const FREQUENCY_FOUR_WEEKS = 4;
+    // const FREQUENCY_MONTHLY = 5;
+    // const FREQUENCY_TWO_MONTHS = 6;
+    // const FREQUENCY_THREE_MONTHS = 7;
+    // const FREQUENCY_FOUR_MONTHS = 8;
+    // const FREQUENCY_SIX_MONTHS = 9;
+    // const FREQUENCY_ANNUALLY = 10;
+    // const FREQUENCY_TWO_YEARS = 11;
+    // const FREQUENCY_THREE_YEARS = 12;
+
+
+    private function transformFrequencyId($invoice)
+    {
+        switch ($invoice->frequency_id) {
+            case 1:
+                return 2;
+                break;
+            case 2:
+                return 3;
+                break;
+            case 3:
+                return 4;
+                break;
+            case 4:
+                return 5;
+                break;
+            case 5:
+                return 6;
+                break;
+            case 6:
+                return 7;
+                break;
+            case 7:
+                return 8;
+                break;
+            case 8:
+                return 9;
+                break;
+            case 9:
+                return 10;
+                break;
+            case 10:
+                return 11;
+                break;
+
+
+            default:
+                # code...
+                break;
+        }
     }
 
     /*
