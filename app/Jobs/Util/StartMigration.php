@@ -54,7 +54,7 @@ class StartMigration implements ShouldQueue
 
     public $timeout = 86400;
 
-    public $retryAfter = 86430;
+    public $backoff = 86430;
 
     public function __construct($filepath, User $user, Company $company)
     {
