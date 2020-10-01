@@ -223,7 +223,7 @@ trait MockAccountData
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $this->client->id;
 
-        // $this->invoice = factory(\App\Models\Invoice::class)->create([
+        // $this->invoice = Invoice::factory()->create([
         //         'user_id' => $this->user->id,
         //         'client_id' => $this->client->id,
         //         'company_id' => $this->company->id,

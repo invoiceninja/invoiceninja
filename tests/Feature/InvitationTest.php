@@ -18,6 +18,8 @@ use App\Factory\InvoiceInvitationFactory;
 use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\User;
@@ -67,7 +69,7 @@ class InvitationTest extends TestCase
         $user = User::where('email', 'user@example.com')->first();
 
         if (! $user) {
-            $user = factory(\App\Models\User::class)->create([
+            $user = User::factory()->create([
                 'account_id' => $account->id,
                 'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
@@ -94,15 +96,15 @@ class InvitationTest extends TestCase
             'is_locked' => 0,
         ]);
 
-        factory(\App\Models\Client::class)->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
-            factory(\App\Models\ClientContact::class, 1)->create([
+        Client::factory()->create(['user_id' => $user->id, 'company_id' => $company->id])->each(function ($c) use ($user, $company) {
+            ClientContact::factory()->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
                 'is_primary' => 1,
             ]);
 
-            factory(\App\Models\ClientContact::class, 2)->create([
+            ClientContact::factory()->count(2)->create([
                 'user_id' => $user->id,
                 'client_id' => $c->id,
                 'company_id' => $company->id,
@@ -111,7 +113,7 @@ class InvitationTest extends TestCase
 
         $client = Client::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
-        factory(\App\Models\Invoice::class, 5)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
+        Invoice::factory()->count(5)->create(['user_id' => $user->id, 'company_id' => $company->id, 'client_id' => $client->id]);
 
         $invoice = Invoice::whereUserId($user->id)->whereCompanyId($company->id)->whereClientId($client->id)->first();
 

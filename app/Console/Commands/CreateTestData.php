@@ -27,12 +27,19 @@ use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Quote\CreateQuoteInvitations;
 use App\Listeners\Credit\CreateCreditInvitation;
 use App\Listeners\Invoice\CreateInvoiceInvitation;
+use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\CompanyToken;
 use App\Models\Country;
+use App\Models\Expense;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\Product;
+use App\Models\Project;
+use App\Models\Task;
 use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Repositories\InvoiceRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
@@ -105,7 +112,7 @@ class CreateTestData extends Command
         $user = User::whereEmail('small@example.com')->first();
 
         if (! $user) {
-            $user = factory(\App\Models\User::class)->create([
+            $user = User::factory()->create([
                 'account_id' => $account->id,
                 'email' => 'small@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default')),
@@ -132,7 +139,7 @@ class CreateTestData extends Command
             'settings' => null,
         ]);
 
-        factory(\App\Models\Product::class, 50)->create([
+        Product::factory()->count(50)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
@@ -200,7 +207,7 @@ class CreateTestData extends Command
         $user = User::whereEmail('medium@example.com')->first();
 
         if (! $user) {
-            $user = factory(\App\Models\User::class)->create([
+            $user = User::factory()->create([
                 'account_id' => $account->id,
                 'email' => 'medium@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default')),
@@ -226,7 +233,7 @@ class CreateTestData extends Command
             'settings' => null,
         ]);
 
-        factory(\App\Models\Product::class, 50)->create([
+        Product::factory()->count(50)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
@@ -297,7 +304,7 @@ class CreateTestData extends Command
         $user = User::whereEmail('large@example.com')->first();
 
         if (! $user) {
-            $user = factory(\App\Models\User::class)->create([
+            $user = User::factory()->create([
                 'account_id' => $account->id,
                 'email' => 'large@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default')),
@@ -323,7 +330,7 @@ class CreateTestData extends Command
             'settings' => null,
         ]);
 
-        factory(\App\Models\Product::class, 15000)->create([
+        Product::factory()->count(15000)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
@@ -383,19 +390,19 @@ class CreateTestData extends Command
         // dispatch(function () use ($company, $user) {
 
         // });
-        $client = factory(\App\Models\Client::class)->create([
+        $client = Client::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
 
-        factory(\App\Models\ClientContact::class, 1)->create([
+        ClientContact::factory()->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
                     'company_id' => $company->id,
                     'is_primary' => 1,
                 ]);
 
-        factory(\App\Models\ClientContact::class, rand(1, 5))->create([
+        ClientContact::factory()->count(rand(1, 5))->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
                     'company_id' => $company->id,
@@ -415,7 +422,7 @@ class CreateTestData extends Command
 
     private function createExpense($client)
     {
-        factory(\App\Models\Expense::class, rand(1, 5))->create([
+        Expense::factory()->count(rand(1, 5))->create([
                 'user_id' => $client->user->id,
                 'client_id' => $client->id,
                 'company_id' => $client->company->id,
@@ -424,19 +431,19 @@ class CreateTestData extends Command
 
     private function createVendor($client)
     {
-        $vendor = factory(\App\Models\Vendor::class)->create([
+        $vendor = Vendor::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id,
             ]);
 
-        factory(\App\Models\VendorContact::class, 1)->create([
+        VendorContact::factory()->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company->id,
                 'is_primary' => 1,
             ]);
 
-        factory(\App\Models\VendorContact::class, rand(1, 5))->create([
+        VendorContact::factory()->count(rand(1, 5))->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company->id,
@@ -446,7 +453,7 @@ class CreateTestData extends Command
 
     private function createTask($client)
     {
-        $vendor = factory(\App\Models\Task::class)->create([
+        $vendor = Task::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id,
             ]);
@@ -454,7 +461,7 @@ class CreateTestData extends Command
 
     private function createProject($client)
     {
-        $vendor = factory(\App\Models\Project::class)->create([
+        $vendor = Project::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id,
             ]);
@@ -520,7 +527,7 @@ class CreateTestData extends Command
         // }
         $faker = \Faker\Factory::create();
 
-        $credit = factory(\App\Models\Credit::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
+        $credit = Credit::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
 
         $dateable = Carbon::now()->subDays(rand(0, 90));
         $credit->date = $dateable;
@@ -564,7 +571,7 @@ class CreateTestData extends Command
         $faker = \Faker\Factory::create();
 
         //$quote = QuoteFactory::create($client->company->id, $client->user->id);//stub the company and user_id
-        $quote = factory(\App\Models\Quote::class)->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
+        $quote = Quote::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
         $quote->date = $faker->date();
         $quote->client_id = $client->id;
 

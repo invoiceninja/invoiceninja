@@ -20,6 +20,7 @@ use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -67,15 +68,15 @@ class PaymentTest extends TestCase
 
     public function testPaymentList()
     {
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
-            factory(\App\Models\ClientContact::class, 1)->create([
+        Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
             ]);
 
-            factory(\App\Models\ClientContact::class, 1)->create([
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
@@ -84,7 +85,7 @@ class PaymentTest extends TestCase
 
         $client = Client::all()->first();
 
-        factory(\App\Models\Payment::class, 1)->create(
+        Payment::factory()->create(
             ['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $client->id]
         );
 
@@ -98,7 +99,7 @@ class PaymentTest extends TestCase
 
     public function testPaymentRESTEndPoints()
     {
-        factory(\App\Models\Payment::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+        Payment::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
         $Payment = Payment::all()->last();
 
@@ -271,7 +272,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        factory(\App\Models\ClientContact::class)->create([
+            ClientContact::factory()->create([
             'user_id' => $this->user->id,
             'client_id' => $client->id,
             'company_id' =>$this->company->id,
@@ -347,7 +348,7 @@ class PaymentTest extends TestCase
         $client->setRelation('company', $this->company);
         $client->save();
 
-        $client_contact = factory(\App\Models\ClientContact::class, 1)->create([
+         $client_contact =    ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $client->id,
                 'company_id' => $this->company->id,
@@ -423,7 +424,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        factory(\App\Models\ClientContact::class, 1)->create([
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $client->id,
                 'company_id' => $this->company->id,
@@ -431,7 +432,7 @@ class PaymentTest extends TestCase
                 'send_email' => true,
             ]);
 
-        factory(\App\Models\ClientContact::class, 1)->create([
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $client->id,
                 'company_id' => $this->company->id,
@@ -495,7 +496,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $contact = factory(\App\Models\ClientContact::class, 1)->create([
+$contact =             ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
@@ -503,7 +504,7 @@ class PaymentTest extends TestCase
                 'send_email' => true,
             ]);
 
-        factory(\App\Models\ClientContact::class, 1)->create([
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,

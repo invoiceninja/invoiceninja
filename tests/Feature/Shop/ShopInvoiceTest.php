@@ -12,6 +12,7 @@ namespace Tests\Feature\Shop;
 
 use App\Factory\CompanyUserFactory;
 use App\Models\CompanyToken;
+use App\Models\Product;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -98,7 +99,7 @@ class ShopInvoiceTest extends TestCase
         $this->company->enable_shop_api = true;
         $this->company->save();
 
-        $product = factory(\App\Models\Product::class)->create([
+        $product = Product::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
             ]);

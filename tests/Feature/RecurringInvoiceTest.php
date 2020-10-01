@@ -14,6 +14,7 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -55,15 +56,16 @@ class RecurringInvoiceTest extends TestCase
 
     public function testRecurringInvoiceList()
     {
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
-            factory(\App\Models\ClientContact::class, 1)->create([
+        Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
+
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
             ]);
 
-            factory(\App\Models\ClientContact::class, 1)->create([
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
@@ -72,7 +74,7 @@ class RecurringInvoiceTest extends TestCase
 
         $client = Client::all()->first();
 
-        factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+        RecurringInvoice::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -84,15 +86,16 @@ class RecurringInvoiceTest extends TestCase
 
     public function testRecurringInvoiceRESTEndPoints()
     {
-        factory(\App\Models\Client::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
-            factory(\App\Models\ClientContact::class, 1)->create([
+        Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
+
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
             ]);
 
-            factory(\App\Models\ClientContact::class, 1)->create([
+            ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
                 'company_id' => $this->company->id,
@@ -100,7 +103,7 @@ class RecurringInvoiceTest extends TestCase
         });
         $client = Client::all()->first();
 
-        factory(\App\Models\RecurringInvoice::class, 1)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+        RecurringInvoice::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
         $RecurringInvoice = RecurringInvoice::where('user_id', $this->user->id)->first();
         $RecurringInvoice->save();

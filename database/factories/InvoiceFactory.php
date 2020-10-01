@@ -35,7 +35,7 @@ class InvoiceFactory extends Factory
     public function definition()
     {
         return [
-            'status_id' => App\Models\Invoice::STATUS_SENT,
+            'status_id' => Invoice::STATUS_SENT,
             'number' => $this->faker->ean13(),
             'discount' => $this->faker->numberBetween(1, 10),
             'is_amount_discount' => (bool) random_int(0, 1),

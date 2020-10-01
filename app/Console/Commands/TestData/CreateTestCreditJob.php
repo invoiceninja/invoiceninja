@@ -56,7 +56,7 @@ class CreateTestCreditJob implements ShouldQueue
     {
         $faker = \Faker\Factory::create();
 
-        $credit = factory(\App\Models\Credit::class)->create(['user_id' => $this->client->user->id, 'company_id' => $this->client->company->id, 'client_id' => $this->client->id]);
+        $credit = Credit::factory()->create(['user_id' => $this->client->user->id, 'company_id' => $this->client->company->id, 'client_id' => $this->client->id]);
 
         //$invoice = InvoiceFactory::create($this->client->company->id, $this->client->user->id);//stub the company and user_id
         //$invoice->client_id = $this->client->id;

@@ -32,7 +32,7 @@ class RecurringInvoiceFactory extends Factory
     public function definition()
     {
         return [
-            'status_id' => App\Models\RecurringInvoice::STATUS_ACTIVE,
+            'status_id' => RecurringInvoice::STATUS_ACTIVE,
             'discount' => $this->faker->numberBetween(1, 10),
             'is_amount_discount' => $this->faker->boolean(),
             'tax_name1' => 'GST',
@@ -50,7 +50,7 @@ class RecurringInvoiceFactory extends Factory
             'date' => $this->faker->date(),
             'due_date' => $this->faker->date(),
             'line_items' => false,
-            'frequency_id' => App\Models\RecurringInvoice::FREQUENCY_MONTHLY,
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
             'last_sent_date' => now()->subMonth(),
             'next_send_date' => now()->addMonthNoOverflow(),
             'remaining_cycles' => $this->faker->numberBetween(1, 10),
