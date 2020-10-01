@@ -5,6 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <style id="style">
+            :root {
+                --primary-color: $primary_color;
+                --secondary-color: $secondary_color;
+            }
+
             * {
                 font-size: '$font-size';
             }
@@ -30,7 +35,7 @@
             
             .header-wrapper .header-text-label {
                 font-size: 1.1rem;
-                color: #bba238;
+                color: var(--primary-color);
                 text-transform: uppercase;
                 font-weight: bold;
             }
@@ -83,7 +88,7 @@
                 [data-element='entity-details-wrapper-invoice-number-label'],
             .entity-details-wrapper
                 [data-element='entity-details-wrapper-amount-due'] {
-                color: #bba238;
+                color: var(--primary-color);
                 font-weight: bold;
             }
 
@@ -137,7 +142,7 @@
             #product-table-footer
                 > *
                 [data-element='product-table-balance-due'] {
-                color: #bba238;
+                color: var(--primary-color);
             }
             #product-table-footer > * > :last-child {
                 text-align: right;
