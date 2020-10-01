@@ -331,7 +331,7 @@ class DemoMode extends Command
 
     private function createVendor($client, $assigned_user_id = null)
     {
-        Vendor::factory()->count(1)->create([
+        $vendor = Vendor::factory()->create([
                 'user_id' => $client->user_id,
                 'company_id' => $client->company_id,
             ]);
