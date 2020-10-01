@@ -451,7 +451,6 @@ trait GenerateMigrationResources
                 'custom_value2' => $invoice->custom_value2,
                 'custom_value3' => '',
                 'custom_value4' => '',
-                'next_send_date' => $invoice->getNextSendDate()->format('Y-m-d'),
                 'amount' => $invoice->amount ?: 0,
                 'balance' => $invoice->balance ?: 0,
                 'partial' => $invoice->partial ?: 0,
@@ -460,13 +459,76 @@ trait GenerateMigrationResources
                 'created_at' => $invoice->created_at ? $invoice->created_at->toDateString() : null,
                 'updated_at' => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
                 'deleted_at' => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
+                'next_send_date' => $invoice->getNextSendDate()->format('Y-m-d'),
                 'frequency_id' => $this->transformFrequencyId($invoice),
                 'due_date_days' => $this->transformDueDate($invoice),
+                'remaining_cycles' => $this->getRemainingCycles($invoice),
                 //'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
             ];
         }
 
         return $invoices;
+
+    }
+
+    /* Determine the number of remaining cycles */
+    private function getRemainingCycles($invoice)
+    {
+        if(empty($invoice->end_date) || !$invoice->end_date)
+            return -1;
+
+        $start_date = $invoice->getNextSendDate();
+        $end_date = Carbon::parse($invoice->end_date);
+
+        //v4
+        // define('FREQUENCY_WEEKLY', 1);
+        // define('FREQUENCY_TWO_WEEKS', 2);
+        // define('FREQUENCY_FOUR_WEEKS', 3);
+        // define('FREQUENCY_MONTHLY', 4);
+        // define('FREQUENCY_TWO_MONTHS', 5);
+        // define('FREQUENCY_THREE_MONTHS', 6);
+        // define('FREQUENCY_FOUR_MONTHS', 7);
+        // define('FREQUENCY_SIX_MONTHS', 8);
+        // define('FREQUENCY_ANNUALLY', 9);
+        // define('FREQUENCY_TWO_YEARS', 10);
+ 
+        switch ($invoice->frequency_id) {
+            case 1:
+                return (int)$end_date->diffInWeeks($start_date);
+                break;
+            case 2:
+                return (int)$end_date->diffInWeeks($start_date)/2;
+                break;
+            case 3:
+                return (int)$end_date->diffInWeeks($start_date)/4;
+                break;
+            case 4:
+                return (int)$end_date->diffInMonths($start_date);
+                break;
+            case 5:
+                return (int)$end_date->diffInMonths($start_date)/2;
+                break;
+            case 6:
+                return (int)$end_date->diffInMonths($start_date)/3;
+                break;
+            case 7:
+                return (int)$end_date->diffInMonths($start_date)/4;
+                break;
+            case 8:
+                return (int)$end_date->diffInMonths($start_date)/5;
+                break;
+            case 9:
+                return (int)$end_date->diffInYears($start_date);
+                break;
+            case 10:
+                return (int)$end_date->diffInYears($start_date)/2;
+                break;
+
+            default:
+                return -1;
+
+                break;
+        }
 
 
     }
