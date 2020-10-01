@@ -5,6 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <style id="style">
+            :root {
+                --primary-color: $primary_color;
+                --secondary-color: $secondary_color;
+            }
+
             * {
                 font-size: '$font-size';
             }
@@ -86,7 +91,7 @@
                 font-size: 1.1rem;
                 padding-bottom: 1.5rem;
                 padding-left: 1rem;
-                color: #396d49;
+                color: var(--primary-color);
                 font-weight: medium;
             }
             #product-table > thead > tr > th:last-child {
@@ -131,7 +136,7 @@
             #product-table-footer
                 > *
                 [data-element='product-table-balance-due'] {
-                color: #396d49;
+                color: var(--primary-color);
             }
             #product-table-footer > * > :last-child {
                 text-align: right;

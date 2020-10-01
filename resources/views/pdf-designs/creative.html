@@ -5,6 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <style id="style">
+            :root {
+                --primary-color: $primary_color;
+                --secondary-color: $secondary_color;
+            }
+
             * {
                 font-size: '$font-size';
             }
@@ -66,7 +71,7 @@
                 text-transform: uppercase;
             }
             .entity-label-wrapper .entity-label > *:last-child {
-                color: #b21c53;
+                color: var(--primary-color);
                 font-style: italic;
             }
             .entity-label-wrapper #entity-details {
@@ -82,7 +87,7 @@
                 min-width: 100%;
                 table-layout: fixed;
                 overflow-wrap: break-word;
-                border-top: 5px solid #b21c53;
+                border-top: 5px solid var(--primary-color);
             }
             #product-table > thead {
                 text-align: left;
@@ -117,13 +122,13 @@
                 > *
                 [data-element='product-table-balance-due'] {
                 font-weight: bold;
-                color: #b21c53;
+                color: var(--primary-color);
             }
             #product-table-footer > * > * {
                 padding-left: 1rem;
             }
             #product-table-footer > *:last-child > * {
-                border-top: 5px solid #b21c53;
+                border-top: 5px solid var(--primary-color);
                 padding-top: 1rem;
             }
             #product-table-footer > * > :last-child {

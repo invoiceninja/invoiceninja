@@ -6,6 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <style id="style">
+            :root {
+                --primary-color: $primary_color;
+                --secondary-color: $secondary_color;
+            }
+
             body {
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
@@ -34,7 +39,7 @@
                 color: #9f9f9f;
             }
             #company-details > span:first-child {
-                color: #67b1cc;
+                color: var(--primary-color);
             }
 
             #company-address {
@@ -48,7 +53,7 @@
                 margin-top: 3.5rem;
                 margin-bottom: 1rem;
                 font-weight: semibold;
-                color: #67b1cc;
+                color: var(--primary-color);
             }
 
             .client-and-entity-wrapper {
@@ -97,7 +102,7 @@
                 padding: 1rem;
             }
             #product-table > tbody > tr > td:first-child {
-                color: #67b1cc;
+                color: var(--primary-color);
             }
             #product-table > tbody > tr:nth-child(odd) {
                 background-color: #f5f5f5;
@@ -125,7 +130,7 @@
             #product-table-footer
                 > *
                 [data-element='product-table-balance-due'] {
-                color: #67b1cc;
+                color: var(--primary-color);
             }
             #product-table-footer > * > :last-child {
                 text-align: right;

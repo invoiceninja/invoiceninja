@@ -5,6 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <style id="style">
+            :root {
+                --primary-color: $primary_color;
+                --secondary-color: $secondary_color;
+            }
+
             * {
                 font-size: '$font-size';
             }
@@ -29,7 +34,7 @@
                 height: 5rem;
             }
             .header-wrapper .entity-details-wrapper {
-                background-color: #009e90;
+                background-color: var(--primary-color);
                 padding: 1rem;
                 border-radius: 10px;
             }
@@ -51,7 +56,7 @@
             }
             .contacts-wrapper .contact-label {
                 font-weight: bold;
-                color: #009e90;
+                color: var(--primary-color);
                 margin-left: 1rem;
             }
             .contacts-wrapper #company-address,
@@ -64,7 +69,7 @@
             .contacts-wrapper .company-info {
                 margin-top: 1rem;
                 padding: 1rem;
-                border-top: 1px solid #009e90;
+                border-top: 1px solid var(--primary-color);
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;
@@ -72,12 +77,12 @@
             .contacts-wrapper #client-details {
                 margin-top: 1rem;
                 padding: 1rem;
-                border-top: 1px solid #009e90;
+                border-top: 1px solid var(--primary-color);
             }
 
             .contact-wrapper-left-side,
             .contact-wrapper-right-side {
-                border-bottom: 1px solid #009e90;
+                border-bottom: 1px solid var(--primary-color);
             }
 
             #product-table {
@@ -92,7 +97,7 @@
             #product-table > thead > tr > th {
                 font-size: 1.2rem;
                 padding: 1rem;
-                background: #009e90;
+                background: var(--primary-color);
                 color: white;
             }
             #product-table > thead tr > th:last-child {
@@ -107,11 +112,11 @@
                 border-bottom-right-radius: 10px;
             }
             #product-table > tbody > tr > td {
-                border-bottom: 1px solid #009e90;
+                border-bottom: 1px solid var(--primary-color);
                 padding: 1rem;
             }
             #product-table > tbody > tr > td:first-child {
-                color: #bb3a24;
+                color: var(--primary-color);
             }
             #product-table > tbody > tr > td:last-child {
                 text-align: right;
@@ -139,7 +144,7 @@
             #product-table-footer
                 > *
                 [data-element='product-table-balance-due'] {
-                color: #009e90;
+                color: var(--primary-color);
             }
             #product-table-footer > * > :last-child {
                 text-align: right;

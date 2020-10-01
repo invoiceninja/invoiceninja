@@ -321,6 +321,9 @@ class HtmlEngine
 
         $data['$invoiceninja.whitelabel'] = ['value' => asset('images/created-by-invoiceninja-new.png'), 'label' => ''];
 
+        $data['$primary_color'] = ['value' => $this->settings->primary_color, 'label' => ''];
+        $data['$secondary_color'] = ['value' => $this->settings->secondary_color, 'label' => ''];
+
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label3']              = ['value' => '', 'label' => ctrans('texts.')];

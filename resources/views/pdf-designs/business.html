@@ -5,6 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <style id="style">
+            :root {
+                --primary-color: $primary_color;
+                --secondary-color: $secondary_color;
+            }
+
             body {
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
@@ -66,7 +71,7 @@
             #client-details {
                 display: flex;
                 flex-direction: column;
-                color: #ec782f;
+                color: var(--primary-color);
             }
             #client-details > * {
                 margin-bottom: 0.5rem;
@@ -76,7 +81,7 @@
             }
 
             #entity-details {
-                background-color: #ec782f;
+                background-color: var(--primary-color);
                 padding: 0.8rem;
                 border-radius: 1rem;
                 width: 100%;
@@ -95,7 +100,7 @@
             }
             #product-table > thead {
                 text-align: left;
-                background: #394e6b;
+                background: var(--secondary-color);
             }
             #product-table > thead > tr > th {
                 padding: 1rem;
@@ -124,7 +129,7 @@
 
             [data-element='product-table-balance-due-label'],
             [data-element='product-table-balance-due'] {
-                color: #394e6b !important;
+                color: var(--secondary-color) !important;
                 font-weight: bold !important;
             }
 
