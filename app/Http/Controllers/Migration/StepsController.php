@@ -243,6 +243,7 @@ class StepsController extends BaseController
             'clients' => $this->getClients(),
             'products' => $this->getProducts(),
             'invoices' => $this->getInvoices(),
+            'recurring_invoices' => $this->getRecurringInvoices(),
             'quotes' => $this->getQuotes(),
             'payments' => array_merge($this->getPayments(), $this->getCredits()),
             'credits' => $this->getCreditsNotes(),

@@ -15,6 +15,7 @@ use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 
 trait GenerateMigrationResources
@@ -425,7 +426,7 @@ trait GenerateMigrationResources
                 'client_id' => $invoice->client_id,
                 'user_id' => $invoice->user_id,
                 'company_id' => $invoice->account_id,
-                'status_id' => $this->transformRecurringStatusId($invoice->invoice_status_id),
+                'status_id' => $this->transformRecurringStatusId($invoice),
                 'design_id' => $invoice->invoice_design_id,
                 'number' => '',
                 //'number' => $invoice->invoice_number,
