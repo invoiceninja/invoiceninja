@@ -47,6 +47,7 @@ use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Repositories\ClientContactRepository;
@@ -98,15 +99,16 @@ class Import implements ShouldQueue
         'payment_terms',
         'tax_rates',
         'clients',
-        'products',
-        'invoices',
+        // 'products',
+        // 'invoices',
         'recurring_invoices',
-        'quotes',
-        'payments',
-        'credits',
-        'company_gateways',
-        //'documents',
-        'client_gateway_tokens',
+        // 'quotes',
+        // 'payments',
+        // 'credits',
+        // 'company_gateways',
+        // 'client_gateway_tokens',
+      
+        // //'documents',
     ];
 
     /**
