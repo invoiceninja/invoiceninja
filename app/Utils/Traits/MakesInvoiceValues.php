@@ -213,7 +213,9 @@ trait MakesInvoiceValues
             $data['$number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
             $data['$entity.terms'] = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.invoice_terms')];
             $data['$terms'] = &$data['$entity.terms'];
-            $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
+
+            if($invitation)
+                $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
             // $data['$view_link']          = ['value' => $invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
         }
 
@@ -222,7 +224,9 @@ trait MakesInvoiceValues
             $data['$number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
             $data['$entity.terms'] = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.quote_terms')];
             $data['$terms'] = &$data['$entity.terms'];
-            $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
+            
+            if($invitation)
+                $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
             // $data['$view_link']          = ['value' => $invitation->getLink(), 'label' => ctrans('texts.view_quote')];
         }
 
@@ -231,7 +235,9 @@ trait MakesInvoiceValues
             $data['$number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
             $data['$entity.terms'] = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.credit_terms')];
             $data['$terms'] = &$data['$entity.terms'];
-            $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
+            
+            if($invitation)
+                $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
             // $data['$view_link']          = ['value' => $invitation->getLink(), 'label' => ctrans('texts.view_credit')];
         }
 
