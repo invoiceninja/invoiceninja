@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html data-report-errors="{{ $report_errors }}">
 <head>
   <meta charset="UTF-8">
   <title>Invoice Ninja</title>
-  <meta name="report_errors" content="{{ $report_errors }}">
   <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">
   <link rel="manifest" href="manifest.json?v={{ $hash }}">
 </head>
@@ -11,11 +10,12 @@
 
   <style>
 
-    /* fix for blurry fonts */
+    /* fix for blurry fonts 
     flt-glass-pane {
         image-rendering: pixelated;
     }
-
+    */
+   
     /* https://projects.lukehaas.me/css-loaders/ */
     .loader,
     .loader:before,
