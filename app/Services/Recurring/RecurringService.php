@@ -12,6 +12,7 @@
 namespace App\Services\Recurring;
 
 use App\Models\RecurringInvoice;
+use App\Services\Recurring\CreateRecurringInvitations;
 use Illuminate\Support\Carbon;
 
 class RecurringService
@@ -33,6 +34,13 @@ class RecurringService
     public function stop()
     {
     	$this->status_id = RecurringInvoice::STATUS_PAUSED;
+
+        return $this;
+    }
+
+    public function createInvitations()
+    {
+        $this->recurring_entity = (new CreateRecurringInvitations($this->recurring_entity))->run();
 
         return $this;
     }
