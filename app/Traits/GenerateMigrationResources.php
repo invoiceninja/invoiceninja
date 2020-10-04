@@ -460,7 +460,7 @@ trait GenerateMigrationResources
                 'created_at' => $invoice->created_at ? $invoice->created_at->toDateString() : null,
                 'updated_at' => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
                 'deleted_at' => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
-                'next_send_date' => $invoice->getNextSendDate()->format('Y-m-d'),
+                'next_send_date' => $this->getNextSendDateForMigration($invoice),
                 'frequency_id' => $this->transformFrequencyId($invoice),
                 'due_date_days' => $this->transformDueDate($invoice),
                 'remaining_cycles' => $this->getRemainingCycles($invoice),
@@ -469,6 +469,16 @@ trait GenerateMigrationResources
         }
 
         return $invoices;
+
+    }
+
+    private function getNextSendDateForMigration($invoice)
+    {
+        
+        if($next_send_date = $invoice->getNextSendDate())
+            return $next_send_date->format('Y-m-d');
+
+        return null;
 
     }
 
