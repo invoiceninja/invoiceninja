@@ -3,11 +3,12 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "main.dart.js": "e887dbd02dff5dde4421ce0395612e94",
-"assets/NOTICES": "cc579c7545b2b2a03247838dd1d601d7",
+  "version.json": "da8e821a4d19db954d411e3234e781d6",
+"main.dart.js": "9daccb2bcb9c8f21aa76580004feddd0",
+"assets/NOTICES": "23c057eefb1ee72da3e32d88380ea642",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
-"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "b0fd91bb29dcb296a9a37f8bda0a2d85",
-"assets/fonts/MaterialIcons-Regular.otf": "a68d2a28c526b3b070aefca4bac93d25",
+"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "51c686b86bc12382579d8283b7e76b6b",
+"assets/fonts/MaterialIcons-Regular.otf": "132a5e63b5e510933ab4845577716106",
 "assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
 "assets/assets/images/payment_types/other.png": "d936e11fa3884b8c9f1bd5c914be8629",
 "assets/assets/images/payment_types/laser.png": "b4e6e93dd35517ac429301119ff05868",
@@ -26,12 +27,12 @@ const RESOURCES = {
 "assets/assets/images/payment_types/dinerscard.png": "06d85186ba858c18ab7c9caa42c92024",
 "assets/assets/images/logo.png": "090f69e23311a4b6d851b3880ae52541",
 "assets/AssetManifest.json": "ea09ed4b9b8b6c83d6896248aac7c527",
-"favicon.png": "5dcef449791fa27946b3d35ad8803796",
-"/": "e65799be52f7bbcaf39d78046726b95a",
+"favicon.png": "dca91c54388f52eded692718d5a98b8b",
+"/": "23224b5e03519aaa87594403d54412cf",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
 "manifest.json": "77215c1737c7639764e64a192be2f7b8",
-"icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
-"icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1"
+"icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
+"icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed"
 };
 
 // The application shell files that are downloaded before a service worker can
@@ -44,6 +45,7 @@ const CORE = [
 "assets/FontManifest.json"];
 // During install, the TEMP cache is populated with the application shell files.
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   return event.waitUntil(
     caches.open(TEMP).then((cache) => {
       return cache.addAll(
@@ -112,6 +114,9 @@ self.addEventListener("activate", function(event) {
 // The fetch handler redirects requests for RESOURCE files to the service
 // worker cache.
 self.addEventListener("fetch", (event) => {
+  if (event.request.method !== 'GET') {
+    return;
+  }
   var origin = self.location.origin;
   var key = event.request.url.substring(origin.length + 1);
   if (key.indexOf('?v=') != -1) {
@@ -120,9 +125,10 @@ self.addEventListener("fetch", (event) => {
   if (event.request.url == origin || event.request.url.startsWith(origin + '/#') || key == '') {
     key = '/';
   }
-  // If the URL is not the RESOURCE list, skip the cache.
+  // If the URL is not the RESOURCE list then return to signal that the
+  // browser should take over.
   if (!RESOURCES[key]) {
-    return event.respondWith(fetch(event.request));
+    return;
   }
   if (key == '/') {
     return onlineFirst(event);
@@ -145,10 +151,12 @@ self.addEventListener('message', (event) => {
   // SkipWaiting can be used to immediately activate a waiting service worker.
   // This will also require a page refresh triggered by the main worker.
   if (event.data === 'skipWaiting') {
-    return self.skipWaiting();
+    self.skipWaiting();
+    return;
   }
-  if (event.message === 'downloadOffline') {
+  if (event.data === 'downloadOffline') {
     downloadOffline();
+    return;
   }
 });
 
