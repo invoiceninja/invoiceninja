@@ -21,7 +21,7 @@ class Gateway extends StaticModel
         'is_secure' => 'boolean',
         'recommended' => 'boolean',
         //'visible' => 'boolean',
-        //'sort_order' => 'int',
+        'sort_order' => 'int',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'default_gateway_type_id' => 'string',

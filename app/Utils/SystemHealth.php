@@ -26,6 +26,7 @@ class SystemHealth
 {
     private static $extensions = [
         'mysqli',
+        'mysqlnd',
         'gd',
         'curl',
         'zip',

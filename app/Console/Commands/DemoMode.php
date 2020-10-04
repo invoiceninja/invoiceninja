@@ -198,7 +198,7 @@ class DemoMode extends Command
         if (! $u2) {
             $u2 = User::factory()->create([
                 'email'             => 'demo@invoiceninja.com',
-                'password'          => Hash::make('demo'),
+                'password'          => Hash::make('Password0'),
                 'account_id' => $account->id,
                 'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
