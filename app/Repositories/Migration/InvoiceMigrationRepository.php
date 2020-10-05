@@ -23,6 +23,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Repositories\ActivityRepository;
 use App\Repositories\BaseRepository;
 use App\Repositories\CreditRepository;
@@ -54,7 +55,7 @@ class InvoiceMigrationRepository extends BaseRepository
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
         $lcfirst_resource_id = lcfirst($resource).'_id';
 
-        if ($class->name == Invoice::class || $class->name == Quote::class) {
+        if ($class->name == Invoice::class || $class->name == Quote::class || $class->name == RecurringInvoice::class) {
             $state['starting_amount'] = $model->amount;
         }
 
@@ -82,6 +83,8 @@ class InvoiceMigrationRepository extends BaseRepository
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $model);
         }
+
+        info(sprintf('App\\Factory\\%sInvitationFactory', $resource));
 
         $invitation_factory_class = sprintf('App\\Factory\\%sInvitationFactory', $resource);
 
@@ -131,17 +134,21 @@ class InvoiceMigrationRepository extends BaseRepository
             $model->service()->createInvitations();
         }
 
+info("saving 3a");
+
         $model = $model->calc()->getInvoice();
+info("saving 3b");
 
         $state['finished_amount'] = $model->amount;
 
         $model = $model->service()->applyNumber()->save();
+info("saving 3c");
 
         if ($model->company->update_products !== false) {
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
         }
-
-        if ($class->name == Invoice::class) {
+info("saving 4");
+        if ($class->name == Invoice::class || $class->name == RecurringInvoice::class) {
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
 
                 // $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
@@ -170,7 +177,7 @@ class InvoiceMigrationRepository extends BaseRepository
         }
 
         $model->save();
-
+info("saving 5");
         return $model->fresh();
     }
 }

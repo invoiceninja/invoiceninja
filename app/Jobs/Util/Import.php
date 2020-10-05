@@ -500,8 +500,6 @@ class Import implements ShouldQueue
 
         foreach ($data as $key => $resource) {
             
-            info("importing recurring with key {$key}");
-
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && ! array_key_exists('clients', $this->ids)) {
@@ -526,6 +524,7 @@ class Import implements ShouldQueue
                 'old' => $resource['id'],
                 'new' => $invoice->id,
             ];
+
         }
 
         RecurringInvoice::reguard();

@@ -270,7 +270,7 @@ class MigrationController extends BaseController
 
         // If keys ain't same, but existing company with force.
         if (! $checks['same_keys'] && $checks['existing_company'] && $checks['with_force']) {
-            info('Migrating: Different keys, exisiting company with force option.');
+            info('Migrating: Different keys, existing company with force option.');
 
             if ($company) {
                 $this->purgeCompany($company);

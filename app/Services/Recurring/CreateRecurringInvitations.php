@@ -38,11 +38,18 @@ class CreateRecurringInvitations extends AbstractService
         $this->entity_name = lcfirst(Str::snake(class_basename($entity)));
         $this->entity_id_name = $this->entity_name . "_id";
         $this->invitation_class = 'App\Models\\' . ucfirst(Str::camel($this->entity_name)) . "Invitation";
-        $this->invitation_factory = 'App\Factory\\' . ucfirst(Str::camel($this->entity_name)) . "Factory";
+        $this->invitation_factory = 'App\Factory\\' . ucfirst(Str::camel($this->entity_name)) . "InvitationFactory";
     }
 
     public function run()
     {
+        info($this->entity_name);
+        info($this->entity_id_name);
+        info($this->invitation_class);
+        info($this->invitation_factory);
+         
+
+    try {
         $this->entity->client->contacts->each(function ($contact) {
 
             $invitation = $this->invitation_class::whereCompanyId($this->entity->company_id)
@@ -61,6 +68,13 @@ class CreateRecurringInvitations extends AbstractService
             }
 
         });
+    }
+    catch(\Exception $e)
+    {
+        info($e->getMessage());
+    }
+
+        info("returning the entity");
 
         return $this->entity;
     }

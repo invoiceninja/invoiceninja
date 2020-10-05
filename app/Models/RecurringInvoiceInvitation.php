@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\RecurringInvoice;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
@@ -29,6 +30,11 @@ class RecurringInvoiceInvitation extends BaseModel
     public function getEntityType()
     {
         return self::class;
+    }
+
+    public function entityType()
+    {
+        return RecurringInvoice::class;
     }
 
     /**
