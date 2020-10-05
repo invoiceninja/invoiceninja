@@ -10,13 +10,13 @@
         </div>
         <div class="panel-body">
             <h4>{!! trans('texts.download_data') !!}</h4>
-            <form action="/migration/download" method="post">
+            <form action="{{ url('/migration/download') }}" method="post">
                 {!! csrf_field() !!}
-                <button class="btn btn-primary">Download</button>
+                <button class="btn btn-primary">{!! trans('texts.download') !!}</button>
             </form>
         </div>
         <div class="panel-footer text-right">
-            <a href="/migration/import" class="btn btn-primary">{!! trans('texts.continue') !!}</a>
+            <a href="{{ url('/migration/import') }}" class="btn btn-primary">{!! trans('texts.continue') !!}</a>
         </div>
     </div>
 @stop

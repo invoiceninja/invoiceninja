@@ -12,7 +12,7 @@
         </div>
         <div class="panel-body">
             <h4>Awesome! Please select the company you would like to apply migration.</h4>
-            <form action="/migration/companies" method="post" id="auth-form">
+            <form action="{{ url('/migration/companies') }}" method="post" id="auth-form">
                 {{ csrf_field() }}
                 <input type="hidden" name="account_key" value="{{ auth()->user()->account->account_key }}">
                     
@@ -32,7 +32,7 @@
             </form>
         </div>
         <div class="panel-footer text-right">
-            <button onclick="document.getElementById('auth-form').submit();" class="btn btn-primary">{!! trans('texts.continue') !!}</button>
+            <button form="auth-form" class="btn btn-primary">{!! trans('texts.continue') !!}</button>
         </div>
     </div>
 @stop

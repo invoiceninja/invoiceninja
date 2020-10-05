@@ -12,7 +12,7 @@
         </div>
         <div class="panel-body">
             <h4>Let's continue with authentication.</h4><br/>
-            <form action="/migration/auth" method="post" id="auth-form">
+            <form action="{{ url('/migration/auth') }}" method="post" id="auth-form">
                 {{ csrf_field() }}
                 <div class="form-group">
                     <label for="email">E-mail address</label>
@@ -26,7 +26,7 @@
             </form>
         </div>
         <div class="panel-footer text-right">
-            <button onclick="document.getElementById('auth-form').submit();" class="btn btn-primary">{!! trans('texts.continue') !!}</button>
+            <button form="auth-form" class="btn btn-primary">{!! trans('texts.continue') !!}</button>
         </div>
     </div>
 @stop

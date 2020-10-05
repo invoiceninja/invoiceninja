@@ -10,7 +10,7 @@
         </div>
         <div class="panel-body">
             <h4>In order to start the migration, we need to know where do you want to migrate.</h4><br/>
-            <form action="/migration/type" method="post" id="select-type-form">
+            <form action="{{ url('migration/type') }}" method="post" id="select-type-form">
                 {{ csrf_field() }}
                 <!-- <div class="form-check">
                     <input class="form-check-input" type="radio" name="option" id="option1" value="0" checked>
@@ -30,7 +30,7 @@
             </form>
         </div>
         <div class="panel-footer text-right">
-            <button onclick="document.getElementById('select-type-form').submit();" class="btn btn-primary">{!! trans('texts.continue') !!}</button>
+            <button form="select-type-form" class="btn btn-primary">{!! trans('texts.continue') !!}</button>
         </div>
     </div>
 
