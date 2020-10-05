@@ -50,6 +50,11 @@
                             </span>
                         </th>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
+                            <span role="button" wire:click="sortBy('amount')" class="cursor-pointer">
+                                {{ ctrans('texts.amount') }}
+                            </span>
+                        </th>
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <span role="button" wire:click="sortBy('due_date')" class="cursor-pointer">
                                 {{ ctrans('texts.due_date') }}
                             </span>
@@ -78,6 +83,9 @@
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {{ App\Utils\Number::formatMoney($invoice->balance, $invoice->client) }}
+                            </td>
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                                {{ App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {{ $invoice->formatDate($invoice->due_date, $invoice->client->date_format()) }}
