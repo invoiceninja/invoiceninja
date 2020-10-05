@@ -22,6 +22,7 @@ use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\Credit;
@@ -43,6 +44,7 @@ use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
