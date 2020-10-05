@@ -12,8 +12,11 @@
 namespace App\Services\Recurring;
 
 use App\Factory\InvoiceInvitationFactory;
+use App\Factory\RecurringInvoiceFactory;
 use App\Models\Invoice;
+use App\Models\RecurringInvoice;
 use App\Models\InvoiceInvitation;
+use App\Models\RecurringInvoiceInvitation;
 use App\Services\AbstractService;
 use Illuminate\Support\Str;
 
@@ -34,13 +37,14 @@ class CreateRecurringInvitations extends AbstractService
         $this->entity = $entity;
         $this->entity_name = lcfirst(Str::snake(class_basename($entity)));
         $this->entity_id_name = $this->entity_name . "_id";
-        $this->invitation_class = Str::camel($this->entity_name);
-        $this->invitation_factory = $this->invitaiton_class . "Factory";
+        $this->invitation_class = 'App\Models\\' . ucfirst(Str::camel($this->entity_name)) . "Invitation";
+        $this->invitation_factory = 'App\Factory\\' . ucfirst(Str::camel($this->entity_name)) . "Factory";
     }
 
     public function run()
     {
         $this->entity->client->contacts->each(function ($contact) {
+
             $invitation = $this->invitation_class::whereCompanyId($this->entity->company_id)
                                         ->whereClientContactId($contact->id)
                                         ->where($this->entity_id_name, $this->entity->id)
@@ -49,12 +53,13 @@ class CreateRecurringInvitations extends AbstractService
 
             if (! $invitation && $contact->send_email) {
                 $ii = $this->invitation_factory::create($this->entity->company_id, $this->entity->user_id);
-                $ii->{$this->entity_id} = $this->entity->id;
+                $ii->{$this->entity_id_name} = $this->entity->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
             } elseif ($invitation && ! $contact->send_email) {
                 $invitation->delete();
             }
+
         });
 
         return $this->entity;
