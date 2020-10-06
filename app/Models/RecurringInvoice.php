@@ -392,13 +392,13 @@ class RecurringInvoice extends BaseModel
         {
             // we don't add the days... we calc the day of the month!!
             $next_due_date = $this->calculateDueDate($next_send_date->copy()->format('Y-m-d'));
+            $next_due_date_string = $next_due_date ? $next_due_date->format('Y-m-d') : '';
             
             $next_send_date = Carbon::parse($next_send_date);
-            // $next_due_date = Carbon::parse($next_due_date);
 
             $data[] = [
                 'send_date' => $next_send_date->format('Y-m-d'), 
-                'due_date' => $next_due_date->format('Y-m-d'),
+                'due_date' => $next_due_date_string
             ];
 
             $next_send_date = $this->nextDateByFrequency($next_send_date->format('Y-m-d'));        
