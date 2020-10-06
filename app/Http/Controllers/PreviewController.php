@@ -113,6 +113,7 @@ class PreviewController extends BaseController
                     'client' => $entity_obj->client,
                     'entity' => $entity_obj,
                     'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
+                    'products' => request()->design['design']['product'],
                 ]),
                 'variables' => $html->generateLabelsAndValues(),
             ];
@@ -184,6 +185,7 @@ class PreviewController extends BaseController
                 'client' => $invoice->client,
                 'entity' => $invoice,
                 'pdf_variables' => (array) $invoice->company->settings->pdf_variables,
+                'products' => request()->design['design']['product'],
             ]),
             'variables' => $html->generateLabelsAndValues(),
         ];

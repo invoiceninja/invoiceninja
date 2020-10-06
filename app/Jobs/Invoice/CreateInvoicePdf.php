@@ -94,6 +94,7 @@ class CreateInvoicePdf implements ShouldQueue
                 'client' => $this->invoice->client,
                 'entity' => $this->invoice,
                 'pdf_variables' => (array) $this->invoice->company->settings->pdf_variables,
+                'products' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'options' => [

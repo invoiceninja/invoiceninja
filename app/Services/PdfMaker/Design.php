@@ -16,6 +16,7 @@ use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Number;
 use App\Utils\Traits\MakesInvoiceValues;
+use DOMDocument;
 use Illuminate\Support\Str;
 
 class Design extends BaseDesign
@@ -210,8 +211,33 @@ class Design extends BaseDesign
         foreach ($items as $row) {
             $element = ['element' => 'tr', 'elements' => []];
 
-            foreach ($this->context['pdf_variables']["{$this->type}_columns"] as $key => $cell) {
-                $element['elements'][] = ['element' => 'td', 'content' => $row[$cell]];
+            if (
+                isset($this->context['products']) &&
+                !empty($this->context['products']) &&
+                !is_null($this->context['products'])
+            ) {
+                $document = new DOMDocument();
+                $document->loadHTML($this->context['products'], LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+                $td = $document->getElementsByTagName('tr')->item(0);
+
+                if ($td) {
+                    foreach ($td->childNodes as $child) {
+                        if ($child->nodeType !== 1) {
+                            continue;
+                        }
+
+                        if ($child->tagName !== 'td') {
+                            continue;
+                        }
+
+                        $element['elements'][] = ['element' => 'td', 'content' => strtr($child->nodeValue, $row)];
+                    }
+                }
+            } else {
+                foreach ($this->context['pdf_variables']["{$this->type}_columns"] as $key => $cell) {
+                    $element['elements'][] = ['element' => 'td', 'content' => $row[$cell]];
+                }
             }
 
             $elements[] = $element;
