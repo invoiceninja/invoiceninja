@@ -356,7 +356,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now();
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
+        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -366,7 +366,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now();
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
+        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -376,7 +376,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now();
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
+        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -386,7 +386,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now();
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
+        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -396,7 +396,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now();
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
+        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -406,7 +406,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now()->addDays(10);
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client);
+        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $gs = new GroupSetting;

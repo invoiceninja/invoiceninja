@@ -37,6 +37,7 @@ class Gateway extends StaticModel
 
     /**
      * @return mixed
+     * @deprecated 5.0.17 No longer needs as we are removing omnipay dependence
      */
     public function getFields()
     {

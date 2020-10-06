@@ -39,6 +39,7 @@ class CompanyFactory extends Factory
             'db' => config('database.default'),
             'settings' => CompanySettings::defaults(),
             'is_large' => false,
+            'enabled_modules' => config('ninja.enabled_modules'),
             'custom_fields' => (object) [
                 //'invoice1' => 'Custom Date|date',
                 // 'invoice2' => '2|switch',
