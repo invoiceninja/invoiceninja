@@ -154,13 +154,13 @@ trait GeneratesCounter
         $is_client_counter = false;
 
         //todo handle if we have specific client patterns in the future
-        $pattern = $client->company->settings->invoice_number_pattern;
+        $pattern = $client->company->settings->recurring_invoice_number_pattern;
 
         //Determine if we are using client_counters
         if (strpos($pattern, 'client_counter') === false) {
-            $counter = $client->company->settings->invoice_number_counter;
+            $counter = $client->company->settings->recurring_invoice_number_counter;
         } else {
-            $counter = $client->settings->invoice_number_counter;
+            $counter = $client->settings->recurring_invoice_number_counter;
             $is_client_counter = true;
         }
 
@@ -172,9 +172,9 @@ trait GeneratesCounter
 
         //increment the correct invoice_number Counter (company vs client)
         if ($is_client_counter) {
-            $this->incrementCounter($client, 'invoice_number_counter');
+            $this->incrementCounter($client, 'recurring_invoice_number_counter');
         } else {
-            $this->incrementCounter($client->company, 'invoice_number_counter');
+            $this->incrementCounter($client->company, 'recurring_invoice_number_counter');
         }
 
         return $invoice_number;

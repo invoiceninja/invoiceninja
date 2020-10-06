@@ -31,6 +31,17 @@ class UpdateGatewayTableVisibleColumn extends Migration
 
         });
 
+
+        Schema::table('expenses', function ($t){
+            $t->renameColumn('invoice_category_id', 'category_id');
+        });
+
+        Schema::table('projects', function ($t){
+            $t->text('public_notes')->nullable();
+            $t->dropColumn('description');
+            $t->decimal('budgeted_hours', 12,2)->change();
+        });
+
     }
 
 

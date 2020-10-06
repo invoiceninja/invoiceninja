@@ -33,6 +33,8 @@ class RecurringInvoiceRepository extends BaseRepository
 
         $invoice_calc = new InvoiceSum($invoice, $invoice->settings);
 
+        $invoice->service()->applyNumber()->save();
+        
         $invoice = $invoice_calc->build()->getInvoice();
 
         return $invoice;

@@ -97,12 +97,13 @@ class StoreRecurringInvoiceRequest extends Request
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         
-    if(isset($input['auto_bill']))
-        $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
-    else{
-        $client = Client::find($input['client_id']);
-        $input['auto_bill'] = $client->getSetting('auto_bill');
-    }
+        if(isset($input['auto_bill']))
+            $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
+        else{
+            
+            if($client = Client::find($input['client_id']))
+                $input['auto_bill'] = $client->getSetting('auto_bill');
+        }
     
     $this->replace($input);
 }
