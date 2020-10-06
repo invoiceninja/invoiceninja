@@ -78,6 +78,9 @@ class CompanySettings extends BaseSettings
     public $invoice_number_pattern = '';
     public $invoice_number_counter = 1;
 
+    public $recurring_invoice_number_pattern = '';
+    public $recurring_invoice_number_counter = 1;
+
     public $quote_number_pattern = '';
     public $quote_number_counter = 1;
 
