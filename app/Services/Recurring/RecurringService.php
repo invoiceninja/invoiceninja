@@ -12,6 +12,8 @@
 namespace App\Services\Recurring;
 
 use App\Models\RecurringInvoice;
+use App\Services\Recurring\ApplyNumber;
+use App\Services\Recurring\CreateRecurringInvitations;
 use Illuminate\Support\Carbon;
 
 class RecurringService
@@ -37,6 +39,13 @@ class RecurringService
         return $this;
     }
 
+    public function createInvitations()
+    {
+        $this->recurring_entity = (new CreateRecurringInvitations($this->recurring_entity))->run();
+
+        return $this;
+    }
+
     public function start()
     {
     	//make sure next_send_date is either now or in the future else return.
@@ -47,6 +56,17 @@ class RecurringService
 
     	return $this;
 
+    }
+
+    /**
+     * Applies the invoice number.
+     * @return $this InvoiceService object
+     */
+    public function applyNumber()
+    {
+        $this->recurring_entity = (new ApplyNumber($this->recurring_entity->client, $this->recurring_entity))->run();
+
+        return $this;
     }
 
     public function save()

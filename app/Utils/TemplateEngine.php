@@ -12,6 +12,10 @@
 namespace App\Utils;
 
 use App\DataMapper\EmailTemplateDefaults;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
@@ -71,6 +75,8 @@ class TemplateEngine
             $class = 'App\Models\\'.ucfirst($this->entity);
             $this->entity_obj = $class::whereId($this->decodePrimaryKey($this->entity_id))->company()->first();
         }
+        else
+            $this->mockEntity();
 
         return $this;
     }
@@ -195,6 +201,56 @@ class TemplateEngine
             'wrapper' => $wrapper,
         ];
 
+
+        $this->tearDown();
+
         return $data;
     }
+
+    private function mockEntity()
+    {
+        \DB::beginTransaction();
+
+        $client = Client::factory()->create([
+                'user_id' => auth()->user()->id,
+                'company_id' => auth()->user()->company()->id,
+            ]);
+
+        $contact = ClientContact::factory()->create([
+                'user_id' => auth()->user()->id,
+                'company_id' => auth()->user()->company()->id,
+                'client_id' => $client->id,
+                'is_primary' => 1,
+                'send_email' => true,
+            ]);
+
+        $this->entity_obj = Invoice::factory()->create([
+                    'user_id' => auth()->user()->id,
+                    'company_id' => auth()->user()->company()->id,
+                    'client_id' => $client->id,
+                ]);
+
+        $invitation = InvoiceInvitation::factory()->create([
+                    'user_id' => auth()->user()->id,
+                    'company_id' => auth()->user()->company()->id,
+                    'invoice_id' => $this->entity_obj->id,
+                    'client_contact_id' => $contact->id,
+        ]);
+
+        $this->entity_obj->setRelation('invitations', $invitation);
+        $this->entity_obj->setRelation('client', $client);
+        $this->entity_obj->setRelation('company', auth()->user()->company());
+        $this->entity_obj->load('client');
+        $client->setRelation('company', auth()->user()->company());
+        $client->load('company');
+
+    }
+
+    private function tearDown()
+    {
+
+        \DB::rollBack();
+
+    }
+
 }

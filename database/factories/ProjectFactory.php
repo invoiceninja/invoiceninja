@@ -34,7 +34,7 @@ class ProjectFactory extends Factory
 	    {
 	    return [
 	        'name' => $this->faker->name(),
-	        'description' => $this->faker->text(50),
+	        'public_notes' => $this->faker->text(50),
 	    ];
 	}
 }

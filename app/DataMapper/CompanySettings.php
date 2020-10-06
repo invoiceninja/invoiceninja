@@ -78,6 +78,9 @@ class CompanySettings extends BaseSettings
     public $invoice_number_pattern = '';
     public $invoice_number_counter = 1;
 
+    public $recurring_invoice_number_pattern = '';
+    public $recurring_invoice_number_counter = 1;
+
     public $quote_number_pattern = '';
     public $quote_number_counter = 1;
 
@@ -246,6 +249,8 @@ class CompanySettings extends BaseSettings
     public $client_portal_allow_over_payment = false;
 
     public static $casts = [
+        'recurring_invoice_number_pattern'   => 'string',
+        'recurring_invoice_number_counter'   => 'int',
         'client_portal_under_payment_minimum'=> 'float',
         'auto_bill_date'                     => 'string',
         'primary_color'                      => 'string',

@@ -34,6 +34,7 @@ class SystemHealth
         'mbstring',
         'xml',
         'bcmath',
+        'mysqlnd',
     ];
 
     private static $php_version = 7.3;

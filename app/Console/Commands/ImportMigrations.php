@@ -112,7 +112,7 @@ class ImportMigrations extends Command
 
     public function getCompany(Account $account): Company
     {
-        $company = factory(Company::class)->create([
+        $company = Company::factory()->create([
             'account_id' => $account->id,
         ]);
 

@@ -18,6 +18,30 @@ class UpdateGatewayTableVisibleColumn extends Migration
 
         Gateway::whereIn('id', [1,15,20,39])->update(['visible' => 1]);
 
+        Schema::table('recurring_invoice_invitations', function ($t) {
+            $t->string('transaction_reference')->nullable();
+            $t->string('message_id')->nullable();
+            $t->mediumText('email_error')->nullable();
+            $t->text('signature_base64')->nullable();
+            $t->datetime('signature_date')->nullable();
+
+            $t->datetime('sent_date')->nullable();
+            $t->datetime('viewed_date')->nullable();
+            $t->datetime('opened_date')->nullable();
+
+        });
+
+
+        Schema::table('expenses', function ($t){
+            $t->renameColumn('invoice_category_id', 'category_id');
+        });
+
+        Schema::table('projects', function ($t){
+            $t->text('public_notes')->nullable();
+            $t->dropColumn('description');
+            $t->decimal('budgeted_hours', 12,2)->change();
+        });
+
     }
 
 

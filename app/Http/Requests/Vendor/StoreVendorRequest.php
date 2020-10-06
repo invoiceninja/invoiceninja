@@ -42,14 +42,6 @@ class StoreVendorRequest extends Request
         //$rules['settings'] = new ValidVendorGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
 
-        // $contacts = request('contacts');
-
-        // if (is_array($contacts)) {
-        //     for ($i = 0; $i < count($contacts); $i++) {
-
-        //         //$rules['contacts.' . $i . '.email'] = 'nullable|email|distinct';
-        //     }
-        // }
 
         return $rules;
     }

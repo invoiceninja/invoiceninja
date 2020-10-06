@@ -16,6 +16,7 @@ use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
@@ -173,6 +174,8 @@ class DemoMode extends Command
             ]);
         }
 
+        CreateCompanyPaymentTerms::dispatchNow($company, $user);
+
         $company_token = new CompanyToken;
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
@@ -198,7 +201,7 @@ class DemoMode extends Command
         if (! $u2) {
             $u2 = User::factory()->create([
                 'email'             => 'demo@invoiceninja.com',
-                'password'          => Hash::make('demo'),
+                'password'          => Hash::make('Password0'),
                 'account_id' => $account->id,
                 'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
