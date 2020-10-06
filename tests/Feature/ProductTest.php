@@ -86,7 +86,10 @@ class ProductTest extends TestCase
         )
             ->assertStatus(200);
 
-        $product = Product::all()->first();
+
+        $arr = $response->json();
+        $product = Product::find($this->decodePrimaryKey($arr['data']['id']));
+
 
         $product_update = [
             'notes' => 'CHANGE',
