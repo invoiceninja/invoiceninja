@@ -26,6 +26,11 @@ class Gateway extends StaticModel
         'created_at' => 'timestamp',
         'default_gateway_type_id' => 'string',
         'fields' => 'json',
+        'options' => 'array',
+    ];
+
+    protected $appends = [
+        'options',
     ];
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
@@ -44,6 +49,12 @@ class Gateway extends StaticModel
             return Omnipay::create($this->provider)->getDefaultParameters();
         }
     }
+
+    public function getOptionsAttribute()
+    {
+        return $this->getMethods();
+    }
+
 
     /**
      * Test if gateway is custom.
@@ -83,4 +94,30 @@ class Gateway extends StaticModel
         //return $key != $str ? $str : '';
     }
 
+
+    /**
+     * Returns an array of methods and the gatewaytypes possible
+     * 
+     * @return array 
+     */
+    public function getMethods()
+    {
+        switch ($this->id) {
+            case 1:
+                return ['methods' => [GatewayType::CREDIT_CARD], 'refund' => true, 'token_billing' => true ]; //Authorize.net
+                break;
+            case 15:
+                return ['methods' => [GatewayType::PAYPAL], 'refund' => true, 'token_billing' => false  ]; //Paypal
+                break;
+            case 20:
+                return ['methods' => [GatewayType::CREDIT_CARD, GatewayType::BANK_TRANSFER, GatewayType::ALIPAY, GatewayType::APPLE_PAY], 'refund' => true, 'token_billing' => true  ]; //Stripe
+                break;
+            case 39:
+                return ['methods' => [GatewayType::CREDIT_CARD], 'refund' => true, 'token_billing' => true  ]; //Checkout
+                break;
+            default:
+                return [];
+                break;
+        }
+    }
 }
