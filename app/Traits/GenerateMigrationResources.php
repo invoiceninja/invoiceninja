@@ -364,6 +364,7 @@ trait GenerateMigrationResources
         $export_invoices = Invoice::where('account_id', $this->account->id)
             ->where('amount', '>=', '0')
             ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+            ->where('is_recurring', false)
             ->withTrashed()
             ->get();
 
