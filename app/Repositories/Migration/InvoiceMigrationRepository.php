@@ -84,8 +84,6 @@ class InvoiceMigrationRepository extends BaseRepository
             $this->saveDocuments($data['documents'], $model);
         }
 
-        info(sprintf('App\\Factory\\%sInvitationFactory', $resource));
-
         $invitation_factory_class = sprintf('App\\Factory\\%sInvitationFactory', $resource);
 
         if (isset($data['client_contacts'])) {
@@ -134,20 +132,16 @@ class InvoiceMigrationRepository extends BaseRepository
             $model->service()->createInvitations();
         }
 
-info("saving 3a");
-
         $model = $model->calc()->getInvoice();
-info("saving 3b");
 
         $state['finished_amount'] = $model->amount;
 
         $model = $model->service()->applyNumber()->save();
-info("saving 3c");
 
         if ($model->company->update_products !== false) {
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
         }
-info("saving 4");
+
         if ($class->name == Invoice::class || $class->name == RecurringInvoice::class) {
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
 
@@ -177,7 +171,7 @@ info("saving 4");
         }
 
         $model->save();
-info("saving 5");
+
         return $model->fresh();
     }
 }

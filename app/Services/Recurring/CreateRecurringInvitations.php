@@ -43,38 +43,31 @@ class CreateRecurringInvitations extends AbstractService
 
     public function run()
     {
-        info($this->entity_name);
-        info($this->entity_id_name);
-        info($this->invitation_class);
-        info($this->invitation_factory);
-         
 
-    try {
-        $this->entity->client->contacts->each(function ($contact) {
+        try {
+            $this->entity->client->contacts->each(function ($contact) {
 
-            $invitation = $this->invitation_class::whereCompanyId($this->entity->company_id)
-                                        ->whereClientContactId($contact->id)
-                                        ->where($this->entity_id_name, $this->entity->id)
-                                        ->withTrashed()
-                                        ->first();
+                $invitation = $this->invitation_class::whereCompanyId($this->entity->company_id)
+                                            ->whereClientContactId($contact->id)
+                                            ->where($this->entity_id_name, $this->entity->id)
+                                            ->withTrashed()
+                                            ->first();
 
-            if (! $invitation && $contact->send_email) {
-                $ii = $this->invitation_factory::create($this->entity->company_id, $this->entity->user_id);
-                $ii->{$this->entity_id_name} = $this->entity->id;
-                $ii->client_contact_id = $contact->id;
-                $ii->save();
-            } elseif ($invitation && ! $contact->send_email) {
-                $invitation->delete();
-            }
+                if (! $invitation && $contact->send_email) {
+                    $ii = $this->invitation_factory::create($this->entity->company_id, $this->entity->user_id);
+                    $ii->{$this->entity_id_name} = $this->entity->id;
+                    $ii->client_contact_id = $contact->id;
+                    $ii->save();
+                } elseif ($invitation && ! $contact->send_email) {
+                    $invitation->delete();
+                }
 
-        });
-    }
-    catch(\Exception $e)
-    {
-        info($e->getMessage());
-    }
-
-        info("returning the entity");
+            });
+        }
+        catch(\Exception $e)
+        {
+            info($e->getMessage());
+        }
 
         return $this->entity;
     }

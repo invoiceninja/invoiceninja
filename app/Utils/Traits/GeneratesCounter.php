@@ -167,7 +167,7 @@ trait GeneratesCounter
         //Return a valid counter
         $pattern = '';
         $padding = $client->getSetting('counter_padding');
-        $invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $pattern);
+        $invoice_number = $this->checkEntityNumber(RecurringInvoice::class, $client, $counter, $padding, $pattern);
         $invoice_number = $this->prefixCounter($invoice_number, $client->getSetting('recurring_number_prefix'));
 
         //increment the correct invoice_number Counter (company vs client)

@@ -44,7 +44,7 @@ class ApplyNumber extends AbstractService
                 break;
 
             default:
-                // code...
+                $this->recurring_entity->number = $this->getNextRecurringInvoiceNumber($this->client);
                 break;
         }
 
