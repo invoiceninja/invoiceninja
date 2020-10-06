@@ -319,7 +319,7 @@ trait GenerateMigrationResources
                 'user_id' => $credit->user_id,
                 'company_id' => $credit->account_id,
                 'status_id' => $credit->invoice_status_id,
-                'design_id' => $credit->invoice_design_id,
+                'design_id' => $this->getDesignId($credit->invoice_design_id),
                 'number' => $credit->invoice_number,
                 'discount' => $credit->discount ?: 0,
                 'is_amount_discount' => $credit->is_amount_discount ?: false,
@@ -375,7 +375,7 @@ trait GenerateMigrationResources
                 'user_id' => $invoice->user_id,
                 'company_id' => $invoice->account_id,
                 'status_id' => $this->transformStatusId($invoice->invoice_status_id),
-                'design_id' => $invoice->invoice_design_id,
+                'design_id' => $this->getDesignId($invoice->invoice_design_id),
                 'number' => $invoice->invoice_number,
                 'discount' => $invoice->discount,
                 'is_amount_discount' => $invoice->is_amount_discount ?: false,
@@ -411,6 +411,15 @@ trait GenerateMigrationResources
         return $invoices;
     }
 
+    /*We cant migrate custom designs*/
+    private function getDesignId($design_id)
+    {
+        if($design_id >= 11)
+            return 1;
+
+        return $design_id;
+    }
+
     protected function getRecurringInvoices()
     {
         $invoices = [];
@@ -428,9 +437,8 @@ trait GenerateMigrationResources
                 'user_id' => $invoice->user_id,
                 'company_id' => $invoice->account_id,
                 'status_id' => $this->transformRecurringStatusId($invoice),
-                'design_id' => $invoice->invoice_design_id,
+                'design_id' => $this->getDesignId($invoice->invoice_design_id),
                 'number' => '',
-                //'number' => $invoice->invoice_number,
                 'discount' => $invoice->discount,
                 'is_amount_discount' => $invoice->is_amount_discount ?: false,
                 'po_number' => $invoice->po_number,
@@ -769,7 +777,7 @@ trait GenerateMigrationResources
                 'user_id' => $quote->user_id,
                 'company_id' => $quote->account_id,
                 'status_id' => $quote->invoice_status_id,
-                'design_id' => $quote->invoice_design_id,
+                'design_id' => $this->getDesignId($quote->invoice_design_id),
                 'number' => $quote->invoice_number,
                 'discount' => $quote->discount,
                 'is_amount_discount' => $quote->is_amount_discount ?: false,
