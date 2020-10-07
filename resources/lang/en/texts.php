@@ -3281,4 +3281,7 @@ return [
     'paused' => 'Paused',
 
     'saved_at' => 'Saved at :time',
+    'credit_payment' => 'Credit applied to Invoice :invoice_number',
+
+
 ];

@@ -30,6 +30,8 @@ class AutoBillInvoice extends AbstractService
 
     private $client;
 
+    private $payment;
+
     public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
@@ -39,32 +41,37 @@ class AutoBillInvoice extends AbstractService
 
     public function run()
     {
-        if (! $this->invoice->isPayable()) {
+        /* Is the invoice payable? */
+        if (! $this->invoice->isPayable()) 
             return $this->invoice;
-        }
-
+        
+        /* Mark the invoice as sent */
         $this->invoice = $this->invoice->service()->markSent()->save();
 
-        if ($this->invoice->balance > 0) {
-            $gateway_token = $this->getGateway($this->invoice->balance); //todo what if it is only a partial amount?
-        } else {
+        /* Mark the invoice as paid if there is no balance */
+        if ((int)$this->invoice->balance == 0) 
             return $this->invoice->service()->markPaid()->save();
-        }
 
-        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing) {
-            return $this->invoice;
-        }
+        $this->applyCreditPayment();
 
-        if ($this->invoice->partial > 0) {
-            $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->partial);
-            // $amount = $this->invoice->partial + $fee;
+        /* Determine $amount */
+        if ($this->invoice->partial > 0) 
             $amount = $this->invoice->partial;
-        } else {
-            $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->balance);
-            // $amount = $this->invoice->balance + $fee;
+        elseif($this->invoice->balance >0)
             $amount = $this->invoice->balance;
-        }
+        else
+            return $this->invoice;
 
+        $gateway_token = $this->getGateway($amount);
+
+        /* Bail out if no payment methods available */
+        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing) 
+            return $this->invoice;
+
+        /* $gateway fee */
+        $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->partial);
+
+        /* Build payment hash */
         $payment_hash = PaymentHash::create([
             'hash' => Str::random(128),
             'data' => ['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount],
@@ -72,9 +79,93 @@ class AutoBillInvoice extends AbstractService
             'fee_invoice_id' => $this->invoice->id,
         ]);
 
-        $payment = $gateway_token->gateway->driver($this->client)->tokenBilling($gateway_token, $payment_hash);
+        $payment = $gateway_token->gateway
+                                 ->driver($this->client)
+                                 ->tokenBilling($gateway_token, $payment_hash);
 
         return $this->invoice;
+    }
+
+    /**
+     * Applies credits to a payment prior to push
+     * to the payment gateway
+     * 
+     * @return $this
+     */
+    private function applyCreditPayment() 
+    {
+        
+        $available_credits = $this->client
+                                  ->credits
+                                  ->where('is_deleted', false)
+                                  ->where('balance', '>', 0)
+                                  ->sortBy('created_at');
+
+        $available_credit_balance = $available_credits->sum('balance');
+
+        if((int)$available_credit_balance == 0)
+            return;
+
+        $is_partial_amount = false;
+
+        if ($this->invoice->partial > 0) {
+            $is_partial_amount = true;
+        }
+
+        $this->payment = PaymentFactory::create($this->client->company_id, $this->client->user_id);
+        $this->payment->save();
+
+        $available_credits->each(function($credit) use($is_partial_amount){
+
+
+            // if($credit->balance >= $amount){
+            //     //current credit covers the total amount
+
+            // }
+                //return false to exit each loop
+        });
+
+        return $this;
+    }
+
+    private function buildPayment($credit, $is_partial_amount)
+    {
+        if($is_partial_amount) {
+
+            if($this->invoice->partial >= $credit->balance) {
+
+                $amount = $this->invoice->partial - $credit->balance;
+                $this->invoice->partial -= $amount;
+
+                $this->payment->credits()->attach([
+                    $credit->id => ['amount' => $amount]
+                ]);
+
+                $this->applyPaymentToCredit($credit, $amount);
+            }
+        }
+
+    }
+
+
+    private function applyPaymentToCredit($credit, $amount)
+    {
+        
+        $credit_item = new InvoiceItem;
+        $credit_item->type_id = '1';
+        $credit_item->product_key = ctrans('texts.credit');
+        $credit_item->notes = ctrans('texts.credit_payment', ['invoice_number' => $this->invoice->number]);
+        $credit_item->quantity = 1;
+        $credit_item->cost = $amount * -1;
+
+        $credit_items = $credit->line_items;
+        $credit_items[] = $credit_item;
+
+        $credit->line_items = $credit_items;
+
+        $credit = $credit->calc()->getCredit();
+
+
     }
 
     /**

@@ -156,6 +156,11 @@ class Client extends BaseModel implements HasLocalePreference
                     ->first();
     }
 
+    public function credits()
+    {
+        return $this->hasMany(Credit::class)->withTrashed();
+    }
+
     public function activities()
     {
         return $this->hasMany(Activity::class)->orderBy('id', 'desc');
