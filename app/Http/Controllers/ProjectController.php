@@ -11,89 +11,66 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\Analytics\AccountDeleted;
-use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
-use App\Http\Requests\Company\CreateCompanyRequest;
-use App\Http\Requests\Company\DestroyCompanyRequest;
-use App\Http\Requests\Company\EditCompanyRequest;
-use App\Http\Requests\Company\ShowCompanyRequest;
-use App\Http\Requests\Company\StoreCompanyRequest;
-use App\Http\Requests\Company\UpdateCompanyRequest;
-use App\Http\Requests\SignupRequest;
-use App\Jobs\Company\CreateCompany;
-use App\Jobs\Company\CreateCompanyPaymentTerms;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Jobs\Ninja\RefundCancelledAccount;
-use App\Jobs\RegisterNewAccount;
-use App\Jobs\Util\UploadAvatar;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\CompanyUser;
-use App\Repositories\CompanyRepository;
-use App\Transformers\AccountTransformer;
-use App\Transformers\CompanyTransformer;
-use App\Transformers\CompanyUserTransformer;
-use App\Utils\Ninja;
+use App\Factory\ProjectFactory;
+use App\Filters\ProjectFilters;
+use App\Http\Requests\Project\CreateProjectRequest;
+use App\Http\Requests\Project\DestroyProjectRequest;
+use App\Http\Requests\Project\EditProjectRequest;
+use App\Http\Requests\Project\ShowProjectRequest;
+use App\Http\Requests\Project\StoreProjectRequest;
+use App\Http\Requests\Project\UpdateProjectRequest;
+use App\Jobs\Entity\ActionEntity;
+use App\Models\Project;
+use App\Repositories\ProjectRepository;
+use App\Transformers\ProjectTransformer;
+use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\Uploadable;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Support\Facades\Cache;
 
 /**
- * Class CompanyController.
+ * Class ProjectController.
  */
-class CompanyController extends BaseController
+class ProjectController extends BaseController
 {
-    use DispatchesJobs;
     use MakesHash;
-    use Uploadable;
 
-    protected $entity_type = Company::class;
+    protected $entity_type = Project::class;
 
-    protected $entity_transformer = CompanyTransformer::class;
+    protected $entity_transformer = ProjectTransformer::class;
 
-    protected $company_repo;
-
-    public $forced_includes = [];
+    protected $project_repo;
 
     /**
-     * CompanyController constructor.
+     * ProjectController constructor.
+     * @param ProjectRepository $projectRepo
      */
-    public function __construct(CompanyRepository $company_repo)
+    public function __construct(ProjectRepository $project_repo)
     {
         parent::__construct();
 
-        $this->company_repo = $company_repo;
+        $this->project_repo = $project_repo;
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     *
-     * @OA\Get(
-     *      path="/api/v1/companies",
-     *      operationId="getCompanies",
-     *      tags={"companies"},
-     *      summary="Gets a list of companies",
-     *      description="Lists companies, search and filters allow fine grained lists to be generated.
-
-        Query parameters can be added to performed more fine grained filtering of the companies, these are handled by the CompanyFilters class which defines the methods available",
+     *      @OA\Get(
+     *      path="/api/v1/projects",
+     *      operationId="getProjects",
+     *      tags={"projects"},
+     *      summary="Gets a list of projects",
+     *      description="Lists projects",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\Response(
      *          response=200,
-     *          description="A list of companies",
+     *          description="A list of projects",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *          @OA\JsonContent(ref="#/components/schemas/Project"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -108,137 +85,11 @@ class CompanyController extends BaseController
      *       ),
      *     )
      */
-    public function index()
+    public function index(ProjectFilters $filters)
     {
-        $companies = Company::whereAccountId(auth()->user()->company()->account->id);
+        $projects = Project::filter($filters);
 
-        return $this->listResponse($companies);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     *
-     *
-     *
-     * @OA\Get(
-     *      path="/api/v1/companies/create",
-     *      operationId="getCompaniesCreate",
-     *      tags={"companies"},
-     *      summary="Gets a new blank company object",
-     *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="A blank company object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     */
-    public function create(CreateCompanyRequest $request)
-    {
-        $company = CompanyFactory::create(auth()->user()->company()->account->id);
-
-        return $this->itemResponse($company);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\SignupRequest $request
-     * @return \Illuminate\Http\Response
-     *
-     *
-     * @OA\Post(
-     *      path="/api/v1/companies",
-     *      operationId="storeCompany",
-     *      tags={"companies"},
-     *      summary="Adds a company",
-     *      description="Adds an company to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the saved company object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     */
-    public function store(StoreCompanyRequest $request)
-    {
-        $this->forced_includes = ['company_user'];
-
-        $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
-
-        CreateCompanyPaymentTerms::dispatchNow($company, auth()->user());
-
-        $company = $this->company_repo->save($request->all(), $company);
-
-        $this->uploadLogo($request->file('company_logo'), $company, $company);
-
-        auth()->user()->companies()->attach($company->id, [
-            'account_id' => $company->account->id,
-            'is_owner' => 1,
-            'is_admin' => 1,
-            'is_locked' => 0,
-            'permissions' => '',
-            'settings' => null,
-            'notifications' => CompanySettings::notificationDefaults(),
-            //'settings' => DefaultSettings::userSettings(),
-        ]);
-
-        /*
-         * Required dependencies
-         */
-        auth()->user()->setCompany($company);
-
-        /*
-         * Create token
-         */
-        $user_agent = request()->input('token_name') ?: request()->server('HTTP_USER_AGENT');
-
-        $company_token = CreateCompanyToken::dispatchNow($company, auth()->user(), $user_agent);
-
-        $this->entity_transformer = CompanyUserTransformer::class;
-        $this->entity_type = CompanyUser::class;
-
-        $ct = CompanyUser::whereUserId(auth()->user()->id)->whereCompanyId($company->id);
-
-        return $this->listResponse($ct);
+        return $this->listResponse($projects);
     }
 
     /**
@@ -249,11 +100,11 @@ class CompanyController extends BaseController
      *
      *
      * @OA\Get(
-     *      path="/api/v1/companies/{id}",
-     *      operationId="showCompany",
-     *      tags={"companies"},
-     *      summary="Shows an company",
-     *      description="Displays an company by id",
+     *      path="/api/v1/projects/{id}",
+     *      operationId="showProject",
+     *      tags={"projects"},
+     *      summary="Shows a project",
+     *      description="Displays a project by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -261,7 +112,7 @@ class CompanyController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Company Hashed ID",
+     *          description="The Project Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -271,11 +122,11 @@ class CompanyController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the company object",
+     *          description="Returns the expense object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *          @OA\JsonContent(ref="#/components/schemas/Project"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -290,9 +141,9 @@ class CompanyController extends BaseController
      *       ),
      *     )
      */
-    public function show(ShowCompanyRequest $request, Company $company)
+    public function show(ShowProjectRequest $request, Project $project)
     {
-        return $this->itemResponse($company);
+        return $this->itemResponse($project);
     }
 
     /**
@@ -303,11 +154,11 @@ class CompanyController extends BaseController
      *
      *
      * @OA\Get(
-     *      path="/api/v1/companies/{id}/edit",
-     *      operationId="editCompany",
-     *      tags={"companies"},
-     *      summary="Shows an company for editting",
-     *      description="Displays an company by id",
+     *      path="/api/v1/projects/{id}/edit",
+     *      operationId="editProject",
+     *      tags={"projects"},
+     *      summary="Shows a project for editting",
+     *      description="Displays a project by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -315,7 +166,7 @@ class CompanyController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Company Hashed ID",
+     *          description="The Project Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -325,11 +176,11 @@ class CompanyController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the company object",
+     *          description="Returns the project object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *          @OA\JsonContent(ref="#/components/schemas/Project"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -344,25 +195,26 @@ class CompanyController extends BaseController
      *       ),
      *     )
      */
-    public function edit(EditCompanyRequest $request, Company $company)
+    public function edit(EditProjectRequest $request, Project $project)
     {
-        return $this->itemResponse($company);
+        return $this->itemResponse($project);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  App\Models\Project $project
      * @return \Illuminate\Http\Response
      *
      *
+     *
      * @OA\Put(
-     *      path="/api/v1/companies/{id}",
-     *      operationId="updateCompany",
-     *      tags={"companies"},
-     *      summary="Updates an company",
-     *      description="Handles the updating of an company by id",
+     *      path="/api/v1/projects/{id}",
+     *      operationId="updateProject",
+     *      tags={"projects"},
+     *      summary="Updates a project",
+     *      description="Handles the updating of a project by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -370,7 +222,7 @@ class CompanyController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Company Hashed ID",
+     *          description="The Project Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -380,11 +232,11 @@ class CompanyController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the company object",
+     *          description="Returns the project object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *          @OA\JsonContent(ref="#/components/schemas/Project"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -399,15 +251,109 @@ class CompanyController extends BaseController
      *       ),
      *     )
      */
-    public function update(UpdateCompanyRequest $request, Company $company)
+    public function update(UpdateProjectRequest $request, Project $project)
     {
-        $company = $this->company_repo->save($request->all(), $company);
+        if ($request->entityIsDeleted($project)) {
+            return $request->disallowUpdate();
+        }
 
-        $company->saveSettings($request->input('settings'), $company);
+        $project->fill($request->all());
+        $project->save();
 
-        $this->uploadLogo($request->file('company_logo'), $company, $company);
+        return $this->itemResponse($project->fresh());
+    }
 
-        return $this->itemResponse($company);
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     *
+     *
+     *
+     * @OA\Get(
+     *      path="/api/v1/projects/create",
+     *      operationId="getProjectsCreate",
+     *      tags={"projects"},
+     *      summary="Gets a new blank project object",
+     *      description="Returns a blank object with default values",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="A blank project object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Project"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function create(CreateProjectRequest $request)
+    {
+        $project = ProjectFactory::create(auth()->user()->company()->id, auth()->user()->id);
+
+        return $this->itemResponse($project);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     *
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/projects",
+     *      operationId="storeProject",
+     *      tags={"projects"},
+     *      summary="Adds a project",
+     *      description="Adds an project to a company",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the saved project object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Project"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function store(StoreProjectRequest $request)
+    {
+        $project = ProjectFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $project->fill($request->all());
+        $project->save();
+
+        return $this->itemResponse($project->fresh());
     }
 
     /**
@@ -418,11 +364,11 @@ class CompanyController extends BaseController
      *
      *
      * @OA\Delete(
-     *      path="/api/v1/companies/{id}",
-     *      operationId="deleteCompany",
-     *      tags={"companies"},
-     *      summary="Deletes a company",
-     *      description="Handles the deletion of an company by id",
+     *      path="/api/v1/projects/{id}",
+     *      operationId="deleteProject",
+     *      tags={"projects"},
+     *      summary="Deletes a project",
+     *      description="Handles the deletion of a project by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -430,7 +376,7 @@ class CompanyController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Company Hashed ID",
+     *          description="The Project Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -458,38 +404,82 @@ class CompanyController extends BaseController
      *       ),
      *     )
      */
-    public function destroy(DestroyCompanyRequest $request, Company $company)
+    public function destroy(DestroyProjectRequest $request, Project $project)
     {
-        $company_count = $company->account->companies->count();
-        $account = $company->account;
+        //may not need these destroy routes as we are using actions to 'archive/delete'
+        $project->is_deleted = true;
+        $project->delete();
+        $project->save();
 
-        if ($company_count == 1) {
-            $company->company_users->each(function ($company_user) {
-                $company_user->user->forceDelete();
-            });
+        return response()->json([], 200);
+    }
 
-            if (Ninja::isHosted()) {
-                RefundCancelledAccount::dispatchNow($account);
+    /**
+     * Perform bulk actions on the list view.
+     *
+     * @param BulkProjectRequest $request
+     * @return \Illuminate\Http\Response
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/projects/bulk",
+     *      operationId="bulkProjects",
+     *      tags={"projects"},
+     *      summary="Performs bulk actions on an array of projects",
+     *      description="",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\RequestBody(
+     *         description="User credentials",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="integer",
+     *                     description="Array of hashed IDs to be bulk 'actioned",
+     *                     example="[0,1,2,3]",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The Project User response",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Project"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function bulk()
+    {
+        $action = request()->input('action');
+
+        $ids = request()->input('ids');
+
+        $projects = Project::withTrashed()->find($this->transformKeys($ids));
+
+        $projects->each(function ($project, $key) use ($action) {
+            if (auth()->user()->can('edit', $project)) {
+                $this->project_repo->{$action}($project);
             }
+        });
 
-            $account->delete();
-
-            LightLogs::create(new AccountDeleted())
-                     ->increment()
-                     ->batch();
-                 
-        } else {
-            $company_id = $company->id;
-            $company->delete();
-
-            //If we are deleting the default companies, we'll need to make a new company the default.
-            if ($account->default_company_id == $company_id) {
-                $new_default_company = Company::whereAccountId($account->id)->first();
-                $account->default_company_id = $new_default_company->id;
-                $account->save();
-            }
-        }
-
-        return response()->json(['message' => 'success'], 200);
+        return $this->listResponse(Project::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 }

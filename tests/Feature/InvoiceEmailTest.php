@@ -54,7 +54,7 @@ class InvoiceEmailTest extends TestCase
     {
         $this->invoice->date = now();
         $this->invoice->due_date = now()->addDays(7);
-        $this->invoice->number = $this->getNextInvoiceNumber($this->client);
+        $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice);
 
         $this->invoice->client_id = $this->client->id;
 
@@ -90,7 +90,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->date = now();
         $this->invoice->due_date = now()->addDays(7);
-        $this->invoice->number = $this->getNextInvoiceNumber($this->client);
+        $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice);
 
         $this->invoice->client_id = $this->client->id;
         $this->invoice->setRelation('client', $this->client);
@@ -115,7 +115,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->date = now();
         $this->invoice->due_date = now()->addDays(7);
-        $this->invoice->number = $this->getNextInvoiceNumber($this->client);
+        $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice);
 
         $this->invoice->client_id = $this->client->id;
 
@@ -145,7 +145,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->date = now();
         $this->invoice->due_date = now()->addDays(7);
-        $this->invoice->number = $this->getNextInvoiceNumber($this->client);
+        $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice);
 
         $this->invoice->client_id = $this->client->id;
         $this->invoice->setRelation('client', $this->client);

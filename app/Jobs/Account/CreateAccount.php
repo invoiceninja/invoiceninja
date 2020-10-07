@@ -1,7 +1,17 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Jobs\Account;
 
+use App\DataMapper\Analytics\AccountCreated as AnalyticsAccountCreated;
 use App\Events\Account\AccountCreated;
 use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
@@ -19,6 +29,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class CreateAccount
 {
@@ -79,6 +90,10 @@ class CreateAccount
         $spaa9f78->fresh();
 
         $sp035a66->notification(new NewAccountCreated($spaa9f78, $sp035a66))->ninja();
+
+        LightLogs::create(new AnalyticsAccountCreated())
+                 ->increment()
+                 ->batch();
 
         return $sp794f3f;
     }

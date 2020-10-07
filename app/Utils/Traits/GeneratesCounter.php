@@ -37,7 +37,7 @@ trait GeneratesCounter
      *
      * @return     string              The next invoice number.
      */
-    public function getNextInvoiceNumber(Client $client) :string
+    public function getNextInvoiceNumber(Client $client, ?Invoice $invoice) :string
     {
         //Reset counters if enabled
         $this->resetCounters($client);
@@ -64,8 +64,12 @@ trait GeneratesCounter
         //Return a valid counter
         $pattern = $client->getSetting('invoice_number_pattern');
         $padding = $client->getSetting('counter_padding');
+        $prefix = '';
 
-        $invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $pattern);
+        if($invoice && $invoice->recurring_id)
+            $prefix = $client->getSetting('recurring_number_prefix');
+
+        $invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $pattern, $prefix);
 
         $this->incrementCounter($counter_entity, 'invoice_number_counter');
 
@@ -140,6 +144,9 @@ trait GeneratesCounter
 
         $quote_number = $this->checkEntityNumber(Quote::class, $client, $counter, $padding, $pattern);
 
+        // if($this->recurring_id)
+        //     $quote_number = $this->prefixCounter($quote_number, $client->getSetting('recurring_number_prefix'));
+
         $this->incrementCounter($counter_entity, $used_counter);
 
         return $quote_number;
@@ -168,7 +175,7 @@ trait GeneratesCounter
         $pattern = '';
         $padding = $client->getSetting('counter_padding');
         $invoice_number = $this->checkEntityNumber(RecurringInvoice::class, $client, $counter, $padding, $pattern);
-        $invoice_number = $this->prefixCounter($invoice_number, $client->getSetting('recurring_number_prefix'));
+        //$invoice_number = $this->prefixCounter($invoice_number, $client->getSetting('recurring_number_prefix'));
 
         //increment the correct invoice_number Counter (company vs client)
         if ($is_client_counter) {
@@ -283,7 +290,7 @@ trait GeneratesCounter
      *
      * @return     string   The padded and prefixed entity number
      */
-    private function checkEntityNumber($class, $entity, $counter, $padding, $pattern)
+    private function checkEntityNumber($class, $entity, $counter, $padding, $pattern, $prefix = '')
     {
         $check = false;
 
@@ -291,6 +298,8 @@ trait GeneratesCounter
             $number = $this->padCounter($counter, $padding);
 
             $number = $this->applyNumberPattern($entity, $number, $pattern);
+
+            $number = $this->prefixCounter($number, $prefix);
 
             if ($class == Invoice::class || $class == RecurringInvoice::class) 
                 $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();

@@ -230,7 +230,10 @@ class InvoiceItemSum
                 continue;
             }
 
-            $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
+            //$amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total));
+            $amount = ( $this->sub_total > 0 ) ? $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / $this->sub_total)) : 0;
+
+
             $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 
             $item_tax += $item_tax_rate1_total;
@@ -260,7 +263,8 @@ class InvoiceItemSum
     }
 
     /**
-     * Sets default values for the line_items.
+     * Sets default casts for the values in the line_items.
+     * 
      * @return $this
      */
     private function cleanLineItem()

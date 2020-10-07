@@ -37,6 +37,7 @@ class Gateway extends StaticModel
 
     /**
      * @return mixed
+     * @deprecated 5.0.17 No longer needs as we are removing omnipay dependence
      */
     public function getFields()
     {
@@ -116,7 +117,7 @@ class Gateway extends StaticModel
                 return ['methods' => [GatewayType::CREDIT_CARD], 'refund' => true, 'token_billing' => true  ]; //Checkout
                 break;
             default:
-                return [];
+                return ['methods' => [], 'refund' => false, 'token_billing' => false];
                 break;
         }
     }

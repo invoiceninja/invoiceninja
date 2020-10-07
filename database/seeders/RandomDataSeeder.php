@@ -214,7 +214,7 @@ class RandomDataSeeder extends Seeder
             $invoice->ledger()->updateInvoiceBalance($invoice->balance);
 
             if (rand(0, 1)) {
-                $payment = App\Models\Payment::create([
+                $payment = Payment::create([
                     'date' => now(),
                     'user_id' => $user->id,
                     'company_id' => $company->id,

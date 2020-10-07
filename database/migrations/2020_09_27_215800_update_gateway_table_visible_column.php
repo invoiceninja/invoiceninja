@@ -40,6 +40,7 @@ class UpdateGatewayTableVisibleColumn extends Migration
             $t->text('public_notes')->nullable();
             $t->dropColumn('description');
             $t->decimal('budgeted_hours', 12,2)->change();
+            $t->boolean('is_deleted')->default(0);
         });
 
     }

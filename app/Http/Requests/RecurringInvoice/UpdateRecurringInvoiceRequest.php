@@ -54,7 +54,7 @@ class UpdateRecurringInvoiceRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-        info($input);
+
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
@@ -91,16 +91,27 @@ class UpdateRecurringInvoiceRequest extends Request
         $this->replace($input);
     }
 
-    private function setAutoBillFlag($auto_bill)
+    /**
+     * if($auto_bill == '')
+     * off / optin / optout will reset the status of this field to off to allow 
+     * the client to choose whether to auto_bill or not.
+     * 
+     * @param enum $auto_bill off/always/optin/optout
+     *
+     * @return bool
+     */
+    private function setAutoBillFlag($auto_bill) :bool
     {
+
         if($auto_bill == 'always')
             return true;
 
-        if($auto_bill == 'off')
-            return false;
-
-        //todo do we need to handle optin / optout here?
+        // if($auto_bill == '')
+        // off / optin / optout will reset the status of this field to off to allow 
+        // the client to choose whether to auto_bill or not.
         
+        return false;
+
     }
     
 }

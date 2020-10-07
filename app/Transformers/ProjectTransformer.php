@@ -34,20 +34,23 @@ class ProjectTransformer extends EntityTransformer
     {
         return [
             'id' => (string) $this->encodePrimaryKey($project->id),
-            'name' => $project->name ?: '',
+            'user_id' => (string) $this->encodePrimaryKey($project->user_id),
+            'assigned_user_id' => (string) $this->encodePrimaryKey($project->assigned_user_id),
             'client_id' => (string) $this->encodePrimaryKey($project->client_id),
+            'name' => $project->name ?: '',
             'created_at' => (int) $project->created_at,
             'updated_at' => (int) $project->updated_at,
             'archived_at' => (int) $project->deleted_at,
             'is_deleted' => (bool) $project->is_deleted,
             'task_rate' => (float) $project->task_rate,
             'due_date' => $project->due_date ?: '',
-            'private_notes' => $project->private_notes ?: '',
+            'private_notes' => (string) $project->private_notes ?: '',
+            'public_notes' => (string) $project->public_notes ?: '',
             'budgeted_hours' => (float) $project->budgeted_hours,
-            'custom_value1' => $project->custom_value1 ?: '',
-            'custom_value2' => $project->custom_value2 ?: '',
-            'custom_value3' => $project->custom_value3 ?: '',
-            'custom_value4' => $project->custom_value4 ?: '',
+            'custom_value1' => (string) $project->custom_value1 ?: '',
+            'custom_value2' => (string) $project->custom_value2 ?: '',
+            'custom_value3' => (string) $project->custom_value3 ?: '',
+            'custom_value4' => (string) $project->custom_value4 ?: '',
         ];
     }
 }

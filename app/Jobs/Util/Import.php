@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Util;
 
+use App\DataMapper\Analytics\MigrationFailure;
 use App\DataMapper\CompanySettings;
 use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ResourceDependencyMissing;
@@ -72,6 +73,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class Import implements ShouldQueue
 {
@@ -966,6 +968,15 @@ class Import implements ShouldQueue
     public function failed($exception = null)
     {
         info('the job failed');
+
+        $job_failure = new MigrationFailure();
+        $job_failure->string_metric5 = get_class($this);
+        $job_failure->string_metric6 = $exception->getMessage();
+
+        LightLogs::create($job_failure)
+                 ->batch();
+
         info(print_r($exception->getMessage(), 1));
     }
+
 }

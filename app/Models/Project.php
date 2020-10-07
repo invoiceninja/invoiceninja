@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -13,7 +14,8 @@ class Project extends BaseModel
     // Expense Categories
     use SoftDeletes;
     use PresentableTrait;
-
+    use Filterable;
+    
     /**
      * @var array
      */
@@ -24,17 +26,16 @@ class Project extends BaseModel
      */
     protected $fillable = [
         'name',
+        'client_id',
         'task_rate',
         'private_notes',
+        'public_notes',
         'due_date',
         'budgeted_hours',
         'custom_value1',
         'custom_value2',
-    ];
-
-    protected $casts = [
-        'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
+        'custom_value3',
+        'custom_value4',
     ];
 
     public function getEntityType()

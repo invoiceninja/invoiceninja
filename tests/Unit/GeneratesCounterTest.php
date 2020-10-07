@@ -79,11 +79,11 @@ class GeneratesCounterTest extends TestCase
 
     public function testInvoiceNumberValue()
     {
-        $invoice_number = $this->getNextInvoiceNumber($this->client);
+        $invoice_number = $this->getNextInvoiceNumber($this->client, $this->invoice);
 
         $this->assertEquals($invoice_number, '0008');
 
-        $invoice_number = $this->getNextInvoiceNumber($this->client);
+        $invoice_number = $this->getNextInvoiceNumber($this->client, $this->invoice);
 
         $this->assertEquals($invoice_number, '0009');
     }
@@ -112,8 +112,8 @@ class GeneratesCounterTest extends TestCase
         $this->client->save();
         $this->client->fresh();
 
-        $invoice_number = $this->getNextInvoiceNumber($this->client);
-        $invoice_number2 = $this->getNextInvoiceNumber($this->client);
+        $invoice_number = $this->getNextInvoiceNumber($this->client, $this->invoice);
+        $invoice_number2 = $this->getNextInvoiceNumber($this->client, $this->invoice);
 
         $this->assertEquals($invoice_number, date('Y').'-0001');
         $this->assertEquals($invoice_number2, date('Y').'-0002');
@@ -203,7 +203,7 @@ class GeneratesCounterTest extends TestCase
         $cliz = ClientFactory::create($this->company->id, $this->user->id);
         $cliz->settings = ClientSettings::defaults();
         $cliz->save();
-        $invoice_number = $this->getNextInvoiceNumber($cliz);
+        $invoice_number = $this->getNextInvoiceNumber($cliz, $this->invoice);
 
         $this->assertEquals($cliz->getSetting('counter_padding'), 5);
         $this->assertEquals($invoice_number, '00007');
@@ -218,7 +218,7 @@ class GeneratesCounterTest extends TestCase
         $cliz->settings = ClientSettings::defaults();
         $cliz->save();
 
-        $invoice_number = $this->getNextInvoiceNumber($cliz);
+        $invoice_number = $this->getNextInvoiceNumber($cliz, $this->invoice);
 
         $this->assertEquals($cliz->getSetting('counter_padding'), 10);
         $this->assertEquals(strlen($invoice_number), 10);
@@ -235,11 +235,11 @@ class GeneratesCounterTest extends TestCase
         $cliz->settings = ClientSettings::defaults();
         $cliz->save();
 
-        $invoice_number = $this->getNextInvoiceNumber($cliz);
+        $invoice_number = $this->getNextInvoiceNumber($cliz, $this->invoice);
 
         $this->assertEquals($invoice_number, '0008');
 
-        $invoice_number = $this->getNextInvoiceNumber($cliz);
+        $invoice_number = $this->getNextInvoiceNumber($cliz, $this->invoice);
 
         $this->assertEquals($invoice_number, '0009');
     }
