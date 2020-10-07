@@ -117,6 +117,10 @@ class AutoBillInvoice extends AbstractService
 
         $available_credits->each(function($credit) use($is_partial_amount){
 
+            //todo need to iterate until the partial or balance is completely consumed 
+            //by the credit, any remaining balance is then dealt with by
+            //the gateway
+            //each time a credit is applied SAVE the invoice
 
             // if($credit->balance >= $amount){
             //     //current credit covers the total amount
@@ -141,6 +145,10 @@ class AutoBillInvoice extends AbstractService
                     $credit->id => ['amount' => $amount]
                 ]);
 
+                $this->payment->invoice()->attach([
+                    $this->invoice->id => ['amount' => $amount]
+                ]);
+
                 $this->applyPaymentToCredit($credit, $amount);
             }
         }
@@ -150,7 +158,7 @@ class AutoBillInvoice extends AbstractService
 
     private function applyPaymentToCredit($credit, $amount)
     {
-        
+
         $credit_item = new InvoiceItem;
         $credit_item->type_id = '1';
         $credit_item->product_key = ctrans('texts.credit');
