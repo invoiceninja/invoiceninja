@@ -108,16 +108,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.158.2",
+            "version": "3.158.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "b80957465d94c127254e36061dd3d0c3ccc94cc1"
+                "reference": "c0c0df79edc0a646a7ccd6b2e8d1723ff4ba88e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/b80957465d94c127254e36061dd3d0c3ccc94cc1",
-                "reference": "b80957465d94c127254e36061dd3d0c3ccc94cc1",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c0c0df79edc0a646a7ccd6b2e8d1723ff4ba88e2",
+                "reference": "c0c0df79edc0a646a7ccd6b2e8d1723ff4ba88e2",
                 "shasum": ""
             },
             "require": {
@@ -189,7 +189,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2020-10-05T18:13:27+00:00"
+            "time": "2020-10-07T18:12:22+00:00"
         },
         {
             "name": "brick/math",
@@ -1814,16 +1814,16 @@
         },
         {
             "name": "google/auth",
-            "version": "v1.14.0",
+            "version": "v1.14.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-auth-library-php.git",
-                "reference": "95c23ebd89a0a4d1b511aed81426f57388ab7268"
+                "reference": "2df57c61c2fd739a15a81f792b1ccedc3e06d2b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/95c23ebd89a0a4d1b511aed81426f57388ab7268",
-                "reference": "95c23ebd89a0a4d1b511aed81426f57388ab7268",
+                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/2df57c61c2fd739a15a81f792b1ccedc3e06d2b6",
+                "reference": "2df57c61c2fd739a15a81f792b1ccedc3e06d2b6",
                 "shasum": ""
             },
             "require": {
@@ -1862,7 +1862,7 @@
                 "google",
                 "oauth2"
             ],
-            "time": "2020-10-02T22:20:36+00:00"
+            "time": "2020-10-06T18:10:43+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -2497,16 +2497,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v8.8.0",
+            "version": "v8.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "0bdd5c6f12cb7cb6644e484169656245af417735"
+                "reference": "8a6bf870bcfa1597e514a9c7ee6df44db98abb54"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/0bdd5c6f12cb7cb6644e484169656245af417735",
-                "reference": "0bdd5c6f12cb7cb6644e484169656245af417735",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/8a6bf870bcfa1597e514a9c7ee6df44db98abb54",
+                "reference": "8a6bf870bcfa1597e514a9c7ee6df44db98abb54",
                 "shasum": ""
             },
             "require": {
@@ -2656,7 +2656,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2020-10-02T14:33:08+00:00"
+            "time": "2020-10-06T14:22:36+00:00"
         },
         {
             "name": "laravel/slack-notification-channel",
@@ -6504,12 +6504,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "04c3a31fe8ea94b42c9e2d1acc93d19782133b00"
+                "reference": "ae789a8a2ad189ce7e8216942cdb9b77319f5eb8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/04c3a31fe8ea94b42c9e2d1acc93d19782133b00",
-                "reference": "04c3a31fe8ea94b42c9e2d1acc93d19782133b00",
+                "url": "https://api.github.com/repos/symfony/console/zipball/ae789a8a2ad189ce7e8216942cdb9b77319f5eb8",
+                "reference": "ae789a8a2ad189ce7e8216942cdb9b77319f5eb8",
                 "shasum": ""
             },
             "require": {
@@ -6589,7 +6589,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-09-18T14:27:32+00:00"
+            "time": "2020-10-07T15:23:00+00:00"
         },
         {
             "name": "symfony/css-selector",

@@ -25,6 +25,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Product;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
@@ -46,6 +47,7 @@ use App\Policies\InvoicePolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\PaymentTermPolicy;
 use App\Policies\ProductPolicy;
+use App\Policies\ProjectPolicy;
 use App\Policies\QuotePolicy;
 use App\Policies\RecurringInvoicePolicy;
 use App\Policies\RecurringQuotePolicy;
@@ -79,6 +81,7 @@ class AuthServiceProvider extends ServiceProvider
         Payment::class => PaymentPolicy::class,
         PaymentTerm::class => PaymentTermPolicy::class,
         Product::class => ProductPolicy::class,
+        Project::class => ProjectPolicy::class,
         Quote::class => QuotePolicy::class,
         RecurringInvoice::class => RecurringInvoicePolicy::class,
         RecurringQuote::class => RecurringQuotePolicy::class,
