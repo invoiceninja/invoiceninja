@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\Analytics\AccountDeleted;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Http\Requests\Company\CreateCompanyRequest;
@@ -40,6 +41,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Turbo124\Beacon\Facades\LightLogs;
 
 /**
  * Class CompanyController.
@@ -471,6 +473,11 @@ class CompanyController extends BaseController
             }
 
             $account->delete();
+
+            LightLogs::create(new AccountDeleted())
+                     ->increment()
+                     ->batch();
+                 
         } else {
             $company_id = $company->id;
             $company->delete();

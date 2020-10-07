@@ -13,7 +13,11 @@ if(!isset($design)) $design = 'light';
 
 <style>
   :root {
+    @if($settings)
     --primary-color: {{ $settings->primary_color }};
+    @else
+    --primary-color: #4caf50;
+    @endif
   }
 
   .border-primary {
