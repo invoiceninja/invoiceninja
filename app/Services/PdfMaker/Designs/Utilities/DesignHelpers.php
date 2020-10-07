@@ -194,6 +194,7 @@ trait DesignHelpers
     {
         $html = '';
 
+        $html .= $partials['includes'];
         $html .= $partials['header'];
         $html .= $partials['body'];
         $html .= $partials['footer'];
