@@ -49,8 +49,11 @@ class RecurringService
     public function start()
     {
     	//make sure next_send_date is either now or in the future else return.
-    	if(Carbon::parse($this->recurring_entity->next_send_date)->lt(now()))
-    		return $this;
+    	// if(Carbon::parse($this->recurring_entity->next_send_date)->lt(now()))
+    	// 	return $this;
+
+        if($this->recurring_entity->remaining_cycles == 0)
+            return $this;
 
     	$this->recurring_entity->status_id = RecurringInvoice::STATUS_ACTIVE;
 
