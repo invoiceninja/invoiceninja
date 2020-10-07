@@ -1,229 +1,236 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head id="head">
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style id="style">
+    :root {
+        --primary-color: $primary_color;
+        --secondary-color: $secondary_color;
+    }
 
-        <style id="style">
-            :root {
-                --primary-color: $primary_color;
-                --secondary-color: $secondary_color;
-            }
+    * {
+        font-size: "$font_size";
+    }
 
-            * {
-                font-size: '$font_size';
-            }
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
 
-            body {
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                font-family: Arial, Helvetica, sans-serif;
-                margin: 0;
-                padding: 0;
-            }
+    p {
+        margin: 0;
+        padding: 0;
+        page-break-after: always;
+    }
 
-            p {
-                margin: 0;
-                padding: 0;
-                page-break-after: always;
-            }
+    .header-container {
+        background-color: var(--primary-color);
+        color: white;
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        padding: 1.5rem;
+        width: 100%;
+        height: 160px;
+    }
 
-            .header-container {
-                background-color: var(--primary-color);
-                color: white;
-                display: grid;
-                grid-template-columns: 1.5fr 1fr;
-                padding: 1.5rem;
-                width: 100%;
-                height: 160px;
-            }
+    .header-container .company-name {
+        font-size: 2rem;
+    }
 
-            .header-container .company-name {
-                font-size: 2rem;
-            }
+    #entity-details {
+        text-align: left;
+        color: #fff4e9 !important;
+    }
 
-            #entity-details {
-                text-align: left;
-                color: #fff4e9 !important;
-            }
-            #entity-details > tr,
-            #entity-details th {
-                font-weight: normal;
-                padding-bottom: 0.5rem;
-            }
+    #entity-details > tr,
+    #entity-details th {
+        font-weight: normal;
+        padding-bottom: 0.5rem;
+    }
 
-            .company-logo {
-                height: 5rem;
-            }
+    .company-logo {
+        height: 5rem;
+    }
 
-            .logo-client-wrapper {
-                margin: 3rem 1.5rem;
-                display: grid;
-                grid-template-columns: 1.5fr 1fr;
-            }
+    .logo-client-wrapper {
+        margin: 3rem 1.5rem;
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+    }
 
-            #client-details {
-                display: flex;
-                flex-direction: column;
-            }
-            #client-details > * {
-                margin-bottom: 0.5rem;
-            }
+    #client-details {
+        display: flex;
+        flex-direction: column;
+    }
 
-            .table-wrapper {
-                margin: 3rem 1.5rem;
-            }
+    #client-details > * {
+        margin-bottom: 0.5rem;
+    }
 
-            #product-table {
-                min-width: 100%;
-                table-layout: fixed;
-                overflow-wrap: break-word;
-            }
-            #product-table > thead {
-                text-align: left;
-            }
-            #product-table > thead > tr > th {
-                padding: 0.8rem;
-                background-color: var(--secondary-color);
-                color: white;
-            }
-            #product-table > thead > tr > th:last-child {
-                text-align: right;
-            }
-            #product-table > tbody > tr > td {
-                border-bottom: 1px solid var(--secondary-color);
-                padding: 1rem;
-            }
-            #product-table > tbody > tr > td:first-child {
-                font-weight: bold;
-            }
-            #product-table > tbody > tr > td:last-child {
-                text-align: right;
-            }
+    .table-wrapper {
+        margin: 3rem 1.5rem;
+    }
 
-            .footer-wrapper {
-                margin-top: 1rem;
-                background-color: var(--primary-color);
-                padding: 1rem;
-                height: 160px;
-                width: 100%;
-                position: fixed;
-                bottom: 0;
-            }
+    #product-table {
+        min-width: 100%;
+        table-layout: fixed;
+        overflow-wrap: break-word;
+    }
 
-            .footer-content {
-                display: grid;
-                gap: 15px;
-                width: 100%;
-                grid-template-columns: 1fr 1fr 1fr;
-                color: #fff4e9;
-            }
+    #product-table > thead {
+        text-align: left;
+    }
 
-            #company-address,
-            #company-details {
-                display: flex;
-                flex-direction: column;
-                margin-top: 2rem;
-                margin-bottom: 2rem;
-            }
-            #company-address > *,
-            #company-details > * {
-                margin-bottom: 0.5rem;
-            }
+    #product-table > thead > tr > th {
+        padding: 0.8rem;
+        background-color: var(--secondary-color);
+        color: white;
+    }
 
-            #product-table-footer {
-                page-break-inside: avoid;
-            }
+    #product-table > thead > tr > th:last-child {
+        text-align: right;
+    }
 
-            #product-table-footer > * {
-                display: grid;
-                grid-template-columns: 3fr 1fr 1fr;
-                margin-top: 0.5rem;
-                margin-right: 1.5rem;
-                margin-left: 1.5rem;
-            }
-            #product-table-footer
-                > *
-                [data-element='product-table-balance-due-label'],
-            #product-table-footer
-                > *
-                [data-element='product-table-balance-due'] {
-                font-weight: bold;
-                font-size: 1.3rem;
-            }
-            #product-table-footer > * > * {
-                padding-left: 1.5rem;
-            }
-            #product-table-footer > * > :last-child {
-                text-align: right;
-                padding-right: 1rem;
-            }
-            #product-table-footer > *:last-child {
-                background-color: var(--secondary-color);
-                color: white;
-                padding-top: 0.7rem;
-                padding-bottom: 0.7rem;
-            }
+    #product-table > tbody > tr > td {
+        border-bottom: 1px solid var(--secondary-color);
+        padding: 1rem;
+    }
 
-            table.page-container {
-                page-break-after: always;
-            }
-            thead.page-header {
-                display: table-header-group;
-            }
-            tfoot.page-footer {
-                display: table-footer-group;
-            }
-        </style>
-    </head>
+    #product-table > tbody > tr > td:first-child {
+        font-weight: bold;
+    }
 
-    <table class="page-container">
-        <thead class="page-header">
-            <tr>
-                <th class="page-header-cell">
-                    <div class="header-container" id="header">
-                        <h1 class="company-name">$company.name</h1>
-                        <table id="entity-details" cellspacing="0"></table>
+    #product-table > tbody > tr > td:last-child {
+        text-align: right;
+    }
+
+    .footer-wrapper {
+        margin-top: 1rem;
+        background-color: var(--primary-color);
+        padding: 1rem;
+        height: 160px;
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+    }
+
+    .footer-content {
+        display: grid;
+        gap: 15px;
+        width: 100%;
+        grid-template-columns: 1fr 1fr 1fr;
+        color: #fff4e9;
+    }
+
+    #company-address,
+    #company-details {
+        display: flex;
+        flex-direction: column;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    #company-address > *,
+    #company-details > * {
+        margin-bottom: 0.5rem;
+    }
+
+    #product-table-footer {
+        page-break-inside: avoid;
+    }
+
+    #product-table-footer > * {
+        display: grid;
+        grid-template-columns: 3fr 1fr 1fr;
+        margin-top: 0.5rem;
+        margin-right: 1.5rem;
+        margin-left: 1.5rem;
+    }
+
+    #product-table-footer
+    > *
+    [data-element='product-table-balance-due-label'],
+    #product-table-footer
+    > *
+    [data-element='product-table-balance-due'] {
+        font-weight: bold;
+        font-size: 1.3rem;
+    }
+
+    #product-table-footer > * > * {
+        padding-left: 1.5rem;
+    }
+
+    #product-table-footer > * > :last-child {
+        text-align: right;
+        padding-right: 1rem;
+    }
+
+    #product-table-footer > *:last-child {
+        background-color: var(--secondary-color);
+        color: white;
+        padding-top: 0.7rem;
+        padding-bottom: 0.7rem;
+    }
+
+    table.page-container {
+        page-break-after: always;
+    }
+
+    thead.page-header {
+        display: table-header-group;
+    }
+
+    tfoot.page-footer {
+        display: table-footer-group;
+    }
+</style>
+
+<table class="page-container">
+    <thead class="page-header">
+    <tr>
+        <th class="page-header-cell">
+            <div class="header-container" id="header">
+                <h1 class="company-name">$company.name</h1>
+                <table id="entity-details" cellspacing="0"></table>
+            </div>
+        </th>
+    </tr>
+    </thead>
+    <tfoot class="page-footer">
+    <tr>
+        <td class="page-footer-cell">
+            <div class="footer-info">
+                <div style="margin-top: 195px"></div>
+                <div class="footer-wrapper" id="footer">
+                    <div class="footer-content">
+                        <div></div>
+                        <div id="company-details"></div>
+                        <div id="company-address"></div>
                     </div>
-                </th>
-            </tr>
-        </thead>
-        <tfoot class="page-footer">
-            <tr>
-                <td class="page-footer-cell">
-                    <div class="footer-info">
-                        <div style="margin-top: 195px"></div>
-                        <div class="footer-wrapper" id="footer">
-                            <div class="footer-content">
-                                <div></div>
-                                <div id="company-details"></div>
-                                <div id="company-address"></div>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        </tfoot>
-        <tbody class="page-content">
-            <tr>
-                <td class="page-content-cell" id="body">
-                    <div class="logo-client-wrapper">
-                        <img
-                            class="company-logo"
-                            src="$company.logo"
-                            alt="$company.name logo"
-                        />
+                </div>
+            </div>
+        </td>
+    </tr>
+    </tfoot>
+    <tbody class="page-content">
+    <tr>
+        <td class="page-content-cell" id="body">
+            <div class="logo-client-wrapper">
+                <img
+                    class="company-logo"
+                    src="$company.logo"
+                    alt="$company.name logo"
+                />
 
-                        <div id="client-details"></div>
-                    </div>
+                <div id="client-details"></div>
+            </div>
 
-                    <div class="table-wrapper">
-                        <table id="product-table" cellspacing="0"></table>
-                    </div>
+            <div class="table-wrapper">
+                <table id="product-table" cellspacing="0"></table>
+            </div>
 
-                    <div id="product-table-footer" cellspacing="0"></div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</html>
+            <div id="product-table-footer" cellspacing="0"></div>
+        </td>
+    </tr>
+    </tbody>
+</table>

@@ -11,7 +11,6 @@
 namespace Database\Seeders;
 
 
-use App\Models\Bank;
 use App\Models\Design;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use Illuminate\Database\Eloquent\Model;
@@ -53,12 +52,12 @@ class DesignSeeder extends Seeder
             $template->document();
 
             $design_object = new \stdClass;
-            $design_object->includes = $template->getSectionHTML('includes');
-            $design_object->header = $template->getSectionHTML('head', false);
-            $design_object->body = $template->getSectionHTML('body', false);
-            $design_object->product = $template->getSectionHTML('product-table');
-            $design_object->task = $template->getSectionHTML('task-table');
-            $design_object->footer = $template->getSectionHTML('footer', false);
+            $design_object->includes = $template->getSectionHTML('style');
+            $design_object->header = $template->getSectionHTML('header');
+            $design_object->body = $template->getSectionHTML('body');
+            $design_object->product = '';
+            $design_object->task = '';
+            $design_object->footer = $template->getSectionHTML('footer');
 
             $design->design = $design_object;
             $design->save();

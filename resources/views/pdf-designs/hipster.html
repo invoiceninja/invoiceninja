@@ -1,214 +1,224 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head id="head">
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style id="style">
+    :root {
+        --primary-color: $primary_color;
+        --secondary-color: $secondary_color;
+    }
 
-        <style id="style">
-            :root {
-                --primary-color: $primary_color;
-                --secondary-color: $secondary_color;
-            }
+    * {
+        font-size: "$font_size";
+    }
 
-            * {
-                font-size: '$font_size';
-            }
+    p {
+        margin: 0;
+        padding: 0;
+    }
 
-            p {
-                margin: 0;
-                padding: 0;
-            }
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: Arial, Helvetica, sans-serif;
+    }
 
-            body {
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                font-family: Arial, Helvetica, sans-serif;
-            }
+    @page {
+        margin: 1cm;
+    }
 
-            @page { margin: 1cm; }
+    .header-wrapper {
+        display: grid;
+        grid-template-columns: 1.2fr 1.8fr;
+        gap: 20px;
+    }
 
-            .header-wrapper {
-                display: grid;
-                grid-template-columns: 1.2fr 1.8fr;
-                gap: 20px;
-            }
-            
-            .header-wrapper .header-text-label {
-                font-size: 1.1rem;
-                color: var(--primary-color);
-                text-transform: uppercase;
-                font-weight: bold;
-            }
-            .header-wrapper .header-left-side-wrapper {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-                border-left: 1px solid #303030;
-                padding-left: 1rem;
-            }
-            .header-wrapper .header-left-side-wrapper > * {
-                margin-bottom: 0.8rem;
-            }
-            .header-wrapper .header-left-side-wrapper #company-details,
-            .header-wrapper .header-left-side-wrapper #company-address {
-                display: flex;
-                flex-direction: column;
-            }
-            .header-wrapper .header-right-side-wrapper {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-                border-left: 1px solid #303030;
-                padding-left: 1rem;
-            }
-            .header-wrapper .header-right-side-wrapper #client-details {
-                display: flex;
-                flex-direction: column;
-                margin-top: 0.8rem;
-            }
-            .header-wrapper .company-logo {
-                height: 5rem;
-            }
+    .header-wrapper .header-text-label {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        font-weight: bold;
+    }
 
-            .entity-label {
-                font-size: 3rem;
-                text-transform: uppercase;
-                margin: 2rem 1rem;
-            }
+    .header-wrapper .header-left-side-wrapper {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        border-left: 1px solid #303030;
+        padding-left: 1rem;
+    }
 
-            .entity-details-wrapper {
-                margin: 1rem;
-            }
-            .entity-details-wrapper > * {
-                margin-right: 1.5rem;
-            }
-            .entity-details-wrapper .entity-property-label {
-                text-transform: uppercase;
-            }
-            .entity-details-wrapper
-                [data-element='entity-details-wrapper-invoice-number-label'],
-            .entity-details-wrapper
-                [data-element='entity-details-wrapper-amount-due'] {
-                color: var(--primary-color);
-                font-weight: bold;
-            }
+    .header-wrapper .header-left-side-wrapper > * {
+        margin-bottom: 0.8rem;
+    }
 
-            #product-table {
-                margin-top: 3rem;
-                margin-bottom: 200px;
-                min-width: 100%;
-                table-layout: fixed;
-                overflow-wrap: break-word;
-            }
-            #product-table > thead {
-                text-align: left;
-                text-transform: uppercase;
-                font-weight: bold;
-            }
-            #product-table > thead > tr > th {
-                font-size: 1.1rem;
-                padding-bottom: 1.5rem;
-                padding-left: 1rem;
-                border-left: 1px solid;
-            }
-            #product-table > thead > tr > th:last-child {
-                text-align: right;
-            }
-            #product-table > tbody > tr > td {
-                padding: 1rem;
-                border-left: 1px solid;
-            }
-            #product-table > tbody > tr td:last-child {
-                text-align: right;
-            }
+    .header-wrapper .header-left-side-wrapper #company-details,
+    .header-wrapper .header-left-side-wrapper #company-address {
+        display: flex;
+        flex-direction: column;
+    }
 
-            #product-table-footer {
-                page-break-inside: avoid;
-            }
+    .header-wrapper .header-right-side-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        border-left: 1px solid #303030;
+        padding-left: 1rem;
+    }
 
-            #product-table-footer > * {
-                display: grid;
-                grid-template-columns: 3fr 1fr 1fr;
-                padding-top: 0.5rem;
-                padding-left: 1rem;
-                gap: 20px;
-            }
-            #product-table-footer
-                > *
-                [data-element='product-table-balance-due-label'],
-            #product-table-footer
-                > *
-                [data-element='product-table-balance-due'] {
-                font-weight: bold;
-            }
-            #product-table-footer
-                > *
-                [data-element='product-table-balance-due'] {
-                color: var(--primary-color);
-            }
-            #product-table-footer > * > :last-child {
-                text-align: right;
-                padding-right: 1rem;
-            }
-        </style>
-    </head>
+    .header-wrapper .header-right-side-wrapper #client-details {
+        display: flex;
+        flex-direction: column;
+        margin-top: 0.8rem;
+    }
 
-    <div id="header"></div>
+    .header-wrapper .company-logo {
+        height: 5rem;
+    }
 
-    <body id="body">
-        <div class="header-wrapper">
-            <div class="header-left-side-wrapper">
-                <p class="header-text-label">$from_label:</p>
+    .entity-label {
+        font-size: 3rem;
+        text-transform: uppercase;
+        margin: 2rem 1rem;
+    }
 
-                <div id="company-details"></div>
-                <div id="company-address"></div>
-            </div>
+    .entity-details-wrapper {
+        margin: 1rem;
+    }
 
-            <div class="header-right-side-wrapper">
-                <div>
-                    <p class="header-text-label">$to_label:</p>
-                    <div id="client-details"></div>
-                </div>
+    .entity-details-wrapper > * {
+        margin-right: 1.5rem;
+    }
 
-                <img
-                    class="company-logo"
-                    src="$company.logo"
-                    alt="$company.name logo"
-                />
-            </div>
+    .entity-details-wrapper .entity-property-label {
+        text-transform: uppercase;
+    }
+
+    .entity-details-wrapper
+    [data-element='entity-details-wrapper-invoice-number-label'],
+    .entity-details-wrapper
+    [data-element='entity-details-wrapper-amount-due'] {
+        color: var(--primary-color);
+        font-weight: bold;
+    }
+
+    #product-table {
+        margin-top: 3rem;
+        margin-bottom: 200px;
+        min-width: 100%;
+        table-layout: fixed;
+        overflow-wrap: break-word;
+    }
+
+    #product-table > thead {
+        text-align: left;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    #product-table > thead > tr > th {
+        font-size: 1.1rem;
+        padding-bottom: 1.5rem;
+        padding-left: 1rem;
+        border-left: 1px solid;
+    }
+
+    #product-table > thead > tr > th:last-child {
+        text-align: right;
+    }
+
+    #product-table > tbody > tr > td {
+        padding: 1rem;
+        border-left: 1px solid;
+    }
+
+    #product-table > tbody > tr td:last-child {
+        text-align: right;
+    }
+
+    #product-table-footer {
+        page-break-inside: avoid;
+    }
+
+    #product-table-footer > * {
+        display: grid;
+        grid-template-columns: 3fr 1fr 1fr;
+        padding-top: 0.5rem;
+        padding-left: 1rem;
+        gap: 20px;
+    }
+
+    #product-table-footer
+    > *
+    [data-element='product-table-balance-due-label'],
+    #product-table-footer
+    > *
+    [data-element='product-table-balance-due'] {
+        font-weight: bold;
+    }
+
+    #product-table-footer
+    > *
+    [data-element='product-table-balance-due'] {
+        color: var(--primary-color);
+    }
+
+    #product-table-footer > * > :last-child {
+        text-align: right;
+        padding-right: 1rem;
+    }
+</style>
+<div id="header"></div>
+
+<div id="body">
+    <div class="header-wrapper">
+        <div class="header-left-side-wrapper">
+            <p class="header-text-label">$from_label:</p>
+
+            <div id="company-details"></div>
+            <div id="company-address"></div>
         </div>
 
-        <h1 class="entity-label">$entity_label</h1>
-        <div class="entity-details-wrapper">
+        <div class="header-right-side-wrapper">
+            <div>
+                <p class="header-text-label">$to_label:</p>
+                <div id="client-details"></div>
+            </div>
+
+            <img
+                class="company-logo"
+                src="$company.logo"
+                alt="$company.name logo"
+            />
+        </div>
+    </div>
+
+    <h1 class="entity-label">$entity_label</h1>
+    <div class="entity-details-wrapper">
             <span>
                 <span
                     class="entity-property-label"
                     data-element="entity-details-wrapper-invoice-number-label"
-                    >$entity_number_label:</span
+                >$entity_number_label:</span
                 >
                 <span class="entity-property-value">$entity_number</span>
             </span>
-            <span>
+        <span>
                 <span class="entity-property-label">$date_label:</span>
                 <span class="entity-property-value">$date</span>
             </span>
-            <span>
+        <span>
                 <span class="entity-property-label">$payment_due_label:</span>
                 <span class="entity-property-value">$payment_due</span>
             </span>
-            <span>
+        <span>
                 <span class="entity-property-label">$amount_due_label:</span>
                 <span
                     class="entity-property-value"
                     data-element="entity-details-wrapper-amount-due"
-                    >$amount_due</span
+                >$amount_due</span
                 >
             </span>
-        </div>
+    </div>
 
-        <table id="product-table" cellspacing="0"></table>
+    <table id="product-table" cellspacing="0"></table>
 
-        <div id="product-table-footer" cellspacing="0"></div>
-    </body>
+    <div id="product-table-footer" cellspacing="0"></div>
+</div>
 
-    <div id="footer"></div>
-</html>
+<div id="footer"></div>
