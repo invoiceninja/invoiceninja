@@ -1,175 +1,187 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head id="head">
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style id="style">
+    :root {
+        --primary-color: $primary_color;
+        --secondary-color: $secondary_color;
+    }
 
-        <style id="style">
-            :root {
-                --primary-color: $primary_color;
-                --secondary-color: $secondary_color;
-            }
+    * {
+        font-size: "$font_size";
+    }
 
-            * {
-                font-size: '$font_size';
-            }
+    p {
+        margin: 0;
+        padding: 0;
+        page-break-after: always;
+    }
 
-            p {
-                margin: 0;
-                padding: 0;
-                page-break-after: always;
-            }
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: Arial, Helvetica, sans-serif;
+        margin-top: 1cm;
+        margin-bottom: 1cm;
+    }
 
-            body {
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                font-family: Arial, Helvetica, sans-serif;
-                margin-top: 1cm;
-                margin-bottom: 1cm;
-            }
+    @media print {
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    }
 
-            @media print {
-                body {
-                    margin: 0;
-                    padding: 0;
-                }
-            }
-            body {
-                margin: 2rem;
-            }
+    body {
+        margin: 2rem;
+    }
 
-            .header-wrapper {
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 20px;
-            }
-            .header-wrapper .company-logo {
-                height: 5rem;
-            }
-            .header-wrapper #client-details,
-            .header-wrapper #company-details,
-            .header-wrapper #company-address {
-                display: flex;
-                flex-direction: column;
-            }
-            .header-wrapper #client-details > *:first-child {
-                font-weight: bold;
-            }
-            .header-wrapper .company-info-wrapper > * {
-                margin-bottom: 1rem;
-            }
+    .header-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+    }
 
-            .entity-label-wrapper {
-                display: grid;
-                grid-template-columns: 2fr 1fr;
-                margin-top: 3rem;
-            }
-            .entity-label-wrapper .entity-label > * {
-                font-size: 3rem;
-            }
-            .entity-label-wrapper .entity-label > *:first-child {
-                text-transform: uppercase;
-            }
-            .entity-label-wrapper .entity-label > *:last-child {
-                color: var(--primary-color);
-                font-style: italic;
-            }
-            .entity-label-wrapper #entity-details {
-                text-align: left;
-            }
-            .entity-label-wrapper #entity-details > tr,
-            .entity-label-wrapper #entity-details th {
-                font-weight: normal;
-            }
+    .header-wrapper .company-logo {
+        height: 5rem;
+    }
 
-            #product-table {
-                margin-top: 3rem;
-                margin-bottom: 200px;
-                min-width: 100%;
-                table-layout: fixed;
-                overflow-wrap: break-word;
-                border-top: 5px solid var(--primary-color);
-            }
-            #product-table > thead {
-                text-align: left;
-            }
-            #product-table > thead > tr > th {
-                font-size: 1.1rem;
-                padding: 1rem;
-            }
-            #product-table > thead > tr > th:last-child {
-                text-align: right;
-            }
-            #product-table > tbody > tr > td:last-child {
-                text-align: right;
-            }
-            #product-table > tbody > tr > td {
-                padding: 1rem;
-            }
-            #product-table > tbody > tr:nth-child(odd) {
-                background-color: #e8e8e8;
-            }
+    .header-wrapper #client-details,
+    .header-wrapper #company-details,
+    .header-wrapper #company-address {
+        display: flex;
+        flex-direction: column;
+    }
 
-            #product-table-footer {
-                page-break-inside: avoid;
-            }
-            
-            #product-table-footer > * {
-                display: grid;
-                grid-template-columns: 3fr 1fr 1fr;
-                padding-top: 1rem;
-            }
-            #product-table-footer
-                > *
-                [data-element='product-table-balance-due'] {
-                font-weight: bold;
-                color: var(--primary-color);
-            }
-            #product-table-footer > * > * {
-                padding-left: 1rem;
-            }
-            #product-table-footer > *:last-child > * {
-                border-top: 5px solid var(--primary-color);
-                padding-top: 1rem;
-            }
-            #product-table-footer > * > :last-child {
-                text-align: right;
-                padding-right: 1rem;
-            }
-        </style>
-    </head>
+    .header-wrapper #client-details > *:first-child {
+        font-weight: bold;
+    }
 
-    <div id="header"></div>
+    .header-wrapper .company-info-wrapper > * {
+        margin-bottom: 1rem;
+    }
 
-    <body id="body">
-        <div class="header-wrapper">
-            <div id="client-details"></div>
+    .entity-label-wrapper {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        margin-top: 3rem;
+    }
 
-            <div class="company-info-wrapper">
-                <div id="company-details"></div>
-                <div id="company-address"></div>
-            </div>
+    .entity-label-wrapper .entity-label > * {
+        font-size: 3rem;
+    }
 
-            <img
-                class="company-logo"
-                src="$company.logo"
-                alt="$company.name logo"
-            />
+    .entity-label-wrapper .entity-label > *:first-child {
+        text-transform: uppercase;
+    }
+
+    .entity-label-wrapper .entity-label > *:last-child {
+        color: var(--primary-color);
+        font-style: italic;
+    }
+
+    .entity-label-wrapper #entity-details {
+        text-align: left;
+    }
+
+    .entity-label-wrapper #entity-details > tr,
+    .entity-label-wrapper #entity-details th {
+        font-weight: normal;
+    }
+
+    #product-table {
+        margin-top: 3rem;
+        margin-bottom: 200px;
+        min-width: 100%;
+        table-layout: fixed;
+        overflow-wrap: break-word;
+        border-top: 5px solid var(--primary-color);
+    }
+
+    #product-table > thead {
+        text-align: left;
+    }
+
+    #product-table > thead > tr > th {
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+
+    #product-table > thead > tr > th:last-child {
+        text-align: right;
+    }
+
+    #product-table > tbody > tr > td:last-child {
+        text-align: right;
+    }
+
+    #product-table > tbody > tr > td {
+        padding: 1rem;
+    }
+
+    #product-table > tbody > tr:nth-child(odd) {
+        background-color: #e8e8e8;
+    }
+
+    #product-table-footer {
+        page-break-inside: avoid;
+    }
+
+    #product-table-footer > * {
+        display: grid;
+        grid-template-columns: 3fr 1fr 1fr;
+        padding-top: 1rem;
+    }
+
+    #product-table-footer
+    > *
+    [data-element='product-table-balance-due'] {
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+
+    #product-table-footer > * > * {
+        padding-left: 1rem;
+    }
+
+    #product-table-footer > *:last-child > * {
+        border-top: 5px solid var(--primary-color);
+        padding-top: 1rem;
+    }
+
+    #product-table-footer > * > :last-child {
+        text-align: right;
+        padding-right: 1rem;
+    }
+</style>
+
+<div id="header"></div>
+
+<div id="body">
+    <div class="header-wrapper">
+        <div id="client-details"></div>
+
+        <div class="company-info-wrapper">
+            <div id="company-details"></div>
+            <div id="company-address"></div>
         </div>
 
-        <div class="entity-label-wrapper">
-            <h1 class="entity-label">
-                <span>$entity_label</span>&nbsp;
-                <span>#$entity_number</span>
-            </h1>
+        <img
+            class="company-logo"
+            src="$company.logo"
+            alt="$company.name logo"
+        />
+    </div>
 
-            <table id="entity-details" cellspacing="0"></table>
-        </div>
+    <div class="entity-label-wrapper">
+        <h1 class="entity-label">
+            <span>$entity_label</span>&nbsp;
+            <span>#$entity_number</span>
+        </h1>
 
-        <table id="product-table" cellspacing="0"></table>
+        <table id="entity-details" cellspacing="0"></table>
+    </div>
 
-        <div id="product-table-footer" cellspacing="0"></div>
-    </body>
+    <table id="product-table" cellspacing="0"></table>
 
-    <div id="footer"></div>
-</html>
+    <div id="product-table-footer" cellspacing="0"></div>
+</div>
+
+<div id="footer"></div>

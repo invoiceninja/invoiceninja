@@ -1,140 +1,144 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head id="head">
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style id="style">
+    * {
+        font-size: "$font_size";
+    }
 
-        <style id="style">
-            * {
-                font-size: '$font_size';
-            }
+    p {
+        margin: 0;
+        padding: 0;
+        page-break-after: always;
+    }
 
-            p {
-                margin: 0;
-                padding: 0;
-                page-break-after: always;
-            }
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 1cm;
+    }
 
-            body {
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                font-family: Arial, Helvetica, sans-serif;
-                margin: 1cm;
-            }
+    .header-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
 
-            .header-wrapper {
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-            }
-            .header-wrapper .company-logo {
-                height: 5rem;
-            }
-            .header-wrapper #company-address {
-                display: flex;
-                flex-direction: column;
-            }
-            .header-wrapper #entity-details {
-                margin-top: 1.5rem;
-                text-align: left;
-                width: 100%;
-            }
-            .header-wrapper #entity-details > tr,
-            .header-wrapper #entity-details th {
-                font-weight: normal;
-                padding-left: 0.9rem;
-                padding-top: 0.3rem;
-                padding-bottom: 0.3rem;
-            }
-            .header-wrapper
-                #entity-details
-                [data-element='entity-balance-due-label'],
-            .header-wrapper
-                #entity-details
-                [data-element='entity-balance-due'] {
-                background-color: #e6e6e6;
-            }
+    .header-wrapper .company-logo {
+        height: 5rem;
+    }
 
-            #client-details {
-                display: flex;
-                flex-direction: column;
-            }
+    .header-wrapper #company-address {
+        display: flex;
+        flex-direction: column;
+    }
 
-            #product-table {
-                min-width: 100%;
-                table-layout: fixed;
-                overflow-wrap: break-word;
-                margin-top: 3rem;
-                margin-bottom: 200px;
-            }
-            #product-table > thead {
-                text-align: left;
-            }
-            #product-table > thead > tr > th {
-                padding: 1rem;
-                background-color: #e6e6e6;
-            }
-            #product-table > thead > tr > th:last-child {
-                text-align: right;
-            }
-            #product-table > tbody > tr > td {
-                border-bottom: 1px solid #e6e6e6;
-                padding: 1rem;
-            }
-            #product-table > tbody > tr > td:last-child {
-                text-align: right;
-            }
-            
-            #product-table-footer {
-                page-break-inside: avoid;
-            }
+    .header-wrapper #entity-details {
+        margin-top: 1.5rem;
+        text-align: left;
+        width: 100%;
+    }
 
-            #product-table-footer > * {
-                display: grid;
-                grid-template-columns: 3fr 1fr 1fr;
-                padding-top: .5rem;
-                padding-left: 1rem;
-                gap: 20px;
-            }
-            #product-table-footer
-                > *
-                [data-element='product-table-balance-due-label'],
-            #product-table-footer
-                > *
-                [data-element='product-table-balance-due'] {
-                font-weight: bold;
-            }
-            #product-table-footer > * > :last-child {
-                text-align: right;
-                padding-right: 1rem;
-            }
-        </style>
-    </head>
+    .header-wrapper #entity-details > tr,
+    .header-wrapper #entity-details th {
+        font-weight: normal;
+        padding-left: 0.9rem;
+        padding-top: 0.3rem;
+        padding-bottom: 0.3rem;
+    }
 
-    <div id="header"></div>
+    .header-wrapper
+    #entity-details
+    [data-element='entity-balance-due-label'],
+    .header-wrapper
+    #entity-details
+    [data-element='entity-balance-due'] {
+        background-color: #e6e6e6;
+    }
 
-    <body id="body">
-        <div class="header-wrapper">
-            <p>$company.name</p>
+    #client-details {
+        display: flex;
+        flex-direction: column;
+    }
 
-            <div id="company-address"></div>
+    #product-table {
+        min-width: 100%;
+        table-layout: fixed;
+        overflow-wrap: break-word;
+        margin-top: 3rem;
+        margin-bottom: 200px;
+    }
 
-            <div>
-                <img
-                    class="company-logo"
-                    src="$company.logo"
-                    alt="$company.name logo"
-                />
+    #product-table > thead {
+        text-align: left;
+    }
 
-                <table id="entity-details" cellspacing="0"></table>
-            </div>
+    #product-table > thead > tr > th {
+        padding: 1rem;
+        background-color: #e6e6e6;
+    }
+
+    #product-table > thead > tr > th:last-child {
+        text-align: right;
+    }
+
+    #product-table > tbody > tr > td {
+        border-bottom: 1px solid #e6e6e6;
+        padding: 1rem;
+    }
+
+    #product-table > tbody > tr > td:last-child {
+        text-align: right;
+    }
+
+    #product-table-footer {
+        page-break-inside: avoid;
+    }
+
+    #product-table-footer > * {
+        display: grid;
+        grid-template-columns: 3fr 1fr 1fr;
+        padding-top: .5rem;
+        padding-left: 1rem;
+        gap: 20px;
+    }
+
+    #product-table-footer
+    > *
+    [data-element='product-table-balance-due-label'],
+    #product-table-footer
+    > *
+    [data-element='product-table-balance-due'] {
+        font-weight: bold;
+    }
+
+    #product-table-footer > * > :last-child {
+        text-align: right;
+        padding-right: 1rem;
+    }
+</style>
+<div id="header"></div>
+
+<div id="body">
+    <div class="header-wrapper">
+        <p>$company.name</p>
+
+        <div id="company-address"></div>
+
+        <div>
+            <img
+                class="company-logo"
+                src="$company.logo"
+                alt="$company.name logo"
+            />
+
+            <table id="entity-details" cellspacing="0"></table>
         </div>
+    </div>
 
-        <div id="client-details"></div>
+    <div id="client-details"></div>
 
-        <table id="product-table" cellspacing="0"></table>
+    <table id="product-table" cellspacing="0"></table>
 
-        <div id="product-table-footer" cellspacing="0"></div>
-    </body>
+    <div id="product-table-footer" cellspacing="0"></div>
+</div>
 
-    <div id="footer"></div>
-</html>
+<div id="footer"></div>
+
