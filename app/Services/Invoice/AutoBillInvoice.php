@@ -52,7 +52,7 @@ class AutoBillInvoice extends AbstractService
         if ((int)$this->invoice->balance == 0) 
             return $this->invoice->service()->markPaid()->save();
 
-        $this->applyCreditPayment();
+        $this->applyCreditPayment(); //if the credits cover the payments, we stop here, build the payment with credits and exit early
 
         /* Determine $amount */
         if ($this->invoice->partial > 0) 
@@ -112,22 +112,44 @@ class AutoBillInvoice extends AbstractService
             $is_partial_amount = true;
         }
 
-        $this->payment = PaymentFactory::create($this->client->company_id, $this->client->user_id);
-        $this->payment->save();
+        $used_credit = []
 
-        $available_credits->each(function($credit) use($is_partial_amount){
+        foreach($available_credits as $key => $credit) {
 
-            //todo need to iterate until the partial or balance is completely consumed 
-            //by the credit, any remaining balance is then dealt with by
-            //the gateway
-            //each time a credit is applied SAVE the invoice
+            if($is_partial_amount) {
 
-            // if($credit->balance >= $amount){
-            //     //current credit covers the total amount
+                //more credit than needed
+                if($credit->balance >= $this->invoice->partial) {
+                    $used_credit[$key]['credit_id'] = $credit->id;
+                    $used_credit[$key]['amount'] = $this->invoice->partial;
+                    $this->invoice->partial = 0;
+                    break;
+                }
+                else {
+                    $used_credit[$key]['credit_id'] = $credit->id;
+                    $used_credit[$key]['amount'] = $credit->balance;
+                    $this->invoice->partial -= $credit->balance;
+                }
+            }
+            else {
 
-            // }
-                //return false to exit each loop
-        });
+                //more credit than needed
+                if($credit->balance >= $this->invoice->balance) {
+                    $used_credit[$key]['credit_id'] = $credit->id;
+                    $used_credit[$key]['amount'] = $this->invoice->balance;
+                    $this->invoice->balance = 0;
+                    break;
+                }
+                else {
+                    $used_credit[$key]['credit_id'] = $credit->id;
+                    $used_credit[$key]['amount'] = $credit->balance;
+                    $this->invoice->balance -= $credit->balance;
+                }
+
+            }
+        }
+
+
 
         return $this;
     }
@@ -172,7 +194,6 @@ class AutoBillInvoice extends AbstractService
         $credit->line_items = $credit_items;
 
         $credit = $credit->calc()->getCredit();
-
 
     }
 
