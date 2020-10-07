@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\DataMapper\Analytics\EmailInvoiceFailure;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Helpers\Email\InvoiceEmail;
@@ -30,6 +31,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mime\Test\Constraint\EmailTextBodyContains;
+use Turbo124\Beacon\Facades\LightLogs;
 
 /*Multi Mailer implemented*/
 
@@ -94,5 +96,18 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
 
         /* Mark invoice sent */
         $this->invoice_invitation->invoice->service()->markSent()->save();
+    }
+
+    public function failed($exception = null)
+    {
+        info('the job failed');
+
+        $job_failure = new EmailInvoiceFailure();
+        $job_failure->string_metric5 = get_class($this);
+        $job_failure->string_metric6 = $exception->getMessage();
+
+        LightLogs::create($job_failure)
+                 ->batch();
+
     }
 }

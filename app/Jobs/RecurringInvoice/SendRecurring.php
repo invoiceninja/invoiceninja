@@ -11,6 +11,7 @@
 
 namespace App\Jobs\RecurringInvoice;
 
+use App\DataMapper\Analytics\SendRecurringFailure;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Helpers\Email\InvoiceEmail;
@@ -26,6 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class SendRecurring implements ShouldQueue
 {
@@ -58,7 +60,9 @@ class SendRecurring implements ShouldQueue
 
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
-        
+
+        $invoice->date = now()->format('Y-m-d');
+
         $invoice = $invoice->service()
                            ->markSent()
                            ->applyNumber()
@@ -71,9 +75,10 @@ class SendRecurring implements ShouldQueue
 
             $email_builder = (new InvoiceEmail())->build($invitation);
 
-            EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
-
-            info("Firing email for invoice {$invoice->number}");
+            if($invitation->contact && strlen($invitation->contact->email) >=1){
+                EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
+                info("Firing email for invoice {$invoice->number}");
+            }
 
         });
 
@@ -99,6 +104,20 @@ class SendRecurring implements ShouldQueue
         if ($invoice->invitations->count() > 0) 
             event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
 
+    }
+
+    public function failed($exception = null)
+    {
+        info('the job failed');
+
+        $job_failure = new SendRecurringFailure();
+        $job_failure->string_metric5 = get_class($this);
+        $job_failure->string_metric6 = $exception->getMessage();
+
+        LightLogs::create($job_failure)
+                 ->batch();
+
+        info(print_r($exception->getMessage(), 1));
     }
 
 }
