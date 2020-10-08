@@ -30,7 +30,7 @@ class AutoBillInvoice extends AbstractService
 
     private $client;
 
-    private $payment;
+    private $used_credit = [];
 
     public function __construct(Invoice $invoice)
     {
@@ -57,10 +57,10 @@ class AutoBillInvoice extends AbstractService
         /* Determine $amount */
         if ($this->invoice->partial > 0) 
             $amount = $this->invoice->partial;
-        elseif($this->invoice->balance >0)
+        elseif($this->invoice->balance > 0)
             $amount = $this->invoice->balance;
         else
-            return $this->invoice;
+            return $this->finalizePaymentUsingCredits();
 
         $gateway_token = $this->getGateway($amount);
 
@@ -84,6 +84,48 @@ class AutoBillInvoice extends AbstractService
                                  ->tokenBilling($gateway_token, $payment_hash);
 
         return $this->invoice;
+    }
+
+    /**
+     * If the credits on file cover the invoice amount
+     * the we create a matching payment using credits only
+     *     
+     * @return Invoice $invoice
+     */
+    private function finalizePaymentUsingCredits()
+    {
+        $amount = array_sum(array_column($this->used_credit, 'amount'));
+
+        $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
+        $payment->amount = $amount;
+        $payment->date = now();
+        $payment->save();
+
+        $payment->invoices()->attach($this->invoice->id, ['amount' => $amount]);
+
+        $this->invoice->service()->setStatus(Invoice::STATUS_PAID)->save();
+
+        foreach($this->used_credit as $credit)
+        {
+            $payment->credits()->attach($credit['credit_id'], ['amount' => $credit['amount']);
+        }
+
+            $payment->ledger()
+                    ->updatePaymentBalance($amount * -1)
+                    ->save();
+
+            $this->invoice->client->service()
+                                  ->updateBalance($amount * -1)
+                                  ->updatePaidToDate($amount)
+                                  ->adjustCreditBalance($amount * -1)
+                                  ->save();
+
+            $this->invoice->ledger()
+                          ->updateInvoiceBalance($amount * -1, 'Invoice payment using Credit')
+                          ->updateCreditBalance($amount * -1, 'Credits used to pay down Invoice ' . $invoice->number)
+                          ->save();
+
+        return $this->invoice->service()->setStatus(Invoice::STATUS_PAID)->save();
     }
 
     /**
@@ -112,7 +154,7 @@ class AutoBillInvoice extends AbstractService
             $is_partial_amount = true;
         }
 
-        $used_credit = []
+        $this->used_credit = []
 
         foreach($available_credits as $key => $credit) {
 
@@ -120,15 +162,17 @@ class AutoBillInvoice extends AbstractService
 
                 //more credit than needed
                 if($credit->balance >= $this->invoice->partial) {
-                    $used_credit[$key]['credit_id'] = $credit->id;
-                    $used_credit[$key]['amount'] = $this->invoice->partial;
+                    $this->used_credit[$key]['credit_id'] = $credit->id;
+                    $this->used_credit[$key]['amount'] = $this->invoice->partial;
+                    $this->invoice->balance -= $this->invoice->partial;
                     $this->invoice->partial = 0;
                     break;
                 }
                 else {
-                    $used_credit[$key]['credit_id'] = $credit->id;
-                    $used_credit[$key]['amount'] = $credit->balance;
+                    $this->used_credit[$key]['credit_id'] = $credit->id;
+                    $this->used_credit[$key]['amount'] = $credit->balance;
                     $this->invoice->partial -= $credit->balance;
+                    $this->invoice->balance -= $credit->balance;
                 }
             }
             else {
@@ -154,28 +198,6 @@ class AutoBillInvoice extends AbstractService
         return $this;
     }
 
-    private function buildPayment($credit, $is_partial_amount)
-    {
-        if($is_partial_amount) {
-
-            if($this->invoice->partial >= $credit->balance) {
-
-                $amount = $this->invoice->partial - $credit->balance;
-                $this->invoice->partial -= $amount;
-
-                $this->payment->credits()->attach([
-                    $credit->id => ['amount' => $amount]
-                ]);
-
-                $this->payment->invoice()->attach([
-                    $this->invoice->id => ['amount' => $amount]
-                ]);
-
-                $this->applyPaymentToCredit($credit, $amount);
-            }
-        }
-
-    }
 
 
     private function applyPaymentToCredit($credit, $amount)
