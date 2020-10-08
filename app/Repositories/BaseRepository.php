@@ -203,10 +203,8 @@ class BaseRepository
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
         $lcfirst_resource_id = lcfirst($resource).'_id';
 
-        if ($class->name == Invoice::class || $class->name == Quote::class) {
-            $state['starting_amount'] = $model->amount;
-        }
-
+        $state['starting_amount'] = $model->amount;
+        
         if (! $model->id) {
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
@@ -320,7 +318,10 @@ class BaseRepository
         }
 
         if ($class->name == Credit::class) {
+
             $model = $model->calc()->getCredit();
+            
+            $model->ledger()->updateCreditBalance(($state['finished_amount'] - $state['starting_amount']));
 
             if (! $model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
