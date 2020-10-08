@@ -21,6 +21,7 @@ use App\Models\PaymentHash;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
+use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Str;
 
@@ -94,12 +95,18 @@ class AutoBillInvoice extends AbstractService
      */
     private function finalizePaymentUsingCredits()
     {
+        info("finalizing");
+        info(print_r($this->used_credit,1));
         $amount = array_sum(array_column($this->used_credit, 'amount'));
+     info("amount {$amount}");
 
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
         $payment->amount = $amount;
+        $payment->client_id = $this->invoice->client_id;
+        $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->date = now();
-        $payment->save();
+        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->service()->applyNumber()->save();
 
         $payment->invoices()->attach($this->invoice->id, ['amount' => $amount]);
 
@@ -107,7 +114,7 @@ class AutoBillInvoice extends AbstractService
 
         foreach($this->used_credit as $credit)
         {
-            $payment->credits()->attach($credit['credit_id'], ['amount' => $credit['amount']);
+            $payment->credits()->attach($credit['credit_id'], ['amount' => $credit['amount']]);
         }
 
             $payment->ledger()
@@ -122,8 +129,10 @@ class AutoBillInvoice extends AbstractService
 
             $this->invoice->ledger()
                           ->updateInvoiceBalance($amount * -1, 'Invoice payment using Credit')
-                          ->updateCreditBalance($amount * -1, 'Credits used to pay down Invoice ' . $invoice->number)
+                          ->updateCreditBalance($amount * -1, 'Credits used to pay down Invoice ' . $this->invoice->number)
                           ->save();
+
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         return $this->invoice->service()->setStatus(Invoice::STATUS_PAID)->save();
     }
@@ -154,7 +163,7 @@ class AutoBillInvoice extends AbstractService
             $is_partial_amount = true;
         }
 
-        $this->used_credit = []
+        $this->used_credit = [];
 
         foreach($available_credits as $key => $credit) {
 
@@ -179,14 +188,14 @@ class AutoBillInvoice extends AbstractService
 
                 //more credit than needed
                 if($credit->balance >= $this->invoice->balance) {
-                    $used_credit[$key]['credit_id'] = $credit->id;
-                    $used_credit[$key]['amount'] = $this->invoice->balance;
+                    $this->used_credit[$key]['credit_id'] = $credit->id;
+                    $this->used_credit[$key]['amount'] = $this->invoice->balance;
                     $this->invoice->balance = 0;
                     break;
                 }
                 else {
-                    $used_credit[$key]['credit_id'] = $credit->id;
-                    $used_credit[$key]['amount'] = $credit->balance;
+                    $this->used_credit[$key]['credit_id'] = $credit->id;
+                    $this->used_credit[$key]['amount'] = $credit->balance;
                     $this->invoice->balance -= $credit->balance;
                 }
 

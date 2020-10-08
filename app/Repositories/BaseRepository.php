@@ -322,6 +322,8 @@ class BaseRepository
         if ($class->name == Credit::class) {
             $model = $model->calc()->getCredit();
 
+            $model->ledger()->updateCreditBalance(($state['finished_amount'] - $state['starting_amount']));
+
             if (! $model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
             }

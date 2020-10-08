@@ -227,12 +227,6 @@ trait MockAccountData
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $this->client->id;
 
-        // $this->invoice = Invoice::factory()->create([
-        //         'user_id' => $this->user->id,
-        //         'client_id' => $this->client->id,
-        //         'company_id' => $this->company->id,
-        //     ]);
-
         $this->invoice->line_items = $this->buildLineItems();
         $this->invoice->uses_inclusive_taxes = false;
 
@@ -316,7 +310,6 @@ trait MockAccountData
         $this->credit->uses_inclusive_taxes = false;
 
         $this->credit->save();
-
         $this->credit->service()->createInvitations()->markSent();
 
         $this->credit_calc = new InvoiceSum($this->credit);
@@ -325,6 +318,9 @@ trait MockAccountData
         $this->credit = $this->credit_calc->getCredit();
         $this->credit->service()->markSent();
 
+        $this->client->service()->adjustCreditBalance($this->credit->balance)->save();
+        $this->credit->ledger()->updateCreditBalance($this->credit->balance)->save();
+        
         $contacts = $this->invoice->client->contacts;
 
         $contacts->each(function ($contact) {

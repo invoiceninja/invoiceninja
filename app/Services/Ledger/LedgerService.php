@@ -66,6 +66,8 @@ class LedgerService
         $company_ledger->save();
 
         $this->entity->company_ledger()->save($company_ledger);
+
+        return $this;
     }
 
     public function updateCreditBalance($adjustment, $notes = '')
