@@ -12,7 +12,6 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Filters\PaymentFilters;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Invoice\InjectSignature;
@@ -23,11 +22,8 @@ use App\Models\PaymentHash;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
-use Cache;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Yajra\DataTables\Facades\DataTables;
 
 /**
  * Class PaymentController.
@@ -108,7 +104,7 @@ class PaymentController extends Controller
             // In case it doesn't this is where process should stop.
 
             $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), auth()->user()->client->currency()->precision);
-            $invoice_amount = Number::roundValue($invoice->amount, auth()->user()->client->currency()->precision);
+            $invoice_balance = Number::roundValue($invoice->balance, auth()->user()->client->currency()->precision);
 
             if ($settings->client_portal_allow_under_payment == false && $settings->client_portal_allow_over_payment == false) {
                 $payable_invoice['amount'] = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), auth()->user()->client->currency()->precision);
@@ -122,9 +118,9 @@ class PaymentController extends Controller
                 }
             } else {
                 $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), auth()->user()->client->currency()->precision);
-                $invoice_amount = Number::roundValue($invoice->amount, auth()->user()->client->currency()->precision);
+                $invoice_balance = Number::roundValue($invoice->balance, auth()->user()->client->currency()->precision);
 
-                if ($payable_amount < $invoice_amount) {
+                if ($payable_amount < $invoice_balance) {
                     return redirect()
                         ->route('client.invoices.index')
                         ->with('message', ctrans('texts.under_payments_disabled'));
@@ -132,7 +128,7 @@ class PaymentController extends Controller
             } // Make sure 'amount' from form is not lower than 'amount' from invoice.
 
             if ($settings->client_portal_allow_over_payment == false) {
-                if ($payable_amount > $invoice_amount) {
+                if ($payable_amount > $invoice_balance) {
                     return redirect()
                         ->route('client.invoices.index')
                         ->with('message', ctrans('texts.over_payments_disabled'));
