@@ -158,6 +158,16 @@ class EmailTemplateDefaults
 
     }
 
+    public static function emailPaymentPartialTemplate()
+    {
+        $converter = new CommonMarkConverter([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+
+        return $converter->convertToHtml(self::transformText('payment_message'));        
+    }
+
     public static function emailPaymentPartialSubject()
     {
         return ctrans('texts.payment_subject');

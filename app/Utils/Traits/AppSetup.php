@@ -80,6 +80,10 @@ trait AppSetup
             'subject' => EmailTemplateDefaults::emailPaymentSubject(),
             'body' => EmailTemplateDefaults::emailPaymentTemplate(),
             ],
+        'payment_partial' => [
+            'subject' => EmailTemplateDefaults::emailPaymentPartialSubject(),
+            'body' => EmailTemplateDefaults::emailPaymentPartialTemplate(),
+            ],
         'reminder1' => [
             'subject' => EmailTemplateDefaults::emailReminder1Subject(),
             'body' => EmailTemplateDefaults::emailReminder1Template(),
