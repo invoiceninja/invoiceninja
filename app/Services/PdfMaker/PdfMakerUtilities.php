@@ -13,7 +13,6 @@
 namespace App\Services\PdfMaker;
 
 use DOMDocument;
-use DOMDomError;
 use DOMXPath;
 
 trait PdfMakerUtilities
@@ -48,11 +47,6 @@ trait PdfMakerUtilities
     public function updateElementProperties(array $elements)
     {
         foreach ($elements as $element) {
-
-            // if (!isset($element['tag']) || !isset($element['id']) || is_null($this->document->getElementById($element['id']))) {
-            //     continue;
-            // }
-
             if (isset($element['tag'])) {
                 $node = $this->document->getElementsByTagName($element['tag'])->item(0);
             } elseif (!is_null($this->document->getElementById($element['id']))) {
@@ -116,7 +110,35 @@ trait PdfMakerUtilities
     public function createElementContent($element, $children)
     {
         foreach ($children as $child) {
-            $_child = $this->document->createElement($child['element'], isset($child['content']) ? $child['content'] : '');
+            $contains_html = false;
+
+            // "/\/[a-z]*>/i" -> checks for HTML-like tags:
+            // <my-tag></my-tag> => true
+            // <my-tag /> => true
+            // <my-tag> => false
+
+             if (isset($child['content'])) {
+                $contains_html = preg_match("/\/[a-z]*>/i", $child['content'],$m) != 0;
+            }
+
+            if ($contains_html) {
+                // Support for injecting direct HTML into elements.
+                // Example: Without documentFragment(): <b>Hello!</b> will result: &lt;b&gt;Hello!&lt;/b&gt;
+                // With document fragment we can evaluate HTML directly.
+
+                $_child = $this->document->createElement($child['element'], '');
+
+                $fragment = $this->document->createDocumentFragment();
+                $fragment->appendXML($child['content']);
+
+                $_child->appendChild($fragment);
+            } else {
+                // .. in case string doesn't contain any HTML, we'll just return
+                // raw $content.
+
+                $_child = $this->document->createElement($child['element'], isset($child['content']) ? $child['content'] : '');
+            }
+
             $element->appendChild($_child);
 
             if (isset($child['properties'])) {
@@ -166,7 +188,7 @@ trait PdfMakerUtilities
         if (!isset($this->options['all_pages_header']) || $this->options['all_pages_header'] == false) {
             return;
         }
-        
+
         if (!isset($this->options['all_pages_footer']) || $this->options['all_pages_footer'] == false) {
             return;
         }
@@ -181,7 +203,7 @@ trait PdfMakerUtilities
         table.page-container {
             page-break-after: always;
         }
-        
+
         thead.page-header {
             display: table-header-group;
         }
@@ -206,6 +228,8 @@ trait PdfMakerUtilities
 
             return $head->appendChild($style_node);
         }
+
+        return $this;
     }
 
     public function wrapIntoTable()
