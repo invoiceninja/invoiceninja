@@ -201,17 +201,17 @@ class EmailTemplateDefaults
 
     public static function emailReminderEndlessTemplate()
     {
-        return Parsedown::instance()->line('Endless Email Reminder Text');
+        return ctrans('Endless Email Reminder Text');
     }
 
     public static function emailStatementSubject()
     {
-        return Parsedown::instance()->line('Statement Subject needs texts record!');
+        return ctrans('Statement Subject needs texts record!');
     }
 
     public static function emailStatementTemplate()
     {
-        return Parsedown::instance()->line('Statement Templates needs texts record!');
+        return ctrans('Statement Templates needs texts record!');
     }
 
     private static function transformText($string)
