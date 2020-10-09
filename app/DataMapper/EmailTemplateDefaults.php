@@ -34,7 +34,7 @@ class EmailTemplateDefaults
                 return self::emailPaymentTemplate();
                 break;
             case 'email_template_payment_partial':
-                return self::emailPaymentTemplate();
+                return self::emailPaymentPartialTemplate();
                 break;
             case 'email_template_statement':
                 return self::emailStatementTemplate();
@@ -73,7 +73,7 @@ class EmailTemplateDefaults
                 return self::emailPaymentSubject();
                 break;
             case 'email_subject_payment_partial':
-                return self::emailPaymentSubject();
+                return self::emailPaymentPartialSubject();
                 break;
             case 'email_subject_statement':
                 return self::emailStatementSubject();
@@ -140,13 +140,11 @@ class EmailTemplateDefaults
         ]);
 
         return $converter->convertToHtml(self::transformText('quote_message'));
-        //return Parsedown::instance()->line(self::transformText('quote_message'));
     }
 
     public static function emailPaymentSubject()
     {
         return ctrans('texts.payment_subject');
-        //return Parsedown::instance()->line(self::transformText('payment_subject'));
     }
 
     public static function emailPaymentTemplate()
@@ -158,7 +156,11 @@ class EmailTemplateDefaults
 
         return $converter->convertToHtml(self::transformText('payment_message'));
 
-        // return Parsedown::instance()->line(self::transformText('payment_message'));
+    }
+
+    public static function emailPaymentPartialSubject()
+    {
+        return ctrans('texts.payment_subject');
     }
 
     public static function emailReminder1Subject()
@@ -201,17 +203,17 @@ class EmailTemplateDefaults
 
     public static function emailReminderEndlessTemplate()
     {
-        return Parsedown::instance()->line('Endless Email Reminder Text');
+        return ctrans('Endless Email Reminder Text');
     }
 
     public static function emailStatementSubject()
     {
-        return Parsedown::instance()->line('Statement Subject needs texts record!');
+        return ctrans('Statement Subject needs texts record!');
     }
 
     public static function emailStatementTemplate()
     {
-        return Parsedown::instance()->line('Statement Templates needs texts record!');
+        return ctrans('Statement Templates needs texts record!');
     }
 
     private static function transformText($string)

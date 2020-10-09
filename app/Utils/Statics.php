@@ -104,6 +104,9 @@ class Statics
             })->sortBy(function ($currency) {
                 return $currency->name;
             })->values();
+
+            $data['templates'] = Cache::get('templates');
+            
         }
 
         return $data;

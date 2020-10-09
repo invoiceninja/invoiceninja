@@ -55,10 +55,17 @@ class RecurringService
         if($this->recurring_entity->remaining_cycles == 0)
             return $this;
 
-    	$this->recurring_entity->status_id = RecurringInvoice::STATUS_ACTIVE;
+        $this->createInvitations()->setStatus(RecurringInvoice::STATUS_ACTIVE);
 
     	return $this;
 
+    }
+
+    public function setStatus($status)
+    {
+        $this->recurring_entity->status_id = $status;
+
+        return $this;
     }
 
     /**

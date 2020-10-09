@@ -64,16 +64,17 @@
         "laravel/ui": "^3.0"
     },
     "require-dev": {
-        "wildbit/postmark-php": "^4.0",
         "anahkiasen/former": "^4.2",
         "barryvdh/laravel-debugbar": "^3.4",
+        "brianium/paratest": "^5.0",
         "darkaonline/l5-swagger": "^8.0",
+        "facade/ignition": "^2.3.6",
         "filp/whoops": "^2.7",
+        "fzaninotto/faker": "^1.9.1",
         "mockery/mockery": "^1.3.1",
         "nunomaduro/collision": "^5.0",
         "phpunit/phpunit": "^9.0",
-        "fzaninotto/faker": "^1.9.1",
-        "facade/ignition": "^2.3.6"
+        "wildbit/postmark-php": "^4.0"
     },
     "autoload": {
         "psr-4": {

@@ -35,11 +35,33 @@ class ClientGatewayTokenTransformer extends EntityTransformer
             'gateway_type_id' => (string) $cgt->gateway_type_id ?: '',
             'company_gateway_id' => (string) $this->encodePrimaryKey($cgt->company_gateway_id) ?: '',
             'is_default' => (bool) $cgt->is_default,
-            'meta' => $cgt->meta,
+            'meta' => $this->typeCastMeta($cgt->meta),
             'created_at' => (int) $cgt->created_at,
             'updated_at' => (int) $cgt->updated_at,
             'archived_at' => (int) $cgt->deleted_at,
             'is_deleted' => (bool) $cgt->is_deleted,
         ];
+    }
+
+    private function typeCastMeta($meta)
+    {
+        $casted = new \stdClass;
+
+        if(property_exists($meta, 'exp_month'))
+            $casted->exp_month = (string)$meta->exp_month;
+
+        if(property_exists($meta, 'exp_year'))
+            $casted->exp_year = (string)$meta->exp_year;
+
+        if(property_exists($meta, 'brand'))
+            $casted->brand = (string)$meta->brand;
+
+        if(property_exists($meta, 'last4'))
+            $casted->last4 = (string)$meta->last4;
+
+        if(property_exists($meta, 'type'))
+            $casted->type = (int)$meta->type;
+
+        return $casted;
     }
 }
