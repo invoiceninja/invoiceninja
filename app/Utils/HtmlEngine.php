@@ -111,7 +111,7 @@ class HtmlEngine
         $data['$invoice.po_number'] = ['value' => $this->entity->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
         // $data['$line_taxes'] = ['value' => $this->makeLineTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
         // $data['$invoice.line_taxes'] = &$data['$line_taxes'];
-        
+
         // $data['$total_taxes'] = ['value' => $this->makeTotalTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
         // $data['$invoice.total_taxes'] = &$data['$total_taxes'];
 
@@ -217,7 +217,7 @@ class HtmlEngine
         $data['$vat_number'] = ['value' => $this->client->vat_number ?: '&nbsp;', 'label' => ctrans('texts.vat_number')];
         $data['$website'] = ['value' => $this->client->present()->website() ?: '&nbsp;', 'label' => ctrans('texts.website')];
         $data['$phone'] = ['value' => $this->client->present()->phone() ?: '&nbsp;', 'label' => ctrans('texts.phone')];
-        $data['$country'] = ['value' => isset($this->client->country->name) ? $this->client->country->name : 'No Country Set', 'label' => ctrans('texts.country')];
+        $data['$country'] = ['value' => isset($this->client->country->name) ? $this->client->country->name : '', 'label' => ctrans('texts.country')];
         $data['$email'] = ['value' => isset($this->contact) ? $this->contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
         $data['$client_name'] = ['value' => $this->entity->present()->clientName() ?: '&nbsp;', 'label' => ctrans('texts.client_name')];
         $data['$client.name'] = &$data['$client_name'];
@@ -550,7 +550,7 @@ class HtmlEngine
 }
 
 @media print {
-   thead {display: table-header-group;} 
+   thead {display: table-header-group;}
    tfoot {display: table-footer-group;}
    button {display: none;}
    body {margin: 0;}
@@ -568,7 +568,7 @@ class HtmlEngine
 }
 
 @media print {
-   thead {display: table-header-group;} 
+   thead {display: table-header-group;}
    button {display: none;}
    body {margin: 0;}
 }';

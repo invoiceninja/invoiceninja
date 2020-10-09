@@ -53,6 +53,10 @@ class PersonalAddress extends Component
     {
         $data = $this->validate($this->rules);
 
+        if ($data['country_id'] == 'none') {
+            $data['country_id'] = null;
+        }
+
         $this->profile
             ->fill($data)
             ->save();
