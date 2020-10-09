@@ -22,6 +22,7 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 /**
  * Class InvitationController.
@@ -33,9 +34,10 @@ class InvitationController extends Controller
 
     public function router(string $entity, string $invitation_key)
     {
+
         $key = $entity.'_id';
 
-        $entity_obj = 'App\Models\\'.ucfirst($entity).'Invitation';
+        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation'; //todo sensitive to the route parameters here
 
         $invitation = $entity_obj::whereRaw('BINARY `key`= ?', [$invitation_key])
                                     ->with('contact.client')

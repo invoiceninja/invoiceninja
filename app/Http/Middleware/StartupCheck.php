@@ -65,8 +65,27 @@ class StartupCheck
             }
         }
 
+
+        /*Build template cache*/
+        $name = 'templates';
+
+        if ($request->has('clear_cache') || ! Cache::has($name)) {
+
+        }
+
         $response = $next($request);
 
         return $response;
+    }
+
+
+    private function buildTemplates()
+    {
+        $data = [];
+
+        $data['invoice'][
+            'subject' => EmailTemplateDefaults::emailInvoiceSubject(),
+            'body' => EmailTemplateDefaults::emailInvoiceTemplate),
+        ]
     }
 }

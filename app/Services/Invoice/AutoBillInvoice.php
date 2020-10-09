@@ -53,7 +53,8 @@ class AutoBillInvoice extends AbstractService
         if ((int)$this->invoice->balance == 0) 
             return $this->invoice->service()->markPaid()->save();
 
-        $this->applyCreditPayment(); //if the credits cover the payments, we stop here, build the payment with credits and exit early
+        //if the credits cover the payments, we stop here, build the payment with credits and exit early
+        $this->applyCreditPayment(); 
 
         /* Determine $amount */
         if ($this->invoice->partial > 0) 
@@ -70,7 +71,7 @@ class AutoBillInvoice extends AbstractService
             return $this->invoice;
 
         /* $gateway fee */
-        $fee = $gateway_token->gateway->calcGatewayFee($this->invoice->partial);
+        $fee = $gateway_token->gateway->calcGatewayFee($amount);
 
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
@@ -98,7 +99,7 @@ class AutoBillInvoice extends AbstractService
         info("finalizing");
         info(print_r($this->used_credit,1));
         $amount = array_sum(array_column($this->used_credit, 'amount'));
-     info("amount {$amount}");
+        info("amount {$amount}");
 
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
         $payment->amount = $amount;
