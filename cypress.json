@@ -1,5 +1,5 @@
 {
     "video": false,
-    "baseUrl": "http://invoiceninja.wip/",
+    "baseUrl": "http://ninja.test:8000/",
     "chromeWebSecurity": false
 }

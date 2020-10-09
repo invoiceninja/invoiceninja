@@ -121,7 +121,7 @@ class HtmlEngine
             $data['$entity.terms'] = ['value' => $this->entity->terms ?: '&nbsp;', 'label' => ctrans('texts.invoice_terms')];
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a href="'.$this->invitation->getLink().'">'.ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
-            // $data['$view_link']          = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
+            $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
         }
 
         if ($this->entity_string == 'quote') {
