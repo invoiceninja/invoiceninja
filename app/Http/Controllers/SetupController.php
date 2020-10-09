@@ -20,7 +20,6 @@ use App\Models\Account;
 use App\Utils\SystemHealth;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -122,7 +121,7 @@ class SetupController extends Controller
 
             /* Create the first account. */
             if (Account::count() == 0) {
-                $account = CreateAccount::dispatchNow($request->all());
+                CreateAccount::dispatchNow($request->all());
             }
 
             return redirect('/');
@@ -154,7 +153,8 @@ class SetupController extends Controller
     /**
      * Return status based on check of SMTP connection.
      *
-     * @return Response
+     * @param CheckMailRequest $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|Response
      */
     public function checkMail(CheckMailRequest $request)
     {
@@ -191,7 +191,7 @@ class SetupController extends Controller
                 return $this->testPhantom();
             }
 
-            Browsershot::url('https://www.invoiceninja.com')
+            Browsershot::html('PDF GENERATION WORKS! Thank you for using Invoice Ninja!')
                 ->noSandbox()
                 ->savePdf(
                     public_path('test.pdf')
