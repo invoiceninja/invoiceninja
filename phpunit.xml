@@ -1,37 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" backupStaticAttributes="false" bootstrap="vendor/autoload.php" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true" processIsolation="true" stopOnFailure="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-  <coverage processUncoveredFiles="true">
-    <include>
-      <directory suffix=".php">./app</directory>
-    </include>
-    <exclude>
-      <directory suffix=".php">./vendor</directory>
-      <directory suffix=".php">./app/Providers</directory>
-      <directory suffix=".php">./app/Http</directory>
-      <directory suffix=".php">./app/Models</directory>
-      <directory suffix=".php">./app/Transformers</directory>
-      <directory suffix=".php">./app/Events</directory>
-      <directory suffix=".php">./app/Observers</directory>
-      <directory suffix=".php">./app/Policies</directory>
-      <directory suffix=".php">./app/Jobs</directory>
-      <directory suffix=".php">./app/Factory</directory>
-      <directory suffix=".php">./app/Helpers</directory>
-      <directory suffix=".php">./app/Libraries</directory>
-      <directory suffix=".php">./app/Listeners</directory>
-      <directory suffix=".php">./app/Mail</directory>
-      <directory suffix=".php">./app/Notifications</directory>
-      <directory suffix=".php">./app/Providers</directory>
-      <directory suffix=".php">./app/Repositories</directory>
-      <directory suffix=".php">./app/Filters</directory>
-      <file>./app/Console/Kernel.php</file>
-      <file>./app/Constants.php</file>
-      <file>./app/Libraries/OFX.php</file>
-      <file>./app/Exceptions/Handler.php</file>
-    </exclude>
-    <report>
-      <clover outputFile="coverage.xml"/>
-    </report>
-  </coverage>
+
   <testsuites>
     <testsuite name="Unit">
       <directory suffix="Test.php">./tests/Unit</directory>
@@ -53,6 +22,8 @@
     <env name="SESSION_DRIVER" value="array"/>
     <env name="QUEUE_CONNECTION" value="sync"/>
     <env name="MAIL_MAILER" value="array"/>
+    <env name="DB_CONNECTION" value="sqlite"/>
+    <env name="DB_DATABASE" value=":memory:"/>
   </php>
   <logging/>
 </phpunit>
