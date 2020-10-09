@@ -433,6 +433,8 @@ class BaseController extends Controller
 
             $data['hash'] = md5(public_path('main.dart.js'));
 
+            $this->buildCache();
+
             return view('index.index', $data);
         }
 

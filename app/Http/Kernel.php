@@ -55,7 +55,7 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
             'query_logging',
-            \App\Http\Middleware\StartupCheck::class,
+            //\App\Http\Middleware\StartupCheck::class,
             \App\Http\Middleware\Cors::class,
         ],
         'contact' => [
@@ -71,7 +71,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\StartupCheck::class,
+            //\App\Http\Middleware\StartupCheck::class,
             \App\Http\Middleware\QueryLogging::class,
         ],
         'shop' => [
