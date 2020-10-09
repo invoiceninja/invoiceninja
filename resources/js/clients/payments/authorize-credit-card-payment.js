@@ -22,17 +22,18 @@ class AuthorizeAuthorizeCard {
 
         var myCard = $('#my-card');
 
-    	var authData = {};
+        var authData = {};
         authData.clientKey = this.publicKey;
         authData.apiLoginID = this.loginId;
-    
-    	var cardData = {};
+
+        var cardData = {};
         cardData.cardNumber = myCard.CardJs('cardNumber');
         cardData.month = myCard.CardJs('expiryMonth');
-        cardData.year = myCard.CardJs('expiryYear');;
+        cardData.year = myCard.CardJs('expiryYear');
+        ;
         cardData.cardCode = document.getElementById("cvv").value;
 
-    	var secureData = {};
+        var secureData = {};
         secureData.authData = authData;
         secureData.cardData = cardData;
         // If using banking information instead of card information,
@@ -43,8 +44,8 @@ class AuthorizeAuthorizeCard {
         document.querySelector('#card_button > svg').classList.remove('hidden');
         document.querySelector('#card_button > span').classList.add('hidden');
 
-		Accept.dispatchData(secureData, this.responseHandler);
-        
+        Accept.dispatchData(secureData, this.responseHandler);
+
         return false;
 
     }
@@ -56,37 +57,31 @@ class AuthorizeAuthorizeCard {
 
     }
 
-    responseHandler(response) {
-	    if (response.messages.resultCode === "Error") {
-	        var i = 0;
+    responseHandler = (response) => {
+        if (response.messages.resultCode === "Error") {
+            var i = 0;
 
             var $errors = $('#errors'); // get the reference of the div
-            $errors.show().html("<p>" + response.messages.message[i].code + ": " + response.messages.message[i].text + "</p>"); 
-         
+            $errors.show().html("<p>" + response.messages.message[i].code + ": " + response.messages.message[i].text + "</p>");
+
             document.getElementById('card_button').disabled = false;
             document.querySelector('#card_button > svg').classList.add('hidden');
             document.querySelector('#card_button > span').classList.remove('hidden');
-	    }
-	    else if(response.messages.resultCode === "Ok"){
-            
+        } else if (response.messages.resultCode === "Ok") {
+
             document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
             document.getElementById("dataValue").value = response.opaqueData.dataValue;
             document.getElementById("store_card").value = document.getElementById("store_card_checkbox").checked;
             document.getElementById("server_response").submit();
 
-	    }
-        
-        this.cardButton.disabled=false;
-        return false;
-	}
+        }
 
+        return false;
+    }
 
 
     handle = () => {
-
-
-        if(this.cardButton)
-        {
+        if (this.cardButton) {
             this.cardButton.addEventListener("click", () => {
 
                 this.cardButton.disabled = true;
@@ -96,10 +91,9 @@ class AuthorizeAuthorizeCard {
             });
         }
 
-        if(this.payNowButton)
-        {
+        if (this.payNowButton) {
 
-            for(let item of this.payNowButton) {
+            for (let item of this.payNowButton) {
 
                 item.addEventListener('click', () => {
                     item.disabled = true;

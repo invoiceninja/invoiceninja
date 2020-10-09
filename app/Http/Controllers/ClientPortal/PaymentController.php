@@ -73,7 +73,7 @@ class PaymentController extends Controller
      */
     public function process()
     {
-        $gateway = CompanyGateway::find(request()->input('company_gateway_id'));
+        $gateway = CompanyGateway::findOrFail('id', request()->input('company_gateway_id'));
 
         /*find invoices*/
 
@@ -160,11 +160,13 @@ class PaymentController extends Controller
         }
 
         $payment_methods = auth()->user()->client->getPaymentMethods(array_sum(array_column($payable_invoices, 'amount_with_fee')));
+
         $payment_method_id = request()->input('payment_method_id');
 
         $invoice_totals = array_sum(array_column($payable_invoices, 'amount'));
 
         $first_invoice = $invoices->first();
+
         $fee_totals = round($gateway->calcGatewayFee($invoice_totals, true), $first_invoice->client->currency()->precision);
 
         if (!$first_invoice->uses_inclusive_taxes) {

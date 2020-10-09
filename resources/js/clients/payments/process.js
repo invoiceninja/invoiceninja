@@ -58,7 +58,7 @@ class ProcessStripePayment {
     completePaymentWithoutToken() {
         let payNowButton = document.getElementById('pay-now');
         this.payNowButton = payNowButton;
-        
+
         this.payNowButton.disabled = true;
 
         this.payNowButton.querySelector('svg').classList.remove('hidden');
@@ -73,10 +73,6 @@ class ProcessStripePayment {
                 },
             })
             .then((result) => {
-                document
-                    .getElementById('processing-overlay')
-                    .classList.add('hidden');
-
                 if (result.error) {
                     return this.handleFailure(result.error.message);
                 }
