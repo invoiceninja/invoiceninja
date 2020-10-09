@@ -53,6 +53,10 @@ class ShippingAddress extends Component
     {
         $data = $this->validate($this->rules);
 
+        if ($data['shipping_country_id'] == 'none') {
+            $data['shipping_country_id'] = null;
+        }
+
         $this->profile
             ->fill($data)
             ->save();

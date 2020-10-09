@@ -61,7 +61,8 @@
                             </div>
                             <div class="col-span-4 sm:col-span-2">
                                 <label for="shipping_country" class="input-label">@lang('texts.shipping_country')</label>
-                                <select id="shippking_country" class="input w-full form-select" wire:model.defer="shipping_country_id">
+                                <select id="shipping_country" class="input w-full form-select" wire:model.defer="shipping_country_id">
+                                    <option value="none"></option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->id }}">
                                         {{ $country->iso_3166_2 }} ({{ $country->name }})
