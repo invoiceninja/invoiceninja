@@ -212,6 +212,8 @@ class InvoiceService
 
     public function updateStatus()
     {
+        info("invoice balance = {$this->invoice->balance}");
+
         if((int)$this->invoice->balance == 0)
             $this->setStatus(Invoice::STATUS_PAID);
 
@@ -232,7 +234,7 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
-        $this->invoice = $this->invoice->calc()->getInvoice();
+        //$this->invoice = $this->invoice->calc()->getInvoice();
 
         $this->deletePdf();
 

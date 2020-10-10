@@ -31,7 +31,6 @@ class UpdateGatewayTableVisibleColumn extends Migration
 
         });
 
-
         Schema::table('expenses', function ($t){
             $t->renameColumn('invoice_category_id', 'category_id');
         });

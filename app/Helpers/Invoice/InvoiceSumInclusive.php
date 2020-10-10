@@ -301,4 +301,5 @@ class InvoiceSumInclusive
     {
         return $this->getTotalTaxes();
     }
+
 }

@@ -236,7 +236,7 @@ class CreateSingleAccount extends Command
         $client->id_number = $this->getNextClientNumber($client);
 
         $settings = $client->settings;
-        $settings->currency_id = (string) rand(1, 79);
+        $settings->currency_id = "1";
         $client->settings = $settings;
 
         $country = Country::all()->random();

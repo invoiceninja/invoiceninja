@@ -67,12 +67,16 @@ class PaymentService
             }
         });
 
-        $this->payment->ledger()->updatePaymentBalance($this->payment->amount);
+        $this->payment
+             ->ledger()
+             ->updatePaymentBalance($this->payment->amount);
 
         $client->service()
             ->updateBalance($this->payment->amount)
             ->updatePaidToDate($this->payment->amount * -1)
             ->save();
+
+        return $this;
     }
 
     public function refundPayment(array $data) :?Payment
