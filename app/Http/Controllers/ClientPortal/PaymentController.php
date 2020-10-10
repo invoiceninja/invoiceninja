@@ -73,7 +73,7 @@ class PaymentController extends Controller
      */
     public function process()
     {
-        $gateway = CompanyGateway::findOrFail('id', request()->input('company_gateway_id'));
+        $gateway = CompanyGateway::findOrFail(request()->input('company_gateway_id'));
 
         /*find invoices*/
 

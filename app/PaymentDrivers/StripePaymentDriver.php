@@ -39,7 +39,7 @@ use Stripe\PaymentIntent;
 use Stripe\SetupIntent;
 use Stripe\Stripe;
 
-class StripePaymentDriver extends BasePaymentDriver
+class StripePaymentDriver extends BaseDriver
 {
     use MakesHash, Utilities;
 
@@ -54,7 +54,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
     protected $customer_reference = 'customerReferenceParam';
 
-    protected $payment_method;
+    public $payment_method;
 
 
     public static $methods = [
@@ -319,7 +319,7 @@ class StripePaymentDriver extends BasePaymentDriver
         return $customer;
     }
 
-    public function refund(Payment $payment, $amount)
+    public function refund(Payment $payment, $amount, $return_client_response = false)
     {
         $this->init();
 
@@ -427,4 +427,11 @@ class StripePaymentDriver extends BasePaymentDriver
             ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
         }
     }
+
+    
+    public function getCompanyGatewayId(): int
+    {
+        return $this->company_gateway->id;
+    }
+
 }
