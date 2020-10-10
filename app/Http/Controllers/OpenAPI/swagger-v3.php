@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @OA\OpenApi(
  *     @OA\Info(
  *         version="1.0.30",
@@ -15,8 +15,8 @@
  *         )
  *     ),
  *     @OA\Server(
- *         description="InvoiceNinja host",
- *         url="https://virtserver.swaggerhub.com/InvoiceNinja/invoices/1.0.30"
+ *         description="Example InvoiceNinja base url",
+ *         url="https://ninja.test"
  *     ),
  *     @OA\ExternalDocumentation(
  *         description="http://docs.invoiceninja.com",

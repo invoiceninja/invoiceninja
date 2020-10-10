@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @OA\Schema(
  *   schema="Template",
  *   type="object",

@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @OA\Header(
  *     header="X-MINIMUM-CLIENT-VERSION",
  *     description="The API version",

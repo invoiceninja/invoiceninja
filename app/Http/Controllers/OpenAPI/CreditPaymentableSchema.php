@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @OA\Schema(
  *   schema="CreditPaymentable",
  *   type="object",

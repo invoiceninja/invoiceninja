@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @OA\Schema(
  *   schema="RecurringInvoice",
  *   type="object",
