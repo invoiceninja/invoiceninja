@@ -12,6 +12,7 @@
 namespace App\Services\Invoice;
 
 use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Util\UnlinkFile;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -211,7 +212,7 @@ class InvoiceService
 
     public function updateStatus()
     {
-        if($this->invoice->balance == 0)
+        if((int)$this->invoice->balance == 0)
             $this->setStatus(Invoice::STATUS_PAID);
 
         if($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount)
@@ -232,6 +233,15 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice = $this->invoice->calc()->getInvoice();
+
+        $this->deletePdf();
+
+        return $this;
+    }
+
+    public function deletePdf()
+    {
+        UnlinkFile::dispatchNow(config('filesystems.default'),$this->invoice->client->invoice_filepath() . $this->invoice->number.'.pdf');
 
         return $this;
     }

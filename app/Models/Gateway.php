@@ -56,7 +56,6 @@ class Gateway extends StaticModel
         return $this->getMethods();
     }
 
-
     /**
      * Test if gateway is custom.
      * @return bool TRUE|FALSE

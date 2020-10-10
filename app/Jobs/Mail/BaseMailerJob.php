@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Mail;
 
+use App\DataMapper\Analytics\EmailFailure;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
 use App\Models\User;
@@ -21,6 +22,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Config;
+use Turbo124\Beacon\Facades\LightLogs;
 
 /*Multi Mailer implemented*/
 
@@ -75,5 +77,19 @@ class BaseMailerJob implements ShouldQueue
             SystemLog::TYPE_FAILURE,
             $recipient_object
         );
+    }
+
+    public function failed($exception = null)
+    {
+
+        info('the job failed');
+
+        $job_failure = new EmailFailure();
+        $job_failure->string_metric5 = get_parent_class($this);
+        $job_failure->string_metric6 = $exception->getMessage();
+
+        LightLogs::create($job_failure)
+                 ->batch();
+
     }
 }
