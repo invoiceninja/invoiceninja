@@ -108,7 +108,6 @@ class StripePaymentDriver extends BaseDriver
     {
         $types = [
             GatewayType::CREDIT_CARD,
-            //GatewayType::TOKEN,
         ];
 
         if ($this->company_gateway->getSofortEnabled() && $this->invitation && $this->client() && isset($this->client()->country) && in_array($this->client()->country, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
@@ -142,7 +141,6 @@ class StripePaymentDriver extends BaseDriver
     {
         switch ($gateway_type_id) {
             case GatewayType::CREDIT_CARD:
-            case GatewayType::TOKEN:
                 return 'gateways.stripe.credit_card';
                 break;
             case GatewayType::SOFORT:

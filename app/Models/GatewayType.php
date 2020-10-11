@@ -22,16 +22,10 @@ class GatewayType extends StaticModel
     const BANK_TRANSFER = 2;
     const PAYPAL = 3;
     const CRYPTO = 4;
-    const DWOLLA = 5;
-    const CUSTOM1 = 6;
-    const ALIPAY = 7;
-    const SOFORT = 8;
-    const SEPA = 9;
-    const GOCARDLESS = 10;
-    const APPLE_PAY = 11;
-    const CUSTOM2 = 12;
-    const CUSTOM3 = 13;
-    const TOKEN = 'token';
+    const CUSTOM = 5;
+    const ALIPAY = 6;
+    const SOFORT = 7;
+    const APPLE_PAY = 8;
 
     public function gateway()
     {
