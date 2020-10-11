@@ -1239,6 +1239,7 @@ class CreateUsersTable extends Migration
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
         });
 
+
         Schema::create('expense_categories', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('user_id');

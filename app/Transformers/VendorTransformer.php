@@ -85,6 +85,7 @@ class VendorTransformer extends EntityTransformer
             'state' => $vendor->state ?: '',
             'postal_code' => $vendor->postal_code ?: '',
             'country_id' => (string) $vendor->country_id ?: '',
+            'currency_id' => (string) $vendor->currency_id ?: '',
             'custom_value1' => $vendor->custom_value1 ?: '',
             'custom_value2' => $vendor->custom_value2 ?: '',
             'custom_value3' => $vendor->custom_value3 ?: '',

@@ -26,6 +26,7 @@ class Vendor extends BaseModel
     
     protected $fillable = [
         'name',
+        'assigned_user_id',
         'id_number',
         'vat_number',
         'work_phone',
