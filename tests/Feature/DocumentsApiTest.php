@@ -140,4 +140,18 @@ class DocumentsApiTest extends TestCase
 
     }
 
+    // public function testTaskDocuments()
+    // {
+
+    //     $response = $this->withHeaders([
+    //             'X-API-SECRET' => config('ninja.api_secret'),
+    //             'X-API-TOKEN' => $this->token,
+    //         ])->get('/api/v1/tasks');
+
+    //     $response->assertStatus(200);
+    //     $arr = $response->json();
+    //     $this->assertArrayHasKey('documents', $arr['data'][0]);
+
+    // }
+
 }
