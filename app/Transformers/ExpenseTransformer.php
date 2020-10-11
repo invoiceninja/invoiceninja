@@ -11,6 +11,7 @@
 
 namespace App\Transformers;
 
+use App\Models\Document;
 use App\Models\Expense;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -23,14 +24,22 @@ class ExpenseTransformer extends EntityTransformer
     use MakesHash;
     use SoftDeletes;
     protected $defaultIncludes = [
+        'documents',
     ];
 
     /**
      * @var array
      */
     protected $availableIncludes = [
-
+        'documents',
     ];
+
+    public function includeDocuments(Expense $expense)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+
+        return $this->includeCollection($expense->documents, $transformer, Document::class);
+    }
 
     /**
      * @param Expense $expense
