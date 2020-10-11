@@ -163,18 +163,28 @@ class PaymentController extends Controller
 
         $first_invoice = $invoices->first();
 
-        $fee_totals = round($gateway->calcGatewayFee($invoice_totals, true), $first_invoice->client->currency()->precision);
+        $starting_invoice_amount = $first_invoice->amount;
 
-        if (!$first_invoice->uses_inclusive_taxes) {
-            $fee_tax = 0;
-            $fee_tax += round(($first_invoice->tax_rate1 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
-            $fee_tax += round(($first_invoice->tax_rate2 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
-            $fee_tax += round(($first_invoice->tax_rate3 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
+        // $fee_totals = round($gateway->calcGatewayFee($invoice_totals, true), $first_invoice->client->currency()->precision);
 
-            $fee_totals += $fee_tax;
-        }
+        // if (!$first_invoice->uses_inclusive_taxes) {
+        //     $fee_tax = 0;
+        //     $fee_tax += round(($first_invoice->tax_rate1 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
+        //     $fee_tax += round(($first_invoice->tax_rate2 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
+        //     $fee_tax += round(($first_invoice->tax_rate3 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
+
+        //     $fee_totals += $fee_tax;
+        // }
 
         $first_invoice->service()->addGatewayFee($gateway, $invoice_totals)->save();
+
+        /**
+         *
+         * The best way to determine the exact gateway fee is to not calculate it in isolation (due to rounding)
+         * but to simply add it as a line item, and then subtract the starting and finishing amounts of
+         * the invoice.
+         */
+        $fee_totals = $first_invoice->amount - $starting_invoice_amount;
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);

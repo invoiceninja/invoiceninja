@@ -287,4 +287,6 @@ class InvoiceSum
     {
         return $this->getTotalTaxes();
     }
+
+
 }

@@ -286,7 +286,7 @@ class CompanyGateway extends BaseModel
         }
 
         if ($fees_and_limits->fee_percent) {
-            $fee += $amount * $fees_and_limits->fee_percent / 100;
+            $fee += round(($amount * $fees_and_limits->fee_percent / 100),2);
             info("fee after adding fee percent = {$fee}");
         }
 
@@ -300,17 +300,17 @@ class CompanyGateway extends BaseModel
         /**/
         if ($include_taxes) {
             if ($fees_and_limits->fee_tax_rate1) {
-                $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100;
+                $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100),2);
                 info("fee after adding fee tax 1 = {$fee}");
             }
 
             if ($fees_and_limits->fee_tax_rate2) {
-                $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100;
+                $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100),2);
                 info("fee after adding fee tax 2 = {$fee}");
             }
 
             if ($fees_and_limits->fee_tax_rate3) {
-                $fee += $pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100;
+                $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100),2);
                 info("fee after adding fee tax 3 = {$fee}");
             }
         }
