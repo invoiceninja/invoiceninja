@@ -79,10 +79,6 @@ class CompanyGateway extends BaseModel
 
     public function getTypeAlias($gateway_type_id)
     {
-        if ($gateway_type_id == 'token') {
-            $gateway_type_id = 1;
-        }
-
         return GatewayType::find($gateway_type_id)->alias;
     }
 

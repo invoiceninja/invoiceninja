@@ -26,7 +26,8 @@ class GatewayType extends StaticModel
     const ALIPAY = 6;
     const SOFORT = 7;
     const APPLE_PAY = 8;
-
+    const SEPA = 9;
+    
     public function gateway()
     {
         return $this->belongsTo(Gateway::class);
