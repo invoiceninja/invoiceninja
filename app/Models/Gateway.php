@@ -104,19 +104,22 @@ class Gateway extends StaticModel
     {
         switch ($this->id) {
             case 1:
-                return ['methods' => [GatewayType::CREDIT_CARD], 'refund' => true, 'token_billing' => true ]; //Authorize.net
+                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]];//Authorize.net
                 break;
             case 15:
-                return ['methods' => [GatewayType::PAYPAL], 'refund' => true, 'token_billing' => false  ]; //Paypal
+                return [GatewayType::PAYPAL => ['refund' => true, 'token_billing' => false]]; //Paypal
                 break;
             case 20:
-                return ['methods' => [GatewayType::CREDIT_CARD, GatewayType::BANK_TRANSFER, GatewayType::ALIPAY, GatewayType::APPLE_PAY], 'refund' => true, 'token_billing' => true  ]; //Stripe
+                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
+                        GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true],
+                        GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false], 
+                        GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false]]; //Stripe
                 break;
             case 39:
-                return ['methods' => [GatewayType::CREDIT_CARD], 'refund' => true, 'token_billing' => true  ]; //Checkout
+                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Checkout
                 break;
             default:
-                return ['methods' => [], 'refund' => false, 'token_billing' => false];
+                return [];
                 break;
         }
     }
