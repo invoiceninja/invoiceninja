@@ -33,7 +33,7 @@ class TaskTransformer extends EntityTransformer
         'documents'
     ];
 
-    public function includeDocuments(Vendor $vendor)
+    public function includeDocuments(Task $task)
     {
         $transformer = new DocumentTransformer($this->serializer);
 
