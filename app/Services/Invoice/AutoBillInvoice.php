@@ -79,7 +79,7 @@ class AutoBillInvoice extends AbstractService
         /* $gateway fee */
         $fee = $gateway_token->gateway->calcGatewayFee($amount);
 
-//determine exact fee as per PaymentController
+        //todo determine exact fee as per PaymentController
 
         /* Build payment hash */
         $payment_hash = PaymentHash::create([

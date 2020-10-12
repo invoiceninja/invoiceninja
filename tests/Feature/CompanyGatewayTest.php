@@ -11,6 +11,7 @@
 namespace Tests\Feature;
 
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\URL;
 use Tests\MockAccountData;
@@ -178,12 +179,12 @@ class CompanyGatewayTest extends TestCase
 
         $total = 10.93;
         $total_invoice_count = 5;
-        $total_gateway_fee = round($cg->calcGatewayFee($total, true), 2);
+        $total_gateway_fee = round($cg->calcGatewayFee($total, true, GatewayType::CREDIT_CARD), 2);
 
         $this->assertEquals(1.58, $total_gateway_fee);
 
         /*simple pro rata*/
-        $fees_and_limits = $cg->getFeesAndLimits();
+        $fees_and_limits = $cg->getFeesAndLimits(GatewayType::CREDIT_CARD);
 
         /*Calculate all subcomponents of the fee*/
 
