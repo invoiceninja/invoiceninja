@@ -15,6 +15,7 @@ use App\DataMapper\InvoiceItem;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
@@ -56,6 +57,9 @@ class AutoBillInvoice extends AbstractService
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
         $this->applyCreditPayment(); 
 
+        info("partial = {$this->invoice->partial}");
+        info("balance = {$this->invoice->balance}");
+
         /* Determine $amount */
         if ($this->invoice->partial > 0) 
             $amount = $this->invoice->partial;
@@ -64,6 +68,8 @@ class AutoBillInvoice extends AbstractService
         else
             return $this->finalizePaymentUsingCredits();
 
+        info("balance remains to be paid!!");
+        
         $gateway_token = $this->getGateway($amount);
 
         /* Bail out if no payment methods available */
@@ -103,6 +109,7 @@ class AutoBillInvoice extends AbstractService
 
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
         $payment->amount = $amount;
+        $payment->applied = $amount;
         $payment->client_id = $this->invoice->client_id;
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->date = now();
@@ -113,10 +120,12 @@ class AutoBillInvoice extends AbstractService
 
         $this->invoice->service()->setStatus(Invoice::STATUS_PAID)->save();
 
-        foreach($this->used_credit as $credit)
-        {
-            $payment->credits()->attach($credit['credit_id'], ['amount' => $credit['amount']]);
-        }
+            foreach($this->used_credit as $credit)
+            {
+                $current_credit = Credit::find($credit['credit_id']);
+                $payment->credits()->attach($current_credit->id, ['amount' => $credit['amount']]);
+                $this->applyPaymentToCredit($current_credit, $credit['amount']);
+            }
 
             $payment->ledger()
                     ->updatePaymentBalance($amount * -1)
@@ -210,7 +219,7 @@ class AutoBillInvoice extends AbstractService
 
 
 
-    private function applyPaymentToCredit($credit, $amount)
+    private function applyPaymentToCredit($credit, $amount) :Credit
     {
 
         $credit_item = new InvoiceItem;
@@ -226,7 +235,9 @@ class AutoBillInvoice extends AbstractService
         $credit->line_items = $credit_items;
 
         $credit = $credit->calc()->getCredit();
+        $credit->save();
 
+        return $credit;
     }
 
     /**

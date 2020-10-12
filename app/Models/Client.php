@@ -467,7 +467,8 @@ class Client extends BaseModel implements HasLocalePreference
 
         $company_gateways = $this->getSetting('company_gateway_ids');
 
-        if ($company_gateways || $company_gateways == '0') { //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
+        //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
+        if ($company_gateways || $company_gateways == '0') { 
 
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
             $gateways = $this->company
@@ -480,32 +481,46 @@ class Client extends BaseModel implements HasLocalePreference
             $gateways = $this->company->company_gateways->where('is_deleted', false);
         }
 
-        $valid_gateways = $gateways->filter(function ($method) use ($amount) {
-            if (isset($method->fees_and_limits)) {
-                //sometimes the key value of the fees and limits object are not static,
-                //we have to harvest the key value as follows
-                $properties = array_keys(get_object_vars($method->fees_and_limits));
-                $fees_and_limits = $method->fees_and_limits->{$properties[0]};
-            } else {
-                return true;
-            }
 
-            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && $amount < $fees_and_limits->min_limit) {
-                return false;
-            }
 
-            if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $fees_and_limits->max_limit != -1 && $amount > $fees_and_limits->max_limit) {
-                return false;
-            }
+        // $valid_gateways = $gateways->filter(function ($method) use ($amount) {
+        //     if (isset($method->fees_and_limits)) {
+        //         //sometimes the key value of the fees and limits object are not static,
+        //         //we have to harvest the key value as follows
+        //         //Update!!! apparently we use the gateway_type_id
+        //         $properties = array_keys(get_object_vars($method->fees_and_limits));
+        //         $fees_and_limits = $method->fees_and_limits->{$properties[0]}; //need to iterate over the $properties array as there may be many fees_and_limits
+        //     } else {
+        //         return true;
+        //     }
 
-            return true;
-        })->all();
+        //     if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && $amount < $fees_and_limits->min_limit) {
+        //         return false;
+        //     }
+
+        //     if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $fees_and_limits->max_limit != -1 && $amount > $fees_and_limits->max_limit) {
+        //         return false;
+        //     }
+
+        //     return true;
+        // })->all();
+
+
 
         $payment_methods = [];
 
-        foreach ($valid_gateways as $gateway) {
+        foreach ($gateways as $gateway) {
             foreach ($gateway->driver($this)->gatewayTypes() as $type) {
-                $payment_methods[] = [$gateway->id => $type];
+
+                if(property_exists($gateway, 'fees_and_limits') property_exists($gateway->fees_and_limits, $type)){
+                    $fees_and_limits_for_payment_type = $gateway->fees_and_limits->{$type};
+                }
+                else
+                    continue;
+
+                if($this->validGatewayForAmount($fees_and_limits_for_payment_type, $amount))
+                    $payment_methods[] = [$gateway->id => $type];
+
             }
         }
 
@@ -531,6 +546,25 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         return $payment_urls;
+    }
+
+    private function validateFeesAndLimits($fees_and_limits_for_payment_type, $amount) :bool
+    {
+            if (isset($fees_and_limits_for_payment_type)) {
+                $fees_and_limits = $fees_and_limits_for_payment_type; 
+            } else {
+                return true;
+            }
+
+            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && $amount < $fees_and_limits->min_limit) {
+                return false;
+            }
+
+            if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $fees_and_limits->max_limit != -1 && $amount > $fees_and_limits->max_limit) {
+                return false;
+            }
+
+            return true;
     }
 
     public function preferredLocale()

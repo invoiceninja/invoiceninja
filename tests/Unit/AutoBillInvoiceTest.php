@@ -34,24 +34,19 @@ class AutoBillInvoiceTest extends TestCase
     public function testAutoBillFunctionality()
     {
 
-        // info("client balance = {$this->client->balance}");
-        // info("invoice balance = {$this->invoice->balance}");
-
-
         $this->assertEquals($this->client->balance, 10);
         $this->assertEquals($this->client->paid_to_date, 0);
         $this->assertEquals($this->client->credit_balance, 10);
 
         $this->invoice->service()->markSent()->autoBill()->save();
 
-        // info(print_r($this->invoice->payments()->first()->toArray(),1));
         $this->assertNotNull($this->invoice->payments());
         $this->assertEquals(10, $this->invoice->payments()->sum('payments.amount'));
 
-        //info(print_r($this->invoice->payments()->get(),1));
         $this->assertEquals($this->client->balance, 0);
         $this->assertEquals($this->client->paid_to_date, 10);
         $this->assertEquals($this->client->credit_balance, 0);
+    
     }
 
 }

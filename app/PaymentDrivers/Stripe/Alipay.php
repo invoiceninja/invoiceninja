@@ -47,11 +47,11 @@ class Alipay
     {
         return route('client.payments.response', [
             'company_gateway_id' => $this->stripe->company_gateway->id,
-            'gateway_type_id' => GatewayType::SOFORT,
+            'gateway_type_id' => GatewayType::ALIPAY,
             'hashed_ids' => implode(',', $data['hashed_ids']),
             'amount' => $data['amount'],
             'fee' => $data['fee'],
-            'payment_method_id' => GatewayType::SOFORT,
+            'payment_method_id' => GatewayType::ALIPAY,
         ]);
     }
 

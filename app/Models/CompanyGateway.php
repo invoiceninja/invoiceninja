@@ -228,7 +228,7 @@ class CompanyGateway extends BaseModel
 
     public function getFeesAndLimits()
     {
-        if (is_null($this->fees_and_limits)) {
+        if (is_null($this->fees_and_limits) || empty($this->fees_and_limits)) {
             return false;
         }
 
@@ -269,6 +269,9 @@ class CompanyGateway extends BaseModel
     public function calcGatewayFee($amount, $include_taxes = false)
     {
         $fees_and_limits = $this->getFeesAndLimits();
+//dd($fees_and_limits);
+// 
+// info(var_dump($$fees_and_limits));
 
         if (! $fees_and_limits) {
             return 0;

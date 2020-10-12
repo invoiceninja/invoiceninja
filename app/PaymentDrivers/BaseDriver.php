@@ -72,8 +72,8 @@ class BaseDriver extends AbstractPaymentDriver
      * Authorize a payment method.
      *
      * Returns a reusable token for storage for future payments
-     * @param  const $payment_method the GatewayType::constant
-     * @return view                 Return a view for collecting payment method information
+     * @param  const $payment_method    The GatewayType::constant
+     * @return view                     Return a view for collecting payment method information
      */
     public function authorize($payment_method)
     {
@@ -82,8 +82,8 @@ class BaseDriver extends AbstractPaymentDriver
     /**
      * Executes purchase attempt for a given amount.
      *
-     * @param  float   $amount                 The amount to be collected
-     * @param  bool $return_client_response Whether the method needs to return a response (otherwise we assume an unattended payment)
+     * @param  float   $amount                  The amount to be collected
+     * @param  bool $return_client_response     Whether the method needs to return a response (otherwise we assume an unattended payment)
      * @return mixed
      */
     public function purchase($amount, $return_client_response = false)
@@ -95,7 +95,7 @@ class BaseDriver extends AbstractPaymentDriver
      *
      * @param  Payment $payment                The Payment Object
      * @param  float   $amount                 The amount to be refunded
-     * @param  bool $return_client_response Whether the method needs to return a response (otherwise we assume an unattended payment)
+     * @param  bool $return_client_response    Whether the method needs to return a response (otherwise we assume an unattended payment)
      * @return mixed
      */
     public function refund(Payment $payment, $amount, $return_client_response = false)
