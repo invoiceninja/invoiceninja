@@ -353,8 +353,8 @@ class ProjectController extends BaseController
         $project->fill($request->all());
         $project->save();
 
-        if (array_key_exists('documents', $data)) {
-            $this->saveDocuments($data['documents'], $project);
+        if ($request->has('documents')) {
+            $this->saveDocuments($request->input('documents'), $project);
         }
         
         return $this->itemResponse($project->fresh());

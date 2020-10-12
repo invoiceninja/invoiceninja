@@ -35,6 +35,7 @@ class SystemHealth
         'xml',
         'bcmath',
         'mysqlnd',
+        //'intl', //todo double check whether we need this for email dns validation
     ];
 
     private static $php_version = 7.3;
