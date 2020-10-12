@@ -35,6 +35,7 @@ use App\Models\Expense;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
@@ -159,6 +160,11 @@ trait MockAccountData
 
         $company_token->save();
 
+        Product::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+        ]);
+        
         $this->client = Client::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,

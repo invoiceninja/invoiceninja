@@ -155,7 +155,7 @@ class PaymentController extends Controller
             });
         }
 
-        $payment_methods = auth()->user()->client->getPaymentMethods(array_sum(array_column($payable_invoices, 'amount_with_fee')));
+        //$payment_methods = auth()->user()->client->getPaymentMethods(array_sum(array_column($payable_invoices, 'amount_with_fee')));
 
         $payment_method_id = request()->input('payment_method_id');
 
@@ -176,7 +176,7 @@ class PaymentController extends Controller
         //     $fee_totals += $fee_tax;
         // }
 
-        $first_invoice->service()->addGatewayFee($gateway, $invoice_totals)->save();
+        $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
 
         /**
          *

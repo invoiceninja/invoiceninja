@@ -36,7 +36,8 @@ class FeesAndLimitsTest extends TestCase
         $data['fee_tax_rate2'] = '';
         $data['fee_tax_name3'] = '';
         $data['fee_tax_rate3'] = 0;
-
+        $data['fee_cap'] = 0;
+        
         $fees_and_limits_array = [];
         $fees_and_limits_array[] = $data;
 

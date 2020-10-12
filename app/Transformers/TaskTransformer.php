@@ -11,6 +11,7 @@
 
 namespace App\Transformers;
 
+use App\Models\Document;
 use App\Models\Task;
 use App\Utils\Traits\MakesHash;
 
@@ -22,13 +23,22 @@ class TaskTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
+        'documents'
     ];
 
     /**
      * @var array
      */
     protected $availableIncludes = [
+        'documents'
     ];
+
+    public function includeDocuments(Task $task)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+
+        return $this->includeCollection($task->documents, $transformer, Document::class);
+    }
 
     public function transform(Task $task)
     {

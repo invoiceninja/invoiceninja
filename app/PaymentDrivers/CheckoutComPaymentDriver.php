@@ -102,16 +102,11 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function viewForType($gateway_type_id)
     {
-
+        //currently only ever token or creditcard so no need for switches
         $this->payment_method = $gateway_type_id;
 
-        if ($gateway_type_id == GatewayType::CREDIT_CARD) {
-            return 'gateways.checkout.credit_card';
-        }
-
-        if ($gateway_type_id == GatewayType::TOKEN) {
-            return 'gateways.checkout.credit_card';
-        }
+        return 'gateways.checkout.credit_card';
+        
     }
 
     /**

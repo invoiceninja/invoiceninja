@@ -12,6 +12,7 @@
 namespace App\Transformers;
 
 use App\Models\Activity;
+use App\Models\Document;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Models\VendorGatewayToken;
@@ -29,6 +30,7 @@ class VendorTransformer extends EntityTransformer
 
     protected $defaultIncludes = [
         'contacts',
+        'documents'
     ];
 
     /**
@@ -36,6 +38,7 @@ class VendorTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'activities',
+        'documents',
     ];
 
     /**
@@ -62,6 +65,13 @@ class VendorTransformer extends EntityTransformer
         return $this->includeCollection($vendor->contacts, $transformer, VendorContact::class);
     }
 
+    public function includeDocuments(Vendor $vendor)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+
+        return $this->includeCollection($vendor->documents, $transformer, Document::class);
+    }
+
     /**
      * @param Vendor $vendor
      *
@@ -85,6 +95,7 @@ class VendorTransformer extends EntityTransformer
             'state' => $vendor->state ?: '',
             'postal_code' => $vendor->postal_code ?: '',
             'country_id' => (string) $vendor->country_id ?: '',
+            'currency_id' => (string) $vendor->currency_id ?: '',
             'custom_value1' => $vendor->custom_value1 ?: '',
             'custom_value2' => $vendor->custom_value2 ?: '',
             'custom_value3' => $vendor->custom_value3 ?: '',

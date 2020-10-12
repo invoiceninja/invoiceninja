@@ -11,6 +11,7 @@
 
 namespace App\Transformers;
 
+use App\Models\Document;
 use App\Models\Project;
 use App\Utils\Traits\MakesHash;
 
@@ -22,13 +23,22 @@ class ProjectTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
+        'documents',
     ];
 
     /**
      * @var array
      */
     protected $availableIncludes = [
+        'documents'
     ];
+
+    public function includeDocuments(Project $project)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+
+        return $this->includeCollection($project->documents, $transformer, Document::class);
+    }
 
     public function transform(Project $project)
     {

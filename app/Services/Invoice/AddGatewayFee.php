@@ -31,21 +31,25 @@ class AddGatewayFee extends AbstractService
 
     private $amount;
 
-    public function __construct(CompanyGateway $company_gateway, Invoice $invoice, float $amount)
+    private $gateway_type_id;
+
+    public function __construct(CompanyGateway $company_gateway, int $gateway_type_id, Invoice $invoice, float $amount)
     {
         $this->company_gateway = $company_gateway;
 
         $this->invoice = $invoice;
 
         $this->amount = $amount;
+
+        $this->gateway_type_id = $gateway_type_id;
     }
 
     public function run()
     {
-        $gateway_fee = round($this->company_gateway->calcGatewayFee($this->amount), $this->invoice->client->currency()->precision);
+        $gateway_fee = round($this->company_gateway->calcGatewayFee($this->amount, $this->gateway_type_id), $this->invoice->client->currency()->precision);
 
         if((int)$gateway_fee == 0)
-            return;
+            return $this->invoice;
 
         $this->cleanPendingGatewayFees();
 
@@ -78,7 +82,7 @@ class AddGatewayFee extends AbstractService
         $invoice_item->quantity = 1;
         $invoice_item->cost = $gateway_fee;
 
-        if ($fees_and_limits = $this->company_gateway->getFeesAndLimits()) {
+        if ($fees_and_limits = $this->company_gateway->getFeesAndLimits($this->gateway_type_id)) {
             $invoice_item->tax_rate1 = $fees_and_limits->fee_tax_rate1;
             $invoice_item->tax_rate2 = $fees_and_limits->fee_tax_rate2;
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;

@@ -79,10 +79,6 @@ class CompanyGateway extends BaseModel
 
     public function getTypeAlias($gateway_type_id)
     {
-        if ($gateway_type_id == 'token') {
-            $gateway_type_id = 1;
-        }
-
         return GatewayType::find($gateway_type_id)->alias;
     }
 
@@ -230,19 +226,14 @@ class CompanyGateway extends BaseModel
         return $this->getConfigField('publishableKey');
     }
 
-    public function getFeesAndLimits()
+    public function getFeesAndLimits($gateway_type_id)
     {
-        if (is_null($this->fees_and_limits)) {
+        if (is_null($this->fees_and_limits) || empty($this->fees_and_limits)) {
             return false;
         }
 
-        $fees_and_limits = new \stdClass;
+        return $this->fees_and_limits->{$gateway_type_id};
 
-        foreach ($this->fees_and_limits as $key => $value) {
-            $fees_and_limits = $this->fees_and_limits->{$key};
-        }
-
-        return $fees_and_limits;
     }
 
     /**
@@ -252,7 +243,7 @@ class CompanyGateway extends BaseModel
      * @param  Client $client   The client object
      * @return string           The fee amount formatted in the client currency
      */
-    public function calcGatewayFeeLabel($amount, Client $client) :string
+    public function calcGatewayFeeLabel($amount, Client $client, $gateway_type_id = GatewayType::CREDIT_CARD) :string
     {
         $label = '';
 
@@ -260,7 +251,7 @@ class CompanyGateway extends BaseModel
             return $label;
         }
 
-        $fee = $this->calcGatewayFee($amount);
+        $fee = $this->calcGatewayFee($amount, $gateway_type_id);
 
         if ($fee > 0) {
             $fee = Number::formatMoney(round($fee, 2), $client);
@@ -270,9 +261,10 @@ class CompanyGateway extends BaseModel
         return $label;
     }
 
-    public function calcGatewayFee($amount, $include_taxes = false)
+    public function calcGatewayFee($amount, $include_taxes = false, $gateway_type_id = GatewayType::CREDIT_CARD)
     {
-        $fees_and_limits = $this->getFeesAndLimits();
+
+        $fees_and_limits = $this->getFeesAndLimits($gateway_type_id);
 
         if (! $fees_and_limits) {
             return 0;

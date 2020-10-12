@@ -42,6 +42,7 @@ class UpdateGatewayTableVisibleColumn extends Migration
             $t->boolean('is_deleted')->default(0);
         });
 
+
     }
 
 

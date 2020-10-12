@@ -93,9 +93,9 @@ class InvoiceService
         return $this;
     }
 
-    public function addGatewayFee(CompanyGateway $company_gateway, float $amount)
+    public function addGatewayFee(CompanyGateway $company_gateway, $gateway_type_id, float $amount)
     {
-        $this->invoice = (new AddGatewayFee($company_gateway, $this->invoice, $amount))->run();
+        $this->invoice = (new AddGatewayFee($company_gateway, $gateway_type_id, $this->invoice, $amount))->run();
 
         return $this;
     }
