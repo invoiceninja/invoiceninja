@@ -155,7 +155,7 @@ class PaymentController extends Controller
             });
         }
 
-        $payment_methods = auth()->user()->client->getPaymentMethods(array_sum(array_column($payable_invoices, 'amount_with_fee')));
+        //$payment_methods = auth()->user()->client->getPaymentMethods(array_sum(array_column($payable_invoices, 'amount_with_fee')));
 
         $payment_method_id = request()->input('payment_method_id');
 

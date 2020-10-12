@@ -32,6 +32,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Crypt;
 
 /**
  * @test
@@ -107,31 +108,31 @@ class CompanyGatewayResolutionTest extends TestCase
             $this->cg->fees_and_limits = $data;
             $this->cg->save();
    
-            $data = [];
-            $data[2]['min_limit'] = -1;
-            $data[2]['max_limit'] = -1;
-            $data[2]['fee_amount'] = 1.00;
-            $data[2]['fee_percent'] = 1;
-            $data[2]['fee_tax_name1'] = 'GST';
-            $data[2]['fee_tax_rate1'] = 10;
-            $data[2]['fee_tax_name2'] = 'GST';
-            $data[2]['fee_tax_rate2'] = 10;
-            $data[2]['fee_tax_name3'] = 'GST';
-            $data[2]['fee_tax_rate3'] = 10;
-            $data[2]['fee_cap'] = 0;
+            // $data = [];
+            // $data[2]['min_limit'] = -1;
+            // $data[2]['max_limit'] = -1;
+            // $data[2]['fee_amount'] = 1.00;
+            // $data[2]['fee_percent'] = 1;
+            // $data[2]['fee_tax_name1'] = 'GST';
+            // $data[2]['fee_tax_rate1'] = 10;
+            // $data[2]['fee_tax_name2'] = 'GST';
+            // $data[2]['fee_tax_rate2'] = 10;
+            // $data[2]['fee_tax_name3'] = 'GST';
+            // $data[2]['fee_tax_rate3'] = 10;
+            // $data[2]['fee_cap'] = 0;
 
-            //ensable ach here 
-            $this->cg1 = new CompanyGateway;
-            $this->cg1->company_id = $this->company->id;
-            $this->cg1->user_id = $this->user->id;
-            $this->cg1->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
-            $this->cg1->require_cvv = true;
-            $this->cg1->show_billing_address = true;
-            $this->cg1->show_shipping_address = true;
-            $this->cg1->update_details = true;
-            $this->cg1->config = encrypt(config('ninja.testvars.stripe'));
-            $this->cg1->fees_and_limits = $data;
-            $this->cg1->save();
+            // //ensable ach here 
+            // $this->cg1 = new CompanyGateway;
+            // $this->cg1->company_id = $this->company->id;
+            // $this->cg1->user_id = $this->user->id;
+            // $this->cg1->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+            // $this->cg1->require_cvv = true;
+            // $this->cg1->show_billing_address = true;
+            // $this->cg1->show_shipping_address = true;
+            // $this->cg1->update_details = true;
+            // $this->cg1->config = encrypt(config('ninja.testvars.stripe'));
+            // $this->cg1->fees_and_limits = $data;
+            // $this->cg1->save();
     }
 
     /**
@@ -139,8 +140,6 @@ class CompanyGatewayResolutionTest extends TestCase
      */
     public function testGatewayResolution()
     {
-        
-        //i want to test here resolution of bank_transfers inside and outside of fees and limits.
         
         $fee = $this->cg->calcGatewayFee(10, false, GatewayType::CREDIT_CARD);
 
@@ -150,5 +149,57 @@ class CompanyGatewayResolutionTest extends TestCase
 
         $this->assertEquals(0.1, $fee);
 
+    }
+
+    /**
+     * @covers \App|Models\Client::validGatewayForAmount()
+     */
+
+    public function testValidationForGatewayAmount()
+    {
+        $this->assertTrue($this->client->validGatewayForAmount($this->cg->fees_and_limits->{1}, 10));
+        $this->assertTrue($this->client->validGatewayForAmount($this->cg->fees_and_limits->{2}, 10));
+    }
+
+    public function testAvailablePaymentMethodsCount()
+    {
+        $amount = 10;
+        $payment_methods = [];
+
+        $this->assertInstanceOf("\\stdClass", $this->cg->fees_and_limits);
+        $this->assertObjectHasAttribute('min_limit',$this->cg->fees_and_limits->{1});
+
+        foreach ($this->cg->driver($this->client)->gatewayTypes() as $type) 
+        {
+
+            if(property_exists($this->cg->fees_and_limits, $type))
+            {
+                if($this->client->validGatewayForAmount($this->cg->fees_and_limits->{$type}, $amount)){
+                    info("valid gateways");
+                    $payment_methods[] = [$this->cg->id => $type];
+                }
+            }
+            else 
+            {
+                $payment_methods[] = [$this->cg->id => $type];
+            }
+
+        }
+
+        $this->assertEquals(3, count($payment_methods));
+    }
+
+    public function testAddAchBackIntoMethods()
+    {
+        $this->assertEquals(3, count($this->cg->driver($this->client)->gatewayTypes()));
+
+        $cg_config = json_decode(decrypt($this->cg->config));
+        $cg_config->enable_ach = "1";
+        $this->cg->config = encrypt(json_encode($cg_config));
+        $this->cg->save();
+
+        $this->assertEquals(4, count($this->cg->driver($this->client)->gatewayTypes()));
+
+        info(print_r($this->client->getPaymentMethods(10),1));
     }
 }

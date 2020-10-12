@@ -232,17 +232,8 @@ class CompanyGateway extends BaseModel
             return false;
         }
 
-info(print_r($this->fees_and_limits,1));
-
         return $this->fees_and_limits->{$gateway_type_id};
 
-        // $fees_and_limits = new \stdClass;
-
-        // foreach ($this->fees_and_limits as $key => $value) {
-        //     $fees_and_limits = $this->fees_and_limits->{$key};
-        // }
-
-//        return $fees_and_limits;
     }
 
     /**

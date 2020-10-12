@@ -511,15 +511,18 @@ class Client extends BaseModel implements HasLocalePreference
 
         foreach ($gateways as $gateway) {
             foreach ($gateway->driver($this)->gatewayTypes() as $type) {
-
-                if(property_exists($gateway, 'fees_and_limits') && property_exists($gateway->fees_and_limits, $type)){
-                    $fees_and_limits_for_payment_type = $gateway->fees_and_limits->{$type};
+                // info(print_r($gateway,1));
+                // info($type);
+                if(property_exists($gateway->fees_and_limits, $type))
+                {
+                    if($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $amount)){
+                        $payment_methods[] = [$gateway->id => $type];
+                    }
                 }
-                else
-                    continue;
-
-                if($this->validGatewayForAmount($fees_and_limits_for_payment_type, $amount))
+                else 
+                {
                     $payment_methods[] = [$gateway->id => $type];
+                }
 
             }
         }
@@ -548,7 +551,7 @@ class Client extends BaseModel implements HasLocalePreference
         return $payment_urls;
     }
 
-    private function validateFeesAndLimits($fees_and_limits_for_payment_type, $amount) :bool
+    public function validGatewayForAmount($fees_and_limits_for_payment_type, $amount) :bool
     {
             if (isset($fees_and_limits_for_payment_type)) {
                 $fees_and_limits = $fees_and_limits_for_payment_type; 
