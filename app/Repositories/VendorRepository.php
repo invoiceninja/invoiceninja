@@ -75,6 +75,10 @@ class VendorRepository extends BaseRepository
             $data['name'] = $vendor->present()->name();
         }
 
+        if (array_key_exists('documents', $data)) {
+            $this->saveDocuments($data['documents'], $vendor);
+        }
+
         return $vendor;
     }
 

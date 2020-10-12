@@ -11,13 +11,13 @@
 
 namespace App\Policies;
 
-use App\Models\TaxRate;
+use App\Models\Task;
 use App\Models\User;
 
 /**
- * Class TaxRatePolicy.
+ * Class TaskPolicy.
  */
-class TaxRatePolicy extends EntityPolicy
+class TaskPolicy extends EntityPolicy
 {
     public function create(User $user) : bool
     {

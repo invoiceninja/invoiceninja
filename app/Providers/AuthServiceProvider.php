@@ -29,6 +29,7 @@ use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\Models\Task;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
@@ -51,6 +52,7 @@ use App\Policies\ProjectPolicy;
 use App\Policies\QuotePolicy;
 use App\Policies\RecurringInvoicePolicy;
 use App\Policies\RecurringQuotePolicy;
+use App\Policies\TaskPolicy;
 use App\Policies\TaxRatePolicy;
 use App\Policies\UserPolicy;
 use App\Policies\VendorPolicy;
@@ -86,6 +88,7 @@ class AuthServiceProvider extends ServiceProvider
         RecurringInvoice::class => RecurringInvoicePolicy::class,
         RecurringQuote::class => RecurringQuotePolicy::class,
         Webhook::class => WebhookPolicy::class,
+        Task::class => TaskPolicy::class,
         TaxRate::class => TaxRatePolicy::class,
         User::class => UserPolicy::class,
         Vendor::class => VendorPolicy::class,

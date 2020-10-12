@@ -40,6 +40,7 @@ use App\Models\Project;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -76,6 +77,8 @@ trait MockAccountData
     public $vendor;
 
     public $expense;
+
+    public $task;
 
     public function makeTestData()
     {
@@ -213,6 +216,11 @@ trait MockAccountData
         ]);
 
         $this->expense = Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->task = Task::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
         ]);

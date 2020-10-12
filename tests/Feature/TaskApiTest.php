@@ -12,8 +12,8 @@ namespace Tests\Feature;
 
 use App\DataMapper\DefaultSettings;
 use App\Models\Account;
-use App\Models\Client;
-use App\Models\ClientContact;
+use App\Models\Task;
+use App\Models\TaskContact;
 use App\Models\Company;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
@@ -30,9 +30,9 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers App\Http\Controllers\DocumentController
+ * @covers App\Http\Controllers\TaskController
  */
-class DocumentsApiTest extends TestCase
+class TaskApiTest extends TestCase
 {
     use MakesHash;
     use DatabaseTransactions;
@@ -51,107 +51,101 @@ class DocumentsApiTest extends TestCase
         Model::reguard();
     }
 
-    public function testClientDocuments()
+    public function testTaskPost()
     {
+        $data = [
+            'description' => $this->faker->firstName,
+        ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/clients');
+            ])->post('/api/v1/tasks', $data);
 
         $response->assertStatus(200);
-        $arr = $response->json();
-        $this->assertArrayHasKey('documents', $arr['data'][0]);
-
     }
 
-
-    public function testInvoiceDocuments()
+    public function testTaskPut()
     {
+        $data = [
+            'description' => $this->faker->firstName,
+        ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/invoices');
+            ])->put('/api/v1/tasks/'.$this->encodePrimaryKey($this->task->id), $data);
 
         $response->assertStatus(200);
-        $arr = $response->json();
-        $this->assertArrayHasKey('documents', $arr['data'][0]);
-
     }
 
-
-    public function testProjectsDocuments()
+    public function testTaskGet()
     {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/tasks/'.$this->encodePrimaryKey($this->task->id));
+
+        $response->assertStatus(200);
+    }
+
+    public function testTaskNotArchived()
+    {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/tasks/'.$this->encodePrimaryKey($this->task->id));
+
+        $arr = $response->json();
+
+        $this->assertEquals(0, $arr['data']['archived_at']);
+    }
+
+    public function testTaskArchived()
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->task->id)],
+        ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/projects');
+            ])->post('/api/v1/tasks/bulk?action=archive', $data);
 
-        $response->assertStatus(200);
         $arr = $response->json();
-        $this->assertArrayHasKey('documents', $arr['data'][0]);
 
+        $this->assertNotNull($arr['data'][0]['archived_at']);
     }
 
-
-    public function testExpenseDocuments()
+    public function testTaskRestored()
     {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->task->id)],
+        ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/expenses');
+            ])->post('/api/v1/tasks/bulk?action=restore', $data);
 
-        $response->assertStatus(200);
         $arr = $response->json();
-        $this->assertArrayHasKey('documents', $arr['data'][0]);
 
+        $this->assertEquals(0, $arr['data'][0]['archived_at']);
     }
 
-
-    public function testVendorDocuments()
+    public function testTaskDeleted()
     {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->task->id)],
+        ];
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/vendors');
+            ])->post('/api/v1/tasks/bulk?action=delete', $data);
 
-        $response->assertStatus(200);
         $arr = $response->json();
-        $this->assertArrayHasKey('documents', $arr['data'][0]);
 
+        $this->assertTrue($arr['data'][0]['is_deleted']);
     }
-
-
-    public function testProductDocuments()
-    {
-
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/products');
-
-        $response->assertStatus(200);
-        $arr = $response->json();
-        $this->assertArrayHasKey('documents', $arr['data'][0]);
-
-    }
-
-    public function testTaskDocuments()
-    {
-
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/tasks');
-
-        $response->assertStatus(200);
-        $arr = $response->json();
-        $this->assertArrayHasKey('documents', $arr['data'][0]);
-
-    }
-
 }

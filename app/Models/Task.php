@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,23 +20,22 @@ class Task extends BaseModel
 {
     use MakesHash;
     use SoftDeletes;
-
+    use Filterable;
+    
     protected $fillable = [
         'client_id',
         'invoice_id',
+        'project_id',
         'custom_value1',
         'custom_value2',
+        'custom_value3',
+        'custom_value4',
         'description',
         'is_running',
         'time_log',
     ];
 
     protected $touches = [];
-
-    protected $casts = [
-        'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
-    ];
 
     public function getEntityType()
     {
@@ -65,5 +65,15 @@ class Task extends BaseModel
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
     }
 }

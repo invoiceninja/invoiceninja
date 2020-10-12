@@ -11,54 +11,69 @@
 
 namespace App\Http\Controllers;
 
-use App\Factory\ProjectFactory;
-use App\Filters\ProjectFilters;
-use App\Http\Requests\Project\CreateProjectRequest;
-use App\Http\Requests\Project\DestroyProjectRequest;
-use App\Http\Requests\Project\EditProjectRequest;
-use App\Http\Requests\Project\ShowProjectRequest;
-use App\Http\Requests\Project\StoreProjectRequest;
-use App\Http\Requests\Project\UpdateProjectRequest;
+use App\Factory\TaskFactory;
+use App\Filters\TaskFilters;
+use App\Http\Requests\Task\CreateTaskRequest;
+use App\Http\Requests\Task\DestroyTaskRequest;
+use App\Http\Requests\Task\EditTaskRequest;
+use App\Http\Requests\Task\ShowTaskRequest;
+use App\Http\Requests\Task\StoreTaskRequest;
+use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Jobs\Entity\ActionEntity;
-use App\Models\Project;
-use App\Repositories\ProjectRepository;
-use App\Transformers\ProjectTransformer;
+use App\Jobs\Util\ProcessBulk;
+use App\Jobs\Util\UploadAvatar;
+use App\Models\Country;
+use App\Models\Currency;
+use App\Models\Task;
+use App\Models\Size;
+use App\Repositories\BaseRepository;
+use App\Repositories\TaskRepository;
+use App\Transformers\TaskTransformer;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Class ProjectController.
+ * Class TaskController.
+ * @covers App\Http\Controllers\TaskController
  */
-class ProjectController extends BaseController
+class TaskController extends BaseController
 {
     use MakesHash;
+    use Uploadable;
+    use BulkOptions;
 
-    protected $entity_type = Project::class;
+    protected $entity_type = Task::class;
 
-    protected $entity_transformer = ProjectTransformer::class;
-
-    protected $project_repo;
+    protected $entity_transformer = TaskTransformer::class;
 
     /**
-     * ProjectController constructor.
-     * @param ProjectRepository $projectRepo
+     * @var Taskepository
      */
-    public function __construct(ProjectRepository $project_repo)
+    protected $task_repo;
+
+    /**
+     * TaskController constructor.
+     * @param TaskRepository $taskRepo
+     */
+    public function __construct(TaskRepository $task_repo)
     {
         parent::__construct();
 
-        $this->project_repo = $project_repo;
+        $this->task_repo = $task_repo;
     }
 
     /**
      *      @OA\Get(
-     *      path="/api/v1/projects",
-     *      operationId="getProjects",
-     *      tags={"projects"},
-     *      summary="Gets a list of projects",
-     *      description="Lists projects",
+     *      path="/api/v1/tasks",
+     *      operationId="getTasks",
+     *      tags={"tasks"},
+     *      summary="Gets a list of tasks",
+     *      description="Lists tasks, search and filters allow fine grained lists to be generated.
+     *
+     *   Query parameters can be added to performed more fine grained filtering of the tasks, these are handled by the TaskFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -66,11 +81,11 @@ class ProjectController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\Response(
      *          response=200,
-     *          description="A list of projects",
+     *          description="A list of tasks",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Project"),
+     *          @OA\JsonContent(ref="#/components/schemas/Task"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -85,11 +100,11 @@ class ProjectController extends BaseController
      *       ),
      *     )
      */
-    public function index(ProjectFilters $filters)
+    public function index(TaskFilters $filters)
     {
-        $projects = Project::filter($filters);
+        $tasks = Task::filter($filters);
 
-        return $this->listResponse($projects);
+        return $this->listResponse($tasks);
     }
 
     /**
@@ -100,11 +115,11 @@ class ProjectController extends BaseController
      *
      *
      * @OA\Get(
-     *      path="/api/v1/projects/{id}",
-     *      operationId="showProject",
-     *      tags={"projects"},
-     *      summary="Shows a project",
-     *      description="Displays a project by id",
+     *      path="/api/v1/tasks/{id}",
+     *      operationId="showTask",
+     *      tags={"tasks"},
+     *      summary="Shows a client",
+     *      description="Displays a client by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -112,7 +127,7 @@ class ProjectController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Project Hashed ID",
+     *          description="The Task Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -122,11 +137,11 @@ class ProjectController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the expense object",
+     *          description="Returns the task object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Project"),
+     *          @OA\JsonContent(ref="#/components/schemas/Task"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -141,9 +156,9 @@ class ProjectController extends BaseController
      *       ),
      *     )
      */
-    public function show(ShowProjectRequest $request, Project $project)
+    public function show(ShowTaskRequest $request, Task $task)
     {
-        return $this->itemResponse($project);
+        return $this->itemResponse($task);
     }
 
     /**
@@ -154,11 +169,11 @@ class ProjectController extends BaseController
      *
      *
      * @OA\Get(
-     *      path="/api/v1/projects/{id}/edit",
-     *      operationId="editProject",
-     *      tags={"projects"},
-     *      summary="Shows a project for editting",
-     *      description="Displays a project by id",
+     *      path="/api/v1/tasks/{id}/edit",
+     *      operationId="editTask",
+     *      tags={"tasks"},
+     *      summary="Shows a client for editting",
+     *      description="Displays a client by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -166,7 +181,7 @@ class ProjectController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Project Hashed ID",
+     *          description="The Task Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -176,11 +191,11 @@ class ProjectController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the project object",
+     *          description="Returns the client object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Project"),
+     *          @OA\JsonContent(ref="#/components/schemas/Task"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -195,26 +210,26 @@ class ProjectController extends BaseController
      *       ),
      *     )
      */
-    public function edit(EditProjectRequest $request, Project $project)
+    public function edit(EditTaskRequest $request, Task $task)
     {
-        return $this->itemResponse($project);
+        return $this->itemResponse($task);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Project $project
+     * @param  App\Models\Task $task
      * @return \Illuminate\Http\Response
      *
      *
      *
      * @OA\Put(
-     *      path="/api/v1/projects/{id}",
-     *      operationId="updateProject",
-     *      tags={"projects"},
-     *      summary="Updates a project",
-     *      description="Handles the updating of a project by id",
+     *      path="/api/v1/tasks/{id}",
+     *      operationId="updateTask",
+     *      tags={"tasks"},
+     *      summary="Updates a client",
+     *      description="Handles the updating of a client by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -222,7 +237,7 @@ class ProjectController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Project Hashed ID",
+     *          description="The Task Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -232,11 +247,11 @@ class ProjectController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the project object",
+     *          description="Returns the client object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Project"),
+     *          @OA\JsonContent(ref="#/components/schemas/Task"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -251,16 +266,15 @@ class ProjectController extends BaseController
      *       ),
      *     )
      */
-    public function update(UpdateProjectRequest $request, Project $project)
+    public function update(UpdateTaskRequest $request, Task $task)
     {
-        if ($request->entityIsDeleted($project)) {
+        if ($request->entityIsDeleted($task)) {
             return $request->disallowUpdate();
         }
 
-        $project->fill($request->all());
-        $project->save();
+        $task = $this->task_repo->save($request->all(), $task);
 
-        return $this->itemResponse($project->fresh());
+        return $this->itemResponse($task->fresh());
     }
 
     /**
@@ -271,10 +285,10 @@ class ProjectController extends BaseController
      *
      *
      * @OA\Get(
-     *      path="/api/v1/projects/create",
-     *      operationId="getProjectsCreate",
-     *      tags={"projects"},
-     *      summary="Gets a new blank project object",
+     *      path="/api/v1/tasks/create",
+     *      operationId="getTasksCreate",
+     *      tags={"tasks"},
+     *      summary="Gets a new blank client object",
      *      description="Returns a blank object with default values",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
@@ -282,11 +296,11 @@ class ProjectController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
      *          response=200,
-     *          description="A blank project object",
+     *          description="A blank client object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Project"),
+     *          @OA\JsonContent(ref="#/components/schemas/Task"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -301,11 +315,11 @@ class ProjectController extends BaseController
      *       ),
      *     )
      */
-    public function create(CreateProjectRequest $request)
+    public function create(CreateTaskRequest $request)
     {
-        $project = ProjectFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $task = TaskFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
-        return $this->itemResponse($project);
+        return $this->itemResponse($task);
     }
 
     /**
@@ -317,22 +331,22 @@ class ProjectController extends BaseController
      *
      *
      * @OA\Post(
-     *      path="/api/v1/projects",
-     *      operationId="storeProject",
-     *      tags={"projects"},
-     *      summary="Adds a project",
-     *      description="Adds an project to a company",
+     *      path="/api/v1/tasks",
+     *      operationId="storeTask",
+     *      tags={"tasks"},
+     *      summary="Adds a client",
+     *      description="Adds an client to a company",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the saved project object",
+     *          description="Returns the saved client object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Project"),
+     *          @OA\JsonContent(ref="#/components/schemas/Task"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -347,17 +361,11 @@ class ProjectController extends BaseController
      *       ),
      *     )
      */
-    public function store(StoreProjectRequest $request)
+    public function store(StoreTaskRequest $request)
     {
-        $project = ProjectFactory::create(auth()->user()->company()->id, auth()->user()->id);
-        $project->fill($request->all());
-        $project->save();
+        $task = $this->task_repo->save($request->all(), TaskFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        if (array_key_exists('documents', $data)) {
-            $this->saveDocuments($data['documents'], $project);
-        }
-        
-        return $this->itemResponse($project->fresh());
+        return $this->itemResponse($task);
     }
 
     /**
@@ -368,11 +376,11 @@ class ProjectController extends BaseController
      *
      *
      * @OA\Delete(
-     *      path="/api/v1/projects/{id}",
-     *      operationId="deleteProject",
-     *      tags={"projects"},
-     *      summary="Deletes a project",
-     *      description="Handles the deletion of a project by id",
+     *      path="/api/v1/tasks/{id}",
+     *      operationId="deleteTask",
+     *      tags={"tasks"},
+     *      summary="Deletes a client",
+     *      description="Handles the deletion of a client by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -380,7 +388,7 @@ class ProjectController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Project Hashed ID",
+     *          description="The Task Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -408,12 +416,10 @@ class ProjectController extends BaseController
      *       ),
      *     )
      */
-    public function destroy(DestroyProjectRequest $request, Project $project)
+    public function destroy(DestroyTaskRequest $request, Task $task)
     {
         //may not need these destroy routes as we are using actions to 'archive/delete'
-        $project->is_deleted = true;
-        $project->delete();
-        $project->save();
+        $task->delete();
 
         return response()->json([], 200);
     }
@@ -421,15 +427,15 @@ class ProjectController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkProjectRequest $request
+     * @param BulkTaskRequest $request
      * @return \Illuminate\Http\Response
      *
      *
      * @OA\Post(
-     *      path="/api/v1/projects/bulk",
-     *      operationId="bulkProjects",
-     *      tags={"projects"},
-     *      summary="Performs bulk actions on an array of projects",
+     *      path="/api/v1/tasks/bulk",
+     *      operationId="bulkTasks",
+     *      tags={"tasks"},
+     *      summary="Performs bulk actions on an array of tasks",
      *      description="",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
@@ -452,11 +458,11 @@ class ProjectController extends BaseController
      *     ),
      *      @OA\Response(
      *          response=200,
-     *          description="The Project User response",
+     *          description="The Task User response",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Project"),
+     *          @OA\JsonContent(ref="#/components/schemas/Task"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -475,15 +481,24 @@ class ProjectController extends BaseController
         $action = request()->input('action');
 
         $ids = request()->input('ids');
+        $tasks = Task::withTrashed()->find($this->transformKeys($ids));
 
-        $projects = Project::withTrashed()->find($this->transformKeys($ids));
-
-        $projects->each(function ($project, $key) use ($action) {
-            if (auth()->user()->can('edit', $project)) {
-                $this->project_repo->{$action}($project);
+        $tasks->each(function ($task, $key) use ($action) {
+            if (auth()->user()->can('edit', $task)) {
+                $this->task_repo->{$action}($task);
             }
         });
 
-        return $this->listResponse(Project::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Task::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+    }
+
+    /**
+     * Returns a client statement.
+     *
+     * @return [type] [description]
+     */
+    public function statement()
+    {
+        //todo
     }
 }
