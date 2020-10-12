@@ -474,54 +474,30 @@ class Client extends BaseModel implements HasLocalePreference
             $gateways = $this->company
                              ->company_gateways
                              ->whereIn('id', $transformed_ids)
-                             ->sortby(function ($model) use ($transformed_ids) {
-                                 return array_search($model->id, $transformed_ids);
+                             ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority 
+                                 return array_search($model->id, $transformed_ids);// this closure sorts for us 
                              });
         } else {
             $gateways = $this->company->company_gateways->where('is_deleted', false);
         }
 
-
-
-        // $valid_gateways = $gateways->filter(function ($method) use ($amount) {
-        //     if (isset($method->fees_and_limits)) {
-        //         //sometimes the key value of the fees and limits object are not static,
-        //         //we have to harvest the key value as follows
-        //         //Update!!! apparently we use the gateway_type_id
-        //         $properties = array_keys(get_object_vars($method->fees_and_limits));
-        //         $fees_and_limits = $method->fees_and_limits->{$properties[0]}; //need to iterate over the $properties array as there may be many fees_and_limits
-        //     } else {
-        //         return true;
-        //     }
-
-        //     if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && $amount < $fees_and_limits->min_limit) {
-        //         return false;
-        //     }
-
-        //     if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $fees_and_limits->max_limit != -1 && $amount > $fees_and_limits->max_limit) {
-        //         return false;
-        //     }
-
-        //     return true;
-        // })->all();
-
-
-
         $payment_methods = [];
 
         foreach ($gateways as $gateway) {
             foreach ($gateway->driver($this)->gatewayTypes() as $type) {
-                // info(print_r($gateway,1));
-                // info($type);
-                if(property_exists($gateway->fees_and_limits, $type))
+
+                if(isset($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type))
                 {
-                    if($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $amount)){
+
+                    if($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $amount))
                         $payment_methods[] = [$gateway->id => $type];
-                    }
+                    
                 }
                 else 
                 {
+
                     $payment_methods[] = [$gateway->id => $type];
+                    
                 }
 
             }
@@ -544,7 +520,7 @@ class Client extends BaseModel implements HasLocalePreference
                     'label' => ctrans('texts.'.$gateway->getTypeAlias($gateway_type_id)).$fee_label,
                     'company_gateway_id'  => $gateway_id,
                     'gateway_type_id' => $gateway_type_id,
-                            ];
+                ];
             }
         }
 

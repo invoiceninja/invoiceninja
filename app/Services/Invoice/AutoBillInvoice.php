@@ -77,7 +77,7 @@ class AutoBillInvoice extends AbstractService
             return $this->invoice;
 
         /* $gateway fee */
-        $fee = $gateway_token->gateway->calcGatewayFee($amount);
+        $fee = $gateway_token->gateway->calcGatewayFee($amount, $this->invoice->uses_inclusive_taxes);
 
         //todo determine exact fee as per PaymentController
 
