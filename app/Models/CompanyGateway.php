@@ -232,6 +232,8 @@ class CompanyGateway extends BaseModel
             return false;
         }
 
+info(print_r($this->fees_and_limits,1));
+
         return $this->fees_and_limits->{$gateway_type_id};
 
         // $fees_and_limits = new \stdClass;
@@ -250,7 +252,7 @@ class CompanyGateway extends BaseModel
      * @param  Client $client   The client object
      * @return string           The fee amount formatted in the client currency
      */
-    public function calcGatewayFeeLabel($amount, Client $client, GatewayType $gateway_type_id = GatewayType::CREDIT_CARD) :string
+    public function calcGatewayFeeLabel($amount, Client $client, $gateway_type_id = GatewayType::CREDIT_CARD) :string
     {
         $label = '';
 
@@ -268,8 +270,10 @@ class CompanyGateway extends BaseModel
         return $label;
     }
 
-    public function calcGatewayFee($amount, $include_taxes = false, GatewayType $gateway_type_id = GatewayType::CREDIT_CARD)
+    public function calcGatewayFee($amount, $include_taxes = false, $gateway_type_id = GatewayType::CREDIT_CARD)
     {
+        info($gateway_type_id);
+
         $fees_and_limits = $this->getFeesAndLimits($gateway_type_id);
 
         if (! $fees_and_limits) {

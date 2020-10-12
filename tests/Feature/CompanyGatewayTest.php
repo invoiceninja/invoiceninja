@@ -142,7 +142,7 @@ class CompanyGatewayTest extends TestCase
 
         $balance = $this->invoice->balance;
 
-        $this->invoice = $this->invoice->service()->addGatewayFee($cg, $this->invoice->balance)->save();
+        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance)->save();
         $this->invoice = $this->invoice->calc()->getInvoice();
 
         $items = $this->invoice->line_items;

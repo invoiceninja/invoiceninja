@@ -176,7 +176,7 @@ class PaymentController extends Controller
         //     $fee_totals += $fee_tax;
         // }
 
-        $first_invoice->service()->addGatewayFee($gateway, $invoice_totals)->save();
+        $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
 
         /**
          *
