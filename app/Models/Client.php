@@ -512,7 +512,7 @@ class Client extends BaseModel implements HasLocalePreference
         foreach ($gateways as $gateway) {
             foreach ($gateway->driver($this)->gatewayTypes() as $type) {
 
-                if(property_exists($gateway, 'fees_and_limits') property_exists($gateway->fees_and_limits, $type)){
+                if(property_exists($gateway, 'fees_and_limits') && property_exists($gateway->fees_and_limits, $type)){
                     $fees_and_limits_for_payment_type = $gateway->fees_and_limits->{$type};
                 }
                 else

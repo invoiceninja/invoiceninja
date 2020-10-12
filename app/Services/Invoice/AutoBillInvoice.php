@@ -69,7 +69,7 @@ class AutoBillInvoice extends AbstractService
             return $this->finalizePaymentUsingCredits();
 
         info("balance remains to be paid!!");
-        
+
         $gateway_token = $this->getGateway($amount);
 
         /* Bail out if no payment methods available */
@@ -78,6 +78,8 @@ class AutoBillInvoice extends AbstractService
 
         /* $gateway fee */
         $fee = $gateway_token->gateway->calcGatewayFee($amount);
+
+//determine exact fee as per PaymentController
 
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
