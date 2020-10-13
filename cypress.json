@@ -1,5 +1,5 @@
 {
     "video": false,
-    "baseUrl": "http://ninja.test:8000/",
+    "baseUrl": "http://localhost:8000/",
     "chromeWebSecurity": false
 }

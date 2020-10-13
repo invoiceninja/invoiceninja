@@ -21,7 +21,7 @@
                     <div class="flex justify-end mb-2">
                         <!-- Pay now button -->
                         @if(count($payment_methods) > 0)
-                        <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.away="open = false" class="relative inline-block text-left">
+                        <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.away="open = false" class="relative inline-block text-left" data-cy="payment-methods-dropdown">
                             <div>
                                 <div class="rounded-md shadow-sm">
                                     <button @click="open = !open" type="button" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800">
@@ -36,7 +36,7 @@
                                 <div class="bg-white rounded-md shadow-xs">
                                     <div class="py-1">
                                         @foreach($payment_methods as $payment_method)
-                                        <a href="#" @click="{ open = false }" data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}" data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">
+                                        <a href="#" @click="{ open = false }" data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}" data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" data-cy="payment-method">
                                             {{ $payment_method['label'] }}
                                         </a>
                                         @endforeach

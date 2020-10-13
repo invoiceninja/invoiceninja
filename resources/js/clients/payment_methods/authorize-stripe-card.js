@@ -75,8 +75,6 @@ class AuthorizeStripeCard {
             'proxy_is_default'
         ).checked;
 
-        processingOverlay(false);
-
         document.getElementById('server_response').submit();
     }
 
