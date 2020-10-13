@@ -25,4 +25,14 @@ class PaymentHash extends Model
     {
         return $this->data;
     }
+
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class)->withTrashed();
+    }
+
+    public function fee_invoice()
+    {
+        return $this->belongsTo(Invoice::class, 'fee_invoice_id', 'id');
+    }
 }

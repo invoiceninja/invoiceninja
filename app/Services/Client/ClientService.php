@@ -54,6 +54,17 @@ class ClientService
         return Number::roundValue($credits->sum('balance'), $this->client->currency()->precision);
     }
 
+    public function getCredits() :float
+    {
+
+        return $this->client->credits
+                  ->where('is_deleted', false)
+                  ->where('balance', '>', 0)
+                  ->sortBy('created_at');
+
+    }
+
+
     public function save() :Client
     {
         $this->client->save();
