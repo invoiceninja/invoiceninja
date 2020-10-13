@@ -69,6 +69,10 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('expenses/bulk', 'ExpenseController@bulk')->name('expenses.bulk');
 
+    Route::resource('expense_categories', 'ExpenseCategoryController'); // name = (expense_categories. index / create / show / update / destroy / edit
+
+    Route::post('expense_categories/bulk', 'ExpenseCategoryController@bulk')->name('expense_categories.bulk');
+
     Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
 
     Route::post('tasks/bulk', 'TaskController@bulk')->name('tasks.bulk');

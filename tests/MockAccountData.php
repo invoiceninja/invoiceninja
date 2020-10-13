@@ -32,6 +32,7 @@ use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
@@ -79,6 +80,8 @@ trait MockAccountData
     public $expense;
 
     public $task;
+
+    public $expense_category;
 
     public function makeTestData()
     {
@@ -221,6 +224,11 @@ trait MockAccountData
         ]);
 
         $this->task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->expense_category = ExpenseCategory::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
         ]);

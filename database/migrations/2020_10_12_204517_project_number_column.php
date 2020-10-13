@@ -16,6 +16,10 @@ class ProjectNumberColumn extends Migration
         Schema::table('projects', function($table){
             $table->string('number')->nullable();
         });
+
+        Schema::table('expenses', function ($t){
+            $t->renameColumn('expense_date', 'date');
+        });
     }
 
     /**
