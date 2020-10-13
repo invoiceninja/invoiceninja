@@ -77,7 +77,7 @@ class ExpenseTransformer extends EntityTransformer
             'public_notes' => (string) $expense->public_notes ?: '',
             'transaction_reference' => (string) $expense->transaction_reference ?: '',
             'transaction_id' => (string) $expense->transaction_id ?: '',
-            'expense_date' => $expense->expense_date ?: '',
+            'date' => $expense->date ?: '',
             'payment_date' => $expense->payment_date ?: '',
             'custom_value1' => $expense->custom_value1 ?: '',
             'custom_value2' => $expense->custom_value2 ?: '',

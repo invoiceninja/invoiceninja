@@ -31,7 +31,7 @@ class ExpenseFactory
         $expense->tax_rate2 = 0;
         $expense->tax_name3 = '';
         $expense->tax_rate3 = 0;
-        $expense->expense_date = null;
+        $expense->date = null;
         $expense->payment_date = null;
 
         return $expense;

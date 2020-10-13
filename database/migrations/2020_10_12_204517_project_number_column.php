@@ -20,6 +20,10 @@ class ProjectNumberColumn extends Migration
         Schema::table('expenses', function ($t){
             $t->renameColumn('expense_date', 'date');
         });
+
+        Schema::table('expense_categories', function ($t){
+            $t->boolean('is_deleted')->default(false);
+        });
     }
 
     /**
