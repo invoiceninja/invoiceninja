@@ -225,22 +225,33 @@ class PaymentController extends Controller
             ->processPaymentResponse($request);
     }
 
+    /**
+     * Pay for invoice/s using credits only.
+     * 
+     * @param  Request $request The request object
+     * @return Response         The response view
+     */
     public function credit_response(Request $request)
     {
-        $payment_hash = PaymentHash::find($request->input('payment_hash'));
+        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->first();
 
-        if($payment_hash->payment->exists())
+        /* Hydrate the $payment */
+        if($payment_hash->payment()->exists())
             $payment = $payment_hash->payment;
         else {
-            $payment = PaymentFactory::create($payment_hash->fee_invoice->company_id, $payment_hash->fee_invoice->user_id)->save();
+            $payment = PaymentFactory::create($payment_hash->fee_invoice->company_id, $payment_hash->fee_invoice->user_id);
+            $payment->client_id = $payment_hash->fee_invoice->client_id;
+            $payment->save();
+
             $payment_hash->payment_id = $payment->id;
             $payment_hash->save();
         }
 
+        /* Iterate through the invoices and apply credits to them */
         collect($payment_hash->invoices())->each(function ($payable_invoice) use ($payment, $payment_hash){
 
-            $invoice = Invoice::find($this->decodePrimaryKey($payable_invoice['invoice_id']));
-            $amount = $payable_invoice['amount'];
+            $invoice = Invoice::find($this->decodePrimaryKey($payable_invoice->invoice_id));
+            $amount = $payable_invoice->amount;
 
             $credits = $payment_hash->fee_invoice
                                     ->client
@@ -253,10 +264,10 @@ class PaymentController extends Controller
                     $invoice_balance = $invoice->balance;
 
                     //credit payment applied
-                    $invoice = $credit->service()->applyPayment($invoice, $amount, $payment);
+                    $credit->service()->applyPayment($invoice, $amount, $payment);
 
                     //amount paid from invoice calculated
-                    $remaining_balance = ($invoice_balance - $invoice->balance);
+                    $remaining_balance = ($invoice_balance - $invoice->fresh()->balance);
 
                     //reduce the amount to be paid on the invoice from the NEXT credit
                     $amount -= $remaining_balance;
@@ -268,6 +279,7 @@ class PaymentController extends Controller
 
         });
 
+        return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
     }
 }

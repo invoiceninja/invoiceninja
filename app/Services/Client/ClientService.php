@@ -13,6 +13,7 @@ namespace App\Services\Client;
 
 use App\Models\Client;
 use App\Utils\Number;
+use Illuminate\Database\Eloquent\Collection;
 
 class ClientService
 {
@@ -54,7 +55,7 @@ class ClientService
         return Number::roundValue($credits->sum('balance'), $this->client->currency()->precision);
     }
 
-    public function getCredits() :float
+    public function getCredits() :Collection
     {
 
         return $this->client->credits

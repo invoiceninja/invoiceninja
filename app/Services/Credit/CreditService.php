@@ -64,7 +64,7 @@ class CreditService
 
     public function applyPayment($invoice, $amount, $payment)
     {
-        $this->credit = (new ApplyPayment($this->client, $invoice, $amount, $payment))->run();
+        $this->credit = (new ApplyPayment($this->credit, $invoice, $amount, $payment))->run();
 
         return $this;
     }

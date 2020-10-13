@@ -19,13 +19,13 @@ use Illuminate\Support\Facades\Log;
 
 class PaymentFactory
 {
-    public static function create(int $company_id, int $user_id) :Payment
+    public static function create(int $company_id, int $user_id, int $client_id = 0) :Payment
     {
         $payment = new Payment;
 
         $payment->company_id = $company_id;
         $payment->user_id = $user_id;
-        $payment->client_id = 0;
+        $payment->client_id = $client_id;
         $payment->client_contact_id = null;
         $payment->invitation_id = null;
         $payment->company_gateway_id = null;
