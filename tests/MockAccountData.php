@@ -83,6 +83,8 @@ trait MockAccountData
 
     public $expense_category;
 
+    public $cu;
+
     public function makeTestData()
     {
 
@@ -149,12 +151,12 @@ trait MockAccountData
 
         $this->user->password = Hash::make('ALongAndBriliantPassword');
 
-        $cu = CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
-        $cu->is_owner = true;
-        $cu->is_admin = true;
-        $cu->save();
+        $this->cu = CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
+        $this->cu->is_owner = true;
+        $this->cu->is_admin = true;
+        $this->cu->save();
 
-        $this->token = 'TOKEN';
+        $this->token = \Illuminate\Support\Str::random(64);
 
         $company_token = new CompanyToken;
         $company_token->user_id = $this->user->id;
@@ -165,6 +167,8 @@ trait MockAccountData
         $company_token->is_system = true;
 
         $company_token->save();
+
+        //todo create one token withe token name TOKEN - use firstOrCreate
 
         Product::factory()->create([
                 'user_id' => $this->user->id,
