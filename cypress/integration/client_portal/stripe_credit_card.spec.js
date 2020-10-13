@@ -1,5 +1,10 @@
+import { first } from '../../fixtures/example.json'
+
 describe('Stripe Credit Card Payments', () => {
-    beforeEach(() => cy.clientLogin());
+    beforeEach(() => {
+        // cy.useGateway(first);
+        cy.clientLogin();
+    });
 
     it('should be able to add credit card using Stripe', () => {
         cy.visit('/client/payment_methods');

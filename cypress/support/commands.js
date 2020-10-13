@@ -23,6 +23,8 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+const axios = require('axios');
+const fixture = require('../fixtures/example.json');
 
 Cypress.Commands.add('clientLogin', () => {
     cy.visit('/client/login');
@@ -74,3 +76,33 @@ Cypress.Commands.add('getWithinIframe', (targetElement) =>
         .its('document')
         .getInDocument(targetElement)
 );
+
+Cypress.Commands.add('useGateway', (gateway) => {
+    let body = {
+        settings: {
+            entity: 'App\\Models\\Client',
+            industry_id: '',
+            size_id: '',
+            currency_id: '1',
+            company_gateway_ids: gateway,
+        },
+    };
+
+    let options = {
+        headers: {
+            'X-Api-Secret': 'superdoopersecrethere',
+            'X-Api-Token':
+                'S0x8behDk8HG8PI0i8RXdpf2AVud5b993pE8vata7xmm4RgW6u3NeGC8ibWIUjZv',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    };
+
+    axios
+        .put(
+            `http://localhost:8000/api/v1/clients/${fixture.first}`,
+            body,
+            options
+        )
+        .then((response) => console.log(response))
+        .catch((error) => console.log(error.message));
+});

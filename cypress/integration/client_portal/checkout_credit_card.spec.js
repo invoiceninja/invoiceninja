@@ -1,5 +1,10 @@
+import { second } from '../../fixtures/example.json';
+
 describe('Checkout Credit Card Payments', () => {
-    beforeEach(() => cy.clientLogin());
+    beforeEach(() => {
+        // cy.useGateway(second);
+        cy.clientLogin();
+    });
 
     it('should be able to complete payment using checkout credit card', () => {
         cy.visit('/client/invoices');
