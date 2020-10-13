@@ -28,6 +28,8 @@ class PdfGenerationTest extends TestCase
     private function makePdf($header, $footer, $html, $pdf)
     {
         Browsershot::html($html)
+            ->setNodeBinary(config('ninja.system.node_path'))
+            ->setNpmBinary(config('ninja.system.npm_path'))
             //->showBrowserHeaderAndFooter()
             //->headerHtml($header)
             //->footerHtml($footer)
