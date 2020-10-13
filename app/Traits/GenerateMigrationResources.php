@@ -201,7 +201,7 @@ trait GenerateMigrationResources
         $settings->currency_id = $client->currency_id ? (string) $client->currency_id : (string) $client->account->currency_id;
 
         if ($client->language_id) {
-            $settings->language_id = $client->language_id;
+            $settings->language_id = (string)$client->language_id;
         }
 
         return $settings;
