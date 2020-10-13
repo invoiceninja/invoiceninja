@@ -155,26 +155,15 @@ class PaymentController extends Controller
             });
         }
 
-        //$payment_methods = auth()->user()->client->getPaymentMethods(array_sum(array_column($payable_invoices, 'amount_with_fee')));
-
         $payment_method_id = request()->input('payment_method_id');
 
         $invoice_totals = array_sum(array_column($payable_invoices, 'amount'));
 
         $first_invoice = $invoices->first();
 
+        $credit_totals = $first_invoice->client->service()->getCreditBalance();
+
         $starting_invoice_amount = $first_invoice->amount;
-
-        // $fee_totals = round($gateway->calcGatewayFee($invoice_totals, true), $first_invoice->client->currency()->precision);
-
-        // if (!$first_invoice->uses_inclusive_taxes) {
-        //     $fee_tax = 0;
-        //     $fee_tax += round(($first_invoice->tax_rate1 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
-        //     $fee_tax += round(($first_invoice->tax_rate2 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
-        //     $fee_tax += round(($first_invoice->tax_rate3 / 100) * $fee_totals, $first_invoice->client->currency()->precision);
-
-        //     $fee_totals += $fee_tax;
-        // }
 
         $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
 
@@ -194,9 +183,10 @@ class PaymentController extends Controller
         $payment_hash->save();
 
         $totals = [
+            'credit_totals' => $credit_totals,
             'invoice_totals' => $invoice_totals,
             'fee_total' => $fee_totals,
-            'amount_with_fee' => $invoice_totals + $fee_totals,
+            'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals)),
         ];
 
         $data = [
