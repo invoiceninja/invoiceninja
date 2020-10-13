@@ -124,9 +124,9 @@ class ExpenseCategoryController extends BaseController
      */
     public function create(CreateExpenseCategoryRequest $request)
     {
-        $tax_rate = ExpenseCategoryFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $expense_category = ExpenseCategoryFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
-        return $this->itemResponse($tax_rate);
+        return $this->itemResponse($expense_category);
     }
 
     /**
@@ -137,11 +137,11 @@ class ExpenseCategoryController extends BaseController
      */
     public function store(StoreExpenseCategoryRequest $request)
     {
-        $tax_rate = ExpenseCategoryFactory::create(auth()->user()->company()->id, auth()->user()->id);
-        $tax_rate->fill($request->all());
-        $tax_rate->save();
+        $expense_category = ExpenseCategoryFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $expense_category->fill($request->all());
+        $expense_category->save();
 
-        return $this->itemResponse($tax_rate);
+        return $this->itemResponse($expense_category);
     }
 
     /**
@@ -192,9 +192,9 @@ class ExpenseCategoryController extends BaseController
      *       ),
      *     )
      */
-    public function show(ShowExpenseCategoryRequest $request, ExpenseCategory $tax_rate)
+    public function show(ShowExpenseCategoryRequest $request, ExpenseCategory $expense_category)
     {
-        return $this->itemResponse($tax_rate);
+        return $this->itemResponse($expense_category);
     }
 
     /**
@@ -245,9 +245,9 @@ class ExpenseCategoryController extends BaseController
      *       ),
      *     )
      */
-    public function edit(EditExpenseCategoryRequest $request, ExpenseCategory $tax_rate)
+    public function edit(EditExpenseCategoryRequest $request, ExpenseCategory $expense_category)
     {
-        return $this->itemResponse($tax_rate);
+        return $this->itemResponse($expense_category);
     }
 
     /**
@@ -300,12 +300,12 @@ class ExpenseCategoryController extends BaseController
      *       ),
      *     )
      */
-    public function update(UpdateExpenseCategoryRequest $request, ExpenseCategory $tax_rate)
+    public function update(UpdateExpenseCategoryRequest $request, ExpenseCategory $expense_category)
     {
-        $tax_rate->fill($request->all());
-        $tax_rate->save();
+        $expense_category->fill($request->all());
+        $expense_category->save();
 
-        return $this->itemResponse($tax_rate);
+        return $this->itemResponse($expense_category);
     }
 
     /**
@@ -355,13 +355,13 @@ class ExpenseCategoryController extends BaseController
      *       ),
      *     )
      */
-    public function destroy(DestroyExpenseCategoryRequest $request, ExpenseCategory $tax_rate)
+    public function destroy(DestroyExpenseCategoryRequest $request, ExpenseCategory $expense_category)
     {
-        $tax_rate->is_deleted = true;
-        $tax_rate->save();
-        $tax_rate->delete();
+        $expense_category->is_deleted = true;
+        $expense_category->save();
+        $expense_category->delete();
 
-        return $this->itemResponse($tax_rate);
+        return $this->itemResponse($expense_category);
     }
 
     /**
@@ -424,9 +424,9 @@ class ExpenseCategoryController extends BaseController
 
         $expense_categories = ExpenseCategory::withTrashed()->find($this->transformKeys($ids));
 
-        $expense_categories->each(function ($tax_rate, $key) use ($action) {
-            if (auth()->user()->can('edit', $tax_rate)) {
-                $this->base_repo->{$action}($tax_rate);
+        $expense_categories->each(function ($expense_category, $key) use ($action) {
+            if (auth()->user()->can('edit', $expense_category)) {
+                $this->base_repo->{$action}($expense_category);
             }
         });
 
