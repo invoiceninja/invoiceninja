@@ -192,6 +192,8 @@ class SetupController extends Controller
             }
 
             Browsershot::html('PDF GENERATION WORKS! Thank you for using Invoice Ninja!')
+                ->setNodeBinary(config('ninja.system.node_path'))
+                ->setNpmBinary(config('ninja.system.npm_path'))
                 ->noSandbox()
                 ->savePdf(
                     public_path('test.pdf')
