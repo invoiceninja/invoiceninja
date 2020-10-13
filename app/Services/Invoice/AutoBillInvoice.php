@@ -104,10 +104,8 @@ class AutoBillInvoice extends AbstractService
      */
     private function finalizePaymentUsingCredits()
     {
-        info("finalizing");
-        info(print_r($this->used_credit,1));
+
         $amount = array_sum(array_column($this->used_credit, 'amount'));
-        info("amount {$amount}");
 
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
         $payment->amount = $amount;

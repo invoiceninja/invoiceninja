@@ -37,4 +37,41 @@ class GatewayType extends StaticModel
     {
         return $this->hasMany(PaymentType::class);
     }
+
+    public static function getAlias($type)
+    {
+        switch ($type) {
+            case self::CREDIT_CARD:
+                return ctrans('texts.credit_card');
+                break;
+            case self::BANK_TRANSFER:
+                return ctrans('texts.bank_transfer');
+                break;
+            case self::PAYPAL:
+                return ctrans('texts.paypal');
+                break;
+            case self::CRYPTO:
+                return ctrans('texts.crypto');
+                break;
+            case self::CUSTOM:
+                return ctrans('texts.custom');
+                break;
+            case self::ALIPAY:
+                return ctrans('texts.alipay');
+                break;
+            case self::SOFORT:
+                return ctrans('texts.sofort');
+                break;
+            case self::APPLE_PAY:
+                return ctrans('texts.apple_pay');
+                break;
+            case self::SEPA:
+                return ctrans('texts.sepa');
+                break;
+                        
+            default:
+                return 'Undefined.';
+                break;
+        }
+    }
 }

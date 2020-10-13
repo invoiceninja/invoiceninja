@@ -154,7 +154,7 @@ trait MockAccountData
         $cu->is_admin = true;
         $cu->save();
 
-        $this->token = \Illuminate\Support\Str::random(64);
+        $this->token = 'TOKEN';
 
         $company_token = new CompanyToken;
         $company_token->user_id = $this->user->id;

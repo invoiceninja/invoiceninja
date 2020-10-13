@@ -71,18 +71,25 @@ class PaymentController extends Controller
     {
         $gateway = CompanyGateway::findOrFail(request()->input('company_gateway_id'));
 
-        /*find invoices*/
+        /**
+         * find invoices
+         *
+         * ['invoice_id' => xxx, 'amount' => 22.00]
+         * 
+         */
 
-        $payable_invoices = request()->payable_invoices;
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payable_invoices, 'invoice_id')))->get();
+        $payable_invoices = collect(request()->payable_invoices);
+        $invoices = Invoice::whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->get();
 
-        /*filter only payable invoices*/
-        $invoices = $invoices->filter(function ($invoice) {
-            return $invoice->isPayable();
+        /* pop non payable invoice from the $payable_invoices array */
+        $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices){
+
+            return $invoices->where('hashed_id', $payable_invoice['invoice_id'])->first()->isPayable();
+
         });
 
         /*return early if no invoices*/
-        if ($invoices->count() == 0) {
+        if ($payable_invoices->count() == 0) {
             return redirect()
                 ->route('client.invoices.index')
                 ->with(['warning' => 'No payable invoices selected.']);
@@ -91,10 +98,10 @@ class PaymentController extends Controller
         $settings = auth()->user()->client->getMergedSettings();
 
         /*iterate through invoices and add gateway fees and other payment metadata*/
-        foreach ($payable_invoices as $key => $payable_invoice) {
+        $payable_invoices = $payable_invoices->map(function($payable_invoice) use($invoices, $settings){
 
-            $payable_invoices[$key]['amount'] = Number::parseFloat($payable_invoice['amount']);
-            $payable_invoice['amount'] = $payable_invoices[$key]['amount'];
+        
+            $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
 
             $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
                 return $payable_invoice['invoice_id'] == $inv->hashed_id;
@@ -135,8 +142,8 @@ class PaymentController extends Controller
                 }
             } // Make sure 'amount' from form is not higher than 'amount' from invoice.
 
-            $payable_invoices[$key]['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
-            $payable_invoices[$key]['invoice_number'] = $invoice->number;
+            $payable_invoice['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
+            $payable_invoice['invoice_number'] = $invoice->number;
 
             if (isset($invoice->po_number)) {
                 $additional_info = $invoice->po_number;
@@ -146,8 +153,13 @@ class PaymentController extends Controller
                 $additional_info = $invoice->date;
             }
 
-            $payable_invoices[$key]['additional_info'] = $additional_info;
-        }
+            $payable_invoice['additional_info'] = $additional_info;
+
+            return $payable_invoice;
+
+        });
+
+
 
         if ((bool) request()->signature) {
             $invoices->each(function ($invoice) {
@@ -157,7 +169,7 @@ class PaymentController extends Controller
 
         $payment_method_id = request()->input('payment_method_id');
 
-        $invoice_totals = array_sum(array_column($payable_invoices, 'amount'));
+        $invoice_totals = $payable_invoices->sum('amount');
 
         $first_invoice = $invoices->first();
 
@@ -209,24 +221,14 @@ class PaymentController extends Controller
         /*Payment Gateway*/
         $gateway = CompanyGateway::find($request->input('company_gateway_id'))->firstOrFail();
 
-        //REFACTOR - Entry point for the gateway response - we don't need to do anything at this point.
-        //
-        // - Inside each gateway driver, we should use have a generic code path (in BaseDriver.php)for successful/failed payment
-        //
-        //   Success workflow
-        //
-        // - Rehydrate the hash and iterate through the invoices and update the balances
-        // - Update the type_id of the gateway fee to type_id 4
-        // - Link invoices to payment
-        //
-        //   Failure workflow
-        //
-        // - Rehydrate hash, iterate through invoices and remove type_id 3's
-        // - Recalcuate invoice totals
-
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->input('payment_method_id'))
             ->processPaymentResponse($request);
+    }
+
+    public function credit_response(Request $request)
+    {
+        $payment_hash = PaymentHash::find($request->input('payment_hash'));
     }
 }

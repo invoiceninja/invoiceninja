@@ -16,6 +16,10 @@
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
     </form>
+    <form action="{{route('client.payments.credit_response')}}" method="post" id="credit-payment">
+        @csrf
+        <input type="hidden" name="payment_hash" value="{{$payment_hash}}">
+    </form>
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">
             <div class="col-span-6 md:col-start-2 md:col-span-4"> 
@@ -64,7 +68,9 @@
                             </div>
                             @if((int)$total['amount_with_fee'] == 0)
                                 <!-- finalize with credits only -->
-                                <button class="button button-primary bg-primary inline-flex items-center">Pay with credit</button>
+                                <div class="bg-white px-4 py-5 flex justify-end">
+                                    <button form="credit-payment" class="button button-primary bg-primary inline-flex items-center">Pay with credit</button>
+                                </div>
                             @elseif($token)
                                 <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 flex items-center">
                                     <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
