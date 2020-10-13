@@ -12,16 +12,10 @@
 namespace App\Http\Requests\ExpenseCategory;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\ExpenseCategory\UniqueExpenseCategoryNumberRule;
-use App\Http\ValidationRules\ValidExpenseCategoryGroupSettingsRule;
 use App\Models\ExpenseCategory;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 
 class StoreExpenseCategoryRequest extends Request
 {
-    use MakesHash;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -36,26 +30,10 @@ class StoreExpenseCategoryRequest extends Request
     public function rules()
     {
         $rules = [];
-        $rules['name'] = 'unique:expense_categories,name,'.$this->id.',id,company_id,'.$this->company_id;;
 
+        $rules['name'] = 'required|unique:expense_categories,name,null,null,company_id,'.auth()->user()->companyId();
 
         return $rules;
     }
 
-    protected function prepareForValidation()
-    {
-        // $input = $this->all();
-
-
-        // $this->replace($input);
-    }
-
-    // public function messages()
-    // {
-    //     return [
-    //         'unique' => ctrans('validation.unique', ['attribute' => 'email']),
-    //         //'required' => trans('validation.required', ['attribute' => 'email']),
-    //         'contacts.*.email.required' => ctrans('validation.email', ['attribute' => 'email']),
-    //     ];
-    // }
 }

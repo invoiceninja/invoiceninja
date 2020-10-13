@@ -12,15 +12,9 @@
 namespace App\Http\Requests\ExpenseCategory;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\IsDeletedRule;
 use App\Utils\Traits\ChecksEntityStatus;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
-
 class UpdateExpenseCategoryRequest extends Request
 {
-    use MakesHash;
     use ChecksEntityStatus;
 
     /**
@@ -35,30 +29,13 @@ class UpdateExpenseCategoryRequest extends Request
 
     public function rules()
     {
-        /* Ensure we have a client name, and that all emails are unique*/
+
         $rules = [];
 
-        if ($this->input('number')) {
-            $rules['name'] = 'unique:expense_categories,name,'.$this->id.',id,company_id,'.$this->expense_category->name;
-        }
+        if ($this->input('name')) 
+            $rules['name'] = 'unique:expense_categories,name,'.$this->id.',id,company_id,'.$this->expense_category->company_id;
 
         return $rules;
     }
 
-    // public function messages()
-    // {
-    //     return [
-    //         'unique' => ctrans('validation.unique', ['attribute' => 'email']),
-    //         'email' => ctrans('validation.email', ['attribute' => 'email']),
-    //         'name.required' => ctrans('validation.required', ['attribute' => 'name']),
-    //         'required' => ctrans('validation.required', ['attribute' => 'email']),
-    //     ];
-    // }
-
-    protected function prepareForValidation()
-    {
-        $input = $this->all();
-
-        $this->replace($input);
-    }
 }
