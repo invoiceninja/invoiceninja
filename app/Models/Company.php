@@ -85,6 +85,9 @@ class Company extends BaseModel
     protected $presenter = \App\Models\Presenters\CompanyPresenter::class;
 
     protected $fillable = [
+        'mark_expenses_invoiceable',
+        'mark_expenses_paid',
+        'use_credits_payment',
         'enabled_item_tax_rates',
         'fill_products',
         'industry_id',
