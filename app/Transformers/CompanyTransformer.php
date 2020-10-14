@@ -142,6 +142,9 @@ class CompanyTransformer extends EntityTransformer
             'client_can_register' => (bool) $company->client_can_register,
             'is_large' => (bool) $company->is_large,
             'enable_shop_api' => (bool) $company->enable_shop_api,
+            'mark_expenses_invoiceable'=> (bool) $company->mark_expenses_invoiceable,
+            'mark_expenses_paid' => (bool) $company->mark_expenses_paid,
+            'use_credits_payment' => (string) $company->use_credits_payment,
         ];
     }
 
