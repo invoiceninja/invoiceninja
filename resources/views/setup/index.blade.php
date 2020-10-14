@@ -66,7 +66,7 @@
                                 </span>
                             </div>
 
-                            <button type="submit" class="button button-primary w-1/2 my-4">{{ ctrans('texts.submit') }}</button>
+                            <button type="submit" class="button button-primary bg-blue-600 w-1/2 my-4">{{ ctrans('texts.submit') }}</button>
                         </div>
                     </div>
                 @endif

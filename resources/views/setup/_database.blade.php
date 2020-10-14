@@ -67,7 +67,7 @@ FLUSH PRIVILEGES;
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
                 <dt class="text-sm leading-5 font-medium text-gray-500">
-                    <button type="button" class="button button-primary py-2 px-3 text-xs" id="test-db-connection">
+                    <button type="button" class="button button-primary bg-blue-600 py-2 px-3 text-xs" id="test-db-connection">
                         {{ ctrans('texts.test_connection') }}
                     </button>
                 </dt>

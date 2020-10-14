@@ -137,6 +137,7 @@ class SetupController extends Controller
     /**
      * Return status based on check of database connection.
      *
+     * @param CheckDatabaseRequest $request
      * @return Response
      */
     public function checkDB(CheckDatabaseRequest $request): Response
@@ -147,7 +148,7 @@ class SetupController extends Controller
             return response([], 200);
         }
 
-        return response([], 400);
+        return response($status, 400);
     }
 
     /**

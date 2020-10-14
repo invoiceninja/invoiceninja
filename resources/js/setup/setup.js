@@ -32,7 +32,7 @@ class Setup {
 
         Axios.post('/setup/check_db', data)
             .then((response) => this.handleSuccess(this.checkDbAlert))
-            .catch((e) => this.handleFailure(this.checkDbAlert));
+            .catch((e) => this.handleFailure(this.checkDbAlert, e.response.data.message));
     }
 
     handleSmtpCheck() {
@@ -73,9 +73,9 @@ class Setup {
         element.classList.add('alert-success');
     }
 
-    handleFailure(element) {
+    handleFailure(element, message = null) {
         element.classList.remove('alert-success');
-        element.innerText = "Oops, looks like something isn't correct!";
+        element.innerText = message ? message : "Oops, looks like something isn't correct!";
         element.classList.add('alert-failure');
     }
 
