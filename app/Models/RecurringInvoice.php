@@ -63,6 +63,7 @@ class RecurringInvoice extends BaseModel
 
     protected $fillable = [
         'client_id',
+        'project_id',
         'number',
         'discount',
         'is_amount_discount',

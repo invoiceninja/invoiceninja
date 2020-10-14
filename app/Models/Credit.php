@@ -40,6 +40,7 @@ class Credit extends BaseModel
 
     protected $fillable = [
         'assigned_user_id',
+        'project_id',
         'number',
         'discount',
         'po_number',

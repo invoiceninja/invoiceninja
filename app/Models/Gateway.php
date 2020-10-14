@@ -25,7 +25,8 @@ class Gateway extends StaticModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'default_gateway_type_id' => 'string',
-        'fields' => 'json',
+        // 'fields' => 'json',
+        'fields' => 'object',
         'options' => 'array',
     ];
 
@@ -35,21 +36,21 @@ class Gateway extends StaticModel
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
-    /**
-     * @return mixed
-     * @deprecated 5.0.17 No longer needs as we are removing omnipay dependence
-     */
-    public function getFields()
-    {
-        if ($this->isCustom()) {
-            return [
-                'name' => '',
-                'text' => '',
-            ];
-        } else {
-            return Omnipay::create($this->provider)->getDefaultParameters();
-        }
-    }
+    // /**
+    //  * @return mixed
+    //  * @deprecated 5.0.17 No longer needs as we are removing omnipay dependence
+    //  */
+    // public function getFields()
+    // {
+    //     if ($this->isCustom()) {
+    //         return [
+    //             'name' => '',
+    //             'text' => '',
+    //         ];
+    //     } else {
+    //         return Omnipay::create($this->provider)->getDefaultParameters();
+    //     }
+    // }
 
     public function getOptionsAttribute()
     {

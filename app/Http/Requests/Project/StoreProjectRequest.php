@@ -33,7 +33,7 @@ class StoreProjectRequest extends Request
     {
         $rules = [];
 
-            //$rules['name'] ='required|unique:projects,name,null,null,company_id,'.auth()->user()->companyId();
+            $rules['name'] ='required|unique:projects,name,null,null,company_id,'.auth()->user()->companyId();
             $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
         return $rules;
