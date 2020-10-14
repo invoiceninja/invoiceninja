@@ -517,7 +517,7 @@ class Client extends BaseModel implements HasLocalePreference
                 $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
 
                 $payment_urls[] = [
-                    'label' => ctrans('texts.'.$gateway->getTypeAlias($gateway_type_id)).$fee_label,
+                    'label' => $gateway->getTypeAlias($gateway_type_id) . $fee_label,
                     'company_gateway_id'  => $gateway_id,
                     'gateway_type_id' => $gateway_type_id,
                 ];

@@ -1244,11 +1244,12 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('company_id')->index();
+            $table->string('name')->nullable();
             $table->timestamps(6);
             $table->softDeletes();
-            $table->string('name')->nullable();
 
             $table->index(['company_id', 'deleted_at']);
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
         });
 
         Schema::create('expenses', function (Blueprint $table) {

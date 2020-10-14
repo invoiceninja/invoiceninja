@@ -32,6 +32,7 @@ use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
@@ -40,6 +41,7 @@ use App\Models\Project;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -76,6 +78,12 @@ trait MockAccountData
     public $vendor;
 
     public $expense;
+
+    public $task;
+
+    public $expense_category;
+
+    public $cu;
 
     public function makeTestData()
     {
@@ -143,10 +151,10 @@ trait MockAccountData
 
         $this->user->password = Hash::make('ALongAndBriliantPassword');
 
-        $cu = CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
-        $cu->is_owner = true;
-        $cu->is_admin = true;
-        $cu->save();
+        $this->cu = CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
+        $this->cu->is_owner = true;
+        $this->cu->is_admin = true;
+        $this->cu->save();
 
         $this->token = \Illuminate\Support\Str::random(64);
 
@@ -159,6 +167,8 @@ trait MockAccountData
         $company_token->is_system = true;
 
         $company_token->save();
+
+        //todo create one token withe token name TOKEN - use firstOrCreate
 
         Product::factory()->create([
                 'user_id' => $this->user->id,
@@ -213,6 +223,16 @@ trait MockAccountData
         ]);
 
         $this->expense = Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->task = Task::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->expense_category = ExpenseCategory::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
         ]);

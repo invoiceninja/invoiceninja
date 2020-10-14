@@ -25,7 +25,7 @@ class Expense extends BaseModel
         'client_id',
         'vendor_id',
         'expense_currency_id',
-        'expense_date',
+        'date',
         'invoice_currency_id',
         'amount',
         'foreign_amount',

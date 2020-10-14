@@ -79,7 +79,7 @@ class CompanyGateway extends BaseModel
 
     public function getTypeAlias($gateway_type_id)
     {
-        return GatewayType::find($gateway_type_id)->alias;
+        return GatewayType::getAlias($gateway_type_id);
     }
 
     /* This is the public entry point into the payment superclass */

@@ -34,7 +34,7 @@ class UpdateGroupSettingRequest extends Request
     {
         $rules['settings'] = new ValidClientGroupSettingsRule();
 
-        $rules['name'] = 'unique:group_settings,name,'.$this->id.',id,company_id,'.$this->group_setting->company_id;
+//        $rules['name'] = 'unique:group_settings,name,'.$this->id.',id,company_id,'.$this->group_setting->company_id;
 
         return $rules;
     }

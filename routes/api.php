@@ -69,6 +69,14 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('expenses/bulk', 'ExpenseController@bulk')->name('expenses.bulk');
 
+    Route::resource('expense_categories', 'ExpenseCategoryController'); // name = (expense_categories. index / create / show / update / destroy / edit
+
+    Route::post('expense_categories/bulk', 'ExpenseCategoryController@bulk')->name('expense_categories.bulk');
+
+    Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
+
+    Route::post('tasks/bulk', 'TaskController@bulk')->name('tasks.bulk');
+
     Route::resource('projects', 'ProjectController'); // name = (projects. index / create / show / update / destroy / edit
     Route::post('projects/bulk', 'ProjectController@bulk')->name('projects.bulk');
 
@@ -125,7 +133,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::resource('group_settings', 'GroupSettingController');
     Route::post('group_settings/bulk', 'GroupSettingController@bulk');
 
-    Route::resource('tax_rates', 'TaxRateController'); // name = (tasks. index / create / show / update / destroy / edit
+    Route::resource('tax_rates', 'TaxRateController'); // name = (tax_rates. index / create / show / update / destroy / edit
     Route::post('tax_rates/bulk', 'TaxRateController@bulk')->name('tax_rates.bulk');
 
     Route::post('refresh', 'Auth\LoginController@refresh');

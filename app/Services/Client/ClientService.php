@@ -12,6 +12,8 @@
 namespace App\Services\Client;
 
 use App\Models\Client;
+use App\Utils\Number;
+use Illuminate\Database\Eloquent\Collection;
 
 class ClientService
 {
@@ -42,6 +44,27 @@ class ClientService
 
         return $this;
     }
+
+    public function getCreditBalance() :float
+    {
+        $credits = $this->client->credits
+                      ->where('is_deleted', false)
+                      ->where('balance', '>', 0)
+                      ->sortBy('created_at');
+
+        return Number::roundValue($credits->sum('balance'), $this->client->currency()->precision);
+    }
+
+    public function getCredits() :Collection
+    {
+
+        return $this->client->credits
+                  ->where('is_deleted', false)
+                  ->where('balance', '>', 0)
+                  ->sortBy('created_at');
+
+    }
+
 
     public function save() :Client
     {

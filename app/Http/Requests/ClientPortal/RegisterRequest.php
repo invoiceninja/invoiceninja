@@ -28,7 +28,7 @@ class RegisterRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:client_contacts'],
+            'email' => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:client_contacts'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ];
     }
