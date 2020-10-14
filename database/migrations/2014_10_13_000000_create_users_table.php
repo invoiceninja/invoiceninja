@@ -90,7 +90,7 @@ class CreateUsersTable extends Migration
             $table->string('site_url', 200)->nullable();
             $table->boolean('is_offsite')->default(false);
             $table->boolean('is_secure')->default(false);
-            $table->longText('fields')->nullable();
+            $table->mediumText('fields')->nullable();
             $table->unsignedInteger('default_gateway_type_id')->default(1);
             $table->timestamps(6);
         });
