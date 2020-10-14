@@ -74,6 +74,8 @@ class ApplyPayment
 
         }
 
+        $this->applyPaymentToCredit();
+        
         $this->addPaymentToLedger();
 
         return $this->credit;
@@ -90,7 +92,7 @@ class ApplyPayment
         $credit_item->quantity = 1;
         $credit_item->cost = $this->amount_applied * -1;
 
-        $credit_items = $credit->line_items;
+        $credit_items = $this->credit->line_items;
         $credit_items[] = $credit_item;
 
         $this->credit->line_items = $credit_items;
@@ -141,8 +143,10 @@ class ApplyPayment
 
             event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars()));
 
-            if((int)$this->invoice->balance == 0)
+            if((int)$this->invoice->balance == 0){
+                $this->invoice->service()->deletePdf();
                 event(new InvoiceWasPaid($this->invoice, $this->payment->company, Ninja::eventVars()));
+            }
 
     }
 }
