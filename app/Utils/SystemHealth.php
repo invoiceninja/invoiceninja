@@ -167,6 +167,7 @@ class SystemHealth
             } catch (\Exception $e) {
                 $result[] = [config('database.connections.'.config('database.default').'.database') => false];
                 $result['success'] = false;
+                $result['message'] = $e->getMessage();
             }
         } else {
             foreach (MultiDB::$dbs as $db) {
