@@ -25,6 +25,7 @@ use App\Repositories\ProjectRepository;
 use App\Transformers\ProjectTransformer;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -34,6 +35,7 @@ use Illuminate\Support\Facades\Cache;
 class ProjectController extends BaseController
 {
     use MakesHash;
+    use SavesDocuments;
 
     protected $entity_type = Project::class;
 

@@ -87,6 +87,7 @@ class ExpenseTransformer extends EntityTransformer
             'updated_at' => (int) $expense->updated_at,
             'archived_at' => (int) $expense->deleted_at,
             'created_at' => (int) $expense->created_at,
+            'project_id' => $this->encodePrimaryKey($expense->project_id),
         ];
     }
 }

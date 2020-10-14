@@ -86,6 +86,7 @@ class Invoice extends BaseModel
         'footer',
         'partial',
         'partial_due_date',
+        'project_id',
         'custom_value1',
         'custom_value2',
         'custom_value3',

@@ -83,6 +83,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
         return [
             'id' => $this->encodePrimaryKey($invoice->id),
             'user_id' => $this->encodePrimaryKey($invoice->user_id),
+            'project_id' => $this->encodePrimaryKey($invoice->project_id),
             'assigned_user_id' => $this->encodePrimaryKey($invoice->assigned_user_id),
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,

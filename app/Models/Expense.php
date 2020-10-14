@@ -43,6 +43,7 @@ class Expense extends BaseModel
         'tax_name3',
         'payment_date',
         'payment_type_id',
+        'project_id',
         'transaction_reference',
         'invoice_documents',
         'should_be_invoiced',
