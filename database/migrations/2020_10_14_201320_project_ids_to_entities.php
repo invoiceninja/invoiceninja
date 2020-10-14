@@ -17,6 +17,10 @@ class ProjectIdsToEntities extends Migration
             $table->unsignedInteger('project_id')->nullable();
         });
 
+        Schema::table('gateways', function (Blueprint $table) {
+            $table->longText('fields')->change();
+        });
+
     }
 
     /**
