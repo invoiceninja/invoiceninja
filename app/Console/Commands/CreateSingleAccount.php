@@ -101,7 +101,7 @@ class CreateSingleAccount extends Command
         $this->warmCache();
 
         $this->createSmallAccount();
-        
+
     }
 
     private function createSmallAccount()
@@ -176,8 +176,8 @@ class CreateSingleAccount extends Command
 
             $client = $company->clients->random();
 
-            $this->info('creating credit for client #'.$client->id);
-            $this->createCredit($client);
+            // $this->info('creating credit for client #'.$client->id);
+            // $this->createCredit($client); /** Prevents Stripe from running payments. */
 
             $client = $company->clients->random();
 
@@ -497,7 +497,7 @@ class CreateSingleAccount extends Command
     }
 
     private function createGateways($company, $user)
-    {        
+    {
 
         if (config('ninja.testvars.stripe') && ($this->gateway == 'all' || $this->gateway == 'stripe')) {
             $cg = new CompanyGateway;

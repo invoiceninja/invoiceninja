@@ -19,7 +19,7 @@ describe('Credits', () => {
             .should('contain.text', 'Credits');
     });
 
-    it('should have required table elements', () => {
+   /* it('should have required table elements', () => {
         cy.visit('/client/credits');
 
         cy.get('body')
@@ -33,5 +33,5 @@ describe('Credits', () => {
             .should(location => {
                 expect(location.pathname).to.eq('/client/credits/VolejRejNm');
             });
-    });
+    });*/
 });
