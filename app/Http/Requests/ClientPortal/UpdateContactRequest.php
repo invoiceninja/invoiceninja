@@ -34,7 +34,7 @@ class UpdateContactRequest extends Request
         return [
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required|email|unique:client_contacts,email,'.auth()->user()->id,
+            'email' => 'required|email:rfc,dns|unique:client_contacts,email,'.auth()->user()->id,
             'password' => 'sometimes|nullable|min:6|confirmed',
         ];
     }

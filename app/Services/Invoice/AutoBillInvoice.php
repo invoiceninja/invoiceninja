@@ -84,7 +84,7 @@ class AutoBillInvoice extends AbstractService
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
             'hash' => Str::random(128),
-            'data' => ['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount],
+            'data' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount]],
             'fee_total' => $fee,
             'fee_invoice_id' => $this->invoice->id,
         ]);
@@ -104,10 +104,8 @@ class AutoBillInvoice extends AbstractService
      */
     private function finalizePaymentUsingCredits()
     {
-        info("finalizing");
-        info(print_r($this->used_credit,1));
+
         $amount = array_sum(array_column($this->used_credit, 'amount'));
-        info("amount {$amount}");
 
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
         $payment->amount = $amount;

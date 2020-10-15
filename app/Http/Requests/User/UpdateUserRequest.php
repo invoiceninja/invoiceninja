@@ -32,7 +32,7 @@ class UpdateUserRequest extends Request
         $rules = [];
 
         if (isset($input['email'])) {
-            $rules['email'] = ['sometimes', new UniqueUserRule($this->user, $input['email'])];
+            $rules['email'] = ['email:rfc,dns', 'sometimes', new UniqueUserRule($this->user, $input['email'])];
         }
 
         return $rules;

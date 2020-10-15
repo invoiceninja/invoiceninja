@@ -12,6 +12,7 @@
 namespace App\Services\Credit;
 
 use App\Models\Credit;
+use App\Services\Credit\ApplyPayment;
 use App\Services\Credit\CreateInvitations;
 use App\Services\Credit\MarkSent;
 
@@ -57,6 +58,13 @@ class CreditService
     public function markSent()
     {
         $this->credit = (new MarkSent($this->credit->client, $this->credit))->run();
+
+        return $this;
+    }
+
+    public function applyPayment($invoice, $amount, $payment)
+    {
+        $this->credit = (new ApplyPayment($this->credit, $invoice, $amount, $payment))->run();
 
         return $this;
     }

@@ -32,7 +32,7 @@
  *       @OA\Property(property="amount", type="number", format="float", example="10.00", description="_________"),
  *       @OA\Property(property="foreign_amount", type="number", format="float", example="10.00", description="_________"),
  *       @OA\Property(property="exchange_rate", type="number", format="float", example="0.80", description="_________"),
- *       @OA\Property(property="expense_date", type="string", example="", description="________"),
+ *       @OA\Property(property="date", type="string", example="", description="________"),
  *       @OA\Property(property="payment_date", type="string", example="", description="________"),
  *       @OA\Property(property="should_be_invoiced", type="boolean", example=true, description="_________"),
  *       @OA\Property(property="is_deleted", type="boolean", example=true, description="_________"),

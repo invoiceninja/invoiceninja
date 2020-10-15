@@ -44,6 +44,10 @@ class TaskTransformer extends EntityTransformer
     {
         return [
             'id' => (string) $this->encodePrimaryKey($task->id),
+            'user_id' => (string) $this->encodePrimaryKey($task->user_id),
+            'assigned_user_id' => (string) $this->encodePrimaryKey($task->assigned_user_id),
+            'number' => (string) $task->number ?: '',
+            'start_time' => (int) $task->start_time,
             'description' => $task->description ?: '',
             'duration' => 0,
             'created_at' => (int) $task->created_at,

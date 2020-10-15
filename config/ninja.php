@@ -89,7 +89,7 @@ return [
         'date_formats' => App\Models\DateFormat::class,
         'datetime_formats' => App\Models\DatetimeFormat::class,
         'gateways' => App\Models\Gateway::class,
-        'gateway_types' => App\Models\GatewayType::class,
+        //'gateway_types' => App\Models\GatewayType::class,
         'industries' => App\Models\Industry::class,
         'languages' => App\Models\Language::class,
         'payment_types' => App\Models\PaymentType::class,

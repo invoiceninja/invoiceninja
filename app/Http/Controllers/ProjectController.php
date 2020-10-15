@@ -353,6 +353,10 @@ class ProjectController extends BaseController
         $project->fill($request->all());
         $project->save();
 
+        if ($request->has('documents')) {
+            $this->saveDocuments($request->input('documents'), $project);
+        }
+        
         return $this->itemResponse($project->fresh());
     }
 
