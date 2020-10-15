@@ -70,10 +70,13 @@ class PaymentController extends Controller
      */
     public function process(Request $request)
     {
-        if($request->input('company_gateway_id') == CompanyGateway::GATEWAY_CREDIT)
-            return $this->processCreditPayment($request);
+        $is_credit_payment = false;
+        $token = false;
 
-        $gateway = CompanyGateway::findOrFail(request()->input('company_gateway_id'));
+        if($request->input('company_gateway_id') == CompanyGateway::GATEWAY_CREDIT)
+            $is_credit_payment = true;
+
+        $gateway = CompanyGateway::find($request->input('company_gateway_id'));
 
         //refactor from here!
 
@@ -81,10 +84,9 @@ class PaymentController extends Controller
          * find invoices
          *
          * ['invoice_id' => xxx, 'amount' => 22.00]
-         * 
          */
 
-        $payable_invoices = collect(request()->payable_invoices);
+        $payable_invoices = collect($request->payable_invoices);
         $invoices = Invoice::whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->get();
 
         /* pop non payable invoice from the $payable_invoices array */
@@ -164,23 +166,20 @@ class PaymentController extends Controller
 
         });
 
-        if ((bool) request()->signature) {
+        if ((bool) $request->signature) {
             $invoices->each(function ($invoice) {
-                InjectSignature::dispatch($invoice, request()->signature);
+                InjectSignature::dispatch($invoice, $request->signature);
             });
         }
 
-        $payment_method_id = request()->input('payment_method_id');
-
+        $payment_method_id = $request->input('payment_method_id');
         $invoice_totals = $payable_invoices->sum('amount');
-
         $first_invoice = $invoices->first();
-
         $credit_totals = $first_invoice->company->use_credits_payment == 'off' ? 0 : $first_invoice->client->service()->getCreditBalance();
-
         $starting_invoice_amount = $first_invoice->amount;
 
-        $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
+        if($gateway)
+            $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
 
         /**
          * Gateway fee is calculated 
@@ -188,6 +187,9 @@ class PaymentController extends Controller
          * the starting and finishing amounts of the invoice.
          */
         $fee_totals = $first_invoice->amount - $starting_invoice_amount;
+
+        if($gateway)
+            $token = auth()->user()->client->gateway_token($gateway->id, $payment_method_id);
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);
@@ -207,10 +209,13 @@ class PaymentController extends Controller
             'payment_hash' => $payment_hash->hash,
             'total' => $totals,
             'invoices' => $payable_invoices,
-            'token' => auth()->user()->client->gateway_token($gateway->id, $payment_method_id),
+            'token' => $token,
             'payment_method_id' => $payment_method_id,
             'amount_with_fee' => $invoice_totals + $fee_totals,
         ];
+
+        if($is_credit_payment)
+            return $this->processCreditPayment($request, $data);
 
         return $gateway
             ->driver(auth()->user()->client)
@@ -287,8 +292,10 @@ class PaymentController extends Controller
 
     }
 
-    public function processCreditPayment(Request $request)
+    public function processCreditPayment(Request $request, array $data)
     {
+
+        return render('gateways.credit.index', $data);
 
     }
 }
