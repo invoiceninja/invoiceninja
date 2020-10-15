@@ -1,4 +1,4 @@
-import { second } from '../../fixtures/example.json';
+import { second } from '../fixtures/example.json';
 
 describe('Checkout Credit Card Payments', () => {
     beforeEach(() => {

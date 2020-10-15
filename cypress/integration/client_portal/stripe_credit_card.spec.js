@@ -1,8 +1,5 @@
-import { first } from '../../fixtures/example.json'
-
 describe('Stripe Credit Card Payments', () => {
     beforeEach(() => {
-        // cy.useGateway(first);
         cy.clientLogin();
     });
 
