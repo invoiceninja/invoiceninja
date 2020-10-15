@@ -47,6 +47,7 @@ class ApplyPayment
         //$available_credit_balance = $this->credit->balance;
         $applicable_amount = min($this->amount, $this->credit->balance);
         $invoice_balance = $this->invoice->balance;
+        $credit_balance = $this->credit->balance;
 
         /* Check invoice partial for amount to be cleared first */
         if($this->invoice->partial > 0){
@@ -56,7 +57,7 @@ class ApplyPayment
             $this->invoice->partial -= $partial_payment;
             $invoice_balance -= $partial_payment;
             $this->amount -= $partial_payment;
-            // $this->credit->balance -= $partial_payment;
+            $credit_balance -= $partial_payment;
             $applicable_amount -= $partial_payment;
             $this->amount_applied += $partial_payment;
 
@@ -65,11 +66,10 @@ class ApplyPayment
         /* If there is remaining amount use it on the balance */
         if($this->amount > 0 && $applicable_amount > 0 && $invoice_balance > 0){
 
-            $balance_payment = min($invoice_balance, $this->amount);
+            $balance_payment = min($invoice_balance, min($this->amount, $credit_balance));
 
             $invoice_balance -= $balance_payment;
             $this->amount -= $balance_payment;
-            // $this->credit->balance -= $balance_payment;
             $this->amount_applied += $balance_payment;
 
         }

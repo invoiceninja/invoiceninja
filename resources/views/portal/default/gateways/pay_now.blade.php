@@ -42,7 +42,7 @@
                                 <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center"><strong>{{ ctrans('texts.credit_amount')}}</strong>
                                     <h3><span class="badge badge-primary badge-pill"><strong>{{ $credit_totals }}</strong></span></h3>
                                 </li>
-                                @endifs
+                                @endif
                                 @if($fee > 0)
                                 <li class="list-group-item d-flex list-group-item-action justify-content-between align-items-center"><strong>{{ ctrans('texts.gateway_fee')}}</strong>
                                     <h3><span class="badge badge-primary badge-pill"><strong>{{ $fee }}</strong></span></h3>

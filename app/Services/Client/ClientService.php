@@ -47,6 +47,7 @@ class ClientService
 
     public function getCreditBalance() :float
     {
+
         $credits = $this->client->credits
                       ->where('is_deleted', false)
                       ->where('balance', '>', 0)
