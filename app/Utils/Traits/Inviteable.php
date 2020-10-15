@@ -11,6 +11,8 @@
 
 namespace App\Utils\Traits;
 
+use Illuminate\Support\Str;
+
 /**
  * Class Inviteable.
  */
@@ -42,7 +44,9 @@ trait Inviteable
 
     public function getLink() :string
     {
-        $entity_type = strtolower(class_basename($this->entityType()));
+        //$entity_type = strtolower(class_basename($this->entityType()));
+
+        $entity_type = Str::snake(class_basename($this->entityType()));
 
         //$this->with('company','contact',$this->entity_type);
         //$this->with('company');
