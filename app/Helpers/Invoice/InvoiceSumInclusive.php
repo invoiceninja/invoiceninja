@@ -302,4 +302,9 @@ class InvoiceSumInclusive
         return $this->getTotalTaxes();
     }
 
+    public function purgeTaxes()
+    {
+
+        return $this;
+    }
 }

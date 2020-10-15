@@ -91,7 +91,7 @@ class HandleReversal extends AbstractService
             $credit_calc = new InvoiceSum($credit);
             $credit_calc->build();
 
-            $credit = $credit_calc->getCredit();
+            $credit = $credit_calc->purgeTaxes()->getCredit();
 
             $credit->service()->markSent()->save();
         }

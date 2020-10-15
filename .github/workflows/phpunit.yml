@@ -1,10 +1,10 @@
 on: 
   push:
     branches:
-      - v2
+      - v5-develop
   pull_request:
     branches: 
-      - v2
+      - v5-develop
       
 name: phpunit
 jobs:

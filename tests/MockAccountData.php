@@ -333,6 +333,14 @@ trait MockAccountData
         $this->credit->amount = 10;
         $this->credit->balance = 10;
 
+        $this->credit->tax_name1 = '';
+        $this->credit->tax_name2 = '';
+        $this->credit->tax_name3 = '';
+
+        $this->credit->tax_rate1 = 0;
+        $this->credit->tax_rate2 = 0;
+        $this->credit->tax_rate3 = 0;
+        
         $this->credit->uses_inclusive_taxes = false;
 
         $this->credit->save();
