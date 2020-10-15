@@ -48,10 +48,13 @@ class StoreVendorRequest extends Request
 
     protected function prepareForValidation()
     {
-        // $input = $this->all();
+        $input = $this->all();
 
-
-        // $this->replace($input);
+        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
+            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
+        }
+        
+        $this->replace($input);
     }
 
     public function messages()

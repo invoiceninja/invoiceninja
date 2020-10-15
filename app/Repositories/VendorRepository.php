@@ -57,6 +57,7 @@ class VendorRepository extends BaseRepository
      */
     public function save(array $data, Vendor $vendor) : ?Vendor
     {
+        
         $vendor->fill($data);
 
         $vendor->save();

@@ -48,6 +48,10 @@ class UpdateRecurringInvoiceRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
+        if ($this->input('number')) {
+            $rules['number'] = 'unique:recurring_invoices,number,'.$this->id.',id,company_id,'.$this->recurring_invoice->company_id;
+        }
+
         return $rules;
     }
 
