@@ -318,7 +318,7 @@ class Company extends BaseModel
         return isset($this->settings->language_id) && $this->language() ? $this->language()->locale : config('ninja.i18n.locale');
     }
 
-    public function getLogo()
+    public function getLogo() :?string
     {
         return $this->settings->company_logo ?: null;
     }
@@ -394,7 +394,6 @@ class Company extends BaseModel
 
     public function company_users()
     {
-        //return $this->hasMany(CompanyUser::class)->withTimestamps();
         return $this->hasMany(CompanyUser::class);
     }
 
