@@ -33,7 +33,9 @@ class AutoBillInvoiceTest extends TestCase
 
     public function testAutoBillFunctionality()
     {
-
+        $this->company->use_credits_payment = 'always';
+        $this->company->save();
+        
         $this->assertEquals($this->client->balance, 10);
         $this->assertEquals($this->client->paid_to_date, 0);
         $this->assertEquals($this->client->credit_balance, 10);

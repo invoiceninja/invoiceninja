@@ -21,7 +21,7 @@ class ProjectIdsToEntities extends Migration
             $table->longText('fields')->change();
         });
 
-        Schema::table('gateways', function (Blueprint $table) {
+        Schema::table('companies', function (Blueprint $table) {
             $table->boolean('mark_expenses_invoiceable')->default(0);
             $table->boolean('mark_expenses_paid')->default(0);
             $table->enum('use_credits_payment', ['always', 'off', 'optin'])->nullable();
