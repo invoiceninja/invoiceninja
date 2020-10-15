@@ -55,7 +55,9 @@ class AutoBillInvoice extends AbstractService
             return $this->invoice->service()->markPaid()->save();
 
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
-        $this->applyCreditPayment(); 
+        
+        if($this->invoice->company->use_credits_payment == 'always' || $this->invoice->company->use_credits_payment == 'optin')
+            $this->applyCreditPayment(); 
 
         info("partial = {$this->invoice->partial}");
         info("balance = {$this->invoice->balance}");

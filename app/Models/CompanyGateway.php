@@ -23,6 +23,8 @@ class CompanyGateway extends BaseModel
 {
     use SoftDeletes;
 
+    public const GATEWAY_CREDIT = 10000000;
+
     protected $casts = [
         'fees_and_limits' => 'object',
         'updated_at' => 'timestamp',

@@ -68,9 +68,14 @@ class PaymentController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse|mixed
      */
-    public function process()
+    public function process(Request $request)
     {
+        if($request->input('company_gateway_id') == CompanyGateway::GATEWAY_CREDIT)
+            return $this->processCreditPayment($request);
+
         $gateway = CompanyGateway::findOrFail(request()->input('company_gateway_id'));
+
+        //refactor from here!
 
         /**
          * find invoices
@@ -171,17 +176,16 @@ class PaymentController extends Controller
 
         $first_invoice = $invoices->first();
 
-        $credit_totals = $first_invoice->client->service()->getCreditBalance();
+        $credit_totals = $first_invoice->company->use_credits_payment == 'off' ? 0 : $first_invoice->client->service()->getCreditBalance();
 
         $starting_invoice_amount = $first_invoice->amount;
 
         $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
 
         /**
-         *
-         * The best way to determine the exact gateway fee is to not calculate it in isolation (due to rounding)
-         * but to simply add it as a line item, and then subtract the starting and finishing amounts of
-         * the invoice.
+         * Gateway fee is calculated 
+         * by adding it as a line item, and then subtract 
+         * the starting and finishing amounts of the invoice.
          */
         $fee_totals = $first_invoice->amount - $starting_invoice_amount;
 
@@ -280,6 +284,11 @@ class PaymentController extends Controller
         });
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+
+    }
+
+    public function processCreditPayment(Request $request)
+    {
 
     }
 }

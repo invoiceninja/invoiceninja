@@ -66,22 +66,6 @@ class Company extends BaseModel
     const ENTITY_RECURRING_TASK = 'task';
     const ENTITY_RECURRING_QUOTE = 'recurring_quote';
 
-    // const int kModuleRecurringInvoices = 1;
-    // const int kModuleCredits = 2;
-    // const int kModuleQuotes = 4;
-    // const int kModuleTasks = 8;
-    // const int kModuleExpenses = 16;
-    // const int kModuleProjects = 32;
-    // const int kModuleVendors = 64;
-    // const int kModuleTickets = 128;
-    // const int kModuleProposals = 256;
-    // const int kModuleRecurringExpenses = 512;
-    // const int kModuleRecurringTasks = 1024;
-    // const int kModuleRecurringQuotes = 2048;
-    //    kModuleInvoices = 4096;
-    //    kModulePayments = 8192;
-    //    16383
-
     protected $presenter = \App\Models\Presenters\CompanyPresenter::class;
 
     protected $fillable = [
