@@ -12,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
         with:
-          ref: v2
+          ref: v5-stable
           
       - name: Copy .env file
         run: |
