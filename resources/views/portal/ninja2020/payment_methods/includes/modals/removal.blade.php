@@ -36,7 +36,7 @@
                 <form action="{{ route('client.payment_methods.destroy', [$payment_method->hashed_id, 'method' => $payment_method->gateway_type->id]) }}" method="post">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="button button-danger button-block">
+                    <button type="submit" class="button button-danger button-block" data-cy="confirm-payment-removal">
                         {{ ctrans('texts.remove') }}
                     </button>
                 </form>

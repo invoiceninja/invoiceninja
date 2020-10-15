@@ -3,8 +3,6 @@ context('Recurring invoices', () => {
         cy.clientLogin();
     });
 
-    // test url
-
     it('should show recurring invoices page', () => {
         cy.visit('/client/recurring_invoices');
 
@@ -28,21 +26,5 @@ context('Recurring invoices', () => {
             .find('select')
             .first()
             .should('have.value', '10');
-    });
-
-    it('should have required table elements', () => {
-        cy.visit('/client/recurring_invoices');
-
-        cy.get('body')
-            .find('table.recurring-invoices-table > tbody > tr')
-            .first()
-            .find('a')
-            .first()
-            .should('contain.text', 'View')
-            .click()
-            .location()
-            .should(location => {
-                expect(location.pathname).to.eq('/client/recurring_invoices/VolejRejNm');
-            });
     });
 });
