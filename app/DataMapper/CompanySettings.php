@@ -154,10 +154,12 @@ class CompanySettings extends BaseSettings
     public $email_style_custom = '';      //the template itself
     public $email_subject_invoice = '';
     public $email_subject_quote = '';
+    public $email_subject_credit = '';
     public $email_subject_payment = '';
     public $email_subject_payment_partial = '';
     public $email_subject_statement = '';
     public $email_template_invoice = '';
+    public $email_template_credit = '';
     public $email_template_quote = '';
     public $email_template_payment = '';
     public $email_template_payment_partial = '';
@@ -350,10 +352,12 @@ class CompanySettings extends BaseSettings
         'email_signature'                    => 'string',
         'email_subject_invoice'              => 'string',
         'email_subject_quote'                => 'string',
+        'email_subject_credit'               => 'string',
         'email_subject_payment'              => 'string',
         'email_subject_payment_partial'      => 'string',
         'email_template_invoice'             => 'string',
         'email_template_quote'               => 'string',
+        'email_template_credit'              => 'string',
         'email_template_payment'             => 'string',
         'email_template_payment_partial'     => 'string',
         'email_subject_reminder1'            => 'string',

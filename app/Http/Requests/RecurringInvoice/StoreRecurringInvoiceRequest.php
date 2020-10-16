@@ -12,6 +12,7 @@
 namespace App\Http\Requests\RecurringInvoice;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Recurring\UniqueRecurringInvoiceNumberRule;
 use App\Models\Client;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\CleanLineItems;
@@ -51,6 +52,8 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
         $rules['frequency_id'] = 'required|integer';
+
+        $rules['number'] = new UniqueRecurringInvoiceNumberRule($this->all());
 
         return $rules;
     }

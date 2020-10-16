@@ -99,6 +99,8 @@ class ShopInvoiceTest extends TestCase
         $this->company->enable_shop_api = true;
         $this->company->save();
 
+        Product::truncate();
+
         $product = Product::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,

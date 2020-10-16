@@ -13,6 +13,7 @@ namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Invoice\UniqueInvoiceNumberRule;
+use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Utils\Traits\CleanLineItems;
@@ -47,11 +48,13 @@ class StoreInvoiceRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+        $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
         $rules['number'] = new UniqueInvoiceNumberRule($this->all());
+
+        $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
         return $rules;
     }
@@ -66,6 +69,10 @@ class StoreInvoiceRequest extends Request
 
         if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        }
+
+        if (array_key_exists('project_id', $input) && is_string($input['project_id'])) {
+            $input['project_id'] = $this->decodePrimaryKey($input['project_id']);
         }
 
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {

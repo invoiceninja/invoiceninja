@@ -30,6 +30,9 @@ class EmailTemplateDefaults
             case 'email_template_quote':
                 return self::emailQuoteTemplate();
                 break;
+            case 'email_template_credit':
+                return self::emailCreditTemplate();
+                break;
             case 'email_template_payment':
                 return self::emailPaymentTemplate();
                 break;
@@ -68,6 +71,9 @@ class EmailTemplateDefaults
                 break;
             case 'email_subject_quote':
                 return self::emailQuoteSubject();
+                break;
+            case 'email_subject_credit':
+                return self::emailCreditSubject();
                 break;
             case 'email_subject_payment':
                 return self::emailPaymentSubject();
@@ -109,7 +115,11 @@ class EmailTemplateDefaults
     public static function emailInvoiceSubject()
     {
         return ctrans('texts.invoice_subject', ['number'=>'$number', 'account'=>'$company.name']);
-        //return Parsedown::instance()->line(self::transformText('invoice_subject'));
+    }
+
+    public static function emailCreditSubject()
+    {
+        return ctrans('texts.credit_subject', ['number'=>'$number', 'account'=>'$company.name']);
     }
 
     public static function emailInvoiceTemplate()
@@ -122,14 +132,11 @@ class EmailTemplateDefaults
         $invoice_message = '<p>'.self::transformText('invoice_message').'</p><br><br><p>$view_link</p>';
 
         return $invoice_message;
-        //return $converter->convertToHtml($invoice_message);
     }
 
     public static function emailQuoteSubject()
     {
         return ctrans('texts.quote_subject', ['number'=>'$number', 'account'=>'$company.name']);
-
-        //return Parsedown::instance()->line(self::transformText('quote_subject'));
     }
 
     public static function emailQuoteTemplate()
@@ -155,6 +162,17 @@ class EmailTemplateDefaults
         ]);
 
         return $converter->convertToHtml(self::transformText('payment_message'));
+
+    }
+
+    public static function emailCreditTemplate()
+    {
+        $converter = new CommonMarkConverter([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+
+        return $converter->convertToHtml(self::transformText('credit_message'));
 
     }
 
