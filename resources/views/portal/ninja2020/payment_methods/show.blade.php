@@ -98,7 +98,7 @@
                     </div>
                     <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
                         <div class="inline-flex rounded-md shadow-sm" x-data="{ open: false }">
-                            <button class="button button-danger" translate @click="open = true">
+                            <button class="button button-danger" @click="open = true" id="open-delete-popup">
                                 {{ ctrans('texts.remove_payment_method') }}
                             </button>
                             @include('portal.ninja2020.payment_methods.includes.modals.removal')

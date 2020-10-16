@@ -288,5 +288,39 @@ class InvoiceSum
         return $this->getTotalTaxes();
     }
 
+    public function purgeTaxes()
+    {
+
+        $this->tax_rate1 = 0;
+        $this->tax_name1 = '';
+
+        $this->tax_rate2 = 0;
+        $this->tax_name2 = '';
+
+        $this->tax_rate3 = 0;
+        $this->tax_name3 = '';
+
+        $this->discount = 0;
+
+        $line_items = collect($this->invoice->line_items);
+
+        $items = $line_items->map(function ($item){
+            $item->tax_rate1 = 0;
+            $item->tax_rate2 = 0;
+            $item->tax_rate3 = 0;
+            $item->tax_name1 = '';
+            $item->tax_name2 = '';
+            $item->tax_name3 = '';
+            $item->discount = 0;
+
+            return $item;
+        });
+
+        $this->invoice->line_items = $items->toArray();
+
+        $this->build();
+
+        return $this;
+    }
 
 }

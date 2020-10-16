@@ -104,6 +104,10 @@ trait AppSetup
             'subject' => EmailTemplateDefaults::emailStatementSubject(),
             'body' => EmailTemplateDefaults::emailStatementTemplate(),
             ],
+        'credit' => [
+            'subject' => EmailTemplateDefaults::emailCreditSubject(),
+            'body' => EmailTemplateDefaults::emailCreditTemplate(),
+            ],
         ];
 
         Cache::forever($name, $data);

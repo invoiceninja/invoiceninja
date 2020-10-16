@@ -3283,5 +3283,7 @@ return [
     'saved_at' => 'Saved at :time',
     'credit_payment' => 'Credit applied to Invoice :invoice_number',
 
+    'credit_subject' => 'New credit :number from :account',
+    'credit_message' => 'To view your credit for :amount, click the link below.',
 
 ];
