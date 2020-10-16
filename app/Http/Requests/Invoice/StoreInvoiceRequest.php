@@ -13,6 +13,7 @@ namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Invoice\UniqueInvoiceNumberRule;
+use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Utils\Traits\CleanLineItems;
@@ -53,7 +54,7 @@ class StoreInvoiceRequest extends Request
 
         $rules['number'] = new UniqueInvoiceNumberRule($this->all());
 
-        $rules['project_id'] = 'bail|sometimes|' . new ValidProjectForClient($this->all());
+        $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
         return $rules;
     }
