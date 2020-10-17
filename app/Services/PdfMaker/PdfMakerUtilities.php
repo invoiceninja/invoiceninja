@@ -161,7 +161,7 @@ trait PdfMakerUtilities
 
         $html = strtr($html, $variables['values']);
 
-        @$this->document->loadHTML($html);
+        @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
 
         $this->document->saveHTML();
     }
