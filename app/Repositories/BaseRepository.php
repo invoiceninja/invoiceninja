@@ -265,7 +265,7 @@ class BaseRepository
                     //make sure we are creating an invite for a contact who belongs to the client only!
                     $contact = ClientContact::find($invitation['client_contact_id']);
 
-                    if ($contact && $model->client_id == $contact->client_id);
+                    if ($contact && $model->client_id == $contact->client_id)
                     {
 
                         $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
