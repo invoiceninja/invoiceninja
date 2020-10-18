@@ -35,6 +35,9 @@ class ValidProjectForClient implements Rule
      */
     public function passes($attribute, $value)
     {
+        if(empty($this->input['project_id']))
+            return true;
+        
         if(is_string($this->input['project_id']))
             $this->input['project_id'] = $this->decodePrimaryKey($this->input['project_id']);
 

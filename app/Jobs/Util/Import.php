@@ -105,11 +105,10 @@ class Import implements ShouldQueue
         'invoices',
         'recurring_invoices',
         'quotes',
-        'payments',
         'credits',
+        'payments',
         'company_gateways',
         'client_gateway_tokens',
-      
         // //'documents',
     ];
 
@@ -722,7 +721,14 @@ class Import implements ShouldQueue
 
             if (isset($modified['invoices'])) {
                 foreach ($modified['invoices'] as $key => $invoice) {
-                    $modified['invoices'][$key]['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
+
+                    if($modified['amount'] >= 0)
+                        $modified['invoices'][$key]['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
+                    else{
+                        $modified['credits'][$key]['credit_id'] = $this->transformId('credits', $invoice['invoice_id']);
+                        $modified['credits'][$key]['amount'] = $modified['invoices'][$key]['amount'];
+                    }
+
                 }
             }
 
