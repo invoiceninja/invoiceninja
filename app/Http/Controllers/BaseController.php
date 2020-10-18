@@ -61,7 +61,7 @@ class BaseController extends Controller
     private $first_load = [
           'account',
           'user.company_user',
-          'token',
+          'token.company_user',
           'company.activities',
           'company.users.company_user',
           'company.tax_rates',
@@ -81,6 +81,7 @@ class BaseController extends Controller
           'company.recurring_invoices.invitations.company',
           'company.recurring_invoices.documents',
           'company.payments.paymentables',
+          'company.payments.documents',
           'company.quotes.invitations.contact',
           'company.quotes.invitations.company',
           'company.quotes.documents',
@@ -89,10 +90,10 @@ class BaseController extends Controller
           'company.credits.documents',
           'company.payment_terms.company',
           'company.vendors.contacts',
-          'company.expenses',
-          'company.tasks',
-          'company.projects',
-          'company.designs',
+          'company.expenses.documents',
+          'company.tasks.documents',
+          'company.projects.documents',
+          'company.designs.company',
           'company.documents',
           'company.webhooks',
           'company.tokens_hashed',
@@ -255,7 +256,7 @@ class BaseController extends Controller
                 $query->where('updated_at', '>=', $updated_at);
             },
             'company.designs'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at);
+                $query->where('updated_at', '>=', $updated_at)->with('company');
             },
           ]
         );

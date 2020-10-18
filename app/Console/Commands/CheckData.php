@@ -303,7 +303,7 @@ class CheckData extends Command
 
             if ($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4)) {
                 $wrong_balances++;
-                $this->logMessage($client->present()->name.' - '.$client->id." - balances do not match Invoice Balance = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
+                $this->logMessage($client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
 
                 $this->isValid = false;
             }
@@ -352,11 +352,12 @@ class CheckData extends Command
                 $total_credit = $invoice->credits->sum('amount');
 
                 $total_paid = $total_amount - $total_refund;
+                $calculated_paid_amount = $invoice->amount - $invoice->balance - $total_credit;
 
-                if ($total_paid != ($invoice->amount - $invoice->balance - $total_credit)) {
+                if ((string)$total_paid != (string)($invoice->amount - $invoice->balance - $total_credit)) {
                     $wrong_balances++;
 
-                    $this->logMessage($client->present()->name.' - '.$client->id." - balances do not match Invoice Amount = {$invoice->amount} - Invoice Balance = {$invoice->balance} Total paid = {$total_paid}");
+                    $this->logMessage($client->present()->name.' - '.$client->id." - Total Amount = {$total_amount} != Calculated Total = {$calculated_paid_amount} - Total Refund = {$total_refund} Total credit = {$total_credit}");
 
                     $this->isValid = false;
                 }
