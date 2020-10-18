@@ -724,8 +724,10 @@ class Import implements ShouldQueue
 
                     if($modified['amount'] >= 0)
                         $modified['invoices'][$key]['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
-                    else
+                    else{
                         $modified['credits'][$key]['credit_id'] = $this->transformId('credits', $invoice['invoice_id']);
+                        $modified['credits'][$key]['amount'] = $modified['invoices'][$key]['amount'];
+                    }
 
                 }
             }

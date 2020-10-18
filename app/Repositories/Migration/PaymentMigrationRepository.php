@@ -117,6 +117,20 @@ class PaymentMigrationRepository extends BaseRepository
             });
         }
 
+        if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
+            $credit_totals = array_sum(array_column($data['credits'], 'amount'));
+
+            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->get();
+
+            $payment->credits()->saveMany($credits);
+
+            $payment->credits->each(function ($cre) use ($credit_totals) {
+                $cre->pivot->amount = $credit_totals;
+                $cre->pivot->save();
+            });
+        }
+
+
         $fields = new \stdClass;
 
         $fields->payment_id = $payment->id;
