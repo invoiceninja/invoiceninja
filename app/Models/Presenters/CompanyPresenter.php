@@ -76,7 +76,7 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        $country = Country::find($settings->country_id)->first();
+        $country = Country::find($settings->country_id);
 
         $swap = $country && $country->swap_postal_code;
 

@@ -427,7 +427,7 @@ class HtmlEngine
 
     private function getCountryName() :string
     {
-        $country = Country::find($this->settings->country_id)->first();
+        $country = Country::find($this->settings->country_id);
 
         if ($country) {
             return $country->name;
