@@ -28,7 +28,6 @@ class InvoiceInvitation extends BaseModel
     use Inviteable;
 
     protected $fillable = [
-        //'key',
         'client_contact_id',
     ];
 

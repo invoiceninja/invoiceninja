@@ -37,22 +37,12 @@ class StoreExpenseRequest extends Request
     public function rules()
     {
 
-        /* Ensure we have a client name, and that all emails are unique*/
-        //$rules['name'] = 'required|min:1';
+
         $rules['id_number'] = 'unique:expenses,id_number,'.$this->id.',id,company_id,'.$this->company_id;
-        //$rules['settings'] = new ValidExpenseGroupSettingsRule();
+
         $rules['contacts.*.email'] = 'nullable|distinct';
 
         $rules['number'] = new UniqueExpenseNumberRule($this->all());
-
-        // $contacts = request('contacts');
-
-        // if (is_array($contacts)) {
-        //     for ($i = 0; $i < count($contacts); $i++) {
-
-        //         //$rules['contacts.' . $i . '.email'] = 'nullable|email|distinct';
-        //     }
-        // }
 
         return $rules;
     }

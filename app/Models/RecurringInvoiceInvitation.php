@@ -69,5 +69,16 @@ class RecurringInvoiceInvitation extends BaseModel
         return $this->belongsTo(Company::class);
     }
 
+    public function markViewed()
+    {
+        $this->viewed_date = Carbon::now();
+        $this->save();
+    }
+
+    public function markOpened()
+    {
+        $this->opened_date = Carbon::now();
+        $this->save();
+    }
 
 }
