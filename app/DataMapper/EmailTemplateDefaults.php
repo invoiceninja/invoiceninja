@@ -198,50 +198,47 @@ class EmailTemplateDefaults
 
     public static function emailReminder1Template()
     {
-        //  return Parsedown::instance()->line('First Email Reminder Text');
+        return '';
     }
 
     public static function emailReminder2Subject()
     {
         return ctrans('texts.reminder_subject', ['invoice'=>'$invoice.number', 'account'=>'$company.name']);
-//        return Parsedown::instance()->line(self::transformText('reminder_subject'));
     }
 
     public static function emailReminder2Template()
     {
-        //  return Parsedown::instance()->line('Second Email Reminder Text');
+        return '';
     }
 
     public static function emailReminder3Subject()
     {
         return ctrans('texts.reminder_subject', ['invoice'=>'$invoice.number', 'account'=>'$company.name']);
-//        return Parsedown::instance()->line(self::transformText('reminder_subject'));
     }
 
     public static function emailReminder3Template()
     {
-        //  return Parsedown::instance()->line('Third Email Reminder Text');
+        return '';
     }
 
     public static function emailReminderEndlessSubject()
     {
         return ctrans('texts.reminder_subject', ['invoice'=>'$invoice.number', 'account'=>'$company.name']);
-//        return Parsedown::instance()->line(self::transformText('reminder_subject'));
     }
 
     public static function emailReminderEndlessTemplate()
     {
-        return ctrans('Endless Email Reminder Text');
+        return '';
     }
 
     public static function emailStatementSubject()
     {
-        return ctrans('Statement Subject needs texts record!');
+        return '';
     }
 
     public static function emailStatementTemplate()
     {
-        return ctrans('Statement Templates needs texts record!');
+        return '';
     }
 
     private static function transformText($string)
