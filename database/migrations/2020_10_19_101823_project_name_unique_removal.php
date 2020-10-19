@@ -21,6 +21,9 @@ class ProjectNameUniqueRemoval extends Migration
         Schema::table('expenses', function (Blueprint $table) {
             $table->unsignedInteger('invoice_currency_id')->nullable()->change();
             $table->unsignedInteger('expense_currency_id')->nullable()->change();
+            $table->text('private_notes')->nullable()->change();
+            $table->text('public_notes')->nullable()->change();
+            $table->text('transaction_reference')->nullable()->change();
         });
 
         Schema::table('companies', function (Blueprint $table) {
