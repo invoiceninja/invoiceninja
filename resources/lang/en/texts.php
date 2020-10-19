@@ -3286,4 +3286,5 @@ return [
     'credit_subject' => 'New credit :number from :account',
     'credit_message' => 'To view your credit for :amount, click the link below.',
 
+    'store_for_future_use' => 'Store for future use',
 ];

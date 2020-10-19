@@ -163,7 +163,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         $state = array_merge($state, $request->all());
         $state['store_card'] = boolval($state['store_card']);
 
-        if ($request->has('token') && ! is_null($request->token)) {
+        if ($request->has('token') && !is_null($request->token)) {
             $method = new IdSource($state['token']);
             $payment = new CheckoutPayment($method, $state['currency']);
             $payment->amount = $state['value'];
@@ -355,6 +355,9 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function saveCard($state)
     {
+        // TODO: @wip Fix card tokenization.
+        return;
+
         //some cards just can't be tokenized....
         if(!$state['payment_response']->source['id'])
             return;
