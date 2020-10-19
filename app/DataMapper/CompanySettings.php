@@ -105,6 +105,9 @@ class CompanySettings extends BaseSettings
     public $payment_number_pattern = '';
     public $payment_number_counter = 1;
 
+    public $project_number_pattern = '';
+    public $project_number_counter = 1;
+
     public $shared_invoice_quote_counter = false;
     public $recurring_number_prefix = 'R';
     public $reset_counter_frequency_id = '0';
@@ -313,6 +316,8 @@ class CompanySettings extends BaseSettings
         'embed_documents'                    => 'bool',
         'all_pages_header'                   => 'bool',
         'all_pages_footer'                   => 'bool',
+        'project_number_pattern'             => 'string',
+        'project_number_counter'             => 'int',
         'task_number_pattern'                => 'string',
         'task_number_counter'                => 'int',
         'expense_number_pattern'             => 'string',

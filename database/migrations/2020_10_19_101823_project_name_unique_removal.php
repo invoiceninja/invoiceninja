@@ -23,6 +23,10 @@ class ProjectNameUniqueRemoval extends Migration
             $table->unsignedInteger('expense_currency_id')->nullable()->change();
         });
 
+        Schema::table('companies', function (Blueprint $table) {
+            $table->boolean('invoice_expense_documents')->default(false);
+        });
+
     }
 
     /**

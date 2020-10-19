@@ -17,13 +17,15 @@ use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 
 class Vendor extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
     use GeneratesCounter;
-    
+    use PresentableTrait;
+
     protected $fillable = [
         'name',
         'assigned_user_id',
