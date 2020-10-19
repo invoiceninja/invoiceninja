@@ -220,6 +220,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder3Template()
     {
+        return '';
         //  return Parsedown::instance()->line('Third Email Reminder Text');
     }
 
@@ -231,17 +232,20 @@ class EmailTemplateDefaults
 
     public static function emailReminderEndlessTemplate()
     {
-        return ctrans('Endless Email Reminder Text');
+        return '';
+        // return ctrans('');
     }
 
     public static function emailStatementSubject()
     {
-        return ctrans('Statement Subject needs texts record!');
+        return '';
+        // return ctrans('');
     }
 
     public static function emailStatementTemplate()
     {
-        return ctrans('Statement Templates needs texts record!');
+        return '';
+        // return ctrans('');
     }
 
     private static function transformText($string)

@@ -16,6 +16,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 /**
  * Class MultiDB.
@@ -237,7 +238,7 @@ class MultiDB
 
     public static function findAndSetDbByInvitation($entity, $invitation_key)
     {
-        $class = 'App\Models\\'.ucfirst($entity).'Invitation';
+        $class = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
 
         foreach (self::$dbs as $db) {
             if ($invite = $class::on($db)->whereRaw('BINARY `key`= ?', [$invitation_key])->first()) {

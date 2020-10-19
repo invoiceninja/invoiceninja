@@ -60,10 +60,9 @@ class BaseController extends Controller
 
     private $first_load = [
           'account',
-          'user.company_user',
           'token.company_user',
           'company.activities',
-          'company.users.company_user',
+          'company.users.company_users',
           'company.tax_rates',
           'company.groups',
           'company.company_gateways.gateway',
@@ -203,60 +202,60 @@ class BaseController extends Controller
         $updated_at = date('Y-m-d H:i:s', $updated_at);
 
         $query->with(
-          [
+          [ 'user.company_users',
             'company' => function ($query) use ($updated_at) {
                 $query->whereNotNull('updated_at')->with('documents');
             },
             'company.clients' => function ($query) use ($updated_at) {
-                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts', 'gateway_tokens','documents');
-            },
-            'company.tax_rates' => function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at);
-            },
-            'company.groups' => function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at);
+                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens','documents','company');
             },
             'company.company_gateways' => function ($query) {
                 $query->whereNotNull('updated_at');
             },
-            'company.products' => function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('documents');
+            'company.credits'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents',);
             },
-            'company.recurring_invoices'=> function ($query) use ($updated_at) {
+            'company.designs'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at)->with('company');
             },
-            'company.invoices'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'company', 'documents');
+            'company.documents'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
             },
-            'company.recurring_invoices'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'company', 'documents');
+            'company.expenses'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('documents' );
+            },
+            'company.groups' => function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
+            },
+            'company.invoices'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
             },
             'company.payments'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('paymentables','documents');
-            },
-            'company.quotes'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
-            },
-            'company.credits'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
+                $query->where('updated_at', '>=', $updated_at)->with('paymentables','documents', );
             },
             'company.payment_terms'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at);
             },
-            'company.vendors'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('contacts');
-            },
-            'company.expenses'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at);
-            },
-            'company.tasks'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at);
+            'company.products' => function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('documents');
             },
             'company.projects'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('documents' );
+            },
+            'company.quotes'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents',);
+            },
+            'company.recurring_invoices'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
+            },
+            'company.tasks'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('documents' );
+            },
+            'company.tax_rates' => function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at);
             },
-            'company.designs'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('company');
+            'company.vendors'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at)->with('contacts','documents' );
             },
           ]
         );

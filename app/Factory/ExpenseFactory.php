@@ -33,7 +33,16 @@ class ExpenseFactory
         $expense->tax_rate3 = 0;
         $expense->date = null;
         $expense->payment_date = null;
-
+        $expense->amount = 0;
+        $expense->foreign_amount = 0;
+        $expense->private_notes = '';
+        $expense->public_notes = '';
+        $expense->transaction_reference = '';
+        $expense->custom_value1 = '';
+        $expense->custom_value2 = '';
+        $expense->custom_value3 = '';
+        $expense->custom_value4 = '';
+        
         return $expense;
     }
 }
