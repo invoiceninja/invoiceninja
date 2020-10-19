@@ -77,6 +77,10 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('tasks/bulk', 'TaskController@bulk')->name('tasks.bulk');
 
+    Route::resource('task_statuses', 'TaskStatusController'); // name = (task_statuses. index / create / show / update / destroy / edit
+
+    Route::post('task_statuses/bulk', 'TaskStatusController@bulk')->name('task_statuses.bulk');
+
     Route::resource('projects', 'ProjectController'); // name = (projects. index / create / show / update / destroy / edit
     Route::post('projects/bulk', 'ProjectController@bulk')->name('projects.bulk');
 

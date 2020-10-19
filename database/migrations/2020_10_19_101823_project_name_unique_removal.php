@@ -30,6 +30,20 @@ class ProjectNameUniqueRemoval extends Migration
             $table->boolean('invoice_expense_documents')->default(false);
         });
 
+        Schema::create('task_statuses', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->unsignedInteger('company_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->boolean('is_deleted')->default(0);
+            $table->timestamps(6);
+            $table->softDeletes('deleted_at', 6);
+
+            $table->index(['company_id', 'deleted_at']);
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+        });
     }
 
     /**
