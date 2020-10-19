@@ -1,6 +1,6 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Checkout.com'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Checkout.com', 'card_title' => 'Checkout.com'])
 
-@section('payment-head')
+@section('gateway_head')
     <meta name="public-key" content="{{ $gateway->getPublishableKey() }}">
     <meta name="customer-email" content="{{ $customer_email }}">
     <meta name="value" content="{{ $value }}">
@@ -8,7 +8,7 @@
     <meta name="reference" content="{{ $payment_hash }}">
 @endsection
 
-@section('payment-content')
+@section('gateway_content')
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="gateway_response">
@@ -31,9 +31,9 @@
     @endcomponent
 
     @include('portal.ninja2020.gateways.includes.payment_details')
-    @include('portal.ninja2020.gateways.includes.store_for_future')
+    @include('portal.ninja2020.gateways.includes.save_card')
 
-    @component('portal.ninja2020.components.general.card-element', ['title' => ''])
+    @component('portal.ninja2020.components.general.card-element-single')
         <form class="payment-form" method="POST" action="#">
             @if(app()->environment() == 'production')
                 <script async src="https://cdn.checkout.com/js/checkout.js"></script>
@@ -44,6 +44,6 @@
     @endcomponent
 @endsection
 
-@section('payment-footer')
+@section('gateway_footer')
     <script src="{{ asset('js/clients/payments/checkout.com.js') }}"></script>
 @endsection

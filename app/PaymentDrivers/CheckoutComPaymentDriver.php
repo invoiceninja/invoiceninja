@@ -318,7 +318,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
         $error_message = json_decode($e->getBody());
 
-        PaymentFailureMailer::dispatch($this->client, $error_message->message, $this->client->company, $state['value']);
+        PaymentFailureMailer::dispatch($this->client, optional($error_message)->message, $this->client->company, $state['value']);
 
         $message = [
             'server_response' => $state['server_response'],
