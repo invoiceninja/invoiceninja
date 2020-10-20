@@ -169,8 +169,9 @@ class Design extends BaseDesign
 
         foreach ($variables as $variable) {
             $_variable = explode('.', $variable)[1];
-
-            if ($_variable == 'custom1' || $_variable == 'custom2') {
+            $_customs = ['custom1', 'custom2', 'custom3', 'custom4'];
+            
+            if (in_array($_variable, $_customs)) {
                 $elements[] = ['element' => 'tr', 'elements' => [
                     ['element' => 'th', 'content' => $variable . '_label'],
                     ['element' => 'th', 'content' => $variable],
