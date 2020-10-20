@@ -39,10 +39,4 @@ class UpdateTaskStatusRequest extends Request
        return $rules;
     }
 
-    // protected function prepareForValidation()
-    // {
-    //     $input = $this->all();
-
-    //     $this->replace($input);
-    // }
 }

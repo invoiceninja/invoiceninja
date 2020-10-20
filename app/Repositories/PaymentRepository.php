@@ -70,10 +70,13 @@ class PaymentRepository extends BaseRepository
      */
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
+        $is_existing_payment = true;
 
         //check currencies here and fill the exchange rate data if necessary
         if (! $payment->id) {
             $this->processExchangeRates($data, $payment);
+
+            $is_existing_payment = false;
 
             /*We only update the paid to date ONCE per payment*/
             if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
@@ -144,7 +147,8 @@ class PaymentRepository extends BaseRepository
             }
         }
 
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+        if(!$is_existing_payment)
+            event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         /*info("invoice totals = {$invoice_totals}");
         info("credit totals = {$credit_totals}");
@@ -162,7 +166,7 @@ class PaymentRepository extends BaseRepository
         //     $payment->applied += $invoice_totals;
         // }
 
-        $payment->applied = $invoice_totals; //wont work because - check tests
+        $payment->applied += $invoice_totals; //wont work because - check tests
 
         $payment->save();
 
