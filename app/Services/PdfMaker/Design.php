@@ -168,10 +168,20 @@ class Design extends BaseDesign
         $elements = [];
 
         foreach ($variables as $variable) {
-            $elements[] = ['element' => 'tr', 'properties' => ['hidden' => $this->entityVariableCheck($variable)], 'elements' => [
-                ['element' => 'th', 'content' => $variable . '_label'],
-                ['element' => 'th', 'content' => $variable],
-            ]];
+            $_variable = explode('.', $variable)[1];
+            $_customs = ['custom1', 'custom2', 'custom3', 'custom4'];
+            
+            if (in_array($_variable, $_customs)) {
+                $elements[] = ['element' => 'tr', 'elements' => [
+                    ['element' => 'th', 'content' => $variable . '_label'],
+                    ['element' => 'th', 'content' => $variable],
+                ]];
+            } else {
+                $elements[] = ['element' => 'tr', 'properties' => ['hidden' => $this->entityVariableCheck($variable)], 'elements' => [
+                    ['element' => 'th', 'content' => $variable . '_label'],
+                    ['element' => 'th', 'content' => $variable],
+                ]];
+            }
         }
 
         return $elements;
