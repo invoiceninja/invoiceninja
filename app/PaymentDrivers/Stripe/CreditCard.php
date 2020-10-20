@@ -179,7 +179,7 @@ class CreditCard
 
         $payment_type = PaymentType::parseCardType($payment_method_object['card']['brand']);
 
-        if ($state['save_card'] == true || $state['save_card'] == 'true') {
+        if ($state['save_card'] === true || $state['save_card'] === 'true') {
             $this->saveCard($state);
         }
 
