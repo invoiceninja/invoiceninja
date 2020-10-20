@@ -31,9 +31,7 @@ class ProcessAlipay {
             },
         };
 
-        document.getElementById('pay-now').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
+        document.getElementById('pay-now').addEventListener('click', (e) => {
             document.getElementById('pay-now-button').disabled = true;
             document.querySelector('#pay-now-button > svg').classList.add('hidden');
             document.querySelector('#pay-now-button > span').classList.remove('hidden');

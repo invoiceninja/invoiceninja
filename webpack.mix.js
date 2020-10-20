@@ -27,8 +27,8 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/payments/stripe-sofort.js"
     )
     .js(
-        "resources/js/clients/payments/alipay.js",
-        "public/js/clients/payments/alipay.js"
+        "resources/js/clients/payments/stripe-alipay.js",
+        "public/js/clients/payments/stripe-alipay.js"
     )
     .js(
         "resources/js/clients/payments/checkout.com.js",
