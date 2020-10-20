@@ -126,7 +126,10 @@ class AutoBillInvoice extends AbstractService
             {
                 $current_credit = Credit::find($credit['credit_id']);
                 $payment->credits()->attach($current_credit->id, ['amount' => $credit['amount']]);
-                $this->applyPaymentToCredit($current_credit, $credit['amount']);
+                
+                $current_credit->balance -= $credit['amount'];
+                $current_credit->save(); 
+                // $this->applyPaymentToCredit($current_credit, $credit['amount']);
             }
 
             $payment->ledger()
