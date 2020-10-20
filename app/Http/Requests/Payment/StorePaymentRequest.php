@@ -77,7 +77,7 @@ class StorePaymentRequest extends Request
 
         if (! isset($input['amount']) || $input['amount'] == 0) {
             //$input['amount'] = $invoices_total - $credits_total;
-            $input['amount'] = $invoices_total;
+            $input['amount'] = $invoices_total - $credits_total; //todo the payment amount is always less the credit amount applied
         }
 
         $input['is_manual'] = true;
@@ -94,17 +94,15 @@ class StorePaymentRequest extends Request
         $rules = [
             'amount' => 'numeric|required',
             'amount' => [new PaymentAmountsBalanceRule(), new ValidCreditsPresentRule()],
-            //'date' => 'required',
             'client_id' => 'bail|required|exists:clients,id',
-            'invoices.*.invoice_id' => 'required|distinct|exists:invoices,id',
+            'invoices.*.invoice_id' => 'bail|required|distinct|exists:invoices,id',
             'invoices.*.invoice_id' => new ValidInvoicesRules($this->all()),
             'invoices.*.amount' => 'required',
-            'credits.*.credit_id' => 'required|exists:credits,id',
+            'credits.*.credit_id' => 'bail|required|exists:credits,id',
             'credits.*.credit_id' => new ValidCreditsRules($this->all()),
             'credits.*.amount' => 'required',
             'invoices' => new ValidPayableInvoicesRule(),
-            'number' => 'nullable|unique:payments,number,'.$this->id.',id,company_id,'.$this->company_id,
-            //'number' => 'nullable',
+            'number' => 'bail|nullable|unique:payments,number,'.$this->id.',id,company_id,'.$this->company_id,
         ];
 
         if ($this->input('documents') && is_array($this->input('documents'))) {

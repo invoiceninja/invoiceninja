@@ -88,6 +88,14 @@ class PaymentRepository extends BaseRepository
 
                 $client->service()->updatePaidToDate($data['amount'])->save();
             }
+//todo
+            if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
+                 if ($data['amount'] == '') {
+                    $data['amount'] += array_sum(array_column($data['credits'], 'amount'));
+                }
+
+            }
+
         }
 
         /*Fill the payment*/
@@ -166,7 +174,7 @@ class PaymentRepository extends BaseRepository
         //     $payment->applied += $invoice_totals;
         // }
 
-        $payment->applied += $invoice_totals; //wont work because - check tests
+        $payment->applied += ($invoice_totals - $credit_totals); //wont work because - check tests
 
         $payment->save();
 
