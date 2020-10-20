@@ -39,7 +39,7 @@ class CreditCard
     {
         $intent['intent'] = $this->stripe->getSetupIntent();
 
-        return render('gateways.stripe.add_credit_card', array_merge($data, $intent));
+        return render('gateways.stripe.credit_card.authorize', array_merge($data, $intent));
     }
 
     public function authorizeResponse($request)
@@ -107,7 +107,7 @@ class CreditCard
         $data['intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
         $data['gateway'] = $this->stripe;
 
-        return render('gateways.stripe.credit_card', $data);
+        return render('gateways.stripe.credit_card.pay', $data);
     }
 
     public function paymentResponse($request)

@@ -3,10 +3,6 @@ const tailwindcss = require("tailwindcss");
 
 mix.js("resources/js/app.js", "public/js")
     .js(
-        "resources/js/clients/payment_methods/authorize-stripe-card.js",
-        "public/js/clients/payment_methods/authorize-stripe-card.js"
-    )
-    .js(
         "resources/js/clients/payment_methods/authorize-authorize-card.js",
         "public/js/clients/payment_methods/authorize-authorize-card.js"
     )
@@ -47,8 +43,8 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/quotes/approve.js"
     )
     .js(
-        "resources/js/clients/payments/process.js",
-        "public/js/clients/payments/process.js"
+        "resources/js/clients/payments/stripe-credit-card.js",
+        "public/js/clients/payments/stripe-credit-card.js"
     )
     .js(
         "resources/js/setup/setup.js", 
