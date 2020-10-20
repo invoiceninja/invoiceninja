@@ -27,6 +27,11 @@ class RecurringInvoiceInvitation extends BaseModel
 
     protected $touches = ['recurring_invoice'];
 
+    protected $with = [
+        'company',
+        'contact',
+    ];
+    
     public function getEntityType()
     {
         return self::class;

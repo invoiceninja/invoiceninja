@@ -36,6 +36,7 @@ class UpdateRecurringInvoiceRequest extends Request
 
     public function rules()
     {
+        
         $rules = [];
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
@@ -49,7 +50,7 @@ class UpdateRecurringInvoiceRequest extends Request
         }
 
         if ($this->input('number')) {
-            $rules['number'] = 'unique:recurring_invoices,number,'.$this->id.',id,company_id,'.$this->recurring_invoice->company_id;
+            $rules['number'] = 'unique:recurring_invoices,number,'.$this->recurring_invoice->id.',id,company_id,'.$this->recurring_invoice->company_id;
         }
 
         return $rules;

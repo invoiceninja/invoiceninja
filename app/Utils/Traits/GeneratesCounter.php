@@ -518,6 +518,7 @@ trait GeneratesCounter
         $settings->vendor_number_counter = 1;
         $settings->ticket_number_counter = 1;
         $settings->payment_number_counter = 1;
+        $settings->project_number_counter = 1;
         $settings->task_number_counter = 1;
         $settings->expense_number_counter = 1;
 
