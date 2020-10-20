@@ -174,6 +174,18 @@ class InvoiceSumInclusive
         return $this;
     }
 
+    public function getRecurringInvoice()
+    {
+        
+        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
+        $this->invoice->total_taxes = $this->getTotalTaxes();
+        $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
+
+        $this->invoice->save();
+
+        return $this->invoice;
+    }
+
     public function getInvoice()
     {
         //Build invoice values here and return Invoice
