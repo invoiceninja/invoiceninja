@@ -4,6 +4,7 @@
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     <meta name="stripe-token" content="{{ $token->token }}">
     <meta name="stripe-secret" content="{{ $intent->client_secret }}">
+    <meta name="only-authorization" content="">
 @endsection
 
 @section('gateway_content')
