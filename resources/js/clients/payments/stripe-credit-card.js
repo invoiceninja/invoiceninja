@@ -44,8 +44,8 @@ class StripeCreditCard {
         this.payNowButton.querySelector('span').classList.add('hidden');
 
         this.stripe
-            .handleCardPayment(payNowButton.dataset.secret, {
-                payment_method: payNowButton.dataset.token,
+            .handleCardPayment(this.secret, {
+                payment_method: this.token,
             })
             .then((result) => {
                 if (result.error) {
@@ -114,7 +114,7 @@ class StripeCreditCard {
     handle() {
         this.setupStripe();
 
-        if (this.usingToken) {
+        if (this.token) {
             document
                 .getElementById('pay-now-with-token')
                 .addEventListener('click', () => {
@@ -122,7 +122,7 @@ class StripeCreditCard {
                 });
         }
 
-        if (!this.usingToken) {
+        if (!this.token) {
             this.createElement().mountCardElement();
 
             document.getElementById('pay-now').addEventListener('click', () => {

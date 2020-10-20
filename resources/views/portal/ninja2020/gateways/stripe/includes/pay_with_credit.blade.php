@@ -3,6 +3,6 @@
     <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
 </form>
 
-<div class="bg-white px-4 py-5 flex justify-end">
-    <button form="credit-payment" class="button button-primary bg-primary inline-flex items-center">Pay with credit</button>
-</div>
+@component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-with-credit', 'form' => 'credit-payment'])
+    {{ ctrans('texts.pay_with_credit') }}
+@endcomponent
