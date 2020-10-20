@@ -81,30 +81,19 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 7);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./resources/js/clients/payments/alipay.js":
-/*!*************************************************!*\
-  !*** ./resources/js/clients/payments/alipay.js ***!
-  \*************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-throw new Error("Module build failed (from ./node_modules/babel-loader/lib/index.js):\nError: ENOENT: no such file or directory, open '/home/benjamin/Development/invoiceninja/resources/js/clients/payments/alipay.js'");
-
-/***/ }),
-
-/***/ 7:
-/*!*******************************************************!*\
-  !*** multi ./resources/js/clients/payments/alipay.js ***!
-  \*******************************************************/
+/***/ 3:
+/*!******************************************************************!*\
+  !*** multi ./resources/js/clients/payment_methods/stripe-ach.js ***!
+  \******************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /home/benjamin/Development/invoiceninja/resources/js/clients/payments/alipay.js */"./resources/js/clients/payments/alipay.js");
+!(function webpackMissingModule() { var e = new Error("Cannot find module '/home/benjamin/Development/invoiceninja/resources/js/clients/payment_methods/stripe-ach.js'"); e.code = 'MODULE_NOT_FOUND'; throw e; }());
 
 
 /***/ })
