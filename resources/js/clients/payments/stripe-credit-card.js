@@ -8,10 +8,11 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-class ProcessStripePayment {
-    constructor(key, usingToken) {
+class StripeCreditCard {
+    constructor(key, token, secret) {
         this.key = key;
-        this.usingToken = usingToken;
+        this.token = token;
+        this.secret = secret;
     }
 
     setupStripe() {
@@ -67,7 +68,7 @@ class ProcessStripePayment {
         let cardHolderName = document.getElementById('cardholder-name');
 
         this.stripe
-            .handleCardPayment(payNowButton.dataset.secret, this.cardElement, {
+            .handleCardPayment(this.secret, this.cardElement, {
                 payment_method_data: {
                     billing_details: { name: cardHolderName.value },
                 },
@@ -131,10 +132,8 @@ class ProcessStripePayment {
     }
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-).content;
+const publishableKey = document.querySelector('meta[name="stripe-publishable-key"]').content;
+const token = document.querySelector('meta[name="stripe-token"]').content;
+const secret = document.querySelector('meta[name="stripe-secret"]').content;
 
-const usingToken = document.querySelector('meta[name="using-token"]').content;
-
-new ProcessStripePayment(publishableKey, usingToken).handle();
+new StripeCreditCard(publishableKey, token, secret).handle();
