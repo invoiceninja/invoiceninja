@@ -77,8 +77,8 @@ class AuthorizeACH {
 
     handle() {
         document
-            .getElementById('token-form')
-            .addEventListener('submit', (e) => this.handleSubmit(e));
+            .getElementById('save-button')
+            .addEventListener('click', (e) => this.handleSubmit(e));
     }
 }
 

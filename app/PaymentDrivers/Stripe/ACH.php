@@ -88,7 +88,7 @@ class ACH
             $client_gateway_token->save();
         }
 
-        return redirect()->route('client.payment_methods.verification', ['id' => $client_gateway_token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+        return redirect()->route('client.payment_methods.verification', ['payment_method' => $client_gateway_token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
     }
 
     public function verificationView(ClientGatewayToken $token)

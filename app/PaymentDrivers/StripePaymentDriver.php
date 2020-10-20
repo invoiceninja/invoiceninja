@@ -421,7 +421,7 @@ class StripePaymentDriver extends BaseDriver
             $response = $stripe->paymentMethods->detach($token->token);
         } catch (\Exception $e) {
             SystemLogger::dispatch([
-                'server_response' => $response, 'data' => request()->all(),
+                'server_response' => $e->getMessage(), 'data' => request()->all(),
             ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
         }
     }
