@@ -34,9 +34,7 @@ class ProcessSOFORT {
             },
         };
 
-        document.getElementById('pay-now').addEventListener('submit', (e) => {
-            e.preventDefault();
-
+        document.getElementById('pay-now').addEventListener('click', (e) => {
             document.getElementById('pay-now-button').disabled = true;
             document.querySelector('#pay-now-button > svg').classList.remove('hidden');
             document.querySelector('#pay-now-button > span').classList.add('hidden');
@@ -53,8 +51,6 @@ class ProcessSOFORT {
                 this.errors.textContent = '';
                 this.errors.textContent = result.error.message;
                 this.errors.hidden = false;
-
-                processingOverlay(false);
 
                 document.getElementById('pay-now').disabled = false;
             });
