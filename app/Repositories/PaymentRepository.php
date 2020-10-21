@@ -93,9 +93,10 @@ class PaymentRepository extends BaseRepository
 
                 $_credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-                //$data['amount'] -= $_credit_totals;
-
-                $client->service()->updatePaidToDate($_credit_totals)->save();
+                if($data['amount'] == $_credit_totals)
+                    $data['amount'] = 0;
+                else
+                    $client->service()->updatePaidToDate($_credit_totals)->save();
             
             }
 
