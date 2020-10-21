@@ -19,6 +19,7 @@ use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Design;
+use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Models\Invoice;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
@@ -87,7 +88,14 @@ class CreateInvoicePdf implements ShouldQueue
         $design = Design::find($invoice_design_id);
         $html = new HtmlEngine(null, $this->invitation, 'invoice');
 
-        $template = new PdfMakerDesign(strtolower($design->name));
+        if ($design->is_custom) {
+          $options = [
+            'custom_partials' => json_decode(json_encode($design->design), true)
+          ];
+          $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+        } else {
+          $template = new PdfMakerDesign(strtolower($design->name));
+        }
 
         $state = [
             'template' => $template->elements([
@@ -108,8 +116,6 @@ class CreateInvoicePdf implements ShouldQueue
         $maker
             ->design($template)
             ->build();
-
-        info($maker->getCompiledHTML());
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0775);
