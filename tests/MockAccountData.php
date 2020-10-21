@@ -42,6 +42,7 @@ use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -80,6 +81,8 @@ trait MockAccountData
     public $expense;
 
     public $task;
+
+    public $task_status;
 
     public $expense_category;
 
@@ -233,6 +236,11 @@ trait MockAccountData
         ]);
 
         $this->expense_category = ExpenseCategory::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->task_status = TaskStatus::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
         ]);

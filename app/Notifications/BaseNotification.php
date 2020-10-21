@@ -124,7 +124,7 @@ class BaseNotification extends Notification implements ShouldQueue
             'logo' => $this->entity->company->present()->logo(),
             'signature' => $this->settings->email_signature,
             'settings' => $this->settings,
-
+            'whitelabel' => $this->entity->company->account->isPaid() ? true : false,
         ];
 
         return $data;

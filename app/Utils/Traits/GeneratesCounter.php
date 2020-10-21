@@ -16,6 +16,7 @@ use App\Models\Credit;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\Timezone;
@@ -223,6 +224,44 @@ trait GeneratesCounter
         }
 
         return (string) $payment_number;
+    }
+
+    /**
+     * Project Number Generator.
+     * @return string The project number
+     */
+    public function getNextProjectNumber(Client $client) :string
+    {
+
+        //Reset counters if enabled
+        $this->resetCounters($client);
+
+        $is_client_counter = false;
+
+        //todo handle if we have specific client patterns in the future
+        $pattern = $client->company->settings->project_number_pattern;
+
+        //Determine if we are using client_counters
+        if (strpos($pattern, 'client_counter') === false) {
+            $counter = $client->company->settings->project_number_counter;
+        } else {
+            $counter = $client->settings->project_number_counter;
+            $is_client_counter = true;
+        }
+
+        //Return a valid counter
+        $pattern = '';
+        $padding = $client->getSetting('counter_padding');
+        $project_number = $this->checkEntityNumber(Project::class, $client, $counter, $padding, $pattern);
+
+        //increment the correct invoice_number Counter (company vs client)
+        if ($is_client_counter) {
+            $this->incrementCounter($client, 'project_number_counter');
+        } else {
+            $this->incrementCounter($client->company, 'project_number_counter');
+        }
+
+        return (string) $project_number;
     }
 
     /**
@@ -479,6 +518,7 @@ trait GeneratesCounter
         $settings->vendor_number_counter = 1;
         $settings->ticket_number_counter = 1;
         $settings->payment_number_counter = 1;
+        $settings->project_number_counter = 1;
         $settings->task_number_counter = 1;
         $settings->expense_number_counter = 1;
 

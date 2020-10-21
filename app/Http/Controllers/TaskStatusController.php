@@ -1,100 +1,63 @@
 <?php
-/**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
- *
- * @license https://opensource.org/licenses/AAL
- */
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\Analytics\AccountDeleted;
-use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
-use App\Http\Requests\Company\CreateCompanyRequest;
-use App\Http\Requests\Company\DestroyCompanyRequest;
-use App\Http\Requests\Company\EditCompanyRequest;
-use App\Http\Requests\Company\ShowCompanyRequest;
-use App\Http\Requests\Company\StoreCompanyRequest;
-use App\Http\Requests\Company\UpdateCompanyRequest;
-use App\Http\Requests\SignupRequest;
-use App\Jobs\Company\CreateCompany;
-use App\Jobs\Company\CreateCompanyPaymentTerms;
-use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Jobs\Ninja\RefundCancelledAccount;
-use App\Jobs\RegisterNewAccount;
-use App\Jobs\Util\UploadAvatar;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\CompanyUser;
-use App\Repositories\CompanyRepository;
-use App\Transformers\AccountTransformer;
-use App\Transformers\CompanyTransformer;
-use App\Transformers\CompanyUserTransformer;
-use App\Utils\Ninja;
+use App\Factory\TaskStatusFactory;
+use App\Http\Requests\TaskStatus\CreateTaskStatusRequest;
+use App\Http\Requests\TaskStatus\DestroyTaskStatusRequest;
+use App\Http\Requests\TaskStatus\ShowTaskStatusRequest;
+use App\Http\Requests\TaskStatus\StoreTaskStatusRequest;
+use App\Http\Requests\TaskStatus\UpdateTaskStatusRequest;
+use App\Models\TaskStatus;
+use App\Repositories\TaskStatusRepository;
+use App\Transformers\TaskStatusTransformer;
 use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\Uploadable;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Turbo124\Beacon\Facades\LightLogs;
 
-/**
- * Class CompanyController.
- */
-class CompanyController extends BaseController
+class TaskStatusController extends BaseController
 {
-    use DispatchesJobs;
     use MakesHash;
-    use Uploadable;
 
-    protected $entity_type = Company::class;
+    protected $entity_type = TaskStatus::class;
 
-    protected $entity_transformer = CompanyTransformer::class;
-
-    protected $company_repo;
-
-    public $forced_includes = [];
+    protected $entity_transformer = TaskStatusTransformer::class;
 
     /**
-     * CompanyController constructor.
+     * @var TaskStatusRepository
      */
-    public function __construct(CompanyRepository $company_repo)
+    protected $task_status_repo;
+
+    /**
+     * TaskStatusController constructor.
+     *
+     * @param      \App\Repositories\TaskStatusRepository  $task_status_repo  The payment term repo
+     */
+    public function __construct(TaskStatusRepository $task_status_repo)
     {
         parent::__construct();
 
-        $this->company_repo = $company_repo;
+        $this->task_status_repo = $task_status_repo;
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     *
-     * @OA\Get(
-     *      path="/api/v1/companies",
-     *      operationId="getCompanies",
-     *      tags={"companies"},
-     *      summary="Gets a list of companies",
-     *      description="Lists companies, search and filters allow fine grained lists to be generated.
-
-        Query parameters can be added to performed more fine grained filtering of the companies, these are handled by the CompanyFilters class which defines the methods available",
+     *      @OA\Get(
+     *      path="/api/v1/task_status",
+     *      operationId="getTaskStatuss",
+     *      tags={"task_status"},
+     *      summary="Gets a list of task statuses",
+     *      description="Lists task statuses",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\Response(
      *          response=200,
-     *          description="A list of companies",
+     *          description="A list of task statuses",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *          @OA\JsonContent(ref="#/components/schemas/TaskStatus"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -111,23 +74,25 @@ class CompanyController extends BaseController
      */
     public function index()
     {
-        $companies = Company::whereAccountId(auth()->user()->company()->account->id);
+        $task_status = TaskStatus::whereCompanyId(auth()->user()->company()->id)->orWhere('company_id', null);
 
-        return $this->listResponse($companies);
+        return $this->listResponse($task_status);
     }
 
     /**
      * Show the form for creating a new resource.
+     *
+     * @param      \App\Http\Requests\TaskStatus\CreateTaskStatusRequest  $request  The request
      *
      * @return \Illuminate\Http\Response
      *
      *
      *
      * @OA\Get(
-     *      path="/api/v1/companies/create",
-     *      operationId="getCompaniesCreate",
-     *      tags={"companies"},
-     *      summary="Gets a new blank company object",
+     *      path="/api/v1/task_statuses/create",
+     *      operationId="getTaskStatussCreate",
+     *      tags={"task_status"},
+     *      summary="Gets a new blank TaskStatus object",
      *      description="Returns a blank object with default values",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
@@ -135,11 +100,11 @@ class CompanyController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
      *          response=200,
-     *          description="A blank company object",
+     *          description="A blank TaskStatus object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *          @OA\JsonContent(ref="#/components/schemas/TaskStatus"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -154,37 +119,44 @@ class CompanyController extends BaseController
      *       ),
      *     )
      */
-    public function create(CreateCompanyRequest $request)
+    public function create(CreateTaskStatusRequest $request)
     {
-        $company = CompanyFactory::create(auth()->user()->company()->account->id);
+        $task_status = TaskStatusFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
-        return $this->itemResponse($company);
+        return $this->itemResponse($task_status);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\SignupRequest $request
+     * @param      \App\Http\Requests\TaskStatus\StoreTaskStatusRequest  $request  The request
+     *
      * @return \Illuminate\Http\Response
+     *
      *
      *
      * @OA\Post(
-     *      path="/api/v1/companies",
-     *      operationId="storeCompany",
-     *      tags={"companies"},
-     *      summary="Adds a company",
-     *      description="Adds an company to the system",
+     *      path="/api/v1/task_status",
+     *      operationId="storeTaskStatus",
+     *      tags={"task_status"},
+     *      summary="Adds a TaskStatus",
+     *      description="Adds a TaskStatusto the system",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\RequestBody(
+     *         description="The task_status request",
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/TaskStatus"),
+     *     ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the saved company object",
+     *          description="Returns the saved TaskStatus object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *          @OA\JsonContent(ref="#/components/schemas/TaskStatus"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -199,63 +171,22 @@ class CompanyController extends BaseController
      *       ),
      *     )
      */
-    public function store(StoreCompanyRequest $request)
+    public function store(StoreTaskStatusRequest $request)
     {
-        $this->forced_includes = ['company_user'];
+        $task_status = TaskStatusFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $task_status->fill($request->all());
+        $task_status->save();
 
-        $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
-
-        CreateCompanyPaymentTerms::dispatchNow($company, auth()->user());
-        CreateCompanyTaskStatuses::dispatchNow($company, auth()->user());
-
-        $company = $this->company_repo->save($request->all(), $company);
-
-        $this->uploadLogo($request->file('company_logo'), $company, $company);
-
-        auth()->user()->companies()->attach($company->id, [
-            'account_id' => $company->account->id,
-            'is_owner' => 1,
-            'is_admin' => 1,
-            'is_locked' => 0,
-            'permissions' => '',
-            'settings' => null,
-            'notifications' => CompanySettings::notificationDefaults(),
-            //'settings' => DefaultSettings::userSettings(),
-        ]);
-
-        /*
-         * Required dependencies
-         */
-        auth()->user()->setCompany($company);
-
-        /*
-         * Create token
-         */
-        $user_agent = request()->input('token_name') ?: request()->server('HTTP_USER_AGENT');
-
-        $company_token = CreateCompanyToken::dispatchNow($company, auth()->user(), $user_agent);
-
-        $this->entity_transformer = CompanyUserTransformer::class;
-        $this->entity_type = CompanyUser::class;
-
-        $ct = CompanyUser::whereUserId(auth()->user()->id)->whereCompanyId($company->id);
-
-        return $this->listResponse($ct);
+        return $this->itemResponse($task_status->fresh());
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     *
-     *
      * @OA\Get(
-     *      path="/api/v1/companies/{id}",
-     *      operationId="showCompany",
-     *      tags={"companies"},
-     *      summary="Shows an company",
-     *      description="Displays an company by id",
+     *      path="/api/v1/task_statuses/{id}",
+     *      operationId="showTaskStatus",
+     *      tags={"task_status"},
+     *      summary="Shows a TaskStatus Term",
+     *      description="Displays an TaskStatusby id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -263,7 +194,7 @@ class CompanyController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Company Hashed ID",
+     *          description="The TaskStatusHashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -273,11 +204,11 @@ class CompanyController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the company object",
+     *          description="Returns the TaskStatusobject",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *          @OA\JsonContent(ref="#/components/schemas/TaskStatus"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -292,24 +223,18 @@ class CompanyController extends BaseController
      *       ),
      *     )
      */
-    public function show(ShowCompanyRequest $request, Company $company)
+    public function show(ShowTaskStatusRequest $request, TaskStatus $task_status)
     {
-        return $this->itemResponse($company);
+        return $this->itemResponse($task_status);
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     *
-     *
      * @OA\Get(
-     *      path="/api/v1/companies/{id}/edit",
-     *      operationId="editCompany",
-     *      tags={"companies"},
-     *      summary="Shows an company for editting",
-     *      description="Displays an company by id",
+     *      path="/api/v1/task_statuses/{id}/edit",
+     *      operationId="editTaskStatuss",
+     *      tags={"task_status"},
+     *      summary="Shows an TaskStatusfor editting",
+     *      description="Displays an TaskStatusby id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -317,7 +242,7 @@ class CompanyController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Company Hashed ID",
+     *          description="The TaskStatusHashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -327,11 +252,11 @@ class CompanyController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the company object",
+     *          description="Returns the TaskStatus object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *          @OA\JsonContent(ref="#/components/schemas/TaskStatus"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -346,25 +271,26 @@ class CompanyController extends BaseController
      *       ),
      *     )
      */
-    public function edit(EditCompanyRequest $request, Company $company)
+    public function edit(EditTaskStatusRequest $request, TaskStatus $payment)
     {
-        return $this->itemResponse($company);
+        return $this->itemResponse($payment);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param      \App\Http\Requests\TaskStatus\UpdateTaskStatusRequest  $request  The request
+     * @param      \App\Models\TaskStatus                                  $task_status   The payment term
+     *
      * @return \Illuminate\Http\Response
      *
      *
      * @OA\Put(
-     *      path="/api/v1/companies/{id}",
-     *      operationId="updateCompany",
-     *      tags={"companies"},
-     *      summary="Updates an company",
-     *      description="Handles the updating of an company by id",
+     *      path="/api/v1/task_statuses/{id}",
+     *      operationId="updateTaskStatus",
+     *      tags={"task_status"},
+     *      summary="Updates a TaskStatus Term",
+     *      description="Handles the updating of an TaskStatus Termby id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -372,7 +298,7 @@ class CompanyController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Company Hashed ID",
+     *          description="The TaskStatusHashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -382,11 +308,11 @@ class CompanyController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the company object",
+     *          description="Returns the TaskStatusobject",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *          @OA\JsonContent(ref="#/components/schemas/TaskStatus"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -401,30 +327,29 @@ class CompanyController extends BaseController
      *       ),
      *     )
      */
-    public function update(UpdateCompanyRequest $request, Company $company)
+    public function update(UpdateTaskStatusRequest $request, TaskStatus $task_status)
     {
-        $company = $this->company_repo->save($request->all(), $company);
+        $task_status->fill($request->all());
+        $task_status->save();
 
-        $company->saveSettings($request->input('settings'), $company);
-
-        $this->uploadLogo($request->file('company_logo'), $company, $company);
-
-        return $this->itemResponse($company);
+        return $this->itemResponse($task_status->fresh());
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param      \App\Http\Requests\TaskStatus\DestroyTaskStatusRequest  $request
+     * @param      \App\Models\TaskStatus                                   $task_status
+     *
+     * @return     \Illuminate\Http\Response
      *
      *
      * @OA\Delete(
-     *      path="/api/v1/companies/{id}",
-     *      operationId="deleteCompany",
-     *      tags={"companies"},
-     *      summary="Deletes a company",
-     *      description="Handles the deletion of an company by id",
+     *      path="/api/v1/task_statuses/{id}",
+     *      operationId="deleteTaskStatus",
+     *      tags={"task_statuss"},
+     *      summary="Deletes a TaskStatus Term",
+     *      description="Handles the deletion of an TaskStatus by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -432,7 +357,7 @@ class CompanyController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The Company Hashed ID",
+     *          description="The TaskStatusHashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -460,38 +385,79 @@ class CompanyController extends BaseController
      *       ),
      *     )
      */
-    public function destroy(DestroyCompanyRequest $request, Company $company)
+    public function destroy(DestroyTaskStatusRequest $request, TaskStatus $task_status)
     {
-        $company_count = $company->account->companies->count();
-        $account = $company->account;
+        $task_status->delete();
 
-        if ($company_count == 1) {
-            $company->company_users->each(function ($company_user) {
-                $company_user->user->forceDelete();
-            });
+        return response()->json([], 200);
+    }
 
-            if (Ninja::isHosted()) {
-                RefundCancelledAccount::dispatchNow($account);
+    /**
+     * Perform bulk actions on the list view.
+     *
+     * @return Collection
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/task_statuses/bulk",
+     *      operationId="bulkTaskStatuss",
+     *      tags={"task_status"},
+     *      summary="Performs bulk actions on an array of task statuses",
+     *      description="",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\RequestBody(
+     *         description="TaskStatus Ter,s",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="integer",
+     *                     description="Array of hashed IDs to be bulk 'actioned",
+     *                     example="[0,1,2,3]",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The TaskStatus Terms response",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/TaskStatus"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function bulk()
+    {
+        $action = request()->input('action');
+
+        $ids = request()->input('ids');
+
+        $task_status = TaskStatus::withTrashed()->company()->find($this->transformKeys($ids));
+
+        $task_status->each(function ($task_status, $key) use ($action) {
+            if (auth()->user()->can('edit', $task_status)) {
+                $this->task_status_repo->{$action}($task_status);
             }
+        });
 
-            $account->delete();
-
-            LightLogs::create(new AccountDeleted())
-                     ->increment()
-                     ->batch();
-                 
-        } else {
-            $company_id = $company->id;
-            $company->delete();
-
-            //If we are deleting the default companies, we'll need to make a new company the default.
-            if ($account->default_company_id == $company_id) {
-                $new_default_company = Company::whereAccountId($account->id)->first();
-                $account->default_company_id = $new_default_company->id;
-                $account->save();
-            }
-        }
-
-        return response()->json(['message' => 'success'], 200);
+        return $this->listResponse(TaskStatus::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 }

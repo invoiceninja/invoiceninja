@@ -17,6 +17,7 @@ use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
@@ -175,6 +176,7 @@ class DemoMode extends Command
         }
 
         CreateCompanyPaymentTerms::dispatchNow($company, $user);
+        CreateCompanyTaskStatuses::dispatchNow($company, $user);
 
         $company_token = new CompanyToken;
         $company_token->user_id = $user->id;

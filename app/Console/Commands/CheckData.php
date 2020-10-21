@@ -112,7 +112,7 @@ class CheckData extends Command
                         ->subject('Check-Data: '.strtoupper($this->isValid ? Account::RESULT_SUCCESS : Account::RESULT_FAILURE)." [{$database}]");
             });
         } elseif (! $this->isValid) {
-            throw new Exception("Check data failed!!\n".$this->log);
+            new Exception("Check data failed!!\n".$this->log);
         }
     }
 
@@ -322,10 +322,10 @@ class CheckData extends Command
             $total_invoice_payments = 0;
 
             foreach ($client->invoices as $invoice) {
-                $total_amount = $invoice->payments->sum('pivot.amount');
+                $total_amount = $invoice->payments->sum('pivot.amount'); 
                 $total_refund = $invoice->payments->sum('pivot.refunded');
 
-                $total_invoice_payments += ($total_amount - $total_refund);
+                 $total_invoice_payments += ($total_amount - $total_refund);
             }
 
             foreach($client->payments as $payment)
@@ -333,7 +333,7 @@ class CheckData extends Command
               $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(\DB::raw('amount'));
             }
 
-            $total_invoice_payments += $credit_total_applied;
+            //$total_invoice_payments += $credit_total_applied; //todo this is contentious
 
             info("total invoice payments = {$total_invoice_payments} with client paid to date of of {$client->paid_to_date}");
 
