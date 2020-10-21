@@ -79,8 +79,6 @@ class PaymentRepository extends BaseRepository
             $is_existing_payment = false;
             $client = Client::find($data['client_id']);
 
-info("client paid to date {$client->paid_to_date}");
-
             /*We only update the paid to date ONCE per payment*/
             if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
                 if ($data['amount'] == '') {
@@ -89,23 +87,16 @@ info("client paid to date {$client->paid_to_date}");
 
                 $client->service()->updatePaidToDate($data['amount'])->save();
 
-info("client paid to date {$client->paid_to_date}");
             }
 
             if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
-                 
 
                 $_credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
                 $data['amount'] -= $_credit_totals;
 
-                info("credit totals = {$_credit_totals}");
-
                 $client->service()->updatePaidToDate($_credit_totals)->save();
             
-
-info("client paid to date {$client->paid_to_date}");
-
             }
 
         }
