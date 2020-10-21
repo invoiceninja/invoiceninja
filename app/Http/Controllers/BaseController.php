@@ -202,7 +202,7 @@ class BaseController extends Controller
         $updated_at = date('Y-m-d H:i:s', $updated_at);
 
         $query->with(
-          [ 'user.company_users',
+          [
             'company' => function ($query) use ($updated_at) {
                 $query->whereNotNull('updated_at')->with('documents');
             },

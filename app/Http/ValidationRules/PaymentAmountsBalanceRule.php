@@ -73,6 +73,9 @@ class PaymentAmountsBalanceRule implements Rule
             return true;
         } // if no invoices are present, then this is an unapplied payment, let this pass validation!
 
+info("payment amounts = {$payment_amounts}");
+info("invoice amounts = {$invoice_amounts}");
+        //return true;
         return  $payment_amounts >= $invoice_amounts;
     }
 }

@@ -322,11 +322,10 @@ class CheckData extends Command
             $total_invoice_payments = 0;
 
             foreach ($client->invoices as $invoice) {
-                info(print_r($invoice->payments,1));
-                $total_amount = $invoice->payments->sum('pivot.amount'); // the problem with this is that this also will sum the credits
+                $total_amount = $invoice->payments->sum('pivot.amount'); 
                 $total_refund = $invoice->payments->sum('pivot.refunded');
 
-                $total_invoice_payments += ($total_amount - $total_refund);
+                 $total_invoice_payments += ($total_amount - $total_refund);
             }
 
             foreach($client->payments as $payment)

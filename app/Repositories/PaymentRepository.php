@@ -93,12 +93,18 @@ info("client paid to date {$client->paid_to_date}");
             }
 
             if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
-                 if ($data['amount'] == '') {
-                    $data['amount'] -= array_sum(array_column($data['credits'], 'amount'));
-                }
+                 
 
+                $_credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-                info("client paid to date {$client->paid_to_date}");
+                $data['amount'] -= $_credit_totals;
+
+                info("credit totals = {$_credit_totals}");
+
+                $client->service()->updatePaidToDate($_credit_totals)->save();
+            
+
+info("client paid to date {$client->paid_to_date}");
 
             }
 
