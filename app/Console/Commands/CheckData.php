@@ -333,7 +333,8 @@ class CheckData extends Command
               $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(\DB::raw('amount'));
             }
 
-            //$total_invoice_payments += $credit_total_applied; //todo this is contentious
+            if($credit_total_applied < 0)
+                $total_invoice_payments += $credit_total_applied; //todo this is contentious
 
             info("total invoice payments = {$total_invoice_payments} with client paid to date of of {$client->paid_to_date}");
 

@@ -93,9 +93,10 @@ class PaymentRepository extends BaseRepository
 
                 $_credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-                $data['amount'] -= $_credit_totals;
-
-                $client->service()->updatePaidToDate($_credit_totals)->save();
+                if($data['amount'] == $_credit_totals)
+                    $data['amount'] = 0;
+                else
+                    $client->service()->updatePaidToDate($_credit_totals)->save();
             
             }
 
@@ -161,23 +162,10 @@ class PaymentRepository extends BaseRepository
         if(!$is_existing_payment)
             event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-        /*info("invoice totals = {$invoice_totals}");
-        info("credit totals = {$credit_totals}");
-        info("applied totals = " . array_sum(array_column($data['invoices'], 'amount')));
-        */
-        //$invoice_totals -= $credit_totals;
 
-        ////$payment->amount = $invoice_totals; //creates problems when setting amount like this.
 
-        // if($credit_totals == $payment->amount){
-        //     $payment->applied += $credit_totals;
-        // } elseif ($invoice_totals == $payment->amount) {
-        //     $payment->applied += $payment->amount;
-        // } elseif ($invoice_totals < $payment->amount) {
-        //     $payment->applied += $invoice_totals;
-        // }
-
-        $payment->applied += ($invoice_totals - $credit_totals); //wont work because - check tests
+         $payment->applied += ($invoice_totals - $credit_totals); //wont work because - check tests
+        // $payment->applied += $invoice_totals; //wont work because - check tests
 
         $payment->save();
 

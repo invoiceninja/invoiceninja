@@ -51,7 +51,6 @@ class ProjectNameUniqueRemoval extends Migration
             $table->decimal('rate', 16, 4)->default(0);
             $table->renameColumn('task_status_id', 'status_id');
             $table->renameColumn('task_status_sort_order', 'sort_order');
-
         });
     }
 
