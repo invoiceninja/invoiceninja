@@ -203,6 +203,10 @@ class CreateSingleAccount extends Command
 
             $this->info('creating project for client #'.$client->id);
             $this->createProject($client);
+
+            $this->info('creating credit for client #'.$client->id);
+            $this->createCredit($client);
+
         }
 
         $this->createGateways($company, $user);
@@ -344,11 +348,6 @@ class CreateSingleAccount extends Command
 
     private function createCredit($client)
     {
-        // for($x=0; $x<$this->count; $x++){
-
-        //     dispatch(new CreateTestCreditJob($client));
-
-        // }
         $faker = \Faker\Factory::create();
 
         $credit = Credit::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
@@ -356,23 +355,8 @@ class CreateSingleAccount extends Command
         $dateable = Carbon::now()->subDays(rand(0, 90));
         $credit->date = $dateable;
 
-        $credit->line_items = $this->buildLineItems(rand(1, 10));
+        $credit->line_items = $this->buildCreditItem();
         $credit->uses_inclusive_taxes = false;
-
-        if (rand(0, 1)) {
-            $credit->tax_name1 = 'GST';
-            $credit->tax_rate1 = 10.00;
-        }
-
-        if (rand(0, 1)) {
-            $credit->tax_name2 = 'VAT';
-            $credit->tax_rate2 = 17.50;
-        }
-
-        if (rand(0, 1)) {
-            $credit->tax_name3 = 'CA Sales Tax';
-            $credit->tax_rate3 = 5;
-        }
 
         $credit->save();
 
@@ -427,6 +411,32 @@ class CreateSingleAccount extends Command
         $quote->service()->markSent()->save();
         $quote->service()->createInvitations();
     }
+
+
+    private function buildCreditItem()
+    {
+        $line_items = [];
+
+            $item = InvoiceItemFactory::create();
+            $item->quantity = 1;
+            $item->cost = 1000;
+
+            $product = Product::all()->random();
+
+            $item->cost = (float) $product->cost;
+            $item->product_key = $product->product_key;
+            $item->notes = $product->notes;
+            $item->custom_value1 = $product->custom_value1;
+            $item->custom_value2 = $product->custom_value2;
+            $item->custom_value3 = $product->custom_value3;
+            $item->custom_value4 = $product->custom_value4;
+
+            $line_items[] = $item;
+        
+
+        return $line_items;
+    }
+
 
     private function buildLineItems($count = 1)
     {

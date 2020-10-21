@@ -77,6 +77,9 @@ class PaymentRepository extends BaseRepository
             $this->processExchangeRates($data, $payment);
 
             $is_existing_payment = false;
+            $client = Client::find($data['client_id']);
+
+info("client paid to date {$client->paid_to_date}");
 
             /*We only update the paid to date ONCE per payment*/
             if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
@@ -84,15 +87,18 @@ class PaymentRepository extends BaseRepository
                     $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
                 }
 
-                $client = Client::find($data['client_id']);
-
                 $client->service()->updatePaidToDate($data['amount'])->save();
+
+info("client paid to date {$client->paid_to_date}");
             }
-//todo
+
             if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
                  if ($data['amount'] == '') {
-                    $data['amount'] += array_sum(array_column($data['credits'], 'amount'));
+                    $data['amount'] -= array_sum(array_column($data['credits'], 'amount'));
                 }
+
+
+                info("client paid to date {$client->paid_to_date}");
 
             }
 
