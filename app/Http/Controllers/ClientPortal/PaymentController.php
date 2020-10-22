@@ -193,7 +193,7 @@ class PaymentController extends Controller
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);
-        $payment_hash->data = $payable_invoices->toArray();
+        $payment_hash->data = ['invoices' => $payable_invoices->toArray()];
         $payment_hash->fee_total = $fee_totals;
         $payment_hash->fee_invoice_id = $first_invoice->id;
         $payment_hash->save();

@@ -12,6 +12,13 @@
 
 namespace App\PaymentDrivers\CheckoutCom;
 
+use App\Events\Payment\PaymentWasCreated;
+use App\Jobs\Mail\PaymentFailureMailer;
+use App\Jobs\Util\SystemLogger;
+use App\Models\PaymentType;
+use App\Models\SystemLog;
+use App\Utils\Ninja;
+
 trait Utilities
 {
     public function getPublishableKey()
@@ -38,5 +45,132 @@ trait Utilities
 
         // https://docs.checkout.com/resources/calculating-the-value#Calculatingthevalue-Option3:Thevaluedividedby100valuediv100
         return round($amount * 100);
+    }
+
+    private function processSuccessfulPayment(\Checkout\Models\Payments\Payment $_payment)
+    {
+        if ($this->payment_hash->data->store_card) {
+            // $this->saveCreditCard();
+        }
+
+        $data = [
+            'payment_method' => $_payment->source['id'],
+            'payment_type' => PaymentType::parseCardType(strtolower($_payment->source['scheme'])),
+            'amount' => $this->payment_hash->data->value,
+        ];
+
+        $payment = $this->checkout->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+
+        $this->payment_hash->payment_id = $payment->id;
+        $this->payment_hash->save();
+
+        $this->checkout->attachInvoices($payment, $this->payment_hash);
+
+        $payment->service()->updateInvoicePayment($this->payment_hash);
+
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+
+        SystemLogger::dispatch(
+            ['response' => $_payment, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_CHECKOUT,
+            $this->checkout->client
+        );
+
+        return redirect()->route('client.payments.show', ['payment' => $this->checkout->encodePrimaryKey($payment->id)]);
+    }
+
+    public function processUnsuccessfulPayment(\Checkout\Models\Payments\Payment $_payment)
+    {
+        PaymentFailureMailer::dispatch(
+            $this->checkout->client,
+            $_payment,
+            $this->checkout->client->company,
+            $this->payment_hash->data->value
+        );
+
+        $message = [
+            'server_response' => $_payment,
+            'data' => $this->payment_hash->data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_CHECKOUT,
+            $this->checkout->client
+        );
+
+        return render('gateways.unsuccessful', [
+            'code' => $_payment->http_code,
+            'message' => $_payment->status,
+        ]);
+    }
+
+    private function processPendingPayment(\Checkout\Models\Payments\Payment $_payment)
+    {
+        $data = [
+            'payment_method' => $_payment->source['id'],
+            'payment_type' => PaymentType::parseCardType(strtolower($_payment->source['scheme'])),
+            'amount' => $this->payment_hash->data->value,
+        ];
+
+        $payment = $this->checkout->createPayment($data, \App\Models\Payment::STATUS_PENDING);
+
+        $this->payment_hash->payment_id = $payment->id;
+        $this->payment_hash->save();
+
+        $this->checkout->attachInvoices($payment, $this->payment_hash);
+
+        $payment->service()->updateInvoicePayment($this->payment_hash);
+
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+
+        SystemLogger::dispatch(
+            ['response' => $_payment, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_CHECKOUT,
+            $this->checkout->client
+        );
+
+        try {
+            return redirect($_payment->_links['redirect']['href']);
+        } catch (\Exception $e) {
+            return $this->processInternallyFailedPayment($e);
+        }
+    }
+
+    private function processInternallyFailedPayment($e)
+    {
+        if ($e instanceof \Checkout\Library\Exceptions\CheckoutHttpException) {
+            $error = $e->getBody();
+        }
+
+        if ($e instanceof \Exception) {
+            $error = $e->getMessage();
+        }
+
+        PaymentFailureMailer::dispatch(
+            $this->checkout->client,
+            $error,
+            $this->checkout->client->company,
+            $this->payment_hash->data->value
+        );
+
+        SystemLogger::dispatch(
+            $this->payment_hash,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_ERROR,
+            SystemLog::TYPE_CHECKOUT,
+            $this->checkout->client,
+        );
+
+        return render('gateways.unsuccessful', [
+            'error' => $e->getCode(),
+            'message' => $error,
+        ]);
     }
 }
