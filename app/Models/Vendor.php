@@ -64,6 +64,8 @@ class Vendor extends BaseModel
     //    'contacts',
     ];
 
+    protected $presenter = \App\Models\Presenters\VendorPresenter::class;
+
     public function getEntityType()
     {
         return self::class;

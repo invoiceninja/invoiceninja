@@ -77,7 +77,7 @@ class PaymentFailureObject
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),
-
+            'whitelabel' => $this->company->account->isPaid() ? true : false,
         ];
 
         return $data;

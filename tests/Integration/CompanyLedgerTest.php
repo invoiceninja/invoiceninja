@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Tests\MockAccountData;
 use Tests\TestCase;
+use Illuminate\Validation\ValidationException;
 
 /** @test*/
 class CompanyLedgerTest extends TestCase
@@ -56,6 +57,9 @@ class CompanyLedgerTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
+
+        $this->withoutExceptionHandling();
+
 
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
@@ -222,10 +226,15 @@ class CompanyLedgerTest extends TestCase
             'date' => '2020/12/11',
         ];
 
+        try {
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments/', $data);
+    
+        } catch (ValidationException $e) {
+            info(print_r($e->validator->getMessageBag(), 1));
+        }
 
         $acc = $response->json();
 

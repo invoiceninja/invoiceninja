@@ -85,7 +85,7 @@ class EntitySentObject
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,
-
+            'whitelabel' => $this->company->account->isPaid() ? true : false,
         ];
     }
 }

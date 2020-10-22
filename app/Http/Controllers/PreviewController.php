@@ -196,7 +196,7 @@ class PreviewController extends BaseController
             ->design($design)
             ->build();
 
-        // info($maker->getCompiledHTML(true));
+        info($maker->getCompiledHTML(true));
 
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 

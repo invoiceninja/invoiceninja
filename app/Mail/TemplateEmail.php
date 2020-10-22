@@ -60,6 +60,8 @@ class TemplateEmail extends Mailable
             ->text('email.template.plain', [
                 'body' => $this->build_email->getBody(),
                 'footer' => $this->build_email->getFooter(),
+                'whitelabel' => $this->client->user->account->isPaid() ? true : false,
+                'settings' => $settings,
             ])
             ->view($template_name, [
                 'body' => $this->build_email->getBody(),

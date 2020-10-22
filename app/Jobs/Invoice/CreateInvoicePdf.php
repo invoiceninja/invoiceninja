@@ -109,6 +109,8 @@ class CreateInvoicePdf implements ShouldQueue
             ->design($template)
             ->build();
 
+        info($maker->getCompiledHTML());
+
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0775);
 

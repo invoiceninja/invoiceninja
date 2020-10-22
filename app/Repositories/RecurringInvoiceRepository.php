@@ -38,7 +38,7 @@ class RecurringInvoiceRepository extends BaseRepository
                 ->createInvitations()
                 ->save();
         
-        $invoice = $invoice_calc->build()->getInvoice();
+        $invoice = $invoice_calc->build()->getRecurringInvoice();
 
         return $invoice;
     }

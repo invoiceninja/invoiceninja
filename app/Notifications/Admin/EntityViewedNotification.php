@@ -51,7 +51,7 @@ class EntityViewedNotification extends Notification implements ShouldQueue
         $this->entity = $invitation->{$entity_name};
         $this->contact = $invitation->contact;
         $this->company = $invitation->company;
-        $this->settings = $this->entity->client->getMergedSettings();
+        $this->settings = $invitation->contact->client->getMergedSettings();
         $this->is_system = $is_system;
         $this->invitation = $invitation;
         $this->method = null;

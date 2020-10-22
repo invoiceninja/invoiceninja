@@ -50,9 +50,7 @@ class StoreVendorRequest extends Request
     {
         $input = $this->all();
 
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
+        $input = $this->decodePrimaryKeys($input);
         
         $this->replace($input);
     }

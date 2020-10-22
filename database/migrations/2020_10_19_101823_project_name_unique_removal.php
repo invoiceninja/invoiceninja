@@ -1,4 +1,14 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -28,8 +38,30 @@ class ProjectNameUniqueRemoval extends Migration
 
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('invoice_expense_documents')->default(false);
+            $table->boolean('auto_start_tasks')->default(false);
+
         });
 
+        Schema::create('task_statuses', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->unsignedInteger('company_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->boolean('is_deleted')->default(0);
+            $table->timestamps(6);
+            $table->softDeletes('deleted_at', 6);
+
+            $table->index(['company_id', 'deleted_at']);
+
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+        });
+
+        Schema::table('tasks', function (Blueprint $table) {
+            $table->decimal('rate', 16, 4)->default(0);
+            $table->renameColumn('task_status_id', 'status_id');
+            $table->renameColumn('task_status_sort_order', 'sort_order');
+        });
     }
 
     /**

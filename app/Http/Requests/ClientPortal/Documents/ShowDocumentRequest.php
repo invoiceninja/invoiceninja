@@ -14,6 +14,7 @@ namespace App\Http\Requests\ClientPortal\Documents;
 
 use App\Models\Document;
 use App\Utils\Traits\MakesHash;
+
 use Illuminate\Foundation\Http\FormRequest;
 
 class ShowDocumentRequest extends FormRequest

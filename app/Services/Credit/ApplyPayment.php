@@ -74,8 +74,15 @@ class ApplyPayment
 
         }
 
-        $this->applyPaymentToCredit();
-        
+        $this->credit->balance -= $this->amount_applied;
+
+        if((int)$this->credit->balance == 0)
+            $this->credit->status_id = Credit::STATUS_APPLIED;
+        else
+            $this->credit->status_id = Credit::STATUS_PARTIAL;
+
+        $this->credit->save();
+
         $this->addPaymentToLedger();
 
         return $this->credit;

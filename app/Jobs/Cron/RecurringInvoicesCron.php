@@ -54,7 +54,7 @@ class RecurringInvoicesCron
 
                 info("Current date = " . now()->format("Y-m-d") . " Recurring date = " .$recurring_invoice->next_send_date);
 
-                SendRecurring::dispatch($recurring_invoice, $recurring_invoice->company->db);
+                SendRecurring::dispatchNow($recurring_invoice, $recurring_invoice->company->db);
 
             });
 
@@ -74,7 +74,7 @@ class RecurringInvoicesCron
 
                     info("Current date = " . now()->format("Y-m-d") . " Recurring date = " .$recurring_invoice->next_send_date);
 
-                    SendRecurring::dispatch($recurring_invoice, $recurring_invoice->company->db);
+                    SendRecurring::dispatchNow($recurring_invoice, $recurring_invoice->company->db);
     
                 });
             }

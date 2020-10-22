@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html data-report-errors="{{ $report_errors }}">
 <head>
+    <!-- Source: https://github.com/invoiceninja/invoiceninja -->
+    <!-- Version: {{ config('ninja.app_version') }} -->
   <meta charset="UTF-8">
   <title>Invoice Ninja</title>
   <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">

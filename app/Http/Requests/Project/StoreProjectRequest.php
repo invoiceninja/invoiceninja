@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Project;
 
 use App\Http\Requests\Request;
+use App\Models\Client;
 use App\Models\Project;
 use App\Utils\Traits\MakesHash;
 
@@ -50,5 +51,10 @@ class StoreProjectRequest extends Request
 
         
         $this->replace($input);
+    }
+
+    public function getClient($client_id)
+    {
+        return Client::find($client_id);
     }
 }

@@ -18,7 +18,8 @@ Route::group(['middleware' => ['api_secret_check']], function () {
 
 Route::group(['api_secret_check', 'email_db'], function () {
     Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit');
-    Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.reset');
+    Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
+
 });
 
 Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
@@ -76,6 +77,10 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
 
     Route::post('tasks/bulk', 'TaskController@bulk')->name('tasks.bulk');
+
+    Route::resource('task_statuses', 'TaskStatusController'); // name = (task_statuses. index / create / show / update / destroy / edit
+
+    Route::post('task_statuses/bulk', 'TaskStatusController@bulk')->name('task_statuses.bulk');
 
     Route::resource('projects', 'ProjectController'); // name = (projects. index / create / show / update / destroy / edit
     Route::post('projects/bulk', 'ProjectController@bulk')->name('projects.bulk');

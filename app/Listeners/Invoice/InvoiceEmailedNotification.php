@@ -46,6 +46,10 @@ class InvoiceEmailedNotification implements ShouldQueue
 
         $first_notification_sent = true;
 
+        $invoice = $event->invitation->invoice;
+        $invoice->last_sent_date = now();
+        $invoice->save();
+
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 

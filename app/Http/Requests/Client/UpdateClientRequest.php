@@ -95,33 +95,7 @@ class UpdateClientRequest extends Request
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
         }
 
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
-
-        if (isset($input['contacts'])) {
-            foreach ($input['contacts'] as $key => $contact) {
-                if (array_key_exists('id', $contact) && is_numeric($contact['id'])) {
-                    unset($input['contacts'][$key]['id']);
-                } elseif (array_key_exists('id', $contact) && is_string($contact['id'])) {
-                    $input['contacts'][$key]['id'] = $this->decodePrimaryKey($contact['id']);
-                }
-
-                //Filter the client contact password - if it is sent with ***** we should ignore it!
-                if (isset($contact['password'])) {
-                    if (strlen($contact['password']) == 0) {
-                        $input['contacts'][$key]['password'] = '';
-                    } else {
-                        $input['contacts'][$key]['password'] = str_replace('*', '', $contact['password']);
-
-                        if (strlen($contact['password']) == 0) {
-                            unset($input['contacts'][$key]['password']);
-                        }
-
-                    }
-                }
-            }
-        }
+        $input = $this->decodePrimaryKeys($input);
 
         if (array_key_exists('settings', $input)) {
             $input['settings'] = $this->filterSaveableSettings($input['settings']);
