@@ -207,7 +207,7 @@ class BaseController extends Controller
                 $query->whereNotNull('updated_at')->with('documents');
             },
             'company.clients' => function ($query) use ($updated_at) {
-                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens','documents','company');
+                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens','documents');
             },
             'company.company_gateways' => function ($query) {
                 $query->whereNotNull('updated_at');

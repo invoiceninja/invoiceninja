@@ -13,6 +13,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
@@ -28,6 +29,11 @@ class PingTest extends TestCase
         parent::setUp();
         $this->makeTestData();
 
+
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
+        
     }
 
     public function testPingEndPoint()

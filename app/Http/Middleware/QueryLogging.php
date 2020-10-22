@@ -54,6 +54,7 @@ class QueryLogging
 
                 //  if($count > 50)
                 //   Log::info($queries);
+                
             }
         }
 
