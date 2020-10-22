@@ -1,12 +1,22 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
 
 namespace App\Http\Requests\Expense;
 
 use App\Models\Expense;
 use App\Utils\Traits\BulkOptions;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Request;
 
-class BulkExpenseRequest extends FormRequest
+class BulkExpenseRequest extends Request
 {
     use BulkOptions;
 

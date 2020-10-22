@@ -23,7 +23,9 @@ class Expense extends BaseModel
 
     protected $fillable = [
         'client_id',
+        'assigned_user_id',
         'vendor_id',
+        'invoice_id',
         'expense_currency_id',
         'date',
         'invoice_currency_id',
@@ -34,7 +36,7 @@ class Expense extends BaseModel
         'public_notes',
         'bank_id',
         'transaction_id',
-        'expense_category_id',
+        'category_id',
         'tax_rate1',
         'tax_name1',
         'tax_rate2',

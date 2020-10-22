@@ -62,35 +62,10 @@ class UpdateInvoiceRequest extends Request
     {
         $input = $this->all();
 
-        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
-            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
-        }
-
-        if (isset($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
-
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
-
-        if (isset($input['invitations'])) {
-            foreach ($input['invitations'] as $key => $value) {
-                if (array_key_exists('id', $input['invitations'][$key]) && is_numeric($input['invitations'][$key]['id'])) {
-                    unset($input['invitations'][$key]['id']);
-                }
-
-                if (array_key_exists('id', $input['invitations'][$key]) && is_string($input['invitations'][$key]['id'])) {
-                    $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
-                }
-
-                if (is_string($input['invitations'][$key]['client_contact_id'])) {
-                    $input['invitations'][$key]['client_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['client_contact_id']);
-                }
-            }
-        }
+        $input = $this->decodePrimaryKeys($input);
 
         $input['id'] = $this->invoice->id;
+        
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
 
         $this->replace($input);
