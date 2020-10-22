@@ -52,7 +52,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:60,1',
+            'throttle:6000,1',
             'bindings',
             'query_logging',
             //\App\Http\Middleware\StartupCheck::class,
