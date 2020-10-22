@@ -59,6 +59,7 @@
         "spatie/browsershot": "^3.37",
         "staudenmeir/eloquent-has-many-deep": "^1.11",
         "stripe/stripe-php": "^7.50",
+        "swooletw/laravel-swoole": "^2.6",
         "turbo124/beacon": "^1",
         "turbo124/laravel-gmail": "^5.0",
         "webpatser/laravel-countries": "dev-master#75992ad"
