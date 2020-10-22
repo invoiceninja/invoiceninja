@@ -1,0 +1,1691 @@
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `accounts` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `plan` enum('pro','enterprise','white_label') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `plan_term` enum('month','year') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `plan_started` date DEFAULT NULL,
+  `plan_paid` date DEFAULT NULL,
+  `plan_expires` date DEFAULT NULL,
+  `user_agent` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `key` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `payment_id` int(10) unsigned DEFAULT NULL,
+  `default_company_id` int(10) unsigned NOT NULL,
+  `trial_started` date DEFAULT NULL,
+  `trial_plan` enum('pro','enterprise') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `plan_price` decimal(7,2) DEFAULT NULL,
+  `num_users` smallint(6) NOT NULL DEFAULT '1',
+  `utm_source` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `utm_medium` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `utm_campaign` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `utm_term` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `utm_content` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `latest_version` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0.0.0',
+  `report_errors` tinyint(1) NOT NULL DEFAULT '0',
+  `referral_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `accounts_payment_id_index` (`payment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activities` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `client_id` int(10) unsigned DEFAULT NULL,
+  `client_contact_id` int(10) unsigned DEFAULT NULL,
+  `account_id` int(10) unsigned DEFAULT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `vendor_id` int(10) unsigned DEFAULT NULL,
+  `payment_id` int(10) unsigned DEFAULT NULL,
+  `invoice_id` int(10) unsigned DEFAULT NULL,
+  `credit_id` int(10) unsigned DEFAULT NULL,
+  `invitation_id` int(10) unsigned DEFAULT NULL,
+  `task_id` int(10) unsigned DEFAULT NULL,
+  `expense_id` int(10) unsigned DEFAULT NULL,
+  `activity_type_id` int(10) unsigned DEFAULT NULL,
+  `ip` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_system` tinyint(1) NOT NULL DEFAULT '0',
+  `notes` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `token_id` int(10) unsigned DEFAULT NULL,
+  `quote_id` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `activities_vendor_id_company_id_index` (`vendor_id`,`company_id`),
+  KEY `activities_project_id_company_id_index` (`project_id`,`company_id`),
+  KEY `activities_user_id_company_id_index` (`user_id`,`company_id`),
+  KEY `activities_client_id_company_id_index` (`client_id`,`company_id`),
+  KEY `activities_payment_id_company_id_index` (`payment_id`,`company_id`),
+  KEY `activities_invoice_id_company_id_index` (`invoice_id`,`company_id`),
+  KEY `activities_credit_id_company_id_index` (`credit_id`,`company_id`),
+  KEY `activities_invitation_id_company_id_index` (`invitation_id`,`company_id`),
+  KEY `activities_task_id_company_id_index` (`task_id`,`company_id`),
+  KEY `activities_expense_id_company_id_index` (`expense_id`,`company_id`),
+  KEY `activities_client_contact_id_company_id_index` (`client_contact_id`,`company_id`),
+  KEY `activities_company_id_foreign` (`company_id`),
+  CONSTRAINT `activities_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `backups` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `activity_id` int(10) unsigned NOT NULL,
+  `json_backup` mediumtext COLLATE utf8mb4_unicode_ci,
+  `html_backup` longtext COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `amount` decimal(16,4) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `backups_activity_id_foreign` (`activity_id`),
+  CONSTRAINT `backups_activity_id_foreign` FOREIGN KEY (`activity_id`) REFERENCES `activities` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bank_companies` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `bank_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `username` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `bank_companies_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `bank_companies_user_id_foreign` (`user_id`),
+  KEY `bank_companies_bank_id_foreign` (`bank_id`),
+  CONSTRAINT `bank_companies_bank_id_foreign` FOREIGN KEY (`bank_id`) REFERENCES `banks` (`id`),
+  CONSTRAINT `bank_companies_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `bank_companies_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bank_subcompanies` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `bank_company_id` int(10) unsigned NOT NULL,
+  `account_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `website` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `account_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `bank_subcompanies_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `bank_subcompanies_user_id_foreign` (`user_id`),
+  KEY `bank_subcompanies_bank_company_id_foreign` (`bank_company_id`),
+  CONSTRAINT `bank_subcompanies_bank_company_id_foreign` FOREIGN KEY (`bank_company_id`) REFERENCES `bank_companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `bank_subcompanies_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `bank_subcompanies_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `banks` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remote_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bank_library_id` int(11) NOT NULL DEFAULT '1',
+  `config` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_contacts` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `client_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `first_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `confirmation_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_primary` tinyint(1) NOT NULL DEFAULT '0',
+  `confirmed` tinyint(1) NOT NULL DEFAULT '0',
+  `last_login` timestamp NULL DEFAULT NULL,
+  `failed_logins` smallint(6) DEFAULT NULL,
+  `oauth_user_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `oauth_provider_id` int(10) unsigned DEFAULT NULL,
+  `google_2fa_secret` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `accepted_terms_version` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `avatar` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `avatar_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `avatar_size` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `password` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_locked` tinyint(1) NOT NULL DEFAULT '0',
+  `send_email` tinyint(1) NOT NULL DEFAULT '1',
+  `contact_key` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `client_contacts_oauth_user_id_unique` (`oauth_user_id`),
+  UNIQUE KEY `client_contacts_oauth_provider_id_unique` (`oauth_provider_id`),
+  KEY `client_contacts_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `client_contacts_company_id_email_deleted_at_index` (`company_id`,`email`,`deleted_at`),
+  KEY `client_contacts_company_id_index` (`company_id`),
+  KEY `client_contacts_client_id_index` (`client_id`),
+  KEY `client_contacts_user_id_index` (`user_id`),
+  CONSTRAINT `client_contacts_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_gateway_tokens` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `client_id` int(10) unsigned DEFAULT NULL,
+  `token` text COLLATE utf8mb4_unicode_ci,
+  `routing_number` text COLLATE utf8mb4_unicode_ci,
+  `company_gateway_id` int(10) unsigned NOT NULL,
+  `gateway_customer_reference` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gateway_type_id` int(10) unsigned NOT NULL,
+  `is_default` tinyint(1) NOT NULL DEFAULT '0',
+  `meta` text COLLATE utf8mb4_unicode_ci,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `client_gateway_tokens_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `client_gateway_tokens_client_id_foreign` (`client_id`),
+  CONSTRAINT `client_gateway_tokens_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `client_gateway_tokens_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `clients` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `website` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `private_notes` text COLLATE utf8mb4_unicode_ci,
+  `public_notes` text COLLATE utf8mb4_unicode_ci,
+  `client_hash` text COLLATE utf8mb4_unicode_ci,
+  `logo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `balance` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `paid_to_date` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `credit_balance` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `last_login` timestamp NULL DEFAULT NULL,
+  `industry_id` int(10) unsigned DEFAULT NULL,
+  `size_id` int(10) unsigned DEFAULT NULL,
+  `address1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country_id` int(10) unsigned DEFAULT NULL,
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_address1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_address2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_city` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_state` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_postal_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `shipping_country_id` int(10) unsigned DEFAULT NULL,
+  `settings` mediumtext COLLATE utf8mb4_unicode_ci,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `group_settings_id` int(10) unsigned DEFAULT NULL,
+  `vat_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `clients_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `clients_industry_id_foreign` (`industry_id`),
+  KEY `clients_size_id_foreign` (`size_id`),
+  KEY `clients_company_id_index` (`company_id`),
+  KEY `clients_user_id_index` (`user_id`),
+  CONSTRAINT `clients_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `clients_industry_id_foreign` FOREIGN KEY (`industry_id`) REFERENCES `industries` (`id`),
+  CONSTRAINT `clients_size_id_foreign` FOREIGN KEY (`size_id`) REFERENCES `sizes` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `companies` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned NOT NULL,
+  `industry_id` int(10) unsigned DEFAULT NULL,
+  `ip` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `company_key` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `logo` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `convert_products` tinyint(1) NOT NULL DEFAULT '0',
+  `fill_products` tinyint(1) NOT NULL DEFAULT '1',
+  `update_products` tinyint(1) NOT NULL DEFAULT '1',
+  `show_product_details` tinyint(1) NOT NULL DEFAULT '1',
+  `client_can_register` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_taxes1` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_taxes2` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_taxes3` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_taxes4` tinyint(1) NOT NULL DEFAULT '0',
+  `show_product_cost` tinyint(1) NOT NULL DEFAULT '0',
+  `enabled_tax_rates` int(10) unsigned NOT NULL DEFAULT '0',
+  `enabled_modules` int(10) unsigned NOT NULL DEFAULT '0',
+  `enable_product_cost` tinyint(1) NOT NULL DEFAULT '0',
+  `enable_product_quantity` tinyint(1) NOT NULL DEFAULT '1',
+  `default_quantity` tinyint(1) NOT NULL DEFAULT '1',
+  `subdomain` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `db` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `size_id` int(10) unsigned DEFAULT NULL,
+  `first_day_of_week` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `first_month_of_year` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `portal_mode` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'subdomain',
+  `portal_domain` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `enable_modules` smallint(6) NOT NULL DEFAULT '0',
+  `custom_fields` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `settings` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `slack_webhook_url` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `google_analytics_key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `enabled_item_tax_rates` int(11) NOT NULL DEFAULT '0',
+  `is_large` tinyint(1) NOT NULL DEFAULT '0',
+  `enable_shop_api` tinyint(1) NOT NULL DEFAULT '0',
+  `default_auto_bill` enum('off','always','optin','optout') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'off',
+  `mark_expenses_invoiceable` tinyint(1) NOT NULL DEFAULT '0',
+  `mark_expenses_paid` tinyint(1) NOT NULL DEFAULT '0',
+  `use_credits_payment` enum('always','off','option') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'off',
+  `invoice_expense_documents` tinyint(1) NOT NULL DEFAULT '0',
+  `auto_start_tasks` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `companies_company_key_unique` (`company_key`),
+  KEY `companies_industry_id_foreign` (`industry_id`),
+  KEY `companies_size_id_foreign` (`size_id`),
+  KEY `companies_account_id_index` (`account_id`),
+  CONSTRAINT `companies_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `companies_industry_id_foreign` FOREIGN KEY (`industry_id`) REFERENCES `industries` (`id`),
+  CONSTRAINT `companies_size_id_foreign` FOREIGN KEY (`size_id`) REFERENCES `sizes` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `company_gateways` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `gateway_key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `accepted_credit_cards` int(10) unsigned NOT NULL,
+  `require_cvv` tinyint(1) NOT NULL DEFAULT '1',
+  `show_billing_address` tinyint(1) DEFAULT '1',
+  `show_shipping_address` tinyint(1) DEFAULT '1',
+  `update_details` tinyint(1) DEFAULT '0',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `config` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fees_and_limits` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `token_billing` enum('off','always','optin','optout') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'off',
+  `label` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `company_gateways_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `company_gateways_gateway_key_foreign` (`gateway_key`),
+  KEY `company_gateways_user_id_foreign` (`user_id`),
+  CONSTRAINT `company_gateways_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `company_gateways_gateway_key_foreign` FOREIGN KEY (`gateway_key`) REFERENCES `gateways` (`key`),
+  CONSTRAINT `company_gateways_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `company_ledgers` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `client_id` int(10) unsigned DEFAULT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `activity_id` int(10) unsigned DEFAULT NULL,
+  `adjustment` decimal(16,4) DEFAULT NULL,
+  `balance` decimal(16,4) DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `hash` text COLLATE utf8mb4_unicode_ci,
+  `company_ledgerable_id` int(10) unsigned NOT NULL,
+  `company_ledgerable_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `company_ledgers_company_id_foreign` (`company_id`),
+  KEY `company_ledgers_client_id_foreign` (`client_id`),
+  CONSTRAINT `company_ledgers_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `company_ledgers_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `company_tokens` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `account_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `token` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `is_system` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `company_tokens_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `company_tokens_account_id_foreign` (`account_id`),
+  KEY `company_tokens_user_id_foreign` (`user_id`),
+  KEY `company_tokens_company_id_index` (`company_id`),
+  CONSTRAINT `company_tokens_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `company_tokens_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `company_tokens_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `company_user` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `account_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `permissions` mediumtext COLLATE utf8mb4_unicode_ci,
+  `notifications` mediumtext COLLATE utf8mb4_unicode_ci,
+  `settings` mediumtext COLLATE utf8mb4_unicode_ci,
+  `slack_webhook_url` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_owner` tinyint(1) NOT NULL DEFAULT '0',
+  `is_admin` tinyint(1) NOT NULL DEFAULT '0',
+  `is_migrating` tinyint(1) NOT NULL DEFAULT '0',
+  `is_locked` tinyint(1) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `company_user_company_id_user_id_unique` (`company_id`,`user_id`),
+  KEY `company_user_account_id_company_id_deleted_at_index` (`account_id`,`company_id`,`deleted_at`),
+  KEY `company_user_user_id_index` (`user_id`),
+  CONSTRAINT `company_user_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `company_user_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `countries` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `capital` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `citizenship` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country_code` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `currency` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `currency_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `currency_sub_unit` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `full_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `iso_3166_2` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `iso_3166_3` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `region_code` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sub_region_code` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `eea` tinyint(1) NOT NULL DEFAULT '0',
+  `swap_postal_code` tinyint(1) NOT NULL DEFAULT '0',
+  `swap_currency_symbol` tinyint(1) NOT NULL DEFAULT '0',
+  `thousand_separator` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `decimal_separator` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credit_invitations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `client_contact_id` int(10) unsigned NOT NULL,
+  `credit_id` int(10) unsigned NOT NULL,
+  `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `transaction_reference` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_error` mediumtext COLLATE utf8mb4_unicode_ci,
+  `signature_base64` text COLLATE utf8mb4_unicode_ci,
+  `signature_date` datetime DEFAULT NULL,
+  `sent_date` datetime DEFAULT NULL,
+  `viewed_date` datetime DEFAULT NULL,
+  `opened_date` datetime DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `credit_invitations_client_contact_id_credit_id_unique` (`client_contact_id`,`credit_id`),
+  KEY `credit_invitations_user_id_foreign` (`user_id`),
+  KEY `credit_invitations_company_id_foreign` (`company_id`),
+  KEY `credit_invitations_deleted_at_credit_id_company_id_index` (`deleted_at`,`credit_id`,`company_id`),
+  KEY `credit_invitations_credit_id_index` (`credit_id`),
+  KEY `credit_invitations_key_index` (`key`),
+  CONSTRAINT `credit_invitations_client_contact_id_foreign` FOREIGN KEY (`client_contact_id`) REFERENCES `client_contacts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `credit_invitations_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `credit_invitations_credit_id_foreign` FOREIGN KEY (`credit_id`) REFERENCES `credits` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `credit_invitations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `credits` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `client_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned DEFAULT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `status_id` int(10) unsigned NOT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `vendor_id` int(10) unsigned DEFAULT NULL,
+  `recurring_id` int(10) unsigned DEFAULT NULL,
+  `design_id` int(10) unsigned DEFAULT NULL,
+  `invoice_id` int(10) unsigned DEFAULT NULL,
+  `number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `discount` double(8,2) NOT NULL DEFAULT '0.00',
+  `is_amount_discount` tinyint(1) NOT NULL DEFAULT '0',
+  `po_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `last_sent_date` datetime DEFAULT NULL,
+  `due_date` date DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `line_items` mediumtext COLLATE utf8mb4_unicode_ci,
+  `backup` mediumtext COLLATE utf8mb4_unicode_ci,
+  `footer` text COLLATE utf8mb4_unicode_ci,
+  `public_notes` text COLLATE utf8mb4_unicode_ci,
+  `private_notes` text COLLATE utf8mb4_unicode_ci,
+  `terms` text COLLATE utf8mb4_unicode_ci,
+  `tax_name1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate1` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate2` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate3` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `total_taxes` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `uses_inclusive_taxes` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `next_send_date` datetime DEFAULT NULL,
+  `custom_surcharge1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge_tax1` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax2` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax3` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax4` tinyint(1) NOT NULL DEFAULT '0',
+  `exchange_rate` decimal(13,6) NOT NULL DEFAULT '1.000000',
+  `amount` decimal(16,4) NOT NULL,
+  `balance` decimal(16,4) NOT NULL,
+  `partial` decimal(16,4) DEFAULT NULL,
+  `partial_due_date` datetime DEFAULT NULL,
+  `last_viewed` datetime DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `reminder1_sent` date DEFAULT NULL,
+  `reminder2_sent` date DEFAULT NULL,
+  `reminder3_sent` date DEFAULT NULL,
+  `reminder_last_sent` date DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `credits_company_id_number_unique` (`company_id`,`number`),
+  KEY `credits_user_id_foreign` (`user_id`),
+  KEY `credits_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `credits_client_id_index` (`client_id`),
+  KEY `credits_company_id_index` (`company_id`),
+  CONSTRAINT `credits_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `credits_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `credits_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `currencies` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `symbol` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `precision` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `thousand_separator` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `decimal_separator` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `code` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `swap_currency_symbol` tinyint(1) NOT NULL DEFAULT '0',
+  `exchange_rate` decimal(13,6) NOT NULL DEFAULT '1.000000',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `date_formats` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `format` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `format_moment` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `format_dart` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `datetime_formats` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `format` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `format_moment` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `format_dart` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `designs` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `company_id` int(10) unsigned DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_custom` tinyint(1) NOT NULL DEFAULT '1',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `design` mediumtext COLLATE utf8mb4_unicode_ci,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `designs_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `designs_company_id_index` (`company_id`),
+  CONSTRAINT `designs_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `documents` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned NOT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `vendor_id` int(10) unsigned DEFAULT NULL,
+  `url` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `preview` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `type` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `disk` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hash` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `size` int(10) unsigned DEFAULT NULL,
+  `width` int(10) unsigned DEFAULT NULL,
+  `height` int(10) unsigned DEFAULT NULL,
+  `is_default` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `documentable_id` int(10) unsigned NOT NULL,
+  `documentable_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `is_public` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `documents_company_id_index` (`company_id`),
+  CONSTRAINT `documents_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `expense_categories` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `expense_categories_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `expense_categories_company_id_index` (`company_id`),
+  CONSTRAINT `expense_categories_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `expenses` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `vendor_id` int(10) unsigned DEFAULT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned DEFAULT NULL,
+  `invoice_id` int(10) unsigned DEFAULT NULL,
+  `client_id` int(10) unsigned DEFAULT NULL,
+  `bank_id` int(10) unsigned DEFAULT NULL,
+  `invoice_currency_id` int(10) unsigned DEFAULT NULL,
+  `expense_currency_id` int(10) unsigned DEFAULT NULL,
+  `category_id` int(10) unsigned DEFAULT NULL,
+  `payment_type_id` int(10) unsigned DEFAULT NULL,
+  `recurring_expense_id` int(10) unsigned DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `amount` decimal(13,2) NOT NULL,
+  `foreign_amount` decimal(13,2) NOT NULL,
+  `exchange_rate` decimal(13,6) NOT NULL DEFAULT '1.000000',
+  `tax_name1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate1` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate2` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate3` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `date` date DEFAULT NULL,
+  `payment_date` date DEFAULT NULL,
+  `private_notes` text COLLATE utf8mb4_unicode_ci,
+  `public_notes` text COLLATE utf8mb4_unicode_ci,
+  `transaction_reference` text COLLATE utf8mb4_unicode_ci,
+  `should_be_invoiced` tinyint(1) NOT NULL DEFAULT '0',
+  `invoice_documents` tinyint(1) NOT NULL DEFAULT '1',
+  `transaction_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `expenses_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `expenses_user_id_foreign` (`user_id`),
+  KEY `expenses_company_id_index` (`company_id`),
+  CONSTRAINT `expenses_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `expenses_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `failed_jobs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gateway_types` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `alias` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gateways` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `provider` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `visible` tinyint(1) NOT NULL DEFAULT '1',
+  `sort_order` int(10) unsigned NOT NULL DEFAULT '10000',
+  `site_url` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_offsite` tinyint(1) NOT NULL DEFAULT '0',
+  `is_secure` tinyint(1) NOT NULL DEFAULT '0',
+  `fields` longtext COLLATE utf8mb4_unicode_ci,
+  `default_gateway_type_id` int(10) unsigned NOT NULL DEFAULT '1',
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `gateways_key_unique` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `group_settings` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `settings` mediumtext COLLATE utf8mb4_unicode_ci,
+  `is_default` tinyint(1) NOT NULL DEFAULT '0',
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `group_settings_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  CONSTRAINT `group_settings_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `industries` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `invoice_invitations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `client_contact_id` int(10) unsigned NOT NULL,
+  `invoice_id` int(10) unsigned NOT NULL,
+  `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `transaction_reference` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_error` mediumtext COLLATE utf8mb4_unicode_ci,
+  `signature_base64` text COLLATE utf8mb4_unicode_ci,
+  `signature_date` datetime DEFAULT NULL,
+  `sent_date` datetime DEFAULT NULL,
+  `viewed_date` datetime DEFAULT NULL,
+  `opened_date` datetime DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `invoice_invitations_client_contact_id_invoice_id_unique` (`client_contact_id`,`invoice_id`),
+  KEY `invoice_invitations_user_id_foreign` (`user_id`),
+  KEY `invoice_invitations_company_id_foreign` (`company_id`),
+  KEY `invoice_invitations_deleted_at_invoice_id_company_id_index` (`deleted_at`,`invoice_id`,`company_id`),
+  KEY `invoice_invitations_invoice_id_index` (`invoice_id`),
+  KEY `invoice_invitations_key_index` (`key`),
+  CONSTRAINT `invoice_invitations_client_contact_id_foreign` FOREIGN KEY (`client_contact_id`) REFERENCES `client_contacts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `invoice_invitations_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `invoice_invitations_invoice_id_foreign` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `invoice_invitations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `invoices` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `client_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned DEFAULT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `status_id` int(10) unsigned NOT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `vendor_id` int(10) unsigned DEFAULT NULL,
+  `recurring_id` int(10) unsigned DEFAULT NULL,
+  `design_id` int(10) unsigned DEFAULT NULL,
+  `number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `discount` double(8,2) NOT NULL DEFAULT '0.00',
+  `is_amount_discount` tinyint(1) NOT NULL DEFAULT '0',
+  `po_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `last_sent_date` date DEFAULT NULL,
+  `due_date` datetime DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `line_items` mediumtext COLLATE utf8mb4_unicode_ci,
+  `backup` mediumtext COLLATE utf8mb4_unicode_ci,
+  `footer` text COLLATE utf8mb4_unicode_ci,
+  `public_notes` text COLLATE utf8mb4_unicode_ci,
+  `private_notes` text COLLATE utf8mb4_unicode_ci,
+  `terms` text COLLATE utf8mb4_unicode_ci,
+  `tax_name1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate1` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate2` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate3` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `total_taxes` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `uses_inclusive_taxes` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `next_send_date` datetime DEFAULT NULL,
+  `custom_surcharge1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge_tax1` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax2` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax3` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax4` tinyint(1) NOT NULL DEFAULT '0',
+  `exchange_rate` decimal(13,6) NOT NULL DEFAULT '1.000000',
+  `amount` decimal(16,4) NOT NULL,
+  `balance` decimal(16,4) NOT NULL,
+  `partial` decimal(16,4) DEFAULT NULL,
+  `partial_due_date` datetime DEFAULT NULL,
+  `last_viewed` datetime DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `reminder1_sent` date DEFAULT NULL,
+  `reminder2_sent` date DEFAULT NULL,
+  `reminder3_sent` date DEFAULT NULL,
+  `reminder_last_sent` date DEFAULT NULL,
+  `auto_bill_enabled` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `invoices_company_id_number_unique` (`company_id`,`number`),
+  KEY `invoices_user_id_foreign` (`user_id`),
+  KEY `invoices_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `invoices_client_id_index` (`client_id`),
+  KEY `invoices_company_id_index` (`company_id`),
+  CONSTRAINT `invoices_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `invoices_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `invoices_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `queue` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `attempts` tinyint(3) unsigned NOT NULL,
+  `reserved_at` int(10) unsigned DEFAULT NULL,
+  `available_at` int(10) unsigned NOT NULL,
+  `created_at` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `jobs_queue_index` (`queue`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `languages` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `locale` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `migrations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `password_resets` (
+  `email` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  KEY `password_resets_email_index` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `payment_hashes` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fee_total` decimal(16,4) NOT NULL,
+  `fee_invoice_id` int(10) unsigned DEFAULT NULL,
+  `data` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payment_id` int(10) unsigned DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `payment_hashes_payment_id_foreign` (`payment_id`),
+  CONSTRAINT `payment_hashes_payment_id_foreign` FOREIGN KEY (`payment_id`) REFERENCES `payments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `payment_libraries` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `visible` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `payment_terms` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `num_days` int(11) DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `company_id` int(10) unsigned DEFAULT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `payment_terms_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `payment_terms_user_id_foreign` (`user_id`),
+  CONSTRAINT `payment_terms_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `payment_terms_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `payment_types` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `gateway_type_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `paymentables` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `payment_id` int(10) unsigned NOT NULL,
+  `paymentable_id` int(10) unsigned NOT NULL,
+  `amount` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `refunded` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `paymentable_type` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `paymentables_payment_id_foreign` (`payment_id`),
+  CONSTRAINT `paymentables_payment_id_foreign` FOREIGN KEY (`payment_id`) REFERENCES `payments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `payments` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `client_id` int(10) unsigned NOT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `vendor_id` int(10) unsigned DEFAULT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `assigned_user_id` int(10) unsigned DEFAULT NULL,
+  `client_contact_id` int(10) unsigned DEFAULT NULL,
+  `invitation_id` int(10) unsigned DEFAULT NULL,
+  `company_gateway_id` int(10) unsigned DEFAULT NULL,
+  `gateway_type_id` int(10) unsigned DEFAULT NULL,
+  `type_id` int(10) unsigned DEFAULT NULL,
+  `status_id` int(10) unsigned NOT NULL,
+  `amount` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `refunded` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `applied` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `date` date DEFAULT NULL,
+  `transaction_reference` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `payer_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `private_notes` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `is_manual` tinyint(1) NOT NULL DEFAULT '0',
+  `exchange_rate` decimal(13,6) NOT NULL DEFAULT '1.000000',
+  `currency_id` int(10) unsigned NOT NULL,
+  `exchange_currency_id` int(10) unsigned NOT NULL,
+  `meta` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `payments_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `payments_client_contact_id_foreign` (`client_contact_id`),
+  KEY `payments_company_gateway_id_foreign` (`company_gateway_id`),
+  KEY `payments_user_id_foreign` (`user_id`),
+  KEY `payments_company_id_index` (`company_id`),
+  KEY `payments_client_id_index` (`client_id`),
+  KEY `payments_status_id_index` (`status_id`),
+  CONSTRAINT `payments_client_contact_id_foreign` FOREIGN KEY (`client_contact_id`) REFERENCES `client_contacts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `payments_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `payments_company_gateway_id_foreign` FOREIGN KEY (`company_gateway_id`) REFERENCES `company_gateways` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `payments_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `payments_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `products` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned DEFAULT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `vendor_id` int(10) unsigned DEFAULT NULL,
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `product_key` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `cost` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `price` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `quantity` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `tax_name1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate1` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate2` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate3` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `products_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `products_user_id_foreign` (`user_id`),
+  KEY `products_company_id_index` (`company_id`),
+  CONSTRAINT `products_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `products_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `projects` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned NOT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `client_id` int(10) unsigned DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `task_rate` decimal(12,4) NOT NULL DEFAULT '0.0000',
+  `due_date` date DEFAULT NULL,
+  `private_notes` text COLLATE utf8mb4_unicode_ci,
+  `budgeted_hours` decimal(12,2) NOT NULL,
+  `custom_value1` text COLLATE utf8mb4_unicode_ci,
+  `custom_value2` text COLLATE utf8mb4_unicode_ci,
+  `custom_value3` text COLLATE utf8mb4_unicode_ci,
+  `custom_value4` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `public_notes` text COLLATE utf8mb4_unicode_ci,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `projects_user_id_foreign` (`user_id`),
+  KEY `projects_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `projects_company_id_index` (`company_id`),
+  CONSTRAINT `projects_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `projects_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quote_invitations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `client_contact_id` int(10) unsigned NOT NULL,
+  `quote_id` int(10) unsigned NOT NULL,
+  `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `transaction_reference` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_error` mediumtext COLLATE utf8mb4_unicode_ci,
+  `signature_base64` text COLLATE utf8mb4_unicode_ci,
+  `signature_date` datetime DEFAULT NULL,
+  `sent_date` datetime DEFAULT NULL,
+  `viewed_date` datetime DEFAULT NULL,
+  `opened_date` datetime DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `quote_invitations_client_contact_id_quote_id_unique` (`client_contact_id`,`quote_id`),
+  KEY `quote_invitations_user_id_foreign` (`user_id`),
+  KEY `quote_invitations_company_id_foreign` (`company_id`),
+  KEY `quote_invitations_deleted_at_quote_id_company_id_index` (`deleted_at`,`quote_id`,`company_id`),
+  KEY `quote_invitations_quote_id_index` (`quote_id`),
+  KEY `quote_invitations_key_index` (`key`),
+  CONSTRAINT `quote_invitations_client_contact_id_foreign` FOREIGN KEY (`client_contact_id`) REFERENCES `client_contacts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `quote_invitations_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `quote_invitations_quote_id_foreign` FOREIGN KEY (`quote_id`) REFERENCES `quotes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `quote_invitations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quotes` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `client_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned DEFAULT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `status_id` int(10) unsigned NOT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `vendor_id` int(10) unsigned DEFAULT NULL,
+  `recurring_id` int(10) unsigned DEFAULT NULL,
+  `design_id` int(10) unsigned DEFAULT NULL,
+  `invoice_id` int(10) unsigned DEFAULT NULL,
+  `number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `discount` double(8,2) NOT NULL DEFAULT '0.00',
+  `is_amount_discount` tinyint(1) NOT NULL DEFAULT '0',
+  `po_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `last_sent_date` date DEFAULT NULL,
+  `due_date` datetime DEFAULT NULL,
+  `next_send_date` datetime DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `line_items` mediumtext COLLATE utf8mb4_unicode_ci,
+  `backup` mediumtext COLLATE utf8mb4_unicode_ci,
+  `footer` text COLLATE utf8mb4_unicode_ci,
+  `public_notes` text COLLATE utf8mb4_unicode_ci,
+  `private_notes` text COLLATE utf8mb4_unicode_ci,
+  `terms` text COLLATE utf8mb4_unicode_ci,
+  `tax_name1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate1` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate2` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate3` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `total_taxes` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `uses_inclusive_taxes` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge_tax1` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax2` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax3` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax4` tinyint(1) NOT NULL DEFAULT '0',
+  `exchange_rate` decimal(13,6) NOT NULL DEFAULT '1.000000',
+  `amount` decimal(16,4) NOT NULL,
+  `balance` decimal(16,4) NOT NULL,
+  `partial` decimal(16,4) DEFAULT NULL,
+  `partial_due_date` datetime DEFAULT NULL,
+  `last_viewed` datetime DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `reminder1_sent` date DEFAULT NULL,
+  `reminder2_sent` date DEFAULT NULL,
+  `reminder3_sent` date DEFAULT NULL,
+  `reminder_last_sent` date DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `quotes_company_id_number_unique` (`company_id`,`number`),
+  KEY `quotes_user_id_foreign` (`user_id`),
+  KEY `quotes_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `quotes_client_id_index` (`client_id`),
+  KEY `quotes_company_id_index` (`company_id`),
+  CONSTRAINT `quotes_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `quotes_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `quotes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recurring_invoice_invitations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `client_contact_id` int(10) unsigned NOT NULL,
+  `recurring_invoice_id` int(10) unsigned NOT NULL,
+  `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `transaction_reference` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_error` mediumtext COLLATE utf8mb4_unicode_ci,
+  `signature_base64` text COLLATE utf8mb4_unicode_ci,
+  `signature_date` datetime DEFAULT NULL,
+  `sent_date` datetime DEFAULT NULL,
+  `viewed_date` datetime DEFAULT NULL,
+  `opened_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cli_rec` (`client_contact_id`,`recurring_invoice_id`),
+  KEY `recurring_invoice_invitations_user_id_foreign` (`user_id`),
+  KEY `recurring_invoice_invitations_company_id_foreign` (`company_id`),
+  KEY `rec_co_del` (`deleted_at`,`recurring_invoice_id`,`company_id`),
+  KEY `recurring_invoice_invitations_recurring_invoice_id_index` (`recurring_invoice_id`),
+  KEY `recurring_invoice_invitations_key_index` (`key`),
+  CONSTRAINT `recurring_invoice_invitations_client_contact_id_foreign` FOREIGN KEY (`client_contact_id`) REFERENCES `client_contacts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `recurring_invoice_invitations_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `recurring_invoice_invitations_recurring_invoice_id_foreign` FOREIGN KEY (`recurring_invoice_id`) REFERENCES `recurring_invoices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `recurring_invoice_invitations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recurring_invoices` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `client_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned DEFAULT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `vendor_id` int(10) unsigned DEFAULT NULL,
+  `status_id` int(10) unsigned NOT NULL,
+  `number` text COLLATE utf8mb4_unicode_ci,
+  `discount` double(8,2) NOT NULL DEFAULT '0.00',
+  `is_amount_discount` tinyint(1) NOT NULL DEFAULT '0',
+  `po_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `due_date` datetime DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `line_items` mediumtext COLLATE utf8mb4_unicode_ci,
+  `backup` mediumtext COLLATE utf8mb4_unicode_ci,
+  `footer` text COLLATE utf8mb4_unicode_ci,
+  `public_notes` text COLLATE utf8mb4_unicode_ci,
+  `private_notes` text COLLATE utf8mb4_unicode_ci,
+  `terms` text COLLATE utf8mb4_unicode_ci,
+  `tax_name1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate1` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate2` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate3` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `total_taxes` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `amount` decimal(16,4) NOT NULL,
+  `balance` decimal(16,4) NOT NULL,
+  `partial` decimal(16,4) DEFAULT NULL,
+  `last_viewed` datetime DEFAULT NULL,
+  `frequency_id` int(10) unsigned NOT NULL,
+  `last_sent_date` datetime DEFAULT NULL,
+  `next_send_date` datetime DEFAULT NULL,
+  `remaining_cycles` int(11) DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `auto_bill` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'off',
+  `auto_bill_enabled` tinyint(1) NOT NULL DEFAULT '0',
+  `design_id` int(10) unsigned DEFAULT NULL,
+  `uses_inclusive_taxes` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_surcharge_tax1` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax2` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax3` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax4` tinyint(1) NOT NULL DEFAULT '0',
+  `due_date_days` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `partial_due_date` date DEFAULT NULL,
+  `exchange_rate` decimal(13,6) NOT NULL DEFAULT '1.000000',
+  PRIMARY KEY (`id`),
+  KEY `recurring_invoices_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `recurring_invoices_user_id_foreign` (`user_id`),
+  KEY `recurring_invoices_client_id_index` (`client_id`),
+  KEY `recurring_invoices_company_id_index` (`company_id`),
+  KEY `recurring_invoices_status_id_index` (`status_id`),
+  CONSTRAINT `recurring_invoices_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `recurring_invoices_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `recurring_invoices_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recurring_quotes` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `client_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned DEFAULT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `vendor_id` int(10) unsigned DEFAULT NULL,
+  `status_id` int(10) unsigned NOT NULL,
+  `discount` double(8,2) NOT NULL DEFAULT '0.00',
+  `is_amount_discount` tinyint(1) NOT NULL DEFAULT '0',
+  `number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `po_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `due_date` datetime DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `line_items` mediumtext COLLATE utf8mb4_unicode_ci,
+  `backup` mediumtext COLLATE utf8mb4_unicode_ci,
+  `footer` text COLLATE utf8mb4_unicode_ci,
+  `public_notes` text COLLATE utf8mb4_unicode_ci,
+  `private_notes` text COLLATE utf8mb4_unicode_ci,
+  `terms` text COLLATE utf8mb4_unicode_ci,
+  `tax_name1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate1` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate2` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `tax_name3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_rate3` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `total_taxes` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `amount` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `balance` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  `last_viewed` datetime DEFAULT NULL,
+  `frequency_id` int(10) unsigned NOT NULL,
+  `start_date` date DEFAULT NULL,
+  `last_sent_date` datetime DEFAULT NULL,
+  `next_send_date` datetime DEFAULT NULL,
+  `remaining_cycles` int(10) unsigned DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `recurring_quotes_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `recurring_quotes_user_id_foreign` (`user_id`),
+  KEY `recurring_quotes_client_id_index` (`client_id`),
+  KEY `recurring_quotes_company_id_index` (`company_id`),
+  KEY `recurring_quotes_status_id_index` (`status_id`),
+  CONSTRAINT `recurring_quotes_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `recurring_quotes_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `recurring_quotes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sizes` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `system_logs` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `client_id` int(10) unsigned DEFAULT NULL,
+  `category_id` int(10) unsigned DEFAULT NULL,
+  `event_id` int(10) unsigned DEFAULT NULL,
+  `type_id` int(10) unsigned DEFAULT NULL,
+  `log` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `system_logs_company_id_foreign` (`company_id`),
+  KEY `system_logs_client_id_foreign` (`client_id`),
+  CONSTRAINT `system_logs_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `system_logs_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `task_statuses` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `company_id` int(10) unsigned DEFAULT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `task_statuses_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `task_statuses_user_id_foreign` (`user_id`),
+  CONSTRAINT `task_statuses_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `task_statuses_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tasks` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned NOT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `client_id` int(10) unsigned DEFAULT NULL,
+  `invoice_id` int(10) unsigned DEFAULT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `status_id` int(10) unsigned DEFAULT NULL,
+  `sort_order` smallint(6) DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `custom_value1` text COLLATE utf8mb4_unicode_ci,
+  `custom_value2` text COLLATE utf8mb4_unicode_ci,
+  `custom_value3` text COLLATE utf8mb4_unicode_ci,
+  `custom_value4` text COLLATE utf8mb4_unicode_ci,
+  `start_time` timestamp NULL DEFAULT NULL,
+  `duration` int(11) DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `is_running` tinyint(1) NOT NULL DEFAULT '0',
+  `time_log` text COLLATE utf8mb4_unicode_ci,
+  `number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `rate` decimal(16,4) NOT NULL DEFAULT '0.0000',
+  PRIMARY KEY (`id`),
+  KEY `tasks_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `tasks_user_id_foreign` (`user_id`),
+  KEY `tasks_invoice_id_foreign` (`invoice_id`),
+  KEY `tasks_client_id_foreign` (`client_id`),
+  KEY `tasks_company_id_index` (`company_id`),
+  CONSTRAINT `tasks_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `tasks_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `tasks_invoice_id_foreign` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `tasks_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tax_rates` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rate` decimal(13,3) NOT NULL DEFAULT '0.000',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `tax_rates_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `tax_rates_user_id_foreign` (`user_id`),
+  KEY `tax_rates_company_id_index` (`company_id`),
+  CONSTRAINT `tax_rates_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `tax_rates_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `timezones` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `location` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `utc_offset` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int(10) unsigned NOT NULL,
+  `first_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ip` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `device_token` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `confirmation_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `theme_id` int(11) DEFAULT NULL,
+  `failed_logins` smallint(6) DEFAULT NULL,
+  `referral_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `oauth_user_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `oauth_user_token` text COLLATE utf8mb4_unicode_ci,
+  `oauth_provider_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `google_2fa_secret` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `accepted_terms_version` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `avatar` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `avatar_width` int(10) unsigned DEFAULT NULL,
+  `avatar_height` int(10) unsigned DEFAULT NULL,
+  `avatar_size` int(10) unsigned DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `last_login` datetime DEFAULT NULL,
+  `signature` mediumtext COLLATE utf8mb4_unicode_ci,
+  `password` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `oauth_user_refresh_token` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_unique` (`email`),
+  UNIQUE KEY `users_oauth_user_id_oauth_provider_id_unique` (`oauth_user_id`,`oauth_provider_id`),
+  KEY `users_account_id_index` (`account_id`),
+  CONSTRAINT `users_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `vendor_contacts` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `vendor_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `is_primary` tinyint(1) NOT NULL DEFAULT '0',
+  `first_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `send_email` tinyint(1) NOT NULL DEFAULT '0',
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `confirmation_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `confirmed` tinyint(1) NOT NULL DEFAULT '0',
+  `last_login` timestamp NULL DEFAULT NULL,
+  `failed_logins` smallint(6) DEFAULT NULL,
+  `oauth_user_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `oauth_provider_id` int(10) unsigned DEFAULT NULL,
+  `google_2fa_secret` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `accepted_terms_version` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `avatar` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `avatar_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `avatar_size` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `password` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_locked` tinyint(1) NOT NULL DEFAULT '0',
+  `contact_key` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `vendor_contacts_oauth_user_id_unique` (`oauth_user_id`),
+  UNIQUE KEY `vendor_contacts_oauth_provider_id_unique` (`oauth_provider_id`),
+  KEY `vendor_contacts_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `vendor_contacts_user_id_foreign` (`user_id`),
+  KEY `vendor_contacts_vendor_id_index` (`vendor_id`),
+  KEY `vendor_contacts_company_id_email_deleted_at_index` (`company_id`,`email`,`deleted_at`),
+  CONSTRAINT `vendor_contacts_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `vendor_contacts_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `vendor_contacts_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `vendors` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `assigned_user_id` int(10) unsigned DEFAULT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `currency_id` int(10) unsigned DEFAULT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country_id` int(10) unsigned DEFAULT NULL,
+  `work_phone` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `private_notes` text COLLATE utf8mb4_unicode_ci,
+  `website` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0',
+  `vat_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `transaction_name` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id_number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `vendor_hash` text COLLATE utf8mb4_unicode_ci,
+  `public_notes` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `vendors_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `vendors_user_id_foreign` (`user_id`),
+  KEY `vendors_country_id_foreign` (`country_id`),
+  KEY `vendors_currency_id_foreign` (`currency_id`),
+  CONSTRAINT `vendors_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `vendors_country_id_foreign` FOREIGN KEY (`country_id`) REFERENCES `countries` (`id`),
+  CONSTRAINT `vendors_currency_id_foreign` FOREIGN KEY (`currency_id`) REFERENCES `currencies` (`id`),
+  CONSTRAINT `vendors_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `webhooks` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned DEFAULT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `event_id` int(10) unsigned DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `target_url` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `format` enum('JSON','UBL') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'JSON',
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `subscriptions_company_id_foreign` (`company_id`),
+  KEY `subscriptions_event_id_company_id_index` (`event_id`,`company_id`),
+  CONSTRAINT `subscriptions_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+INSERT INTO `migrations` VALUES (1,'2014_10_12_100000_create_password_resets_table',1);
+INSERT INTO `migrations` VALUES (2,'2014_10_13_000000_create_users_table',1);
+INSERT INTO `migrations` VALUES (3,'2019_11_10_115926_create_failed_jobs_table',1);
+INSERT INTO `migrations` VALUES (4,'2020_03_05_123315_create_jobs_table',1);
+INSERT INTO `migrations` VALUES (5,'2020_04_08_234530_add_is_deleted_column_to_company_tokens_table',1);
+INSERT INTO `migrations` VALUES (6,'2020_05_13_035355_add_google_refresh_token_to_users_table',1);
+INSERT INTO `migrations` VALUES (7,'2020_07_05_084934_company_too_large_attribute',1);
+INSERT INTO `migrations` VALUES (8,'2020_07_08_065301_add_token_id_to_activity_table',1);
+INSERT INTO `migrations` VALUES (9,'2020_07_21_112424_update_enabled_modules_value',1);
+INSERT INTO `migrations` VALUES (10,'2020_07_28_104218_shop_token',1);
+INSERT INTO `migrations` VALUES (11,'2020_08_04_080851_add_is_deleted_to_group_settings',1);
+INSERT INTO `migrations` VALUES (12,'2020_08_11_221627_add_is_deleted_flag_to_client_gateway_token_table',1);
+INSERT INTO `migrations` VALUES (13,'2020_08_13_095946_remove_photo_design',1);
+INSERT INTO `migrations` VALUES (14,'2020_08_13_212702_add_reminder_sent_fields_to_entity_tables',1);
+INSERT INTO `migrations` VALUES (15,'2020_08_18_140557_add_is_public_to_documents_table',1);
+INSERT INTO `migrations` VALUES (16,'2020_09_22_205113_id_number_fields_for_missing_entities',1);
+INSERT INTO `migrations` VALUES (17,'2020_09_27_215800_update_gateway_table_visible_column',1);
+INSERT INTO `migrations` VALUES (18,'2020_10_11_211122_vendor_schema_update',1);
+INSERT INTO `migrations` VALUES (19,'2020_10_12_204517_project_number_column',1);
+INSERT INTO `migrations` VALUES (20,'2020_10_14_201320_project_ids_to_entities',1);
+INSERT INTO `migrations` VALUES (21,'2020_10_19_101823_project_name_unique_removal',1);
+INSERT INTO `migrations` VALUES (22,'2020_10_21_222738_expenses_nullable_assigned_user',1);
