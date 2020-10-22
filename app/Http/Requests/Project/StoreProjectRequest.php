@@ -34,7 +34,6 @@ class StoreProjectRequest extends Request
     {
         $rules = [];
 
-            //$rules['name'] ='required|unique:projects,name,null,null,company_id,'.auth()->user()->companyId();
             $rules['name'] = 'required';
             $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
@@ -48,7 +47,6 @@ class StoreProjectRequest extends Request
         if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
-
         
         $this->replace($input);
     }

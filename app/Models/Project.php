@@ -11,7 +11,7 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Project extends BaseModel
 {
-    // Expense Categories
+    
     use SoftDeletes;
     use PresentableTrait;
     use Filterable;

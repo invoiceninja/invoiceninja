@@ -46,16 +46,7 @@ class UpdateExpenseRequest extends Request
             $rules['number'] = 'unique:expenses,number,'.$this->id.',id,company_id,'.$this->expense->company_id;
         }
 
-        $contacts = request('contacts');
-
-        if (is_array($contacts)) {
-            // for ($i = 0; $i < count($contacts); $i++) {
-                // //    $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . isset($contacts[$i]['id'].',company_id,'.$this->company_id);
-                //     //$rules['contacts.' . $i . '.email'] = 'nullable|email';
-                // }
-        }
-
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     public function messages()
@@ -71,6 +62,8 @@ class UpdateExpenseRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
+
+        $input = $this->decodePrimaryKeys($input);
 
         $this->replace($input);
     }
