@@ -60,9 +60,7 @@ class UpdatePaymentRequest extends Request
     {
         $input = $this->all();
 
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
+        $input = $this->decodePrimaryKeys($input);
 
         if (isset($input['client_id'])) {
             unset($input['client_id']);
@@ -71,18 +69,6 @@ class UpdatePaymentRequest extends Request
         if (isset($input['amount'])) {
             unset($input['amount']);
         }
-
-        // if (isset($input['type_id'])) {
-        //     unset($input['type_id']);
-        // }
-
-        // if (isset($input['date'])) {
-        //     unset($input['date']);
-        // }
-
-        // if (isset($input['transaction_reference'])) {
-        //     unset($input['transaction_reference']);
-        // }
 
         if (isset($input['number'])) {
             unset($input['number']);

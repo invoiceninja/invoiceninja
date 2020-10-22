@@ -84,9 +84,8 @@ class StoreClientRequest extends Request
             }
         }
 
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
+        $input = $this->decodePrimaryKeys($input);
+
 
         //is no settings->currency_id is set then lets dive in and find either a group or company currency all the below may be redundant!!
         if (! property_exists($settings, 'currency_id') && isset($input['group_settings_id'])) {
@@ -107,29 +106,6 @@ class StoreClientRequest extends Request
         }
 
         $input['settings'] = $settings;
-
-        if (isset($input['contacts'])) {
-            foreach ($input['contacts'] as $key => $contact) {
-                if (array_key_exists('id', $contact) && is_numeric($contact['id'])) {
-                    unset($input['contacts'][$key]['id']);
-                } elseif (array_key_exists('id', $contact) && is_string($contact['id'])) {
-                    $input['contacts'][$key]['id'] = $this->decodePrimaryKey($contact['id']);
-                }
-
-                //Filter the client contact password - if it is sent with ***** we should ignore it!
-                if (isset($contact['password'])) {
-                    if (strlen($contact['password']) == 0) {
-                        $input['contacts'][$key]['password'] = '';
-                    } else {
-                        $contact['password'] = str_replace('*', '', $contact['password']);
-
-                        if (strlen($contact['password']) == 0) {
-                            unset($input['contacts'][$key]['password']);
-                        }
-                    }
-                }
-            }
-        }
 
         if (isset($input['country_code'])) {
             $input['country_id'] = $this->getCountryCode($input['country_code']);

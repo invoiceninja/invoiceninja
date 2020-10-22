@@ -14,6 +14,7 @@ namespace App\Http\Requests\Expense;
 use App\DataMapper\ExpenseSettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Expense\UniqueExpenseNumberRule;
+use App\Http\ValidationRules\User\RelatedUserRule;
 use App\Http\ValidationRules\ValidExpenseGroupSettingsRule;
 use App\Models\Expense;
 use App\Utils\Traits\MakesHash;
@@ -36,23 +37,24 @@ class StoreExpenseRequest extends Request
 
     public function rules()
     {
-
+        $rules = [];
 
         $rules['id_number'] = 'unique:expenses,id_number,'.$this->id.',id,company_id,'.$this->company_id;
-
         $rules['contacts.*.email'] = 'nullable|distinct';
-
         $rules['number'] = new UniqueExpenseNumberRule($this->all());
+        $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
-        return $rules;
+
+        return $this->globalRules($rules);
     }
 
     protected function prepareForValidation()
     {
-        // $input = $this->all();
+        $input = $this->all();
 
+        $input = $this->decodePrimaryKeys($input);
 
-        // $this->replace($input);
+        $this->replace($input);
     }
 
     public function messages()

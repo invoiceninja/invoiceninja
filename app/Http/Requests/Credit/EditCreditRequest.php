@@ -1,10 +1,20 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
 
 namespace App\Http\Requests\Credit;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Request;
 
-class EditCreditRequest extends FormRequest
+class EditCreditRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.

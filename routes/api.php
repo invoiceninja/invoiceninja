@@ -18,7 +18,6 @@ Route::group(['middleware' => ['api_secret_check']], function () {
 
 Route::group(['api_secret_check', 'email_db'], function () {
     Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit');
-    // Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.reset');
     Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 
 });
