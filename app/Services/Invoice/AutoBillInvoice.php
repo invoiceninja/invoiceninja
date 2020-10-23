@@ -56,7 +56,7 @@ class AutoBillInvoice extends AbstractService
 
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
         
-        if($this->invoice->company->use_credits_payment == 'always' || $this->invoice->company->use_credits_payment == 'option')
+        if($this->invoice->company->use_credits_payment != 'off')
             $this->applyCreditPayment(); 
 
         info("partial = {$this->invoice->partial}");
