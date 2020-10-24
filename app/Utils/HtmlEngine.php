@@ -501,7 +501,9 @@ class HtmlEngine
         if ($custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
             $custom_field_parts = explode('|', $custom_field);
-            $custom_field = $custom_field_parts[1];
+
+            if(count($custom_field_parts) >= 2)
+                $custom_field = $custom_field_parts[1];
         }
 
         switch ($custom_field) {
@@ -510,7 +512,7 @@ class HtmlEngine
                 break;
             
             default:
-                return $value;
+                return is_null($value) ? '' : $value;
                 break;
         }
     }
