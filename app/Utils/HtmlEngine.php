@@ -15,10 +15,13 @@ namespace App\Utils;
 use App\Designs\Designer;
 use App\Models\Country;
 use App\Utils\Number;
+use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
 
 class HtmlEngine
 {
+    use MakesDates;
+
     public $entity;
 
     public $invitation;
@@ -172,10 +175,10 @@ class HtmlEngine
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes'] = &$data['$taxes'];
 
-        $data['$invoice.custom1'] = ['value' => $this->entity->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice1')];
-        $data['$invoice.custom2'] = ['value' => $this->entity->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
-        $data['$invoice.custom3'] = ['value' => $this->entity->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
-        $data['$invoice.custom4'] = ['value' => $this->entity->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
+        $data['$invoice.custom1'] = ['value' => $this->formatCustomFieldValue('invoice1', $this->entity->custom_value1) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice1')];
+        $data['$invoice.custom2'] = ['value' => $this->formatCustomFieldValue('invoice2', $this->entity->custom_value2) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
+        $data['$invoice.custom3'] = ['value' => $this->formatCustomFieldValue('invoice3', $this->entity->custom_value3) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
+        $data['$invoice.custom4'] = ['value' => $this->formatCustomFieldValue('invoice4', $this->entity->custom_value4) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
         $data['$invoice.public_notes'] = ['value' => $this->entity->public_notes ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
 
@@ -481,12 +484,35 @@ class HtmlEngine
 
         if ($custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
+            
             $custom_field_parts = explode('|', $custom_field);
 
             return $custom_field_parts[0];
         }
 
         return '';
+    }
+
+    private function formatCustomFieldValue($field, $value) :string
+    {
+        $custom_fields = $this->company->custom_fields;
+        $custom_field = '';
+
+        if ($custom_fields && property_exists($custom_fields, $field)) {
+            $custom_field = $custom_fields->{$field};
+            $custom_field_parts = explode('|', $custom_field);
+            $custom_field = $custom_field_parts[1];
+        }
+
+        switch ($custom_field) {
+            case 'date':
+                return $this->formatDate($value, $this->client->date_format());
+                break;
+            
+            default:
+                return $value;
+                break;
+        }
     }
 
     private function makeTotalTaxes() :string

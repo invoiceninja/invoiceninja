@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
@@ -51,6 +52,11 @@ class PaymentTermsApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
+
     }
 
     public function testPaymentTermsGet()

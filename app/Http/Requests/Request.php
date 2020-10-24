@@ -63,7 +63,7 @@ class Request extends FormRequest
 
     private function vendor_id($rules)
     {
-        $rules['vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id;
+        $rules['vendor_id'] = 'bail|nullable|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id;
 
         return $rules;
     }

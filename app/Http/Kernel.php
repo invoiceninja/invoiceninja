@@ -52,7 +52,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:60,1',
+            'throttle:300,1',
             'bindings',
             'query_logging',
             \App\Http\Middleware\Cors::class,
@@ -74,7 +74,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\QueryLogging::class,
         ],
         'shop' => [
-            'throttle:60,1',
+            'throttle:120,1',
             'bindings',
             'query_logging',
         ],

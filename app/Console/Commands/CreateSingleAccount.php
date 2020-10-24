@@ -112,6 +112,7 @@ class CreateSingleAccount extends Command
         $company = Company::factory()->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
+            'use_credits_payment' => 'always',
         ]);
 
         $account->default_company_id = $company->id;

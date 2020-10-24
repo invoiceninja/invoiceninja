@@ -210,6 +210,16 @@ class InvoiceService
         return $this;
     }
 
+    public function setCalculatedStatus()
+    {
+        if((int)$this->invoice->balance == 0)
+            $this->setStatus(Invoice::STATUS_PAID);
+        elseif($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount)
+            $this->setStatus(Invoice::STATUS_PARTIAL);
+
+        return $this;
+    }
+
     public function updateStatus()
     {
         info("invoice balance = {$this->invoice->balance}");
