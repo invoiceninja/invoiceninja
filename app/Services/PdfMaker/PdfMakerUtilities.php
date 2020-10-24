@@ -293,7 +293,7 @@ trait PdfMakerUtilities
             $this->document->getElementById('repeat-content')->appendChild($clone);
         }
 
-        info($this->data['options']);
+     //   info($this->data['options']);
 
         if (
             $header = $this->document->getElementById('header') &&

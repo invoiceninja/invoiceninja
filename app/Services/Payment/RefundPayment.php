@@ -241,6 +241,7 @@ class RefundPayment
 
                 $adjustment_amount += $refunded_invoice['amount'];
                 $client->balance += $refunded_invoice['amount'];
+                //$client->paid_to_date -= $refunded_invoice['amount'];//todo refund balancing
                 $client->save();
 
                 //todo adjust ledger balance here? or after and reference the credit and its total
@@ -251,7 +252,8 @@ class RefundPayment
             // $this->credit_note->ledger()->updateCreditBalance($adjustment_amount, $ledger_string);
 
             $client = $this->payment->client->fresh();
-            $client->service()->updatePaidToDate(-1 * $this->total_refund)->save();
+            //$client->service()->updatePaidToDate(-1 * $this->total_refund)->save();
+            $client->service()->updatePaidToDate(-1 * $refunded_invoice['amount'])->save();
         }
 
         return $this;

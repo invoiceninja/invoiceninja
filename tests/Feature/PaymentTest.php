@@ -1295,7 +1295,7 @@ $contact =             ClientContact::factory()->create([
 
             $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
 
-            info($payment);
+            // info($payment);
 
             $this->assertNotNull($payment);
             $this->assertNotNull($payment->invoices());
