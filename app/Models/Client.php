@@ -240,7 +240,6 @@ class Client extends BaseModel implements HasLocalePreference
             return $item->id == $this->getSetting('date_format_id');
         })->first()->format;
 
-        //return DateFormat::find($this->getSetting('date_format_id'))->format;
     }
 
     public function currency()
