@@ -16,6 +16,10 @@ class CompanyTableFields extends Migration
         Schema::table('companies', function(Blueprint $table){
             $table->boolean('invoice_task_timelog')->default(true);
         });
+
+        Schema::table('task_statuses', function(Blueprint $table){
+            $table->unsignedInteger('sort_order')->default(0);
+        });
     }
 
     /**
