@@ -48,6 +48,11 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public $payment_method; //the gateway type id
 
+    /**
+     * @var \App\Models\PaymentHash
+     */
+    public $payment_hash;
+
     public static $methods = [
         GatewayType::CREDIT_CARD => \App\PaymentDrivers\CheckoutCom\CreditCard::class,
     ];
@@ -138,22 +143,6 @@ class CheckoutComPaymentDriver extends BaseDriver
     public function processPaymentResponse($request)
     {
         return $this->payment_method->paymentResponse($request);
-    }
-
-    public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
-    {
-        $payment = parent::createPayment($data, $status);
-
-        $client_contact = $this->getContact();
-        $client_contact_id = $client_contact ? $client_contact->id : null;
-
-        $payment->amount = $data['amount'];
-        $payment->type_id = $data['payment_type'];
-        $payment->transaction_reference = $data['payment_method'];
-        $payment->client_contact_id = $client_contact_id;
-        $payment->save();
-
-        return $payment;
     }
 
     public function saveCard($state)

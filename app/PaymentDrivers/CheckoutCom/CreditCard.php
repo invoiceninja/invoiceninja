@@ -27,11 +27,6 @@ class CreditCard
      */
     public $checkout;
 
-    /**
-     * @var \App\Models\PaymentHash
-     */
-    private $payment_hash;
-
     public function __construct(CheckoutComPaymentDriver $checkout)
     {
         $this->checkout = $checkout;
@@ -94,7 +89,7 @@ class CreditCard
         $payment_hash->data = array_merge((array) $payment_hash->data, $state);
         $payment_hash->save();
 
-        $this->payment_hash = $payment_hash;
+        $this->checkout->payment_hash = $payment_hash;
 
         if ($request->has('token') && !is_null($request->token)) {
             return $this->attemptPaymentUsingToken();
@@ -105,14 +100,14 @@ class CreditCard
 
     private function attemptPaymentUsingToken()
     {
-        $method = new IdSource($this->payment_hash->data->token);
+        $method = new IdSource($this->checkout->payment_hash->data->token);
 
         return $this->completePayment($method);
     }
 
     private function attemptPaymentUsingCreditCard()
     {
-        $checkout_response = $this->payment_hash->data->server_response;
+        $checkout_response = $this->checkout->payment_hash->data->server_response;
 
         $method = new TokenSource(
             $checkout_response->cardToken
@@ -125,9 +120,9 @@ class CreditCard
     {
         // TODO: confirmGatewayFee & unwind
 
-        $payment = new Payment($method, $this->payment_hash->data->currency);
-        $payment->amount = $this->payment_hash->data->value;
-        $payment->reference = $this->payment_hash->data->reference;
+        $payment = new Payment($method, $this->checkout->payment_hash->data->currency);
+        $payment->amount = $this->checkout->payment_hash->data->value;
+        $payment->reference = $this->checkout->payment_hash->data->reference;
 
         if ($this->checkout->client->currency()->code === 'EUR' && $enable_3ds) {
             $payment->{'3ds'} = ['enabled' => true];

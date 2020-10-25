@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers;
 
 use App\Events\Invoice\InvoiceWasPaid;
+use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Models\Client;
@@ -146,6 +147,24 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->status_id = $status;
         $payment->currency_id = $this->client->getSetting('currency_id');
         $payment->date = Carbon::now();
+
+        $client_contact = $this->getContact();
+        $client_contact_id = $client_contact ? $client_contact->id : null;
+
+        $payment->amount = $data['amount'];
+        $payment->type_id = $data['payment_type'];
+        $payment->transaction_reference = $data['payment_method'];
+        $payment->client_contact_id = $client_contact_id;
+        $payment->save();
+
+        $this->payment_hash->payment_id = $payment->id;
+        $this->payment_hash->save();
+
+        $this->attachInvoices($payment, $this->payment_hash);
+
+        $payment->service()->updateInvoicePayment($this->payment_hash);
+
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         return $payment->service()->applyNumber()->save();
     }

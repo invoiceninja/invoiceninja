@@ -12,12 +12,10 @@
 
 namespace App\PaymentDrivers\CheckoutCom;
 
-use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\Utils\Ninja;
 
 trait Utilities
 {
@@ -49,26 +47,17 @@ trait Utilities
 
     private function processSuccessfulPayment(\Checkout\Models\Payments\Payment $_payment)
     {
-        if ($this->payment_hash->data->store_card) {
+        if ($this->checkout->payment_hash->data->store_card) {
             // $this->saveCreditCard();
         }
 
         $data = [
             'payment_method' => $_payment->source['id'],
             'payment_type' => PaymentType::parseCardType(strtolower($_payment->source['scheme'])),
-            'amount' => $this->payment_hash->data->value,
+            'amount' => $this->checkout->payment_hash->data->value,
         ];
 
         $payment = $this->checkout->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
-
-        $this->payment_hash->payment_id = $payment->id;
-        $this->payment_hash->save();
-
-        $this->checkout->attachInvoices($payment, $this->payment_hash);
-
-        $payment->service()->updateInvoicePayment($this->payment_hash);
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         SystemLogger::dispatch(
             ['response' => $_payment, 'data' => $data],
@@ -87,12 +76,12 @@ trait Utilities
             $this->checkout->client,
             $_payment,
             $this->checkout->client->company,
-            $this->payment_hash->data->value
+            $this->checkout->payment_hash->data->value
         );
 
         $message = [
             'server_response' => $_payment,
-            'data' => $this->payment_hash->data,
+            'data' => $this->checkout->payment_hash->data,
         ];
 
         SystemLogger::dispatch(
@@ -114,19 +103,10 @@ trait Utilities
         $data = [
             'payment_method' => $_payment->source['id'],
             'payment_type' => PaymentType::parseCardType(strtolower($_payment->source['scheme'])),
-            'amount' => $this->payment_hash->data->value,
+            'amount' => $this->checkout->payment_hash->data->value,
         ];
 
         $payment = $this->checkout->createPayment($data, \App\Models\Payment::STATUS_PENDING);
-
-        $this->payment_hash->payment_id = $payment->id;
-        $this->payment_hash->save();
-
-        $this->checkout->attachInvoices($payment, $this->payment_hash);
-
-        $payment->service()->updateInvoicePayment($this->payment_hash);
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         SystemLogger::dispatch(
             ['response' => $_payment, 'data' => $data],
@@ -157,11 +137,11 @@ trait Utilities
             $this->checkout->client,
             $error,
             $this->checkout->client->company,
-            $this->payment_hash->data->value
+            $this->checkout->payment_hash->data->value
         );
 
         SystemLogger::dispatch(
-            $this->payment_hash,
+            $this->checkout->payment_hash,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_ERROR,
             SystemLog::TYPE_CHECKOUT,
