@@ -23,6 +23,7 @@ use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Document;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\GroupSetting;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
@@ -32,6 +33,7 @@ use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\SystemLog;
 use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Webhook;
@@ -40,9 +42,11 @@ use App\Transformers\CompanyTokenHashedTransformer;
 use App\Transformers\CompanyTokenTransformer;
 use App\Transformers\CreditTransformer;
 use App\Transformers\DocumentTransformer;
+use App\Transformers\ExpenseCategoryTransformer;
 use App\Transformers\PaymentTermTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
 use App\Transformers\SystemLogTransformer;
+use App\Transformers\TaskStatusTransformer;
 use App\Transformers\TaskTransformer;
 use App\Transformers\WebhookTransformer;
 use App\Utils\Traits\MakesHash;
@@ -95,6 +99,8 @@ class CompanyTransformer extends EntityTransformer
         'tokens',
         'tokens_hashed',
         'system_logs',
+        'expense_categories',
+        'task_statuses',
     ];
 
     /**
@@ -149,6 +155,20 @@ class CompanyTransformer extends EntityTransformer
             'auto_start_tasks' => (bool) $company->auto_start_tasks,
             'use_credits_payment' => (string) $company->use_credits_payment,
         ];
+    }
+
+    public function includeExpenseCategories(Company $company)
+    {
+        $transformer = new ExpenseCategoryTransformer($this->serializer);
+
+        return $this->includeCollection($company->expense_categories, $transformer, ExpenseCategory::class);
+    }
+
+    public function includeTaskStatuses(Company $company)
+    {
+        $transformer = new TaskStatusTransformer($this->serializer);
+
+        return $this->includeCollection($company->task_statuses, $transformer, TaskStatus::class);
     }
 
     public function includeDocuments(Company $company)

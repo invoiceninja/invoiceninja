@@ -60,9 +60,12 @@ class BaseController extends Controller
 
     private $first_load = [
           'account',
-          'token.company_user',
+          'user.company_user.token.company_user',
+          //'token.company_user',
           'company.activities',
           'company.designs.company',
+          'company.task_statuses',
+          'company.expense_categories',
           'company.documents',
           'company.users.company_users',
           'company.clients.contacts',
@@ -257,6 +260,12 @@ class BaseController extends Controller
             'company.vendors'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at)->with('contacts','documents' );
             },
+            'company.expense_categories'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
+            },
+            'company.task_statuses'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
+            },            
           ]
         );
 

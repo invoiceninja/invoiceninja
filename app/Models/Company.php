@@ -165,14 +165,20 @@ class Company extends BaseModel
         return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id');
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
+    public function expense_categories()
+    {
+        return $this->hasMany(ExpenseCategory::class)->withTrashed();
+    }
+
+    public function task_statuses()
+    {
+        return $this->hasMany(TaskStatus::class)->withTrashed();
+    }
+
     public function clients()
     {
         return $this->hasMany(Client::class)->withTrashed();
     }
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
