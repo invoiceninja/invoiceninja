@@ -60,12 +60,15 @@ class BaseController extends Controller
 
     private $first_load = [
           'account',
+          'user.company_user',
           'token.company_user',
           'company.activities',
           'company.designs.company',
+          'company.task_statuses',
+          'company.expense_categories',
           'company.documents',
-          'company.users.company_users',
-          'company.clients.contacts',
+          'company.users.company_user',
+          'company.clients.contacts.company',
           'company.clients.gateway_tokens',
           'company.clients.documents',
           'company.company_gateways.gateway',
@@ -90,11 +93,11 @@ class BaseController extends Controller
           'company.quotes.invitations.contact',
           'company.quotes.invitations.company',
           'company.quotes.documents',
-          'company.tasks',
           'company.tasks.documents',
           'company.tax_rates',
           'company.tokens_hashed',
-          'company.vendors.contacts',
+          'company.vendors.contacts.company',
+          'company.vendors.documents',
           'company.webhooks',
         ];
 
@@ -257,6 +260,12 @@ class BaseController extends Controller
             'company.vendors'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at)->with('contacts','documents' );
             },
+            'company.expense_categories'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
+            },
+            'company.task_statuses'=> function ($query) use ($updated_at) {
+                $query->where('updated_at', '>=', $updated_at);
+            },            
           ]
         );
 
@@ -418,7 +427,8 @@ class BaseController extends Controller
 
     public function flutterRoute()
     {
-        if ((bool) $this->checkAppSetup() !== false && Schema::hasTable('accounts') && $account = Account::first()) {
+      //  if ((bool) $this->checkAppSetup() !== false && Schema::hasTable('accounts') && $account = Account::first()) {
+        if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
             if (config('ninja.require_https') && ! request()->isSecure()) {
                 return redirect()->secure(request()->getRequestUri());
             }

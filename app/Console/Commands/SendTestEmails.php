@@ -18,7 +18,7 @@ use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceInvitationFactory;
 use App\Helpers\Email\InvoiceEmail;
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Invoice\CreateEntityPdf;
 use App\Mail\TemplateEmail;
 use App\Models\Account;
 use App\Models\Client;
@@ -149,7 +149,7 @@ class SendTestEmails extends Command
         $invoice->setRelation('invitations', $ii);
         $invoice->service()->markSent()->save();
 
-        CreateInvoicePdf::dispatch($invoice->invitations()->first());
+        CreateEntityPdf::dispatch($invoice->invitations()->first());
 
         $cc_emails = [config('ninja.testvars.test_email')];
         $bcc_emails = [config('ninja.testvars.test_email')];

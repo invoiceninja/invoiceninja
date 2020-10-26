@@ -11,7 +11,7 @@
 
 namespace App\Services\Quote;
 
-use App\Jobs\Quote\CreateQuotePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\ClientContact;
 use App\Models\Quote;
 use App\Services\AbstractService;
@@ -43,7 +43,7 @@ class GetQuotePdf extends AbstractService
         $file = Storage::disk($disk)->exists($file_path);
 
         if (! $file) {
-            $file_path = CreateQuotePdf::dispatchNow($invitation);
+            $file_path = CreateEntityPdf::dispatchNow($invitation);
         }
 
         return Storage::disk($disk)->path($file_path);

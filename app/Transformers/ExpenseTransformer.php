@@ -59,7 +59,7 @@ class ExpenseTransformer extends EntityTransformer
             'bank_id' => (string) $expense->bank_id ?: '',
             'invoice_currency_id' => (string) $expense->invoice_currency_id ?: '',
             'expense_currency_id' => (string) $expense->expense_currency_id ?: '',
-            'category_id' => (string) $expense->category_id ?: '',
+            'category_id' => $this->encodePrimaryKey($expense->category_id),
             'payment_type_id' => (string) $expense->payment_type_id ?: '',
             'recurring_expense_id' => (string) $expense->recurring_expense_id ?: '',
             'is_deleted' => (bool) $expense->is_deleted,

@@ -109,7 +109,7 @@ trait GeneratesCounter
 
         $credit_number = $this->checkEntityNumber(Credit::class, $client, $counter, $padding, $pattern);
 
-        $this->incrementCounter($client->company, 'credit_number_counter');
+        $this->incrementCounter($counter_entity, 'credit_number_counter');
 
         return $credit_number;
     }

@@ -14,7 +14,6 @@ namespace App\Http\Controllers;
 use App\Designs\Custom;
 use App\Designs\Designer;
 use App\Factory\InvoiceFactory;
-use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;

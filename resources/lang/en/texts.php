@@ -3285,5 +3285,7 @@ return [
 
     'credit_subject' => 'New credit :number from :account',
     'credit_message' => 'To view your credit for :amount, click the link below.',
+    'payment_type_Crypto' => 'Cryptocurrency',
+    'payment_type_Credit' => 'Credit',
 
 ];

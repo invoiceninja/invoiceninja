@@ -253,7 +253,10 @@ class CompanySettings extends BaseSettings
     public $client_portal_under_payment_minimum = 0;
     public $client_portal_allow_over_payment = false;
 
+    public $use_credits_payment = 'off'; //always, option, off
+
     public static $casts = [
+        'use_credits_payment'                => 'string',
         'recurring_invoice_number_pattern'   => 'string',
         'recurring_invoice_number_counter'   => 'int',
         'client_portal_under_payment_minimum'=> 'float',

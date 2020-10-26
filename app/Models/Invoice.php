@@ -18,7 +18,7 @@ use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Client\UpdateClientBalance;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Backup;
 use App\Models\CompanyLedger;
 use App\Models\Currency;
@@ -29,8 +29,8 @@ use App\Services\Ledger\LedgerService;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\Archivable;
-use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Utils\Traits\InvoiceEmailBuilder;
+use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\MakesReminders;
@@ -395,7 +395,7 @@ class Invoice extends BaseModel
 
         if (! Storage::exists($this->client->invoice_filepath().$this->number.'.pdf')) {
             event(new InvoiceWasUpdated($this, $this->company, Ninja::eventVars()));
-            CreateInvoicePdf::dispatchNow($invitation);
+            CreateEntityPdf::dispatchNow($invitation);
         }
 
         return $storage_path;

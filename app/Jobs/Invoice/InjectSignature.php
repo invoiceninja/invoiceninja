@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -51,6 +52,6 @@ class InjectSignature implements ShouldQueue
         $invitation->signature_base64 = $this->signature;
         $invitation->save();
 
-        CreateInvoicePdf::dispatch($invitation);
+        CreateEntityPdf::dispatch($invitation);
     }
 }

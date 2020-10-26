@@ -11,7 +11,7 @@
 
 namespace App\Services\Invoice;
 
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
@@ -295,7 +295,7 @@ class InvoiceService
     public function touchPdf()
     {
         $this->invoice->invitations->each(function ($invitation){
-            CreateInvoicePdf::dispatch($invitation);
+            CreateEntityPdf::dispatch($invitation);
         });
 
         return $this;

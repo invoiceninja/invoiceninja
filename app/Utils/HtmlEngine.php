@@ -133,7 +133,7 @@ class HtmlEngine
             $data['$entity.terms'] = ['value' => $this->entity->terms ?: '&nbsp;', 'label' => ctrans('texts.quote_terms')];
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a href="'.$this->invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
-            // $data['$view_link']          = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_quote')];
+            $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_quote')];
         }
 
         if ($this->entity_string == 'credit') {
@@ -142,6 +142,7 @@ class HtmlEngine
             $data['$entity.terms'] = ['value' => $this->entity->terms ?: '&nbsp;', 'label' => ctrans('texts.credit_terms')];
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a href="'.$this->invitation->getLink().'">'.ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
+            $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_credit')];
             // $data['$view_link']          = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_credit')];
         }
 
@@ -210,10 +211,10 @@ class HtmlEngine
         // $data['$details'] = ;
         $data['$invoice_no'] = &$data['$number'];
         $data['$invoice.invoice_no'] = &$data['$number'];
-        $data['$client1'] = ['value' => $this->client->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('client1')];
-        $data['$client2'] = ['value' => $this->client->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('client2')];
-        $data['$client3'] = ['value' => $this->client->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('client3')];
-        $data['$client4'] = ['value' => $this->client->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('client4')];
+        $data['$client1'] = ['value' => $this->formatCustomFieldValue('client1', $this->client->custom_value1) ?: '&nbsp;', 'label' => $this->makeCustomField('client1')];
+        $data['$client2'] = ['value' => $this->formatCustomFieldValue('client2', $this->client->custom_value2) ?: '&nbsp;', 'label' => $this->makeCustomField('client2')];
+        $data['$client3'] = ['value' => $this->formatCustomFieldValue('client3', $this->client->custom_value3) ?: '&nbsp;', 'label' => $this->makeCustomField('client3')];
+        $data['$client4'] = ['value' => $this->formatCustomFieldValue('client4', $this->client->custom_value4) ?: '&nbsp;', 'label' => $this->makeCustomField('client4')];
         $data['$address1'] = ['value' => $this->client->address1 ?: '&nbsp;', 'label' => ctrans('texts.address1')];
         $data['$address2'] = ['value' => $this->client->address2 ?: '&nbsp;', 'label' => ctrans('texts.address2')];
         $data['$id_number'] = ['value' => $this->client->id_number ?: '&nbsp;', 'label' => ctrans('texts.id_number')];
@@ -276,10 +277,10 @@ class HtmlEngine
 
         $data['$company.logo'] = ['value' => $logo ?: '&nbsp;', 'label' => ctrans('texts.logo')];
         $data['$company_logo'] = &$data['$company.logo'];
-        $data['$company1'] = ['value' => $this->settings->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('company1')];
-        $data['$company2'] = ['value' => $this->settings->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];
-        $data['$company3'] = ['value' => $this->settings->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
-        $data['$company4'] = ['value' => $this->settings->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
+        $data['$company1'] = ['value' => $this->formatCustomFieldValue('company1', $this->settings->custom_value1) ?: '&nbsp;', 'label' => $this->makeCustomField('company1')];
+        $data['$company2'] = ['value' => $this->formatCustomFieldValue('company2', $this->settings->custom_value2) ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];
+        $data['$company3'] = ['value' => $this->formatCustomFieldValue('company3', $this->settings->custom_value3) ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
+        $data['$company4'] = ['value' => $this->formatCustomFieldValue('company4', $this->settings->custom_value4) ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
 
         $data['$custom_surcharge1'] = ['value' => $this->entity->custom_surcharge1 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge1')];
         $data['$custom_surcharge2'] = ['value' => $this->entity->custom_surcharge2 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge2')];

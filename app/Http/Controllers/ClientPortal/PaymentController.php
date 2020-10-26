@@ -175,7 +175,7 @@ class PaymentController extends Controller
         $payment_method_id = $request->input('payment_method_id');
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
-        $credit_totals = $first_invoice->company->use_credits_payment == 'off' ? 0 : $first_invoice->client->service()->getCreditBalance();
+        $credit_totals = $first_invoice->client->getSetting('use_credits_payment') == 'off' ? 0 : $first_invoice->client->service()->getCreditBalance();
         $starting_invoice_amount = $first_invoice->amount;
 
         if($gateway)

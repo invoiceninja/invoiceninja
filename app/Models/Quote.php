@@ -14,8 +14,7 @@ namespace App\Models;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Invoice\CreateInvoicePdf;
-use App\Jobs\Quote\CreateQuotePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Filterable;
 use App\Services\Quote\QuoteService;
 use App\Utils\Ninja;
@@ -206,7 +205,7 @@ class Quote extends BaseModel
 
         event(new QuoteWasUpdated($this, $this->company, Ninja::eventVars()));
 
-        CreateQuotePdf::dispatchNow($invitation);
+        CreateEntityPdf::dispatchNow($invitation);
 
         return $storage_path;
     }

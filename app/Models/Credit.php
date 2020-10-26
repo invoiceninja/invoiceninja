@@ -14,7 +14,7 @@ namespace App\Models;
 use App\Events\Credit\CreditWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Credit\CreateCreditPdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Filterable;
 use App\Services\Credit\CreditService;
 use App\Services\Ledger\LedgerService;
@@ -244,10 +244,10 @@ class Credit extends BaseModel
 
         if (! $invitation) {
             event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
-            CreateCreditPdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
+            CreateEntityPdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
         } else {
             event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
-            CreateCreditPdf::dispatchNow($invitation->credit, $invitation->company, $invitation->contact);
+            CreateEntityPdf::dispatchNow($invitation->credit, $invitation->company, $invitation->contact);
         }
 
         return $storage_path;

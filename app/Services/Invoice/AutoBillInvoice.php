@@ -19,6 +19,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
@@ -56,7 +57,7 @@ class AutoBillInvoice extends AbstractService
 
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
         
-        if($this->invoice->company->use_credits_payment != 'off')
+        if($this->client->getSetting('use_credits_payment') != 'off')
             $this->applyCreditPayment(); 
 
         info("partial = {$this->invoice->partial}");
@@ -116,6 +117,7 @@ class AutoBillInvoice extends AbstractService
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->date = now();
         $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->type_id = PaymentType::CREDIT;
         $payment->service()->applyNumber()->save();
 
         $payment->invoices()->attach($this->invoice->id, ['amount' => $amount]);

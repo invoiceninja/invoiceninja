@@ -33,6 +33,8 @@ class Task extends BaseModel
         'description',
         'is_running',
         'time_log',
+        'status_id',
+        'status_sort_order',
     ];
 
     protected $touches = [];

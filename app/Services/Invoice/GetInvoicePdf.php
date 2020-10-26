@@ -11,7 +11,7 @@
 
 namespace App\Services\Invoice;
 
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Services\AbstractService;
@@ -43,7 +43,7 @@ class GetInvoicePdf extends AbstractService
         $file = Storage::disk($disk)->exists($file_path);
 
         if (! $file) {
-            $file_path = CreateInvoicePdf::dispatchNow($invitation);
+            $file_path = CreateEntityPdf::dispatchNow($invitation);
         }
 
         return Storage::disk($disk)->path($file_path);

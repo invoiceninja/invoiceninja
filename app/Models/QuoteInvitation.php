@@ -12,7 +12,7 @@
 namespace App\Models;
 
 use App\Events\Quote\QuoteWasUpdated;
-use App\Jobs\Quote\CreateQuotePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Quote;
 use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
@@ -135,7 +135,7 @@ class QuoteInvitation extends BaseModel
 
         if (! Storage::exists($this->quote->client->quote_filepath().$this->quote->number.'.pdf')) {
             event(new QuoteWasUpdated($this->quote, $this->company, Ninja::eventVars()));
-            CreateQuotePdf::dispatchNow($this);
+            CreateEntityPdf::dispatchNow($this);
         }
 
         return $storage_path;
