@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\CheckoutCom;
 
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Models\PaymentHash;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
 use Checkout\Models\Payments\IdSource;
@@ -68,7 +69,7 @@ class CreditCard
         return render('gateways.checkout.credit_card.pay', $data);
     }
 
-    public function paymentResponse($request)
+    public function paymentResponse(PaymentResponseRequest $request)
     {
         $this->checkout->init();
 
@@ -92,20 +93,20 @@ class CreditCard
         $this->checkout->payment_hash = $payment_hash;
 
         if ($request->has('token') && !is_null($request->token)) {
-            return $this->attemptPaymentUsingToken();
+            return $this->attemptPaymentUsingToken($request);
         }
 
-        return $this->attemptPaymentUsingCreditCard();
+        return $this->attemptPaymentUsingCreditCard($request);
     }
 
-    private function attemptPaymentUsingToken()
+    private function attemptPaymentUsingToken(PaymentResponseRequest $request)
     {
         $method = new IdSource($this->checkout->payment_hash->data->token);
 
-        return $this->completePayment($method);
+        return $this->completePayment($method, $request);
     }
 
-    private function attemptPaymentUsingCreditCard()
+    private function attemptPaymentUsingCreditCard(PaymentResponseRequest $request)
     {
         $checkout_response = $this->checkout->payment_hash->data->server_response;
 
@@ -113,18 +114,16 @@ class CreditCard
             $checkout_response->cardToken
         );
 
-        return $this->completePayment($method);
+        return $this->completePayment($method, $request);
     }
 
-    private function completePayment($method, $enable_3ds = false)
+    private function completePayment($method, PaymentResponseRequest $request)
     {
-        // TODO: confirmGatewayFee & unwind
-
         $payment = new Payment($method, $this->checkout->payment_hash->data->currency);
         $payment->amount = $this->checkout->payment_hash->data->value;
         $payment->reference = $this->checkout->payment_hash->data->reference;
 
-        if ($this->checkout->client->currency()->code === 'EUR' && $enable_3ds) {
+        if ($this->checkout->client->currency()->code === 'EUR') {
             $payment->{'3ds'} = ['enabled' => true];
         }
 
@@ -132,17 +131,25 @@ class CreditCard
             $response = $this->checkout->gateway->payments()->request($payment);
 
             if ($response->status == 'Authorized') {
+                $this->checkout->confirmGatewayFee($request);
+
                 return $this->processSuccessfulPayment($response);
             }
 
             if ($response->status == 'Pending') {
+                $this->checkout->confirmGatewayFee($request);
+
                 return $this->processPendingPayment($response);
             }
 
             if ($response->status == 'Declined') {
+                $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
+
                 return $this->processUnsuccessfulPayment($response);
             }
         } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
+            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
+            
             return $this->processInternallyFailedPayment($e);
         }
     }
