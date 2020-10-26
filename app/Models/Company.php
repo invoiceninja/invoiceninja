@@ -97,6 +97,8 @@ class Company extends BaseModel
         'google_analytics_key',
         'client_can_register',
         'enable_shop_api',
+        'invoice_task_timelog',
+        'auto_start_tasks',
     ];
 
     protected $hidden = [
