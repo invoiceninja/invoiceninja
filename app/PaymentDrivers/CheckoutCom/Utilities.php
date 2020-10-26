@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\CheckoutCom;
 
+use App\Exceptions\PaymentFailed;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\PaymentType;
@@ -92,10 +93,7 @@ trait Utilities
             $this->checkout->client
         );
 
-        return render('gateways.unsuccessful', [
-            'code' => $_payment->http_code,
-            'message' => $_payment->status,
-        ]);
+        throw new PaymentFailed($_payment->status, $_payment->http_code);
     }
 
     private function processPendingPayment(\Checkout\Models\Payments\Payment $_payment)
@@ -148,9 +146,6 @@ trait Utilities
             $this->checkout->client,
         );
 
-        return render('gateways.unsuccessful', [
-            'error' => $e->getCode(),
-            'message' => $error,
-        ]);
+        throw new PaymentFailed($error, $e->getCode());
     }
 }
