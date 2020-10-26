@@ -103,18 +103,24 @@ class CreateEntityPdf implements ShouldQueue
 
         App::setLocale($this->contact->preferredLocale());
 
-        if($this->entity instanceof Invoice)
+        $entity_design_id = '';
+
+        if($this->entity instanceof Invoice){
             $path = $this->entity->client->invoice_filepath();
-        elseif($this->entity instanceof Quote)
+            $entity_design_id = 'invoice_design_id';
+        }
+        elseif($this->entity instanceof Quote){
             $path = $this->entity->client->quote_filepath();
-        elseif($this->entity instanceof Credit)
+            $entity_design_id = 'quote_design_id';
+        }
+        elseif($this->entity instanceof Credit){
             $path = $this->entity->client->credit_filepath();
+            $entity_design_id = 'credit_design_id';
+        }
 
         $file_path = $path.$this->entity->number.'.pdf';
 
-info($file_path);
-
-        $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting('invoice_design_id'));
+        $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
 
         $design = Design::find($entity_design_id);
         $html = new HtmlEngine(null, $this->invitation, $this->entity_string);
