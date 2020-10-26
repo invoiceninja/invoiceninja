@@ -41,7 +41,7 @@ class HtmlEngine
     public $designer;
 
     public function __construct($designer, $invitation, $entity_string)
-    {
+    {info($entity_string);
         $this->designer = $designer;
 
         $this->invitation = $invitation;

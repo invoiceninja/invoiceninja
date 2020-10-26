@@ -18,16 +18,22 @@ use App\Designs\Modern;
 use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\Credit;
+use App\Models\CreditInvitation;
 use App\Models\Design;
 use App\Models\Entity;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Quote;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\MakesEntityHtml;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
 use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Bus\Queueable;
@@ -41,7 +47,7 @@ use Spatie\Browsershot\Browsershot;
 
 class CreateEntityPdf implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesEntityHtml, PdfMaker, MakesHash;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash;
 
     public $entity;
 
@@ -53,6 +59,8 @@ class CreateEntityPdf implements ShouldQueue
 
     public $invitation;
 
+    public $entity_string = '';
+
     /**
      * Create a new job instance.
      *
@@ -62,12 +70,22 @@ class CreateEntityPdf implements ShouldQueue
     {
         $this->invitation = $invitation;
 
-        if($invitation->invoice)
+        if($invitation instanceof InvoiceInvitation){
             $this->entity = $invitation->invoice;
-        elseif($invitation->quote)
+            $this->entity_string = 'invoice';
+        }
+        elseif($invitation instanceof QuoteInvitation){
             $this->entity = $invitation->quote;
-        elseif($invitation->credit))
+            $this->entity_string = 'quote';
+        }
+        elseif($invitation instanceof CreditInvitation){
             $this->entity = $invitation->credit;
+            $this->entity_string = 'credit';
+        }
+        elseif($invitation instanceof RecurringInvoiceInvitation){
+            $this->entity = $invitation->recurring_invoice;
+            $this->entity_string = 'recurring_invoice';
+        }
 
         $this->company = $invitation->company;
 
@@ -94,10 +112,12 @@ class CreateEntityPdf implements ShouldQueue
 
         $file_path = $path.$this->entity->number.'.pdf';
 
+info($file_path);
+
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting('invoice_design_id'));
 
         $design = Design::find($entity_design_id);
-        $html = new HtmlEngine(null, $this->invitation, 'entity');
+        $html = new HtmlEngine(null, $this->invitation, $this->entity_string);
 
         if ($design->is_custom) {
           $options = [
