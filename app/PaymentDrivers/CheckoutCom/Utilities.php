@@ -56,7 +56,7 @@ trait Utilities
         $data = [
             'payment_method' => $_payment->source['id'],
             'payment_type' => PaymentType::parseCardType(strtolower($_payment->source['scheme'])),
-            'amount' => $this->checkout->payment_hash->data->value,
+            'amount' => $this->checkout->payment_hash->data->raw_value,
         ];
 
         $payment = $this->checkout->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
