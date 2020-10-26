@@ -247,4 +247,31 @@ class BaseDriver extends AbstractPaymentDriver
         }
     }
 
+
+    /**
+     * Store payment method as company gateway token.
+     *  
+     * @param array $data 
+     * @return null|\App\Models\ClientGatewayToken 
+     */
+    public function storeGatewayToken(array $data): ?ClientGatewayToken
+    {
+        $company_gateway_token = new ClientGatewayToken();
+        $company_gateway_token->company_id = $this->client->company->id;
+        $company_gateway_token->client_id = $this->client->id;
+        $company_gateway_token->token = $data['token'];
+        $company_gateway_token->company_gateway_id = $this->company_gateway->id;
+        $company_gateway_token->gateway_type_id = $data['payment_method_id'];
+        $company_gateway_token->meta = $data['payment_meta'];
+        $company_gateway_token->save();
+
+        if ($this->client->gateway_tokens->count() == 1) {
+            $this->client->gateway_tokens()->update(['is_default' => 0]);
+
+            $company_gateway_token->is_default = 1;
+            $company_gateway_token->save();
+        }
+
+        return $company_gateway_token;
+    }
 }

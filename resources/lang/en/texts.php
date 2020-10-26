@@ -3286,4 +3286,5 @@ return [
     'credit_subject' => 'New credit :number from :account',
     'credit_message' => 'To view your credit for :amount, click the link below.',
 
+    'payment_method_saving_failed' => 'Payment method can\'t be saved for future use.',
 ];

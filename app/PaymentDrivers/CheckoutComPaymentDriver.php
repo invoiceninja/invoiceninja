@@ -145,53 +145,9 @@ class CheckoutComPaymentDriver extends BaseDriver
         return $this->payment_method->paymentResponse($request);
     }
 
-    public function saveCard($state)
+    public function storePaymentMethod(array $data)
     {
-        //some cards just can't be tokenized....
-        if (!$state['payment_response']->source['id'])
-            return;
-
-        // [id] => src_hck5nsv3fljehbam2cvdm7fioa
-        // [type] => card
-        // [expiry_month] => 10
-        // [expiry_year] => 2022
-        // [scheme] => Visa
-        // [last4] => 4242
-        // [fingerprint] => 688192847DB9AE8A26C53776D036D5B8AD2CEAF1D5A8F5475F542B021041EFA1
-        // [bin] => 424242
-        // [card_type] => Credit
-        // [card_category] => Consumer
-        // [issuer] => JPMORGAN CHASE BANK NA
-        // [issuer_country] => US
-        // [product_id] => A
-        // [product_type] => Visa Traditional
-        // [avs_check] => S
-        // [cvv_check] => Y
-        // [payouts] => 1
-        // [fast_funds] => d
-
-        $payment_meta = new \stdClass;
-        $payment_meta->exp_month = (string)$state['payment_response']->source['expiry_month'];
-        $payment_meta->exp_year = (string)$state['payment_response']->source['expiry_year'];
-        $payment_meta->brand = (string)$state['payment_response']->source['scheme'];
-        $payment_meta->last4 = (string)$state['payment_response']->source['last4'];
-        $payment_meta->type = $this->payment_method;
-
-        $company_gateway_token = new ClientGatewayToken();
-        $company_gateway_token->company_id = $this->client->company->id;
-        $company_gateway_token->client_id = $this->client->id;
-        $company_gateway_token->token = $state['payment_response']->source['id'];
-        $company_gateway_token->company_gateway_id = $this->company_gateway->id;
-        $company_gateway_token->gateway_type_id = $state['payment_method_id'];
-        $company_gateway_token->meta = $payment_meta;
-        $company_gateway_token->save();
-
-        if ($this->client->gateway_tokens->count() == 1) {
-            $this->client->gateway_tokens()->update(['is_default' => 0]);
-
-            $company_gateway_token->is_default = 1;
-            $company_gateway_token->save();
-        }
+        return $this->storeGatewayToken($data);
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)

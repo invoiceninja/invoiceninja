@@ -15,6 +15,7 @@ namespace App\PaymentDrivers\CheckoutCom;
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
+use App\Models\GatewayType;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 
@@ -49,7 +50,7 @@ trait Utilities
     private function processSuccessfulPayment(\Checkout\Models\Payments\Payment $_payment)
     {
         if ($this->checkout->payment_hash->data->store_card) {
-            // $this->saveCreditCard();
+            $this->storePaymentMethod($_payment);
         }
 
         $data = [
@@ -147,5 +148,27 @@ trait Utilities
         );
 
         throw new PaymentFailed($error, $e->getCode());
+    }
+
+    private function storePaymentMethod(\Checkout\Models\Payments\Payment $response)
+    {
+        try {
+            $payment_meta = new \stdClass;
+            $payment_meta->exp_month = (string) $response->source['expiry_month'];
+            $payment_meta->exp_year = (string) $response->source['expiry_year'];
+            $payment_meta->brand = (string) $response->source['scheme'];
+            $payment_meta->last4 = (string) $response->source['last4'];
+            $payment_meta->type = (int) GatewayType::CREDIT_CARD;
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $response->id,
+                'payment_method_id' => $this->checkout->payment_hash->data->payment_method_id,
+            ];
+
+            return $this->checokut->saveCard($data);
+        } catch (\Exception $e) {
+            session()->flash('message', ctrans('texts.payment_method_saving_failed'));
+        }
     }
 }
