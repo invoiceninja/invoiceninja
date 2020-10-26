@@ -11,9 +11,7 @@
 
 namespace App\Services\Credit;
 
-use App\Jobs\Credit\CreateEntityPdf;
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Services\AbstractService;

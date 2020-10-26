@@ -19,7 +19,6 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Client\UpdateClientBalance;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\Backup;
 use App\Models\CompanyLedger;
 use App\Models\Currency;
@@ -396,7 +395,6 @@ class Invoice extends BaseModel
 
         if (! Storage::exists($this->client->invoice_filepath().$this->number.'.pdf')) {
             event(new InvoiceWasUpdated($this, $this->company, Ninja::eventVars()));
-            //CreateInvoicePdf::dispatchNow($invitation);
             CreateEntityPdf::dispatchNow($invitation);
         }
 

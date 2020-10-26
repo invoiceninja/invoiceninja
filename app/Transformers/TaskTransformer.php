@@ -50,6 +50,7 @@ class TaskTransformer extends EntityTransformer
             'start_time' => (int) $task->start_time,
             'description' => $task->description ?: '',
             'duration' => 0,
+            'rate' => (float) $task->rate ?: 0,
             'created_at' => (int) $task->created_at,
             'updated_at' => (int) $task->updated_at,
             'archived_at' => (int) $task->deleted_at,
@@ -63,8 +64,8 @@ class TaskTransformer extends EntityTransformer
             'custom_value2' => $task->custom_value2 ?: '',
             'custom_value3' => $task->custom_value3 ?: '',
             'custom_value4' => $task->custom_value4 ?: '',
-            'task_status_id' => $this->encodePrimaryKey($task->task_status_id),
-            'task_status_sort_order' => (int) $task->task_status_sort_order,
+            'status_id' => $this->encodePrimaryKey($task->status_id),
+            'status_sort_order' => (int) $task->status_sort_order,
         ];
     }
 }

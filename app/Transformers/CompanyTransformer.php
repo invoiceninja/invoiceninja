@@ -153,7 +153,7 @@ class CompanyTransformer extends EntityTransformer
             'invoice_expense_documents' => (bool) $company->invoice_expense_documents,
             'invoice_task_timelog' => (bool) $company->invoice_task_timelog,
             'auto_start_tasks' => (bool) $company->auto_start_tasks,
-            'use_credits_payment' => (string) $company->use_credits_payment,
+            'invoice_task_documents' => (bool) $company->invoice_task_documents,
         ];
     }
 

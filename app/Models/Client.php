@@ -525,7 +525,7 @@ class Client extends BaseModel implements HasLocalePreference
             }
         }
 
-        if(($this->company->use_credits_payment == 'option' || $this->company->use_credits_payment == 'always') && $this->service()->getCreditBalance() > 0) {
+        if(($this->getSetting('use_credits_payment') == 'option' || $this->getSetting('use_credits_payment') == 'always') && $this->service()->getCreditBalance() > 0) {
                 $payment_urls[] = [
                     'label' => ctrans('texts.apply_credit'),
                     'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,

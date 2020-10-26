@@ -41,7 +41,7 @@ class HtmlEngine
     public $designer;
 
     public function __construct($designer, $invitation, $entity_string)
-    {info($entity_string);
+    {
         $this->designer = $designer;
 
         $this->invitation = $invitation;
@@ -133,7 +133,7 @@ class HtmlEngine
             $data['$entity.terms'] = ['value' => $this->entity->terms ?: '&nbsp;', 'label' => ctrans('texts.quote_terms')];
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a href="'.$this->invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
-            // $data['$view_link']          = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_quote')];
+            $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_quote')];
         }
 
         if ($this->entity_string == 'credit') {
@@ -142,6 +142,7 @@ class HtmlEngine
             $data['$entity.terms'] = ['value' => $this->entity->terms ?: '&nbsp;', 'label' => ctrans('texts.credit_terms')];
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a href="'.$this->invitation->getLink().'">'.ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
+            $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_credit')];
             // $data['$view_link']          = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_credit')];
         }
 

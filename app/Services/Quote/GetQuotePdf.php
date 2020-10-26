@@ -12,7 +12,6 @@
 namespace App\Services\Quote;
 
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Quote\CreateQuotePdf;
 use App\Models\ClientContact;
 use App\Models\Quote;
 use App\Services\AbstractService;

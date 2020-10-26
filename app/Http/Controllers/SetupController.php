@@ -16,6 +16,7 @@ use App\Http\Requests\Setup\CheckDatabaseRequest;
 use App\Http\Requests\Setup\CheckMailRequest;
 use App\Http\Requests\Setup\StoreSetupRequest;
 use App\Jobs\Account\CreateAccount;
+use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
 use App\Utils\SystemHealth;
 use Illuminate\Http\Response;
@@ -123,6 +124,8 @@ class SetupController extends Controller
             if (Account::count() == 0) {
                 CreateAccount::dispatchNow($request->all());
             }
+
+            VersionCheck::dispatchNow();
 
             return redirect('/');
         } catch (\Exception $e) {

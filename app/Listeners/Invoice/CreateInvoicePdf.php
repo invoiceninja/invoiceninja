@@ -12,7 +12,6 @@
 namespace App\Listeners\Invoice;
 
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Invoice\CreateInvoicePdf as PdfCreator;
 use App\Libraries\MultiDB;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;

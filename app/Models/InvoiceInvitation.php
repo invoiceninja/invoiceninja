@@ -13,7 +13,6 @@ namespace App\Models;
 
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\Invoice;
 use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;

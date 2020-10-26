@@ -12,7 +12,6 @@
 namespace App\Services\Invoice;
 
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Services\AbstractService;

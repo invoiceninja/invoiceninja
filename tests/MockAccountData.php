@@ -136,7 +136,8 @@ trait MockAccountData
         $settings->country_id = '840';
         $settings->vat_number = 'vat number';
         $settings->id_number = 'id number';
-
+        $settings->use_credits_payment = 'always';
+        
         $this->company->settings = $settings;
         $this->company->save();
 
