@@ -37,49 +37,17 @@ class StoreTaskRequest extends Request
     public function rules()
     {
         $rules = [];
-        /* Ensure we have a client name, and that all emails are unique*/
-        //$rules['name'] = 'required|min:1';
-        //$rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
-
-       // $rules['number'] = new UniqueTaskNumberRule($this->all());
-
-
-        return $rules;
+        
+        return $this->globalRules($rules);
     }
 
     protected function prepareForValidation()
     {
-         $input = $this->all();
+        $input = $this->all();
 
-        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
-            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
-        }
+        $input = $this->decodePrimaryKeys($this->all()); 
 
-        if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
-
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
-
-        if (array_key_exists('project_id', $input) && is_string($input['project_id'])) {
-            $input['project_id'] = $this->decodePrimaryKey($input['project_id']);
-        }        
-
-        if (array_key_exists('invoice_id', $input) && is_string($input['invoice_id'])) {
-            $input['invoice_id'] = $this->decodePrimaryKey($input['invoice_id']);
-        }    
-
-         $this->replace($input);
+        $this->replace($input);
     }
 
-    // public function messages()
-    // {
-    //     // return [
-    //     //     'unique' => ctrans('validation.unique', ['attribute' => 'email']),
-    //     //     //'required' => trans('validation.required', ['attribute' => 'email']),
-    //     //     'contacts.*.email.required' => ctrans('validation.email', ['attribute' => 'email']),
-    //     // ];
-    // }
 }

@@ -42,12 +42,8 @@ class StoreProjectRequest extends Request
 
     protected function prepareForValidation()
     {
-        $input = $this->all();
+        $input = $this->decodePrimaryKeys($this->all()); 
 
-        if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
-        
         $this->replace($input);
     }
 
