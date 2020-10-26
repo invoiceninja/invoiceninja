@@ -116,6 +116,7 @@ class AutoBillInvoice extends AbstractService
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->date = now();
         $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->type_id = PaymentType::CREDIT;
         $payment->service()->applyNumber()->save();
 
         $payment->invoices()->attach($this->invoice->id, ['amount' => $amount]);

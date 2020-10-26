@@ -31,7 +31,7 @@ class PaymentTypesSeeder extends Seeder
     const GATEWAY_TYPE_APPLE_PAY = 11;
     const GATEWAY_TYPE_CUSTOM2 = 12;
     const GATEWAY_TYPE_CUSTOM3 = 13;
-    const GATEWAY_TYPE_CREDIT = 13;
+    const GATEWAY_TYPE_CREDIT = 14;
 
     public function run()
     {
