@@ -8,11 +8,12 @@
 
 namespace App\Helpers\Email;
 
+use App\Helpers\Email\EntityEmailInterface;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Utils\Number;
 
-class InvoiceEmail extends EmailBuilder
+class InvoiceEmail extends EmailBuilder implements EntityEmailInterface
 {
     public function build(InvoiceInvitation $invitation, $reminder_template = null)
     {

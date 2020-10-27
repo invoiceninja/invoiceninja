@@ -92,8 +92,7 @@ class EmailBuilder
      */
     public function setBody($body)
     {
-        //$this->body = $this->parseTemplate($body, true);
-
+        //todo move this to use HTMLEngine
         if (! empty($this->variables)) {
             $body = str_replace(array_keys($this->variables), array_values($this->variables), $body);
         }

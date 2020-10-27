@@ -20,8 +20,11 @@ use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
 use App\Models\Company;
+use App\Models\CreditInvitation;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
 use App\Models\SystemLog;
 use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
@@ -35,11 +38,11 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 /*Multi Mailer implemented*/
 
-class EmailInvoice extends BaseMailerJob implements ShouldQueue
+class EmailEntity extends BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $invoice_invitation;
+    public $invitation;
 
     public $email_builder;
 
@@ -47,20 +50,24 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
 
     public $settings;
 
+    public $entity_string;
+
     /**
-     * EmailInvoice constructor.
+     * EmailEntity constructor.
      * @param InvoiceEmail $email_builder
-     * @param InvoiceInvitation $quote_invitation
+     * @param Invitation $invitation
      */
-    public function __construct(InvoiceEmail $email_builder, InvoiceInvitation $invoice_invitation, Company $company)
+    public function __construct($email_builder, $invitation, Company $company)
     {
         $this->company = $company;
 
-        $this->invoice_invitation = $invoice_invitation;
+        $this->invitation = $invitation;
 
         $this->email_builder = $email_builder;
 
-        $this->settings = $invoice_invitation->contact->client->getMergedSettings();
+        $this->settings = $invitation->contact->client->getMergedSettings();
+
+        $this->entity_string = $this->resolveEntityString();
     }
 
     /**
@@ -70,32 +77,33 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
      * @return void
      */
     public function handle()
-    {info("invoice email");
+    {
+
         MultiDB::setDB($this->company->db);
 
         $this->setMailDriver();
 
         try {
-            Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
+            Mail::to($this->invitation->contact->email, $this->invitation->contact->present()->name())
                 ->send(
                     new TemplateEmail(
                         $this->email_builder,
-                        $this->invoice_invitation->contact->user,
-                        $this->invoice_invitation->contact->client
+                        $this->invitation->contact->user,
+                        $this->invitation->contact->client
                     )
                 );
         } catch (\Swift_TransportException $e) {
-            event(new InvoiceWasEmailedAndFailed($this->invoice_invitation->invoice, $this->company, $e->getMessage(), Ninja::eventVars()));
+            $this->entityEmailFailed($e->getMessage());
         }
 
         if (count(Mail::failures()) > 0) {
             $this->logMailError(Mail::failures(), $this->invoice->client);
         } else {
-            event(new InvoiceWasEmailed($this->invoice_invitation, $this->company, Ninja::eventVars()));
+            $this->entityEmailSucceeded();
         }
 
         /* Mark invoice sent */
-        $this->invoice_invitation->invoice->service()->markSent()->save();
+        $this->invitation->invoice->service()->markSent()->save();
     }
 
     public function failed($exception = null)
@@ -109,5 +117,44 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
         LightLogs::create($job_failure)
                  ->batch();
 
+    }
+
+    private function resolveEntityString() :string
+    {
+        if($this->invitation instanceof InvoiceInvitation)
+            return 'invoice';
+        elseif($this->invitation instanceof QuoteInvitation)
+            return 'quote';
+        elseif($this->invitation instanceof CreditInvitation)
+            return 'credit';
+        elseif($this->invitation instanceof RecurringInvoiceInvitation)
+            return 'recurring_invoice';
+    }
+
+    private function entityEmailFailed($message)
+    {
+        switch ($this->entity_string) {
+            case 'invoice':
+                event(new InvoiceWasEmailedAndFailed($this->invitation->invoice, $this->company, $message, Ninja::eventVars()));
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+
+    }
+
+    private function entityEmailSucceeded()
+    {
+        switch ($this->entity_string) {
+            case 'invoice':
+                event(new InvoiceWasEmailed($this->invitation, $this->company, Ninja::eventVars()));
+                break;
+            
+            default:
+                # code...
+                break;
+        }
     }
 }
