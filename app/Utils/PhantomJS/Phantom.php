@@ -37,10 +37,13 @@ class Phantom
 
         if ($invitation instanceof InvoiceInvitation) {
             $entity = 'invoice';
+            $entity_design_id = 'invoice_design_id';
         } elseif ($invitation instanceof CreditInvitation) {
             $entity = 'credit';
+            $entity_design_id = 'credit_design_id';
         } elseif ($invitation instanceof QuoteInvitation) {
             $entity = 'quote';
+            $entity_design_id = 'quote_design_id';
         }
 
         $entity_obj = $invitation->{$entity};
@@ -81,6 +84,7 @@ class Phantom
         $invitation_instance = 'App\Models\\'.ucfirst($entity).'Invitation';
 
         $invitation = $invitation_instance::whereRaw('BINARY `key`= ?', [$invitation_key])->first();
+        
 
         $entity_obj = $invitation->{$entity};
 
@@ -88,13 +92,15 @@ class Phantom
 
         App::setLocale($invitation->contact->preferredLocale());
 
-        $design_id = $entity_obj->design_id ? $entity_obj->design_id : $this->decodePrimaryKey($entity_obj->client->getSetting($entity.'_design_id'));
+        // $design_id = $entity_obj->design_id ? $entity_obj->design_id : $this->decodePrimaryKey($entity_obj->client->getSetting($entity_design_id));
+        // $design = Design::find($design_id);
+        // $designer = new Designer($entity_obj, $design, $entity_obj->client->getSetting('pdf_variables'), $entity);
+        // $data['html'] = (new HtmlEngine($designer, $invitation, $entity))->build();
 
-        $design = Design::find($design_id);
-
-        $designer = new Designer($entity_obj, $design, $entity_obj->client->getSetting('pdf_variables'), $entity);
-
-        $data['html'] = (new HtmlEngine($designer, $invitation, $entity))->build();
+        $entity_design_id = $entity . '_design_id';
+        $entity_design_id = $entity_obj->design_id ? $entity_obj->design_id : $this->decodePrimaryKey($entity_obj->client->getSetting($entity_design_id));
+        $design = Design::find($entity_design_id);
+        $data['html'] = new HtmlEngine(null, $invitation, $entity);
 
         return view('pdf.html', $data);
     }

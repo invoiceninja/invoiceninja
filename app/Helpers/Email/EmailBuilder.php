@@ -75,7 +75,6 @@ class EmailBuilder
      */
     public function setSubject($subject)
     {
-        //$this->subject = $this->parseTemplate($subject, false, $this->contact);
 
         if (! empty($this->variables)) {
             $subject = str_replace(array_keys($this->variables), array_values($this->variables), $subject);
