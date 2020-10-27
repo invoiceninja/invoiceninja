@@ -46,9 +46,7 @@ class TemplateEmail extends Mailable
      */
     public function build()
     {
-        /*Alter Run Time Mailer configuration (driver etc etc) to regenerate the Mailer Singleton*/
 
-        //if using a system level template
         $template_name = 'email.template.'.$this->build_email->getTemplate();
 
         $settings = $this->client->getMergedSettings();

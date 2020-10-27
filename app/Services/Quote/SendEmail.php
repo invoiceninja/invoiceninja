@@ -41,7 +41,7 @@ class SendEmail
     public function run()
     {
         if (! $this->reminder_template) {
-            $this->reminder_template = $this->quote->calculateTemplate();
+            $this->reminder_template = $this->quote->calculateTemplate('quote');
         }
 
         $this->quote->invitations->each(function ($invitation) {

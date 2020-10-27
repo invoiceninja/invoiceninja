@@ -20,26 +20,6 @@ class EmailBuilder
     public $view_link;
     public $view_text;
 
-    private function parseTemplate(string $data, bool $is_markdown = true, $contact = null): string
-    {
-        //process variables
-        if (! empty($this->variables)) {
-            $data = str_replace(array_keys($this->variables), array_values($this->variables), $data);
-        }
-
-        //process markdown
-        if ($is_markdown) {
-            $converter = new CommonMarkConverter([
-                'html_input' => 'allow',
-                'allow_unsafe_links' => true,
-            ]);
-
-            $data = $converter->convertToHtml($data);
-        }
-
-        return $data;
-    }
-
     /**
      * @param $footer
      * @return $this
