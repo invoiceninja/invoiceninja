@@ -98,7 +98,7 @@ class PreviewController extends BaseController
 
             $entity_obj->load('client');
 
-            $html = new HtmlEngine(null, $entity_obj->invitations()->first(), request()->entity_type);
+            $html = new HtmlEngine($entity_obj->invitations()->first());
 
             $design_namespace = 'App\Services\PdfMaker\Designs\\'.request()->design['name'];
 
@@ -175,7 +175,7 @@ class PreviewController extends BaseController
             return response()->json(['message' => 'Invalid custom design object'], 400);
         }
 
-        $html = new HtmlEngine(null, $invoice->invitations()->first(), 'invoice');
+        $html = new HtmlEngine($invoice->invitations()->first());
 
         $design = new Design(Design::CUSTOM, ['custom_partials' => request()->design['design']]);
 

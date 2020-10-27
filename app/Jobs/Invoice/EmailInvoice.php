@@ -71,6 +71,7 @@ class EmailInvoice extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
+
         MultiDB::setDB($this->company->db);
 
         $this->setMailDriver();

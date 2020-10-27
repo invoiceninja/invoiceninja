@@ -12,8 +12,11 @@
 
 namespace App\Utils;
 
-use App\Designs\Designer;
 use App\Models\Country;
+use App\Models\CreditInvitation;
+use App\Models\InvoiceInvitation;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
@@ -38,15 +41,14 @@ class HtmlEngine
 
     public $entity_string;
 
-    public $designer;
-
-    public function __construct($designer, $invitation, $entity_string)
+    public function __construct($invitation)
     {
-        $this->designer = $designer;
 
         $this->invitation = $invitation;
 
-        $this->entity = $invitation->{$entity_string};
+        $this->entity_string = $this->resolveEntityString();
+
+        $this->entity = $invitation->{$this->entity_string};
 
         $this->company = $invitation->company;
 
@@ -58,33 +60,31 @@ class HtmlEngine
 
         $this->entity_calc = $this->entity->calc();
 
-        $this->entity_string = $entity_string;
     }
 
-    public function build() :string
-    {
-        App::setLocale($this->client->preferredLocale());
-
-        $values_and_labels = $this->generateLabelsAndValues();
-
-        $this->designer->build();
-
-        $data = [];
-        $data['entity'] = $this->entity;
-        $data['lang'] = $this->client->preferredLocale();
-        $data['includes'] = $this->designer->getIncludes();
-        $data['header'] = $this->designer->getHeader();
-        $data['body'] = $this->designer->getBody();
-        $data['footer'] = $this->designer->getFooter();
-
-        $html = view('pdf.stub', $data)->render();
-
-        $html = $this->parseLabelsAndValues($values_and_labels['labels'], $values_and_labels['values'], $html);
-
-        return $html;
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private function resolveEntityString()
+    {
+        switch ($this->invitation) {
+            case ($this->invitation instanceof InvoiceInvitation):
+                return 'invoice';
+                break;
+            case ($this->invitation instanceof CreditInvitation):
+                return 'credit';
+                break;
+            case ($this->invitation instanceof QuoteInvitation):
+                return 'quote';
+                break;
+            case ($this->invitation instanceof RecurringInvoiceInvitation):
+                return 'recurring_invoice';
+                break;
+            default:
+                # code...
+                break;
+        }
+    }
 
     public function buildEntityDataArray() :array
     {

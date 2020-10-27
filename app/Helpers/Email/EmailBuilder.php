@@ -20,26 +20,6 @@ class EmailBuilder
     public $view_link;
     public $view_text;
 
-    private function parseTemplate(string $data, bool $is_markdown = true, $contact = null): string
-    {
-        //process variables
-        if (! empty($this->variables)) {
-            $data = str_replace(array_keys($this->variables), array_values($this->variables), $data);
-        }
-
-        //process markdown
-        if ($is_markdown) {
-            $converter = new CommonMarkConverter([
-                'html_input' => 'allow',
-                'allow_unsafe_links' => true,
-            ]);
-
-            $data = $converter->convertToHtml($data);
-        }
-
-        return $data;
-    }
-
     /**
      * @param $footer
      * @return $this
@@ -75,7 +55,6 @@ class EmailBuilder
      */
     public function setSubject($subject)
     {
-        //$this->subject = $this->parseTemplate($subject, false, $this->contact);
 
         if (! empty($this->variables)) {
             $subject = str_replace(array_keys($this->variables), array_values($this->variables), $subject);
@@ -92,8 +71,7 @@ class EmailBuilder
      */
     public function setBody($body)
     {
-        //$this->body = $this->parseTemplate($body, true);
-
+        //todo move this to use HTMLEngine
         if (! empty($this->variables)) {
             $body = str_replace(array_keys($this->variables), array_values($this->variables), $body);
         }

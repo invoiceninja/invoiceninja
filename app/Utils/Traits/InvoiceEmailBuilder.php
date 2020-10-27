@@ -33,7 +33,7 @@ trait InvoiceEmailBuilder
         //$client = $this->client;
 
         if (! $reminder_template) {
-            $reminder_template = $this->calculateTemplate();
+            $reminder_template = $this->calculateTemplate('invoice');
         }
 
         //Need to determine which email template we are producing
@@ -78,8 +78,6 @@ trait InvoiceEmailBuilder
     {
         $invoice_variables = $this->makeValues($contact);
 
-        //process variables
-//        $data = str_replace(array_keys($invoice_variables), array_values($invoice_variables), $template_data);
         $data = strtr($template_data, $invoice_variables);
 
         //process markdown

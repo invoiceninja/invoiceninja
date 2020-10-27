@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Email\InvoiceEmail;
 use App\Http\Requests\Email\SendEmailRequest;
+use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Jobs\Mail\EntitySentMailer;
 use App\Models\Credit;
@@ -116,9 +117,9 @@ class EmailController extends BaseController
 
         $entity_obj->invitations->each(function ($invitation) use ($subject, $body, $entity_string, $entity_obj) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                $when = now()->addSeconds(1);
 
-                $invitation->contact->notify((new SendGenericNotification($invitation, $entity_string, $subject, $body))->delay($when));
+                EmailEntity::dispatchNow($invitation, $invitation->company);
+                //$invitation->contact->notify((new SendGenericNotification($invitation, $entity_string, $subject, $body))->delay($when));
             }
         });
 

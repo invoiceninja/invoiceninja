@@ -33,7 +33,7 @@ trait QuoteEmailBuilder
         //$client = $this->client;
 
         if (! $reminder_template) {
-            $reminder_template = $this->calculateTemplate();
+            $reminder_template = $this->calculateTemplate('quote');
         }
 
         //Need to determine which email template we are producing

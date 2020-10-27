@@ -65,7 +65,7 @@ class TriggeredActions extends AbstractService
     private function sendEmail()
     {
 
-        //$reminder_template = $this->invoice->calculateTemplate();
+        //$reminder_template = $this->invoice->calculateTemplate('invoice');
         $reminder_template = 'payment';
 
         $this->invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($reminder_template) {

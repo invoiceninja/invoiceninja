@@ -123,7 +123,7 @@ class CreateEntityPdf implements ShouldQueue
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
 
         $design = Design::find($entity_design_id);
-        $html = new HtmlEngine(null, $this->invitation, $this->entity_string);
+        $html = new HtmlEngine($this->invitation);
 
         if ($design->is_custom) {
           $options = [
