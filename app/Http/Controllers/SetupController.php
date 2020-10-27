@@ -195,7 +195,7 @@ class SetupController extends Controller
                 return $this->testPhantom();
             }
 
-            Browsershot::html('PDF GENERATION WORKS! Thank you for using Invoice Ninja!')
+            Browsershot::html('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
                 ->setNodeBinary(config('ninja.system.node_path'))
                 ->setNpmBinary(config('ninja.system.npm_path'))
                 ->noSandbox()
