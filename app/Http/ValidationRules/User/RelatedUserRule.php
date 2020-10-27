@@ -50,6 +50,10 @@ class RelatedUserRule implements Rule
      */
     private function checkUserIsRelated($user_id) : bool
     {
+
+        if(empty($user_id))
+            return true;
+
         return User::query()
                     ->where('id', $user_id)
                     ->where('account_id', auth()->user()->company()->account_id)

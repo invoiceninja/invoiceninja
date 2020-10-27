@@ -16,6 +16,7 @@ use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Jobs\Credit\StoreCredit;
+use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailCredit;
 use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Models\Client;
@@ -545,7 +546,13 @@ class CreditController extends BaseController
                 }
                 break;
             case 'email':
-                EmailCredit::dispatch($credit, $credit->company);
+                // EmailCredit::dispatch($credit, $credit->company);
+
+                $credit->invitations->load('contact.client.country', 'credit.client.country', 'credit.company')->each(function ($invitation) use ($credit) {
+                    EmailEntity::dispatch($invitation, $credit->company);
+                });
+
+
                 if (! $bulk) {
                     return response()->json(['message'=>'email sent'], 200);
                 }

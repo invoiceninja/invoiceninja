@@ -706,7 +706,7 @@ class InvoiceController extends BaseController
                 if (request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type'))) {
                     $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
                 } else {
-                    $this->reminder_template = $invoice->calculateTemplate();
+                    $this->reminder_template = $invoice->calculateTemplate('invoice');
                 }
 
                 //touch reminder1,2,3_sent + last_sent here if the email is a reminder.
