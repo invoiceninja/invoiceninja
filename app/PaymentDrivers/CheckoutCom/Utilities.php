@@ -118,36 +118,8 @@ trait Utilities
         try {
             return redirect($_payment->_links['redirect']['href']);
         } catch (\Exception $e) {
-            return $this->processInternallyFailedPayment($e);
+            return $this->processInternallyFailedPayment($this->checkout, $e);
         }
-    }
-
-    private function processInternallyFailedPayment($e)
-    {
-        if ($e instanceof \Checkout\Library\Exceptions\CheckoutHttpException) {
-            $error = $e->getBody();
-        }
-
-        if ($e instanceof \Exception) {
-            $error = $e->getMessage();
-        }
-
-        PaymentFailureMailer::dispatch(
-            $this->checkout->client,
-            $error,
-            $this->checkout->client->company,
-            $this->checkout->payment_hash->data->value
-        );
-
-        SystemLogger::dispatch(
-            $this->checkout->payment_hash,
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_ERROR,
-            SystemLog::TYPE_CHECKOUT,
-            $this->checkout->client,
-        );
-
-        throw new PaymentFailed($error, $e->getCode());
     }
 
     private function storePaymentMethod(\Checkout\Models\Payments\Payment $response)

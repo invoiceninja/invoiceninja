@@ -85,12 +85,8 @@ class CreditCard
         $state = array_merge($state, $request->all());
         $state['store_card'] = boolval($state['store_card']);
 
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
-
-        $payment_hash->data = array_merge((array) $payment_hash->data, $state);
-        $payment_hash->save();
-
-        $this->checkout->payment_hash = $payment_hash;
+        $this->checkout->payment_hash->data = array_merge((array) $this->checkout->payment_hash->data, $state);
+        $this->checkout->payment_hash->save();
 
         if ($request->has('token') && !is_null($request->token)) {
             return $this->attemptPaymentUsingToken($request);

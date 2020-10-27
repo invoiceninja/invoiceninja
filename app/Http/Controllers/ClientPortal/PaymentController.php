@@ -220,17 +220,19 @@ class PaymentController extends Controller
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($payment_method_id)
+            ->setPaymentHash($payment_hash)
             ->processPaymentView($data);
     }
 
     public function response(PaymentResponseRequest $request)
     {
-        /*Payment Gateway*/
         $gateway = CompanyGateway::find($request->input('company_gateway_id'))->firstOrFail();
+        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
 
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->input('payment_method_id'))
+            ->setPaymentHash($payment_hash)
             ->processPaymentResponse($request);
     }
 

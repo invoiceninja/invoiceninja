@@ -14,8 +14,11 @@ namespace App\PaymentDrivers;
 
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Payment\PaymentWasCreated;
+use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\PaymentFailureMailer;
+use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
@@ -23,6 +26,7 @@ use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\SystemLog;
 use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -57,6 +61,11 @@ class BaseDriver extends AbstractPaymentDriver
 
     /* The initiated gateway driver class*/
     public $payment_method;
+
+    /**
+     * @var \App\Models\PaymentHash
+     */
+    public $payment_hash;
 
     public static $methods = [];
 
@@ -110,6 +119,13 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function setPaymentMethod($payment_method_id)
     {
+    }
+
+    public function setPaymentHash(PaymentHash $payment_hash)
+    {
+        $this->payment_hash = $payment_hash;
+
+        return $this;
     }
 
     /**
@@ -273,5 +289,33 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         return $company_gateway_token;
+    }
+
+    public function processInternallyFailedPayment($gateway, $e)
+    {
+        if ($e instanceof \Exception) {
+            $error = $e->getMessage();
+        }
+
+        if ($e instanceof \Checkout\Library\Exceptions\CheckoutHttpException) {
+            $error = $e->getBody();
+        }
+
+        PaymentFailureMailer::dispatch(
+            $gateway->client,
+            $error,
+            $gateway->client->company,
+            $this->payment_hash->data->value
+        );
+
+        SystemLogger::dispatch(
+            $this->checkout->payment_hash,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_ERROR,
+            $gateway::SYSTEM_LOG_TYPE,
+            $this->checkout->client,
+        );
+
+        throw new PaymentFailed($error, $e->getCode());
     }
 }
