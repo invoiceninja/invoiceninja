@@ -12,17 +12,18 @@
 namespace App\Utils\PhantomJS;
 
 use App\Designs\Designer;
-use App\Services\PdfMaker\Design as PdfDesignModel;
-use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Models\CreditInvitation;
 use App\Models\Design;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
+use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
+use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Phantom
 {
@@ -85,7 +86,7 @@ class Phantom
 
         $key = $entity.'_id';
 
-        $invitation_instance = 'App\Models\\'.ucfirst($entity).'Invitation';
+        $invitation_instance = 'App\Models\\'.Str::camel(ucfirst($entity)).'Invitation';
 
         $invitation = $invitation_instance::whereRaw('BINARY `key`= ?', [$invitation_key])->first();
     
