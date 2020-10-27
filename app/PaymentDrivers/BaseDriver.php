@@ -309,11 +309,11 @@ class BaseDriver extends AbstractPaymentDriver
         );
 
         SystemLogger::dispatch(
-            $this->checkout->payment_hash,
+            $gateway->payment_hash,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_ERROR,
             $gateway::SYSTEM_LOG_TYPE,
-            $this->checkout->client,
+            $gateway->client,
         );
 
         throw new PaymentFailed($error, $e->getCode());

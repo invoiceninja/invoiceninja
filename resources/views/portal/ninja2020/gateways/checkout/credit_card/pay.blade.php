@@ -24,7 +24,7 @@
         <input type="hidden" name="raw_value" value="{{ $raw_value }}">
         <input type="hidden" name="currency" value="{{ $currency }}">
         @isset($token)
-            <input type="hidden" name="token" value="{{ $token->meta->id }}">
+            <input type="hidden" name="token" value="{{ $token->token }}">
         @endisset
     </form>
 

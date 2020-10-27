@@ -146,7 +146,7 @@ class CreditCard
         } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
             $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
             
-            return $this->processInternallyFailedPayment($e);
+            return $this->checkout->processInternallyFailedPayment($this->checkout, $e);
         }
     }
 }

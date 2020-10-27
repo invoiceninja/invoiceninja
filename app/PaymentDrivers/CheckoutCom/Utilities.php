@@ -134,11 +134,11 @@ trait Utilities
 
             $data = [
                 'payment_meta' => $payment_meta,
-                'token' => $response->id,
+                'token' => $response->source['id'],
                 'payment_method_id' => $this->checkout->payment_hash->data->payment_method_id,
             ];
 
-            return $this->checokut->saveCard($data);
+            return $this->checkout->storePaymentMethod($data);
         } catch (\Exception $e) {
             session()->flash('message', ctrans('texts.payment_method_saving_failed'));
         }
