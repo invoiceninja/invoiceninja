@@ -125,7 +125,7 @@ class Design extends BaseDesign
         $elements = [];
 
         foreach ($variables as $variable) {
-            $elements[] = ['element' => 'p', 'content' => $variable];
+            $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false];
         }
 
         return $elements;
@@ -138,7 +138,7 @@ class Design extends BaseDesign
         $elements = [];
 
         foreach ($variables as $variable) {
-            $elements[] = ['element' => 'p', 'content' => $variable];
+            $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false];
         }
 
         return $elements;
@@ -151,7 +151,7 @@ class Design extends BaseDesign
         $elements = [];
 
         foreach ($variables as $variable) {
-            $elements[] = ['element' => 'p', 'content' => $variable];
+            $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false];
         }
 
         return $elements;
@@ -170,7 +170,7 @@ class Design extends BaseDesign
         foreach ($variables as $variable) {
             $_variable = explode('.', $variable)[1];
             $_customs = ['custom1', 'custom2', 'custom3', 'custom4'];
-            
+
             if (in_array($_variable, $_customs)) {
                 $elements[] = ['element' => 'tr', 'elements' => [
                     ['element' => 'th', 'content' => $variable . '_label'],
