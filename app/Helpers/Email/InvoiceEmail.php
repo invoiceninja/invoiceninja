@@ -13,7 +13,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Utils\Number;
 
-class InvoiceEmail extends EmailBuilder implements EntityEmailInterface
+class InvoiceEmail extends EmailBuilder
 {
     public function build(InvoiceInvitation $invitation, $reminder_template = null)
     {
