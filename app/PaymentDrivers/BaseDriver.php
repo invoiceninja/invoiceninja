@@ -13,8 +13,12 @@
 namespace App\PaymentDrivers;
 
 use App\Events\Invoice\InvoiceWasPaid;
+use App\Events\Payment\PaymentWasCreated;
+use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\PaymentFailureMailer;
+use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
@@ -22,6 +26,7 @@ use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\SystemLog;
 use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -56,6 +61,11 @@ class BaseDriver extends AbstractPaymentDriver
 
     /* The initiated gateway driver class*/
     public $payment_method;
+
+    /**
+     * @var \App\Models\PaymentHash
+     */
+    public $payment_hash;
 
     public static $methods = [];
 
@@ -111,6 +121,13 @@ class BaseDriver extends AbstractPaymentDriver
     {
     }
 
+    public function setPaymentHash(PaymentHash $payment_hash)
+    {
+        $this->payment_hash = $payment_hash;
+
+        return $this;
+    }
+
     /**
      * Helper method to attach invoices to a payment.
      *
@@ -146,6 +163,24 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->status_id = $status;
         $payment->currency_id = $this->client->getSetting('currency_id');
         $payment->date = Carbon::now();
+
+        $client_contact = $this->getContact();
+        $client_contact_id = $client_contact ? $client_contact->id : null;
+
+        $payment->amount = $data['amount'];
+        $payment->type_id = $data['payment_type'];
+        $payment->transaction_reference = $data['payment_method'];
+        $payment->client_contact_id = $client_contact_id;
+        $payment->save();
+
+        $this->payment_hash->payment_id = $payment->id;
+        $this->payment_hash->save();
+
+        $this->attachInvoices($payment, $this->payment_hash);
+
+        $payment->service()->updateInvoicePayment($this->payment_hash);
+
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         return $payment->service()->applyNumber()->save();
     }
@@ -228,4 +263,59 @@ class BaseDriver extends AbstractPaymentDriver
         }
     }
 
+
+    /**
+     * Store payment method as company gateway token.
+     *  
+     * @param array $data 
+     * @return null|\App\Models\ClientGatewayToken 
+     */
+    public function storeGatewayToken(array $data): ?ClientGatewayToken
+    {
+        $company_gateway_token = new ClientGatewayToken();
+        $company_gateway_token->company_id = $this->client->company->id;
+        $company_gateway_token->client_id = $this->client->id;
+        $company_gateway_token->token = $data['token'];
+        $company_gateway_token->company_gateway_id = $this->company_gateway->id;
+        $company_gateway_token->gateway_type_id = $data['payment_method_id'];
+        $company_gateway_token->meta = $data['payment_meta'];
+        $company_gateway_token->save();
+
+        if ($this->client->gateway_tokens->count() == 1) {
+            $this->client->gateway_tokens()->update(['is_default' => 0]);
+
+            $company_gateway_token->is_default = 1;
+            $company_gateway_token->save();
+        }
+
+        return $company_gateway_token;
+    }
+
+    public function processInternallyFailedPayment($gateway, $e)
+    {
+        if ($e instanceof \Exception) {
+            $error = $e->getMessage();
+        }
+
+        if ($e instanceof \Checkout\Library\Exceptions\CheckoutHttpException) {
+            $error = $e->getBody();
+        }
+
+        PaymentFailureMailer::dispatch(
+            $gateway->client,
+            $error,
+            $gateway->client->company,
+            $this->payment_hash->data->value
+        );
+
+        SystemLogger::dispatch(
+            $this->checkout->payment_hash,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_ERROR,
+            $gateway::SYSTEM_LOG_TYPE,
+            $this->checkout->client,
+        );
+
+        throw new PaymentFailed($error, $e->getCode());
+    }
 }

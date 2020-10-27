@@ -3288,4 +3288,5 @@ return [
     'payment_type_Crypto' => 'Cryptocurrency',
     'payment_type_Credit' => 'Credit',
 
+    'payment_method_saving_failed' => 'Payment method can\'t be saved for future use.',
 ];
