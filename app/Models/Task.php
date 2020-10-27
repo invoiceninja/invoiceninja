@@ -35,6 +35,7 @@ class Task extends BaseModel
         'time_log',
         'status_id',
         'status_sort_order',
+        'invoice_documents',
     ];
 
     protected $touches = [];
