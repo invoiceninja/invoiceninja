@@ -12,10 +12,13 @@
 namespace App\Utils\PhantomJS;
 
 use App\Designs\Designer;
+use App\Services\PdfMaker\Design as PdfDesignModel;
+use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Models\CreditInvitation;
 use App\Models\Design;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
@@ -79,28 +82,54 @@ class Phantom
 
     public function displayInvitation(string $entity, string $invitation_key)
     {
+
         $key = $entity.'_id';
 
         $invitation_instance = 'App\Models\\'.ucfirst($entity).'Invitation';
 
         $invitation = $invitation_instance::whereRaw('BINARY `key`= ?', [$invitation_key])->first();
-        
-
+    
         $entity_obj = $invitation->{$entity};
 
         $entity_obj->load('client');
 
         App::setLocale($invitation->contact->preferredLocale());
 
-        // $design_id = $entity_obj->design_id ? $entity_obj->design_id : $this->decodePrimaryKey($entity_obj->client->getSetting($entity_design_id));
-        // $design = Design::find($design_id);
-        // $designer = new Designer($entity_obj, $design, $entity_obj->client->getSetting('pdf_variables'), $entity);
-        // $data['html'] = (new HtmlEngine($designer, $invitation, $entity))->build();
-
         $entity_design_id = $entity . '_design_id';
-        $entity_design_id = $entity_obj->design_id ? $entity_obj->design_id : $this->decodePrimaryKey($entity_obj->client->getSetting($entity_design_id));
-        $design = Design::find($entity_design_id);
-        $data['html'] = new HtmlEngine(null, $invitation, $entity);
+        $design_id = $entity_obj->design_id ? $entity_obj->design_id : $this->decodePrimaryKey($entity_obj->client->getSetting($entity_design_id));
+
+        $design = Design::find($design_id);
+        $html = new HtmlEngine(null, $invitation, $entity);
+
+        if ($design->is_custom) {
+          $options = [
+            'custom_partials' => json_decode(json_encode($design->design), true)
+          ];
+          $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+        } else {
+          $template = new PdfMakerDesign(strtolower($design->name));
+        }
+
+        $state = [
+            'template' => $template->elements([
+                'client' => $this->entity->client,
+                'entity' => $this->entity,
+                'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
+                'products' => $design->design->product,
+            ]),
+            'variables' => $html->generateLabelsAndValues(),
+            'options' => [
+                'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
+                'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
+            ],
+        ];
+
+        $maker = new PdfMakerService($state);
+
+        $data['html'] = $maker->design($template)
+                              ->build()
+                              ->getCompiledHTML(true);
+
 
         return view('pdf.html', $data);
     }
