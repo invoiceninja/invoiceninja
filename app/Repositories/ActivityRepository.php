@@ -115,7 +115,7 @@ class ActivityRepository extends BaseRepository
         $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->client->getSetting($entity_design_id));
 
         $design = Design::find($entity_design_id);
-        $html = new HtmlEngine($invitation);
+        $html = new HtmlEngine($entity->invitations->first());
 
         if ($design->is_custom) {
           $options = [
@@ -147,5 +147,5 @@ class ActivityRepository extends BaseRepository
                      ->getCompiledHTML(true);
 
     }
-    
+
 }
