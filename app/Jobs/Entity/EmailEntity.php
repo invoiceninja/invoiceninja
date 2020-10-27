@@ -93,7 +93,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-info("email entity");
+
         MultiDB::setDB($this->company->db);
 
         $this->setMailDriver();
