@@ -59,12 +59,20 @@ class Setup {
     handleTestPdfCheck() {
         Axios.post('/setup/check_pdf', {})
             .then((response) => {
-                let win = window.open(response.data.url, '_blank');
-                win.focus();
+                try {
+                    let win = window.open(response.data.url, '_blank');
+                    win.focus();
 
-                return this.handleSuccess(this.checkPdfAlert);
+                    return this.handleSuccess(this.checkPdfAlert);
+                } catch (error) {
+                    this.handleSuccess(this.checkPdfAlert);
+                    this.checkPdfAlert.textContent = `Success! You can preview test PDF here: ${response.data.url}`;
+                }
             })
-            .catch((error) => this.handleFailure(this.checkPdfAlert));
+            .catch((error) => {
+                console.log(error);
+                this.handleFailure(this.checkPdfAlert)
+            });
     }
 
     handleSuccess(element) {
