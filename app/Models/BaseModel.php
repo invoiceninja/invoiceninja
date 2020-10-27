@@ -13,7 +13,6 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\Designs\Designer;
 use App\Filters\QueryFilters;
 use App\Models\Design;
 use App\Utils\Traits\MakesHash;
@@ -174,15 +173,6 @@ class BaseModel extends Model
         return $this
             ->withTrashed()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-    }
-
-    public function getEntityDesigner()
-    {
-        $design = Design::find($this->decodePrimaryKey($this->client->getSetting('invoice_design_id')));
-
-        $entity = strtolower(class_basename($this));
-
-        return new Designer($this, $design, $this->client->getSetting('pdf_variables'), $entity);
     }
 
     /**

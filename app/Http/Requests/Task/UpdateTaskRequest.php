@@ -40,25 +40,14 @@ class UpdateTaskRequest extends Request
         /* Ensure we have a client name, and that all emails are unique*/
 
         if ($this->input('number')) {
-            $rules['number'] = 'unique:tasks,number,'.$this->id.',id,company_id,'.$this->taskss->company_id;
+            $rules['number'] = 'unique:tasks,number,'.$this->id.',id,company_id,'.$this->task->company_id;
         }
 
         return $this->globalRules($rules);
     }
 
-    // public function messages()
-    // {
-    //     return [
-    //         'unique' => ctrans('validation.unique', ['attribute' => 'email']),
-    //         'email' => ctrans('validation.email', ['attribute' => 'email']),
-    //         'name.required' => ctrans('validation.required', ['attribute' => 'name']),
-    //         'required' => ctrans('validation.required', ['attribute' => 'email']),
-    //     ];
-    // }
-
     protected function prepareForValidation()
     {
-
         $input = $this->decodePrimaryKeys($this->all()); 
 
         $this->replace($input);

@@ -12,7 +12,6 @@
 namespace App\Events\Quote;
 
 use App\Models\Company;
-use App\Models\QuoteWasViewed;
 use Illuminate\Queue\SerializesModels;
 
 /**

@@ -9,25 +9,25 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Services\Quote;
+namespace App\Services\Credit;
 
-use App\Helpers\Email\QuoteEmail;
+use App\Helpers\Email\CreditEmail;
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Quote\EmailQuote;
+use App\Jobs\Credit\EmailCredit;
 use App\Models\ClientContact;
-use App\Models\Quote;
+use App\Models\Credit;
 
 class SendEmail
 {
-    public $quote;
+    public $credit;
 
     protected $reminder_template;
 
     protected $contact;
 
-    public function __construct($quote, $reminder_template = null, ClientContact $contact = null)
+    public function __construct($credit, $reminder_template = null, ClientContact $contact = null)
     {
-        $this->quote = $quote;
+        $this->credit = $credit;
 
         $this->reminder_template = $reminder_template;
 
@@ -42,19 +42,19 @@ class SendEmail
     public function run()
     {
         if (! $this->reminder_template) {
-            $this->reminder_template = $this->quote->calculateTemplate('quote');
+            $this->reminder_template = $this->credit->calculateTemplate('credit');
         }
 
-        $this->quote->invitations->each(function ($invitation) {
+        $this->credit->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                $email_builder = (new QuoteEmail())->build($invitation, $this->reminder_template);
+                $email_builder = (new CreditEmail())->build($invitation, $this->reminder_template);
 
-                // EmailQuote::dispatchNow($email_builder, $invitation, $invitation->company);
+                // EmailCredit::dispatchNow($email_builder, $invitation, $invitation->company);
                 EmailEntity::dispatchNow($invitation, $invitation->company);
 
             }
         });
 
-        $this->quote->service()->markSent();
+        $this->credit->service()->markSent();
     }
 }

@@ -57,7 +57,8 @@ Route::group(['middleware' => ['auth:contact', 'locale'], 'prefix' => 'client', 
     Route::get('quotes/{quote}', 'ClientPortal\QuoteController@show')->name('quote.show');
     Route::get('quotes/{quote_invitation}', 'ClientPortal\QuoteController@show')->name('quote.show_invitation');
 
-    Route::resource('credits', 'ClientPortal\CreditController')->only('index', 'show');
+    Route::get('credits', 'ClientPortal\CreditController@index')->name('credits.index');
+    Route::get('credits/{credit}', 'ClientPortal\CreditController@show')->name('credits.show');
 
 
     Route::get('client/switch_company/{contact}', 'ClientPortal\SwitchCompanyController')->name('switch_company');
