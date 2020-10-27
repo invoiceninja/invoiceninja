@@ -17,6 +17,7 @@ use App\Models\CompanyUser;
 use App\Models\Filterable;
 use App\Models\Language;
 use App\Models\Traits\UserTrait;
+use App\Notifications\ResetPasswordNotification;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\UserSettings;
@@ -353,5 +354,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this
             ->withTrashed()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }
