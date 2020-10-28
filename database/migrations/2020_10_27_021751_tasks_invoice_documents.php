@@ -16,6 +16,11 @@ class TasksInvoiceDocuments extends Migration
         Schema::table('tasks', function(Blueprint $table){
             $table->boolean('invoice_documents')->default(0);
         });
+
+        Schema::table('companies', function(Blueprint $table){
+            $table->boolean('show_tasks_table')->default();
+        });
+
     }
 
     /**
