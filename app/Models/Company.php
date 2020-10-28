@@ -74,6 +74,8 @@ class Company extends BaseModel
     protected $presenter = CompanyPresenter::class;
 
     protected $fillable = [
+        'invoice_expense_documents',
+        'invoice_task_documents',
         'show_tasks_table',
         'mark_expenses_invoiceable',
         'mark_expenses_paid',
