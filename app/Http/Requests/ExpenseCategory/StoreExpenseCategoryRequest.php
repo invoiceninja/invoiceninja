@@ -33,7 +33,15 @@ class StoreExpenseCategoryRequest extends Request
 
         $rules['name'] = 'required|unique:expense_categories,name,null,null,company_id,'.auth()->user()->companyId();
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+        $input = $this->decodePrimaryKeys($input);
+
+        $this->replace($input);
+    }
 }

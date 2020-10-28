@@ -54,6 +54,10 @@ class StoreExpenseRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
+        if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
+            $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
+        }
+
         $this->replace($input);
     }
 

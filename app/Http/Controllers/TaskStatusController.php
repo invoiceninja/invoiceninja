@@ -42,8 +42,8 @@ class TaskStatusController extends BaseController
 
     /**
      *      @OA\Get(
-     *      path="/api/v1/task_status",
-     *      operationId="getTaskStatuss",
+     *      path="/api/v1/task_statuses",
+     *      operationId="getTaskStatuses",
      *      tags={"task_status"},
      *      summary="Gets a list of task statuses",
      *      description="Lists task statuses",
@@ -137,7 +137,7 @@ class TaskStatusController extends BaseController
      *
      *
      * @OA\Post(
-     *      path="/api/v1/task_status",
+     *      path="/api/v1/task_statuses",
      *      operationId="storeTaskStatus",
      *      tags={"task_status"},
      *      summary="Adds a TaskStatus",
