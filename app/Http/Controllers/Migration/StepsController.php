@@ -162,7 +162,7 @@ class StepsController extends BaseController
         $companyService = (new CompanyService(session('MIGRATION_ACCOUNT_TOKEN')))
             ->endpoint(session('MIGRATION_ENDPOINT'))
             ->start();
-
+            
         if ($companyService->isSuccessful()) {
             return view('migration.companies', ['companies' => $companyService->getCompanies()]);
         }
@@ -245,8 +245,8 @@ class StepsController extends BaseController
             'invoices' => $this->getInvoices(),
             'recurring_invoices' => $this->getRecurringInvoices(),
             'quotes' => $this->getQuotes(),
-            'payments' => array_merge($this->getPayments(), $this->getCredits()),
             'credits' => $this->getCreditsNotes(),
+            'payments' => array_merge($this->getPayments(), $this->getCredits()),
             'documents' => $this->getDocuments(),
             'company_gateways' => $this->getCompanyGateways(),
             'client_gateway_tokens' => $this->getClientGatewayTokens(),
