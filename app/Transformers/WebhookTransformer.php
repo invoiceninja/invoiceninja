@@ -17,7 +17,7 @@ class WebhookTransformer extends EntityTransformer
     protected $availableIncludes = [];
 
     /**
-     * @param Activity $webhook
+     * @param Webhook $webhook
      *
      * @return array
      */

@@ -16,6 +16,7 @@ use App\Helpers\Invoice\CustomValuer;
 use App\Helpers\Invoice\Discounter;
 use App\Helpers\Invoice\InvoiceItemSum;
 use App\Helpers\Invoice\Taxer;
+use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
 
@@ -48,7 +49,7 @@ class InvoiceSum
     /**
      * Constructs the object with Invoice and Settings object.
      *
-     * @param      \App\Models\Invoice  $invoice   The invoice
+     * @param      Invoice  $invoice   The invoice
      */
     public function __construct($invoice)
     {
@@ -189,7 +190,7 @@ class InvoiceSum
 
     public function getRecurringInvoice()
     {
-        
+
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
         $this->invoice->total_taxes = $this->getTotalTaxes();
         $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);

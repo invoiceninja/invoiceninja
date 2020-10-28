@@ -44,7 +44,8 @@ class PreviewPdf implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $design_string
+     * @param Company $company
      */
     public function __construct($design_string, Company $company)
     {

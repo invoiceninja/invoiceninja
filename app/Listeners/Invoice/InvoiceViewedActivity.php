@@ -20,6 +20,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
+use stdClass;
 
 class InvoiceViewedActivity implements ShouldQueue
 {
@@ -28,7 +29,7 @@ class InvoiceViewedActivity implements ShouldQueue
     /**
      * Create the event listener.
      *
-     * @return void
+     * @param ActivityRepository $activity_repo
      */
     public function __construct(ActivityRepository $activity_repo)
     {
@@ -45,7 +46,7 @@ class InvoiceViewedActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $fields = new \stdClass;
+        $fields = new stdClass;
 
         $fields->user_id = $event->invitation->user_id;
         $fields->company_id = $event->invitation->company_id;

@@ -14,6 +14,7 @@ namespace App\Utils\Traits;
 use App\Exceptions\ModelNotFoundException;
 use App\Libraries\MultiDB;
 use Hashids\Hashids;
+use Illuminate\Support\Str;
 
 /**
  * Class MakesHash.
@@ -26,7 +27,7 @@ trait MakesHash
      */
     public function createHash() : string
     {
-        return \Illuminate\Support\Str::random(config('ninja.key_length'));
+        return Str::random(config('ninja.key_length'));
     }
 
     /**
@@ -37,7 +38,7 @@ trait MakesHash
      */
     public function createDbHash($db) : string
     {
-        return  $this->getDbCode($db).'-'.\Illuminate\Support\Str::random(config('ninja.key_length'));
+        return  $this->getDbCode($db).'-'. Str::random(config('ninja.key_length'));
     }
 
     /**
@@ -66,7 +67,8 @@ trait MakesHash
             $decoded_array = $hashids->decode($value);
 
             if (! is_array($decoded_array)) {
-                throw new ModelNotFoundException('Resource not found', 1);
+                throw new Exception("Invalid Primary Key");
+                //response()->json(['error'=>'Invalid primary key'], 400);
             }
 
             return $decoded_array[0];

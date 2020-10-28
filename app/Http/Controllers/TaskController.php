@@ -33,6 +33,7 @@ use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -56,7 +57,7 @@ class TaskController extends BaseController
 
     /**
      * TaskController constructor.
-     * @param TaskRepository $taskRepo
+     * @param TaskRepository $task_repo
      */
     public function __construct(TaskRepository $task_repo)
     {
@@ -66,7 +67,7 @@ class TaskController extends BaseController
     }
 
     /**
-     *      @OA\Get(
+     * @OA\Get(
      *      path="/api/v1/tasks",
      *      operationId="getTasks",
      *      tags={"tasks"},
@@ -91,7 +92,6 @@ class TaskController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -99,6 +99,8 @@ class TaskController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param TaskFilters $filters
+     * @return Response|mixed
      */
     public function index(TaskFilters $filters)
     {
@@ -110,8 +112,9 @@ class TaskController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowTaskRequest $request
+     * @param Task $task
+     * @return Response
      *
      *
      * @OA\Get(
@@ -164,8 +167,9 @@ class TaskController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditTaskRequest $request
+     * @param Task $task
+     * @return Response
      *
      *
      * @OA\Get(
@@ -218,9 +222,9 @@ class TaskController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Task $task
-     * @return \Illuminate\Http\Response
+     * @param UpdateTaskRequest $request
+     * @param Task $task
+     * @return Response
      *
      *
      *
@@ -280,7 +284,8 @@ class TaskController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateTaskRequest $request
+     * @return Response
      *
      *
      *
@@ -325,8 +330,8 @@ class TaskController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreTaskRequest $request
+     * @return Response
      *
      *
      *
@@ -371,10 +376,12 @@ class TaskController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyTaskRequest $request
+     * @param Task $task
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/tasks/{id}",
      *      operationId="deleteTask",
@@ -427,8 +434,7 @@ class TaskController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkTaskRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(
@@ -495,7 +501,7 @@ class TaskController extends BaseController
     /**
      * Returns a client statement.
      *
-     * @return [type] [description]
+     * @return void [type] [description]
      */
     public function statement()
     {

@@ -228,7 +228,7 @@ class InvoiceService
 
         if($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount)
             $this->setStatus(Invoice::STATUS_PARTIAL);
-        
+
         return $this;
     }
 
@@ -287,9 +287,9 @@ class InvoiceService
     }
 
     /**
-     * Sometimes we need to refresh the 
+     * Sometimes we need to refresh the
      * PDF when it is updated etc.
-     * @return void
+     * @return InvoiceService
      */
     public function touchPdf()
     {

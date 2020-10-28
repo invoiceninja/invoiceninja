@@ -22,7 +22,7 @@ class CompanyLedgerTransformer extends EntityTransformer
     use MakesHash;
 
     /**
-     * @param ClientContact $company_ledger
+     * @param CompanyLedger $company_ledger
      *
      * @return array
      */

@@ -28,6 +28,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use stdClass;
 
 /**
  * PaymentMigrationRepository.
@@ -131,7 +132,7 @@ class PaymentMigrationRepository extends BaseRepository
         }
 
 
-        $fields = new \stdClass;
+        $fields = new stdClass;
 
         $fields->payment_id = $payment->id;
         $fields->user_id = $payment->user_id;
@@ -162,6 +163,9 @@ class PaymentMigrationRepository extends BaseRepository
     /**
      * If the client is paying in a currency other than
      * the company currency, we need to set a record.
+     * @param $data
+     * @param $payment
+     * @return
      */
     private function processExchangeRates($data, $payment)
     {

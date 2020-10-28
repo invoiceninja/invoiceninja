@@ -35,6 +35,8 @@ class DocumentWasCreated
      * Create a new event instance.
      *
      * @param Document $document
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Document $document, Company $company, array $event_vars)
     {

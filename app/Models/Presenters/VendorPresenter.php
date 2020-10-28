@@ -108,14 +108,14 @@ class VendorPresenter extends EntityPresenter
      */
     public function company_name()
     {
-        $settings = $this->entity->company->settings;;
+        $settings = $this->entity->company->settings;
 
         return $settings->name ?: ctrans('texts.untitled_account');
     }
 
     public function company_address()
     {
-        $settings = $this->entity->company->settings;;
+        $settings = $this->entity->company->settings;
 
         $str = '';
 
@@ -137,7 +137,7 @@ class VendorPresenter extends EntityPresenter
 
     public function getCityState()
     {
-        $settings = $this->entity->company->settings;;
+        $settings = $this->entity->company->settings;
 
         $country = false;
 

@@ -36,7 +36,8 @@ class MarkOpened implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param string $message_id
+     * @param string $entity
      */
     public function __construct(string $message_id, string $entity)
     {
@@ -49,7 +50,7 @@ class MarkOpened implements ShouldQueue
      * Execute the job.
      *
      *
-     * @return void
+     * @return false
      */
     public function handle()
     {

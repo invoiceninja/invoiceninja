@@ -24,6 +24,9 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Ninja;
+use Exception;
+use stdClass;
+use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
 
 class CreditCard
@@ -56,11 +59,11 @@ class CreditCard
 
         $this->stripe->init();
 
-        $stripe_payment_method = \Stripe\PaymentMethod::retrieve($payment_method);
+        $stripe_payment_method = PaymentMethod::retrieve($payment_method);
         $stripe_payment_method_obj = $stripe_payment_method->jsonSerialize();
         $stripe_payment_method->attach(['customer' => $customer->id]);
 
-        $payment_meta = new \stdClass;
+        $payment_meta = new stdClass;
         $payment_meta->exp_month = (string)$stripe_payment_method_obj['card']['exp_month'];
         $payment_meta->exp_year = (string)$stripe_payment_method_obj['card']['exp_year'];
         $payment_meta->brand = (string)$stripe_payment_method_obj['card']['brand'];
@@ -139,7 +142,7 @@ class CreditCard
 
         $this->stripe->init();
 
-        $state['payment_intent'] = \Stripe\PaymentIntent::retrieve($server_response->id);
+        $state['payment_intent'] = PaymentIntent::retrieve($server_response->id);
         $state['customer'] = $state['payment_intent']->customer;
 
         if ($state['payment_status'] == 'succeeded') {
@@ -170,7 +173,7 @@ class CreditCard
             'type' => GatewayType::CREDIT_CARD,
         ];
 
-        $payment_meta = new \stdClass;
+        $payment_meta = new stdClass;
         $payment_meta->exp_month = (string)$payment_method_object['card']['exp_month'];
         $payment_meta->exp_year = (string)$payment_method_object['card']['exp_year'];
         $payment_meta->brand = (string)$payment_method_object['card']['brand'];
@@ -230,7 +233,7 @@ class CreditCard
 
         SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
 
-        throw new \Exception('Failed to process the payment.', 1);
+        throw new Exception('Failed to process the payment.', 1);
     }
 
     private function saveCard($state)

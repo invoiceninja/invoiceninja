@@ -19,6 +19,7 @@ use App\Models\QuoteInvitation;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
+use App\Utils\CurlUtils;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
@@ -33,6 +34,7 @@ class Phantom
      * Generate a PDF from the
      * Phantom JS API.
      *
+     * @param $invitation
      * @return pdf HTML to PDF conversion
      */
     public function generate($invitation)
@@ -72,7 +74,7 @@ class Phantom
         $secret = config('ninja.phantomjs_key');
 
         $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
-        $pdf = \App\Utils\CurlUtils::get($phantom_url);
+        $pdf = CurlUtils::get($phantom_url);
 
         Storage::makeDirectory($path, 0775);
 
@@ -89,7 +91,7 @@ class Phantom
         $invitation_instance = 'App\Models\\'.Str::camel(ucfirst($entity)).'Invitation';
 
         $invitation = $invitation_instance::whereRaw('BINARY `key`= ?', [$invitation_key])->first();
-    
+
         $entity_obj = $invitation->{$entity};
 
         $entity_obj->load('client');

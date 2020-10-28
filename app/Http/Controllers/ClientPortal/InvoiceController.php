@@ -19,6 +19,8 @@ use App\Utils\Number;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\View\View;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
 
@@ -29,7 +31,7 @@ class InvoiceController extends Controller
     /**
      * Display list of invoices.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -39,10 +41,10 @@ class InvoiceController extends Controller
     /**
      * Show specific invoice.
      *
-     * @param \App\Http\Requests\ClientPortal\ShowInvoiceRequest $request
-     * @param \App\Models\Invoice $invoice
+     * @param ShowInvoiceRequest $request
+     * @param Invoice $invoice
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function show(ShowInvoiceRequest $request, Invoice $invoice)
     {
@@ -124,6 +126,9 @@ class InvoiceController extends Controller
      * @param array $ids
      *
      * @return void
+     * @throws \ZipStream\Exception\FileNotFoundException
+     * @throws \ZipStream\Exception\FileNotReadableException
+     * @throws \ZipStream\Exception\OverflowException
      */
     private function downloadInvoicePDF(array $ids)
     {

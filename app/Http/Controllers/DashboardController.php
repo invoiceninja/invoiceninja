@@ -11,6 +11,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Response;
+
 class DashboardController extends BaseController
 {
     /**
@@ -26,7 +28,7 @@ class DashboardController extends BaseController
     /**
      * Show the application dashboard.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {

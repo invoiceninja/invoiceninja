@@ -120,7 +120,7 @@ abstract class QueryFilters
     /**
      * String to operator convertor.
      *
-     * @param  string $value
+     * @param string $operator
      * @return string
      */
     private function operatorConvertor(string $operator) : string
@@ -153,8 +153,7 @@ abstract class QueryFilters
      *
      * -Can only be used on contact routes
      *
-     * @param       $client_id The client Id
-     * @param      Illuminate\Database\Query\Builder
+     * @return
      */
     public function clientFilter()
     {

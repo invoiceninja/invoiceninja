@@ -18,6 +18,7 @@ use App\Models\Payment;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use stdClass;
 
 class CreditArchivedActivity implements ShouldQueue
 {
@@ -26,7 +27,7 @@ class CreditArchivedActivity implements ShouldQueue
     /**
      * Create the event listener.
      *
-     * @return void
+     * @param ActivityRepository $activity_repo
      */
     public function __construct(ActivityRepository $activity_repo)
     {
@@ -43,7 +44,7 @@ class CreditArchivedActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $fields = new \stdClass;
+        $fields = new stdClass;
 
         $fields->payment_id = $event->credit->id;
         $fields->client_id = $event->credit->client_id;

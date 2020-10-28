@@ -12,10 +12,12 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Traits\UserSessionAttributes;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\View\View;
 
 class Controller extends BaseController
 {
@@ -27,7 +29,7 @@ class Controller extends BaseController
      * @param string $path
      * @param array $options
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function render(string $path, array $options = [])
     {

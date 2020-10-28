@@ -40,9 +40,11 @@ class UserRepository extends BaseRepository
     /**
      * Saves the user and its contacts.
      *
-     * @param      array                         $data    The data
-     * @param      \App\Models\user              $user  The user
+     * @param array $data The data
+     * @param \App\Models\user $user The user
      *
+     * @param bool $is_migrating
+     * @param bool $unset_company_user
      * @return     user|\App\Models\user|null  user Object
      */
     public function save(array $data, User $user, $is_migrating = false, $unset_company_user = false)

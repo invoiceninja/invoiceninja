@@ -64,7 +64,7 @@ class CreateEntityPdf implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $invitation
      */
     public function __construct($invitation)
     {

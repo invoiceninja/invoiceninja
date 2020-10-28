@@ -53,9 +53,7 @@ class Number
      * Formats a given value based on the clients currency
      * BACK to a float.
      *
-     * @param  string $value    The formatted number to be converted back to float
-     * @param  object $currency The client currency object
-     *
+     * @param string $value The formatted number to be converted back to float
      * @return float            The formatted value
      */
     public static function parseFloat($value)
@@ -76,10 +74,8 @@ class Number
     /**
      * Formats a given value based on the clients currency AND country.
      *
-     * @param  floatval $value    The number to be formatted
-     * @param  object $currency The client currency object
-     * @param  object $country The client country
-     *
+     * @param floatval $value The number to be formatted
+     * @param $client
      * @return string           The formatted value
      */
     public static function formatMoney($value, $client) :string

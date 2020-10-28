@@ -49,7 +49,10 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $client
+     * @param $message
+     * @param $company
+     * @param $amount
      */
     public function __construct($client, $message, $company, $amount)
     {

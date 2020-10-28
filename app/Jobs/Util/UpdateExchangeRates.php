@@ -13,6 +13,7 @@ namespace App\Jobs\Util;
 
 use App\Libraries\MultiDB;
 use App\Models\Currency;
+use GuzzleHttp\Client;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -55,7 +56,7 @@ class UpdateExchangeRates implements ShouldQueue
 
         $cc_endpoint = sprintf('https://openexchangerates.org/api/latest.json?app_id=%s', config('ninja.currency_converter_api_key'));
 
-        $client = new \GuzzleHttp\Client();
+        $client = new Client();
         $response = $client->get($cc_endpoint);
 
         $currency_api = json_decode($response->getBody());

@@ -29,9 +29,9 @@ class TokenRepository extends BaseRepository
      * Saves the companytoken.
      *
      * @param      array  $data    The data
-     * @param      \App\Models\CompanyToken  $company_token  The company_token
+     * @param CompanyToken $company_token  The company_token
      *
-     * @return     CompanyToken|\App\Models\CompanyToken|null  CompanyToken Object
+     * @return     CompanyToken|null  CompanyToken Object
      */
     public function save(array $data, CompanyToken $company_token)
     {

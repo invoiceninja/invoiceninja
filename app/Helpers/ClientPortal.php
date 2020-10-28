@@ -10,7 +10,9 @@
  * @license https://opensource.org/licenses/AAL
  */
 
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\View;
 
 /**
  * Check if passed page is currently active.
@@ -39,7 +41,7 @@ function isActive($page, bool $boolean = false)
  *
  * @param string $path
  * @param array $options
- * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+ * @return Factory|View
  */
 function render(string $path, array $options = [])
 {

@@ -34,6 +34,8 @@ class ClientWasUpdated
      * Create a new event instance.
      *
      * @param Client $client
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Client $client, Company $company, array $event_vars)
     {

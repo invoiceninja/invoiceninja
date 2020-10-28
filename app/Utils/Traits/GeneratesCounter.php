@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits;
 
+use App\Models\BaseModel;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Expense;
@@ -34,8 +35,9 @@ trait GeneratesCounter
     /**
      * Gets the next invoice number.
      *
-     * @param      \App\Models\Client  $client  The client
+     * @param Client $client The client
      *
+     * @param Invoice|null $invoice
      * @return     string              The next invoice number.
      */
     public function getNextInvoiceNumber(Client $client, ?Invoice $invoice) :string
@@ -80,7 +82,7 @@ trait GeneratesCounter
     /**
      * Gets the next credit number.
      *
-     * @param      \App\Models\Client  $client  The client
+     * @param Client $client  The client
      *
      * @return     string              The next credit number.
      */
@@ -190,6 +192,7 @@ trait GeneratesCounter
 
     /**
      * Payment Number Generator.
+     * @param Client $client
      * @return string The payment number
      */
     public function getNextPaymentNumber(Client $client) :string
@@ -228,6 +231,7 @@ trait GeneratesCounter
 
     /**
      * Project Number Generator.
+     * @param Client $client
      * @return string The project number
      */
     public function getNextProjectNumber(Client $client) :string
@@ -267,9 +271,10 @@ trait GeneratesCounter
     /**
      * Gets the next client number.
      *
-     * @param      \App\Models\Client  $client  The client
+     * @param Client $client The client
      *
      * @return     string              The next client number.
+     * @throws \Exception
      */
     public function getNextClientNumber(Client $client) :string
     {
@@ -290,7 +295,7 @@ trait GeneratesCounter
     /**
      * Gets the next client number.
      *
-     * @param      \App\Models\Vendor  $vendor    The vendor
+     * @param Vendor $vendor    The vendor
      * @return     string                         The next vendor number.
      */
     public function getNextVendorNumber(Vendor $vendor) :string
@@ -311,7 +316,7 @@ trait GeneratesCounter
     /**
      * Determines if it has shared counter.
      *
-     * @param      \App\Models\Client  $client  The client
+     * @param Client $client  The client
      *
      * @return     bool             True if has shared counter, False otherwise.
      */
@@ -323,10 +328,13 @@ trait GeneratesCounter
     /**
      * Checks that the number has not already been used.
      *
-     * @param      Collection  $entity   The entity ie App\Models\Client, Invoice, Quote etc
-     * @param      int         $counter  The counter
-     * @param      int         $padding  The padding
+     * @param $class
+     * @param Collection $entity The entity ie App\Models\Client, Invoice, Quote etc
+     * @param int $counter The counter
+     * @param int $padding The padding
      *
+     * @param $pattern
+     * @param string $prefix
      * @return     string   The padded and prefixed entity number
      */
     private function checkEntityNumber($class, $entity, $counter, $padding, $pattern, $prefix = '')
@@ -340,13 +348,13 @@ trait GeneratesCounter
 
             $number = $this->prefixCounter($number, $prefix);
 
-            if ($class == Invoice::class || $class == RecurringInvoice::class) 
+            if ($class == Invoice::class || $class == RecurringInvoice::class)
                 $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();
-            elseif ($class == Client::class || $class == Vendor::class) 
+            elseif ($class == Client::class || $class == Vendor::class)
                 $check = $class::whereCompanyId($entity->company_id)->whereIdNumber($number)->withTrashed()->first();
             else
                 $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();
-            
+
             $counter++;
 
         } while ($check);
@@ -360,15 +368,15 @@ trait GeneratesCounter
     {
         if($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first())
             return false;
-        
+
         return true;
     }
 
     /**
      * Saves counters at both the company and client level.
      *
-     * @param      \App\Models\Client                 $client        The client
-     * @param      \App\Models\Client|int|string  $counter_name  The counter name
+     * @param $entity
+     * @param string $counter_name The counter name
      */
     private function incrementCounter($entity, string $counter_name) :void
     {
@@ -400,7 +408,7 @@ trait GeneratesCounter
      * @param      int  $counter  The counter
      * @param      int  $padding  The padding
      *
-     * @return     int  the padded counter
+     * @return     string  the padded counter
      */
     private function padCounter($counter, $padding) :string
     {
@@ -411,8 +419,8 @@ trait GeneratesCounter
      * If we are using counter reset,
      * check if we need to reset here.
      *
-     * @param  Client $client client entity
-     * @return void
+     * @param Client $client client entity
+     * @return false
      */
     private function resetCounters(Client $client)
     {
@@ -523,13 +531,13 @@ trait GeneratesCounter
         $settings->expense_number_counter = 1;
 
         $company->settings = $settings;
-        $company->save();        
+        $company->save();
     }
 
     /**
      * Formats a entity number by pattern
      *
-     * @param      \App\Models\BaseModel  $entity   The entity object
+     * @param      BaseModel  $entity   The entity object
      * @param      string                 $counter  The counter
      * @param      null|string            $pattern  The pattern
      *

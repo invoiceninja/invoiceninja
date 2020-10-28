@@ -41,6 +41,7 @@ use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
@@ -63,7 +64,7 @@ class InvoiceController extends BaseController
     /**
      * InvoiceController constructor.
      *
-     * @param      \App\Repositories\InvoiceRepository  $invoice_repo  The invoice repo
+     * @param InvoiceRepository $invoice_repo  The invoice repo
      */
     public function __construct(InvoiceRepository $invoice_repo)
     {
@@ -75,9 +76,9 @@ class InvoiceController extends BaseController
     /**
      * Show the list of Invoices.
      *
-     * @param      \App\Filters\InvoiceFilters  $filters  The filters
+     * @param InvoiceFilters $filters  The filters
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      * @OA\Get(
      *      path="/api/v1/invoices",
@@ -122,9 +123,9 @@ class InvoiceController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @param      \App\Http\Requests\Invoice\CreateInvoiceRequest  $request  The request
+     * @param CreateInvoiceRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -168,9 +169,9 @@ class InvoiceController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param      \App\Http\Requests\Invoice\StoreInvoiceRequest  $request  The request
+     * @param StoreInvoiceRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(
@@ -220,10 +221,10 @@ class InvoiceController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param      \App\Http\Requests\Invoice\ShowInvoiceRequest  $request  The request
-     * @param      \App\Models\Invoice                            $invoice  The invoice
+     * @param ShowInvoiceRequest $request  The request
+     * @param Invoice $invoice  The invoice
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -276,10 +277,10 @@ class InvoiceController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param      \App\Http\Requests\Invoice\EditInvoiceRequest  $request  The request
-     * @param      \App\Models\Invoice                            $invoice  The invoice
+     * @param EditInvoiceRequest $request  The request
+     * @param Invoice $invoice  The invoice
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      * @OA\Get(
      *      path="/api/v1/invoices/{id}/edit",
@@ -331,10 +332,10 @@ class InvoiceController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param      \App\Http\Requests\Invoice\UpdateInvoiceRequest  $request  The request
-     * @param      \App\Models\Invoice                              $invoice  The invoice
+     * @param UpdateInvoiceRequest $request  The request
+     * @param Invoice $invoice  The invoice
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Put(
@@ -401,11 +402,12 @@ class InvoiceController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param      \App\Http\Requests\Invoice\DestroyInvoiceRequest  $request
-     * @param      \App\Models\Invoice                               $invoice
+     * @param DestroyInvoiceRequest $request
+     * @param Invoice $invoice
      *
-     * @return     \Illuminate\Http\Response
+     * @return     Response
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/invoices/{id}",
      *      operationId="deleteInvoice",
@@ -558,16 +560,16 @@ class InvoiceController extends BaseController
      *      summary="Performs a custom action on an invoice",
      *      description="Performs a custom action on an invoice.
      *
-     *		The current range of actions are as follows
-     *		- clone_to_invoice
-     *		- clone_to_quote
-     *		- history
-     *		- delivery_note
-     *		- mark_paid
-     *		- download
-     *		- archive
-     *		- delete
-     *		- email",
+     *        The current range of actions are as follows
+     *        - clone_to_invoice
+     *        - clone_to_quote
+     *        - history
+     *        - delivery_note
+     *        - mark_paid
+     *        - download
+     *        - archive
+     *        - delete
+     *        - email",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -614,6 +616,10 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param ActionInvoiceRequest $request
+     * @param Invoice $invoice
+     * @param $action
+     * @return \App\Http\Controllers\Response|\Illuminate\Http\JsonResponse|Response|mixed|\Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function action(ActionInvoiceRequest $request, Invoice $invoice, $action)
     {
@@ -771,6 +777,8 @@ class InvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param $invitation_key
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function downloadPdf($invitation_key)
     {

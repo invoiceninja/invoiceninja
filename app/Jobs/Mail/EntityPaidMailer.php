@@ -49,7 +49,9 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $payment
+     * @param $user
+     * @param $company
      */
     public function __construct($payment, $user, $company)
     {

@@ -38,7 +38,10 @@ class CreateUser
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param array $request
+     * @param $account
+     * @param $company
+     * @param bool $company_owner
      */
     public function __construct(array $request, $account, $company, $company_owner = false)
     {
@@ -51,7 +54,7 @@ class CreateUser
     /**
      * Execute the job.
      *
-     * @return void
+     * @return User|null
      */
     public function handle() : ?User
     {

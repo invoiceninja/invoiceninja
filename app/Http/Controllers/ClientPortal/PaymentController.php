@@ -23,8 +23,11 @@ use App\Models\PaymentHash;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 /**
  * Class PaymentController.
@@ -37,7 +40,7 @@ class PaymentController extends Controller
     /**
      * Show the list of payments.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -49,7 +52,7 @@ class PaymentController extends Controller
      *
      * @param Request $request
      * @param Payment $payment
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function show(Request $request, Payment $payment)
     {
@@ -66,7 +69,8 @@ class PaymentController extends Controller
      * The request will also contain the amount
      * and invoice ids for reference.
      *
-     * @return \Illuminate\Http\RedirectResponse|mixed
+     * @param Request $request
+     * @return RedirectResponse|mixed
      */
     public function process(Request $request)
     {
@@ -107,7 +111,7 @@ class PaymentController extends Controller
 
         /*iterate through invoices and add gateway fees and other payment metadata*/
         $payable_invoices = $payable_invoices->map(function($payable_invoice) use($invoices, $settings){
-        
+
             $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
 
             $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
@@ -182,8 +186,8 @@ class PaymentController extends Controller
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
 
         /**
-         * Gateway fee is calculated 
-         * by adding it as a line item, and then subtract 
+         * Gateway fee is calculated
+         * by adding it as a line item, and then subtract
          * the starting and finishing amounts of the invoice.
          */
         $fee_totals = $first_invoice->amount - $starting_invoice_amount;
@@ -238,7 +242,7 @@ class PaymentController extends Controller
 
     /**
      * Pay for invoice/s using credits only.
-     * 
+     *
      * @param  Request $request The request object
      * @return Response         The response view
      */
@@ -268,9 +272,9 @@ class PaymentController extends Controller
                                     ->client
                                     ->service()
                                     ->getCredits();
-                                    
+
                 foreach($credits as $credit)
-                {   
+                {
                     //starting invoice balance
                     $invoice_balance = $invoice->balance;
 

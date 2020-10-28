@@ -188,6 +188,10 @@ class BaseRepository
 
     /**
      * Alternative save used for Invoices, Quotes & Credits.
+     * @param $data
+     * @param $model
+     * @return mixed
+     * @throws \ReflectionException
      */
     protected function alternativeSave($data, $model)
     {
@@ -204,7 +208,7 @@ class BaseRepository
         $lcfirst_resource_id = lcfirst($resource).'_id';
 
         $state['starting_amount'] = $model->amount;
-        
+
         if (! $model->id) {
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
@@ -320,7 +324,7 @@ class BaseRepository
         if ($class->name == Credit::class) {
 
             $model = $model->calc()->getCredit();
-            
+
             $model->ledger()->updateCreditBalance(($state['finished_amount'] - $state['starting_amount']));
 
             if (! $model->design_id) {

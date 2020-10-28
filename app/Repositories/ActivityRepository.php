@@ -37,11 +37,13 @@ class ActivityRepository extends BaseRepository
 {
     use MakesInvoiceHtml;
     use MakesHash;
+
     /**
      * Save the Activity.
      *
-     * @param      stdClass  $fields  The fields
-     * @param      Collection  $entity  The entity that you wish to have backed up (typically Invoice, Quote etc etc rather than Payment)
+     * @param stdClass $fields The fields
+     * @param Collection $entity The entity that you wish to have backed up (typically Invoice, Quote etc etc rather than Payment)
+     * @param $event_vars
      */
     public function save($fields, $entity, $event_vars)
     {

@@ -26,6 +26,7 @@ use App\Transformers\DesignTransformer;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -43,7 +44,7 @@ class DesignController extends BaseController
 
     /**
      * DesignController constructor.
-     * @param DesignRepository $designRepo
+     * @param DesignRepository $design_repo
      */
     public function __construct(DesignRepository $design_repo)
     {
@@ -53,7 +54,7 @@ class DesignController extends BaseController
     }
 
     /**
-     *      @OA\Get(
+     * @OA\Get(
      *      path="/api/v1/designs",
      *      operationId="getDesigns",
      *      tags={"designs"},
@@ -76,7 +77,6 @@ class DesignController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -84,6 +84,8 @@ class DesignController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param DesignFilters $filters
+     * @return Response|mixed
      */
     public function index(DesignFilters $filters)
     {
@@ -95,8 +97,9 @@ class DesignController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowDesignRequest $request
+     * @param Design $design
+     * @return Response
      *
      *
      * @OA\Get(
@@ -149,8 +152,9 @@ class DesignController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditDesignRequest $request
+     * @param Design $design
+     * @return Response
      *
      *
      * @OA\Get(
@@ -203,9 +207,9 @@ class DesignController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Design $design
-     * @return \Illuminate\Http\Response
+     * @param UpdateDesignRequest $request
+     * @param Design $design
+     * @return Response
      *
      *
      *
@@ -266,7 +270,8 @@ class DesignController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateDesignRequest $request
+     * @return Response
      *
      *
      *
@@ -311,8 +316,8 @@ class DesignController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreDesignRequest $request
+     * @return Response
      *
      *
      *
@@ -359,10 +364,12 @@ class DesignController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyDesignRequest $request
+     * @param Design $design
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/designs/{id}",
      *      operationId="deleteDesign",
@@ -417,8 +424,7 @@ class DesignController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkDesignRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(

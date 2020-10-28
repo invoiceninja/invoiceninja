@@ -38,7 +38,9 @@ class ApplyCreditPayment implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Credit $credit
+     * @param Payment $payment
+     * @param float $amount
      */
     public function __construct(Credit $credit, Payment $payment, float $amount)
     {

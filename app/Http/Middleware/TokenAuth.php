@@ -16,14 +16,16 @@ use App\Models\CompanyToken;
 use App\Models\User;
 use App\Utils\Ninja;
 use Closure;
+use Illuminate\Http\Request;
+use stdClass;
 
 class TokenAuth
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  Request  $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -33,7 +35,7 @@ class TokenAuth
 
             $error = [
                 'message' => 'User inactive',
-                'errors' => new \stdClass,
+                'errors' => new stdClass,
             ];
             //user who once existed, but has been soft deleted
             if (! $user) {
@@ -59,7 +61,7 @@ class TokenAuth
             if ($user->company_user->is_locked) {
                 $error = [
                     'message' => 'User access locked',
-                    'errors' => new \stdClass,
+                    'errors' => new stdClass,
                 ];
 
                 return response()->json($error, 403);
@@ -72,7 +74,7 @@ class TokenAuth
         } else {
             $error = [
                 'message' => 'Invalid token',
-                'errors' => new \stdClass,
+                'errors' => new stdClass,
             ];
 
             return response()->json($error, 403);

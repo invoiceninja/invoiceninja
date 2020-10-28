@@ -18,7 +18,9 @@ use App\Http\Requests\Document\DownloadMultipleDocumentsRequest;
 use App\Models\Document;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
 
@@ -27,7 +29,7 @@ class DocumentController extends Controller
     use MakesHash;
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -35,7 +37,9 @@ class DocumentController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @param ShowDocumentRequest $request
+     * @param Document $document
+     * @return Factory|View
      */
     public function show(ShowDocumentRequest $request, Document $document)
     {

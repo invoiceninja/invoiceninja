@@ -11,6 +11,7 @@
 
 namespace App\Providers;
 
+use App\Http\ViewComposers\PortalComposer;
 use Illuminate\Support\ServiceProvider;
 
 class ComposerServiceProvider extends ServiceProvider
@@ -22,7 +23,7 @@ class ComposerServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        view()->composer('portal.*', \App\Http\ViewComposers\PortalComposer::class);
+        view()->composer('portal.*', PortalComposer::class);
     }
 
     /**

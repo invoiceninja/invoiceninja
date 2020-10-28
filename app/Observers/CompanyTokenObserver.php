@@ -18,7 +18,7 @@ class CompanyTokenObserver
     /**
      * Handle the company token "created" event.
      *
-     * @param  \App\Models\CompanyToken  $companyToken
+     * @param CompanyToken $companyToken
      * @return void
      */
     public function created(CompanyToken $companyToken)
@@ -29,7 +29,7 @@ class CompanyTokenObserver
     /**
      * Handle the company token "updated" event.
      *
-     * @param  \App\Models\CompanyToken  $companyToken
+     * @param CompanyToken $companyToken
      * @return void
      */
     public function updated(CompanyToken $companyToken)
@@ -40,7 +40,7 @@ class CompanyTokenObserver
     /**
      * Handle the company token "deleted" event.
      *
-     * @param  \App\Models\CompanyToken  $companyToken
+     * @param CompanyToken $companyToken
      * @return void
      */
     public function deleted(CompanyToken $companyToken)
@@ -51,7 +51,7 @@ class CompanyTokenObserver
     /**
      * Handle the company token "restored" event.
      *
-     * @param  \App\Models\CompanyToken  $companyToken
+     * @param CompanyToken $companyToken
      * @return void
      */
     public function restored(CompanyToken $companyToken)
@@ -62,7 +62,7 @@ class CompanyTokenObserver
     /**
      * Handle the company token "force deleted" event.
      *
-     * @param  \App\Models\CompanyToken  $companyToken
+     * @param CompanyToken $companyToken
      * @return void
      */
     public function forceDeleted(CompanyToken $companyToken)

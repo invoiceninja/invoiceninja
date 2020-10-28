@@ -31,6 +31,8 @@ use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Exception;
 use Illuminate\Support\Carbon;
 
 /**
@@ -63,7 +65,7 @@ class BaseDriver extends AbstractPaymentDriver
     public $payment_method;
 
     /**
-     * @var \App\Models\PaymentHash
+     * @var PaymentHash
      */
     public $payment_hash;
 
@@ -82,8 +84,8 @@ class BaseDriver extends AbstractPaymentDriver
      * Authorize a payment method.
      *
      * Returns a reusable token for storage for future payments
-     * @param  const $payment_method    The GatewayType::constant
-     * @return view                     Return a view for collecting payment method information
+     * @param const $payment_method The GatewayType::constant
+     * @return void Return a view for collecting payment method information
      */
     public function authorize($payment_method)
     {
@@ -131,8 +133,8 @@ class BaseDriver extends AbstractPaymentDriver
     /**
      * Helper method to attach invoices to a payment.
      *
-     * @param  Payment $payment    The payment
-     * @param  array  $hashed_ids  The array of invoice hashed_ids
+     * @param Payment $payment The payment
+     * @param PaymentHash $payment_hash
      * @return Payment             The payment object
      */
     public function attachInvoices(Payment $payment, PaymentHash $payment_hash): Payment
@@ -188,9 +190,9 @@ class BaseDriver extends AbstractPaymentDriver
     /**
      * Process an unattended payment.
      *
-     * @param  ClientGatewayToken $cgt           The client gateway token object
-     * @param  PaymentHash        $payment_hash  The Payment hash containing the payment meta data
-     * @return Response                          The payment response
+     * @param ClientGatewayToken $cgt The client gateway token object
+     * @param PaymentHash $payment_hash The Payment hash containing the payment meta data
+     * @return void The payment response
      */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
@@ -230,11 +232,11 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     /**
-     * In case of a payment failure we should always 
+     * In case of a payment failure we should always
      * return the invoice to its original state
-     * 
+     *
      * @param  PaymentHash $payment_hash The payment hash containing the list of invoices
-     * @return void                    
+     * @return void
      */
     public function unWindGatewayFees(PaymentHash $payment_hash)
     {
@@ -244,7 +246,7 @@ class BaseDriver extends AbstractPaymentDriver
         $invoices->each(function ($invoice) {
             $invoice->service()->removeUnpaidGatewayFees();
         });
-        
+
     }
 
     /**
@@ -266,9 +268,9 @@ class BaseDriver extends AbstractPaymentDriver
 
     /**
      * Store payment method as company gateway token.
-     *  
-     * @param array $data 
-     * @return null|\App\Models\ClientGatewayToken 
+     *
+     * @param array $data
+     * @return null|ClientGatewayToken
      */
     public function storeGatewayToken(array $data): ?ClientGatewayToken
     {
@@ -293,11 +295,11 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function processInternallyFailedPayment($gateway, $e)
     {
-        if ($e instanceof \Exception) {
+        if ($e instanceof Exception) {
             $error = $e->getMessage();
         }
 
-        if ($e instanceof \Checkout\Library\Exceptions\CheckoutHttpException) {
+        if ($e instanceof CheckoutHttpException) {
             $error = $e->getBody();
         }
 

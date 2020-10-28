@@ -35,6 +35,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Swift_TransportException;
 use Symfony\Component\Mime\Test\Constraint\EmailTextBodyContains;
 use Turbo124\Beacon\Facades\LightLogs;
 
@@ -99,6 +100,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver();
 
         try {
+            /** @noinspection PhpMethodParametersCountMismatchInspection */
             Mail::to($this->invitation->contact->email, $this->invitation->contact->present()->name())
                 ->send(
                     new TemplateEmail(
@@ -107,7 +109,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
                         $this->invitation->contact->client
                     )
                 );
-        } catch (\Swift_TransportException $e) {
+        } catch (Swift_TransportException $e) {
             $this->entityEmailFailed($e->getMessage());
         }
 
@@ -152,7 +154,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
             case 'invoice':
                 event(new InvoiceWasEmailedAndFailed($this->invitation->invoice, $this->company, $message, Ninja::eventVars()));
                 break;
-            
+
             default:
                 # code...
                 break;
@@ -166,7 +168,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
             case 'invoice':
                 event(new InvoiceWasEmailed($this->invitation, $this->company, Ninja::eventVars()));
                 break;
-            
+
             default:
                 # code...
                 break;

@@ -146,9 +146,9 @@ class AuthorizePaymentDriver extends BaseDriver
 
     /**
      * Detach payment method from Authorize.net.
-     * 
-     * @param \App\Models\ClientGatewayToken $token 
-     * @return void 
+     *
+     * @param ClientGatewayToken $token
+     * @return void
      */
     public function detach(ClientGatewayToken $token)
     {

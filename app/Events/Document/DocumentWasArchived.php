@@ -41,6 +41,8 @@ class DocumentWasArchived
      * Create a new event instance.
      *
      * @param Document $document
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Document $document, Company $company, array $event_vars)
     {
@@ -52,7 +54,7 @@ class DocumentWasArchived
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return Channel|array
      */
     public function broadcastOn()
     {

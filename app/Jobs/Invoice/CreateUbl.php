@@ -25,6 +25,7 @@ use CleverIt\UBL\Invoice\TaxCategory;
 use CleverIt\UBL\Invoice\TaxScheme;
 use CleverIt\UBL\Invoice\TaxSubTotal;
 use CleverIt\UBL\Invoice\TaxTotal;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -98,7 +99,7 @@ class CreateUbl implements ShouldQueue
 
         try {
             return Generator::invoice($ubl_invoice, $invoice->client->getCurrencyCode());
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return false;
         }
     }
@@ -178,9 +179,8 @@ class CreateUbl implements ShouldQueue
     }
 
     /**
-     * @param $invoiceItem
-     * @param $invoiceTotal
-     *
+     * @param $item
+     * @param $invoice_total
      * @return float|int
      */
     private function getItemTaxable($item, $invoice_total)

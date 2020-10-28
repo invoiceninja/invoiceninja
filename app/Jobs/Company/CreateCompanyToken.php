@@ -34,7 +34,9 @@ class CreateCompanyToken implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Company $company
+     * @param User $user
+     * @param string $custom_token_name
      */
     public function __construct(Company $company, User $user, string $custom_token_name)
     {
@@ -48,7 +50,7 @@ class CreateCompanyToken implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
+     * @return CompanyToken|null
      */
     public function handle() : ?CompanyToken
     {

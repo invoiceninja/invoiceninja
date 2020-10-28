@@ -22,11 +22,18 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use Stripe\Exception\ApiConnectionException;
+use Stripe\Exception\ApiErrorException;
+use Stripe\Exception\AuthenticationException;
+use Stripe\Exception\CardException;
+use Stripe\Exception\InvalidRequestException;
+use Stripe\Exception\RateLimitException;
+use Stripe\StripeClient;
 
 class Charge
 {
     use MakesHash;
-    
+
     /** @var StripePaymentDriver */
     public $stripe;
 
@@ -37,7 +44,10 @@ class Charge
 
     /**
      * Create a charge against a payment method.
+     * @param ClientGatewayToken $cgt
+     * @param PaymentHash $payment_hash
      * @return bool success/failure
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
@@ -52,7 +62,7 @@ class Charge
 
         $this->stripe->init();
 
-        $local_stripe = new \Stripe\StripeClient(
+        $local_stripe = new StripeClient(
             $this->stripe->company_gateway->getConfigField('apiKey')
         );
 
@@ -69,7 +79,7 @@ class Charge
             ]);
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client);
-        } catch (\Stripe\Exception\CardException $e) {
+        } catch (CardException $e) {
             // Since it's a decline, \Stripe\Exception\CardException will be caught
 
             $data = [
@@ -81,7 +91,7 @@ class Charge
           ];
 
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-        } catch (\Stripe\Exception\RateLimitException $e) {
+        } catch (RateLimitException $e) {
             // Too many requests made to the API too quickly
 
             $data = [
@@ -93,7 +103,7 @@ class Charge
           ];
 
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-        } catch (\Stripe\Exception\InvalidRequestException $e) {
+        } catch (InvalidRequestException $e) {
             // Invalid parameters were supplied to Stripe's API
             //
             $data = [
@@ -105,7 +115,7 @@ class Charge
           ];
 
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-        } catch (\Stripe\Exception\AuthenticationException $e) {
+        } catch (AuthenticationException $e) {
             // Authentication with Stripe's API failed
 
             $data = [
@@ -117,7 +127,7 @@ class Charge
           ];
 
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-        } catch (\Stripe\Exception\ApiConnectionException $e) {
+        } catch (ApiConnectionException $e) {
             // Network communication with Stripe failed
 
             $data = [
@@ -129,7 +139,7 @@ class Charge
           ];
 
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
-        } catch (\Stripe\Exception\ApiErrorException $e) {
+        } catch (ApiErrorException $e) {
             $data = [
             'status' => '',
             'error_type' => '',
@@ -172,7 +182,7 @@ class Charge
 
         $payment_hash->payment_id = $payment->id;
         $payment_hash->save();
-        
+
         $this->stripe->attachInvoices($payment, $payment_hash);
 
         $payment->service()->updateInvoicePayment($payment_hash);

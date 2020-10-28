@@ -36,6 +36,7 @@ trait CleanLineItems
 
     /**
      * Sets default values for the line_items.
+     * @param $item
      * @return $this
      */
     private function cleanLineItem($item)

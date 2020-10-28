@@ -26,6 +26,7 @@ use App\Transformers\InvoiceTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use stdClass;
 
 class InvoiceController extends BaseController
 {
@@ -43,7 +44,7 @@ class InvoiceController extends BaseController
     /**
      * InvoiceController constructor.
      *
-     * @param      \App\Repositories\InvoiceRepository  $invoice_repo  The invoice repo
+     * @param InvoiceRepository $invoice_repo  The invoice repo
      */
     public function __construct(InvoiceRepository $invoice_repo)
     {
@@ -57,7 +58,7 @@ class InvoiceController extends BaseController
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
         if (! $company->enable_shop_api) {
-            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass], 403);
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new stdClass], 403);
         }
 
         $invitation = InvoiceInvitation::with(['invoice'])
@@ -73,7 +74,7 @@ class InvoiceController extends BaseController
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
         if (! $company->enable_shop_api) {
-            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass], 403);
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new stdClass], 403);
         }
 
         app('queue')->createPayloadUsing(function () use ($company) {

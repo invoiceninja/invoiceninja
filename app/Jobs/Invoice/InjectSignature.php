@@ -27,7 +27,8 @@ class InjectSignature implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Invoice $invoice
+     * @param string $signature
      */
     public function __construct(Invoice $invoice, string $signature)
     {

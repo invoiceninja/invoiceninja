@@ -31,7 +31,27 @@
       <directory name="app" /> 
     </errorLevel>
   </UndefinedClass>
-
+  <UndefinedThisPropertyFetch>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </UndefinedThisPropertyFetch>
+  <UndefinedThisPropertyAssignment>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </UndefinedThisPropertyAssignment>
+  <InvalidArgument>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </InvalidArgument> 
+  <InvalidScalarArgument>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </InvalidScalarArgument> 
+ 
 </issueHandlers>
 
     

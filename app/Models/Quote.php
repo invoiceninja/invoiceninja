@@ -16,6 +16,7 @@ use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Filterable;
+use App\Models\Presenters\QuotePresenter;
 use App\Services\Quote\QuoteService;
 use App\Utils\Ninja;
 use App\Utils\Traits\Archivable;
@@ -39,7 +40,7 @@ class Quote extends BaseModel
     use PresentableTrait;
     use MakesInvoiceValues;
 
-    protected $presenter = \App\Models\Presenters\QuotePresenter::class;
+    protected $presenter = QuotePresenter::class;
 
     protected $touches = [];
 

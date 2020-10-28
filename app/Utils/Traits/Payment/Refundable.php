@@ -21,11 +21,15 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\ActivityRepository;
 use App\Utils\Ninja;
+use stdClass;
 
 trait Refundable
 {
     /**
      * Entry point for processing of refunds.
+     * @param array $data
+     * @return Refundable
+     * @throws PaymentRefundFailed
      */
     public function processRefund(array $data)
     {
@@ -194,7 +198,7 @@ trait Refundable
 
     private function createActivity(array $data, int $credit_id)
     {
-        $fields = new \stdClass;
+        $fields = new stdClass;
         $activity_repo = new ActivityRepository();
 
         $fields->payment_id = $this->id;

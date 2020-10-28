@@ -50,6 +50,7 @@ use App\Transformers\TaskStatusTransformer;
 use App\Transformers\TaskTransformer;
 use App\Transformers\WebhookTransformer;
 use App\Utils\Traits\MakesHash;
+use stdClass;
 
 /**
  * Class CompanyTransformer.
@@ -110,7 +111,7 @@ class CompanyTransformer extends EntityTransformer
      */
     public function transform(Company $company)
     {
-        $std = new \stdClass;
+        $std = new stdClass;
 
         return [
             'id' => (string) $this->encodePrimaryKey($company->id),

@@ -33,11 +33,16 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
+use Exception;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\View\View;
+use Stripe\Customer;
 use Stripe\PaymentIntent;
 use Stripe\SetupIntent;
 use Stripe\Stripe;
+use Stripe\StripeClient;
 
 class StripePaymentDriver extends BaseDriver
 {
@@ -49,7 +54,7 @@ class StripePaymentDriver extends BaseDriver
 
     public $can_authorise_credit_card = true;
 
-    /** @var \Stripe\StripeClient */
+    /** @var StripeClient */
     protected $stripe;
 
     protected $customer_reference = 'customerReferenceParam';
@@ -85,7 +90,7 @@ class StripePaymentDriver extends BaseDriver
      */
     public function init(): void
     {
-        $this->stripe = new \Stripe\StripeClient(
+        $this->stripe = new StripeClient(
             $this->company_gateway->getConfigField('apiKey')
         );
 
@@ -168,7 +173,7 @@ class StripePaymentDriver extends BaseDriver
      *
      * @param array $data
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function authorizeView(array $data)
     {
@@ -178,9 +183,8 @@ class StripePaymentDriver extends BaseDriver
     /**
      * Processes the gateway response for credit card authorization.
      *
-     * @param \Illuminate\Http\Request $request The returning request object
-
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @param Request $request The returning request object
+ * @return Factory|View
      */
     public function authorizeResponse($request)
     {
@@ -191,8 +195,7 @@ class StripePaymentDriver extends BaseDriver
      * Process the payment with gateway.
      *
      * @param array $data
-
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|void
+ * @return Factory|View|void
      */
     public function processPaymentView(array $data)
     {
@@ -201,31 +204,33 @@ class StripePaymentDriver extends BaseDriver
 
     /**
      * Payment Intent Reponse looks like this.
-      +"id": "pi_1FMR7JKmol8YQE9DuC4zMeN3"
-      +"object": "payment_intent"
-      +"allowed_source_types": array:1 [▼
-        0 => "card"
-      ]
-      +"amount": 2372484
-      +"canceled_at": null
-      +"cancellation_reason": null
-      +"capture_method": "automatic"
-      +"client_secret": "pi_1FMR7JKmol8YQE9DuC4zMeN3_secret_J3yseWJG6uV0MmsrAT1FlUklV"
-      +"confirmation_method": "automatic"
-      +"created": 1569381877
-      +"->currency()": "usd"
-      +"description": "[3]"
-      +"last_payment_error": null
-      +"livemode": false
-      +"next_action": null
-      +"next_source_action": null
-      +"payment_method": "pm_1FMR7ZKmol8YQE9DQWqPuyke"
-      +"payment_method_types": array:1 [▶]
-      +"receipt_email": null
-      +"setup_future_usage": "off_session"
-      +"shipping": null
-      +"source": null
-      +"status": "succeeded"
+     * +"id": "pi_1FMR7JKmol8YQE9DuC4zMeN3"
+     * +"object": "payment_intent"
+     * +"allowed_source_types": array:1 [▼
+     * 0 => "card"
+     * ]
+     * +"amount": 2372484
+     * +"canceled_at": null
+     * +"cancellation_reason": null
+     * +"capture_method": "automatic"
+     * +"client_secret": "pi_1FMR7JKmol8YQE9DuC4zMeN3_secret_J3yseWJG6uV0MmsrAT1FlUklV"
+     * +"confirmation_method": "automatic"
+     * +"created": 1569381877
+     * +"->currency()": "usd"
+     * +"description": "[3]"
+     * +"last_payment_error": null
+     * +"livemode": false
+     * +"next_action": null
+     * +"next_source_action": null
+     * +"payment_method": "pm_1FMR7ZKmol8YQE9DQWqPuyke"
+     * +"payment_method_types": array:1 [▶]
+     * +"receipt_email": null
+     * +"setup_future_usage": "off_session"
+     * +"shipping": null
+     * +"source": null
+     * +"status": "succeeded"
+     * @param $request
+     * @return
      */
     public function processPaymentResponse($request) //We never have to worry about unsuccessful payments as failures are handled at the front end for this driver.
     {
@@ -252,8 +257,9 @@ class StripePaymentDriver extends BaseDriver
     /**
      * Creates a new String Payment Intent.
      *
-     * @param  array $data The data array to be passed to Stripe
+     * @param array $data The data array to be passed to Stripe
      * @return PaymentIntent       The Stripe payment intent object
+     * @throws \Stripe\Exception\ApiErrorException
      */
     public function createPaymentIntent($data): ?PaymentIntent
     {
@@ -266,7 +272,8 @@ class StripePaymentDriver extends BaseDriver
      * Returns a setup intent that allows the user
      * to enter card details without initiating a transaction.
      *
-     * @return \Stripe\SetupIntent
+     * @return SetupIntent
+     * @throws \Stripe\Exception\ApiErrorException
      */
     public function getSetupIntent(): SetupIntent
     {
@@ -287,9 +294,11 @@ class StripePaymentDriver extends BaseDriver
     /**
      * Finds or creates a Stripe Customer object.
      *
-     * @return null|\Stripe\Customer A Stripe customer object
+     * @return null|Customer A Stripe customer object
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
+     * @throws \Stripe\Exception\ApiErrorException
      */
-    public function findOrCreateCustomer(): ?\Stripe\Customer
+    public function findOrCreateCustomer(): ?Customer
     {
         $customer = null;
 
@@ -298,7 +307,7 @@ class StripePaymentDriver extends BaseDriver
         $client_gateway_token = ClientGatewayToken::whereClientId($this->client->id)->whereCompanyGatewayId($this->company_gateway->id)->first();
 
         if ($client_gateway_token && $client_gateway_token->gateway_customer_reference) {
-            $customer = \Stripe\Customer::retrieve($client_gateway_token->gateway_customer_reference);
+            $customer = Customer::retrieve($client_gateway_token->gateway_customer_reference);
         } else {
             $data['name'] = $this->client->present()->name();
             $data['phone'] = $this->client->present()->phone();
@@ -307,11 +316,11 @@ class StripePaymentDriver extends BaseDriver
                 $data['email'] = $this->client->present()->email();
             }
 
-            $customer = \Stripe\Customer::create($data);
+            $customer = Customer::create($data);
         }
 
         if (!$customer) {
-            throw new \Exception('Unable to create gateway customer');
+            throw new Exception('Unable to create gateway customer');
         }
 
         return $customer;
@@ -407,26 +416,26 @@ class StripePaymentDriver extends BaseDriver
     /**
      * Detach payment method from the Stripe.
      * https://stripe.com/docs/api/payment_methods/detach
-     * 
-     * @param \App\Models\ClientGatewayToken $token 
-     * @return bool 
-     */
+     *
+     * @param ClientGatewayToken $token
+* @return void
+*/
     public function detach(ClientGatewayToken $token)
     {
-        $stripe = new \Stripe\StripeClient(
+        $stripe = new StripeClient(
             $this->company_gateway->getConfigField('apiKey')
         );
 
         try {
             $response = $stripe->paymentMethods->detach($token->token);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             SystemLogger::dispatch([
                 'server_response' => $response, 'data' => request()->all(),
             ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
         }
     }
 
-    
+
     public function getCompanyGatewayId(): int
     {
         return $this->company_gateway->id;

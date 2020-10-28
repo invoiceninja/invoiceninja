@@ -53,12 +53,8 @@ trait HasRecurrence
      */
     public function setDayOfMonth($date, $day_of_month)
     {
-        info($date);
-
         $carbon_date = Carbon::parse($date);
         
-        info($carbon_date);
-
         $set_date = $carbon_date->copy()->setUnitNoOverflow('day', $day_of_month, 'month');
 
         //If the set date is less than the original date we need to add a month.

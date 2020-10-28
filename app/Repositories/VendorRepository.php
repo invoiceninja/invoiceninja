@@ -50,14 +50,15 @@ class VendorRepository extends BaseRepository
     /**
      * Saves the vendor and its contacts.
      *
-     * @param      array                           $data    The data
-     * @param      \App\Models\vendor              $vendor  The vendor
+     * @param array $data The data
+     * @param \App\Models\vendor $vendor The vendor
      *
      * @return     vendor|\App\Models\vendor|null  vendor Object
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
     public function save(array $data, Vendor $vendor) : ?Vendor
     {
-        
+
         $vendor->fill($data);
 
         $vendor->save();

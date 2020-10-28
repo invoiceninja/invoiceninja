@@ -25,6 +25,7 @@ use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\UserSessionAttributes;
+use Google_Client;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -73,6 +74,8 @@ class LoginController extends BaseController
      * Once the user is authenticated, we need to set
      * the default company into a session variable.
      *
+     * @param Request $request
+     * @param User $user
      * @return void
      * deprecated .1 API ONLY we don't need to set any session variables
      */
@@ -84,11 +87,12 @@ class LoginController extends BaseController
     /**
      * Login via API.
      *
-     * @param      \Illuminate\Http\Request  $request  The request
+     * @param Request $request The request
      *
      * @return     Response|User Process user login.
      *
      *
+     * @throws \Illuminate\Validation\ValidationException
      * @OA\Post(
      *      path="/api/v1/login",
      *      operationId="postLogin",
@@ -134,7 +138,6 @@ class LoginController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -187,6 +190,7 @@ class LoginController extends BaseController
     /**
      * Refreshes the data feed with the current Company User.
      *
+     * @param Request $request
      * @return     CompanyUser Refresh Feed.
      *
      *
@@ -214,7 +218,6 @@ class LoginController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -284,7 +287,7 @@ class LoginController extends BaseController
         }
 
         if ($user) {
-            $client = new \Google_Client();
+            $client = new Google_Client();
             $client->setClientId(config('ninja.auth.google.client_id'));
             $client->setClientSecret(config('ninja.auth.google.client_secret'));
 

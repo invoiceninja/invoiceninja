@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Factory\PaymentTermFactory;
+use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\PaymentTerm\CreatePaymentTermRequest;
 use App\Http\Requests\PaymentTerm\DestroyPaymentTermRequest;
 use App\Http\Requests\PaymentTerm\ShowPaymentTermRequest;
@@ -13,6 +14,7 @@ use App\Repositories\PaymentTermRepository;
 use App\Transformers\PaymentTermTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PaymentTermController extends BaseController
 {
@@ -30,7 +32,7 @@ class PaymentTermController extends BaseController
     /**
      * PaymentTermController constructor.
      *
-     * @param      \App\Repositories\PaymentTermRepository  $payment_term_repo  The payment term repo
+     * @param PaymentTermRepository $payment_term_repo  The payment term repo
      */
     public function __construct(PaymentTermRepository $payment_term_repo)
     {
@@ -82,9 +84,9 @@ class PaymentTermController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @param      \App\Http\Requests\Payment\CreatePaymentTermRequest  $request  The request
+     * @param CreatePaymentTermRequest $request The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
@@ -129,9 +131,9 @@ class PaymentTermController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param      \App\Http\Requests\Payment\StorePaymentRequest  $request  The request
+     * @param StorePaymentTermRequest $request The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
@@ -222,6 +224,9 @@ class PaymentTermController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param ShowPaymentTermRequest $request
+     * @param PaymentTerm $payment_term
+     * @return Response|mixed
      */
     public function show(ShowPaymentTermRequest $request, PaymentTerm $payment_term)
     {
@@ -270,6 +275,9 @@ class PaymentTermController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param EditPaymentRequest $request
+     * @param Payment $payment
+     * @return Response|mixed
      */
     public function edit(EditPaymentRequest $request, Payment $payment)
     {
@@ -279,10 +287,10 @@ class PaymentTermController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param      \App\Http\Requests\PaymentTerm\UpdatePaymentTermRequest  $request  The request
-     * @param      \App\Models\PaymentTerm                                  $payment_term   The payment term
+     * @param UpdatePaymentTermRequest $request  The request
+     * @param PaymentTerm $payment_term   The payment term
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Put(
@@ -338,12 +346,13 @@ class PaymentTermController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param      \App\Http\Requests\PaymentTerm\DestroyPaymentTermRequest  $request
-     * @param      \App\Models\PaymentTerm                                   $payment_term
+     * @param DestroyPaymentTermRequest $request
+     * @param PaymentTerm $payment_term
      *
-     * @return     \Illuminate\Http\Response
+     * @return     Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/payment_terms/{id}",
      *      operationId="deletePaymentTerm",

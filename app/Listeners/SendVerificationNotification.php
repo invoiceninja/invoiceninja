@@ -14,6 +14,7 @@ namespace App\Listeners;
 use App\Libraries\MultiDB;
 use App\Notifications\Ninja\VerifyUser;
 use App\Utils\Ninja;
+use Exception;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -51,8 +52,8 @@ class SendVerificationNotification implements ShouldQueue
 
             Ninja::registerNinjaUser($event->user);
 
-        } catch (\Exception $e) {
-            
+        } catch (Exception $e) {
+
             info("I couldn't send the email " . $e->getMessage());
 
         }
