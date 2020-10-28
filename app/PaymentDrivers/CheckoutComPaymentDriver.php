@@ -18,10 +18,12 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\BaseDriver;
+use App\PaymentDrivers\CheckoutCom\CreditCard;
 use App\PaymentDrivers\CheckoutCom\Utilities;
 use App\Utils\Traits\SystemLogTrait;
 use Checkout\CheckoutApi;
 use Checkout\Library\Exceptions\CheckoutHttpException;
+use Checkout\Models\Payments\Refund;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -43,14 +45,17 @@ class CheckoutComPaymentDriver extends BaseDriver
     public $can_authorise_credit_card = true;
 
     /**
-     * @var \Checkout\CheckoutApi;
+     * @var CheckoutApi;
      */
     public $gateway;
 
+    /**
+     * @var
+     */
     public $payment_method; //the gateway type id
 
     public static $methods = [
-        GatewayType::CREDIT_CARD => \App\PaymentDrivers\CheckoutCom\CreditCard::class,
+        GatewayType::CREDIT_CARD => CreditCard::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT;
@@ -65,13 +70,14 @@ class CheckoutComPaymentDriver extends BaseDriver
         ];
     }
 
-    /** 
+    /**
      * Since with Checkout.com we handle only credit cards, this method should be empty.
-     * @param $string payment_method string
+     * @param int|null $payment_method
+     * @return CheckoutComPaymentDriver
      */
-    public function setPaymentMethod($payment_method = null)
+    public function setPaymentMethod($payment_method = null): CheckoutComPaymentDriver
     {
-        // At the moment Checkout.com payment 
+        // At the moment Checkout.com payment
         // driver only supports payments using credit card.
 
         $class = self::$methods[GatewayType::CREDIT_CARD];
@@ -105,7 +111,7 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function viewForType($gateway_type_id)
     {
-        // At the moment Checkout.com payment 
+        // At the moment Checkout.com payment
         // driver only supports payments using credit card.
 
         return 'gateways.checkout.credit_card.pay';
@@ -123,7 +129,7 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     /**
      * Payment View
-     * 
+     *
      * @param  array  $data Payment data array
      * @return view         The payment view
      */
@@ -134,7 +140,7 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     /**
      * Process the payment response
-     * 
+     *
      * @param  Request $request The payment request
      * @return view             The payment response view
      */
@@ -152,7 +158,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
         $this->init();
 
-        $checkout_payment = new \Checkout\Models\Payments\Refund($payment->transaction_reference);
+        $checkout_payment = new Refund($payment->transaction_reference);
 
         try {
             $refund = $this->gateway->payments()->refund($checkout_payment);

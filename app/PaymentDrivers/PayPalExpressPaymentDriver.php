@@ -23,7 +23,9 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use Exception;
 use Omnipay\Common\Item;
+use stdClass;
 
 /**
  * Response array
@@ -85,16 +87,10 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     /**
      * Processes the payment with this gateway.
      *
-     * @var['invoices']
-     * @var['amount']
-     * @var['fee']
-     * @var['amount_with_fee']
-     * @var['token']
-     * @var['payment_method_id']
-     * @var['payment_hash']
      *
-     * @param  array  $data variables required to build payment page
-     * @return view   Gateway and payment method specific view
+     * @param array $data variables required to build payment page
+     * @return void Gateway and payment method specific view
+     * @throws Exception
      */
     public function processPaymentView(array $data)
     {
@@ -120,7 +116,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
                 $this->client
             );
 
-            throw new \Exception('Error Processing Payment', 1);
+            throw new Exception('Error Processing Payment', 1);
         }
     }
 
@@ -157,7 +153,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
                 $this->client
             );
 
-            throw new \Exception($response->getMessage());
+            throw new Exception($response->getMessage());
         }
 
         $payment = $this->createPayment($response->getData());
@@ -165,7 +161,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         $payment_hash->payment_id = $payment->id;
         $payment_hash->save();
-        
+
         $this->attachInvoices($payment, $payment_hash);
         $payment->service()->updateInvoicePayment($payment_hash);
 
@@ -266,7 +262,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
     {
-        $payment_meta = new \stdClass;
+        $payment_meta = new stdClass;
         $payment_meta->exp_month = 'xx';
         $payment_meta->exp_year = 'xx';
         $payment_meta->brand = 'PayPal';
@@ -325,9 +321,9 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     /**
      * Detach payment method from PayPal.
-     * 
-     * @param \App\Models\ClientGatewayToken $token 
-     * @return void 
+     *
+     * @param ClientGatewayToken $token
+     * @return void
      */
     public function detach(ClientGatewayToken $token)
     {

@@ -30,7 +30,8 @@ class CreateCompany
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param array $request
+     * @param $account
      */
     public function __construct(array $request, $account)
     {
@@ -42,7 +43,7 @@ class CreateCompany
     /**
      * Execute the job.
      *
-     * @return void
+     * @return Company|null
      */
     public function handle() : ?Company
     {

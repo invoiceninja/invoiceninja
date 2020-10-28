@@ -35,6 +35,8 @@ class PaymentWasVoided
      * Create a new event instance.
      *
      * @param Payment $payment
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Payment $payment, Company $company, array $event_vars)
     {

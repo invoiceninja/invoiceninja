@@ -34,6 +34,7 @@ use App\Transformers\QuoteTransformer;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class QuoteController.
@@ -56,7 +57,7 @@ class QuoteController extends BaseController
     /**
      * QuoteController constructor.
      *
-     * @param      \App\Repositories\QuoteRepository  $Quote_repo  The Quote repo
+     * @param QuoteRepository $quote_repo
      */
     public function __construct(QuoteRepository $quote_repo)
     {
@@ -68,7 +69,8 @@ class QuoteController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param QuoteFilters $filters
+     * @return Response
      *
      *
      * @OA\Get(
@@ -78,7 +80,7 @@ class QuoteController extends BaseController
      *      summary="Gets a list of quotes",
      *      description="Lists quotes, search and filters allow fine grained lists to be generated.
 
-        Query parameters can be added to performed more fine grained filtering of the quotes, these are handled by the QuoteFilters class which defines the methods available",
+    Query parameters can be added to performed more fine grained filtering of the quotes, these are handled by the QuoteFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -95,7 +97,6 @@ class QuoteController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -114,7 +115,8 @@ class QuoteController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateQuoteRequest $request
+     * @return Response
      *
      *
      *
@@ -159,9 +161,9 @@ class QuoteController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param      \App\Http\Requests\Quote\StoreQuoteRequest  $request  The request
+     * @param StoreQuoteRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
@@ -208,10 +210,10 @@ class QuoteController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param      \App\Http\Requests\Quote\ShowQuoteRequest  $request  The request
-     * @param      \App\Models\Quote                            $quote  The quote
+     * @param ShowQuoteRequest $request  The request
+     * @param Quote $quote  The quote
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -264,10 +266,10 @@ class QuoteController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param      \App\Http\Requests\Quote\EditQuoteRequest  $request  The request
-     * @param      \App\Models\Quote                            $quote  The quote
+     * @param EditQuoteRequest $request  The request
+     * @param Quote $quote  The quote
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -320,10 +322,10 @@ class QuoteController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param      \App\Http\Requests\Quote\UpdateQuoteRequest  $request  The request
-     * @param      \App\Models\Quote                              $quote  The quote
+     * @param UpdateQuoteRequest $request  The request
+     * @param Quote $quote  The quote
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Put(
@@ -382,12 +384,13 @@ class QuoteController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param      \App\Http\Requests\Quote\DestroyQuoteRequest  $request
-     * @param      \App\Models\Quote                               $quote
+     * @param DestroyQuoteRequest $request
+     * @param Quote $quote
      *
-     * @return     \Illuminate\Http\Response
+     * @return     Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/quotes/{id}",
      *      operationId="deleteQuote",
@@ -555,16 +558,16 @@ class QuoteController extends BaseController
      *      summary="Performs a custom action on an Quote",
      *      description="Performs a custom action on an Quote.
 
-        The current range of actions are as follows
-        - clone_to_Quote
-        - clone_to_quote
-        - history
-        - delivery_note
-        - mark_paid
-        - download
-        - archive
-        - delete
-        - email",
+    The current range of actions are as follows
+    - clone_to_Quote
+    - clone_to_quote
+    - history
+    - delivery_note
+    - mark_paid
+    - download
+    - archive
+    - delete
+    - email",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -611,6 +614,10 @@ class QuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param ActionQuoteRequest $request
+     * @param Quote $quote
+     * @param $action
+     * @return \Illuminate\Http\JsonResponse|Response|mixed|\Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function action(ActionQuoteRequest $request, Quote $quote, $action)
     {

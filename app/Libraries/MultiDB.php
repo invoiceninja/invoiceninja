@@ -42,8 +42,7 @@ class MultiDB
     public static $dbs = ['db-ninja-01', 'db-ninja-02'];
 
     /**
-     * @param $email
-     * @return bool
+     * @return array
      */
     public static function getDbs() : array
     {
@@ -120,7 +119,7 @@ class MultiDB
 
     /**
      * @param array $data
-     * @return App\Models\User | bool
+     * @return User|null
      */
     public static function hasUser(array $data) : ?User
     {
@@ -206,7 +205,7 @@ class MultiDB
             }
         }
 
-        return false;        
+        return false;
     }
 
     public static function findAndSetDbByClientHash($client_hash) :bool
@@ -218,7 +217,7 @@ class MultiDB
             }
         }
 
-        return false;        
+        return false;
     }
 
     public static function findAndSetDbByDomain($subdomain) :bool

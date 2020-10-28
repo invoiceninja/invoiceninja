@@ -31,7 +31,8 @@ class CreateCompanyPaymentTerms
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $company
+     * @param $user
      */
     public function __construct($company, $user)
     {

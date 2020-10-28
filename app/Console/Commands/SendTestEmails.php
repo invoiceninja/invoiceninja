@@ -26,6 +26,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
+use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -70,7 +71,7 @@ class SendTestEmails extends Command
 
     private function sendTemplateEmails($template)
     {
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         $message = [
             'title' => 'Invoice XJ-3838',
@@ -82,7 +83,7 @@ class SendTestEmails extends Command
         $user = User::whereEmail('user@example.com')->first();
 
         if (! $user) {
-            
+
             $account = Account::factory()->create();
 
             $user = User::factory()->create([

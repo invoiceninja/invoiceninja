@@ -5,14 +5,15 @@ namespace App\Http\Middleware;
 use App\Libraries\MultiDB;
 use Closure;
 use Cookie;
+use Illuminate\Http\Request;
 
 class SetWebDb
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  Request  $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)

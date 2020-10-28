@@ -23,7 +23,7 @@ class ExpenseCategoryTransformer extends EntityTransformer
 {
     use MakesHash;
     use SoftDeletes;
-    
+
     protected $defaultIncludes = [
     ];
 
@@ -34,9 +34,8 @@ class ExpenseCategoryTransformer extends EntityTransformer
     ];
 
 
-
     /**
-     * @param Expense $expense_category
+     * @param ExpenseCategory $expense_category
      *
      * @return array
      */

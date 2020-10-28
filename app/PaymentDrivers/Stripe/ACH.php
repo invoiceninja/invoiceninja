@@ -22,7 +22,11 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Ninja;
+use Exception;
+use Stripe\Customer;
+use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
+use Stripe\StripeClient;
 
 class ACH
 {
@@ -52,7 +56,7 @@ class ACH
 
         $this->stripe->init();
 
-        $local_stripe = new \Stripe\StripeClient(
+        $local_stripe = new StripeClient(
             $this->stripe->company_gateway->getConfigField('apiKey')
         );
 
@@ -100,7 +104,7 @@ class ACH
     {
         $this->stripe->init();
 
-        $bank_account = \Stripe\Customer::retrieveSource(
+        $bank_account = Customer::retrieveSource(
             request()->customer,
             request()->source,
         );
@@ -114,7 +118,7 @@ class ACH
             return redirect()
                 ->route('client.invoices.index')
                 ->with('success', __('texts.payment_method_verified'));
-        } catch (\Stripe\Exception\CardException $e) {
+        } catch (CardException $e) {
             return back()->with('error', $e->getMessage());
         }
     }
@@ -167,8 +171,8 @@ class ACH
             }
 
             return $this->processUnsuccessfulPayment($state);
-        } catch (\Exception $e) {
-            if ($e instanceof \Stripe\Exception\CardException) {
+        } catch (Exception $e) {
+            if ($e instanceof CardException) {
                 return redirect()->route('client.payment_methods.verification', ['id' => ClientGatewayToken::first()->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
             }
         }
@@ -218,6 +222,6 @@ class ACH
 
         SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
 
-        throw new \Exception('Failed to process the payment.', 1);
+        throw new Exception('Failed to process the payment.', 1);
     }
 }

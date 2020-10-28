@@ -36,8 +36,7 @@ class SendEmail
 
     /**
      * Builds the correct template to send.
-     * @param string $this->reminder_template The template name ie reminder1
-     * @return array
+     * @return void
      */
     public function run()
     {

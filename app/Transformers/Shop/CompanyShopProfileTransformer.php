@@ -41,6 +41,7 @@ use App\Transformers\PaymentTermTransformer;
 use App\Transformers\TaskTransformer;
 use App\Transformers\WebhookTransformer;
 use App\Utils\Traits\MakesHash;
+use stdClass;
 
 /**
  * Class CompanyShopProfileTransformer.
@@ -68,7 +69,7 @@ class CompanyShopProfileTransformer extends EntityTransformer
      */
     public function transform(Company $company)
     {
-        $std = new \stdClass;
+        $std = new stdClass;
 
         return [
             'company_key' => (string) $company->company_key ?: '',
@@ -78,7 +79,7 @@ class CompanyShopProfileTransformer extends EntityTransformer
 
     private function trimCompany($company)
     {
-        $std = new \stdClass;
+        $std = new stdClass;
 
         $trimmed_company_settings = [
             'custom_fields' => $company->custom_fields ?: $std,
@@ -100,7 +101,7 @@ class CompanyShopProfileTransformer extends EntityTransformer
             'vat_number' => $company->settings->vat_number,
         ];
 
-        $new_settings = new \stdClass;
+        $new_settings = new stdClass;
 
         foreach ($trimmed_company_settings as $key => $value) {
             $new_settings->{$key} = $value;

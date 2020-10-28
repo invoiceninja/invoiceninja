@@ -13,6 +13,7 @@ namespace App\Events\Design;
 
 use App\Models\Company;
 use App\Models\Design;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -35,6 +36,8 @@ class DesignWasRestored
      * Create a new event instance.
      *
      * @param Design $design
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Design $design, Company $company, array $event_vars)
     {
@@ -48,7 +51,7 @@ class DesignWasRestored
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return PrivateChannel
      */
     public function broadcastOn()
     {

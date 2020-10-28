@@ -27,6 +27,7 @@ use App\Transformers\CompanyTokenTransformer;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -45,7 +46,7 @@ class TokenController extends BaseController
 
     /**
      * TokenController constructor.
-     * @param TokenRepository $tokenRepo
+     * @param TokenRepository $token_repo
      */
     public function __construct(TokenRepository $token_repo)
     {
@@ -55,7 +56,7 @@ class TokenController extends BaseController
     }
 
     /**
-     *      @OA\Get(
+     * @OA\Get(
      *      path="/api/v1/tokens",
      *      operationId="getTokens",
      *      tags={"tokens"},
@@ -80,7 +81,6 @@ class TokenController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -88,6 +88,8 @@ class TokenController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param TokenFilters $filters
+     * @return Response|mixed
      */
     public function index(TokenFilters $filters)
     {
@@ -99,8 +101,9 @@ class TokenController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowTokenRequest $request
+     * @param CompanyToken $token
+     * @return Response
      *
      *
      * @OA\Get(
@@ -153,8 +156,9 @@ class TokenController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditTokenRequest $request
+     * @param CompanyToken $token
+     * @return Response
      *
      *
      * @OA\Get(
@@ -207,9 +211,9 @@ class TokenController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Token $token
-     * @return \Illuminate\Http\Response
+     * @param UpdateTokenRequest $request
+     * @param CompanyToken $token
+     * @return Response
      *
      *
      *
@@ -269,7 +273,8 @@ class TokenController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateTokenRequest $request
+     * @return Response
      *
      *
      *
@@ -314,8 +319,8 @@ class TokenController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreTokenRequest $request
+     * @return Response
      *
      *
      *
@@ -362,10 +367,12 @@ class TokenController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyTokenRequest $request
+     * @param CompanyToken $token
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/tokens/{id}",
      *      operationId="deleteToken",
@@ -418,8 +425,7 @@ class TokenController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkTokenRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(

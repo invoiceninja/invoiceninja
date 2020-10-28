@@ -15,6 +15,7 @@ use App\Libraries\MultiDB;
 use App\Models\User;
 use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Illuminate\Mail\Transport\Transport;
+use Log;
 use Swift_Mime_SimpleMessage;
 
 /**
@@ -25,7 +26,7 @@ class GmailTransport extends Transport
     /**
      * The Gmail instance.
      *
-     * @var \Dacastro4\LaravelGmail\Services\Message\Mail
+     * @var Mail
      */
     protected $gmail;
 
@@ -38,8 +39,8 @@ class GmailTransport extends Transport
     /**
      * Create a new Gmail transport instance.
      *
-
-     * @return void
+     * @param Mail $gmail
+     * @param string $token
      */
     public function __construct(Mail $gmail, string $token)
     {
@@ -62,7 +63,7 @@ class GmailTransport extends Transport
         $this->gmail->cc($message->getCc());
         $this->gmail->bcc($message->getBcc());
 
-        \Log::error(print_r($message->getChildren(), 1));
+        Log::error(print_r($message->getChildren(), 1));
 
         foreach ($message->getChildren() as $child) {
             $this->gmail->attach($child);

@@ -16,6 +16,7 @@ use App\Models\Activity;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use stdClass;
 
 class CreatedQuoteActivity implements ShouldQueue
 {
@@ -24,7 +25,7 @@ class CreatedQuoteActivity implements ShouldQueue
     /**
      * Create the event listener.
      *
-     * @return void
+     * @param ActivityRepository $activity_repo
      */
     public function __construct(ActivityRepository $activity_repo)
     {
@@ -41,7 +42,7 @@ class CreatedQuoteActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $fields = new \stdClass;
+        $fields = new stdClass;
 
         $fields->quote_id = $event->quote->id;
         $fields->client_id = $event->quote->client_id;

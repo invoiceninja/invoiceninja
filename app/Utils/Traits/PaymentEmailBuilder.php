@@ -24,7 +24,8 @@ trait PaymentEmailBuilder
 {
     /**
      * Builds the correct template to send.
-     * @param  string $reminder_template The template name ie reminder1
+     * @param null $reminder_template The template name ie reminder1
+     * @param null $contact
      * @return array
      */
     public function getEmailData($reminder_template = null, $contact = null) :array

@@ -13,21 +13,23 @@ namespace App\Http\Middleware;
 
 use App\Libraries\MultiDB;
 use Closure;
+use Illuminate\Http\Request;
+use stdClass;
 
 class SetDomainNameDb
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  Request  $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
         $error = [
                 'message' => 'Invalid token',
-                'errors' => new \stdClass,
+                'errors' => new stdClass,
             ];
         /*
          * Use the host name to set the active DB

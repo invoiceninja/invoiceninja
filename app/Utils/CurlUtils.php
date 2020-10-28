@@ -11,6 +11,8 @@
 
 namespace App\Utils;
 
+use Log;
+
 class CurlUtils
 {
     public static function post($url, $data, $headers = false)
@@ -42,7 +44,7 @@ class CurlUtils
         $response = curl_exec($curl);
 
         if ($error = curl_error($curl)) {
-            \Log::error('CURL Error #'.curl_errno($curl).': '.$error);
+            Log::error('CURL Error #'.curl_errno($curl).': '.$error);
         }
 
         curl_close($curl);

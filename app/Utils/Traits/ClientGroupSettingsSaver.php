@@ -12,6 +12,7 @@
 namespace App\Utils\Traits;
 
 use App\DataMapper\CompanySettings;
+use stdClass;
 
 /**
  * Class ClientGroupSettingsSaver.
@@ -140,7 +141,7 @@ trait ClientGroupSettingsSaver
      * @param  array $settings The settings request() array
      * @return object          stdClass object
      */
-    private function checkSettingType($settings) : \stdClass
+    private function checkSettingType($settings) : stdClass
     {
         $settings = (object) $settings;
         $casts = CompanySettings::$casts;

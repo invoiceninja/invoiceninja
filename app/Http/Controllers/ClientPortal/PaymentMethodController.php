@@ -21,8 +21,13 @@ use App\Models\GatewayType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
+use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class PaymentMethodController extends Controller
 {
@@ -31,7 +36,7 @@ class PaymentMethodController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -41,7 +46,8 @@ class PaymentMethodController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreatePaymentMethodRequest $request
+     * @return Response
      */
     public function create(CreatePaymentMethodRequest $request)
     {
@@ -58,8 +64,8 @@ class PaymentMethodController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function store(Request $request)
     {
@@ -75,7 +81,7 @@ class PaymentMethodController extends Controller
      * Display the specified resource.
      *
      * @param ClientGatewayToken $payment_method
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function show(ClientGatewayToken $payment_method)
     {
@@ -88,7 +94,7 @@ class PaymentMethodController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function edit($id)
     {
@@ -98,9 +104,9 @@ class PaymentMethodController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function update(Request $request, $id)
     {
@@ -131,7 +137,7 @@ class PaymentMethodController extends Controller
      * Remove the specified resource from storage.
      *
      * @param ClientGatewayToken $payment_method
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function destroy(ClientGatewayToken $payment_method)
     {
@@ -145,7 +151,7 @@ class PaymentMethodController extends Controller
         try {
             event(new MethodDeleted($payment_method, auth('contact')->user()->company, Ninja::eventVars()));
             $payment_method->delete();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error(json_encode($e));
 
             return back();

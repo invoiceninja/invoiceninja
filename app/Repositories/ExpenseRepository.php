@@ -44,7 +44,7 @@ class ExpenseRepository extends BaseRepository
      * @param      array                           $data    The data
      * @param      \App\Models\expense              $expense  The expense
      *
-     * @return     expense|\App\Models\expense|null  expense Object
+     * @return     expense|null  expense Object
      */
     public function save(array $data, Expense $expense) : ?Expense
     {

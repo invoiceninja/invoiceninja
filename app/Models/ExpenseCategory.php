@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ExpenseCategory extends BaseModel
@@ -29,10 +30,10 @@ class ExpenseCategory extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function expense()
     {
-        return $this->belongsTo(\App\Models\Expense::class);
+        return $this->belongsTo(Expense::class);
     }
 }

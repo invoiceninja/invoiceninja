@@ -9,7 +9,7 @@ class CompanyGatewayObserver
     /**
      * Handle the company gateway "created" event.
      *
-     * @param  \App\CompanyGateway  $company_gateway
+     * @param CompanyGateway $company_gateway
      * @return void
      */
     public function created(CompanyGateway $company_gateway)
@@ -25,7 +25,7 @@ class CompanyGatewayObserver
     /**
      * Handle the company gateway "updated" event.
      *
-     * @param  \App\CompanyGateway  $company_gateway
+     * @param CompanyGateway $company_gateway
      * @return void
      */
     public function updated(CompanyGateway $company_gateway)
@@ -36,7 +36,7 @@ class CompanyGatewayObserver
     /**
      * Handle the company gateway "deleted" event.
      *
-     * @param  \App\CompanyGateway  $company_gateway
+     * @param CompanyGateway $company_gateway
      * @return void
      */
     public function deleted(CompanyGateway $company_gateway)
@@ -47,7 +47,7 @@ class CompanyGatewayObserver
     /**
      * Handle the company gateway "restored" event.
      *
-     * @param  \App\CompanyGateway  $company_gateway
+     * @param CompanyGateway $company_gateway
      * @return void
      */
     public function restored(CompanyGateway $company_gateway)
@@ -58,7 +58,7 @@ class CompanyGatewayObserver
     /**
      * Handle the company gateway "force deleted" event.
      *
-     * @param  \App\CompanyGateway  $company_gateway
+     * @param CompanyGateway $company_gateway
      * @return void
      */
     public function forceDeleted(CompanyGateway $company_gateway)

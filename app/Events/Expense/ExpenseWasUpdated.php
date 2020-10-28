@@ -35,6 +35,8 @@ class ExpenseWasUpdated
      * Create a new event instance.
      *
      * @param Expense $expense
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Expense $expense, Company $company, array $event_vars)
     {

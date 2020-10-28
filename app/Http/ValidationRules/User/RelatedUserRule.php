@@ -45,7 +45,7 @@ class RelatedUserRule implements Rule
     }
 
     /**
-     * @param $email
+     * @param $user_id
      * @return bool
      */
     private function checkUserIsRelated($user_id) : bool

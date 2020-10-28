@@ -17,6 +17,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
+use League\Fractal\Resource\Collection;
 
 class ProductTransformer extends EntityTransformer
 {
@@ -38,7 +39,7 @@ class ProductTransformer extends EntityTransformer
     /**
      * @param Product $product
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeUser(Product $product)
     {
@@ -50,7 +51,7 @@ class ProductTransformer extends EntityTransformer
     /**
      * @param Product $product
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeCompany(Product $product)
     {

@@ -23,6 +23,7 @@ use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use stdClass;
 
 class UserEmailChanged extends BaseMailerJob implements ShouldQueue
 {
@@ -39,7 +40,9 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param string $new_email
+     * @param string $old_email
+     * @param Company $company
      */
     public function __construct(string $new_email, string $old_email, Company $company)
     {
@@ -58,7 +61,7 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver();
 
         /*Build the object*/
-        $mail_obj = new \stdClass;
+        $mail_obj = new stdClass;
         $mail_obj->subject = ctrans('texts.email_address_changed');
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->from = [$this->company->owner()->email, $this->company->owner()->present()->name()];

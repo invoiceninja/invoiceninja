@@ -37,6 +37,8 @@ class QuoteWasEmailedAndFailed
      * QuoteWasEmailedAndFailed constructor.
      * @param Quote $quote
      * @param array $errors
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Quote $quote, array $errors, Company $company, array $event_vars)
     {

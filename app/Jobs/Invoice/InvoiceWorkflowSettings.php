@@ -34,7 +34,8 @@ class InvoiceWorkflowSettings implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Invoice $invoice
+     * @param Client|null $client
      */
     public function __construct(Invoice $invoice, Client $client = null)
     {

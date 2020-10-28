@@ -16,9 +16,12 @@ use App\Http\Requests\ClientPortal\UpdateClientRequest;
 use App\Http\Requests\ClientPortal\UpdateContactRequest;
 use App\Jobs\Util\UploadAvatar;
 use App\Models\ClientContact;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
@@ -26,7 +29,7 @@ class ProfileController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param ClientContact $client_contact
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function edit(ClientContact $client_contact)
     {
@@ -38,7 +41,7 @@ class ProfileController extends Controller
      *
      * @param UpdateContactRequest $request
      * @param ClientContact $client_contact
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(UpdateContactRequest $request, ClientContact $client_contact)
     {

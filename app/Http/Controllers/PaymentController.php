@@ -23,12 +23,14 @@ use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Payment\UpdatePaymentRequest;
 use App\Jobs\Entity\ActionEntity;
 use App\Jobs\Invoice\ReverseInvoicePayment;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\BaseRepository;
 use App\Repositories\PaymentRepository;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class PaymentController.
@@ -49,7 +51,7 @@ class PaymentController extends BaseController
     /**
      * PaymentController constructor.
      *
-     * @param      \App\Repositories\PaymentRepository  $payment_repo  The invoice repo
+     * @param PaymentRepository $payment_repo  The invoice repo
      */
     public function __construct(PaymentRepository $payment_repo)
     {
@@ -61,9 +63,9 @@ class PaymentController extends BaseController
     /**
      * Show the list of Invoices.
      *
-     * @param      \App\Filters\PaymentFilters  $filters  The filters
+     * @param PaymentFilters $filters  The filters
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
@@ -110,9 +112,9 @@ class PaymentController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @param      \App\Http\Requests\Payment\CreatePaymentRequest  $request  The request
+     * @param CreatePaymentRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
@@ -157,9 +159,9 @@ class PaymentController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param      \App\Http\Requests\Payment\StorePaymentRequest  $request  The request
+     * @param StorePaymentRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
@@ -209,10 +211,10 @@ class PaymentController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param      \App\Http\Requests\Payment\ShowPaymentRequest  $request  The request
-     * @param      \App\Models\Invoice                            $payment  The invoice
+     * @param ShowPaymentRequest $request The request
+     * @param Payment $payment The invoice
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -265,10 +267,10 @@ class PaymentController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param      \App\Http\Requests\Payment\EditPaymentRequest  $request  The request
-     * @param      \App\Models\Invoice                            $payment  The invoice
+     * @param EditPaymentRequest $request The request
+     * @param Payment $payment The invoice
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -321,10 +323,10 @@ class PaymentController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param      \App\Http\Requests\Payment\UpdatePaymentRequest  $request  The request
-     * @param      \App\Models\Invoice                              $payment  The invoice
+     * @param UpdatePaymentRequest $request The request
+     * @param Payment $payment The invoice
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Put(
@@ -383,12 +385,13 @@ class PaymentController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param      \App\Http\Requests\Payment\DestroyPaymentRequest  $request
-     * @param      \App\Models\Invoice                               $payment
+     * @param DestroyPaymentRequest $request
+     * @param Payment $payment
      *
-     * @return     \Illuminate\Http\Response
+     * @return     Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/payments/{id}",
      *      operationId="deletePayment",
@@ -521,16 +524,16 @@ class PaymentController extends BaseController
      *      summary="Performs a custom action on an Payment",
      *      description="Performs a custom action on an Payment.
 
-        The current range of actions are as follows
-        - clone_to_Payment
-        - clone_to_quote
-        - history
-        - delivery_note
-        - mark_paid
-        - download
-        - archive
-        - delete
-        - email",
+    The current range of actions are as follows
+    - clone_to_Payment
+    - clone_to_quote
+    - history
+    - delivery_note
+    - mark_paid
+    - download
+    - archive
+    - delete
+    - email",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -577,6 +580,9 @@ class PaymentController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param ActionPaymentRequest $request
+     * @param Payment $payment
+     * @param $action
      */
     public function action(ActionPaymentRequest $request, Payment $payment, $action)
     {
@@ -617,9 +623,9 @@ class PaymentController extends BaseController
     /**
      * Store a newly created refund.
      *
-     * @param  \App\Http\Requests\Payment\RefundPaymentRequest  $request  The request
+     * @param RefundPaymentRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *

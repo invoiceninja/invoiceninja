@@ -37,6 +37,7 @@ use App\Transformers\UserTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -56,7 +57,7 @@ class UserController extends BaseController
     /**
      * Constructor.
      *
-     * @param      \App\Repositories\UserRepository  $user_repo  The user repo
+     * @param UserRepository $user_repo  The user repo
      */
     public function __construct(UserRepository $user_repo)
     {
@@ -68,7 +69,8 @@ class UserController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param UserFilters $filters
+     * @return Response
      *
      *
      * @OA\Get(
@@ -78,7 +80,7 @@ class UserController extends BaseController
      *      summary="Gets a list of users",
      *      description="Lists users, search and filters allow fine grained lists to be generated.
 
-        Query parameters can be added to performed more fine grained filtering of the users, these are handled by the UserFilters class which defines the methods available",
+    Query parameters can be added to performed more fine grained filtering of the users, these are handled by the UserFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -95,7 +97,6 @@ class UserController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -114,7 +115,8 @@ class UserController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateUserRequest $request
+     * @return Response
      *
      *
      *
@@ -159,8 +161,8 @@ class UserController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreUserRequest $request
+     * @return Response
      *
      *
      *
@@ -213,8 +215,9 @@ class UserController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowUserRequest $request
+     * @param User $user
+     * @return Response
      *
      *
      * @OA\Get(
@@ -267,8 +270,9 @@ class UserController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditUserRequest $request
+     * @param User $user
+     * @return Response
      *
      *
      * @OA\Get(
@@ -362,6 +366,9 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param UpdateUserRequest $request
+     * @param User $user
+     * @return Response|mixed
      */
     public function update(UpdateUserRequest $request, User $user)
     {
@@ -380,8 +387,9 @@ class UserController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyUserRequest $request
+     * @param User $user
+     * @return Response
      *
      *
      * @OA\Delete(
@@ -573,6 +581,9 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param AttachCompanyUserRequest $request
+     * @param User $user
+     * @return Response|mixed
      */
     public function attach(AttachCompanyUserRequest $request, User $user)
     {
@@ -637,6 +648,9 @@ class UserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param DetachCompanyUserRequest $request
+     * @param User $user
+     * @return \Illuminate\Http\JsonResponse
      */
     public function detach(DetachCompanyUserRequest $request, User $user)
     {

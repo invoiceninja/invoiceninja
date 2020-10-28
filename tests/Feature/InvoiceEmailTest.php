@@ -8,7 +8,7 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-namespace Feature;
+namespace Tests\Feature;
 
 use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Entity\EmailEntity;

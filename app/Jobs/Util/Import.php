@@ -43,6 +43,7 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Document;
+use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
@@ -65,6 +66,7 @@ use App\Repositories\UserRepository;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -156,8 +158,7 @@ class Import implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
-     * @throws \Exception
+     * @return bool
      */
     public function handle() :bool
     {
@@ -207,12 +208,12 @@ class Import implements ShouldQueue
 
     /**
      * @param array $data
-     * @throws \Exception
+     * @throws Exception
      */
     private function processCompany(array $data): void
     {
         Company::unguard();
-        
+
         if (
             $data['settings']['invoice_design_id'] > 9 ||
             $data['settings']['invoice_design_id'] > "9"
@@ -279,7 +280,7 @@ class Import implements ShouldQueue
 
     /**
      * @param array $data
-     * @throws \Exception
+     * @throws Exception
      */
     private function processTaxRates(array $data): void
     {
@@ -326,7 +327,7 @@ class Import implements ShouldQueue
 
     /**
      * @param array $data
-     * @throws \Exception
+     * @throws Exception
      */
     private function processUsers(array $data): void
     {
@@ -379,8 +380,7 @@ class Import implements ShouldQueue
 
     /**
      * @param array $data
-     * @throws ResourceDependencyMissing
-     * @throws \Exception
+     * @throws Exception
      */
     private function processClients(array $data): void
     {
@@ -500,7 +500,7 @@ class Import implements ShouldQueue
         $invoice_repository = new InvoiceMigrationRepository();
 
         foreach ($data as $key => $resource) {
-            
+
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && ! array_key_exists('clients', $this->ids)) {
@@ -776,12 +776,12 @@ class Import implements ShouldQueue
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
                 $modified['documentable_id'] = $this->transformId('invoices', $resource['invoice_id']);
-                $modified['documentable_type'] = \App\Models\Invoice::class;
+                $modified['documentable_type'] = Invoice::class;
             }
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $modified['documentable_id'] = $this->transformId('expenses', $resource['expense_id']);
-                $modified['documentable_type'] = \App\Models\Expense::class;
+                $modified['documentable_type'] = Expense::class;
             }
 
             $modified['user_id'] = $this->processUserId($resource);
@@ -936,16 +936,16 @@ class Import implements ShouldQueue
      * @param string $resource
      * @param string $old
      * @return int
-     * @throws \Exception
+     * @throws Exception
      */
     public function transformId(string $resource, string $old): int
     {
         if (! array_key_exists($resource, $this->ids)) {
-            throw new \Exception("Resource {$resource} not available.");
+            throw new Exception("Resource {$resource} not available.");
         }
 
         if (! array_key_exists("{$resource}_{$old}", $this->ids[$resource])) {
-            throw new \Exception("Missing resource key: {$resource}_{$old}");
+            throw new Exception("Missing resource key: {$resource}_{$old}");
         }
 
         return $this->ids[$resource]["{$resource}_{$old}"]['new'];
@@ -956,7 +956,7 @@ class Import implements ShouldQueue
      *
      * @param array $resource
      * @return int|mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function processUserId(array $resource)
     {

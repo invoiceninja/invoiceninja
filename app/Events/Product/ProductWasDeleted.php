@@ -31,7 +31,9 @@ class ProductWasDeleted
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param Product $product
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Product $product, Company $company, array $event_vars)
     {

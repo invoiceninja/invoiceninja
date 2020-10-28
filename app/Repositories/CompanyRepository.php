@@ -36,10 +36,9 @@ class CompanyRepository extends BaseRepository
     /**
      * Saves the client and its contacts.
      *
-     * @param      array                           $data    The data
-     * @param      \App\Models\Company              $client  The Company
-     *
-     * @return     Client|\App\Models\Company|null  Company Object
+     * @param array $data The data
+     * @param Company $company
+     * @return     Client|Company|null  Company Object
      */
     public function save(array $data, Company $company) : ?Company
     {

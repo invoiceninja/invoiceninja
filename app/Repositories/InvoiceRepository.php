@@ -41,9 +41,9 @@ class InvoiceRepository extends BaseRepository
      * Saves the invoices.
      *
      * @param      array.                                        $data     The invoice data
-     * @param      InvoiceSum|\App\Models\Invoice               $invoice  The invoice
+     * @param      InvoiceSum|Invoice $invoice  The invoice
      *
-     * @return     Invoice|InvoiceSum|\App\Models\Invoice|null  Returns the invoice object
+     * @return     Invoice|InvoiceSum|null  Returns the invoice object
      */
     public function save($data, Invoice $invoice):?Invoice
     {
@@ -53,9 +53,9 @@ class InvoiceRepository extends BaseRepository
     /**
      * Mark the invoice as sent.
      *
-     * @param      \App\Models\Invoice               $invoice  The invoice
+     * @param Invoice $invoice  The invoice
      *
-     * @return     Invoice|\App\Models\Invoice|null  Return the invoice object
+     * @return     Invoice|null  Return the invoice object
      */
     public function markSent(Invoice $invoice):?Invoice
     {
@@ -74,8 +74,8 @@ class InvoiceRepository extends BaseRepository
      *
      * ie. invoice can be deleted from a business logic perspective.
      *
-     * @param  Invoice $invoice
-     * @return Invoice $invoice
+     * @param Invoice $invoice
+     * @return void $invoice
      */
     public function delete($invoice)
     {

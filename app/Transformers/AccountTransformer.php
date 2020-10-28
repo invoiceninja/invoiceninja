@@ -20,6 +20,7 @@ use App\Transformers\CompanyTransformer;
 use App\Transformers\CompanyUserTransformer;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\MakesHash;
+use Laracasts\Presenter\Exceptions\PresenterException;
 
 /**
  * Class AccountTransformer.
@@ -49,7 +50,6 @@ class AccountTransformer extends EntityTransformer
     /**
      * @param Account $account
      *
-     * @throws \Laracasts\Presenter\Exceptions\PresenterException
      *
      * @return array
      */

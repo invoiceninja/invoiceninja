@@ -18,6 +18,8 @@ use App\Models\Product;
 use App\Transformers\ProductTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use stdClass;
 
 class ProductController extends BaseController
 {
@@ -30,14 +32,15 @@ class ProductController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function index(Request $request)
     {
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->firstOrFail();
 
         if (! $company->enable_shop_api) {
-            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass], 403);
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new stdClass], 403);
         }
 
         $products = Product::where('company_id', $company->id);
@@ -50,7 +53,7 @@ class ProductController extends BaseController
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->firstOrFail();
 
         if (! $company->enable_shop_api) {
-            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass], 403);
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new stdClass], 403);
         }
 
         $product = Product::where('company_id', $company->id)

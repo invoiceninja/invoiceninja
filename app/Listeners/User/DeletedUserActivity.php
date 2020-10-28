@@ -19,6 +19,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use stdClass;
 
 class DeletedUserActivity implements ShouldQueue
 {
@@ -29,7 +30,7 @@ class DeletedUserActivity implements ShouldQueue
     /**
      * Create the event listener.
      *
-     * @return void
+     * @param ActivityRepository $activityRepo
      */
     public function __construct(ActivityRepository $activityRepo)
     {
@@ -46,7 +47,7 @@ class DeletedUserActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $fields = new \stdClass;
+        $fields = new stdClass;
 
         if (auth()->check()) {
             $fields->user_id = auth()->user()->id;

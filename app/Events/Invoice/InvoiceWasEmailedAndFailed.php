@@ -40,6 +40,9 @@ class InvoiceWasEmailedAndFailed
      * Create a new event instance.
      *
      * @param Invoice $invoice
+     * @param Company $company
+     * @param string $errors
+     * @param array $event_vars
      */
     public function __construct(Invoice $invoice, Company $company, string $errors, array $event_vars)
     {

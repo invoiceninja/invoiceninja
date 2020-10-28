@@ -32,7 +32,8 @@ class CreateCompanyTaskStatuses
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $company
+     * @param $user
      */
     public function __construct($company, $user)
     {
@@ -53,7 +54,7 @@ class CreateCompanyTaskStatuses
             ['name' => ctrans('texts.ready_to_do'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
             ['name' => ctrans('texts.in_progress'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
             ['name' => ctrans('texts.done'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now()],
-            
+
         ];
 
         TaskStatus::insert($task_statuses);

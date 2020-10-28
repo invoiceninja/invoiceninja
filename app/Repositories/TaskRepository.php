@@ -43,7 +43,7 @@ class TaskRepository extends BaseRepository
      * @param      array                           $data    The data
      * @param      \App\Models\task              $task  The task
      *
-     * @return     task|\App\Models\task|null  task Object
+     * @return     task|null  task Object
      */
 
     public function save(array $data, Task $task) : ?Task

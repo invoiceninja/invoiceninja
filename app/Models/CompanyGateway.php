@@ -15,9 +15,11 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Gateway;
 use App\Models\GatewayType;
+use App\PaymentDrivers\BasePaymentDriver;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use stdClass;
 
 class CompanyGateway extends BaseModel
 {
@@ -101,7 +103,7 @@ class CompanyGateway extends BaseModel
         if (class_exists($class)) {
             return $class;
         } else {
-            return \App\PaymentDrivers\BasePaymentDriver::class;
+            return BasePaymentDriver::class;
         }
     }
 
@@ -241,8 +243,9 @@ class CompanyGateway extends BaseModel
     /**
      * Returns the formatted fee amount for the gateway.
      *
-     * @param  float $amount    The payment amount
-     * @param  Client $client   The client object
+     * @param float $amount The payment amount
+     * @param Client $client The client object
+     * @param int $gateway_type_id
      * @return string           The fee amount formatted in the client currency
      */
     public function calcGatewayFeeLabel($amount, Client $client, $gateway_type_id = GatewayType::CREDIT_CARD) :string
@@ -317,12 +320,15 @@ class CompanyGateway extends BaseModel
      * so lets iterate.
      *
      * we MAY need to adjust the final fee to ensure our rounding makes sense!
+     * @param $amount
+     * @param $invoice_count
+     * @return stdClass
      */
     public function calcGatewayFeeObject($amount, $invoice_count)
     {
         $total_gateway_fee = $this->calcGatewayFee($amount);
 
-        $fee_object = new \stdClass;
+        $fee_object = new stdClass;
 
         $fees_and_limits = $this->getFeesAndLimits();
 

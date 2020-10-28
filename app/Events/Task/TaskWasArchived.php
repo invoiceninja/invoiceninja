@@ -35,6 +35,8 @@ class TaskWasArchived
      * Create a new event instance.
      *
      * @param Task $task
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Task $task, Company $company, array $event_vars)
     {

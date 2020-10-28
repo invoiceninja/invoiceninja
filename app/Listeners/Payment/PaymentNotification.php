@@ -40,8 +40,8 @@ class PaymentNotification implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  object  $event
-     * @return void
+     * @param object $event
+     * @return bool
      */
     public function handle($event)
     {

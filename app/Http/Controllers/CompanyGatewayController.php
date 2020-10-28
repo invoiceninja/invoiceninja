@@ -18,12 +18,14 @@ use App\Http\Requests\CompanyGateway\EditCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\ShowCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\StoreCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
+use App\Http\Requests\SignupRequest;
 use App\Models\CompanyGateway;
 use App\Repositories\CompanyRepository;
 use App\Transformers\CompanyGatewayTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class CompanyGatewayController.
@@ -43,6 +45,7 @@ class CompanyGatewayController extends BaseController
 
     /**
      * CompanyGatewayController constructor.
+     * @param CompanyRepository $company_repo
      */
     public function __construct(CompanyRepository $company_repo)
     {
@@ -54,7 +57,7 @@ class CompanyGatewayController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
@@ -101,7 +104,8 @@ class CompanyGatewayController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateCompanyGatewayRequest $request
+     * @return Response
      *
      *
      *
@@ -146,8 +150,8 @@ class CompanyGatewayController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\SignupRequest $request
-     * @return \Illuminate\Http\Response
+     * @param StoreCompanyGatewayRequest $request
+     * @return Response
      *
      *
      *
@@ -194,8 +198,9 @@ class CompanyGatewayController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowCompanyGatewayRequest $request
+     * @param CompanyGateway $company_gateway
+     * @return Response
      *
      *
      * @OA\Get(
@@ -248,8 +253,9 @@ class CompanyGatewayController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditCompanyGatewayRequest $request
+     * @param CompanyGateway $company_gateway
+     * @return Response
      *
      *
      * @OA\Get(
@@ -302,9 +308,9 @@ class CompanyGatewayController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateCompanyGatewayRequest $request
+     * @param CompanyGateway $company_gateway
+     * @return Response
      *
      *
      * @OA\Put(
@@ -365,10 +371,12 @@ class CompanyGatewayController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyCompanyGatewayRequest $request
+     * @param CompanyGateway $company_gateway
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/company_gateways/{id}",
      *      operationId="deleteCompanyGateway",
@@ -420,8 +428,7 @@ class CompanyGatewayController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkCompanyGatewayRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(

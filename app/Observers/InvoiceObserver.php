@@ -12,6 +12,7 @@
 namespace App\Observers;
 
 use App\Jobs\Util\WebhookHandler;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Webhook;
 
@@ -20,7 +21,7 @@ class InvoiceObserver
     /**
      * Handle the client "created" event.
      *
-     * @param  \App\Models\Client  $client
+     * @param Invoice $invoice
      * @return void
      */
     public function created(Invoice $invoice)
@@ -31,7 +32,7 @@ class InvoiceObserver
     /**
      * Handle the client "updated" event.
      *
-     * @param  \App\Models\Client  $client
+     * @param Invoice $invoice
      * @return void
      */
     public function updated(Invoice $invoice)
@@ -42,7 +43,7 @@ class InvoiceObserver
     /**
      * Handle the client "deleted" event.
      *
-     * @param  \App\Models\Client  $client
+     * @param Invoice $invoice
      * @return void
      */
     public function deleted(Invoice $invoice)
@@ -53,7 +54,7 @@ class InvoiceObserver
     /**
      * Handle the client "restored" event.
      *
-     * @param  \App\Models\Client  $client
+     * @param Invoice $invoice
      * @return void
      */
     public function restored(Invoice $invoice)
@@ -64,7 +65,7 @@ class InvoiceObserver
     /**
      * Handle the client "force deleted" event.
      *
-     * @param  \App\Models\Client  $client
+     * @param Invoice $invoice
      * @return void
      */
     public function forceDeleted(Invoice $invoice)

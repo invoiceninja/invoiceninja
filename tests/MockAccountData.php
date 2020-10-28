@@ -11,12 +11,8 @@
 
 namespace Tests;
 
-use App\DataMapper\BaseSettings;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
-use App\DataMapper\FeesAndLimits;
-use App\Factory\ClientFactory;
 use App\Factory\CompanyUserFactory;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
@@ -30,12 +26,10 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
-use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\GroupSetting;
-use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Product;
 use App\Models\Project;
@@ -47,7 +41,6 @@ use App\Models\TaskStatus;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
-use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
@@ -63,32 +56,74 @@ trait MockAccountData
     use MakesHash;
     use GeneratesCounter;
 
+    /**
+     * @var
+     */
     public $account;
 
+    /**
+     * @var
+     */
     public $company;
 
+    /**
+     * @var
+     */
     public $user;
 
+    /**
+     * @var
+     */
     public $client;
 
+    /**
+     * @var
+     */
     public $token;
 
+    /**
+     * @var
+     */
     public $invoice;
 
+    /**
+     * @var
+     */
     public $quote;
 
+    /**
+     * @var
+     */
     public $vendor;
 
+    /**
+     * @var
+     */
     public $expense;
 
+    /**
+     * @var
+     */
     public $task;
 
+    /**
+     * @var
+     */
     public $task_status;
 
+    /**
+     * @var
+     */
     public $expense_category;
 
+    /**
+     * @var
+     */
     public $cu;
 
+    /**
+     *
+     */
     public function makeTestData()
     {
 
@@ -137,7 +172,7 @@ trait MockAccountData
         $settings->vat_number = 'vat number';
         $settings->id_number = 'id number';
         $settings->use_credits_payment = 'always';
-        
+
         $this->company->settings = $settings;
         $this->company->save();
 
@@ -179,7 +214,7 @@ trait MockAccountData
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
         ]);
-        
+
         $this->client = Client::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
@@ -350,7 +385,7 @@ trait MockAccountData
         $this->credit->tax_rate1 = 0;
         $this->credit->tax_rate2 = 0;
         $this->credit->tax_rate3 = 0;
-        
+
         $this->credit->uses_inclusive_taxes = false;
         $this->credit->save();
 
@@ -525,6 +560,9 @@ trait MockAccountData
         }
     }
 
+    /**
+     * @return array
+     */
     private function buildLineItems()
     {
         $line_items = [];

@@ -21,7 +21,7 @@ class PaymentObserver
     /**
      * Handle the payment "created" event.
      *
-     * @param  \App\Models\Payment  $payment
+     * @param Payment $payment
      * @return void
      */
     public function created(Payment $payment)
@@ -32,7 +32,7 @@ class PaymentObserver
     /**
      * Handle the payment "updated" event.
      *
-     * @param  \App\Models\Payment  $payment
+     * @param Payment $payment
      * @return void
      */
     public function updated(Payment $payment)
@@ -42,7 +42,7 @@ class PaymentObserver
     /**
      * Handle the payment "deleted" event.
      *
-     * @param  \App\Models\Payment  $payment
+     * @param Payment $payment
      * @return void
      */
     public function deleted(Payment $payment)
@@ -53,7 +53,7 @@ class PaymentObserver
     /**
      * Handle the payment "restored" event.
      *
-     * @param  \App\Models\Payment  $payment
+     * @param Payment $payment
      * @return void
      */
     public function restored(Payment $payment)
@@ -64,7 +64,7 @@ class PaymentObserver
     /**
      * Handle the payment "force deleted" event.
      *
-     * @param  \App\Models\Payment  $payment
+     * @param Payment $payment
      * @return void
      */
     public function forceDeleted(Payment $payment)

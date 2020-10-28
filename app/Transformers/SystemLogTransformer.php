@@ -17,7 +17,7 @@ class SystemLogTransformer extends EntityTransformer
     protected $availableIncludes = [];
 
     /**
-     * @param Activity $system_log
+     * @param SystemLog $system_log
      *
      * @return array
      */

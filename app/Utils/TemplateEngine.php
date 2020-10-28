@@ -20,6 +20,7 @@ use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
+use DB;
 use League\CommonMark\CommonMarkConverter;
 
 class TemplateEngine
@@ -180,7 +181,7 @@ class TemplateEngine
         $data['title'] = '';
         $data['body'] = '$body';
         $data['footer'] = '';
-        
+
         $data = array_merge($data, Helpers::sharedEmailVariables($this->entity_obj->client));
 
         if ($email_style == 'custom') {
@@ -212,7 +213,7 @@ class TemplateEngine
 
     private function mockEntity()
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
 
         $client = Client::factory()->create([
                 'user_id' => auth()->user()->id,
@@ -252,7 +253,7 @@ class TemplateEngine
     private function tearDown()
     {
 
-        \DB::rollBack();
+        DB::rollBack();
 
     }
 

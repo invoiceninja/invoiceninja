@@ -33,7 +33,10 @@ class QuoteWasEmailed
     /**
      * Create a new event instance.
      *
-     * @param $quote
+     * @param Quote $quote
+     * @param string $notes
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Quote $quote, string $notes, Company $company, array $event_vars)
     {

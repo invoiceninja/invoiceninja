@@ -35,6 +35,8 @@ class VendorWasRestored
      * Create a new event instance.
      *
      * @param Vendor $vendor
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Vendor $vendor, Company $company, array $event_vars)
     {

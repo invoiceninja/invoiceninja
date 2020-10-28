@@ -11,6 +11,7 @@
 
 namespace App\Notifications;
 
+use Closure;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -33,7 +34,7 @@ class ClientContactResetPassword extends Notification
     /**
      * The callback that should be used to build the mail message.
      *
-     * @var \Closure|null
+     * @var Closure|null
      */
     public static $toMailCallback;
 
@@ -63,7 +64,7 @@ class ClientContactResetPassword extends Notification
      * Build the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @return MailMessage
      */
     public function toMail($notifiable)
     {
@@ -82,7 +83,7 @@ class ClientContactResetPassword extends Notification
     /**
      * Set a callback that should be used when building the notification mail message.
      *
-     * @param  \Closure  $callback
+     * @param  Closure  $callback
      * @return void
      */
     public static function toMailUsing($callback)

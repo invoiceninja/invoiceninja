@@ -12,6 +12,7 @@ use App\Repositories\DocumentRepository;
 use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class DocumentController extends BaseController
 {
@@ -42,7 +43,7 @@ class DocumentController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function index()
     {
@@ -52,7 +53,7 @@ class DocumentController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function create()
     {
@@ -62,8 +63,8 @@ class DocumentController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreDocumentRequest $request
+     * @return void
      */
     public function store(StoreDocumentRequest $request)
     {
@@ -73,8 +74,9 @@ class DocumentController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowDocumentRequest $request
+     * @param Document $document
+     * @return Response
      */
     public function show(ShowDocumentRequest $request, Document $document)
     {
@@ -91,8 +93,9 @@ class DocumentController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditDocumentRegquest $request
+     * @param Document $document
+     * @return Response
      */
     public function edit(EditDocumentRegquest $request, Document $document)
     {
@@ -102,9 +105,9 @@ class DocumentController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateDocumentRequest $request
+     * @param Document $document
+     * @return Response
      */
     public function update(UpdateDocumentRequest $request, Document $document)
     {
@@ -114,8 +117,9 @@ class DocumentController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyDocumentRequest $request
+     * @param Document $document
+     * @return Response
      */
     public function destroy(DestroyDocumentRequest $request, Document $document)
     {

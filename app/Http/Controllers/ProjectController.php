@@ -28,6 +28,7 @@ use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -38,7 +39,7 @@ class ProjectController extends BaseController
     use MakesHash;
     use SavesDocuments;
     use GeneratesCounter;
-    
+
     protected $entity_type = Project::class;
 
     protected $entity_transformer = ProjectTransformer::class;
@@ -47,7 +48,7 @@ class ProjectController extends BaseController
 
     /**
      * ProjectController constructor.
-     * @param ProjectRepository $projectRepo
+     * @param ProjectRepository $project_repo
      */
     public function __construct(ProjectRepository $project_repo)
     {
@@ -57,7 +58,7 @@ class ProjectController extends BaseController
     }
 
     /**
-     *      @OA\Get(
+     * @OA\Get(
      *      path="/api/v1/projects",
      *      operationId="getProjects",
      *      tags={"projects"},
@@ -80,7 +81,6 @@ class ProjectController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -88,6 +88,8 @@ class ProjectController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param ProjectFilters $filters
+     * @return Response|mixed
      */
     public function index(ProjectFilters $filters)
     {
@@ -99,8 +101,9 @@ class ProjectController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowProjectRequest $request
+     * @param Project $project
+     * @return Response
      *
      *
      * @OA\Get(
@@ -153,8 +156,9 @@ class ProjectController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditProjectRequest $request
+     * @param Project $project
+     * @return Response
      *
      *
      * @OA\Get(
@@ -207,9 +211,9 @@ class ProjectController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Project $project
-     * @return \Illuminate\Http\Response
+     * @param UpdateProjectRequest $request
+     * @param Project $project
+     * @return Response
      *
      *
      *
@@ -270,7 +274,8 @@ class ProjectController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateProjectRequest $request
+     * @return Response
      *
      *
      *
@@ -315,8 +320,8 @@ class ProjectController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreProjectRequest $request
+     * @return Response
      *
      *
      *
@@ -361,17 +366,19 @@ class ProjectController extends BaseController
         if ($request->has('documents')) {
             $this->saveDocuments($request->input('documents'), $project);
         }
-        
+
         return $this->itemResponse($project->fresh());
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyProjectRequest $request
+     * @param Project $project
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/projects/{id}",
      *      operationId="deleteProject",
@@ -426,8 +433,7 @@ class ProjectController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkProjectRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(

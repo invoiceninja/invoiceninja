@@ -26,6 +26,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use ZipArchive;
 
 class StartMigration implements ShouldQueue
 {
@@ -66,9 +67,7 @@ class StartMigration implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
-     * @throws ProcessingMigrationArchiveFailed
-     * @throws NonExistingMigrationFile
+     * @return bool
      */
     public function handle()
     {
@@ -82,7 +81,7 @@ class StartMigration implements ShouldQueue
 
         $this->company->setMigration(true);
 
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
         $archive = $zip->open($this->filepath);
 
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);

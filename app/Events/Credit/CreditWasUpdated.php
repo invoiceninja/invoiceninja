@@ -31,6 +31,8 @@ class CreditWasUpdated
      * Create a new event instance.
      *
      * @param Credit $credit
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Credit $credit, Company $company, array $event_vars)
     {

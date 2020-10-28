@@ -35,7 +35,9 @@ class PaymentWasEmailedAndFailed
     /**
      * PaymentWasEmailedAndFailed constructor.
      * @param Payment $payment
+     * @param $company
      * @param array $errors
+     * @param array $event_vars
      */
     public function __construct(Payment $payment, $company, array $errors, array $event_vars)
     {

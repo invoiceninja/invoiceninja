@@ -35,7 +35,9 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Payment $payment
+     * @param $email_builder
+     * @param $contact
      */
     public function __construct(Payment $payment, $email_builder, $contact)
     {

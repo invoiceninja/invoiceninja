@@ -40,7 +40,9 @@ class UserWasDeleted
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param User $user
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(User $user, Company $company, array $event_vars)
     {
@@ -52,7 +54,7 @@ class UserWasDeleted
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return Channel|array
      */
     public function broadcastOn()
     {

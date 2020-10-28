@@ -47,10 +47,6 @@ class UniqueExpenseNumberRule implements Rule
     }
 
     /**
-     * @param $email
-     *
-     * //off,when_sent,when_paid
-     *
      * @return bool
      */
     private function checkIfExpenseNumberUnique() : bool
@@ -66,7 +62,7 @@ class UniqueExpenseNumberRule implements Rule
         //     $expense->where('client_id', $this->input['client_id']);
 
         return $expense->exists();
-        
+
         // $expense = Expense::where('client_id', $this->input['client_id'])
         //                 ->where('number', $this->input['number'])
         //                 ->withTrashed()

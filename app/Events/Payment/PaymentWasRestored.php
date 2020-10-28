@@ -35,6 +35,8 @@ class PaymentWasRestored
      *
      * @param Payment $payment
      * @param $fromDeleted
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Payment $payment, $fromDeleted, Company $company, array $event_vars)
     {

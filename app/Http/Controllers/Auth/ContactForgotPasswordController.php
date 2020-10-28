@@ -12,9 +12,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
+use Illuminate\View\View;
 
 class ContactForgotPasswordController extends Controller
 {
@@ -44,7 +46,7 @@ class ContactForgotPasswordController extends Controller
     /**
      * Show the reset email form.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function showLinkRequestForm()
     {

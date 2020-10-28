@@ -33,6 +33,7 @@ use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -56,7 +57,7 @@ class VendorController extends BaseController
 
     /**
      * VendorController constructor.
-     * @param VendorRepository $vendorRepo
+     * @param VendorRepository $vendor_repo
      */
     public function __construct(VendorRepository $vendor_repo)
     {
@@ -66,14 +67,14 @@ class VendorController extends BaseController
     }
 
     /**
-     *      @OA\Get(
+     * @OA\Get(
      *      path="/api/v1/vendors",
      *      operationId="getVendors",
      *      tags={"vendors"},
      *      summary="Gets a list of vendors",
      *      description="Lists vendors, search and filters allow fine grained lists to be generated.
 
-        Query parameters can be added to performed more fine grained filtering of the vendors, these are handled by the VendorFilters class which defines the methods available",
+    Query parameters can be added to performed more fine grained filtering of the vendors, these are handled by the VendorFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -91,7 +92,6 @@ class VendorController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -99,6 +99,8 @@ class VendorController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param VendorFilters $filters
+     * @return Response|mixed
      */
     public function index(VendorFilters $filters)
     {
@@ -110,8 +112,9 @@ class VendorController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowVendorRequest $request
+     * @param Vendor $vendor
+     * @return Response
      *
      *
      * @OA\Get(
@@ -164,8 +167,9 @@ class VendorController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditVendorRequest $request
+     * @param Vendor $vendor
+     * @return Response
      *
      *
      * @OA\Get(
@@ -218,9 +222,9 @@ class VendorController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Vendor $vendor
-     * @return \Illuminate\Http\Response
+     * @param UpdateVendorRequest $request
+     * @param Vendor $vendor
+     * @return Response
      *
      *
      *
@@ -282,7 +286,8 @@ class VendorController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateVendorRequest $request
+     * @return Response
      *
      *
      *
@@ -327,8 +332,8 @@ class VendorController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreVendorRequest $request
+     * @return Response
      *
      *
      *
@@ -377,10 +382,12 @@ class VendorController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyVendorRequest $request
+     * @param Vendor $vendor
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/vendors/{id}",
      *      operationId="deleteVendor",
@@ -433,8 +440,7 @@ class VendorController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkVendorRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(
@@ -501,7 +507,7 @@ class VendorController extends BaseController
     /**
      * Returns a client statement.
      *
-     * @return [type] [description]
+     * @return void [type] [description]
      */
     public function statement()
     {

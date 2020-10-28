@@ -32,8 +32,8 @@ class CreditFilters extends QueryFilters
      * - overdue
      * - reversed
      *
-     * @param      string credit_status The credit status as seen by the client
-     * @return     Illuminate\Database\Query\Builder
+     * @param string credit_status The credit status as seen by the client
+     * @return Builder
      */
     public function credit_status(string $value = '') :Builder
     {
@@ -68,8 +68,8 @@ class CreditFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param  string query filter
-     * @return Illuminate\Database\Query\Builder
+     * @param string query filter
+     * @return Builder
      * @deprecated
      */
     public function filter(string $filter = '') : Builder
@@ -95,8 +95,8 @@ class CreditFilters extends QueryFilters
      * Filters the list based on the status
      * archived, active, deleted - legacy from V1.
      *
-     * @param  string filter
-     * @return Illuminate\Database\Query\Builder
+     * @param string filter
+     * @return Builder
      */
     public function status(string $filter = '') : Builder
     {
@@ -133,8 +133,8 @@ class CreditFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param  string sort formatted as column|asc
-     * @return Illuminate\Database\Query\Builder
+     * @param string sort formatted as column|asc
+     * @return Builder
      */
     public function sort(string $sort) : Builder
     {
@@ -146,8 +146,9 @@ class CreditFilters extends QueryFilters
     /**
      * Returns the base query.
      *
-     * @param  int company_id
-     * @return Illuminate\Database\Query\Builder
+     * @param int company_id
+     * @param User $user
+     * @return Builder
      * @deprecated
      */
     public function baseQuery(int $company_id, User $user) : Builder
@@ -161,7 +162,6 @@ class CreditFilters extends QueryFilters
      * We need to ensure we are using the correct company ID
      * as we could be hitting this from either the client or company auth guard
      *
-     * @param $company_id The company Id
      * @return Illuminate\Database\Query\Builder
      */
     public function entityFilter()
@@ -179,7 +179,7 @@ class CreditFilters extends QueryFilters
      * We need additional filters when showing credits for the
      * client portal. Need to automatically exclude drafts and cancelled credits.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
     private function contactViewFilter() : Builder
     {

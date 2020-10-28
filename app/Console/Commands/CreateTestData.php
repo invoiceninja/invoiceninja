@@ -11,8 +11,6 @@
 
 namespace App\Console\Commands;
 
-use App\Console\Commands\TestData\CreateTestCreditJob;
-use App\Console\Commands\TestData\CreateTestQuoteJob;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasCreated;
@@ -72,7 +70,7 @@ class CreateTestData extends Command
     /**
      * Create a new command instance.
      *
-     * @return void
+     * @param InvoiceRepository $invoice_repo
      */
     public function __construct(InvoiceRepository $invoice_repo)
     {
@@ -474,7 +472,7 @@ class CreateTestData extends Command
     private function createInvoice($client)
     {
 
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         $invoice = InvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -524,12 +522,8 @@ class CreateTestData extends Command
 
     private function createCredit($client)
     {
-        // for($x=0; $x<$this->count; $x++){
 
-        //     dispatch(new CreateTestCreditJob($client));
-
-        // }
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         $credit = Credit::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
 
@@ -568,11 +562,8 @@ class CreateTestData extends Command
 
     private function createQuote($client)
     {
-        // for($x=0; $x<$this->count; $x++){
 
-        //     dispatch(new CreateTestQuoteJob($client));
-        // }
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         //$quote = QuoteFactory::create($client->company->id, $client->user->id);//stub the company and user_id
         $quote = Quote::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);

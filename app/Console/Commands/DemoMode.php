@@ -57,8 +57,6 @@ class DemoMode extends Command
 {
     use MakesHash, GeneratesCounter;
 
-    private $count;
-
     protected $name = 'ninja:demo-mode';
     /**
      * The name and signature of the console command.
@@ -266,7 +264,7 @@ class DemoMode extends Command
             // }
 
             $client = $company->clients->random();
-            $this->createExpense($client, $u2->id);
+            $this->createExpense($client);
 
             //$this->info("creating expense for client #".$client->id);
 
@@ -439,11 +437,7 @@ class DemoMode extends Command
 
     private function createCredit($client, $assigned_user_id = null)
     {
-        // for($x=0; $x<$this->count; $x++){
 
-        //     dispatch(new CreateTestCreditJob($client));
-
-        // }
         $faker = \Faker\Factory::create();
 
         $credit = Credit::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);

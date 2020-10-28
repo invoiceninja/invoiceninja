@@ -11,9 +11,12 @@
 
 namespace App\Models;
 
+use App\Models\Presenters\AccountPresenter;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use DateTime;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laracasts\Presenter\PresentableTrait;
 
 class Account extends BaseModel
@@ -24,7 +27,7 @@ class Account extends BaseModel
     /**
      * @var string
      */
-    protected $presenter = \App\Models\Presenters\AccountPresenter::class;
+    protected $presenter = AccountPresenter::class;
 
     /**
      * @var array
@@ -101,7 +104,7 @@ class Account extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function payment()
     {
@@ -237,7 +240,7 @@ class Account extends BaseModel
 
         $trial_active = false;
         if ($trial_plan && $include_trial) {
-            $trial_started = \DateTime::createFromFormat('Y-m-d', $this->trial_started);
+            $trial_started = DateTime::createFromFormat('Y-m-d', $this->trial_started);
             $trial_expires = clone $trial_started;
             $trial_expires->modify('+2 weeks');
 
@@ -252,7 +255,7 @@ class Account extends BaseModel
                 $plan_active = true;
                 $plan_expires = false;
             } else {
-                $plan_expires = \DateTime::createFromFormat('Y-m-d', $this->plan_expires);
+                $plan_expires = DateTime::createFromFormat('Y-m-d', $this->plan_expires);
                 if ($plan_expires >= date_create()) {
                     $plan_active = true;
                 }
@@ -297,9 +300,9 @@ class Account extends BaseModel
                 'plan_price' => $price,
                 'trial' => false,
                 'plan' => $plan,
-                'started' => \DateTime::createFromFormat('Y-m-d', $this->plan_started),
+                'started' => DateTime::createFromFormat('Y-m-d', $this->plan_started),
                 'expires' => $plan_expires,
-                'paid' => \DateTime::createFromFormat('Y-m-d', $this->plan_paid),
+                'paid' => DateTime::createFromFormat('Y-m-d', $this->plan_paid),
                 'term' => $this->plan_term,
                 'active' => $plan_active,
             ];

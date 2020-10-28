@@ -13,14 +13,16 @@ namespace App\Http\Middleware;
 
 use App\Models\User;
 use Closure;
+use Illuminate\Http\Request;
+use stdClass;
 
 class ApiSecretCheck
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  Request  $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -30,7 +32,7 @@ class ApiSecretCheck
         } else {
             $error = [
                 'message' => 'Invalid secret',
-                'errors' => new \stdClass,
+                'errors' => new stdClass,
             ];
 
             return response()
