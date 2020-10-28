@@ -54,7 +54,7 @@ class CreditCard
 
         $stripe_method = $this->stripe->getStripePaymentMethod($stripe_response->payment_method);
 
-        $this->storePaymentMethod($stripe_method, $request->payment_method_id);
+        $this->storePaymentMethod($stripe_method, $request->payment_method_id, $customer);
 
         return redirect()->route('client.payment_methods.index');
     }
@@ -205,7 +205,7 @@ class CreditCard
         throw new \Exception('Failed to process the payment.', 1);
     }
 
-    private function storePaymentMethod(\Stripe\PaymentMethod $method, $payment_method_id)
+    private function storePaymentMethod(\Stripe\PaymentMethod $method, $payment_method_id, $customer)
     {
         try {
             $payment_meta = new \stdClass;
@@ -221,7 +221,7 @@ class CreditCard
                 'payment_method_id' => $payment_method_id,
             ];
 
-            $this->stripe->storeGatewayToken($data);
+            $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
         } catch (\Exception $e) {
             return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
         }
