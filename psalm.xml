@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="4"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <directory name="app" />
+        <ignoreFiles>
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+
+<issueHandlers>
+  <MissingPropertyType errorLevel="suppress" />
+
+  <UndefinedFunction>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </UndefinedFunction>
+  <UndefinedMethod>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </UndefinedMethod>
+  <UndefinedClass>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </UndefinedClass>
+
+</issueHandlers>
+
+    
+</psalm>

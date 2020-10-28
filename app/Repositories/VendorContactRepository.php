@@ -21,6 +21,8 @@ use Illuminate\Support\Str;
  */
 class VendorContactRepository extends BaseRepository
 {
+    public $is_primary;
+
     public function save($contacts, Vendor $vendor) : void
     {
 
