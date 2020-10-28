@@ -11,6 +11,7 @@
 
 namespace App\Mail\Engine;
 
+use App\Utils\HtmlEngine;
 use App\Utils\Number;
 
 class CreditEmailEngine extends BaseEmailEngine 
@@ -71,7 +72,7 @@ class CreditEmailEngine extends BaseEmailEngine
 
         $this->setTemplate($this->client->getSetting('email_style'))
             ->setContact($this->contact)
-            ->setVariables($this->credit->makeValues($this->contact))//move make values into the htmlengine
+            ->setVariables((new HtmlEngine($this->invitation))->makeValues())//move make values into the htmlengine
             ->setSubject($subject_template)
             ->setBody($body_template)
             ->setFooter("<a href='{$this->invitation->getLink()}'>".ctrans('texts.view_credit').'</a>')

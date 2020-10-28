@@ -13,7 +13,6 @@ namespace App\Services\Invoice;
 
 use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Invoice\EmailInvoice;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Services\AbstractService;
@@ -51,7 +50,6 @@ class SendEmail extends AbstractService
             $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
 
             if ($invitation->contact->send_email && $invitation->contact->email) {
-//                EmailInvoice::dispatch($email_builder, $invitation, $invitation->company);
                 EmailEntity::dispatchNow($invitation, $invitation->company);
 
             }

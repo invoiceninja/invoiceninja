@@ -16,6 +16,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
@@ -151,7 +152,9 @@ class TemplateEngine
 
     private function entityValues($contact)
     {
-        $data = $this->entity_obj->buildLabelsAndValues($contact);
+        //$data = $this->entity_obj->buildLabelsAndValues($contact);
+
+        $data = (new HtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
         // $arrKeysLength = array_map('strlen', array_keys($data));
         // array_multisort($arrKeysLength, SORT_DESC, $data);
 

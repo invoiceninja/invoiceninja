@@ -104,11 +104,11 @@ class HtmlEngine
         $data['$total_tax_values'] = ['value' => $this->totalTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_labels'] = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_values'] = ['value' => $this->lineTaxValues(), 'label' => ctrans('texts.taxes')];
-        $data['$date'] = ['value' => $this->entity->date ?: '&nbsp;', 'label' => ctrans('texts.date')];
+        $data['$date'] = ['value' => $this->formatDate($this->entity->date, $this->client->date_format()) ?: '&nbsp;', 'label' => ctrans('texts.date')];
         //$data['$invoice_date']           = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
         $data['$invoice.date'] = &$data['$date'];
-        $data['$due_date'] = ['value' => $this->entity->due_date ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
-        $data['$payment_due'] = ['value' => $this->entity->due_date ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
+        $data['$due_date'] = ['value' => $this->formatDate($this->entity->due_date, $this->client->date_format()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
+        $data['$payment_due'] = ['value' => $this->formatDate($this->entity->due_date, $this->client->date_format()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
         $data['$invoice.due_date'] = &$data['$due_date'];
         $data['$invoice.number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
         $data['$invoice.po_number'] = ['value' => $this->entity->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
@@ -168,7 +168,7 @@ class HtmlEngine
         $data['$credit.number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
         $data['$credit.total'] = &$data['$credit.total'];
         $data['$credit.po_number'] = &$data['$invoice.po_number'];
-        $data['$credit.date'] = ['value' => $this->entity->date, 'label' => ctrans('texts.credit_date')];
+        $data['$credit.date'] = ['value' => $this->formatDate($this->entity->date, $this->client->date_format()), 'label' => ctrans('texts.credit_date')];
         $data['$balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance')];
         $data['$credit.balance'] = &$data['$balance'];
 
@@ -186,13 +186,13 @@ class HtmlEngine
         $data['$entity_issued_to'] = ['value' => '', 'label' => ctrans("texts.{$this->entity_string}_issued_to")];
         $data['$your_entity'] = ['value' => '', 'label' => ctrans("texts.your_{$this->entity_string}")];
 
-        $data['$quote.date'] = ['value' => $this->entity->date ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
+        $data['$quote.date'] = ['value' => $this->formatDate($this->entity->date, $this->client->date_format()) ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
         $data['$quote.number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
         $data['$quote.po_number'] = &$data['$invoice.po_number'];
         $data['$quote.quote_number'] = &$data['$quote.number'];
         $data['$quote_no'] = &$data['$quote.number'];
         $data['$quote.quote_no'] = &$data['$quote.number'];
-        $data['$quote.valid_until'] = ['value' => $this->entity->due_date, 'label' => ctrans('texts.valid_until')];
+        $data['$quote.valid_until'] = ['value' => $this->formatDate($this->entity->due_date, $this->client->date_format()), 'label' => ctrans('texts.valid_until')];
         $data['$credit_amount'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_amount')];
         $data['$credit_balance'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
 
@@ -371,6 +371,19 @@ class HtmlEngine
 
 //info(print_r($data,1));
   
+        return $data;
+    }
+
+    public function makeValues() :array
+    {
+        $data = [];
+
+        $values = $this->buildEntityDataArray();
+
+        foreach ($values as $key => $value) {
+            $data[$key] = $value['value'];
+        }
+
         return $data;
     }
 
