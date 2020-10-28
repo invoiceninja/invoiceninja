@@ -374,6 +374,19 @@ class HtmlEngine
         return $data;
     }
 
+    public function makeValues() :array
+    {
+        $data = [];
+
+        $values = $this->buildEntityDataArray();
+
+        foreach ($values as $key => $value) {
+            $data[$key] = $value['value'];
+        }
+
+        return $data;
+    }
+
     public function generateLabelsAndValues()
     {
         $data = [];

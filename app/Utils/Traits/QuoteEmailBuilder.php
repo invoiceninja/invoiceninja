@@ -75,7 +75,7 @@ trait QuoteEmailBuilder
 
     private function parseTemplate(string $template_data, bool $is_markdown, $contact) :string
     {
-        $quote_variables = $this->makeValues($contact);
+        // $quote_variables = $this->makeValues($contact);
 
         //process variables
 //        $data = str_replace(array_keys($quote_variables), array_values($quote_variables), $template_data);

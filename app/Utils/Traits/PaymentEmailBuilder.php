@@ -67,7 +67,7 @@ trait PaymentEmailBuilder
 
     private function parseTemplate(string $template_data, bool $is_markdown, $contact) :string
     {
-        $invoice_variables = $this->makeValues($contact);
+        //$invoice_variables = $this->makeValues($contact);
 
         //process variables
         //$data = str_replace(array_keys($invoice_variables), array_values($invoice_variables), $template_data);

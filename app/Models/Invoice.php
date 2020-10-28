@@ -29,7 +29,6 @@ use App\Services\Ledger\LedgerService;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\Archivable;
-use App\Utils\Traits\InvoiceEmailBuilder;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
@@ -50,7 +49,6 @@ class Invoice extends BaseModel
     use MakesDates;
     use PresentableTrait;
     use MakesInvoiceValues;
-    use InvoiceEmailBuilder;
     use MakesReminders;
     use ActionsInvoice;
 

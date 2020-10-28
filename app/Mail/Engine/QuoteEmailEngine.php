@@ -71,7 +71,7 @@ class QuoteEmailEngine extends BaseEmailEngine
 
         $this->setTemplate($this->client->getSetting('email_style'))
             ->setContact($this->contact)
-            ->setVariables($this->quote->makeValues($this->contact))//move make values into the htmlengine
+            ->setVariables((new HtmlEngine($this->invitation))->makeValues())//move make values into the htmlengine
             ->setSubject($subject_template)
             ->setBody($body_template)
             ->setFooter("<a href='{$this->invitation->getLink()}'>".ctrans('texts.view_quote').'</a>')
