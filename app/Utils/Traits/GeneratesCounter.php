@@ -231,45 +231,6 @@ trait GeneratesCounter
     }
 
     /**
-     * Project Number Generator.
-     * @param Client $client
-     * @return string The project number
-     */
-    public function getNextProjectNumber(Client $client) :string
-    {
-
-        //Reset counters if enabled
-        $this->resetCounters($client);
-
-        $is_client_counter = false;
-
-        //todo handle if we have specific client patterns in the future
-        $pattern = $client->company->settings->project_number_pattern;
-
-        //Determine if we are using client_counters
-        if (strpos($pattern, 'client_counter') === false) {
-            $counter = $client->company->settings->project_number_counter;
-        } else {
-            $counter = $client->settings->project_number_counter;
-            $is_client_counter = true;
-        }
-
-        //Return a valid counter
-        $pattern = '';
-        $padding = $client->getSetting('counter_padding');
-        $project_number = $this->checkEntityNumber(Project::class, $client, $counter, $padding, $pattern);
-
-        //increment the correct invoice_number Counter (company vs client)
-        if ($is_client_counter) {
-            $this->incrementCounter($client, 'project_number_counter');
-        } else {
-            $this->incrementCounter($client->company, 'project_number_counter');
-        }
-
-        return (string) $project_number;
-    }
-
-    /**
      * Gets the next client number.
      *
      * @param Client $client The client
@@ -312,6 +273,27 @@ trait GeneratesCounter
 
         return $vendor_number;
     }
+
+    /**
+     * Project Number Generator.
+     * @param  Project $project
+     * @return string  The project number
+     */
+    public function getNextProjectNumber(Project $project) :string
+    {
+
+        $this->resetCompanyCounters($project->company);
+
+        $counter = $project->company->settings->project_number_counter;
+        $setting_entity = $project->company->settings->project_number_counter;
+
+        $project_number = $this->checkEntityNumber(Project::class, $project, $counter, $project->company->settings->counter_padding, $project->company->settings->project_number_pattern);
+
+        $this->incrementCounter($project->company, 'project_number_counter');
+
+        return $project_number;
+    }
+
 
     /**
      * Gets the next task number.
