@@ -62,11 +62,8 @@ class PaymentNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                //Fire mail notification here!!!
-                //This allows us better control of how we
-                //handle the mailer
+                EntityPaidMailer::dispatch($payment, $payment->company);
 
-                EntityPaidMailer::dispatch($payment, $user, $payment->company);
             }
 
             $notification = new NewPaymentNotification($payment, $payment->company);
@@ -84,7 +81,6 @@ class PaymentNotification implements ShouldQueue
         }
 
         /*Google Analytics Track Revenue*/
-
         if (isset($payment->company->google_analytics_key)) {
             $this->trackRevenue($event);
         }

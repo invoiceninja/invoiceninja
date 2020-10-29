@@ -32,7 +32,7 @@ class Vendor extends BaseModel
         'assigned_user_id',
         'id_number',
         'vat_number',
-        'work_phone',
+        'phone',
         'address1',
         'address2',
         'city',
