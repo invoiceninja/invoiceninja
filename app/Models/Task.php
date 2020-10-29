@@ -92,7 +92,7 @@ class Task extends BaseModel
 
 
 
-    public static function calcstart_time()
+    public function calcStartTime()
     {
         $parts = json_decode($this->time_log) ?: [];
 
@@ -103,7 +103,7 @@ class Task extends BaseModel
         }
     }
 
-    public function getLaststart_time()
+    public function getLastStartTime()
     {
         $parts = json_decode($this->time_log) ?: [];
 
@@ -117,7 +117,7 @@ class Task extends BaseModel
 
     }
 
-    public static function calcDuration($start_time_cutoff = 0, $end_time_cutoff = 0)
+    public function calcDuration($start_time_cutoff = 0, $end_time_cutoff = 0)
     {
         $duration = 0;
         $parts = json_decode($this->time_log) ?: [];
