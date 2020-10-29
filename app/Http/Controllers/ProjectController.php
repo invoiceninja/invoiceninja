@@ -266,6 +266,7 @@ class ProjectController extends BaseController
         }
 
         $project->fill($request->all());
+        $project->number = empty($project->number) ? $this->getNextProjectNumber($project) : $project->number;
         $project->save();
 
         return $this->itemResponse($project->fresh());
@@ -360,9 +361,13 @@ class ProjectController extends BaseController
     {
         $project = ProjectFactory::create(auth()->user()->company()->id, auth()->user()->id);
         $project->fill($request->all());
-        $project->number = $this->getNextProjectNumber($request->getClient($request->input('client_id')));
         $project->save();
 
+        if(empty($project->number)){
+            $project->number = $this->getNextProjectNumber($project);
+            $project->save();
+        }
+        
         if ($request->has('documents')) {
             $this->saveDocuments($request->input('documents'), $project);
         }

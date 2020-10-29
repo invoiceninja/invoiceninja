@@ -50,17 +50,11 @@ class ExpenseRepository extends BaseRepository
     {
         $expense->fill($data);
         $expense->number = empty($expense->number) ? $this->getNextExpenseNumber($expense) : $expense->number;
-
         $expense->save();
-
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $expense);
         }
-
-        // if ($expense->id_number == "" || !$expense->id_number) {
-        //     $expense->id_number = $this->getNextExpenseNumber($expense);
-        // } //todo write tests for this and make sure that custom expense numbers also works as expected from here
 
         return $expense;
     }
