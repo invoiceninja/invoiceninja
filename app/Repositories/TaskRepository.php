@@ -49,11 +49,49 @@ class TaskRepository extends BaseRepository
     {
 
         $task->fill($data);
+        $task->save();
 
-        if(!$task->start_time)
-            $task->start_time = $task->calcStartTime();
+        $task->start_time = $task->start_time ?: $task->calcStartTime();
+        $task->number = empty($task->number) ? $this->getNextTaskNumber($task) : $task->number;
 
+        if (isset($data['description'])) {
+            $task->description = trim($data['description']);
+        }
+
+        if (isset($data['status_sort_order'])) {
+            $task->status_sort_order = $data['status_sort_order'];
+        }
+
+        if (isset($data['time_log'])) {
+            $time_log = json_decode($data['time_log']);
+        } elseif ($task->time_log) {
+            $time_log = json_decode($task->time_log);
+        } else {
+            $time_log = [];
+        }
+
+        array_multisort($time_log);
+
+        if (isset($data['action'])) {
+            if ($data['action'] == 'start') {
+                $task->is_running = true;
+                $time_log[] = [strtotime('now'), false];
+            } elseif ($data['action'] == 'resume') {
+                $task->is_running = true;
+                $time_log[] = [strtotime('now'), false];
+            } elseif ($data['action'] == 'stop' && $task->is_running) {
+                $time_log[count($time_log) - 1][1] = time();
+                $task->is_running = false;
+            } elseif ($data['action'] == 'offline'){
+                $task->is_running = $data['is_running'] ? 1 : 0;
+            }
+        } elseif (isset($data['is_running'])) {
+            $task->is_running = $data['is_running'] ? 1 : 0;
+        }
+
+        $task->time_log = json_encode($time_log);
         $task->duration = $task->calcDuration();
+
         $task->save();
 
         if (array_key_exists('documents', $data)) {

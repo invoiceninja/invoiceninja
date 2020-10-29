@@ -106,12 +106,12 @@ class AuthorizeTest extends TestCase
         $controller = new GetCustomerProfileIdsController($request);
         $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
         if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
-            info("GetCustomerProfileId's SUCCESS: "."\n");
-            info(print_r($response->getIds(), 1));
+            // info("GetCustomerProfileId's SUCCESS: "."\n");
+            // info(print_r($response->getIds(), 1));
         } else {
-            info("GetCustomerProfileId's ERROR :  Invalid response\n");
+            // info("GetCustomerProfileId's ERROR :  Invalid response\n");
             $errorMessages = $response->getMessages()->getMessage();
-            info('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText()."\n");
+            // info('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText()."\n");
         }
 
         $this->assertNotNull($response);
@@ -179,14 +179,14 @@ class AuthorizeTest extends TestCase
         if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
             info('Succesfully created customer profile : '.$response->getCustomerProfileId()."\n");
             $paymentProfiles = $response->getCustomerPaymentProfileIdList();
-            info(print_r($paymentProfiles, 1));
+            // info(print_r($paymentProfiles, 1));
         } else {
             info("ERROR :  Invalid response\n");
             $errorMessages = $response->getMessages()->getMessage();
-            info('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText()."\n");
+            // info('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText()."\n");
         }
 
-        info('the new customer profile id = '.$response->getCustomerProfileId());
+        // info('the new customer profile id = '.$response->getCustomerProfileId());
 
         $this->assertNotNull($response);
     }
@@ -208,8 +208,8 @@ class AuthorizeTest extends TestCase
         $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
 
         if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
-            info('got profile');
-            info(print_r($response->getProfile(), 1));
+            // info('got profile');
+            // info(print_r($response->getProfile(), 1));
         } else {
             info("ERROR :  Invalid response\n");
         }
@@ -276,11 +276,11 @@ class AuthorizeTest extends TestCase
         $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
 
         if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
-            info('Create Customer Payment Profile SUCCESS: '.$response->getCustomerPaymentProfileId()."\n");
+         //   info('Create Customer Payment Profile SUCCESS: '.$response->getCustomerPaymentProfileId()."\n");
         } else {
-            info("Create Customer Payment Profile: ERROR Invalid response\n");
+        //    info("Create Customer Payment Profile: ERROR Invalid response\n");
             $errorMessages = $response->getMessages()->getMessage();
-            info('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText()."\n");
+        //    info('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText()."\n");
         }
 
         $this->assertNotNull($response);
@@ -354,26 +354,5 @@ class AuthorizeTest extends TestCase
 
         $this->assertNotNull($tresponse);
 
-        /* Testing refunds - need to research more as payments are in a pending state so cannot be 'refunded'*/
-
-        // info("transaction reference = " . $tresponse->getTransId());
-
-        // $payment = PaymentFactory::create($this->company->id, $this->user->id);
-        // $payment->amount = 400;
-        // $payment->client_id = $this->client->id;
-        // $payment->date = now();
-        // $payment->transaction_reference = $tresponse->getTransId();
-        // $payment->company_gateway_id = 1;
-
-        // $payment->save();
-
-        // $company_gateway = CompanyGateway::where('gateway_key', '3b6621f970ab18887c4f6dca78d3f8bb')->first();
-
-        // $authorize_payment_driver = new AuthorizePaymentDriver($company_gateway, $this->client);
-        // $response = $authorize_payment_driver->refund($payment, 350);
-
-        // info(print_r($response,1));
-
-        // $this->assertTrue(is_array($response));
     }
 }
