@@ -39,9 +39,9 @@ class StoreExpenseRequest extends Request
     {
         $rules = [];
 
-        $rules['id_number'] = 'unique:expenses,id_number,'.$this->id.',id,company_id,'.$this->company_id;
+        $rules['number'] = 'unique:expenses,number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
         $rules['contacts.*.email'] = 'nullable|distinct';
-        $rules['number'] = new UniqueExpenseNumberRule($this->all());
+        //$rules['number'] = new UniqueExpenseNumberRule($this->all());
         $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
 
