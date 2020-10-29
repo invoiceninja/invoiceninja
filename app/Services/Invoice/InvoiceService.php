@@ -113,6 +113,9 @@ class InvoiceService
     {
         $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment))->run();
 
+            if((int)$this->invoice->balance == 0)
+                $this->invoice->next_send_date = null;
+            
         return $this;
     }
 
