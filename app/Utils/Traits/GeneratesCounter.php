@@ -20,6 +20,7 @@ use App\Models\Payment;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
 use App\Models\Timezone;
 use App\Models\Vendor;
 use Illuminate\Support\Carbon;
@@ -312,6 +313,45 @@ trait GeneratesCounter
         return $vendor_number;
     }
 
+    /**
+     * Gets the next task number.
+     *
+     * @param   Task    $task    The task
+     * @return  string           The next task number.
+     */
+    public function getNextTaskNumber(Task $task) :string
+    {
+        $this->resetCompanyCounters($task->company);
+
+        $counter = $task->company->settings->task_number_counter;
+        $setting_entity = $task->company->settings->task_number_counter;
+
+        $task_number = $this->checkEntityNumber(Task::class, $task, $counter, $task->company->settings->counter_padding, $task->company->settings->task_number_pattern);
+
+        $this->incrementCounter($task->company, 'task_number_counter');
+
+        return $task_number;
+    }
+
+    /**
+     * Gets the next expense number.
+     *
+     * @param   Expense    $expense    The expense
+     * @return  string                 The next expense number.
+     */
+    public function getNextExpenseNumber(Expense $expense) :string
+    {
+        $this->resetCompanyCounters($expense->company);
+
+        $counter = $expense->company->settings->expense_number_counter;
+        $setting_entity = $expense->company->settings->expense_number_counter;
+
+        $expense_number = $this->checkEntityNumber(Expense::class, $expense, $counter, $expense->company->settings->counter_padding, $expense->company->settings->expense_number_pattern);
+
+        $this->incrementCounter($expense->company, 'expense_number_counter');
+
+        return $expense_number;
+    }
 
     /**
      * Determines if it has shared counter.

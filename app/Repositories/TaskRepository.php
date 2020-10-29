@@ -45,7 +45,6 @@ class TaskRepository extends BaseRepository
      *
      * @return     task|null  task Object
      */
-
     public function save(array $data, Task $task) : ?Task
     {
 

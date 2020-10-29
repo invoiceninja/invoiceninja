@@ -39,6 +39,7 @@ class Task extends BaseModel
         'status_sort_order',
         'invoice_documents',
         'rate',
+        'number',
     ];
 
     protected $touches = [];

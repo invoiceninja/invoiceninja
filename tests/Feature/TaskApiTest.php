@@ -79,6 +79,18 @@ class TaskApiTest extends TestCase
         $response->assertStatus(200);
     }
 
+
+    public function testTasksGet()
+    {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/tasks');
+
+        $response->assertStatus(200);
+    }
+
+
     public function testTaskGet()
     {
         $response = $this->withHeaders([

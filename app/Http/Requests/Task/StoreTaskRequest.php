@@ -38,6 +38,10 @@ class StoreTaskRequest extends Request
     {
         $rules = [];
         
+        if ($this->input('number')) {
+            $rules['number'] = 'unique:tasks,number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
+        }
+
         return $this->globalRules($rules);
     }
 
