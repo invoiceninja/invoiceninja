@@ -52,9 +52,9 @@ class QuoteApprovedActivity implements ShouldQueue
         $fields->client_id = $event->quote->client_id;
         $fields->user_id = $event->quote->user_id;
         $fields->client_contact_id = $event->contact->id;
-        $fields->company_id = $event->payment->company_id;
-        $fields->activity_type_id = Activity::RESTORE_PAYMENT;
+        $fields->company_id = $event->quote->company_id;
+        $fields->activity_type_id = Activity::APPROVE_QUOTE;
 
-        $this->activity_repo->save($fields, $event->payment, $event->event_vars);
+        $this->activity_repo->save($fields, $event->quote, $event->event_vars);
     }
 }
