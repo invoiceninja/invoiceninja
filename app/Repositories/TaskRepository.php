@@ -50,6 +50,11 @@ class TaskRepository extends BaseRepository
     {
 
         $task->fill($data);
+
+        if(!$task->start_time)
+            $task->start_time = $task->calcStartTime();
+
+        $task->duration = $task->calcDuration();
         $task->save();
 
         if (array_key_exists('documents', $data)) {

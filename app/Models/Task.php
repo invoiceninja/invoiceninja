@@ -15,6 +15,7 @@ use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Task extends BaseModel
 {
@@ -81,4 +82,69 @@ class Task extends BaseModel
     {
         return $this->belongsTo(Project::class);
     }
+
+
+
+
+
+
+
+
+
+
+    public static function calcstart_time()
+    {
+        $parts = json_decode($this->time_log) ?: [];
+
+        if (count($parts)) {
+            return Carbon::createFromTimeStamp($parts[0][0]);
+        } else {
+            return '';
+        }
+    }
+
+    public function getLaststart_time()
+    {
+        $parts = json_decode($this->time_log) ?: [];
+
+        if (count($parts)) {
+            $index = count($parts) - 1;
+
+            return $parts[$index][0];
+        } else {
+            return '';
+        }
+
+    }
+
+    public static function calcDuration($start_time_cutoff = 0, $end_time_cutoff = 0)
+    {
+        $duration = 0;
+        $parts = json_decode($this->time_log) ?: [];
+
+        foreach ($parts as $part) {
+            $start_time = $part[0];
+            if (count($part) == 1 || ! $part[1]) {
+                $end_time = time();
+            } else {
+                $end_time = $part[1];
+            }
+
+            if ($start_time_cutoff) {
+                $start_time = max($start_time, $start_time_cutoff);
+            }
+            if ($end_time_cutoff) {
+                $end_time = min($end_time, $end_time_cutoff);
+            }
+
+            $duration += max($end_time - $start_time, 0);
+        }
+
+        return round($duration);
+    }
+
+
+
+
+
 }
