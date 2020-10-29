@@ -62,7 +62,10 @@ class ExpenseApiTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/expenses', $data);
 
+        $arr = $response->json();
         $response->assertStatus(200);
+
+        $this->assertNotEmpty($arr['data']['number']);
     }
 
     public function testExpensePut()
