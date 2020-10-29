@@ -50,6 +50,10 @@ class UpdateTaskRequest extends Request
     {
         $input = $this->decodePrimaryKeys($this->all()); 
 
+        if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
+            $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
+        }
+        
         $this->replace($input);
     }
 }
