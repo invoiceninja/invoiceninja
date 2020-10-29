@@ -39,6 +39,7 @@ class Task extends BaseModel
         'status_sort_order',
         'invoice_documents',
         'rate',
+        'number',
     ];
 
     protected $touches = [];
@@ -97,9 +98,9 @@ class Task extends BaseModel
         $parts = json_decode($this->time_log) ?: [];
 
         if (count($parts)) {
-            return Carbon::createFromTimeStamp($parts[0][0]);
+            return Carbon::createFromTimeStamp($parts[0][0])->timestamp;
         } else {
-            return '';
+            return null;
         }
     }
 

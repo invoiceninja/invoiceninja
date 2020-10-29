@@ -53,6 +53,7 @@ class Expense extends BaseModel
         'custom_value2',
         'custom_value3',
         'custom_value4',
+        'number',
     ];
 
     protected $casts = [
