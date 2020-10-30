@@ -241,6 +241,7 @@ class StepsController extends BaseController
             'tax_rates' => $this->getTaxRates(),
             'payment_terms' => $this->getPaymentTerms(),
             'clients' => $this->getClients(),
+            'projects' => $this->getProjects(),
             'products' => $this->getProducts(),
             'invoices' => $this->getInvoices(),
             'recurring_invoices' => $this->getRecurringInvoices(),
@@ -252,7 +253,6 @@ class StepsController extends BaseController
             'client_gateway_tokens' => $this->getClientGatewayTokens(),
             'expense_categories' => $this->getExpenseCategories(),
             'task_statuses' => $this->getTaskStatuses(),
-            'projects' => $this->getProjects(),
             'expenses' => $this->getExpenses(),
             'tasks' => $this->getTasks(),
         ];
