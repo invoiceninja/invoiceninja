@@ -31,15 +31,15 @@ class Request extends FormRequest
 
     public function globalRules($rules)
     {
-    	$rules = [];
+    	$merge_rules = [];
 
     	foreach($this->all() as $key => $value)
     	{
     		if(method_exists($this, $key))
-    			$rules = $this->{$key}($rules); 
+    			$merge_rules = $this->{$key}($rules); 
     	}
 
-    	return $rules;
+    	return array_merge($merge_rules, $rules);
     }
 
     private function assigned_user_id($rules)
