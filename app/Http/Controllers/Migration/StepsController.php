@@ -241,6 +241,7 @@ class StepsController extends BaseController
             'tax_rates' => $this->getTaxRates(),
             'payment_terms' => $this->getPaymentTerms(),
             'clients' => $this->getClients(),
+            'vendors' => $this->getVendors(),
             'projects' => $this->getProjects(),
             'products' => $this->getProducts(),
             'invoices' => $this->getInvoices(),

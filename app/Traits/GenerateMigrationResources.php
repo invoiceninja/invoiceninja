@@ -20,6 +20,7 @@ use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Models\Vendor;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 
@@ -1223,6 +1224,115 @@ trait GenerateMigrationResources
 
         return $transformed;
     }
+
+
+    protected function getVendors()
+    {
+        $vendor_query = Vendor::where('account_id', $this->account->id)->withTrashed()->get();
+
+        $vendors = [];
+
+        foreach ($vendor_query as $vendor) {
+            $vendors[] = [
+                'id' => $vendor->id,
+                'company_id' => $vendor->account_id,
+                'user_id' => $vendor->user_id,
+                'name' => $vendor->name,
+                //'balance' => $vendor->balance ?: 0,
+                //'paid_to_date' => $vendor->paid_to_date ?: 0,
+                'address1' => $vendor->address1,
+                'address2' => $vendor->address2,
+                'city' => $vendor->city,
+                'state' => $vendor->state,
+                'postal_code' => $vendor->postal_code,
+                'country_id' => $vendor->country_id,
+                'phone' => $vendor->work_phone,
+                'private_notes' => $vendor->private_notes,
+                'website' => $vendor->website,
+                //'industry_id' => $vendor->industry_id,
+                //'size_id' => $vendor->size_id,
+                'is_deleted' => $vendor->is_deleted,
+                'vat_number' => $vendor->vat_number,
+                'id_number' => $vendor->id_number,
+                'custom_value1' => $vendor->custom_value1,
+                'custom_value2' => $vendor->custom_value2,
+                'custom_value3' => '',
+                'custom_value4' => '',
+                'transaction_name' => '',
+                'shipping_address1' => $vendor->shipping_address1,
+                'shipping_address2' => $vendor->shipping_address2,
+                'shipping_city' => $vendor->shipping_city,
+                'shipping_state' => $vendor->shipping_state,
+                'shipping_postal_code' => $vendor->shipping_postal_code,
+                'shipping_country_id' => $vendor->shipping_country_id,
+                'contacts' => $this->getVendorContacts($vendor->vendor_contacts),
+            ];
+        }
+
+        return $vendors;
+    }
+
+
+    protected function getVendorContacts($contacts)
+    {
+        $transformed = [];
+
+        foreach ($contacts as $contact) {
+            $transformed[] = [
+                'id' => $contact->id,
+                'company_id' => $contact->account_id,
+                'user_id' => $contact->user_id,
+                'vendor_id' => $contact->vendor_id,
+                'first_name' => $contact->first_name ?: '',
+                'last_name' => $contact->last_name ?: '',
+                'phone' => $contact->phone ?: '',
+                'custom_value1' => $contact->custom_value1 ?: '',
+                'custom_value2' => $contact->custom_value2 ?: '',
+                'custom_value3' => '',
+                'custom_value4' => '',
+                'email' => $contact->email,
+                'is_primary' => (bool)$contact->is_primary,
+                'send_email' => (bool)$contact->send_invoice ?: false,
+                'confirmed' => $contact->confirmation_token ? true : false,
+                'email_verified_at' => $contact->created_at->toDateTimeString(),
+                'last_login' => $contact->last_login,
+                'password' => $contact->password ?: '',
+                'is_locked' => false,
+                'confirmed' => true,
+               // 'remember_token' => $contact->remember_token,
+               // 'contact_key' => $contact->contact_key,
+            ];
+        }
+
+        return $transformed;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private function convertMeta($payment_method)
     {
