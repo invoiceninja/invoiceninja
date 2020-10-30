@@ -1037,6 +1037,41 @@ class Import implements ShouldQueue
         $data = null;
     }
 
+    private function processExpenses(array $data) :void
+    {
+
+        Expense::unguard();
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['category_id'] = $this->transformId('expense_categories', $resource['category_id']);
+            $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+            $modified['project_id'] = $this->transformId('projects', $resource['project_id']);
+           // $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
+
+            $expense = Expense::Create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['expenses'] = [
+                "expenses_{$old_user_key}" => [
+                    'old' => $resource['id'],
+                    'new' => $expense->id,
+                ],
+            ];
+        }
+
+        Expense::reguard();
+
+        $data = null;
+
+    }
     /**
      * |--------------------------------------------------------------------------
      * | Additional migration methods.
