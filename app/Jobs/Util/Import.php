@@ -916,7 +916,7 @@ class Import implements ShouldQueue
     }
 
     private function processTaskStatuses(array $data) :void
-    {
+    {info('in task statuses');
         TaskStatus::unguard();
 
         foreach ($data as $resource) {
@@ -942,6 +942,7 @@ class Import implements ShouldQueue
         TaskStatus::reguard();
 
         $data = null;
+        info('finished task statuses');
     }
 
     private function processExpenseCategories(array $data) :void
