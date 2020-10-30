@@ -44,12 +44,15 @@ use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Repositories\ClientContactRepository;
@@ -111,6 +114,10 @@ class Import implements ShouldQueue
         'payments',
         'company_gateways',
         'client_gateway_tokens',
+        'expense_categories',
+        'task_statuses',
+        'expenses',
+        'tasks',
         // //'documents',
     ];
 
@@ -903,6 +910,97 @@ class Import implements ShouldQueue
         ClientGatewayToken::reguard();
 
         /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+    }
+
+    private function processTaskStatuses(array $data) :void
+    {
+        TaskStatus::unguard();
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+
+            $task_status = TaskStatus::Create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['task_statuses'] = [
+                "task_statuses_{$old_user_key}" => [
+                    'old' => $resource['id'],
+                    'new' => $task_status->id,
+                ],
+            ];
+        }
+
+        TaskStatus::reguard();
+
+        $data = null;
+    }
+
+    private function processExpenseCategories(array $data) :void
+    {
+        ExpenseCategory::unguard();
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+
+            $expense_category = ExpenseCategory::Create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['expense_categories'] = [
+                "expense_categories_{$old_user_key}" => [
+                    'old' => $resource['id'],
+                    'new' => $expense_category->id,
+                ],
+            ];
+        }
+        
+        ExpenseCategory::reguard();
+
+        $data = null;
+    }
+
+    private function processTasks(array $data) :void
+    {
+        Task::unguard();
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+            $modified['project_id'] = $this->transformId('projects', $resource['project_id']);
+            $modified['status_id'] = $this->transformId('task_statuses', $resource['status_id']);
+
+            $task = Task::Create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['tasks'] = [
+                "tasks_{$old_user_key}" => [
+                    'old' => $resource['id'],
+                    'new' => $task->id,
+                ],
+            ];
+        }
+        
+        Task::reguard();
+
         $data = null;
     }
 
