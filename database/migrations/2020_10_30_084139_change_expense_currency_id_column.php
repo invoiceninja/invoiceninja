@@ -16,6 +16,10 @@ class ChangeExpenseCurrencyIdColumn extends Migration
         Schema::table('expenses', function(Blueprint $table){
             $table->renameColumn('expense_currency_id', 'currency_id');
         });
+
+        Schema::table('companies', function(Blueprint $table){
+            $table->boolean('is_disabled')->default(false);
+        });
     }
 
     /**
