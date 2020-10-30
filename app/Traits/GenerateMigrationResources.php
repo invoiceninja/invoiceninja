@@ -914,7 +914,7 @@ trait GenerateMigrationResources
 
     private function getDocuments()
     {
-        $documents = Document::where('account_id', $this->account->id)->withTrashed()->get();
+        $documents = Document::where('account_id', $this->account->id)->get();
 
         $transformed = [];
 
