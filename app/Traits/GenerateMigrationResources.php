@@ -8,11 +8,15 @@ use App\Models\AccountGatewayToken;
 use App\Models\Contact;
 use App\Models\Credit;
 use App\Models\Document;
+use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\PaymentTerm;
 use App\Models\Product;
+use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -909,7 +913,7 @@ trait GenerateMigrationResources
 
     private function getDocuments()
     {
-        $documents = Document::where('account_id', $this->account->id)->get();
+        $documents = Document::where('account_id', $this->account->id)->withTrashed()->get();
 
         $transformed = [];
 
@@ -939,7 +943,7 @@ trait GenerateMigrationResources
 
     private function getCompanyGateways()
     {
-        $account_gateways = AccountGateway::where('account_id', $this->account->id)->get();
+        $account_gateways = AccountGateway::where('account_id', $this->account->id)->withTrashed()->get();
 
         $transformed = [];
 
@@ -971,7 +975,7 @@ trait GenerateMigrationResources
 
     private function getClientGatewayTokens()
     {
-        $payment_methods = PaymentMethod::where('account_id', $this->account->id)->get();
+        $payment_methods = PaymentMethod::where('account_id', $this->account->id)->withTrashed()->get();
 
         $transformed = [];
 
@@ -1001,7 +1005,7 @@ trait GenerateMigrationResources
 
     private function getPaymentTerms()
     {
-        $payment_terms = PaymentTerm::where('account_id', 0)->orWhere('account_id', $this->account->id)->get();
+        $payment_terms = PaymentTerm::where('account_id', 0)->orWhere('account_id', $this->account->id)->withTrashed()->get();
 
         $transformed = [];
 
@@ -1015,9 +1019,169 @@ trait GenerateMigrationResources
                 'user_id' => 0,
                 'company_id' => $this->account->id,
                 'num_days' => $payment_term->num_days,
-                'deleted_at' => $payment_term->deleted_at,
+                'is_deleted' => $payment_term->is_deleted,
+                'created_at' => $payment_term->created_at ? $payment_term->created_at->toDateString() : null,
+                'updated_at' => $payment_term->updated_at ? $payment_term->updated_at->toDateString() : null,
+                'deleted_at' => $payment_term->deleted_at ? $payment_term->deleted_at->toDateString() : null,
             ];
 
+        }
+
+        return $transformed;
+    }
+
+
+    private function getTaskStatuses()
+    {
+        $task_statuses = TaskStatus::where('account_id', $this->account->id)->withTrashed()->get();
+
+        if($task_statuses->count() == 0)
+        {
+            $defaults = [
+                'backlog',
+                'ready_to_do',
+                'in_progress',
+                'done',
+            ];
+            for ($i=0; $i<count($defaults); $i++) {
+                $status = TaskStatus::createNew();
+                $status->name = trans('texts.' . $defaults[$i]);
+                $status->sort_order = $i;
+                $status->save();
+            }
+
+            $task_statuses = TaskStatus::where('account_id', $this->account->id)->withTrashed()->get();
+
+        }
+
+        $transformed = [];
+
+        foreach($task_statuses as $task_status)
+        {
+            $transformed[] = [
+                'name' => $task_status->name ?: '',
+                'id' => $task_status->id,
+                'company_id' => $this->account->id,
+                'user_id' => $task_status->user_id,
+                'status_sort_order' => $task_status->sort_order,
+                'is_deleted' => $task_status->is_deleted,
+                'created_at' => $task_status->created_at ? $task_status->created_at->toDateString() : null,
+                'updated_at' => $task_status->updated_at ? $task_status->updated_at->toDateString() : null,
+                'deleted_at' => $task_status->deleted_at ? $task_status->deleted_at->toDateString() : null,
+            ];
+        }
+
+        return $transformed;
+
+    }
+
+    private function getExpenseCategories()
+    {
+        $expense_categories = ExpenseCategory::where('account_id', $this->account->id)->withTrashed()->get();
+
+        $transformed = [];
+
+        foreach ($expense_categories as $category)
+        {
+            $transformed[] = [
+                'name' => $category->name ?: '',
+                'company_id' => $this->account->id,
+                'id' => $category->id,
+                'user_id' => $category->user_id,
+                'is_deleted' => $category->is_deleted,
+                'created_at' => $category->created_at ? $category->created_at->toDateString() : null,
+                'updated_at' => $category->updated_at ? $category->updated_at->toDateString() : null,
+                'deleted_at' => $category->deleted_at ? $category->deleted_at->toDateString() : null,
+            ];        
+        }
+
+        return $transformed;
+    }
+
+    private function getExpenses()
+    {
+        $expenses = Expense::where('account_id', $this->account->id)->withTrashed()->get();
+
+        $transformed = [];
+
+        foreach ($expenses as $expense)
+        {
+            $transformed[] = [
+                'id' => $expense->id,
+                'company_id' => $this->account->id,
+                'user_id' => $expense->user_id,
+                'amount' => $expense->amount,
+                'bank_id' => $expense->bank_id,
+                'client_id' => $expense->client_id,
+                'custom_value1' => $expense->custom_value1,
+                'custom_value2' => $expense->custom_value2,
+                'custom_value3' => '',
+                'custom_value4' => '',
+                'exchange_rate' => $expense->exchange_rate,
+                'category_id' => $expense->expense_category_id,
+                'currency_id' => $expense->expense_currency_id,
+                'date' => $expense->expense_date,
+                'foreign_amount' => 0,
+                'invoice_currency_id' => $expense->invoice_currency_id,
+                'invoice_documents' => $expense->invoice_documents,
+                'invoice_id' => $expense->invoice_id,
+                'payment_date' =>  $expense->payment_date,
+                'payment_type_id' =>  $expense->payment_type_id,
+                'private_notes' =>  $expense->private_notes,
+                'public_notes' =>  $expense->public_notes,
+                'recurring_expense_id' =>  $expense->recurring_expense_id,
+                'should_be_invoiced' =>  $expense->should_be_invoiced,
+                'tax_name1' =>  $expense->tax_name1,
+                'tax_name2' =>  $expense->tax_name2,
+                'tax_name3' => '',
+                'tax_rate1' =>  $expense->tax_rate1,
+                'tax_rate2' =>  $expense->tax_rate2,
+                'tax_rate3' => 0,
+                'transaction_id' =>  $expense->transaction_id,
+                'transaction_reference' =>  $expense->transaction_reference,
+                'vendor_id' =>  $expense->vendor_id,
+                'is_deleted' => $expense->is_deleted,
+                'created_at' => $expense->created_at ? $expense->created_at->toDateString() : null,
+                'updated_at' => $expense->updated_at ? $expense->updated_at->toDateString() : null,
+                'deleted_at' => $expense->deleted_at ? $expense->deleted_at->toDateString() : null,
+            ];        
+        }
+
+        return $transformed;
+
+    }
+
+    private function getTasks()
+    {
+        $tasks = Task::where('account_id', $this->account->id)
+                        ->withTrashed()
+                        ->get();
+
+        $transformed = [];
+
+        foreach ($tasks as $task)
+        {
+            $transformed[] = [
+                'id' => $task->id,
+                'company_id' => $this->account->id,
+                'client_id' => $task->client_id,
+                'custom_value1' => $task->custom_value1,
+                'custom_value2' => $task->custom_value2,
+                'custom_value3' => $task->custom_value3,
+                'custom_value4' => $task->custom_value4,
+                'description' => $task->description,
+                'invoice_id' => $task->invoice_id,
+                'is_running' => $task->is_running,
+                'project_id' => $task->project_id,
+                'status_id' => $task->task_status_id,
+                'status_sort_order' => $task->task_status_sort_order,
+                'time_log' => $task->time_log,
+                'user_id' => $task->user_id,
+                'is_deleted' => $task->is_deleted,
+                'created_at' => $task->created_at ? $task->created_at->toDateString() : null,
+                'updated_at' => $task->updated_at ? $task->updated_at->toDateString() : null,
+                'deleted_at' => $task->deleted_at ? $task->deleted_at->toDateString() : null,
+            ];
         }
 
         return $transformed;

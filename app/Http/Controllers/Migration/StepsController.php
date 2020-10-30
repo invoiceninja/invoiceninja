@@ -250,6 +250,10 @@ class StepsController extends BaseController
             'documents' => $this->getDocuments(),
             'company_gateways' => $this->getCompanyGateways(),
             'client_gateway_tokens' => $this->getClientGatewayTokens(),
+            'expense_categories' => $this->getExpenseCategories(),
+            'task_statuses' => $this->getTaskStatuses(),
+            'expenses' => $this->getExpenses(),
+            'tasks' => $this->getTasks(),
         ];
 
         $file = storage_path("migrations/{$fileName}.zip");
