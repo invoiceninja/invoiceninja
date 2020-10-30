@@ -15,6 +15,7 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\PaymentTerm;
 use App\Models\Product;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
@@ -1181,6 +1182,41 @@ trait GenerateMigrationResources
                 'created_at' => $task->created_at ? $task->created_at->toDateString() : null,
                 'updated_at' => $task->updated_at ? $task->updated_at->toDateString() : null,
                 'deleted_at' => $task->deleted_at ? $task->deleted_at->toDateString() : null,
+            ];
+        }
+
+        return $transformed;
+    }
+
+    private function getProjects()
+    {
+        $projects = Project::where('account_id', $this->account->id)
+                             ->withTrashed()
+                             ->get();
+
+         $transformed = [];
+
+        foreach ($projects as $project)
+        {
+            $transformed[] = [
+                'id' => $project->id,
+                'company_id' => $this->account->id,
+                'client_id' => $project->client_id,
+                'custom_value1' => $project->custom_value1,
+                'custom_value2' => $project->custom_value2,
+                'custom_value3' => $project->custom_value3,
+                'custom_value4' => $project->custom_value4,
+                'budgeted_hours' => $project->budgeted_hours,
+                'due_date' => $project->due_date,
+                'name' => $project->name,
+                'private_notes' => $project->private_notes,
+                'public_notes' => '',
+                'task_rate' => $project->task_rate,
+                'user_id' => $project->user_id,
+                'is_deleted' => $project->is_deleted,
+                'created_at' => $project->created_at ? $project->created_at->toDateString() : null,
+                'updated_at' => $project->updated_at ? $project->updated_at->toDateString() : null,
+                'deleted_at' => $project->deleted_at ? $project->deleted_at->toDateString() : null,
             ];
         }
 

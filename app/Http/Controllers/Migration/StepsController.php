@@ -252,6 +252,7 @@ class StepsController extends BaseController
             'client_gateway_tokens' => $this->getClientGatewayTokens(),
             'expense_categories' => $this->getExpenseCategories(),
             'task_statuses' => $this->getTaskStatuses(),
+            'projects' => $this->getProjects(),
             'expenses' => $this->getExpenses(),
             'tasks' => $this->getTasks(),
         ];
