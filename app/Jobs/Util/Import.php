@@ -26,6 +26,7 @@ use App\Factory\QuoteFactory;
 use App\Factory\RecurringInvoiceFactory;
 use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
+use App\Factory\VendorFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
@@ -56,6 +57,7 @@ use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\CompanyRepository;
@@ -67,6 +69,8 @@ use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\VendorContactRepository;
+use App\Repositories\VendorRepository;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
@@ -107,6 +111,7 @@ class Import implements ShouldQueue
         'payment_terms',
         'tax_rates',
         'clients',
+        'vendors',
         'projects',
         'products',
         'invoices',
@@ -449,6 +454,68 @@ class Import implements ShouldQueue
         $contact_repository = null;
         $client_repository = null;
     }
+
+    /**
+     * @param array $data
+     * @throws Exception
+     */
+    private function processVendors(array $data): void
+    {
+        Vendor::unguard();
+
+        $contact_repository = new VendorContactRepository();
+        $vendor_repository = new VendorRepository($contact_repository);
+
+        foreach ($data as $key => $resource) {
+            $modified = $resource;
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->processUserId($resource);
+
+            unset($modified['id']);
+            unset($modified['contacts']);
+
+            $client = $vendor_repository->save(
+                $modified,
+                VendorFactory::create(
+                    $this->company->id,
+                    $modified['user_id']
+                )
+            );
+
+            $client->contacts()->forceDelete();
+
+            if (array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
+                $modified_contacts = $resource['contacts'];
+
+                foreach ($modified_contacts as $key => $client_contacts) {
+                    $modified_contacts[$key]['company_id'] = $this->company->id;
+                    $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
+                    $modified_contacts[$key]['client_id'] = $client->id;
+                    $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code..
+                    unset($modified_contacts[$key]['id']);
+                }
+
+                $saveable_contacts['contacts'] = $modified_contacts;
+
+                $contact_repository->save($saveable_contacts, $client);
+            }
+
+            $key = "vendors_{$resource['id']}";
+
+            $this->ids['vendors'][$key] = [
+                'old' => $resource['id'],
+                'new' => $client->id,
+            ];
+        }
+
+        Vendor::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $contact_repository = null;
+        $client_repository = null;
+    }
+
 
     private function processProducts(array $data): void
     {
@@ -1049,10 +1116,18 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->transformId('users', $resource['user_id']);
-            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
-            $modified['category_id'] = $this->transformId('expense_categories', $resource['category_id']);
-            $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
-            $modified['project_id'] = $this->transformId('projects', $resource['project_id']);
+
+            if(isset($resource['client_id']))
+                $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            
+            if(isset($resource['category_id']))
+                $modified['category_id'] = $this->transformId('expense_categories', $resource['category_id']);
+            
+            if(isset($resource['invoice_id']))
+                $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+
+            if(isset($resource['project_id']))
+                $modified['project_id'] = $this->transformId('projects', $resource['project_id']);
            // $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
 
             $expense = Expense::Create($modified);
@@ -1104,7 +1179,7 @@ class Import implements ShouldQueue
      * @return int
      * @throws Exception
      */
-    public function transformId(string $resource, string $old): int
+    public function transformId($resource, string $old): int
     {
         if (! array_key_exists($resource, $this->ids)) {
             throw new Exception("Resource {$resource} not available.");

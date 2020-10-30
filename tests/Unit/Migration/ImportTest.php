@@ -50,6 +50,7 @@ class ImportTest extends TestCase
         $this->makeTestData();
 
         $migration_file = base_path().'/tests/Unit/Migration/migration.json';
+
         $this->migration_array = json_decode(file_get_contents($migration_file), 1);
     }
 
@@ -60,6 +61,20 @@ class ImportTest extends TestCase
         $this->assertTrue($status);
     }
 
+    public function testAllImport()
+    {
+
+        $this->invoice->forceDelete();
+        $this->quote->forceDelete();
+
+        $this->user->setCompany($this->company);
+        auth()->login($this->user, true);
+        
+        Import::dispatchNow($this->migration_array, $this->company, $this->user);
+
+        $this->assertTrue(true);
+    }
+    
 //     public function testExceptionOnUnavailableResource()
 //     {
 //         $data['panda_bears'] = [
@@ -139,16 +154,7 @@ class ImportTest extends TestCase
 
 //     }
 
-//     public function testAllImport()
-//     {
 
-//         $this->invoice->forceDelete();
-//         $this->quote->forceDelete();
-
-//         Import::dispatchNow($this->migration_array, $this->company, $this->user);
-
-//         $this->assertTrue(true);
-//     }
 
 //     public function testClientAttributes()
 //     {
