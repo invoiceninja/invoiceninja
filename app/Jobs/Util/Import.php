@@ -49,6 +49,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Product;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
@@ -106,6 +107,7 @@ class Import implements ShouldQueue
         'payment_terms',
         'tax_rates',
         'clients',
+        'projects',
         'products',
         'invoices',
         'recurring_invoices',
@@ -1000,6 +1002,36 @@ class Import implements ShouldQueue
         }
         
         Task::reguard();
+
+        $data = null;
+    }
+
+    private function processProjects(array $data) :void
+    {
+        Project::unguard();
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+
+            $project = Project::Create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['projects'] = [
+                "projects_{$old_user_key}" => [
+                    'old' => $resource['id'],
+                    'new' => $project->id,
+                ],
+            ];
+        }
+
+        Project::reguard();
 
         $data = null;
     }
