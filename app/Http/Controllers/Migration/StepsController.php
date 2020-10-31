@@ -162,7 +162,7 @@ class StepsController extends BaseController
         $companyService = (new CompanyService(session('MIGRATION_ACCOUNT_TOKEN')))
             ->endpoint(session('MIGRATION_ENDPOINT'))
             ->start();
-
+            
         if ($companyService->isSuccessful()) {
             return view('migration.companies', ['companies' => $companyService->getCompanies()]);
         }
@@ -241,14 +241,21 @@ class StepsController extends BaseController
             'tax_rates' => $this->getTaxRates(),
             'payment_terms' => $this->getPaymentTerms(),
             'clients' => $this->getClients(),
+            'vendors' => $this->getVendors(),
+            'projects' => $this->getProjects(),
             'products' => $this->getProducts(),
             'invoices' => $this->getInvoices(),
+            'recurring_invoices' => $this->getRecurringInvoices(),
             'quotes' => $this->getQuotes(),
-            'payments' => array_merge($this->getPayments(), $this->getCredits()),
             'credits' => $this->getCreditsNotes(),
+            'payments' => array_merge($this->getPayments(), $this->getCredits()),
             'documents' => $this->getDocuments(),
             'company_gateways' => $this->getCompanyGateways(),
             'client_gateway_tokens' => $this->getClientGatewayTokens(),
+            'expense_categories' => $this->getExpenseCategories(),
+            'task_statuses' => $this->getTaskStatuses(),
+            'expenses' => $this->getExpenses(),
+            'tasks' => $this->getTasks(),
         ];
 
         $file = storage_path("migrations/{$fileName}.zip");
