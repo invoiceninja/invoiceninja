@@ -1259,12 +1259,6 @@ trait GenerateMigrationResources
                 'custom_value3' => '',
                 'custom_value4' => '',
                 'transaction_name' => '',
-                'shipping_address1' => $vendor->shipping_address1,
-                'shipping_address2' => $vendor->shipping_address2,
-                'shipping_city' => $vendor->shipping_city,
-                'shipping_state' => $vendor->shipping_state,
-                'shipping_postal_code' => $vendor->shipping_postal_code,
-                'shipping_country_id' => $vendor->shipping_country_id,
                 'contacts' => $this->getVendorContacts($vendor->vendor_contacts),
             ];
         }
