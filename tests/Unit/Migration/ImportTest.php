@@ -61,19 +61,19 @@ class ImportTest extends TestCase
         $this->assertTrue($status);
     }
 
-    public function testAllImport()
-    {
+    // public function testAllImport()
+    // {
 
-        $this->invoice->forceDelete();
-        $this->quote->forceDelete();
+    //     $this->invoice->forceDelete();
+    //     $this->quote->forceDelete();
 
-        $this->user->setCompany($this->company);
-        auth()->login($this->user, true);
+    //     $this->user->setCompany($this->company);
+    //     auth()->login($this->user, true);
         
-        Import::dispatchNow($this->migration_array, $this->company, $this->user);
+    //     Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
-        $this->assertTrue(true);
-    }
+    //     $this->assertTrue(true);
+    // }
     
 //     public function testExceptionOnUnavailableResource()
 //     {
