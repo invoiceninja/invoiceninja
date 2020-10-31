@@ -490,7 +490,7 @@ class Import implements ShouldQueue
                 foreach ($modified_contacts as $key => $vendor_contacts) {
                     $modified_contacts[$key]['company_id'] = $this->company->id;
                     $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
-                    $modified_contacts[$key]['client_id'] = $vendor->id;
+                    $modified_contacts[$key]['vendor_id'] = $vendor->id;
                     $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code..
                     unset($modified_contacts[$key]['id']);
                 }
@@ -1138,7 +1138,9 @@ class Import implements ShouldQueue
 
             if(isset($resource['project_id']))
                 $modified['project_id'] = $this->transformId('projects', $resource['project_id']);
-           // $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
+
+            if(isset($resource['vendor_id']))
+                $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
 
             $expense = Expense::Create($modified);
 

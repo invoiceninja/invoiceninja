@@ -227,6 +227,8 @@ class MigrationController extends BaseController
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
+            $company->is_disabled = true;
+            $company->save();
 
             $account->default_company_id = $company->id;
             $account->save();
@@ -288,6 +290,9 @@ class MigrationController extends BaseController
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
 
+            $company->is_disabled = true;
+            $company->save();
+            
             $account->default_company_id = $company->id;
             $account->save();
 
@@ -322,7 +327,10 @@ class MigrationController extends BaseController
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
-
+            
+            $company->is_disabled = true;
+            $company->save();
+            
             $account->default_company_id = $company->id;
             $account->save();
 
@@ -353,6 +361,10 @@ class MigrationController extends BaseController
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
+
+            $company->is_disabled = true;
+            $company->save();
+            
 
             $company_token = new CompanyToken();
             $company_token->user_id = $user->id;

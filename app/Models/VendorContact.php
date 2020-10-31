@@ -74,6 +74,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         'custom_value4',
         'email',
         'is_primary',
+        'vendor_id',
     ];
 
     public function getEntityType()

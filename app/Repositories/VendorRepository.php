@@ -70,7 +70,7 @@ class VendorRepository extends BaseRepository
         $vendor->save();
 
         if (isset($data['contacts'])) {
-            $contacts = $this->contact_repo->save($data['contacts'], $vendor);
+            $contacts = $this->contact_repo->save($data, $vendor);
         }
 
         if (empty($data['name'])) {
