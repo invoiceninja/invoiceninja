@@ -17,6 +17,8 @@ use App\Events\Misc\InvitationWasViewed;
 use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
 use App\Models\InvoiceInvitation;
+use App\Models\QuoteInvitation;
+use App\Models\CreditInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;

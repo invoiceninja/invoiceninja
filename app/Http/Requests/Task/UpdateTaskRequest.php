@@ -37,11 +37,10 @@ class UpdateTaskRequest extends Request
     public function rules()
     {
         $rules = [];
-        /* Ensure we have a client name, and that all emails are unique*/
 
-        if ($this->input('number')) {
-            $rules['number'] = 'unique:tasks,number,'.$this->id.',id,company_id,'.$this->task->company_id;
-        }
+        $rules['number'] = Rule::unique('tasks')
+                                ->where('company_id', auth()->user()->company()->id)
+                                ->ignore($this->task->id);
 
         return $this->globalRules($rules);
     }

@@ -23,14 +23,17 @@ class VendorContactRepository extends BaseRepository
 {
     public $is_primary;
 
-    public function save($contacts, Vendor $vendor) : void
+    public function save(array $data, Vendor $vendor) : void
     {
 
-        /* Convert array to collection */
-        $contacts = collect($contacts);
+        if (isset($data['contacts'])) {
+            $contacts = collect($data['contacts']);
+        } else {
+            $contacts = collect();
+        }
 
         /* Get array of IDs which have been removed from the contacts array and soft delete each contact */
-        collect($vendor->contacts->pluck('id'))->diff($contacts->pluck('id'))->each(function ($contact) {
+        $vendor->contacts->pluck('id')->diff($contacts->pluck('id'))->each(function ($contact) {
             VendorContact::destroy($contact);
         });
 
@@ -62,9 +65,7 @@ class VendorContactRepository extends BaseRepository
             $update_contact->fill($contact);
 
             if (array_key_exists('password', $contact) && strlen($contact['password']) > 1) {
-
                 $update_contact->password = Hash::make($contact['password']);
-                
             }
 
             $update_contact->save();
@@ -73,7 +74,7 @@ class VendorContactRepository extends BaseRepository
         $vendor->load('contacts');
 
         //always made sure we have one blank contact to maintain state
-        if ($contacts->count() == 0) {
+        if ($vendor->contacts->count() == 0) {
             $new_contact = new VendorContact;
             $new_contact->vendor_id = $vendor->id;
             $new_contact->company_id = $vendor->company_id;
