@@ -26,11 +26,14 @@ class VendorContactRepository extends BaseRepository
     public function save($contacts, Vendor $vendor) : void
     {
 
-        /* Convert array to collection */
-        $contacts = collect($contacts);
+        if (isset($data['contacts'])) {
+            $contacts = collect($data['contacts']);
+        } else {
+            $contacts = collect();
+        }
 
         /* Get array of IDs which have been removed from the contacts array and soft delete each contact */
-        collect($vendor->contacts->pluck('id'))->diff($contacts->pluck('id'))->each(function ($contact) {
+        $vendor->contacts->pluck('id')->diff($contacts->pluck('id'))->each(function ($contact) {
             VendorContact::destroy($contact);
         });
 

@@ -1373,12 +1373,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 1,
@@ -1425,12 +1419,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 2,
@@ -1477,12 +1465,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 3,
@@ -1529,12 +1511,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 4,
@@ -1581,12 +1557,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 5,
@@ -1633,12 +1603,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 6,
@@ -1685,12 +1649,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 7,
@@ -1737,12 +1695,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 8,
@@ -1789,12 +1741,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 9,
@@ -1841,12 +1787,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 10,
@@ -1893,12 +1833,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 11,
@@ -1945,12 +1879,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 12,
@@ -1997,12 +1925,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 13,
@@ -2049,12 +1971,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 14,
@@ -2101,12 +2017,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 15,
@@ -2153,12 +2063,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 16,
@@ -2205,12 +2109,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 17,
@@ -2257,12 +2155,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 18,
@@ -2309,12 +2201,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 19,
@@ -2361,12 +2247,6 @@
             "custom_value3": "",
             "custom_value4": "",
             "transaction_name": "",
-            "shipping_address1": null,
-            "shipping_address2": null,
-            "shipping_city": null,
-            "shipping_state": null,
-            "shipping_postal_code": null,
-            "shipping_country_id": null,
             "contacts": [
                 {
                     "id": 20,

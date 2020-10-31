@@ -474,7 +474,7 @@ class Import implements ShouldQueue
             unset($modified['id']);
             unset($modified['contacts']);
 
-            $client = $vendor_repository->save(
+            $vendor = $vendor_repository->save(
                 $modified,
                 VendorFactory::create(
                     $this->company->id,
@@ -482,29 +482,29 @@ class Import implements ShouldQueue
                 )
             );
 
-            $client->contacts()->forceDelete();
+            $vendor->contacts()->forceDelete();
 
             if (array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
                 $modified_contacts = $resource['contacts'];
 
-                foreach ($modified_contacts as $key => $client_contacts) {
+                foreach ($modified_contacts as $key => $vendor_contacts) {
                     $modified_contacts[$key]['company_id'] = $this->company->id;
                     $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
-                    $modified_contacts[$key]['client_id'] = $client->id;
+                    $modified_contacts[$key]['client_id'] = $vendor->id;
                     $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code..
                     unset($modified_contacts[$key]['id']);
                 }
 
                 $saveable_contacts['contacts'] = $modified_contacts;
 
-                $contact_repository->save($saveable_contacts, $client);
+                $contact_repository->save($saveable_contacts, $vendor);
             }
 
             $key = "vendors_{$resource['id']}";
 
             $this->ids['vendors'][$key] = [
                 'old' => $resource['id'],
-                'new' => $client->id,
+                'new' => $vendor->id,
             ];
         }
 
@@ -1052,10 +1052,18 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->transformId('users', $resource['user_id']);
-            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
-            $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
-            $modified['project_id'] = $this->transformId('projects', $resource['project_id']);
-            $modified['status_id'] = $this->transformId('task_statuses', $resource['status_id']);
+
+            if(isset($modified['client_id']))
+                $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+
+            if(isset($modified['invoice_id']))
+                $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+            
+            if(isset($modified['project_id']))
+                $modified['project_id'] = $this->transformId('projects', $resource['project_id']);
+            
+            if(isset($modified['status_id']))
+                $modified['status_id'] = $this->transformId('task_statuses', $resource['status_id']);
 
             $task = Task::Create($modified);
 
@@ -1085,7 +1093,9 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->transformId('users', $resource['user_id']);
-            $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+
+            if(isset($modified['client_id']))
+                $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
 
             $project = Project::Create($modified);
 
