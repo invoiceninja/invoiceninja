@@ -124,6 +124,9 @@
             "@php artisan package:discover"
         ]
     },
+    "replace": {
+        "alfaproject/omnipay-skrill": "*"
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
