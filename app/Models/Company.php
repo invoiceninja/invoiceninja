@@ -69,9 +69,9 @@ class Company extends BaseModel
     protected $presenter = \App\Models\Presenters\CompanyPresenter::class;
 
     protected $fillable = [
+        'show_tasks_table',
         'mark_expenses_invoiceable',
         'mark_expenses_paid',
-        'use_credits_payment',
         'enabled_item_tax_rates',
         'fill_products',
         'industry_id',
@@ -98,6 +98,8 @@ class Company extends BaseModel
         'google_analytics_key',
         'client_can_register',
         'enable_shop_api',
+        'invoice_task_timelog',
+        'auto_start_tasks',
     ];
 
     protected $hidden = [
@@ -165,14 +167,20 @@ class Company extends BaseModel
         return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id');
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
+    public function expense_categories()
+    {
+        return $this->hasMany(ExpenseCategory::class)->withTrashed();
+    }
+
+    public function task_statuses()
+    {
+        return $this->hasMany(TaskStatus::class)->withTrashed();
+    }
+
     public function clients()
     {
         return $this->hasMany(Client::class)->withTrashed();
     }
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

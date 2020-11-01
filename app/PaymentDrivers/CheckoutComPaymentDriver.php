@@ -12,24 +12,16 @@
 
 namespace App\PaymentDrivers;
 
-use App\Events\Payment\PaymentWasCreated;
-use App\Jobs\Mail\PaymentFailureMailer;
-use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\BaseDriver;
 use App\PaymentDrivers\CheckoutCom\Utilities;
-use App\Utils\Ninja;
 use App\Utils\Traits\SystemLogTrait;
 use Checkout\CheckoutApi;
 use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Payments\IdSource;
-use Checkout\Models\Payments\Payment as CheckoutPayment;
-use Checkout\Models\Payments\TokenSource;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -50,14 +42,18 @@ class CheckoutComPaymentDriver extends BaseDriver
     /* Authorise payment methods */
     public $can_authorise_credit_card = true;
 
-    /** Instance of \Checkout\CheckoutApi */
+    /**
+     * @var \Checkout\CheckoutApi;
+     */
     public $gateway;
 
     public $payment_method; //the gateway type id
 
     public static $methods = [
-        GatewayType::CREDIT_CARD => '',
+        GatewayType::CREDIT_CARD => \App\PaymentDrivers\CheckoutCom\CreditCard::class,
     ];
+
+    const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT;
 
     /**
      * Returns the default gateway type.
@@ -75,6 +71,13 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function setPaymentMethod($payment_method = null)
     {
+        // At the moment Checkout.com payment 
+        // driver only supports payments using credit card.
+
+        $class = self::$methods[GatewayType::CREDIT_CARD];
+
+        $this->payment_method = new $class($this);
+
         return $this;
     }
 
@@ -82,7 +85,7 @@ class CheckoutComPaymentDriver extends BaseDriver
      * Initialize the checkout payment driver
      * @return $this
      */
-    public function init() 
+    public function init()
     {
         $config = [
             'secret' =>  $this->company_gateway->getConfigField('secretApiKey'),
@@ -102,22 +105,20 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function viewForType($gateway_type_id)
     {
-        //currently only ever token or creditcard so no need for switches
-        $this->payment_method = $gateway_type_id;
+        // At the moment Checkout.com payment 
+        // driver only supports payments using credit card.
 
-        return 'gateways.checkout.credit_card';
-        
+        return 'gateways.checkout.credit_card.pay';
     }
 
-    /**
-     * Authorization view
-     * 
-     * @param  array $data  Payment data array
-     * @return view         Authorization View
-     */
     public function authorizeView($data)
     {
-        return render('gateways.checkout.authorize');
+        return $this->payment_method->authorizeView($data);
+    }
+
+    public function authorizeResponse($data)
+    {
+        return $this->payment_method->authorizeResponse($data);
     }
 
     /**
@@ -128,15 +129,7 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function processPaymentView(array $data)
     {
-        $data['gateway'] = $this;
-        $data['company_gateway'] = $this->company_gateway;
-        $data['client'] = $this->client;
-        $data['currency'] = $this->client->getCurrencyCode();
-        $data['value'] = $this->convertToCheckoutAmount($data['amount_with_fee'], $this->client->getCurrencyCode());
-        $data['raw_value'] = $data['amount_with_fee'];
-        $data['customer_email'] = $this->client->present()->email;
-
-        return render($this->viewForType($data['payment_method_id']), $data);
+        return $this->payment_method->paymentView($data);
     }
 
     /**
@@ -147,262 +140,12 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function processPaymentResponse($request)
     {
-        $this->init();
-
-        $state = [
-            'server_response' => json_decode($request->gateway_response),
-            'value' => $request->value,
-            'raw_value' => $request->raw_value,
-            'currency' => $request->currency,
-            'payment_hash' =>$request->payment_hash,
-            'reference' => $request->payment_hash,
-        ];
-
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
-
-        $state = array_merge($state, $request->all());
-        $state['store_card'] = boolval($state['store_card']);
-
-        if ($request->has('token') && !is_null($request->token)) {
-            $method = new IdSource($state['token']);
-            $payment = new CheckoutPayment($method, $state['currency']);
-            $payment->amount = $state['value'];
-            $payment->reference = $state['reference'];
-        } else {
-            $method = new TokenSource($state['server_response']->cardToken);
-            $payment = new CheckoutPayment($method, $state['currency']);
-            $payment->amount = $state['value'];
-            $payment->reference = $state['reference'];
-
-            if ($this->client->currency()->code === 'EUR') {
-                $payment->{'3ds'} = ['enabled' => true];
-            }
-        }
-
-        try {
-            $response = $this->gateway->payments()->request($payment);
-            $state['payment_response'] = $response;
-
-            if ($response->status === 'Authorized') {
-                
-               $this->confirmGatewayFee($request);
-
-                return $this->processSuccessfulPayment($state);
-            }
-
-            if ($response->status === 'Pending') {
-
-                $this->confirmGatewayFee($request);
-
-                return $this->processPendingPayment($state);
-            }
-
-            if ($response->status === 'Declined') {
-                $this->unWindGatewayFees($payment_hash);
-
-                return $this->processUnsuccessfulPayment($state);
-            }
-        } catch (CheckoutHttpException $e) {
-
-            $this->unWindGatewayFees($payment_hash);
-
-            return $this->processInternallyFailedPayment($e, $state);
-        }
+        return $this->payment_method->paymentResponse($request);
     }
 
-    /**
-     * Process a successful payment response
-     * 
-     * @param  array $state  The state array
-     * @return view          The response
-     */
-    public function processSuccessfulPayment($state)
+    public function storePaymentMethod(array $data)
     {
-        $state['charge_id'] = $state['payment_response']->id;
-
-        if (isset($state['store_card']) && $state['store_card']) {
-            $this->saveCard($state);
-        }
-
-        $data = [
-            'payment_method' => $state['charge_id'],
-            'payment_type' => PaymentType::parseCardType($state['payment_response']->source['scheme']),
-            'amount' => $state['raw_value'],
-        ];
-
-        $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$state['payment_hash']])->firstOrFail();
-        $payment_hash->payment_id = $payment->id;
-        $payment_hash->save();
-        
-        $this->attachInvoices($payment, $payment_hash);
-        $payment->service()->updateInvoicePayment($payment_hash);
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
-
-        $logger_message = [
-            'server_response' => $state['payment_response'],
-            'data' => $data,
-        ];
-
-        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_CHECKOUT, $this->client);
-
-        return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
-    }
-
-    public function processPendingPayment($state)
-    {
-        $state['charge_id'] = $state['payment_response']->id;
-
-        if (isset($state['store_card']) && $state['store_card']) {
-            $this->saveCard($state);
-        }
-
-        $data = [
-            'payment_method' => $state['charge_id'],
-            'payment_type' => PaymentType::parseCardType($state['payment_response']->source['scheme']),
-            'amount' => $state['raw_value'],
-        ];
-
-        $payment = $this->createPayment($data, Payment::STATUS_PENDING);
-
-        $this->attachInvoices($payment, $state['payment_hash']);
-
-        $payment->service()->updateInvoicePayment($state['payment_hash']);
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
-
-        $logger_message = [
-            'server_response' => $state['payment_response'],
-            'data' => $data,
-        ];
-
-        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_CHECKOUT, $this->client);
-
-        try {
-            return redirect($state['payment_response']->_links['redirect']['href']);
-        } catch (\Exception $e) {
-
-            SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client);
-
-            $this->unWindGatewayFees($state['payment_hash']);
-                
-            return render('gateways.unsuccessful', [
-                'code' => $state['payment_response']->response_code,
-                'message' => ctrans('texts.payment_error'),
-            ]);
-
-        }
-    }
-
-    public function processUnsuccessfulPayment($state)
-    {
-        PaymentFailureMailer::dispatch($this->client, $state['payment_response']->response_summary, $this->client->company, $state['payment_response']->amount);
-
-        $message = [
-            'server_response' => $state['server_response'],
-            'data' => $state,
-        ];
-
-        SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client);
-
-        // throw new \Exception('Failed to process the payment: ' . $state['payment_response']->response_summary, 1);
-
-        return render('gateways.unsuccessful', [
-            'code' => $state['payment_response']->response_code,
-            'message' => ctrans('texts.payment_error'),
-        ]);
-    }
-
-    public function processInternallyFailedPayment($e, $state)
-    {
-        $error_message = json_decode($e->getBody());
-
-        PaymentFailureMailer::dispatch($this->client, optional($error_message)->message, $this->client->company, $state['value']);
-
-        $message = [
-            'server_response' => $state['server_response'],
-            'data' => $e->getBody(),
-        ];
-
-        SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client);
-        
-        //todo push to a error page with the exception message.
-        
-        //throw new \Exception('Failed to process the payment.', 1);
-
-       return render('gateways.unsuccessful', [
-            'code' => '500',
-            'message' => ctrans('texts.payment_error'),
-        ]);
-    }
-
-    public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
-    {
-        $payment = parent::createPayment($data, $status);
-
-        $client_contact = $this->getContact();
-        $client_contact_id = $client_contact ? $client_contact->id : null;
-
-        $payment->amount = $data['amount'];
-        $payment->type_id = $data['payment_type'];
-        $payment->transaction_reference = $data['payment_method'];
-        $payment->client_contact_id = $client_contact_id;
-        $payment->save();
-
-        return $payment;
-    }
-
-    public function saveCard($state)
-    {
-        // TODO: @wip Fix card tokenization.
-        return;
-
-        //some cards just can't be tokenized....
-        if(!$state['payment_response']->source['id'])
-            return;
-        
-                    // [id] => src_hck5nsv3fljehbam2cvdm7fioa
-                    // [type] => card
-                    // [expiry_month] => 10
-                    // [expiry_year] => 2022
-                    // [scheme] => Visa
-                    // [last4] => 4242
-                    // [fingerprint] => 688192847DB9AE8A26C53776D036D5B8AD2CEAF1D5A8F5475F542B021041EFA1
-                    // [bin] => 424242
-                    // [card_type] => Credit
-                    // [card_category] => Consumer
-                    // [issuer] => JPMORGAN CHASE BANK NA
-                    // [issuer_country] => US
-                    // [product_id] => A
-                    // [product_type] => Visa Traditional
-                    // [avs_check] => S
-                    // [cvv_check] => Y
-                    // [payouts] => 1
-                    // [fast_funds] => d
-
-        $payment_meta = new \stdClass;
-        $payment_meta->exp_month = (string)$state['payment_response']->source['expiry_month'];
-        $payment_meta->exp_year = (string)$state['payment_response']->source['expiry_year'];
-        $payment_meta->brand = (string)$state['payment_response']->source['scheme'];
-        $payment_meta->last4 = (string)$state['payment_response']->source['last4'];
-        $payment_meta->type = $this->payment_method;
-
-        $company_gateway_token = new ClientGatewayToken();
-        $company_gateway_token->company_id = $this->client->company->id;
-        $company_gateway_token->client_id = $this->client->id;
-        $company_gateway_token->token = $state['payment_response']->source['id'];
-        $company_gateway_token->company_gateway_id = $this->company_gateway->id;
-        $company_gateway_token->gateway_type_id = $state['payment_method_id'];
-        $company_gateway_token->meta = $payment_meta;
-        $company_gateway_token->save();
-
-        if ($this->client->gateway_tokens->count() == 1) {
-            $this->client->gateway_tokens()->update(['is_default' => 0]);
-
-            $company_gateway_token->is_default = 1;
-            $company_gateway_token->save();
-        }
+        return $this->storeGatewayToken($data);
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)

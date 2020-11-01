@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Project;
 
 use App\Http\Requests\Request;
+use App\Models\Client;
 use App\Models\Project;
 use App\Utils\Traits\MakesHash;
 
@@ -33,7 +34,6 @@ class StoreProjectRequest extends Request
     {
         $rules = [];
 
-            //$rules['name'] ='required|unique:projects,name,null,null,company_id,'.auth()->user()->companyId();
             $rules['name'] = 'required';
             $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
@@ -42,13 +42,13 @@ class StoreProjectRequest extends Request
 
     protected function prepareForValidation()
     {
-        $input = $this->all();
+        $input = $this->decodePrimaryKeys($this->all()); 
 
-        if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
-
-        
         $this->replace($input);
+    }
+
+    public function getClient($client_id)
+    {
+        return Client::find($client_id);
     }
 }

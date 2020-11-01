@@ -37,7 +37,7 @@ class ExampleIntegrationTest extends TestCase
         $invoice = $this->invoice;
         $invitation = $invoice->invitations()->first();
 
-        $engine = new HtmlEngine(null, $invitation, 'invoice');
+        $engine = new HtmlEngine($invitation);
 
         $design = new Design(
             Design::CLEAN

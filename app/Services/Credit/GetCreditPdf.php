@@ -11,8 +11,7 @@
 
 namespace App\Services\Credit;
 
-use App\Jobs\Credit\CreateCreditPdf;
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Services\AbstractService;
@@ -45,7 +44,7 @@ class GetCreditPdf extends AbstractService
         $file = Storage::disk($disk)->exists($file_path);
 
         if (! $file) {
-            $file_path = CreateCreditPdf::dispatchNow($this->credit, $this->credit->company, $this->contact);
+            $file_path = CreateEntityPdf::dispatchNow($this->credit, $this->credit->company, $this->contact);
         }
 
         return Storage::disk($disk)->path($file_path);

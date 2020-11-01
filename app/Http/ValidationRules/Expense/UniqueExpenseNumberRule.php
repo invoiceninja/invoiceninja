@@ -55,15 +55,27 @@ class UniqueExpenseNumberRule implements Rule
      */
     private function checkIfExpenseNumberUnique() : bool
     {
-        $expense = Expense::where('client_id', $this->input['client_id'])
-                        ->where('number', $this->input['number'])
-                        ->withTrashed()
-                        ->exists();
+        if(empty($this->input['number']))
+            return true;
 
-        if ($expense) {
-            return false;
-        }
+        $expense = Expense::query()
+                          ->where('number', $this->input['number'])
+                          ->withTrashed();
 
-        return true;
+        // if(isset($this->input['client_id']))
+        //     $expense->where('client_id', $this->input['client_id']);
+
+        return $expense->exists();
+        
+        // $expense = Expense::where('client_id', $this->input['client_id'])
+        //                 ->where('number', $this->input['number'])
+        //                 ->withTrashed()
+        //                 ->exists();
+
+        // if ($expense) {
+        //     return false;
+        // }
+
+        // return true;
     }
 }

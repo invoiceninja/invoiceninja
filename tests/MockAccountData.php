@@ -31,6 +31,7 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\Credit;
+use App\Models\CreditInvitation;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\GroupSetting;
@@ -42,6 +43,7 @@ use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -80,6 +82,8 @@ trait MockAccountData
     public $expense;
 
     public $task;
+
+    public $task_status;
 
     public $expense_category;
 
@@ -132,7 +136,8 @@ trait MockAccountData
         $settings->country_id = '840';
         $settings->vat_number = 'vat number';
         $settings->id_number = 'id number';
-
+        $settings->use_credits_payment = 'always';
+        
         $this->company->settings = $settings;
         $this->company->save();
 
@@ -233,6 +238,11 @@ trait MockAccountData
         ]);
 
         $this->expense_category = ExpenseCategory::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->task_status = TaskStatus::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
         ]);
@@ -342,19 +352,45 @@ trait MockAccountData
         $this->credit->tax_rate3 = 0;
         
         $this->credit->uses_inclusive_taxes = false;
-
         $this->credit->save();
-        $this->credit->service()->createInvitations()->markSent();
+
 
         $this->credit_calc = new InvoiceSum($this->credit);
         $this->credit_calc->build();
 
         $this->credit = $this->credit_calc->getCredit();
-        $this->credit->service()->markSent();
 
         $this->client->service()->adjustCreditBalance($this->credit->balance)->save();
         $this->credit->ledger()->updateCreditBalance($this->credit->balance)->save();
-        
+        $this->credit->number = $this->getNextCreditNumber($this->client);
+
+
+        CreditInvitation::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact->id,
+                'credit_id' => $this->credit->id,
+            ]);
+
+        CreditInvitation::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact2->id,
+                'credit_id' => $this->credit->id,
+            ]);
+
+        $invitations = CreditInvitation::whereCompanyId($this->credit->company_id)
+                                        ->whereCreditId($this->credit->id);
+
+        $this->credit->setRelation('invitations', $invitations);
+
+        $this->credit->service()->markSent();
+
+        $this->credit->setRelation('client', $this->client);
+        $this->credit->setRelation('company', $this->company);
+
+        $this->credit->save();
+
         $contacts = $this->invoice->client->contacts;
 
         $contacts->each(function ($contact) {

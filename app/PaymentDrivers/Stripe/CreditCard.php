@@ -44,45 +44,17 @@ class CreditCard
 
     public function authorizeResponse($request)
     {
-        $server_response = json_decode($request->input('gateway_response'));
-
-        $gateway_id = $request->input('gateway_id');
-        $gateway_type_id = $request->input('payment_method_id');
-        $is_default = $request->input('is_default');
-
-        $payment_method = $server_response->payment_method;
-
-        $customer = $this->stripe->findOrCreateCustomer();
-
         $this->stripe->init();
 
-        $stripe_payment_method = \Stripe\PaymentMethod::retrieve($payment_method);
-        $stripe_payment_method_obj = $stripe_payment_method->jsonSerialize();
-        $stripe_payment_method->attach(['customer' => $customer->id]);
+        $stripe_response = json_decode($request->input('gateway_response'));
 
-        $payment_meta = new \stdClass;
-        $payment_meta->exp_month = (string)$stripe_payment_method_obj['card']['exp_month'];
-        $payment_meta->exp_year = (string)$stripe_payment_method_obj['card']['exp_year'];
-        $payment_meta->brand = (string)$stripe_payment_method_obj['card']['brand'];
-        $payment_meta->last4 = (string)$stripe_payment_method_obj['card']['last4'];
-        $payment_meta->type = GatewayType::CREDIT_CARD;
+        $customer = $this->stripe->findOrCreateCustomer();
+        
+        $this->stripe->attach($stripe_response->payment_method, $customer);
 
-        $client_gateway_token = new ClientGatewayToken();
-        $client_gateway_token->company_id = $this->stripe->client->company->id;
-        $client_gateway_token->client_id = $this->stripe->client->id;
-        $client_gateway_token->token = $payment_method;
-        $client_gateway_token->company_gateway_id = $this->stripe->company_gateway->id;
-        $client_gateway_token->gateway_type_id = $gateway_type_id;
-        $client_gateway_token->gateway_customer_reference = $customer->id;
-        $client_gateway_token->meta = $payment_meta;
-        $client_gateway_token->save();
+        $stripe_method = $this->stripe->getStripePaymentMethod($stripe_response->payment_method);
 
-        if ($is_default == 'true' || $this->stripe->client->gateway_tokens->count() == 1) {
-            $this->stripe->client->gateway_tokens()->update(['is_default' => 0]);
-
-            $client_gateway_token->is_default = 1;
-            $client_gateway_token->save();
-        }
+        $this->storePaymentMethod($stripe_method, $request->payment_method_id, $customer);
 
         return redirect()->route('client.payment_methods.index');
     }
@@ -231,6 +203,28 @@ class CreditCard
         SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
 
         throw new \Exception('Failed to process the payment.', 1);
+    }
+
+    private function storePaymentMethod(\Stripe\PaymentMethod $method, $payment_method_id, $customer)
+    {
+        try {
+            $payment_meta = new \stdClass;
+            $payment_meta->exp_month = (string) $method->card->exp_month;
+            $payment_meta->exp_year = (string) $method->card->exp_year;
+            $payment_meta->brand = (string) $method->card->brand;
+            $payment_meta->last4 = (string) $method->card->last4;
+            $payment_meta->type = GatewayType::CREDIT_CARD;
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $method->id,
+                'payment_method_id' => $payment_method_id,
+            ];
+
+            $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+        } catch (\Exception $e) {
+            return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
+        }
     }
 
     private function saveCard($state)

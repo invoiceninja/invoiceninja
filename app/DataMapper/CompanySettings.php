@@ -105,6 +105,9 @@ class CompanySettings extends BaseSettings
     public $payment_number_pattern = '';
     public $payment_number_counter = 1;
 
+    public $project_number_pattern = '';
+    public $project_number_counter = 1;
+
     public $shared_invoice_quote_counter = false;
     public $recurring_number_prefix = 'R';
     public $reset_counter_frequency_id = '0';
@@ -186,6 +189,7 @@ class CompanySettings extends BaseSettings
     public $enable_reminder1 = false;
     public $enable_reminder2 = false;
     public $enable_reminder3 = false;
+    public $enable_reminder_endless = false;
 
     public $num_days_reminder1 = 0;
     public $num_days_reminder2 = 0;
@@ -250,7 +254,11 @@ class CompanySettings extends BaseSettings
     public $client_portal_under_payment_minimum = 0;
     public $client_portal_allow_over_payment = false;
 
+    public $use_credits_payment = 'off'; //always, option, off
+
     public static $casts = [
+        'enable_reminder_endless'            => 'bool',
+        'use_credits_payment'                => 'string',
         'recurring_invoice_number_pattern'   => 'string',
         'recurring_invoice_number_counter'   => 'int',
         'client_portal_under_payment_minimum'=> 'float',
@@ -313,6 +321,8 @@ class CompanySettings extends BaseSettings
         'embed_documents'                    => 'bool',
         'all_pages_header'                   => 'bool',
         'all_pages_footer'                   => 'bool',
+        'project_number_pattern'             => 'string',
+        'project_number_counter'             => 'int',
         'task_number_pattern'                => 'string',
         'task_number_counter'                => 'int',
         'expense_number_pattern'             => 'string',

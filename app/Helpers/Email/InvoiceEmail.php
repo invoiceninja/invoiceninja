@@ -8,8 +8,10 @@
 
 namespace App\Helpers\Email;
 
+use App\Helpers\Email\EntityEmailInterface;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Utils\HtmlEngine;
 use App\Utils\Number;
 
 class InvoiceEmail extends EmailBuilder
@@ -21,7 +23,7 @@ class InvoiceEmail extends EmailBuilder
         $contact = $invitation->contact;
 
         if (! $reminder_template) {
-            $reminder_template = $invoice->calculateTemplate();
+            $reminder_template = $invoice->calculateTemplate('invoice');
         }
 
         $body_template = $client->getSetting('email_template_'.$reminder_template);
@@ -68,7 +70,7 @@ class InvoiceEmail extends EmailBuilder
 
         $this->setTemplate($client->getSetting('email_style'))
             ->setContact($contact)
-            ->setVariables($invoice->makeValues($contact))
+            ->setVariables((new HtmlEngine($invitation))->makeValues())
             ->setSubject($subject_template)
             ->setBody($body_template)
             ->setFooter("<a href='{$invitation->getLink()}'>".ctrans('texts.view_invoice').'</a>')

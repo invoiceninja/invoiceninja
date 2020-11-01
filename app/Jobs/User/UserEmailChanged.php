@@ -93,6 +93,7 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
             'signature' => $this->company->owner()->signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->settings,
+            'whitelabel' => $this->company->account->isPaid() ? true : false,
         ];
     }
 }

@@ -12,7 +12,7 @@
 namespace App\Models;
 
 use App\Events\Credit\CreditWasUpdated;
-use App\Jobs\Credit\CreateCreditPdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Invoice;
 use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
@@ -131,7 +131,7 @@ class CreditInvitation extends BaseModel
 
         if (! Storage::exists($this->credit->client->credit_filepath().$this->credit->number.'.pdf')) {
             event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
-            CreateCreditPdf::dispatchNow($this);
+            CreateEntityPdf::dispatchNow($this);
         }
 
         return $storage_path;

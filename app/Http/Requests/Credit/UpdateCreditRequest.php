@@ -1,13 +1,23 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
 
 namespace App\Http\Requests\Credit;
 
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Request;
 
-class UpdateCreditRequest extends FormRequest
+class UpdateCreditRequest extends Request
 {
     use MakesHash;
     use CleanLineItems;
@@ -53,33 +63,7 @@ class UpdateCreditRequest extends FormRequest
     {
         $input = $this->all();
 
-        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
-            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
-        }
-
-        if (isset($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
-
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
-
-        if (isset($input['invitations'])) {
-            foreach ($input['invitations'] as $key => $value) {
-                if (is_numeric($input['invitations'][$key]['id'])) {
-                    unset($input['invitations'][$key]['id']);
-                }
-
-                if (is_string($input['invitations'][$key]['id'])) {
-                    $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
-                }
-
-                if (is_string($input['invitations'][$key]['client_contact_id'])) {
-                    $input['invitations'][$key]['client_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['client_contact_id']);
-                }
-            }
-        }
+        $input = $this->decodePrimaryKeys($input);
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
 

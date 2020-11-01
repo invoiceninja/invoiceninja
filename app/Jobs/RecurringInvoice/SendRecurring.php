@@ -15,7 +15,7 @@ use App\DataMapper\Analytics\SendRecurringFailure;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Helpers\Email\InvoiceEmail;
-use App\Jobs\Invoice\EmailInvoice;
+use App\Jobs\Entity\EmailEntity;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
@@ -76,7 +76,7 @@ class SendRecurring implements ShouldQueue
             $email_builder = (new InvoiceEmail())->build($invitation);
 
             if($invitation->contact && strlen($invitation->contact->email) >=1){
-                EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
+                EmailEntity::dispatch($invitation, $invoice->company);
                 info("Firing email for invoice {$invoice->number}");
             }
 
@@ -95,9 +95,9 @@ class SendRecurring implements ShouldQueue
         if ($this->recurring_invoice->remaining_cycles == 0) 
             $this->recurring_invoice->setCompleted();
 
-        info($this->recurring_invoice->next_send_date);
-        info($this->recurring_invoice->remaining_cycles);
-        info($this->recurring_invoice->last_sent_date);
+        info("next send date = " . $this->recurring_invoice->next_send_date);
+        info("remaining cycles = " . $this->recurring_invoice->remaining_cycles);
+        info("last send date = " . $this->recurring_invoice->last_sent_date);
 
         $this->recurring_invoice->save();
 

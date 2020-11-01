@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ClientPortal;
 
+use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreatePaymentMethodRequest extends FormRequest

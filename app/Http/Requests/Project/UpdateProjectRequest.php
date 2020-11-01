@@ -36,7 +36,7 @@ class UpdateProjectRequest extends Request
 
     protected function prepareForValidation()
     {
-        $input = $this->all();
+        $input = $this->decodePrimaryKeys($this->all()); 
 
         $this->replace($input);
     }

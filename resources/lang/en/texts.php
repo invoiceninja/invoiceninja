@@ -3285,8 +3285,11 @@ return [
 
     'credit_subject' => 'New credit :number from :account',
     'credit_message' => 'To view your credit for :amount, click the link below.',
+    'payment_type_Crypto' => 'Cryptocurrency',
+    'payment_type_Credit' => 'Credit',
 
     'store_for_future_use' => 'Store for future use',
 
     'pay_with_credit' => 'Pay with credit',
+    'payment_method_saving_failed' => 'Payment method can\'t be saved for future use.',
 ];

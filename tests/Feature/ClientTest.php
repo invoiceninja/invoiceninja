@@ -517,6 +517,7 @@ class ClientTest extends TestCase
 
         $arr = $response->json();
 
+
         $this->client = Client::find($this->decodePrimaryKey($arr['data']['id']));
         $this->client->fresh();
 

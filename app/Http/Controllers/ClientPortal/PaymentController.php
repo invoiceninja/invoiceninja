@@ -175,7 +175,7 @@ class PaymentController extends Controller
         $payment_method_id = $request->input('payment_method_id');
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
-        $credit_totals = $first_invoice->company->use_credits_payment == 'off' ? 0 : $first_invoice->client->service()->getCreditBalance();
+        $credit_totals = $first_invoice->client->getSetting('use_credits_payment') == 'off' ? 0 : $first_invoice->client->service()->getCreditBalance();
         $starting_invoice_amount = $first_invoice->amount;
 
         if($gateway)
@@ -193,7 +193,7 @@ class PaymentController extends Controller
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);
-        $payment_hash->data = $payable_invoices->toArray();
+        $payment_hash->data = ['invoices' => $payable_invoices->toArray()];
         $payment_hash->fee_total = $fee_totals;
         $payment_hash->fee_invoice_id = $first_invoice->id;
         $payment_hash->save();
@@ -220,17 +220,19 @@ class PaymentController extends Controller
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($payment_method_id)
+            ->setPaymentHash($payment_hash)
             ->processPaymentView($data);
     }
 
     public function response(PaymentResponseRequest $request)
     {
-        /*Payment Gateway*/
         $gateway = CompanyGateway::find($request->input('company_gateway_id'))->firstOrFail();
+        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
 
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->input('payment_method_id'))
+            ->setPaymentHash($payment_hash)
             ->processPaymentResponse($request);
     }
 

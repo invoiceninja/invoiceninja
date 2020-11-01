@@ -33,8 +33,6 @@ class ContactKeyLogin
      */
     public function handle($request, Closure $next)
     {
-        info($request->segment(3));
-        info($request->route('contact_key'));
 
         if(Auth::guard('contact')->check())
             Auth::guard('contact')->logout();

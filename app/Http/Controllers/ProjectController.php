@@ -24,6 +24,7 @@ use App\Models\Project;
 use App\Repositories\ProjectRepository;
 use App\Transformers\ProjectTransformer;
 use App\Utils\Traits\BulkOptions;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
@@ -36,7 +37,8 @@ class ProjectController extends BaseController
 {
     use MakesHash;
     use SavesDocuments;
-
+    use GeneratesCounter;
+    
     protected $entity_type = Project::class;
 
     protected $entity_transformer = ProjectTransformer::class;
@@ -353,6 +355,7 @@ class ProjectController extends BaseController
     {
         $project = ProjectFactory::create(auth()->user()->company()->id, auth()->user()->id);
         $project->fill($request->all());
+        $project->number = $this->getNextProjectNumber($request->getClient($request->input('client_id')));
         $project->save();
 
         if ($request->has('documents')) {

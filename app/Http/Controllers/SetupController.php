@@ -16,6 +16,7 @@ use App\Http\Requests\Setup\CheckDatabaseRequest;
 use App\Http\Requests\Setup\CheckMailRequest;
 use App\Http\Requests\Setup\StoreSetupRequest;
 use App\Jobs\Account\CreateAccount;
+use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
 use App\Utils\SystemHealth;
 use Illuminate\Http\Response;
@@ -124,6 +125,8 @@ class SetupController extends Controller
                 CreateAccount::dispatchNow($request->all());
             }
 
+            VersionCheck::dispatchNow();
+
             return redirect('/');
         } catch (\Exception $e) {
             info($e->getMessage());
@@ -192,7 +195,7 @@ class SetupController extends Controller
                 return $this->testPhantom();
             }
 
-            Browsershot::html('PDF GENERATION WORKS! Thank you for using Invoice Ninja!')
+            Browsershot::html('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
                 ->setNodeBinary(config('ninja.system.node_path'))
                 ->setNpmBinary(config('ninja.system.npm_path'))
                 ->noSandbox()

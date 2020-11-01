@@ -117,8 +117,12 @@ trait PdfMakerUtilities
             // <my-tag /> => true
             // <my-tag> => false
 
-             if (isset($child['content'])) {
-                $contains_html = preg_match("/\/[a-z]*>/i", $child['content'],$m) != 0;
+            if (isset($child['content'])) {
+                if (isset($child['is_empty']) && $child['is_empty'] === true) {
+                    continue;
+                }
+
+                $contains_html = preg_match("/\/[a-z]*>/i", $child['content'], $m) != 0;
             }
 
             if ($contains_html) {
@@ -293,7 +297,7 @@ trait PdfMakerUtilities
             $this->document->getElementById('repeat-content')->appendChild($clone);
         }
 
-        info($this->data['options']);
+     //   info($this->data['options']);
 
         if (
             $header = $this->document->getElementById('header') &&
@@ -318,5 +322,28 @@ trait PdfMakerUtilities
             $footer->parentNode->removeChild($footer);
             $this->document->getElementById('repeat-footer')->appendChild($clone);
         }
+    }
+
+    public function getEmptyElements(array &$elements, array $variables) {
+      foreach ($elements as &$element) {
+        if (isset($element['elements'])) {
+          $this->getEmptyChildrens($element['elements'], $variables);
+        }
+      }
+    }
+
+    public function getEmptyChildrens(array &$children, array $variables) {
+      foreach ($children as $key => &$child) {
+        if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
+          $value = strtr($child['content'], $variables['values']);
+          if ($value === '' || $value === '&nbsp;') {
+            $child['is_empty'] = true;
+          }
+        }
+
+        if (isset($child['elements'])) {
+          $this->getEmptyChildrens($child['elements'], $variables);
+        }
+      }
     }
 }

@@ -14,7 +14,6 @@ namespace App\Models\Presenters;
 use App\Utils\Traits\MakesHash;
 use Hashids\Hashids;
 use Laracasts\Presenter\Presenter;
-use stdClass;
 use URL;
 use Utils;
 

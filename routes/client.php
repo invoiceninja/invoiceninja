@@ -31,7 +31,7 @@ Route::group(['middleware' => ['auth:contact', 'locale'], 'prefix' => 'client', 
     Route::get('invoices/{invoice_invitation}', 'ClientPortal\InvoiceController@show')->name('invoice.show_invitation');
 
     Route::get('recurring_invoices', 'ClientPortal\RecurringInvoiceController@index')->name('recurring_invoices.index')->middleware('portal_enabled');
-    Route::get('recurring_invoices/{recurring_invoice}', 'ClientPortal\RecurringInvoiceController@show')->name('recurring_invoice.show');
+    Route::get('recurring_invoices/{recurring_invoice}', 'ClientPortal\RecurringInvoiceController@show')->name('recurring_invoices.show');
     Route::get('recurring_invoices/{recurring_invoice}/request_cancellation', 'ClientPortal\RecurringInvoiceController@requestCancellation')->name('recurring_invoices.request_cancellation');
 
     Route::post('payments/process', 'ClientPortal\PaymentController@process')->name('payments.process');
@@ -57,7 +57,8 @@ Route::group(['middleware' => ['auth:contact', 'locale'], 'prefix' => 'client', 
     Route::get('quotes/{quote}', 'ClientPortal\QuoteController@show')->name('quote.show');
     Route::get('quotes/{quote_invitation}', 'ClientPortal\QuoteController@show')->name('quote.show_invitation');
 
-    Route::resource('credits', 'ClientPortal\CreditController')->only('index', 'show');
+    Route::get('credits', 'ClientPortal\CreditController@index')->name('credits.index');
+    Route::get('credits/{credit}', 'ClientPortal\CreditController@show')->name('credits.show');
 
 
     Route::get('client/switch_company/{contact}', 'ClientPortal\SwitchCompanyController')->name('switch_company');

@@ -10,6 +10,7 @@ namespace App\Helpers\Email;
 
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Utils\HtmlEngine;
 
 class QuoteEmail extends EmailBuilder
 {
@@ -56,7 +57,7 @@ class QuoteEmail extends EmailBuilder
         $this->setTemplate($quote->client->getSetting('email_style'))
             ->setContact($contact)
             ->setFooter("<a href='{$invitation->getLink()}'>Quote Link</a>")
-            ->setVariables($quote->makeValues($contact))
+            ->setVariables((new HtmlEngine($invitation))->makeValues())
             ->setSubject($subject_template)
             ->setBody($body_template);
 

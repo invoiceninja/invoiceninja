@@ -11,7 +11,7 @@
 
 namespace App\Services\Invoice;
 
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
@@ -210,9 +210,18 @@ class InvoiceService
         return $this;
     }
 
+    public function setCalculatedStatus()
+    {
+        if((int)$this->invoice->balance == 0)
+            $this->setStatus(Invoice::STATUS_PAID);
+        elseif($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount)
+            $this->setStatus(Invoice::STATUS_PARTIAL);
+
+        return $this;
+    }
+
     public function updateStatus()
     {
-        info("invoice balance = {$this->invoice->balance}");
 
         if((int)$this->invoice->balance == 0)
             $this->setStatus(Invoice::STATUS_PAID);
@@ -285,7 +294,7 @@ class InvoiceService
     public function touchPdf()
     {
         $this->invoice->invitations->each(function ($invitation){
-            CreateInvoicePdf::dispatch($invitation);
+            CreateEntityPdf::dispatch($invitation);
         });
 
         return $this;

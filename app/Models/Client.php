@@ -98,6 +98,8 @@ class Client extends BaseModel implements HasLocalePreference
     ];
 
     protected $with = [
+        'gateway_tokens',
+        'documents'
         //'currency',
         // 'primary_contact',
         // 'country',
@@ -240,7 +242,6 @@ class Client extends BaseModel implements HasLocalePreference
             return $item->id == $this->getSetting('date_format_id');
         })->first()->format;
 
-        //return DateFormat::find($this->getSetting('date_format_id'))->format;
     }
 
     public function currency()
@@ -524,7 +525,7 @@ class Client extends BaseModel implements HasLocalePreference
             }
         }
 
-        if($this->company->use_credits_payment == 'option' && $this->service()->getCreditBalance() > 0) {
+        if(($this->getSetting('use_credits_payment') == 'option' || $this->getSetting('use_credits_payment') == 'always') && $this->service()->getCreditBalance() > 0) {
                 $payment_urls[] = [
                     'label' => ctrans('texts.apply_credit'),
                     'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,

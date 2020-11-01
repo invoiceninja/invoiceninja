@@ -15,7 +15,7 @@ use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Helpers\Email\InvoiceEmail;
-use App\Jobs\Invoice\EmailInvoice;
+use App\Jobs\Invoice\EmailEntity;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -65,13 +65,12 @@ class TriggeredActions extends AbstractService
     private function sendEmail()
     {
 
-        //$reminder_template = $this->invoice->calculateTemplate();
+        //$reminder_template = $this->invoice->calculateTemplate('invoice');
         $reminder_template = 'payment';
 
         $this->invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($reminder_template) {
-            $email_builder = (new InvoiceEmail())->build($invitation, $reminder_template);
 
-            EmailInvoice::dispatch($email_builder, $invitation, $this->invoice->company);
+            EmailEntity::dispatch($invitation, $this->invoice->company);
         });
 
         if ($this->invoice->invitations->count() > 0) {

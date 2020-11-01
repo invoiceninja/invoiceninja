@@ -14,7 +14,6 @@ namespace App\Http\Controllers;
 use App\Designs\Custom;
 use App\Designs\Designer;
 use App\Factory\InvoiceFactory;
-use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -99,7 +98,7 @@ class PreviewController extends BaseController
 
             $entity_obj->load('client');
 
-            $html = new HtmlEngine(null, $entity_obj->invitations()->first(), request()->entity_type);
+            $html = new HtmlEngine($entity_obj->invitations()->first());
 
             $design_namespace = 'App\Services\PdfMaker\Designs\\'.request()->design['name'];
 
@@ -176,7 +175,7 @@ class PreviewController extends BaseController
             return response()->json(['message' => 'Invalid custom design object'], 400);
         }
 
-        $html = new HtmlEngine(null, $invoice->invitations()->first(), 'invoice');
+        $html = new HtmlEngine($invoice->invitations()->first());
 
         $design = new Design(Design::CUSTOM, ['custom_partials' => request()->design['design']]);
 
@@ -195,8 +194,6 @@ class PreviewController extends BaseController
         $maker
             ->design($design)
             ->build();
-
-        // info($maker->getCompiledHTML(true));
 
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 

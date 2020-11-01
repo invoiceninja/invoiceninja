@@ -26,6 +26,7 @@ class Task extends BaseModel
         'client_id',
         'invoice_id',
         'project_id',
+        'assigned_user_id',
         'custom_value1',
         'custom_value2',
         'custom_value3',
@@ -33,6 +34,9 @@ class Task extends BaseModel
         'description',
         'is_running',
         'time_log',
+        'status_id',
+        'status_sort_order',
+        'invoice_documents',
     ];
 
     protected $touches = [];

@@ -27,6 +27,11 @@ class RecurringInvoiceInvitation extends BaseModel
 
     protected $touches = ['recurring_invoice'];
 
+    protected $with = [
+        'company',
+        'contact',
+    ];
+    
     public function getEntityType()
     {
         return self::class;
@@ -69,5 +74,16 @@ class RecurringInvoiceInvitation extends BaseModel
         return $this->belongsTo(Company::class);
     }
 
+    public function markViewed()
+    {
+        $this->viewed_date = now();
+        $this->save();
+    }
+
+    public function markOpened()
+    {
+        $this->opened_date = now();
+        $this->save();
+    }
 
 }

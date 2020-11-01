@@ -31,6 +31,7 @@ class PaymentTypesSeeder extends Seeder
     const GATEWAY_TYPE_APPLE_PAY = 11;
     const GATEWAY_TYPE_CUSTOM2 = 12;
     const GATEWAY_TYPE_CUSTOM3 = 13;
+    const GATEWAY_TYPE_CREDIT = 14;
 
     public function run()
     {
@@ -69,6 +70,7 @@ class PaymentTypesSeeder extends Seeder
             ['name' => 'SEPA', 'gateway_type_id' => self::GATEWAY_TYPE_SEPA],
             ['name' => 'GoCardless', 'gateway_type_id' => self::GATEWAY_TYPE_GOCARDLESS],
             ['name' => 'Crypto', 'gateway_type_id' => self::GATEWAY_TYPE_CRYPTO],
+            ['name' => 'Credit', 'gateway_type_id' => self::GATEWAY_TYPE_CREDIT],
         ];
 
         $x = 1;

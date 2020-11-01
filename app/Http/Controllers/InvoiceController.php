@@ -28,8 +28,7 @@ use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
-use App\Jobs\Invoice\CreateInvoicePdf;
-use App\Jobs\Invoice\EmailInvoice;
+use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\StoreInvoice;
 use App\Jobs\Invoice\ZipInvoices;
 use App\Jobs\Util\UnlinkFile;
@@ -707,7 +706,7 @@ class InvoiceController extends BaseController
                 if (request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type'))) {
                     $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
                 } else {
-                    $this->reminder_template = $invoice->calculateTemplate();
+                    $this->reminder_template = $invoice->calculateTemplate('invoice');
                 }
 
                 //touch reminder1,2,3_sent + last_sent here if the email is a reminder.
@@ -717,7 +716,7 @@ class InvoiceController extends BaseController
                 $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
                     $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
 
-                    EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
+                    EmailEntity::dispatch($invitation, $invoice->company);
                 });
 
                 if (! $bulk) {

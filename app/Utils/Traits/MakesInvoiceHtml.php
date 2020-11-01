@@ -33,45 +33,45 @@ trait MakesInvoiceHtml
      *
      * @return string           The invoice string in HTML format
      */
-    public function generateEntityHtml(Designer $designer, $entity, $contact = null) :string
-    {
-        $entity->load('client');
+    // public function generateEntityHtml(Designer $designer, $entity, $contact = null) :string
+    // {
+    //     $entity->load('client');
 
-        $client = $entity->client;
+    //     $client = $entity->client;
 
-        App::setLocale($client->preferredLocale());
+    //     App::setLocale($client->preferredLocale());
 
-        $values_and_labels = $entity->buildLabelsAndValues($contact);
+    //     $values_and_labels = $entity->buildLabelsAndValues($contact);
 
-        $designer->build();
+    //     $designer->build();
 
-        $data = [];
-        $data['entity'] = $entity;
-        $data['lang'] = $client->preferredLocale();
-        $data['includes'] = $designer->getIncludes();
-        $data['header'] = $designer->getHeader();
-        $data['body'] = $designer->getBody();
-        $data['footer'] = $designer->getFooter();
+    //     $data = [];
+    //     $data['entity'] = $entity;
+    //     $data['lang'] = $client->preferredLocale();
+    //     $data['includes'] = $designer->getIncludes();
+    //     $data['header'] = $designer->getHeader();
+    //     $data['body'] = $designer->getBody();
+    //     $data['footer'] = $designer->getFooter();
 
-        $html = view('pdf.stub', $data)->render();
+    //     $html = view('pdf.stub', $data)->render();
 
-        $html = $this->parseLabelsAndValues($values_and_labels['labels'], $values_and_labels['values'], $html);
+    //     $html = $this->parseLabelsAndValues($values_and_labels['labels'], $values_and_labels['values'], $html);
 
-        return $html;
-    }
+    //     return $html;
+    // }
 
-    public function generateEmailEntityHtml($entity, $content, $contact = null) :string
-    {
-        $entity->load('client');
+    // public function generateEmailEntityHtml($entity, $content, $contact = null) :string
+    // {
+    //     $entity->load('client');
 
-        $client = $entity->client;
+    //     $client = $entity->client;
 
-        App::setLocale($client->preferredLocale());
+    //     App::setLocale($client->preferredLocale());
 
-        $data = $entity->buildLabelsAndValues($contact);
+    //     $data = $entity->buildLabelsAndValues($contact);
 
-        return $this->parseLabelsAndValues($data['labels'], $data['values'], $content);
-    }
+    //     return $this->parseLabelsAndValues($data['labels'], $data['values'], $content);
+    // }
 
     private function parseLabelsAndValues($labels, $values, $section) :string
     {

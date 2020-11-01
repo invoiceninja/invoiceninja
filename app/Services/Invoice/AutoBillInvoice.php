@@ -19,6 +19,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
@@ -56,7 +57,7 @@ class AutoBillInvoice extends AbstractService
 
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
         
-        if($this->invoice->company->use_credits_payment == 'always' || $this->invoice->company->use_credits_payment == 'option')
+        if($this->client->getSetting('use_credits_payment') != 'off')
             $this->applyCreditPayment(); 
 
         info("partial = {$this->invoice->partial}");
@@ -68,7 +69,7 @@ class AutoBillInvoice extends AbstractService
         elseif($this->invoice->balance > 0)
             $amount = $this->invoice->balance;
         else
-            return $this->finalizePaymentUsingCredits();
+            return $this->invoice;
 
         info("balance remains to be paid!!");
 
@@ -116,6 +117,7 @@ class AutoBillInvoice extends AbstractService
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->date = now();
         $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->type_id = PaymentType::CREDIT;
         $payment->service()->applyNumber()->save();
 
         $payment->invoices()->attach($this->invoice->id, ['amount' => $amount]);
@@ -126,7 +128,13 @@ class AutoBillInvoice extends AbstractService
             {
                 $current_credit = Credit::find($credit['credit_id']);
                 $payment->credits()->attach($current_credit->id, ['amount' => $credit['amount']]);
-                $this->applyPaymentToCredit($current_credit, $credit['amount']);
+                
+                info("adjusting credit balance {$current_credit->balance} by this amount ". $credit['amount']);
+
+                $current_credit->balance -= $credit['amount'];
+
+                $current_credit->service()->setCalculatedStatus()->save();
+                // $this->applyPaymentToCredit($current_credit, $credit['amount']);
             }
 
             $payment->ledger()
@@ -144,9 +152,9 @@ class AutoBillInvoice extends AbstractService
                           ->updateCreditBalance($amount * -1, 'Credits used to pay down Invoice ' . $this->invoice->number)
                           ->save();
 
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+            event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-        return $this->invoice->service()->setStatus(Invoice::STATUS_PAID)->save();
+        return $this->invoice->service()->setCalculatedStatus()->save();
     }
 
     /**
@@ -165,6 +173,8 @@ class AutoBillInvoice extends AbstractService
                                   ->sortBy('created_at');
 
         $available_credit_balance = $available_credits->sum('balance');
+
+        info("available credit balance = {$available_credit_balance}");
 
         if((int)$available_credit_balance == 0)
             return;
@@ -214,7 +224,7 @@ class AutoBillInvoice extends AbstractService
             }
         }
 
-
+        $this->finalizePaymentUsingCredits();
 
         return $this;
     }
