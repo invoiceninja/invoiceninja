@@ -1302,37 +1302,11 @@ trait GenerateMigrationResources
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private function convertMeta($payment_method)
     {
         $expiry = explode('-', $payment_method->expiration);
 
-        if (is_array($expiry)) {
+        if (is_array($expiry) && count($expiry) >= 2) {
             $exp_month = $expiry[1];
             $exp_year = $expiry[0];
         } else {
