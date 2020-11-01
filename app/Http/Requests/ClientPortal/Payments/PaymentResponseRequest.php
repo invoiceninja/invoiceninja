@@ -36,4 +36,17 @@ class PaymentResponseRequest extends FormRequest
 
         return PaymentHash::whereRaw('BINARY `hash`= ?', [$input['payment_hash']])->first();
     }
+
+    public function prepareForValidation()
+    {
+        $store_card = false;
+
+        if ($this->has('store_card') && ($this->store_card === "true" || $this->store_card === true)) {
+            $store_card = true;
+        }
+
+        $this->merge([
+            'store_card' => $store_card,
+        ]);
+    }
 }
