@@ -23,7 +23,7 @@
             "invoice2": "surcharge2"
         },
         "created_at": "2020-06-30",
-        "updated_at": "2020-10-30",
+        "updated_at": "2020-11-01",
         "settings": {
             "timezone_id": "15",
             "date_format_id": "1",

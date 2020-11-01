@@ -99,8 +99,6 @@ class StartMigration implements ShouldQueue
                 return true;
             }
 
-            $this->company->setMigration(true);
-
             $file = storage_path("migrations/$filename/migration.json");
 
             if (! file_exists($file)) {
@@ -111,9 +109,7 @@ class StartMigration implements ShouldQueue
 
             Import::dispatchNow($data, $this->company, $this->user);
 
-            $this->company->setMigration(false);
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
-            $this->company->setMigration(false);
 
             Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
 

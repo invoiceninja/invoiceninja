@@ -320,6 +320,7 @@ class BaseRepository
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
             }
 
+            //links tasks and expenses back to the invoice.
             $model->service()->linkEntities()->save();
 
         }
