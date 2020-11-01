@@ -36,8 +36,9 @@ class StoreProjectRequest extends Request
 
             $rules['name'] = 'required';
             $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+            $rules['number'] = 'unique:projects,number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
 
-        return $rules;
+        return $this->globalRules($rules);
     }
 
     protected function prepareForValidation()

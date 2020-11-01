@@ -29,6 +29,7 @@ use App\Repositories\RecurringQuoteRepository;
 use App\Transformers\RecurringQuoteTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -52,7 +53,7 @@ class RecurringQuoteController extends BaseController
     /**
      * RecurringQuoteController constructor.
      *
-     * @param      \App\Repositories\RecurringQuoteRepository  $recurring_quote_repo  The RecurringQuote repo
+     * @param RecurringQuoteRepository $recurring_quote_repo  The RecurringQuote repo
      */
     public function __construct(RecurringQuoteRepository $recurring_quote_repo)
     {
@@ -64,9 +65,9 @@ class RecurringQuoteController extends BaseController
     /**
      * Show the list of recurring_invoices.
      *
-     * @param      \App\Filters\RecurringQuoteFilters  $filters  The filters
+     * @param RecurringQuoteFilters $filters  The filters
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -112,9 +113,9 @@ class RecurringQuoteController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @param      \App\Http\Requests\RecurringQuote\CreateRecurringQuoteRequest  $request  The request
+     * @param CreateRecurringQuoteRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -158,9 +159,9 @@ class RecurringQuoteController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param      \App\Http\Requests\RecurringQuote\StoreRecurringQuoteRequest  $request  The request
+     * @param StoreRecurringQuoteRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(
@@ -204,10 +205,10 @@ class RecurringQuoteController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param      \App\Http\Requests\RecurringQuote\ShowRecurringQuoteRequest  $request  The request
-     * @param      \App\Models\RecurringQuote                            $recurring_quote  The RecurringQuote
+     * @param ShowRecurringQuoteRequest $request  The request
+     * @param RecurringQuote $recurring_quote  The RecurringQuote
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -260,10 +261,10 @@ class RecurringQuoteController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param      \App\Http\Requests\RecurringQuote\EditRecurringQuoteRequest  $request  The request
-     * @param      \App\Models\RecurringQuote                            $recurring_quote  The RecurringQuote
+     * @param EditRecurringQuoteRequest $request  The request
+     * @param RecurringQuote $recurring_quote  The RecurringQuote
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -316,10 +317,10 @@ class RecurringQuoteController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param      \App\Http\Requests\RecurringQuote\UpdateRecurringQuoteRequest  $request  The request
-     * @param      \App\Models\RecurringQuote                              $recurring_quote  The RecurringQuote
+     * @param UpdateRecurringQuoteRequest $request  The request
+     * @param RecurringQuote $recurring_quote  The RecurringQuote
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Put(
@@ -378,12 +379,13 @@ class RecurringQuoteController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param      \App\Http\Requests\RecurringQuote\DestroyRecurringQuoteRequest  $request
-     * @param      \App\Models\RecurringQuote                               $recurring_quote
+     * @param DestroyRecurringQuoteRequest $request
+     * @param RecurringQuote $recurring_quote
      *
-     * @return     \Illuminate\Http\Response
+     * @return     Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/recurring_quotes/{id}",
      *      operationId="deleteRecurringQuote",
@@ -513,16 +515,16 @@ class RecurringQuoteController extends BaseController
      *      summary="Performs a custom action on an RecurringQuote",
      *      description="Performs a custom action on an RecurringQuote.
 
-        The current range of actions are as follows
-        - clone_to_RecurringQuote
-        - clone_to_quote
-        - history
-        - delivery_note
-        - mark_paid
-        - download
-        - archive
-        - delete
-        - email",
+    The current range of actions are as follows
+    - clone_to_RecurringQuote
+    - clone_to_quote
+    - history
+    - delivery_note
+    - mark_paid
+    - download
+    - archive
+    - delete
+    - email",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -569,6 +571,9 @@ class RecurringQuoteController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param ActionRecurringQuoteRequest $request
+     * @param RecurringQuote $recurring_quote
+     * @param $action
      */
     public function action(ActionRecurringQuoteRequest $request, RecurringQuote $recurring_quote, $action)
     {

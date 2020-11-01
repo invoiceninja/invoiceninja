@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Account\CreateAccountRequest;
+use App\Http\Requests\SignupRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
 use App\Models\CompanyUser;
@@ -19,6 +20,7 @@ use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyUserTransformer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 
 class AccountController extends BaseController
@@ -39,7 +41,7 @@ class AccountController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function index()
     {
@@ -49,7 +51,7 @@ class AccountController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function create()
     {
@@ -59,8 +61,8 @@ class AccountController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\SignupRequest $request
-     * @return \Illuminate\Http\Response
+     * @param CreateAccountRequest $request
+     * @return Response
      *
      * @OA\Post(
      *      path="/api/v1/signup",
@@ -134,7 +136,6 @@ class AccountController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",

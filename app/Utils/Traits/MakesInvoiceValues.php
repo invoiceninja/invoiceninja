@@ -141,6 +141,7 @@ trait MakesInvoiceValues
      * Transforms all placeholders
      * to invoice values.
      *
+     * @param null $contact
      * @return array returns an array
      * of keyed labels (appended with _label)
      */
@@ -224,7 +225,7 @@ trait MakesInvoiceValues
     //         $data['$number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
     //         $data['$entity.terms'] = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.quote_terms')];
     //         $data['$terms'] = &$data['$entity.terms'];
-            
+
     //         if($invitation)
     //             $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
     //         // $data['$view_link']          = ['value' => $invitation->getLink(), 'label' => ctrans('texts.view_quote')];
@@ -235,7 +236,7 @@ trait MakesInvoiceValues
     //         $data['$number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
     //         $data['$entity.terms'] = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.credit_terms')];
     //         $data['$terms'] = &$data['$entity.terms'];
-            
+
     //         if($invitation)
     //             $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
     //         // $data['$view_link']          = ['value' => $invitation->getLink(), 'label' => ctrans('texts.view_credit')];
@@ -476,7 +477,9 @@ trait MakesInvoiceValues
 
     /**
      * V2 of building a table body for PDFs.
-     * @param  array $columns The array (or string of column headers)
+     * @param array $default_columns
+     * @param $user_columns
+     * @param string $table_prefix
      * @return string  injectable HTML string
      */
     public function buildTableBody(array $default_columns, $user_columns, string $table_prefix) :?string
@@ -588,7 +591,8 @@ trait MakesInvoiceValues
 
     /**
      * Formats the line items for display.
-     * @param  array  $items The array of invoice items
+     * @param array $items The array of invoice items
+     * @param string $table_type
      * @return array        The formatted array of invoice items
      */
     public function transformLineItems($items, $table_type = '$product') :array
@@ -603,13 +607,13 @@ trait MakesInvoiceValues
             if ($table_type == '$product' && $item->type_id != 1) {
                 if ($item->type_id != 4) {
                     continue;
-                } 
+                }
             }
 
             if ($table_type == '$task' && $item->type_id != 2) {
                 if ($item->type_id != 4) {
                     continue;
-                } 
+                }
             }
 
             $data[$key][$table_type.'.product_key'] = $item->product_key;
@@ -808,7 +812,7 @@ trait MakesInvoiceValues
 }
 
 @media print {
-   thead {display: table-header-group;} 
+   thead {display: table-header-group;}
    tfoot {display: table-footer-group;}
    button {display: none;}
    body {margin: 0;}
@@ -826,7 +830,7 @@ trait MakesInvoiceValues
 }
 
 @media print {
-   thead {display: table-header-group;} 
+   thead {display: table-header-group;}
    button {display: none;}
    body {margin: 0;}
 }';

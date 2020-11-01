@@ -15,7 +15,11 @@ use App\Http\Requests\Activity\DownloadHistoricalEntityRequest;
 use App\Models\Activity;
 use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\Pdf\PdfMaker;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use stdClass;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ActivityController extends BaseController
 {
@@ -31,7 +35,7 @@ class ActivityController extends BaseController
     }
 
     /**
-     *      @OA\Get(
+     * @OA\Get(
      *      path="/api/v1/actvities",
      *      operationId="getActivities",
      *      tags={"actvities"},
@@ -65,7 +69,6 @@ class ActivityController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -73,6 +76,8 @@ class ActivityController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param Request $request
+     * @return Response|mixed
      */
     public function index(Request $request)
     {
@@ -85,7 +90,7 @@ class ActivityController extends BaseController
     }
 
     /**
-     *      @OA\Get(
+     * @OA\Get(
      *      path="/api/v1/actvities/download_entity/{activity_id}",
      *      operationId="getActivityHistoricalEntityPdf",
      *      tags={"actvities"},
@@ -122,13 +127,16 @@ class ActivityController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param DownloadHistoricalEntityRequest $request
+     * @param Activity $activity
+     * @return JsonResponse|StreamedResponse
      */
     public function downloadHistoricalEntity(DownloadHistoricalEntityRequest $request, Activity $activity)
     {
         $backup = $activity->backup;
 
         if (! $backup || ! $backup->html_backup) {
-            return response()->json(['message'=> 'No backup exists for this activity', 'errors' => new \stdClass], 404);
+            return response()->json(['message'=> 'No backup exists for this activity', 'errors' => new stdClass], 404);
         }
 
         $pdf = $this->makePdf(null, null, $backup->html_backup);

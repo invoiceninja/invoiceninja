@@ -24,7 +24,7 @@ class ClientStatementController extends BaseController
     /**
      * Displays a client statement view for a given
      * client_id.
-     * @return view
+     * @return void
      */
     public function show()
     {
@@ -33,7 +33,7 @@ class ClientStatementController extends BaseController
     /**
      * Updates the show view data dependent on
      * configured variables.
-     * @return json
+     * @return void
      */
     public function update()
     {

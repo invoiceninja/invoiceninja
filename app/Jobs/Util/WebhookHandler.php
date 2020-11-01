@@ -2,7 +2,9 @@
 
 namespace App\Jobs\Util;
 
+use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
+use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,7 +25,8 @@ class WebhookHandler implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $event_id
+     * @param $entity
      */
     public function __construct($event_id, $entity)
     {
@@ -34,15 +37,15 @@ class WebhookHandler implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
+     * @return bool
      */
     public function handle() :bool
     {
-        if (! $this->entity->company || $this->entity->company->company_users->first()->is_migrating == true) {
+        if (! $this->entity->company || $this->entity->company->is_disabled) {
             return true;
         }
 
-        $subscriptions = \App\Models\Webhook::where('company_id', $this->entity->company_id)
+        $subscriptions = Webhook::where('company_id', $this->entity->company_id)
                                     ->where('event_id', $this->event_id)
                                     ->get();
 
@@ -80,7 +83,7 @@ class WebhookHandler implements ShouldQueue
             'Accept'         => 'application/json',
         ];
 
-        $client = new \GuzzleHttp\Client(['headers' => array_merge($base_headers, $headers)]);
+        $client = new Client(['headers' => array_merge($base_headers, $headers)]);
 
         $response = $client->post($subscription->target_url, [
                         RequestOptions::JSON => $data, // or 'json' => [...]

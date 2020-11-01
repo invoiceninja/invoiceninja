@@ -21,7 +21,7 @@ class UserNotificationMailer extends Mailable
     /**
      * Create a new message instance.
      *
-     * @return void
+     * @param $mail_obj
      */
     public function __construct($mail_obj)
     {

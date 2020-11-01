@@ -15,6 +15,7 @@ use App\Http\Requests\Setup\CheckDatabaseRequest;
 use App\Http\Requests\Setup\CheckMailRequest;
 use App\Libraries\MultiDB;
 use App\Mail\TestMailServer;
+use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -43,6 +44,7 @@ class SystemHealth
     /**
      * Check loaded extensions / PHP version / DB Connections.
      *
+     * @param bool $check_database
      * @return     array  Result set of checks
      */
     public static function check($check_database = true) : array
@@ -87,7 +89,7 @@ class SystemHealth
             if ($exitCode === 0) {
                 return empty($foo[0]) ? 'Found node, but no version information' : $foo[0];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -100,7 +102,7 @@ class SystemHealth
             if ($exitCode === 0) {
                 return empty($foo[0]) ? 'Found npm, but no version information' : $foo[0];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -112,7 +114,7 @@ class SystemHealth
         try {
             $pdo = DB::connection()->getPdo();
             $result = true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $result = false;
         }
 
@@ -128,7 +130,7 @@ class SystemHealth
             if ($exitCode === 0) {
                 return empty($foo[0]) ? 'Found php cli, but no version information' : $foo[0];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
 
@@ -164,7 +166,7 @@ class SystemHealth
                 $pdo = DB::connection()->getPdo();
                 $result[] = [DB::connection()->getDatabaseName() => true];
                 $result['success'] = true;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $result[] = [config('database.connections.'.config('database.default').'.database') => false];
                 $result['success'] = false;
                 $result['message'] = $e->getMessage();
@@ -177,7 +179,7 @@ class SystemHealth
                     $pdo = DB::connection()->getPdo();
                     $result[] = [DB::connection()->getDatabaseName() => true];
                     $result['success'] = true;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $result[] = [config('database.connections.'.config('database.default').'.database') => false];
                     $result['success'] = false;
                 }
@@ -208,7 +210,7 @@ class SystemHealth
         try {
             Mail::to(config('mail.from.address'))
             ->send(new TestMailServer('Email Server Works!', config('mail.from.address')));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $e->getMessage();
         }
 

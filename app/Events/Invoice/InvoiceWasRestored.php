@@ -38,6 +38,8 @@ class InvoiceWasRestored
      *
      * @param Invoice $invoice
      * @param $fromDeleted
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Invoice $invoice, $fromDeleted, Company $company, array $event_vars)
     {

@@ -37,11 +37,9 @@ class UpdateTaskRequest extends Request
     public function rules()
     {
         $rules = [];
-        /* Ensure we have a client name, and that all emails are unique*/
 
-        if ($this->input('number')) {
-            $rules['number'] = 'unique:tasks,number,'.$this->id.',id,company_id,'.$this->task->company_id;
-        }
+        if(isset($this->number))
+            $rules['number'] = Rule::unique('tasks')->where('company_id', auth()->user()->company()->id)->ignore($this->task->id);
 
         return $this->globalRules($rules);
     }
@@ -50,6 +48,10 @@ class UpdateTaskRequest extends Request
     {
         $input = $this->decodePrimaryKeys($this->all()); 
 
+        if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
+            $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
+        }
+        
         $this->replace($input);
     }
 }

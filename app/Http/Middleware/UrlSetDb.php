@@ -14,6 +14,7 @@ namespace App\Http\Middleware;
 use App\Libraries\MultiDB;
 use Closure;
 use Hashids\Hashids;
+use Illuminate\Http\Request;
 
 /**
  * Class UrlSetDb.
@@ -23,8 +24,8 @@ class UrlSetDb
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  Request  $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)

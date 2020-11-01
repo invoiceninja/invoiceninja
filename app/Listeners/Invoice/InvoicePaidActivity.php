@@ -20,6 +20,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
+use stdClass;
 
 class InvoicePaidActivity implements ShouldQueue
 {
@@ -28,7 +29,7 @@ class InvoicePaidActivity implements ShouldQueue
     /**
      * Create the event listener.
      *
-     * @return void
+     * @param ActivityRepository $activity_repo
      */
     public function __construct(ActivityRepository $activity_repo)
     {
@@ -46,8 +47,8 @@ class InvoicePaidActivity implements ShouldQueue
         MultiDB::setDb($event->company->db);
 
         $event->invoice->service()->touchPdf();
-        
-        $fields = new \stdClass;
+
+        $fields = new stdClass;
 
         $fields->invoice_id = $event->invoice->id;
         $fields->user_id = $event->invoice->user_id;

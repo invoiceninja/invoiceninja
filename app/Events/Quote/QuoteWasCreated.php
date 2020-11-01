@@ -30,7 +30,9 @@ class QuoteWasCreated
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param Quote $quote
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Quote $quote, Company $company, array $event_vars)
     {

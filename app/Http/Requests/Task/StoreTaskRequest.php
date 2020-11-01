@@ -38,7 +38,10 @@ class StoreTaskRequest extends Request
     {
         $rules = [];
         
-        return $this->globalRules($rules);
+        if(isset($this->number))
+            $rules['number'] = Rule::unique('tasks')->where('company_id', auth()->user()->company()->id);
+    
+       return $this->globalRules($rules);
     }
 
     protected function prepareForValidation()
@@ -46,6 +49,10 @@ class StoreTaskRequest extends Request
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($this->all()); 
+
+        if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
+            $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
+        }
 
         $this->replace($input);
     }

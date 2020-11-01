@@ -30,7 +30,7 @@ class BaseModel extends Model
     use MakesHash;
     use UserSessionAttributes;
     use HasFactory;
-    
+
     //todo customise names of archived_at / updated_at columns
     ///const CREATED_AT = 'creation_date';
     //const UPDATED_AT = 'last_update';
@@ -112,9 +112,10 @@ class BaseModel extends Model
      * to persist the new settings we will also need to pass back a
      * reference to the parent class.
      *
-     * @param      mixes  $key    The key of property
+     * @param mixes $key The key of property
+     * @return
      */
-    public function getSettingsByKey($key)
+    public function getSettingsByKey(mixes $key)
     {
         /* Does Setting Exist @ client level */
         if (isset($this->getSettings()->{$key})) {
@@ -161,8 +162,9 @@ class BaseModel extends Model
     /**
      * Retrieve the model for a bound value.
      *
-     * @param  mixed  $value
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param mixed $value
+     * @param null $field
+     * @return Model|null
      */
     public function resolveRouteBinding($value, $field = NULL)
     {
@@ -176,6 +178,7 @@ class BaseModel extends Model
     }
 
     /**
+     * @param string $extension
      * @return string
      */
     public function getFileName($extension = 'pdf')

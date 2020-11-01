@@ -18,7 +18,13 @@ use App\Http\Requests\Setup\StoreSetupRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
+use App\Utils\CurlUtils;
 use App\Utils\SystemHealth;
+use DB;
+use Exception;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Request;
@@ -81,11 +87,6 @@ class SetupController extends Controller
         $_ENV['MAIL_FROM_ADDRESS'] = $request->input('mail_address');
         $_ENV['MAIL_PASSWORD'] = $request->input('mail_password');
         $_ENV['NINJA_ENVIRONMENT'] = 'selfhost';
-        $_ENV['SELF_UPDATER_REPO_VENDOR'] = 'invoiceninja';
-        $_ENV['SELF_UPDATER_REPO_NAME'] = 'invoiceninja';
-        $_ENV['SELF_UPDATER_USE_BRANCH'] = 'v2';
-        $_ENV['SELF_UPDATER_MAILTO_ADDRESS'] = $request->input('mail_address');
-        $_ENV['SELF_UPDATER_MAILTO_NAME'] = $request->input('mail_name');
         $_ENV['DB_CONNECTION'] = 'db-ninja-01';
 
         $config = '';
@@ -111,7 +112,7 @@ class SetupController extends Controller
             define('STDIN', fopen('php://stdin', 'r'));
 
             /* Make sure no stale connections are cached */
-            \DB::purge('db-ninja-01');
+            DB::purge('db-ninja-01');
 
             /* Run migrations */
             Artisan::call('optimize');
@@ -128,7 +129,7 @@ class SetupController extends Controller
             VersionCheck::dispatchNow();
 
             return redirect('/');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             info($e->getMessage());
 
             return redirect()
@@ -158,7 +159,7 @@ class SetupController extends Controller
      * Return status based on check of SMTP connection.
      *
      * @param CheckMailRequest $request
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|Response
+     * @return Application|ResponseFactory|JsonResponse|Response
      */
     public function checkMail(CheckMailRequest $request)
     {
@@ -170,7 +171,7 @@ class SetupController extends Controller
             } else {
                 return response()->json($response_array, 200);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             info(['message' => $e->getMessage(), 'action' => 'SetupController::checkMail()']);
 
             return response()->json(['message' => $e->getMessage()], 400);
@@ -204,7 +205,7 @@ class SetupController extends Controller
                 );
 
             return response(['url' => asset('test.pdf')], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             info($e->getMessage());
 
             return response([], 500);
@@ -218,13 +219,13 @@ class SetupController extends Controller
             $url = 'https://www.invoiceninja.org/';
 
             $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
-            $pdf = \App\Utils\CurlUtils::get($phantom_url);
+            $pdf = CurlUtils::get($phantom_url);
 
             Storage::disk(config('filesystems.default'))->put('test.pdf', $pdf);
             Storage::disk('local')->put('test.pdf', $pdf);
 
             return response(['url' => Storage::disk('local')->url('test.pdf')], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response([], 500);
         }
     }

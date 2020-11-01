@@ -13,6 +13,8 @@ namespace App\Models;
 
 use Crypt;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -45,7 +47,7 @@ class BankAccount extends BaseModel
     }
 
     /**
-     * @param $config
+     * @param $value
      */
     public function setUsername($value)
     {
@@ -53,7 +55,7 @@ class BankAccount extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function bank()
     {
@@ -61,11 +63,11 @@ class BankAccount extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function bank_subaccounts()
     {
-        return $this->hasMany(\App\Models\BankSubaccount::class);
+        return $this->hasMany(BankSubaccount::class);
     }
 
     public function getEntityType()

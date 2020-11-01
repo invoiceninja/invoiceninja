@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\Client;
 use App\Models\Document;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
@@ -48,11 +49,11 @@ class DocumentsTable extends Component
         $query = $this->client->documents();
 
         if (in_array('resources', $this->status) && ! in_array('client', $this->status)) {
-            $query = $query->where('documentable_type', '!=', \App\Models\Client::class);
+            $query = $query->where('documentable_type', '!=', Client::class);
         }
 
         if (in_array('client', $this->status) && ! in_array('resources', $this->status)) {
-            $query = $query->where('documentable_type', \App\Models\Client::class);
+            $query = $query->where('documentable_type', Client::class);
         }
 
         $query = $query

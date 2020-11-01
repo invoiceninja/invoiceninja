@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\InvoiceFilters;
 use App\Filters\SystemLogFilters;
+use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Models\SystemLog;
 use App\Transformers\SystemLogTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use stdClass;
 
 class SystemLogController extends BaseController
 {
@@ -19,9 +23,9 @@ class SystemLogController extends BaseController
     /**
      * Show the list of Invoices.
      *
-     * @param      \App\Filters\InvoiceFilters  $filters  The filters
+     * @param SystemLogFilters $filters The filters
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      * @OA\Get(
      *      path="/api/v1/system_logs",
@@ -47,7 +51,6 @@ class SystemLogController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -69,13 +72,13 @@ class SystemLogController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
         $error = [
             'message' => 'Cannot create system log',
-            'errors' => new \stdClass,
+            'errors' => new stdClass,
         ];
 
         return response()->json($error, 400);
@@ -84,14 +87,14 @@ class SystemLogController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function store(Request $request)
     {
         $error = [
             'message' => 'Cannot store system log',
-            'errors' => new \stdClass,
+            'errors' => new stdClass,
         ];
 
         return response()->json($error, 400);
@@ -100,10 +103,9 @@ class SystemLogController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param      \App\Http\Requests\Invoice\ShowInvoiceRequest  $request  The request
-     * @param      \App\Models\SystemLog                          $system_logs  The system logs
-     *
-     * @return \Illuminate\Http\Response
+     * @param Request $request The request
+     * @param SystemLog $system_log
+     * @return Response
      *
      *
      * @OA\Get(
@@ -157,13 +159,13 @@ class SystemLogController extends BaseController
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function edit($id)
     {
         $error = [
             'message' => 'Cannot edit system log',
-            'errors' => new \stdClass,
+            'errors' => new stdClass,
         ];
 
         return response()->json($error, 400);
@@ -172,15 +174,15 @@ class SystemLogController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function update(Request $request, $id)
     {
         $error = [
             'message' => 'Cannot update system log',
-            'errors' => new \stdClass,
+            'errors' => new stdClass,
         ];
 
         return response()->json($error, 400);
@@ -190,13 +192,13 @@ class SystemLogController extends BaseController
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy($id)
     {
         $error = [
             'message' => 'Cannot destroy system log',
-            'errors' => new \stdClass,
+            'errors' => new stdClass,
         ];
 
         return response()->json($error, 400);

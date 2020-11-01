@@ -15,6 +15,7 @@ use App\Models\RecurringInvoice;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RecurringInvoiceInvitation extends BaseModel
@@ -22,7 +23,7 @@ class RecurringInvoiceInvitation extends BaseModel
     use MakesDates;
     use SoftDeletes;
     use Inviteable;
-    
+
     protected $fillable = ['client_contact_id'];
 
     protected $touches = ['recurring_invoice'];
@@ -31,7 +32,7 @@ class RecurringInvoiceInvitation extends BaseModel
         'company',
         'contact',
     ];
-    
+
     public function getEntityType()
     {
         return self::class;
@@ -67,7 +68,7 @@ class RecurringInvoiceInvitation extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function company()
     {

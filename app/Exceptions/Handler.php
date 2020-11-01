@@ -12,6 +12,7 @@
 namespace App\Exceptions;
 
 use App\Exceptions\GenericPaymentDriverFailure;
+use App\Models\Account;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -19,15 +20,22 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
 use Illuminate\Database\Eloquent\RelationNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Queue\MaxAttemptsExceededException;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
-use function Sentry\configureScope;
+use PDOException;
 use Sentry\State\Scope;
+use Swift_TransportException;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
+use function Sentry\configureScope;
 
 class Handler extends ExceptionHandler
 {
@@ -37,10 +45,10 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        \PDOException::class,
-        \Swift_TransportException::class,
-        \Illuminate\Queue\MaxAttemptsExceededException::class,
-        \Symfony\Component\Console\Exception\CommandNotFoundException::class,
+        PDOException::class,
+        Swift_TransportException::class,
+        MaxAttemptsExceededException::class,
+        CommandNotFoundException::class,
     ];
 
     /**
@@ -56,16 +64,20 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param  \Throwable  $exception
+     * @param Throwable $exception
      * @return void
+     * @throws Throwable
      */
     public function report(Throwable $exception)
     {
         if (! Schema::hasTable('accounts')) {
             info('account table not found');
-
             return;
         }
+        // if(Account::count() == 0){
+        //     info("handler - account table not found");
+        //     return;
+        // }
 
         if (app()->bound('sentry') && $this->shouldReport($exception)) {
             app('sentry')->configureScope(function (Scope $scope): void {
@@ -94,9 +106,10 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Throwable  $exception
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Throwable $exception
+     * @return Response
+     * @throws Throwable
      */
     public function render($request, Throwable $exception)
     {
@@ -108,7 +121,7 @@ class Handler extends ExceptionHandler
             return response()->json(['message'=>'Fatal error'], 500);
         } elseif ($exception instanceof AuthorizationException) {
             return response()->json(['message'=>'You are not authorized to view or perform this action'], 401);
-        } elseif ($exception instanceof \Illuminate\Session\TokenMismatchException) {
+        } elseif ($exception instanceof TokenMismatchException) {
             return redirect()
                     ->back()
                     ->withInput($request->except('password', 'password_confirmation', '_token'))

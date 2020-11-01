@@ -15,6 +15,7 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Models\Client;
 use App\Utils\TranslationHelper;
+use stdClass;
 
 /**
  * ClientSettings.
@@ -44,7 +45,7 @@ class ClientSettings extends BaseSettings
      * prevents missing properties from not being returned
      * and always ensure an up to date class is returned.
      *
-     * @return \stdClass
+     * @param $obj
      */
     public function __construct($obj)
     {
@@ -54,9 +55,9 @@ class ClientSettings extends BaseSettings
     /**
      * Default Client Settings scaffold.
      *
-     * @return \stdClass
+     * @return stdClass
      */
-    public static function defaults() : \stdClass
+    public static function defaults() : stdClass
     {
         $data = (object) [
             'entity' => (string) Client::class,
@@ -70,9 +71,9 @@ class ClientSettings extends BaseSettings
     /**
      * Merges settings from Company to Client.
      *
-     * @param  \stdClass $company_settings
-     * @param  \stdClass $client_settings
-     * @return \stdClass of merged settings
+     * @param  stdClass $company_settings
+     * @param  stdClass $client_settings
+     * @return stdClass of merged settings
      */
     public static function buildClientSettings($company_settings, $client_settings)
     {

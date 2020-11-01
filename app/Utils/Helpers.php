@@ -13,6 +13,7 @@
 namespace App\Utils;
 
 use App\Models\Client;
+use stdClass;
 
 class Helpers
 {
@@ -21,7 +22,7 @@ class Helpers
     	if(!$client){
 
 	        $elements['signature'] = '';
-	        $elements['settings'] = new \stdClass;
+	        $elements['settings'] = new stdClass;
 	        $elements['whitelabel'] = true;
 
 	        return $elements;

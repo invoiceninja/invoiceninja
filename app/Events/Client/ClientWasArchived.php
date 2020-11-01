@@ -41,6 +41,8 @@ class ClientWasArchived
      * Create a new event instance.
      *
      * @param Client $client
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Client $client, Company $company, array $event_vars)
     {
@@ -52,7 +54,7 @@ class ClientWasArchived
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return Channel|array
      */
     public function broadcastOn()
     {

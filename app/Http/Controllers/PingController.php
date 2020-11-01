@@ -14,13 +14,14 @@ namespace App\Http\Controllers;
 use App\Utils\Ninja;
 use App\Utils\SystemHealth;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PingController extends BaseController
 {
     /**
      * Get a ping response from the system.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      * @OA\Get(
      *      path="/api/v1/ping",
@@ -50,7 +51,7 @@ class PingController extends BaseController
     /**
      * Get a health check of the system.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      * @OA\Get(
      *      path="/api/v1/health_check",

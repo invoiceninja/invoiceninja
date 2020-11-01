@@ -39,7 +39,9 @@ class ApplyQuoteNumber implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Quote $quote
+     * @param $settings
+     * @param Company $company
      */
     public function __construct(Quote $quote, $settings, Company $company)
     {
@@ -54,7 +56,7 @@ class ApplyQuoteNumber implements ShouldQueue
      * Execute the job.
      *
      *
-     * @return void
+     * @return Quote
      */
     public function handle()
     {

@@ -18,7 +18,11 @@ use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
+use DirectoryIterator;
+use Faker\Factory;
+use Faker\Generator;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class ImportMigrations extends Command
 {
@@ -38,7 +42,7 @@ class ImportMigrations extends Command
     protected $description = 'Massively import the migrations.';
 
     /**
-     * @var \Faker\Generator
+     * @var Generator
      */
     private $faker;
 
@@ -49,7 +53,7 @@ class ImportMigrations extends Command
      */
     public function __construct()
     {
-        $this->faker = \Faker\Factory::create();
+        $this->faker = Factory::create();
 
         parent::__construct();
     }
@@ -63,7 +67,7 @@ class ImportMigrations extends Command
     {
         $path = $this->option('path') ?? storage_path('migrations/import');
 
-        $directory = new \DirectoryIterator($path);
+        $directory = new DirectoryIterator($path);
 
         foreach ($directory as $file) {
             if ($file->getExtension() === 'zip') {
@@ -89,7 +93,7 @@ class ImportMigrations extends Command
             'company_id' => $company->id,
             'account_id' => $account->id,
             'name' => 'test token',
-            'token' => \Illuminate\Support\Str::random(64),
+            'token' => Str::random(64),
         ]);
 
         $user->companies()->attach($company->id, [

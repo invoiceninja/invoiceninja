@@ -31,7 +31,13 @@ class UpdateProjectRequest extends Request
 
     public function rules()
     {
-        return [];
+        $rules = [];
+        
+        if ($this->input('number')) {
+            $rules['number'] = 'unique:projects,number,'.$this->id.',id,company_id,'.$this->project->company_id;
+        }
+
+        return $this->globalRules($rules);
     }
 
     protected function prepareForValidation()

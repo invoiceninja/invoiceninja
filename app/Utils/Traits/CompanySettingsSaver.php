@@ -14,6 +14,7 @@ namespace App\Utils\Traits;
 use App\DataMapper\CompanySettings;
 use App\Models\Company;
 use App\Utils\Ninja;
+use stdClass;
 
 /**
  * Class CompanySettingsSaver.
@@ -130,9 +131,9 @@ trait CompanySettingsSaver
      * so that it can be saved cleanly
      *
      * @param  array $settings The settings request() array
-     * @return object          stdClass object
+     * @return stdClass       stdClass object
      */
-    private function checkSettingType($settings) : \stdClass
+    private function checkSettingType($settings) : stdClass
     {
         $settings = (object) $settings;
 
@@ -223,7 +224,7 @@ trait CompanySettingsSaver
             case 'array':
                 return is_array($value);
             case 'json':
-                json_decode($string);
+                json_decode($value);
 
                     return json_last_error() == JSON_ERROR_NONE;
             default:

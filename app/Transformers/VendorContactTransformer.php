@@ -22,7 +22,7 @@ class VendorContactTransformer extends EntityTransformer
     use MakesHash;
 
     /**
-     * @param ClientContact $vendor
+     * @param VendorContact $vendor
      *
      * @return array
      */

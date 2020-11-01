@@ -36,7 +36,9 @@ class UpdateOrCreateProduct implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $products
+     * @param $invoice
+     * @param $company
      */
     public function __construct($products, $invoice, $company)
     {

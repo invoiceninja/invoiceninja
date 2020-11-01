@@ -23,6 +23,7 @@ use App\Repositories\BaseRepository;
 use App\Transformers\ExpenseCategoryTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class ExpenseCategoryController.
@@ -76,7 +77,7 @@ class ExpenseCategoryController extends BaseController
      *
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
@@ -88,7 +89,8 @@ class ExpenseCategoryController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateExpenseCategoryRequest $request
+     * @return Response
      *
      *
      *
@@ -132,8 +134,8 @@ class ExpenseCategoryController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreExpenseCategoryRequest $request
+     * @return Response
      */
     public function store(StoreExpenseCategoryRequest $request)
     {
@@ -147,8 +149,9 @@ class ExpenseCategoryController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowExpenseCategoryRequest $request
+     * @param ExpenseCategory $expense_category
+     * @return Response
      *
      *
      * @OA\Get(
@@ -200,8 +203,9 @@ class ExpenseCategoryController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditExpenseCategoryRequest $request
+     * @param ExpenseCategory $expense_category
+     * @return Response
      *
      *
      * @OA\Get(
@@ -253,9 +257,9 @@ class ExpenseCategoryController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Client $client
-     * @return \Illuminate\Http\Response
+     * @param UpdateExpenseCategoryRequest $request
+     * @param ExpenseCategory $expense_category
+     * @return Response
      *
      *
      *
@@ -311,10 +315,12 @@ class ExpenseCategoryController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyExpenseCategoryRequest $request
+     * @param ExpenseCategory $expense_category
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/expense_categories/{id}",
      *      operationId="deleteExpenseCategory",
@@ -367,8 +373,7 @@ class ExpenseCategoryController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkExpenseCategoryRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(

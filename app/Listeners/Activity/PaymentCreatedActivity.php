@@ -19,6 +19,7 @@ use App\Models\Payment;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use stdClass;
 
 class PaymentCreatedActivity implements ShouldQueue
 {
@@ -27,7 +28,7 @@ class PaymentCreatedActivity implements ShouldQueue
     /**
      * Create the event listener.
      *
-     * @return void
+     * @param ActivityRepository $activity_repo
      */
     public function __construct(ActivityRepository $activity_repo)
     {
@@ -48,7 +49,7 @@ class PaymentCreatedActivity implements ShouldQueue
 
         $invoices = $payment->invoices;
 
-        $fields = new \stdClass;
+        $fields = new stdClass;
 
         $fields->payment_id = $payment->id;
         $fields->client_id = $payment->client_id;

@@ -43,6 +43,7 @@ class TemplateEmail extends Mailable
      * Build the message.
      *
      * @return $this
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
     public function build()
     {

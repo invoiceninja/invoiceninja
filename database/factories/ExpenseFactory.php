@@ -42,6 +42,7 @@ class ExpenseFactory extends Factory
             'public_notes' => $this->faker->text(50),
             'private_notes' => $this->faker->text(50),
             'transaction_reference' => $this->faker->text(5),
+            'invoice_id' => null,
         ];
     }
 }

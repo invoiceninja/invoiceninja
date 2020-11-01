@@ -48,10 +48,6 @@ class UniqueRecurringInvoiceNumberRule implements Rule
     }
 
     /**
-     * @param $email
-     *
-     * //off,when_sent,when_paid
-     *
      * @return bool
      */
     private function checkIfInvoiceNumberUnique() : bool

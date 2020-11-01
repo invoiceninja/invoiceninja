@@ -11,8 +11,6 @@
 
 namespace App\Console\Commands;
 
-use App\Console\Commands\TestData\CreateTestCreditJob;
-use App\Console\Commands\TestData\CreateTestQuoteJob;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasCreated;
@@ -73,10 +71,11 @@ class CreateSingleAccount extends Command
     protected $count;
 
     protected $gateway;
+
     /**
      * Create a new command instance.
      *
-     * @return void
+     * @param InvoiceRepository $invoice_repo
      */
     public function __construct(InvoiceRepository $invoice_repo)
     {
@@ -242,7 +241,7 @@ class CreateSingleAccount extends Command
         $settings = $client->settings;
         $settings->currency_id = "1";
         $settings->use_credits_payment = "always";
-        
+
         $client->settings = $settings;
 
         $country = Country::all()->random();
@@ -301,7 +300,7 @@ class CreateSingleAccount extends Command
     private function createInvoice($client)
     {
 
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         $invoice = InvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -350,7 +349,7 @@ class CreateSingleAccount extends Command
 
     private function createCredit($client)
     {
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         $credit = Credit::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
 
@@ -375,7 +374,7 @@ class CreateSingleAccount extends Command
     private function createQuote($client)
     {
 
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         $quote = Quote::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
         $quote->date = $faker->date();
@@ -434,7 +433,7 @@ class CreateSingleAccount extends Command
             $item->custom_value4 = $product->custom_value4;
 
             $line_items[] = $item;
-        
+
 
         return $line_items;
     }

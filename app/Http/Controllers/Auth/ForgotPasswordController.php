@@ -97,6 +97,9 @@ class ForgotPasswordController extends Controller
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function sendResetLinkEmail(Request $request)
     {

@@ -60,6 +60,8 @@ class SendingController extends Controller
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function __invoke(Request $request)
     {

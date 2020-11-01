@@ -18,6 +18,9 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use Checkout\Models\Payments\Payment;
+use Exception;
+use stdClass;
 
 trait Utilities
 {
@@ -47,7 +50,7 @@ trait Utilities
         return round($amount * 100);
     }
 
-    private function processSuccessfulPayment(\Checkout\Models\Payments\Payment $_payment)
+    private function processSuccessfulPayment(Payment $_payment)
     {
         if ($this->checkout->payment_hash->data->store_card) {
             $this->storePaymentMethod($_payment);
@@ -73,7 +76,7 @@ trait Utilities
         return redirect()->route('client.payments.show', ['payment' => $this->checkout->encodePrimaryKey($payment->id)]);
     }
 
-    public function processUnsuccessfulPayment(\Checkout\Models\Payments\Payment $_payment)
+    public function processUnsuccessfulPayment(Payment $_payment)
     {
         PaymentFailureMailer::dispatch(
             $this->checkout->client,
@@ -98,7 +101,7 @@ trait Utilities
         throw new PaymentFailed($_payment->status, $_payment->http_code);
     }
 
-    private function processPendingPayment(\Checkout\Models\Payments\Payment $_payment)
+    private function processPendingPayment(Payment $_payment)
     {
         $data = [
             'payment_method' => $_payment->source['id'],
@@ -118,15 +121,15 @@ trait Utilities
 
         try {
             return redirect($_payment->_links['redirect']['href']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->processInternallyFailedPayment($this->checkout, $e);
         }
     }
 
-    private function storePaymentMethod(\Checkout\Models\Payments\Payment $response)
+    private function storePaymentMethod(Payment $response)
     {
         try {
-            $payment_meta = new \stdClass;
+            $payment_meta = new stdClass;
             $payment_meta->exp_month = (string) $response->source['expiry_month'];
             $payment_meta->exp_year = (string) $response->source['expiry_year'];
             $payment_meta->brand = (string) $response->source['scheme'];
@@ -140,7 +143,7 @@ trait Utilities
             ];
 
             return $this->checkout->storePaymentMethod($data);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             session()->flash('message', ctrans('texts.payment_method_saving_failed'));
         }
     }

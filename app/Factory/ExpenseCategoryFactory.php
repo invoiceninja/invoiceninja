@@ -24,7 +24,7 @@ class ExpenseCategoryFactory
         $expense->user_id = $user_id;
         $expense->company_id = $company_id;
         $expense->name = '';
-        $expense->is_deleted = false;;
+        $expense->is_deleted = false;
 
         return $expense;
     }

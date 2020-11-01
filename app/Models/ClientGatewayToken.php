@@ -17,6 +17,7 @@ use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\User;
 use App\Utils\Traits\MakesDates;
+use Illuminate\Database\Eloquent\Model;
 
 class ClientGatewayToken extends BaseModel
 {
@@ -66,8 +67,9 @@ class ClientGatewayToken extends BaseModel
     /**
      * Retrieve the model for a bound value.
      *
-     * @param  mixed  $value
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param mixed $value
+     * @param null $field
+     * @return Model|null
      */
     public function resolveRouteBinding($value, $field = NULL)
     {

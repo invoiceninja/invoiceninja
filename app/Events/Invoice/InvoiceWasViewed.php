@@ -34,7 +34,9 @@ class InvoiceWasViewed
     /**
      * Create a new event instance.
      *
-     * @param Invoice $invoice
+     * @param InvoiceInvitation $invitation
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(InvoiceInvitation $invitation, Company $company, array $event_vars)
     {

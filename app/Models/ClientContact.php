@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Models\Company;
 use App\Models\Language;
+use App\Models\Presenters\ClientContactPresenter;
 use App\Models\User;
 use App\Notifications\ClientContactResetPassword as ResetPasswordNotification;
 use App\Notifications\ClientContactResetPassword;
@@ -21,6 +22,7 @@ use Hashids\Hashids;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -35,7 +37,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     use PresentableTrait;
     use SoftDeletes;
     use HasFactory;
-    
+
     /* Used to authenticate a contact */
     protected $guard = 'contact';
 
@@ -44,7 +46,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     /* Allow microtime timestamps */
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
-    protected $presenter = \App\Models\Presenters\ClientContactPresenter::class;
+    protected $presenter = ClientContactPresenter::class;
 
     protected $dates = [
         'deleted_at',
@@ -179,8 +181,9 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     /**
      * Retrieve the model for a bound value.
      *
-     * @param  mixed  $value
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param mixed $value
+     * @param null $field
+     * @return Model|null
      */
     public function resolveRouteBinding($value, $field = NULL)
     {
@@ -204,7 +207,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     /**
      * Provides a convenience login click for contacts to bypass the
      * contact authentication layer
-     *     
+     *
      * @return string URL
      */
     public function getLoginLink()
@@ -212,8 +215,8 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
         $domain = isset($this->company->portal_domain) ?: $this->company->domain();
 
-        return $domain . 'client/key_login/' . $this->contact_key;        
+        return $domain . 'client/key_login/' . $this->contact_key;
 
     }
-    
+
 }

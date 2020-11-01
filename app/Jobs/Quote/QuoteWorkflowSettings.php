@@ -33,7 +33,8 @@ class QuoteWorkflowSettings implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Quote $quote
+     * @param Client|null $client
      */
     public function __construct(Quote $quote, Client $client = null)
     {

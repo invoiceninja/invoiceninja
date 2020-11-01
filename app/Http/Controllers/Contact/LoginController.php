@@ -60,9 +60,10 @@ class LoginController extends BaseController
     /**
      * Login via API.
      *
-     * @param      \Illuminate\Http\Request  $request  The request
+     * @param Request $request The request
      *
      * @return     Response|User Process user login.
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function apiLogin(Request $request)
     {
@@ -88,6 +89,7 @@ class LoginController extends BaseController
     /**
      * Redirect the user to the provider authentication page.
      *
+     * @param string $provider
      * @return void
      */
     public function redirectToProvider(string $provider)

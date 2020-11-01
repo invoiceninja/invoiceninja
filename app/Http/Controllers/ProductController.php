@@ -25,6 +25,7 @@ use App\Repositories\ProductRepository;
 use App\Transformers\ProductTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ProductController extends BaseController
 {
@@ -38,6 +39,7 @@ class ProductController extends BaseController
 
     /**
      * ProductController constructor.
+     * @param ProductRepository $product_repo
      */
     public function __construct(ProductRepository $product_repo)
     {
@@ -54,7 +56,7 @@ class ProductController extends BaseController
      *      summary="Gets a list of products",
      *      description="Lists products, search and filters allow fine grained lists to be generated.
 
-        Query parameters can be added to performed more fine grained filtering of the products, these are handled by the ProductFilters class which defines the methods available",
+    Query parameters can be added to performed more fine grained filtering of the products, these are handled by the ProductFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -71,7 +73,6 @@ class ProductController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -79,6 +80,8 @@ class ProductController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param ProductFilters $filters
+     * @return Response|mixed
      */
     public function index(ProductFilters $filters)
     {
@@ -90,7 +93,8 @@ class ProductController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateProductRequest $request
+     * @return Response
      *
      *
      *
@@ -135,8 +139,8 @@ class ProductController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreProductRequest $request
+     * @return Response
      *
      *
      *
@@ -181,8 +185,9 @@ class ProductController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  Product $product
-     * @return \Illuminate\Http\Response
+     * @param ShowProductRequest $request
+     * @param Product $product
+     * @return Response
      *
      *
      * @OA\Get(
@@ -235,8 +240,9 @@ class ProductController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  Product $product
-     * @return \Illuminate\Http\Response
+     * @param EditProductRequest $request
+     * @param Product $product
+     * @return Response
      *
      * @OA\Get(
      *      path="/api/v1/products/{id}/edit",
@@ -288,9 +294,9 @@ class ProductController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  Product $product
-     * @return \Illuminate\Http\Response
+     * @param UpdateProductRequest $request
+     * @param Product $product
+     * @return Response
      *
      *
      * @OA\Put(
@@ -349,10 +355,12 @@ class ProductController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Product  $product
-     * @return \Illuminate\Http\Response
+     * @param DestroyProductRequest $request
+     * @param Product $product
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/products/{id}",
      *      operationId="deleteProduct",

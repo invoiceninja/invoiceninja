@@ -12,6 +12,7 @@
 namespace App\Notifications;
 
 use App\Mail\RecurringCancellationRequest;
+use Closure;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -38,7 +39,7 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
     /**
      * The callback that should be used to build the mail message.
      *
-     * @var \Closure|null
+     * @var Closure|null
      */
     public static $toMailCallback;
 
@@ -63,7 +64,7 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @return MailMessage
      */
     public function toMail($notifiable)
     {
@@ -112,7 +113,7 @@ class ClientContactRequestCancellation extends Notification implements ShouldQue
     /**
      * Set a callback that should be used when building the notification mail message.
      *
-     * @param  \Closure  $callback
+     * @param  Closure  $callback
      * @return void
      */
     public static function toMailUsing($callback)

@@ -33,6 +33,7 @@ use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -57,7 +58,7 @@ class ExpenseController extends BaseController
 
     /**
      * ExpenseController constructor.
-     * @param ExpenseRepository $expenseRepo
+     * @param ExpenseRepository $expense_repo
      */
     public function __construct(ExpenseRepository $expense_repo)
     {
@@ -67,14 +68,14 @@ class ExpenseController extends BaseController
     }
 
     /**
-     *      @OA\Get(
+     * @OA\Get(
      *      path="/api/v1/expenses",
      *      operationId="getExpenses",
      *      tags={"expenses"},
      *      summary="Gets a list of expenses",
      *      description="Lists expenses, search and filters allow fine grained lists to be generated.
 
-        Query parameters can be added to performed more fine grained filtering of the expenses, these are handled by the ExpenseFilters class which defines the methods available",
+    Query parameters can be added to performed more fine grained filtering of the expenses, these are handled by the ExpenseFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -92,7 +93,6 @@ class ExpenseController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -100,6 +100,8 @@ class ExpenseController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param ExpenseFilters $filters
+     * @return Response|mixed
      */
     public function index(ExpenseFilters $filters)
     {
@@ -111,8 +113,9 @@ class ExpenseController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowExpenseRequest $request
+     * @param Expense $expense
+     * @return Response
      *
      *
      * @OA\Get(
@@ -165,8 +168,9 @@ class ExpenseController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditExpenseRequest $request
+     * @param Expense $expense
+     * @return Response
      *
      *
      * @OA\Get(
@@ -219,9 +223,9 @@ class ExpenseController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Expense $expense
-     * @return \Illuminate\Http\Response
+     * @param UpdateExpenseRequest $request
+     * @param Expense $expense
+     * @return Response
      *
      *
      *
@@ -283,7 +287,8 @@ class ExpenseController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateExpenseRequest $request
+     * @return Response
      *
      *
      *
@@ -328,8 +333,8 @@ class ExpenseController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreExpenseRequest $request
+     * @return Response
      *
      *
      *
@@ -374,10 +379,12 @@ class ExpenseController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyExpenseRequest $request
+     * @param Expense $expense
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/expenses/{id}",
      *      operationId="deleteExpense",
@@ -430,8 +437,7 @@ class ExpenseController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkExpenseRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(
@@ -498,7 +504,7 @@ class ExpenseController extends BaseController
     /**
      * Returns a client statement.
      *
-     * @return [type] [description]
+     * @return void [type] [description]
      */
     public function statement()
     {

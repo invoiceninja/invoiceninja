@@ -28,6 +28,7 @@ use App\Models\Invoice;
 use App\Models\Language;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Models\Presenters\CompanyPresenter;
 use App\Models\Product;
 use App\Models\RecurringInvoice;
 use App\Models\TaxRate;
@@ -40,9 +41,13 @@ use App\Utils\Traits\CompanySettingsSaver;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\ThrottlesEmail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
+use Staudenmeir\EloquentHasManyDeep\HasTableAlias;
 
 class Company extends BaseModel
 {
@@ -50,8 +55,8 @@ class Company extends BaseModel
     use MakesHash;
     use CompanySettingsSaver;
     use ThrottlesEmail;
-    use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
-    use \Staudenmeir\EloquentHasManyDeep\HasTableAlias;
+    use HasRelationships;
+    use HasTableAlias;
 
     const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
     const ENTITY_CREDIT = 'credit';
@@ -66,9 +71,11 @@ class Company extends BaseModel
     const ENTITY_RECURRING_TASK = 'task';
     const ENTITY_RECURRING_QUOTE = 'recurring_quote';
 
-    protected $presenter = \App\Models\Presenters\CompanyPresenter::class;
+    protected $presenter = CompanyPresenter::class;
 
     protected $fillable = [
+        'invoice_expense_documents',
+        'invoice_task_documents',
         'show_tasks_table',
         'mark_expenses_invoiceable',
         'mark_expenses_paid',
@@ -100,6 +107,7 @@ class Company extends BaseModel
         'enable_shop_api',
         'invoice_task_timelog',
         'auto_start_tasks',
+        'is_disabled',
     ];
 
     protected $hidden = [
@@ -182,7 +190,7 @@ class Company extends BaseModel
         return $this->hasMany(Client::class)->withTrashed();
     }
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function tasks()
     {
@@ -195,7 +203,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function projects()
     {
@@ -203,7 +211,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function vendors()
     {
@@ -216,7 +224,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function contacts()
     {
@@ -229,7 +237,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function invoices()
     {
@@ -237,7 +245,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function recurring_invoices()
     {
@@ -245,7 +253,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function quotes()
     {
@@ -253,7 +261,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function credits()
     {
@@ -261,7 +269,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function company_gateways()
     {
@@ -269,7 +277,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function tax_rates()
     {
@@ -277,7 +285,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function products()
     {
@@ -285,7 +293,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function country()
     {
@@ -314,7 +322,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function language()
     {
@@ -346,7 +354,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function currency()
     {
@@ -354,7 +362,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function industry()
     {
@@ -362,7 +370,7 @@ class Company extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function payment_type()
     {
@@ -436,13 +444,5 @@ class Company extends BaseModel
         return $this->slack_webhook_url;
     }
 
-    public function setMigration($status)
-    {
-        $company_users = CompanyUser::where('company_id', $this->id)->get();
-
-        foreach ($company_users as $cu) {
-            $cu->is_migrating = $status;
-            $cu->save();
-        }
-    }
+   
 }

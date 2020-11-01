@@ -23,6 +23,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 use Stripe\Exception\InvalidRequestException;
+use Stripe\StripeClient;
 
 class ACH
 {
@@ -78,7 +79,7 @@ class ACH
             return redirect()
                 ->route('client.invoices.index')
                 ->with('success', __('texts.payment_method_verified'));
-        } catch (\Stripe\Exception\CardException $e) {
+        } catch (CardException $e) {
             return back()->with('error', $e->getMessage());
         }
     }
@@ -131,8 +132,8 @@ class ACH
             }
 
             return $this->processUnsuccessfulPayment($state);
-        } catch (\Exception $e) {
-            if ($e instanceof \Stripe\Exception\CardException) {
+        } catch (Exception $e) {
+            if ($e instanceof CardException) {
                 return redirect()->route('client.payment_methods.verification', ['id' => ClientGatewayToken::first()->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
             }
         }

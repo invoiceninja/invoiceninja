@@ -41,7 +41,8 @@ class SendRecurring implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param RecurringInvoice $recurring_invoice
+     * @param string $db
      */
     public function __construct(RecurringInvoice $recurring_invoice, string $db = 'db-ninja-01')
     {
@@ -92,7 +93,7 @@ class SendRecurring implements ShouldQueue
         $this->recurring_invoice->last_sent_date = date('Y-m-d');
 
         /* Set completed if we don't have any more cycles remaining*/
-        if ($this->recurring_invoice->remaining_cycles == 0) 
+        if ($this->recurring_invoice->remaining_cycles == 0)
             $this->recurring_invoice->setCompleted();
 
         info("next send date = " . $this->recurring_invoice->next_send_date);
@@ -101,7 +102,7 @@ class SendRecurring implements ShouldQueue
 
         $this->recurring_invoice->save();
 
-        if ($invoice->invitations->count() > 0) 
+        if ($invoice->invitations->count() > 0)
             event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
 
     }

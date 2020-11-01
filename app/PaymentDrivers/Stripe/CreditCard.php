@@ -26,6 +26,9 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Ninja;
+use Exception;
+use stdClass;
+use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
 
 class CreditCard

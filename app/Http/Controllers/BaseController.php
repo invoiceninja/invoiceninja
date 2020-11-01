@@ -20,6 +20,7 @@ use App\Transformers\EntityTransformer;
 use App\Utils\Ninja;
 use App\Utils\Statics;
 use App\Utils\Traits\AppSetup;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as Input;
@@ -168,9 +169,10 @@ class BaseController extends Controller
 
     /**
      * API Error response.
-     * @param  string  $message       The return error message
-     * @param  int $httpErrorCode 404/401/403 etc
+     * @param string $message The return error message
+     * @param int $httpErrorCode 404/401/403 etc
      * @return Response               The JSON response
+     * @throws BindingResolutionException
      */
     protected function errorResponse($message, $httpErrorCode = 400)
     {
@@ -265,7 +267,7 @@ class BaseController extends Controller
             },
             'company.task_statuses'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at);
-            },            
+            },
           ]
         );
 

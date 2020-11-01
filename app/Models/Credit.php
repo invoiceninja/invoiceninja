@@ -16,6 +16,7 @@ use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Filterable;
+use App\Models\Presenters\CreditPresenter;
 use App\Services\Credit\CreditService;
 use App\Services\Ledger\LedgerService;
 use App\Utils\Ninja;
@@ -36,7 +37,7 @@ class Credit extends BaseModel
     use PresentableTrait;
     use MakesInvoiceValues;
 
-    protected $presenter = \App\Models\Presenters\CreditPresenter::class;
+    protected $presenter = CreditPresenter::class;
 
     protected $fillable = [
         'assigned_user_id',
@@ -184,7 +185,7 @@ class Credit extends BaseModel
     /**
      * Access the invoice calculator object.
      *
-     * @return object The invoice calculator object getters
+     * @return stdClass The invoice calculator object getters
      */
     public function calc()
     {

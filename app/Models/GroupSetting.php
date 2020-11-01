@@ -60,8 +60,9 @@ class GroupSetting extends StaticModel
     /**
      * Retrieve the model for a bound value.
      *
-     * @param  mixed  $value
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param mixed $value
+     * @param null $field
+     * @return Model|null
      */
     public function resolveRouteBinding($value, $field = NULL)
     {

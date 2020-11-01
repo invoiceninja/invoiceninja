@@ -67,6 +67,10 @@ class MailRouter extends BaseMailerJob implements ShouldQueue
 
     public function handle()
     {
+        /*If we are migrating data we don't want to fire these notification*/
+        if ($this->company->is_disabled) 
+            return true;
+        
         MultiDB::setDb($this->company->db);
 
         //if we need to set an email driver do it now

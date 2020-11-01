@@ -73,6 +73,9 @@ class MigrationController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param Company $company
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function purgeCompany(Company $company)
     {
@@ -135,6 +138,9 @@ class MigrationController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param Request $request
+     * @param Company $company
+     * @return \Illuminate\Http\JsonResponse
      */
     public function purgeCompanySaveSettings(Request $request, Company $company)
     {
@@ -188,6 +194,9 @@ class MigrationController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param Request $request
+     * @param Company $company
+     * @return \Illuminate\Http\JsonResponse|void
      */
     public function startMigration(Request $request, Company $company)
     {
@@ -218,6 +227,8 @@ class MigrationController extends BaseController
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
+            $company->is_disabled = true;
+            $company->save();
 
             $account->default_company_id = $company->id;
             $account->save();
@@ -227,7 +238,7 @@ class MigrationController extends BaseController
             $company_token->company_id = $company->id;
             $company_token->account_id = $account->id;
             $company_token->name = $request->token_name ?? Str::random(12);
-            $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+            $company_token->token = $request->token ?? Str::random(64);
             $company_token->is_system = true;
             $company_token->save();
 
@@ -279,6 +290,9 @@ class MigrationController extends BaseController
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
 
+            $company->is_disabled = true;
+            $company->save();
+            
             $account->default_company_id = $company->id;
             $account->save();
 
@@ -287,7 +301,7 @@ class MigrationController extends BaseController
             $company_token->company_id = $company->id;
             $company_token->account_id = $account->id;
             $company_token->name = $request->token_name ?? Str::random(12);
-            $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+            $company_token->token = $request->token ?? Str::random(64);
             $company_token->is_system = true;
 
             $company_token->save();
@@ -313,7 +327,10 @@ class MigrationController extends BaseController
 
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
-
+            
+            $company->is_disabled = true;
+            $company->save();
+            
             $account->default_company_id = $company->id;
             $account->save();
 
@@ -322,7 +339,7 @@ class MigrationController extends BaseController
             $company_token->company_id = $company->id;
             $company_token->account_id = $account->id;
             $company_token->name = $request->token_name ?? Str::random(12);
-            $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+            $company_token->token = $request->token ?? Str::random(64);
             $company_token->is_system = true;
 
             $company_token->save();
@@ -345,12 +362,16 @@ class MigrationController extends BaseController
             $account = auth()->user()->account;
             $company = (new ImportMigrations())->getCompany($account);
 
+            $company->is_disabled = true;
+            $company->save();
+            
+
             $company_token = new CompanyToken();
             $company_token->user_id = $user->id;
             $company_token->company_id = $company->id;
             $company_token->account_id = $account->id;
             $company_token->name = $request->token_name ?? Str::random(12);
-            $company_token->token = $request->token ?? \Illuminate\Support\Str::random(64);
+            $company_token->token = $request->token ?? Str::random(64);
             $company_token->is_system = true;
 
             $company_token->save();

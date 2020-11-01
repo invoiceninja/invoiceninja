@@ -15,16 +15,19 @@ namespace App\PaymentDrivers\CheckoutCom;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Models\PaymentHash;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
+use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\IdSource;
 use Checkout\Models\Payments\Payment;
 use Checkout\Models\Payments\TokenSource;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\View\View;
 
 class CreditCard
 {
     use Utilities;
 
     /**
-     * @var \App\PaymentDrivers\CheckoutComPaymentDriver
+     * @var CheckoutComPaymentDriver
      */
     public $checkout;
 
@@ -35,9 +38,9 @@ class CreditCard
 
     /**
      * An authorization view for credit card.
-     * 
-     * @param mixed $data 
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View 
+     *
+     * @param mixed $data
+     * @return Factory|View
      */
     public function authorizeView($data)
     {
@@ -47,9 +50,9 @@ class CreditCard
     /**
      * Checkout.com supports doesn't support direct authorization of the credit card.
      * Token can be saved after the first (successful) purchase.
-     * 
-     * @param mixed $data 
-     * @return void 
+     *
+     * @param mixed $data
+     * @return void
      */
     public function authorizeResponse($data)
     {
@@ -143,9 +146,9 @@ class CreditCard
 
                 return $this->processUnsuccessfulPayment($response);
             }
-        } catch (\Checkout\Library\Exceptions\CheckoutHttpException $e) {
+        } catch (CheckoutHttpException $e) {
             $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
-            
+
             return $this->checkout->processInternallyFailedPayment($this->checkout, $e);
         }
     }

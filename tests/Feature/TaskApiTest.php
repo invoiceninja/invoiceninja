@@ -62,7 +62,29 @@ class TaskApiTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/tasks', $data);
 
+        $arr = $response->json();
         $response->assertStatus(200);
+
+        $this->assertNotEmpty($arr['data']['number']);
+    }
+
+    public function testTaskPostWithActionStart()
+    {
+        $data = [
+            'description' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/tasks?action=start', $data);
+        
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+        $this->assertGreaterThan(0, $arr['data']['start_time']);
+
+
     }
 
     public function testTaskPut()
@@ -78,6 +100,18 @@ class TaskApiTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+
+    public function testTasksGet()
+    {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/tasks');
+
+        $response->assertStatus(200);
+    }
+
 
     public function testTaskGet()
     {

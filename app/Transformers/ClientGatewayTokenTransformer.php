@@ -13,6 +13,7 @@ namespace App\Transformers;
 
 use App\Models\ClientGatewayToken;
 use App\Utils\Traits\MakesHash;
+use stdClass;
 
 /**
  * Class ClientGatewayTokenTransformer.
@@ -45,7 +46,7 @@ class ClientGatewayTokenTransformer extends EntityTransformer
 
     private function typeCastMeta($meta)
     {
-        $casted = new \stdClass;
+        $casted = new stdClass;
 
         if(property_exists($meta, 'exp_month'))
             $casted->exp_month = (string)$meta->exp_month;

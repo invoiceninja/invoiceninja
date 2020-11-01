@@ -26,6 +26,7 @@ use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Response;
 
 class EmailController extends BaseController
 {
@@ -43,7 +44,8 @@ class EmailController extends BaseController
     /**
      * Returns a template filled with entity variables.
      *
-     * @return \Illuminate\Http\Response
+     * @param SendEmailRequest $request
+     * @return Response
      *
      * @OA\Post(
      *      path="/api/v1/emails",
@@ -100,7 +102,6 @@ class EmailController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",

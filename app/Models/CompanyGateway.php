@@ -15,9 +15,11 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Gateway;
 use App\Models\GatewayType;
+use App\PaymentDrivers\BasePaymentDriver;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use stdClass;
 
 class CompanyGateway extends BaseModel
 {
@@ -101,7 +103,7 @@ class CompanyGateway extends BaseModel
         if (class_exists($class)) {
             return $class;
         } else {
-            return \App\PaymentDrivers\BasePaymentDriver::class;
+            return BasePaymentDriver::class;
         }
     }
 
@@ -241,8 +243,9 @@ class CompanyGateway extends BaseModel
     /**
      * Returns the formatted fee amount for the gateway.
      *
-     * @param  float $amount    The payment amount
-     * @param  Client $client   The client object
+     * @param float $amount The payment amount
+     * @param Client $client The client object
+     * @param int $gateway_type_id
      * @return string           The fee amount formatted in the client currency
      */
     public function calcGatewayFeeLabel($amount, Client $client, $gateway_type_id = GatewayType::CREDIT_CARD) :string
@@ -317,33 +320,36 @@ class CompanyGateway extends BaseModel
      * so lets iterate.
      *
      * we MAY need to adjust the final fee to ensure our rounding makes sense!
+     * @param $amount
+     * @param $invoice_count
+     * @return stdClass
      */
-    public function calcGatewayFeeObject($amount, $invoice_count)
-    {
-        $total_gateway_fee = $this->calcGatewayFee($amount);
+    // public function calcGatewayFeeObject($amount, $invoice_count)
+    // {
+    //     $total_gateway_fee = $this->calcGatewayFee($amount);
 
-        $fee_object = new \stdClass;
+    //     $fee_object = new stdClass;
 
-        $fees_and_limits = $this->getFeesAndLimits();
+    //     $fees_and_limits = $this->getFeesAndLimits();
 
-        if (! $fees_and_limits) {
-            return $fee_object;
-        }
+    //     if (! $fees_and_limits) {
+    //         return $fee_object;
+    //     }
 
-        $fee_component_amount = $fees_and_limits->fee_amount ?: 0;
-        $fee_component_percent = $fees_and_limits->fee_percent ? ($amount * $fees_and_limits->fee_percent / 100) : 0;
+    //     $fee_component_amount = $fees_and_limits->fee_amount ?: 0;
+    //     $fee_component_percent = $fees_and_limits->fee_percent ? ($amount * $fees_and_limits->fee_percent / 100) : 0;
 
-        $combined_fee_component = $fee_component_amount + $fee_component_percent;
+    //     $combined_fee_component = $fee_component_amount + $fee_component_percent;
 
-        $fee_component_tax_name1 = $fees_and_limits->fee_tax_name1 ?: '';
-        $fee_component_tax_rate1 = $fees_and_limits->fee_tax_rate1 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate1 / 100) : 0;
+    //     $fee_component_tax_name1 = $fees_and_limits->fee_tax_name1 ?: '';
+    //     $fee_component_tax_rate1 = $fees_and_limits->fee_tax_rate1 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate1 / 100) : 0;
 
-        $fee_component_tax_name2 = $fees_and_limits->fee_tax_name2 ?: '';
-        $fee_component_tax_rate2 = $fees_and_limits->fee_tax_rate2 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate2 / 100) : 0;
+    //     $fee_component_tax_name2 = $fees_and_limits->fee_tax_name2 ?: '';
+    //     $fee_component_tax_rate2 = $fees_and_limits->fee_tax_rate2 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate2 / 100) : 0;
 
-        $fee_component_tax_name3 = $fees_and_limits->fee_tax_name3 ?: '';
-        $fee_component_tax_rate3 = $fees_and_limits->fee_tax_rate3 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate3 / 100) : 0;
-    }
+    //     $fee_component_tax_name3 = $fees_and_limits->fee_tax_name3 ?: '';
+    //     $fee_component_tax_rate3 = $fees_and_limits->fee_tax_rate3 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate3 / 100) : 0;
+    // }
 
     public function resolveRouteBinding($value, $field = NULL)
     {

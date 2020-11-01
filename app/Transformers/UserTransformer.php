@@ -54,7 +54,6 @@ class UserTransformer extends EntityTransformer
             'created_at' => (int) $user->created_at,
             'updated_at' => (int) $user->updated_at,
             'archived_at' => (int) $user->deleted_at,
-            'created_at' => (int) $user->created_at,
             'is_deleted' => (bool) $user->is_deleted,
             'phone' => $user->phone ?: '',
             'email_verified_at' => $user->getEmailVerifiedAt(),

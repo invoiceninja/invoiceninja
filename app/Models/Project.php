@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Filterable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -11,11 +12,11 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Project extends BaseModel
 {
-    
+
     use SoftDeletes;
     use PresentableTrait;
     use Filterable;
-    
+
     /**
      * @var array
      */
@@ -36,6 +37,7 @@ class Project extends BaseModel
         'custom_value2',
         'custom_value3',
         'custom_value4',
+        'assigned_user_id',
     ];
 
     public function getEntityType()
@@ -46,7 +48,7 @@ class Project extends BaseModel
     protected $touches = [];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function company()
     {

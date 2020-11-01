@@ -50,6 +50,7 @@ use App\Transformers\TaskStatusTransformer;
 use App\Transformers\TaskTransformer;
 use App\Transformers\WebhookTransformer;
 use App\Utils\Traits\MakesHash;
+use stdClass;
 
 /**
  * Class CompanyTransformer.
@@ -110,7 +111,7 @@ class CompanyTransformer extends EntityTransformer
      */
     public function transform(Company $company)
     {
-        $std = new \stdClass;
+        $std = new stdClass;
 
         return [
             'id' => (string) $this->encodePrimaryKey($company->id),
@@ -147,6 +148,7 @@ class CompanyTransformer extends EntityTransformer
             'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates,
             'client_can_register' => (bool) $company->client_can_register,
             'is_large' => (bool) $company->is_large,
+            'is_disabled' => (bool) $company->is_disabled,
             'enable_shop_api' => (bool) $company->enable_shop_api,
             'mark_expenses_invoiceable'=> (bool) $company->mark_expenses_invoiceable,
             'mark_expenses_paid' => (bool) $company->mark_expenses_paid,
@@ -154,6 +156,7 @@ class CompanyTransformer extends EntityTransformer
             'invoice_task_timelog' => (bool) $company->invoice_task_timelog,
             'auto_start_tasks' => (bool) $company->auto_start_tasks,
             'invoice_task_documents' => (bool) $company->invoice_task_documents,
+            'show_tasks_table' => (bool) $company->show_tasks_table,
             'use_credits_payment' => 'always', //todo remove
         ];
     }

@@ -41,10 +41,12 @@ class ZipInvoices extends BaseMailerJob implements ShouldQueue
     public $settings;
 
     /**
+     * @param $invoices
+     * @param Company $company
+     * @param $email
      * @deprecated confirm to be deleted
      * Create a new job instance.
      *
-     * @return void
      */
     public function __construct($invoices, Company $company, $email)
     {
@@ -62,6 +64,9 @@ class ZipInvoices extends BaseMailerJob implements ShouldQueue
      *
      *
      * @return void
+     * @throws \ZipStream\Exception\FileNotFoundException
+     * @throws \ZipStream\Exception\FileNotReadableException
+     * @throws \ZipStream\Exception\OverflowException
      */
     public function handle()
     {

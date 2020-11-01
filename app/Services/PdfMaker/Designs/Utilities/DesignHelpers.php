@@ -14,6 +14,7 @@ namespace App\Services\PdfMaker\Designs\Utilities;
 
 use DOMDocument;
 use DOMXPath;
+use Exception;
 
 trait DesignHelpers
 {
@@ -175,8 +176,8 @@ trait DesignHelpers
 
         try {
             $_variable = explode('.', $variable)[1];
-        } catch (\Exception $e) {
-            throw new \Exception('Company settings seems to be broken. Missing $entity.variable type.');
+        } catch (Exception $e) {
+            throw new Exception('Company settings seems to be broken. Missing $entity.variable type.');
         }
 
         if (is_null($this->entity->{$_variable})) {

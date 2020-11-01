@@ -53,11 +53,12 @@ class ClientRepository extends BaseRepository
     /**
      * Saves the client and its contacts.
      *
-     * @param      array                           $data    The data
-     * @param      \App\Models\Client              $client  The client
+     * @param array $data The data
+     * @param Client $client The client
      *
-     * @return     Client|\App\Models\Client|null  Client Object
+     * @return     Client|Client|null  Client Object
      *
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
      * @todo       Write tests to make sure that custom client numbers work as expected.
      */
     public function save(array $data, Client $client) : ?Client

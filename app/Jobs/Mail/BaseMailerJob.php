@@ -57,7 +57,7 @@ class BaseMailerJob implements ShouldQueue
         }
 
         /*
-         *  Now that our token is refresh and valid we can boot the
+         *  Now that our token is refreshed and valid we can boot the
          *  mail driver at runtime and also set the token which will persist
          *  just for this request.
         */

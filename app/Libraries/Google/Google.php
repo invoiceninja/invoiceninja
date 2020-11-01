@@ -11,6 +11,8 @@
 
 namespace App\Libraries\Google;
 
+use Google_Client;
+
 /**
  * Class Google.
  */
@@ -20,7 +22,7 @@ class Google
 
     public function __construct()
     {
-        $this->client = new \Google_Client();
+        $this->client = new Google_Client();
     }
 
     public function init()

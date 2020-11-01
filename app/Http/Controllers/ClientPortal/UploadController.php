@@ -15,6 +15,8 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Uploads\StoreUploadRequest;
 use App\Utils\Traits\SavesDocuments;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\Response;
 
 class UploadController extends Controller
 {
@@ -23,8 +25,8 @@ class UploadController extends Controller
     /**
      * Main logic behind uploading the files.
      *
-     * @param \App\Http\Requests\ClientPortal\Uploads\StoreUploadRequest $request
-     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+     * @param StoreUploadRequest $request
+     * @return Response|ResponseFactory
      */
     public function __invoke(StoreUploadRequest $request)
     {

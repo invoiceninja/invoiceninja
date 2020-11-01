@@ -18,6 +18,7 @@ use Composer\Installer;
 use Composer\IO\NullIO;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Log;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class PostUpdate extends Command
@@ -41,10 +42,11 @@ class PostUpdate extends Command
      * Execute the console command.
      *
      * @return mixed
+     * @throws \Exception
      */
     public function handle()
     {
-      
+
         set_time_limit(0);
 
         info('running post update');
@@ -52,13 +54,13 @@ class PostUpdate extends Command
         try {
             Artisan::call('migrate', ['--force' => true]);
         } catch (Exception $e) {
-            \Log::error("I wasn't able to migrate the data.");
+            Log::error("I wasn't able to migrate the data.");
         }
 
         try {
             Artisan::call('optimize');
         } catch (Exception $e) {
-            \Log::error("I wasn't able to optimize.");
+            Log::error("I wasn't able to optimize.");
         }
 
         /* For the following to work, the web user (www-data) must own all the directories */
@@ -67,7 +69,7 @@ class PostUpdate extends Command
 
         $input = new ArrayInput(array('command' => 'install', '--no-dev' => 'true'));
         $application = new Application();
-        $application->setAutoExit(false); 
+        $application->setAutoExit(false);
         $application->run($input);
 
         echo "Done.";

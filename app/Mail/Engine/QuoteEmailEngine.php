@@ -11,6 +11,7 @@
 
 namespace App\Mail\Engine;
 
+use App\Utils\HtmlEngine;
 use App\Utils\Number;
 
 class QuoteEmailEngine extends BaseEmailEngine 

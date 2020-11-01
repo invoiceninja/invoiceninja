@@ -26,6 +26,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use ZipArchive;
 
 class StartMigration implements ShouldQueue
 {
@@ -66,9 +67,7 @@ class StartMigration implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
-     * @throws ProcessingMigrationArchiveFailed
-     * @throws NonExistingMigrationFile
+     * @return bool
      */
     public function handle()
     {
@@ -80,9 +79,10 @@ class StartMigration implements ShouldQueue
 
         auth()->user()->setCompany($this->company);
 
-        $this->company->setMigration(true);
+        $this->company->is_disabled = true;
+        $this->company->save();
 
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
         $archive = $zip->open($this->filepath);
 
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);
@@ -99,8 +99,6 @@ class StartMigration implements ShouldQueue
                 return true;
             }
 
-            $this->company->setMigration(true);
-
             $file = storage_path("migrations/$filename/migration.json");
 
             if (! file_exists($file)) {
@@ -111,9 +109,7 @@ class StartMigration implements ShouldQueue
 
             Import::dispatchNow($data, $this->company, $this->user);
 
-            $this->company->setMigration(false);
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
-            $this->company->setMigration(false);
 
             Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
 

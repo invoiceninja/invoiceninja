@@ -39,9 +39,8 @@ trait MakesReminders
             $settings->num_days_reminder1 > 0) {
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder1);
 
-            if (! $nsd) {
-                $nsd = $reminder_date->format('Y-m-d');
-            }
+            $nsd = $reminder_date->format('Y-m-d');
+            
 
             if ($reminder_date->lt($nsd)) {
                 $nsd = $reminder_date->format('Y-m-d');

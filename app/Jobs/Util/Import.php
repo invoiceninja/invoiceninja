@@ -26,6 +26,7 @@ use App\Factory\QuoteFactory;
 use App\Factory\RecurringInvoiceFactory;
 use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
+use App\Factory\VendorFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
@@ -43,14 +44,20 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Document;
+use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Product;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\CompanyRepository;
@@ -62,9 +69,12 @@ use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
+use App\Repositories\VendorContactRepository;
+use App\Repositories\VendorRepository;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -101,6 +111,8 @@ class Import implements ShouldQueue
         'payment_terms',
         'tax_rates',
         'clients',
+        'vendors',
+        'projects',
         'products',
         'invoices',
         'recurring_invoices',
@@ -109,6 +121,10 @@ class Import implements ShouldQueue
         'payments',
         'company_gateways',
         'client_gateway_tokens',
+        'expense_categories',
+        'task_statuses',
+        'expenses',
+        'tasks',
         // //'documents',
     ];
 
@@ -156,8 +172,7 @@ class Import implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
-     * @throws \Exception
+     * @return bool
      */
     public function handle() :bool
     {
@@ -207,12 +222,12 @@ class Import implements ShouldQueue
 
     /**
      * @param array $data
-     * @throws \Exception
+     * @throws Exception
      */
     private function processCompany(array $data): void
     {
         Company::unguard();
-        
+
         if (
             $data['settings']['invoice_design_id'] > 9 ||
             $data['settings']['invoice_design_id'] > "9"
@@ -279,7 +294,7 @@ class Import implements ShouldQueue
 
     /**
      * @param array $data
-     * @throws \Exception
+     * @throws Exception
      */
     private function processTaxRates(array $data): void
     {
@@ -326,7 +341,7 @@ class Import implements ShouldQueue
 
     /**
      * @param array $data
-     * @throws \Exception
+     * @throws Exception
      */
     private function processUsers(array $data): void
     {
@@ -379,8 +394,7 @@ class Import implements ShouldQueue
 
     /**
      * @param array $data
-     * @throws ResourceDependencyMissing
-     * @throws \Exception
+     * @throws Exception
      */
     private function processClients(array $data): void
     {
@@ -441,6 +455,68 @@ class Import implements ShouldQueue
         $client_repository = null;
     }
 
+    /**
+     * @param array $data
+     * @throws Exception
+     */
+    private function processVendors(array $data): void
+    {
+        Vendor::unguard();
+
+        $contact_repository = new VendorContactRepository();
+        $vendor_repository = new VendorRepository($contact_repository);
+
+        foreach ($data as $key => $resource) {
+            $modified = $resource;
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->processUserId($resource);
+
+            unset($modified['id']);
+            unset($modified['contacts']);
+
+            $vendor = $vendor_repository->save(
+                $modified,
+                VendorFactory::create(
+                    $this->company->id,
+                    $modified['user_id']
+                )
+            );
+
+            $vendor->contacts()->forceDelete();
+
+            if (array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
+                $modified_contacts = $resource['contacts'];
+
+                foreach ($modified_contacts as $key => $vendor_contacts) {
+                    $modified_contacts[$key]['company_id'] = $this->company->id;
+                    $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
+                    $modified_contacts[$key]['vendor_id'] = $vendor->id;
+                    $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code..
+                    unset($modified_contacts[$key]['id']);
+                }
+
+                $saveable_contacts['contacts'] = $modified_contacts;
+
+                $contact_repository->save($saveable_contacts, $vendor);
+            }
+
+            $key = "vendors_{$resource['id']}";
+
+            $this->ids['vendors'][$key] = [
+                'old' => $resource['id'],
+                'new' => $vendor->id,
+            ];
+        }
+
+        Vendor::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+        $contact_repository = null;
+        $client_repository = null;
+    }
+
+
     private function processProducts(array $data): void
     {
         Product::unguard();
@@ -500,7 +576,7 @@ class Import implements ShouldQueue
         $invoice_repository = new InvoiceMigrationRepository();
 
         foreach ($data as $key => $resource) {
-            
+
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && ! array_key_exists('clients', $this->ids)) {
@@ -776,12 +852,12 @@ class Import implements ShouldQueue
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
                 $modified['documentable_id'] = $this->transformId('invoices', $resource['invoice_id']);
-                $modified['documentable_type'] = \App\Models\Invoice::class;
+                $modified['documentable_type'] = Invoice::class;
             }
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $modified['documentable_id'] = $this->transformId('expenses', $resource['expense_id']);
-                $modified['documentable_type'] = \App\Models\Expense::class;
+                $modified['documentable_type'] = Expense::class;
             }
 
             $modified['user_id'] = $this->processUserId($resource);
@@ -906,6 +982,183 @@ class Import implements ShouldQueue
         $data = null;
     }
 
+    private function processTaskStatuses(array $data) :void
+    {info('in task statuses');
+        TaskStatus::unguard();
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+
+            $task_status = TaskStatus::Create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['task_statuses'] = [
+                "task_statuses_{$old_user_key}" => [
+                    'old' => $resource['id'],
+                    'new' => $task_status->id,
+                ],
+            ];
+        }
+
+        TaskStatus::reguard();
+
+        $data = null;
+        info('finished task statuses');
+    }
+
+    private function processExpenseCategories(array $data) :void
+    {
+        ExpenseCategory::unguard();
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+
+            $expense_category = ExpenseCategory::Create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['expense_categories'] = [
+                "expense_categories_{$old_user_key}" => [
+                    'old' => $resource['id'],
+                    'new' => $expense_category->id,
+                ],
+            ];
+        }
+        
+        ExpenseCategory::reguard();
+
+        $data = null;
+    }
+
+    private function processTasks(array $data) :void
+    {
+        Task::unguard();
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+
+            if(isset($modified['client_id']))
+                $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+
+            if(isset($modified['invoice_id']))
+                $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+            
+            if(isset($modified['project_id']))
+                $modified['project_id'] = $this->transformId('projects', $resource['project_id']);
+            
+            if(isset($modified['status_id']))
+                $modified['status_id'] = $this->transformId('task_statuses', $resource['status_id']);
+
+            $task = Task::Create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['tasks'] = [
+                "tasks_{$old_user_key}" => [
+                    'old' => $resource['id'],
+                    'new' => $task->id,
+                ],
+            ];
+        }
+        
+        Task::reguard();
+
+        $data = null;
+    }
+
+    private function processProjects(array $data) :void
+    {
+        Project::unguard();
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+
+            if(isset($modified['client_id']))
+                $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+
+            $project = Project::Create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['projects'] = [
+                "projects_{$old_user_key}" => [
+                    'old' => $resource['id'],
+                    'new' => $project->id,
+                ],
+            ];
+        }
+
+        Project::reguard();
+
+        $data = null;
+    }
+
+    private function processExpenses(array $data) :void
+    {
+
+        Expense::unguard();
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+
+            if(isset($resource['client_id']))
+                $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            
+            if(isset($resource['category_id']))
+                $modified['category_id'] = $this->transformId('expense_categories', $resource['category_id']);
+            
+            if(isset($resource['invoice_id']))
+                $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+
+            if(isset($resource['project_id']))
+                $modified['project_id'] = $this->transformId('projects', $resource['project_id']);
+
+            if(isset($resource['vendor_id']))
+                $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
+
+            $expense = Expense::Create($modified);
+
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $this->ids['expenses'] = [
+                "expenses_{$old_user_key}" => [
+                    'old' => $resource['id'],
+                    'new' => $expense->id,
+                ],
+            ];
+        }
+
+        Expense::reguard();
+
+        $data = null;
+
+    }
     /**
      * |--------------------------------------------------------------------------
      * | Additional migration methods.
@@ -936,16 +1189,16 @@ class Import implements ShouldQueue
      * @param string $resource
      * @param string $old
      * @return int
-     * @throws \Exception
+     * @throws Exception
      */
-    public function transformId(string $resource, string $old): int
+    public function transformId($resource, string $old): int
     {
         if (! array_key_exists($resource, $this->ids)) {
-            throw new \Exception("Resource {$resource} not available.");
+            throw new Exception("Resource {$resource} not available.");
         }
 
         if (! array_key_exists("{$resource}_{$old}", $this->ids[$resource])) {
-            throw new \Exception("Missing resource key: {$resource}_{$old}");
+            throw new Exception("Missing resource key: {$resource}_{$old}");
         }
 
         return $this->ids[$resource]["{$resource}_{$old}"]['new'];
@@ -956,7 +1209,7 @@ class Import implements ShouldQueue
      *
      * @param array $resource
      * @return int|mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function processUserId(array $resource)
     {

@@ -19,6 +19,7 @@ use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
+use Exception;
 use Illuminate\Support\Facades\App;
 
 class HtmlEngine
@@ -89,7 +90,7 @@ class HtmlEngine
     public function buildEntityDataArray() :array
     {
         if (! $this->client->currency()) {
-            throw new \Exception(debug_backtrace()[1]['function'], 1);
+            throw new Exception(debug_backtrace()[1]['function'], 1);
             exit;
         }
 
@@ -250,8 +251,8 @@ class HtmlEngine
         $data['$contact.phone'] = ['value' => $this->contact->phone, 'label' => ctrans('texts.phone')];
 
         $data['$contact.name'] = ['value' => isset($this->contact) ? $this->contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
-        $data['$contact.first_name'] = ['value' => isset($contact) ? $contact->first_name : '', 'label' => ctrans('texts.first_name')];
-        $data['$contact.last_name'] = ['value' => isset($contact) ? $contact->last_name : '', 'label' => ctrans('texts.last_name')];
+        $data['$contact.first_name'] = ['value' => isset($this->contact) ? $this->contact->first_name : '', 'label' => ctrans('texts.first_name')];
+        $data['$contact.last_name'] = ['value' => isset($this->contact) ? $this->contact->last_name : '', 'label' => ctrans('texts.last_name')];
         $data['$contact.custom1'] = ['value' => isset($this->contact) ? $this->contact->custom_value1 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
         $data['$contact.custom2'] = ['value' => isset($this->contact) ? $this->contact->custom_value2 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
         $data['$contact.custom3'] = ['value' => isset($this->contact) ? $this->contact->custom_value3 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
@@ -370,7 +371,7 @@ class HtmlEngine
         array_multisort($arrKeysLength, SORT_DESC, $data);
 
 //info(print_r($data,1));
-  
+
         return $data;
     }
 
@@ -498,7 +499,7 @@ class HtmlEngine
 
         if ($custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
-            
+
             $custom_field_parts = explode('|', $custom_field);
 
             return $custom_field_parts[0];
@@ -524,7 +525,7 @@ class HtmlEngine
             case 'date':
                 return $this->formatDate($value, $this->client->date_format());
                 break;
-            
+
             default:
                 return is_null($value) ? '' : $value;
                 break;

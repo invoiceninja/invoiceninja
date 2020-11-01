@@ -71,7 +71,7 @@ trait CompanyGatewayFeesAndLimitsSaver
             case 'array':
                 return is_array($value);
             case 'json':
-                json_decode($string);
+                json_decode($value);
 
                     return json_last_error() == JSON_ERROR_NONE;
             default:

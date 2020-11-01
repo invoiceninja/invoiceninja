@@ -32,7 +32,8 @@ class PaymentNotification implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Payment $payment
+     * @param Company $company
      */
     public function __construct(Payment $payment, Company $company)
     {

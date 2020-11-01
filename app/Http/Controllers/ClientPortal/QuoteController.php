@@ -11,6 +11,8 @@ use App\Models\Quote;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\View\View;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
 
@@ -21,7 +23,7 @@ class QuoteController extends Controller
     /**
      * Display a listing of the quotes.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -33,7 +35,7 @@ class QuoteController extends Controller
      *
      * @param ShowQuoteRequest $request
      * @param Quote $quote
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function show(ShowQuoteRequest $request, Quote $quote)
     {

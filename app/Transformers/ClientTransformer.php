@@ -24,6 +24,8 @@ use App\Transformers\CompanyLedgerTransformer;
 use App\Transformers\DocumentTransformer;
 use App\Transformers\SystemLogTransformer;
 use App\Utils\Traits\MakesHash;
+use League\Fractal\Resource\Collection;
+use stdClass;
 
 /**
  * class ClientTransformer.
@@ -52,7 +54,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeActivities(Client $client)
     {
@@ -71,7 +73,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeContacts(Client $client)
     {
@@ -105,6 +107,7 @@ class ClientTransformer extends EntityTransformer
      * @param Client $client
      *
      * @return array
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
     public function transform(Client $client)
     {
@@ -141,7 +144,7 @@ class ClientTransformer extends EntityTransformer
             'shipping_state' => $client->shipping_state ?: '',
             'shipping_postal_code' => $client->shipping_postal_code ?: '',
             'shipping_country_id' => (string) $client->shipping_country_id ?: '',
-            'settings' => $client->settings ?: new \stdClass,
+            'settings' => $client->settings ?: new stdClass,
             'is_deleted' => (bool) $client->is_deleted,
             'vat_number' => $client->vat_number ?: '',
             'id_number' => $client->id_number ?: '',

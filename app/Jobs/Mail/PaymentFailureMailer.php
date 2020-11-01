@@ -49,7 +49,10 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $client
+     * @param $message
+     * @param $company
+     * @param $amount
      */
     public function __construct($client, $message, $company, $amount)
     {
@@ -73,6 +76,10 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
+        /*If we are migrating data we don't want to fire these notification*/
+        if ($this->company->is_disabled) 
+            return true;
+        
         //Set DB
         MultiDB::setDb($this->company->db);
 

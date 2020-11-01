@@ -12,6 +12,7 @@
 namespace App\Utils\Traits;
 
 use App\DataMapper\CompanySettings;
+use stdClass;
 
 /**
  * Class ClientGroupSettingsSaver.
@@ -138,9 +139,9 @@ trait ClientGroupSettingsSaver
      * so that it can be saved cleanly
      *
      * @param  array $settings The settings request() array
-     * @return object          stdClass object
+     * @return stdClass          stdClass object
      */
-    private function checkSettingType($settings) : \stdClass
+    private function checkSettingType($settings) : stdClass
     {
         $settings = (object) $settings;
         $casts = CompanySettings::$casts;
@@ -197,7 +198,8 @@ trait ClientGroupSettingsSaver
         switch ($key) {
             case 'int':
             case 'integer':
-                return ctype_digit(strval(abs($value)));
+                // return ctype_digit(strval(abs($value)));
+                return ctype_digit(strval($value));
             case 'real':
             case 'float':
             case 'double':
@@ -212,8 +214,7 @@ trait ClientGroupSettingsSaver
             case 'array':
                 return is_array($value);
             case 'json':
-                json_decode($string);
-
+                json_decode($value);
                     return json_last_error() == JSON_ERROR_NONE;
             default:
                 return false;

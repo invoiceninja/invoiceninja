@@ -14,24 +14,26 @@ namespace App\Http\Middleware;
 use App\Libraries\MultiDB;
 use App\Models\CompanyToken;
 use Closure;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use stdClass;
 
 class PasswordProtection
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  Request  $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
         $error = [
             'message' => 'Invalid Password',
-            'errors' => new \stdClass,
+            'errors' => new stdClass,
         ];
 
         if ($request->header('X-API-PASSWORD')) {
@@ -46,7 +48,7 @@ class PasswordProtection
         } else {
             $error = [
                 'message' => 'Access denied',
-                'errors' => new \stdClass,
+                'errors' => new stdClass,
             ];
 
             return response()->json($error, 412);

@@ -87,8 +87,8 @@ use App\Listeners\Invoice\InvoiceArchivedActivity;
 use App\Listeners\Invoice\InvoiceCancelledActivity;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
-use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
+use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Invoice\InvoiceRestoredActivity;
 use App\Listeners\Invoice\InvoiceReversedActivity;
@@ -98,6 +98,7 @@ use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\Misc\InvitationViewedListener;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
+use App\Listeners\Quote\QuoteApprovedActivity;
 use App\Listeners\Quote\QuoteArchivedActivity;
 use App\Listeners\Quote\QuoteDeletedActivity;
 use App\Listeners\Quote\QuoteEmailActivity;
@@ -262,6 +263,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         QuoteWasApproved::class => [
             ReachWorkflowSettings::class,
+            QuoteApprovedActivity::class,
         ],
         QuoteWasCreated::class => [
             CreatedQuoteActivity::class,

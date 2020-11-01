@@ -13,6 +13,7 @@ namespace App\DataMapper;
 
 use App\DataMapper\CompanySettings;
 use App\Utils\Traits\MakesHash;
+use stdClass;
 
 /**
  * FreeCompanySettings.
@@ -140,7 +141,7 @@ class FreeCompanySettings extends BaseSettings
      * prevents missing properties from not being returned
      * and always ensure an up to date class is returned.
      *
-     * @return \stdClass
+     * @param $obj
      */
     public function __construct($obj)
     {
@@ -148,9 +149,9 @@ class FreeCompanySettings extends BaseSettings
 
     /**
      * Provides class defaults on init.
-     * @return object
+     * @return stdClass
      */
-    public static function defaults():\stdClass
+    public static function defaults(): stdClass
     {
         $config = json_decode(config('ninja.settings'));
 

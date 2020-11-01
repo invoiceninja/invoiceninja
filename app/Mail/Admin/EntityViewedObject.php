@@ -13,6 +13,7 @@ namespace App\Mail\Admin;
 
 use App\Models\User;
 use App\Utils\Number;
+use stdClass;
 
 class EntityViewedObject
 {
@@ -39,7 +40,7 @@ class EntityViewedObject
 
     public function build()
     {
-        $mail_obj = new \stdClass;
+        $mail_obj = new stdClass;
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
         $mail_obj->data = $this->getData();

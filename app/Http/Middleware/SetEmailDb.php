@@ -14,30 +14,34 @@ namespace App\Http\Middleware;
 use App\Libraries\MultiDB;
 use App\Models\CompanyToken;
 use Closure;
+use Illuminate\Http\Request;
+use stdClass;
 
 class SetEmailDb
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  Request  $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
         $error = [
             'message' => 'Email not set or not found',
-            'errors' => new \stdClass,
+            'errors' => new stdClass,
         ];
 
         if ($request->input('email') && config('ninja.db.multi_db_enabled')) {
+            info("trying to find db");
             if (! MultiDB::userFindAndSetDb($request->input('email'))) {
-                return response()->json($error, 403);
+                return response()->json($error, 400);
             }
-        } else {
-            return response()->json($error, 403);
-        }
+        } 
+        // else {
+        //     return response()->json($error, 403);
+        // }
 
         return $next($request);
     }

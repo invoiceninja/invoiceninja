@@ -18,6 +18,7 @@ use App\Models\RecurringInvoice;
 use App\Models\InvoiceInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Services\AbstractService;
+use Exception;
 use Illuminate\Support\Str;
 
 class CreateRecurringInvitations extends AbstractService
@@ -64,7 +65,7 @@ class CreateRecurringInvitations extends AbstractService
 
             });
         }
-        catch(\Exception $e)
+        catch(Exception $e)
         {
             info($e->getMessage());
         }

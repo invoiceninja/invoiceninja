@@ -40,6 +40,7 @@ use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -64,7 +65,7 @@ class ClientController extends BaseController
 
     /**
      * ClientController constructor.
-     * @param ClientRepository $clientRepo
+     * @param ClientRepository $client_repo
      */
     public function __construct(ClientRepository $client_repo)
     {
@@ -74,14 +75,14 @@ class ClientController extends BaseController
     }
 
     /**
-     *      @OA\Get(
+     * @OA\Get(
      *      path="/api/v1/clients",
      *      operationId="getClients",
      *      tags={"clients"},
      *      summary="Gets a list of clients",
      *      description="Lists clients, search and filters allow fine grained lists to be generated.
 
-        Query parameters can be added to performed more fine grained filtering of the clients, these are handled by the ClientFilters class which defines the methods available",
+    Query parameters can be added to performed more fine grained filtering of the clients, these are handled by the ClientFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -99,7 +100,6 @@ class ClientController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -107,6 +107,8 @@ class ClientController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param ClientFilters $filters
+     * @return Response|mixed
      */
     public function index(ClientFilters $filters)
     {
@@ -118,8 +120,9 @@ class ClientController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowClientRequest $request
+     * @param Client $client
+     * @return Response
      *
      *
      * @OA\Get(
@@ -172,8 +175,9 @@ class ClientController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditClientRequest $request
+     * @param Client $client
+     * @return Response
      *
      *
      * @OA\Get(
@@ -226,9 +230,9 @@ class ClientController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Client $client
-     * @return \Illuminate\Http\Response
+     * @param UpdateClientRequest $request
+     * @param Client $client
+     * @return Response
      *
      *
      *
@@ -290,7 +294,8 @@ class ClientController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateClientRequest $request
+     * @return Response
      *
      *
      *
@@ -335,8 +340,8 @@ class ClientController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreClientRequest $request
+     * @return Response
      *
      *
      *
@@ -387,10 +392,12 @@ class ClientController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyClientRequest $request
+     * @param Client $client
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/clients/{id}",
      *      operationId="deleteClient",
@@ -443,8 +450,7 @@ class ClientController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkClientRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(
@@ -511,7 +517,7 @@ class ClientController extends BaseController
     /**
      * Returns a client statement.
      *
-     * @return [type] [description]
+     * @return void [type] [description]
      */
     public function statement()
     {
