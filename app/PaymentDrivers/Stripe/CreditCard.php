@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Events\Payment\PaymentWasCreated;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
@@ -49,7 +50,7 @@ class CreditCard
         $stripe_response = json_decode($request->input('gateway_response'));
 
         $customer = $this->stripe->findOrCreateCustomer();
-        
+
         $this->stripe->attach($stripe_response->payment_method, $customer);
 
         $stripe_method = $this->stripe->getStripePaymentMethod($stripe_response->payment_method);
@@ -65,7 +66,7 @@ class CreditCard
             'amount' => $this->stripe->convertToStripeAmount($data['amount_with_fee'], $this->stripe->client->currency()->precision),
             'currency' => $this->stripe->client->getCurrencyCode(),
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => collect($data['invoices'])->pluck('id'), //todo more meaningful description here:
+            'description' => collect($data['invoices'])->pluck('id'), // TODO: More meaningful description.
         ];
 
         if ($data['token']) {
@@ -82,111 +83,74 @@ class CreditCard
         return render('gateways.stripe.credit_card.pay', $data);
     }
 
-    public function paymentResponse($request)
+    public function paymentResponse(PaymentResponseRequest $request)
     {
-        $server_response = json_decode($request->input('gateway_response'));
-
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
-
-        $state = [
-            'payment_method' => $server_response->payment_method,
-            'payment_status' => $server_response->status,
-            'save_card' => $request->store_card,
-            'gateway_type_id' => $request->payment_method_id,
-            'hashed_ids' => $request->hashed_ids,
-            'server_response' => $server_response,
-            'payment_hash' => $payment_hash,
-        ];
-
-        /*Hydrate the invoices from the payment hash*/
-        $invoices = Invoice::whereIn('id', $this->stripe->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))
-            ->whereClientId($this->stripe->client->id)
-            ->get();
-
-        if ($this->stripe->getContact()) {
-            $client_contact = $this->stripe->getContact();
-        } else {
-            $client_contact = $invoices->first()->invitations->first()->contact;
-        }
-
         $this->stripe->init();
 
-        $state['payment_intent'] = \Stripe\PaymentIntent::retrieve($server_response->id);
+        $state = [
+            'server_response' => json_decode($request->gateway_response),
+            'payment_hash' => $request->payment_hash,
+        ];
+
+        $state = array_merge($state, $request->all());
+        $state['store_card'] = boolval($state['store_card']);
+
+        $state['payment_intent'] = \Stripe\PaymentIntent::retrieve($state['server_response']->id);
         $state['customer'] = $state['payment_intent']->customer;
 
-        if ($state['payment_status'] == 'succeeded') {
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
+        $this->stripe->payment_hash->save();
 
-            /* Add gateway fees if needed! */
+        /*Hydrate the invoices from the payment hash*/
+        // $invoices = Invoice::whereIn('id', $this->stripe->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))
+        //     ->whereClientId($this->stripe->client->id)
+        //     ->get();
+
+        // if ($this->stripe->getContact()) {
+        //     $client_contact = $this->stripe->getContact();
+        // } else {
+        //     $client_contact = $invoices->first()->invitations->first()->contact;
+        // }
+
+        $server_response = $this->stripe->payment_hash->data->server_response;
+
+        if ($server_response->status == 'succeeded') {
             $this->stripe->confirmGatewayFee($request);
 
-            return $this->processSuccessfulPayment($state);
+            return $this->processSuccessfulPayment();
         }
 
         return $this->processUnsuccessfulPayment($server_response);
     }
 
-    private function processSuccessfulPayment($state)
+    private function processSuccessfulPayment()
     {
-        $state['charge_id'] = $state['payment_intent']->charges->data[0]->id;
+        $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
 
-        $this->stripe->init();
+        if ($this->stripe->payment_hash->data->store_card) {
+            $customer = $this->stripe->findOrCreateCustomer();
 
-        $state['payment_method'] = PaymentMethod::retrieve($state['payment_method']);
-        $payment_method_object = $state['payment_method']->jsonSerialize();
+            $this->stripe->attach($this->stripe->payment_hash->data->server_response->payment_method, $customer);
 
-        $state['payment_meta'] = [
-            'exp_month' => (string)$payment_method_object['card']['exp_month'],
-            'exp_year' => (string)$payment_method_object['card']['exp_year'],
-            'brand' => (string)$payment_method_object['card']['brand'],
-            'last4' => (string)$payment_method_object['card']['last4'],
-            'type' => GatewayType::CREDIT_CARD,
-        ];
-
-        $payment_meta = new \stdClass;
-        $payment_meta->exp_month = (string)$payment_method_object['card']['exp_month'];
-        $payment_meta->exp_year = (string)$payment_method_object['card']['exp_year'];
-        $payment_meta->brand = (string)$payment_method_object['card']['brand'];
-        $payment_meta->last4 = (string)$payment_method_object['card']['last4'];
-        $payment_meta->type = GatewayType::CREDIT_CARD;
-
-        $payment_type = PaymentType::parseCardType($payment_method_object['card']['brand']);
-
-        if ($state['save_card'] === true || $state['save_card'] === 'true') {
-            $this->saveCard($state);
-        }
-
-        // Todo: Need to fix this to support payment types other than credit card.... sepa etc etc
-        if (! isset($state['payment_type'])) {
-            $state['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
+            $this->storePaymentMethod($stripe_method, $this->stripe->payment_hash->data->payment_method_id, $customer);
         }
 
         $data = [
-            'payment_method' => $state['charge_id'],
-            'payment_type' => $state['payment_type'],
-            'amount' => $state['server_response']->amount,
-            'gateway_type_id' => GatewayType::CREDIT_CARD,
+            'payment_method' => $this->stripe->payment_hash->data->server_response->payment_method,
+            'payment_type' => PaymentType::parseCardType(strtolower($stripe_method->card->brand)),
+            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->server_response->amount, $this->stripe->client->currency()->precision),
+            'transaction_reference' => $this->stripe->payment_hash->data->server_response->id,
         ];
 
-        $payment = $this->stripe->createPayment($data, $status = Payment::STATUS_COMPLETED);
-        $payment->meta = $payment_meta;
-        $payment->save();
+        $payment = $this->stripe->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
 
-        $payment_hash = $state['payment_hash'];
-        $payment_hash->payment_id = $payment->id;
-        $payment_hash->save();
-
-        $payment = $this->stripe->attachInvoices($payment, $state['payment_hash']);
-
-        $payment->service()->updateInvoicePayment($state['payment_hash']);
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
-
-        $logger_message = [
-            'server_response' => $state['payment_intent'],
-            'data' => $data,
-        ];
-
-        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client);
+        SystemLogger::dispatch(
+            ['response' => $this->stripe->payment_hash->data->server_response, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_STRIPE,
+            $this->stripe->client
+        );
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }

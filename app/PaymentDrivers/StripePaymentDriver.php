@@ -218,23 +218,6 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->paymentResponse($request);
     }
 
-    public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
-    {
-        $payment = parent::createPayment($data, $status);
-
-        $client_contact = $this->getContact();
-        $client_contact_id = $client_contact ? $client_contact->id : null;
-
-        $payment->amount = $this->convertFromStripeAmount($data['amount'], $this->client->currency()->precision);
-        $payment->type_id = $data['payment_type'];
-        $payment->transaction_reference = $data['payment_method'];
-        $payment->client_contact_id = $client_contact_id;
-        $payment->gateway_type_id = GatewayType::ALIPAY;
-        $payment->save();
-
-        return $payment;
-    }
-
     /**
      * Creates a new String Payment Intent.
      *
