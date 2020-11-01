@@ -43,11 +43,10 @@ class UserRepository extends BaseRepository
      * @param array $data The data
      * @param \App\Models\user $user The user
      *
-     * @param bool $is_migrating
      * @param bool $unset_company_user
      * @return     user|\App\Models\user|null  user Object
      */
-    public function save(array $data, User $user, $is_migrating = false, $unset_company_user = false)
+    public function save(array $data, User $user, $unset_company_user = false)
     {
         $details = $data;
 
@@ -85,7 +84,6 @@ class UserRepository extends BaseRepository
             if (! $cu) {
                 $data['company_user']['account_id'] = $account->id;
                 $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
-                $data['company_user']['is_migrating'] = $is_migrating;
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
                 $cu->fill($data['company_user']);
@@ -107,8 +105,6 @@ class UserRepository extends BaseRepository
 
     public function destroy(array $data, User $user)
     {
-
-info("destroy user");
 
         if (array_key_exists('company_user', $data)) {
             $this->forced_includes = 'company_users';
@@ -135,8 +131,6 @@ info("destroy user");
      */
     public function delete($user)
     {
-
-info("delete user");
 
         $company = auth()->user()->company();
 

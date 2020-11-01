@@ -32,18 +32,21 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
 
     private $contact;
 
+    private $company;
     /**
      * Create a new job instance.
      *
      * @param Payment $payment
      * @param $email_builder
      * @param $contact
+     * @param $company
      */
-    public function __construct(Payment $payment, $email_builder, $contact)
+    public function __construct(Payment $payment, $email_builder, $contact, company)
     {
         $this->payment = $payment;
         $this->email_builder = $email_builder;
         $this->contact = $contact;
+        $this->company = $company;
     }
 
     /**
@@ -54,6 +57,9 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
+        if($this->company->is_disabled)
+            return true;
+        
         if ($this->contact->email) {
 
             MultiDB::setDb($this->payment->company->db); //this may fail if we don't pass the serialized object with the company record

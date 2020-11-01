@@ -79,7 +79,8 @@ class StartMigration implements ShouldQueue
 
         auth()->user()->setCompany($this->company);
 
-        $this->company->setMigration(true);
+        $this->company->is_disabled = true;
+        $this->company->save();
 
         $zip = new ZipArchive();
         $archive = $zip->open($this->filepath);
