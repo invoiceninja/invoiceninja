@@ -76,6 +76,10 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
+        /*If we are migrating data we don't want to fire these notification*/
+        if ($this->company->is_disabled) 
+            return true;
+        
         //Set DB
         MultiDB::setDb($this->company->db);
 

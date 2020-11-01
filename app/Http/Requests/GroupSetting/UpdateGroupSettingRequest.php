@@ -58,7 +58,7 @@ class UpdateGroupSettingRequest extends Request
      * are saveable
      *
      * @param  object $settings
-     * @return object $settings
+     * @return stdClass $settings
      */
     private function filterSaveableSettings($settings)
     {

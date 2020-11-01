@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @test
@@ -141,6 +142,10 @@ class LoginTest extends TestCase
 
     public function testApiLogin()
     {
+        Account::all()->each(function ($account){
+            $account->delete();
+        });
+
         $account = Account::factory()->create();
         $user = User::factory()->create([
             'account_id' => $account->id,
@@ -177,15 +182,28 @@ class LoginTest extends TestCase
         $this->assertTrue($user->company_users->first() !== null);
         $this->assertTrue($user->company_user->account !== null);
 
+        $this->assertEquals($user->email, 'test@example.com');
+        $this->assertTrue(\Hash::check('123456', $user->password));
+
         $data = [
             'email' => 'test@example.com',
             'password' => '123456',
         ];
 
+        try{
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-SECRET' => config('ninja.api_secret'),
             ])->post('/api/v1/login', $data);
 
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            info(print_r($message,1));
+        }
+
+        $arr = $response->json();
+
+        info(print_r($arr,1));
+        
         $response->assertStatus(200);
     }
 }

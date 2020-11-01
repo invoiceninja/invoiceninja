@@ -35,9 +35,8 @@ class Phantom
      * Phantom JS API.
      *
      * @param $invitation
-     * @return pdf HTML to PDF conversion
      */
-    public function generate($invitation)
+    public function generate($invitation) 
     {
         $entity = false;
 

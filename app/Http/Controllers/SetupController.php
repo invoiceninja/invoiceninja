@@ -87,11 +87,6 @@ class SetupController extends Controller
         $_ENV['MAIL_FROM_ADDRESS'] = $request->input('mail_address');
         $_ENV['MAIL_PASSWORD'] = $request->input('mail_password');
         $_ENV['NINJA_ENVIRONMENT'] = 'selfhost';
-        $_ENV['SELF_UPDATER_REPO_VENDOR'] = 'invoiceninja';
-        $_ENV['SELF_UPDATER_REPO_NAME'] = 'invoiceninja';
-        $_ENV['SELF_UPDATER_USE_BRANCH'] = 'v2';
-        $_ENV['SELF_UPDATER_MAILTO_ADDRESS'] = $request->input('mail_address');
-        $_ENV['SELF_UPDATER_MAILTO_NAME'] = $request->input('mail_name');
         $_ENV['DB_CONNECTION'] = 'db-ninja-01';
 
         $config = '';

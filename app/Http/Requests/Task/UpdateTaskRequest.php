@@ -38,9 +38,8 @@ class UpdateTaskRequest extends Request
     {
         $rules = [];
 
-        $rules['number'] = Rule::unique('tasks')
-                                ->where('company_id', auth()->user()->company()->id)
-                                ->ignore($this->task->id);
+        if(isset($this->number))
+            $rules['number'] = Rule::unique('tasks')->where('company_id', auth()->user()->company()->id)->ignore($this->task->id);
 
         return $this->globalRules($rules);
     }

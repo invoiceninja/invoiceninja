@@ -48,12 +48,13 @@ class PaymentNotification implements ShouldQueue
         MultiDB::setDb($event->company->db);
 
         $payment = $event->payment;
+        
+        if ($event->company->is_disabled) {
+            return true;
+        }
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
-            if ($company_user->is_migrating) {
-                return true;
-            }
 
             $user = $company_user->user;
 

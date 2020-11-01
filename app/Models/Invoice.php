@@ -209,6 +209,15 @@ class Invoice extends BaseModel
         return $this->hasMany(Credit::class);
     }
 
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
+    }
     /**
      * Service entry points.
      */
@@ -356,7 +365,7 @@ class Invoice extends BaseModel
     /**
      * Access the invoice calculator object.
      *
-     * @return object The invoice calculator object getters
+     * @return stdClass The invoice calculator object getters
      */
     public function calc()
     {

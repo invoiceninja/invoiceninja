@@ -94,7 +94,9 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-
+        if($this->company->is_disabled)
+            return true;
+        
         MultiDB::setDB($this->company->db);
 
         $this->setMailDriver();

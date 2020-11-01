@@ -72,7 +72,7 @@ class BasePaymentDriver
 
     /**
      * Returns the Omnipay driver.
-     * @return object Omnipay initialized object
+     * @return stdClass Omnipay initialized object
      */
     protected function gateway()
     {

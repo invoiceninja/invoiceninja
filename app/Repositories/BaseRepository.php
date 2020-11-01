@@ -314,6 +314,7 @@ class BaseRepository
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
                 $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
+                $model->service()->linkEntities()->save();
             }
 
             if (! $model->design_id) {

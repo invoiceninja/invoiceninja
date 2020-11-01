@@ -33,11 +33,11 @@ class SendEmail
      */
     public function run()
     {
-        $email_builder = (new PaymentEmail())->build($this->payment, $contact);
+        $email_builder = (new PaymentEmail())->build($this->payment, $this->contact);
 
         $this->payment->client->contacts->each(function ($contact) use ($email_builder) {
             if ($contact->send && $contact->email) {
-                EmailPayment::dispatchNow($this->payment, $email_builder, $contact);
+                EmailPayment::dispatchNow($this->payment, $email_builder, $contact, $this->payment->company);
             }
         });
     }

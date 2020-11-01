@@ -54,6 +54,9 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
 
     public function handle()
     {
+        if($this->company->is_disabled)
+            return true;
+        
         //Set DB
         MultiDB::setDb($this->company->db);
 

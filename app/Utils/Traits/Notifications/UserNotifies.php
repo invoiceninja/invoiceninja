@@ -18,7 +18,7 @@ trait UserNotifies
 {
     public function findUserNotificationTypes($invitation, $company_user, $entity_name, $required_permissions) :array
     {
-        if ($this->migrationRunning($company_user)) {
+        if ($company_user->company->is_disabled) {
             return [];
         }
 
@@ -41,7 +41,7 @@ trait UserNotifies
 
     public function findUserEntityNotificationType($entity, $company_user, $required_permissions) :array
     {
-        if ($this->migrationRunning($company_user)) {
+        if ($company_user->company->is_disabled) {
             return [];
         }
 
@@ -65,7 +65,7 @@ trait UserNotifies
 
     public function findCompanyUserNotificationType($company_user, $required_permissions) :array
     {
-        if ($this->migrationRunning($company_user)) {
+        if ($company_user->company->is_disabled) {
             return [];
         }
 
@@ -79,8 +79,4 @@ trait UserNotifies
         return $notifiable_methods;
     }
 
-    private function migrationRunning($company_user)
-    {
-        return $company_user->is_migrating;
-    }
 }

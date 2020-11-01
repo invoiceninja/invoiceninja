@@ -107,6 +107,7 @@ class Company extends BaseModel
         'enable_shop_api',
         'invoice_task_timelog',
         'auto_start_tasks',
+        'is_disabled',
     ];
 
     protected $hidden = [
@@ -443,13 +444,5 @@ class Company extends BaseModel
         return $this->slack_webhook_url;
     }
 
-    public function setMigration($status)
-    {
-        $company_users = CompanyUser::where('company_id', $this->id)->get();
-
-        foreach ($company_users as $cu) {
-            $cu->is_migrating = $status;
-            $cu->save();
-        }
-    }
+   
 }

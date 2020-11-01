@@ -12,6 +12,7 @@
 namespace App\Exceptions;
 
 use App\Exceptions\GenericPaymentDriverFailure;
+use App\Models\Account;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -27,14 +28,14 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 use PDOException;
+use Sentry\State\Scope;
 use Swift_TransportException;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
-use function Sentry\configureScope;
-use Sentry\State\Scope;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
+use function Sentry\configureScope;
 
 class Handler extends ExceptionHandler
 {
@@ -71,9 +72,12 @@ class Handler extends ExceptionHandler
     {
         if (! Schema::hasTable('accounts')) {
             info('account table not found');
-
             return;
         }
+        // if(Account::count() == 0){
+        //     info("handler - account table not found");
+        //     return;
+        // }
 
         if (app()->bound('sentry') && $this->shouldReport($exception)) {
             app('sentry')->configureScope(function (Scope $scope): void {

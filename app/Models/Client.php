@@ -285,7 +285,7 @@ class Client extends BaseModel implements HasLocalePreference
      * of settings which have been merged from
      * Client > Group > Company levels.
      *
-     * @return object stdClass object of settings
+     * @return stdClass stdClass object of settings
      */
     public function getMergedSettings() :object
     {
