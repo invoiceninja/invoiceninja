@@ -30,7 +30,7 @@
         "authorizenet/authorizenet": "^2.0",
         "checkout/checkout-sdk-php": "^1.0",
         "cleverit/ubl_invoice": "^1.3",
-        "composer/composer": "^1.10",
+        "composer/composer": "^2",
         "czproject/git-php": "^3.17",
         "doctrine/dbal": "^2.10",
         "fedeisas/laravel-mail-css-inliner": "^3",
