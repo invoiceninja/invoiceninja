@@ -20,6 +20,7 @@ use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
 use App\Utils\CurlUtils;
 use App\Utils\SystemHealth;
+use App\Utils\Traits\AppSetup;
 use DB;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
@@ -37,6 +38,8 @@ use Spatie\Browsershot\Browsershot;
  */
 class SetupController extends Controller
 {
+    use AppSetup;
+
     public function index()
     {
         $check = SystemHealth::check(false);
@@ -127,6 +130,8 @@ class SetupController extends Controller
             }
 
             VersionCheck::dispatchNow();
+            
+            $this->buildCache();
 
             return redirect('/');
         } catch (Exception $e) {
