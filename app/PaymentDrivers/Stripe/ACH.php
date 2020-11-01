@@ -12,7 +12,6 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-use App\Events\Payment\PaymentWasCreated;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\Request;
 use App\Jobs\Mail\PaymentFailureMailer;
@@ -23,7 +22,6 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
-use App\Utils\Ninja;
 use Stripe\Exception\InvalidRequestException;
 
 class ACH
@@ -87,38 +85,33 @@ class ACH
 
     public function paymentView(array $data)
     {
-        $state = [
-            'amount' => $data['amount_with_fee'],
-            'currency' => $this->stripe->client->getCurrencyCode(),
-            'invoices' => $data['invoices'],
-            'gateway' => $this->stripe,
-            'payment_method_id' => GatewayType::BANK_TRANSFER,
-            'token' => $data['token'],
-            'customer' => $this->stripe->findOrCreateCustomer(),
-        ];
+        $data['gateway'] = $this->stripe;
+        $data['currency'] = $this->stripe->client->getCurrencyCode();
+        $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
+        $data['customer'] = $this->stripe->findOrCreateCustomer();
+        $data['amount'] = $this->stripe->convertToStripeAmount($data['amount_with_fee'], $this->stripe->client->currency()->precision);
 
-        return render('gateways.stripe.ach.pay', $state);
+        return render('gateways.stripe.ach.pay', $data);
     }
+
 
     public function paymentResponse($request)
     {
+        $this->stripe->init();
+
         $state = [
             'payment_method' => $request->payment_method_id,
             'gateway_type_id' => $request->company_gateway_id,
-            'hashed_ids' => $request->hashed_ids,
             'amount' => $this->stripe->convertToStripeAmount($request->amount, $this->stripe->client->currency()->precision),
             'currency' => $request->currency,
             'source' => $request->source,
             'customer' => $request->customer,
         ];
 
-        if ($this->stripe->getContact()) {
-            $state['client_contact'] = $this->stripe->getContact();
-        } else {
-            $state['client_contact'] = $state['invoices']->first()->invitations->first()->contact;
-        }
+        $state = array_merge($state, $request->all());
 
-        $this->stripe->init();
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
+        $this->stripe->payment_hash->save();
 
         try {
             $state['charge'] = \Stripe\Charge::create([
@@ -127,6 +120,11 @@ class ACH
                 'customer' => $state['customer'],
                 'source' => $state['source'],
             ]);
+
+            $state = array_merge($state, $request->all());
+
+            $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
+            $this->stripe->payment_hash->save();
 
             if ($state['charge']->status === 'pending' && is_null($state['charge']->failure_message)) {
                 return $this->processPendingPayment($state);
@@ -142,33 +140,24 @@ class ACH
 
     public function processPendingPayment($state)
     {
-        $state['charge_id'] = $state['charge']->id;
-
         $this->stripe->init();
 
-        $state['payment_type'] = PaymentType::ACH;
-
         $data = [
-            'payment_method' => $state['charge_id'],
-            'payment_type' => $state['payment_type'],
-            'amount' => $state['charge']->amount,
-            'gateway_type_id' => GatewayType::BANK_TRANSFER,
+            'payment_method' => $state['source'],
+            'payment_type' => PaymentType::ACH,
+            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->amount, $this->stripe->client->currency()->precision),
+            'transaction_reference' => $state['charge']->id,
         ];
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
-        $this->stripe->attachInvoices($payment, $state['hashed_ids']); //todo remove hashed_ids
-
-        $payment->service()->updateInvoicePayment(); //inject payment_hash
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
-
-        $logger_message = [
-            'server_response' => $state['charge'],
-            'data' => $data,
-        ];
-
-        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client);
+        SystemLogger::dispatch(
+            ['response' => $state['charge'], 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_STRIPE,
+            $this->stripe->client
+        );
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }
@@ -177,14 +166,27 @@ class ACH
     {
         PaymentFailureMailer::dispatch($this->stripe->client, $state['charge']->failure_message, $this->stripe->client->company, $state['amount']);
 
+        PaymentFailureMailer::dispatch(
+            $this->stripe->client,
+            $state['charge'],
+            $this->stripe->client->company,
+            $state['amount']
+        );
+
         $message = [
             'server_response' => $state['charge'],
-            'data' => $state,
+            'data' => $this->stripe->payment_hash->data,
         ];
 
-        SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_STRIPE,
+            $this->stripe->client
+        );
 
-        throw new \Exception('Failed to process the payment.', 1);
+        throw new PaymentFailed('Failed to process the payment.', 500);
     }
 
     private function storePaymentMethod($method, $payment_method_id, $customer)
