@@ -15,6 +15,7 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Events\Payment\Methods\MethodDeleted;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\CreatePaymentMethodRequest;
+use App\Http\Requests\Request;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
@@ -24,8 +25,6 @@ use App\Utils\Traits\MakesDates;
 use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -123,14 +122,14 @@ class PaymentMethodController extends Controller
             ->verificationView($payment_method);
     }
 
-    public function processVerification(ClientGatewaytoken $payment_method)
+    public function processVerification(Request $request, ClientGatewaytoken $payment_method)
     {
         $gateway = $this->getClientGateway();
 
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod(request()->query('method'))
-            ->processVerification($payment_method);
+            ->processVerification($request, $payment_method);
     }
 
     /**

@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-class ProcessAlipay {
+class ProcessSOFORT {
     constructor(key) {
         this.key = key;
         this.errors = document.getElementById('errors');
@@ -22,21 +22,22 @@ class ProcessAlipay {
 
     handle = () => {
         let data = {
-            type: 'alipay',
+            type: 'sofort',
             amount: document.querySelector('meta[name="amount"]').content,
-            currency: document.querySelector('meta[name="currency"]').content,
+            currency: 'eur',
             redirect: {
                 return_url: document.querySelector('meta[name="return-url"]')
                     .content,
             },
+            sofort: {
+                country: document.querySelector('meta[name="country"').content,
+            },
         };
 
-        document.getElementById('pay-now').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
+        document.getElementById('pay-now').addEventListener('click', (e) => {
             document.getElementById('pay-now-button').disabled = true;
-            document.querySelector('#pay-now-button > svg').classList.add('hidden');
-            document.querySelector('#pay-now-button > span').classList.remove('hidden');
+            document.querySelector('#pay-now-button > svg').classList.remove('hidden');
+            document.querySelector('#pay-now-button > span').classList.add('hidden');
 
             this.stripe.createSource(data).then(function(result) {
                 if (result.hasOwnProperty('source')) {
@@ -44,12 +45,14 @@ class ProcessAlipay {
                 }
 
                 document.getElementById('pay-now-button').disabled = false;
-                document.querySelector('#pay-now-button > svg').classList.remove('hidden');
-                document.querySelector('#pay-now-button > span').classList.add('hidden');
+                document.querySelector('#pay-now-button > svg').classList.add('hidden');
+                document.querySelector('#pay-now-button > span').classList.remove('hidden');
 
                 this.errors.textContent = '';
                 this.errors.textContent = result.error.message;
                 this.errors.hidden = false;
+
+                document.getElementById('pay-now').disabled = false;
             });
         });
     };
@@ -59,4 +62,4 @@ const publishableKey = document.querySelector(
     'meta[name="stripe-publishable-key"]'
 ).content;
 
-new ProcessAlipay(publishableKey).setupStripe().handle();
+new ProcessSOFORT(publishableKey).setupStripe().handle();

@@ -15,6 +15,7 @@ namespace App\PaymentDrivers;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Http\Requests\Request;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
@@ -33,9 +34,6 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
-use Exception;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use Stripe\Customer;
@@ -54,35 +52,21 @@ class StripePaymentDriver extends BaseDriver
 
     public $can_authorise_credit_card = true;
 
-    /** @var StripeClient */
-    protected $stripe;
+    /** @var \Stripe\StripeClient */
+    public $stripe;
 
     protected $customer_reference = 'customerReferenceParam';
 
     public $payment_method;
-
 
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
         GatewayType::BANK_TRANSFER => ACH::class,
         GatewayType::ALIPAY => Alipay::class,
         GatewayType::SOFORT => SOFORT::class,
-        GatewayType::APPLE_PAY => 1,
-        GatewayType::SEPA => 1,
+        GatewayType::APPLE_PAY => 1, // TODO
+        GatewayType::SEPA => 1, // TODO
     ];
-
-    /**
-     * Methods in this class are divided into
-     * two separate streams.
-     *
-     * 1. Omnipay Specific
-     * 2. Stripe Specific
-     *
-     * Our Stripe integration is deeper than
-     * other gateways and therefore
-     * relies on direct calls to the API
-     */
-    /************************************** Stripe API methods **********************************************************/
 
     /**
      * Initializes the Stripe API.
@@ -237,23 +221,6 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->paymentResponse($request);
     }
 
-    public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
-    {
-        $payment = parent::createPayment($data, $status);
-
-        $client_contact = $this->getContact();
-        $client_contact_id = $client_contact ? $client_contact->id : null;
-
-        $payment->amount = $this->convertFromStripeAmount($data['amount'], $this->client->currency()->precision);
-        $payment->type_id = $data['payment_type'];
-        $payment->transaction_reference = $data['payment_method'];
-        $payment->client_contact_id = $client_contact_id;
-        $payment->gateway_type_id = GatewayType::ALIPAY;
-        $payment->save();
-
-        return $payment;
-    }
-
     /**
      * Creates a new String Payment Intent.
      *
@@ -368,9 +335,9 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->verificationView($payment_method);
     }
 
-    public function processVerification(ClientGatewayToken $payment_method)
+    public function processVerification(Request $request, ClientGatewayToken $payment_method)
     {
-        return $this->payment_method->processVerification($payment_method);
+        return $this->payment_method->processVerification($request, $payment_method);
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Company $company, CompanyGateway $company_gateway, Payment $payment)
@@ -414,6 +381,25 @@ class StripePaymentDriver extends BaseDriver
     }
 
     /**
+     * Attach Stripe payment method to Stripe client. 
+     * 
+     * @param string $payment_method 
+     * @param mixed $customer 
+     * 
+     * @return void 
+     */
+    public function attach(string $payment_method, $customer): void
+    {
+        try {
+            $stripe_payment_method = $this->getStripePaymentMethod($payment_method);
+            $stripe_payment_method->attach(['customer' => $customer->id]);
+        }
+        catch(\Stripe\Exception\ApiErrorException | \Exception $e) {
+            $this->processInternallyFailedPayment($this, $e);
+        }
+    }
+
+    /**
      * Detach payment method from the Stripe.
      * https://stripe.com/docs/api/payment_methods/detach
      *
@@ -430,15 +416,29 @@ class StripePaymentDriver extends BaseDriver
             $response = $stripe->paymentMethods->detach($token->token);
         } catch (Exception $e) {
             SystemLogger::dispatch([
-                'server_response' => $response, 'data' => request()->all(),
+                'server_response' => $e->getMessage(), 'data' => request()->all(),
             ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
         }
     }
-
-
+    
     public function getCompanyGatewayId(): int
     {
         return $this->company_gateway->id;
     }
 
+    /**
+     * Retrieve payment method from Stripe.
+     * 
+     * @param string $source 
+     *
+     * @return \Stripe\PaymentMethod|void 
+     */
+    public function getStripePaymentMethod(string $source)
+    {
+        try {
+            return \Stripe\PaymentMethod::retrieve($source);
+        } catch (\Stripe\Exception\ApiErrorException | \Exception $e) {
+            return $this->processInternallyFailedPayment($this, $e);
+        }
+    }
 }

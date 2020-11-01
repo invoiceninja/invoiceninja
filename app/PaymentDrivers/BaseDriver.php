@@ -171,7 +171,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $payment->amount = $data['amount'];
         $payment->type_id = $data['payment_type'];
-        $payment->transaction_reference = $data['payment_method'];
+        $payment->transaction_reference = $data['transaction_reference'];
         $payment->client_contact_id = $client_contact_id;
         $payment->save();
 
@@ -272,7 +272,7 @@ class BaseDriver extends AbstractPaymentDriver
      * @param array $data
      * @return null|ClientGatewayToken
      */
-    public function storeGatewayToken(array $data): ?ClientGatewayToken
+    public function storeGatewayToken(array $data, array $additional = []): ?ClientGatewayToken
     {
         $company_gateway_token = new ClientGatewayToken();
         $company_gateway_token->company_id = $this->client->company->id;
@@ -281,6 +281,11 @@ class BaseDriver extends AbstractPaymentDriver
         $company_gateway_token->company_gateway_id = $this->company_gateway->id;
         $company_gateway_token->gateway_type_id = $data['payment_method_id'];
         $company_gateway_token->meta = $data['payment_meta'];
+
+        foreach ($additional as $key => $value) {
+            $company_gateway_token->{$key} = $value;
+        }
+
         $company_gateway_token->save();
 
         if ($this->client->gateway_tokens->count() == 1) {

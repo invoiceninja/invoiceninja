@@ -8,10 +8,12 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-class ProcessStripePayment {
-    constructor(key, usingToken) {
+class StripeCreditCard {
+    constructor(key, token, secret, onlyAuthorization) {
         this.key = key;
-        this.usingToken = usingToken;
+        this.token = token;
+        this.secret = secret;
+        this.onlyAuthorization = onlyAuthorization;
     }
 
     setupStripe() {
@@ -43,8 +45,8 @@ class ProcessStripePayment {
         this.payNowButton.querySelector('span').classList.add('hidden');
 
         this.stripe
-            .handleCardPayment(payNowButton.dataset.secret, {
-                payment_method: payNowButton.dataset.token,
+            .handleCardPayment(this.secret, {
+                payment_method: this.token,
             })
             .then((result) => {
                 if (result.error) {
@@ -67,7 +69,7 @@ class ProcessStripePayment {
         let cardHolderName = document.getElementById('cardholder-name');
 
         this.stripe
-            .handleCardPayment(payNowButton.dataset.secret, this.cardElement, {
+            .handleCardPayment(this.secret, this.cardElement, {
                 payment_method_data: {
                     billing_details: { name: cardHolderName.value },
                 },
@@ -110,31 +112,82 @@ class ProcessStripePayment {
         this.payNowButton.querySelector('span').classList.remove('hidden');
     }
 
+    handleAuthorization() {
+        let cardHolderName = document.getElementById('cardholder-name');
+
+        let payNowButton = document.getElementById('authorize-card');
+
+        this.payNowButton = payNowButton;
+        this.payNowButton.disabled = true;
+
+        this.payNowButton.querySelector('svg').classList.remove('hidden');
+        this.payNowButton.querySelector('span').classList.add('hidden');
+
+        this.stripe
+            .handleCardSetup(this.secret, this.cardElement, {
+                payment_method_data: {
+                    billing_details: { name: cardHolderName.value },
+                },
+            })
+            .then((result) => {
+                if (result.error) {
+                    return this.handleFailure(result);
+                }
+
+                return this.handleSuccessfulAuthorization(result);
+            });
+    }
+
+    handleSuccessfulAuthorization(result) {
+        document.getElementById('gateway_response').value = JSON.stringify(
+            result.setupIntent
+        );
+
+        document.getElementById('server_response').submit();
+    }
+
     handle() {
         this.setupStripe();
 
-        if (this.usingToken) {
-            document
-                .getElementById('pay-now-with-token')
-                .addEventListener('click', () => {
-                    return this.completePaymentUsingToken();
-                });
-        }
-
-        if (!this.usingToken) {
+        if (this.onlyAuthorization) {
             this.createElement().mountCardElement();
 
-            document.getElementById('pay-now').addEventListener('click', () => {
-                return this.completePaymentWithoutToken();
-            });
+            document
+                .getElementById('authorize-card')
+                .addEventListener('click', () => {
+                    return this.handleAuthorization();
+                });
+        } else {
+            if (this.token) {
+                document
+                    .getElementById('pay-now-with-token')
+                    .addEventListener('click', () => {
+                        return this.completePaymentUsingToken();
+                    });
+            }
+
+            if (!this.token) {
+                this.createElement().mountCardElement();
+
+                document
+                    .getElementById('pay-now')
+                    .addEventListener('click', () => {
+                        return this.completePaymentWithoutToken();
+                    });
+            }
         }
     }
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-).content;
+const publishableKey =
+    document.querySelector('meta[name="stripe-publishable-key"]').content ?? '';
 
-const usingToken = document.querySelector('meta[name="using-token"]').content;
+const token = document.querySelector('meta[name="stripe-token"]').content ?? '';
 
-new ProcessStripePayment(publishableKey, usingToken).handle();
+const secret =
+    document.querySelector('meta[name="stripe-secret"]').content ?? '';
+
+const onlyAuthorization =
+    document.querySelector('meta[name="only-authorization"]').content ?? '';
+
+new StripeCreditCard(publishableKey, token, secret, onlyAuthorization).handle();
