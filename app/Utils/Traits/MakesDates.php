@@ -52,15 +52,17 @@ trait MakesDates
 
     /**
      * Formats a date.
-     * @param  Carbon/String $date   Carbon object or date string
+     * @param  Carbon|string $date   Carbon object or date string
      * @param  string $format The date display format
      * @return string         The formatted date
      */
     public function formatDate($date, string $format) :string
     {
-        if (! $date || strlen($date) < 1) {
+        if(!isset($date))
             return '';
-        }
+        // if (!$date || strlen($date) < 1) {
+        //     return '';
+        // }
 
         if (is_string($date)) {
             $date = $this->convertToDateObject($date);

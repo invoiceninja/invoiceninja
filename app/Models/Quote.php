@@ -159,7 +159,7 @@ class Quote extends BaseModel
     /**
      * Access the quote calculator object.
      *
-     * @return object The quote calculator object getters
+     * @return stdClass The quote calculator object getters
      */
     public function calc()
     {

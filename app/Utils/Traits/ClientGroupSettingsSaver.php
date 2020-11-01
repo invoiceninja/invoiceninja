@@ -139,7 +139,7 @@ trait ClientGroupSettingsSaver
      * so that it can be saved cleanly
      *
      * @param  array $settings The settings request() array
-     * @return object          stdClass object
+     * @return stdClass          stdClass object
      */
     private function checkSettingType($settings) : stdClass
     {
@@ -214,8 +214,7 @@ trait ClientGroupSettingsSaver
             case 'array':
                 return is_array($value);
             case 'json':
-                json_decode($string);
-
+                json_decode($value);
                     return json_last_error() == JSON_ERROR_NONE;
             default:
                 return false;

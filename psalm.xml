@@ -51,7 +51,18 @@
       <directory name="app" /> 
     </errorLevel>
   </InvalidScalarArgument> 
+  <UndefinedMagicPropertyFetch>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </UndefinedMagicPropertyFetch> 
+  <InvalidNullableReturnType>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </InvalidNullableReturnType> 
  
+
 </issueHandlers>
 
     

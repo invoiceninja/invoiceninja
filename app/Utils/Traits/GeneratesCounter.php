@@ -442,7 +442,7 @@ trait GeneratesCounter
      * check if we need to reset here.
      *
      * @param Client $client client entity
-     * @return false
+     * @return void
      */
     private function resetCounters(Client $client)
     {

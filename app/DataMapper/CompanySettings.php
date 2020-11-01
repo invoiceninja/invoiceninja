@@ -507,7 +507,7 @@ class CompanySettings extends BaseSettings
 
     /**
      * Provides class defaults on init.
-     * @return object
+     * @return stdClass
      */
     public static function defaults(): stdClass
     {

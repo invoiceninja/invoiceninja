@@ -33,7 +33,7 @@ class SendEmail
      */
     public function run()
     {
-        $email_builder = (new PaymentEmail())->build($this->payment, $contact);
+        $email_builder = (new PaymentEmail())->build($this->payment, $this->contact);
 
         $this->payment->client->contacts->each(function ($contact) use ($email_builder) {
             if ($contact->send && $contact->email) {
