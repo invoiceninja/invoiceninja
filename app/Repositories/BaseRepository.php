@@ -314,12 +314,14 @@ class BaseRepository
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
                 $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
-                $model->service()->linkEntities()->save();
             }
 
             if (! $model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
             }
+
+            $model->service()->linkEntities()->save();
+
         }
 
         if ($class->name == Credit::class) {
