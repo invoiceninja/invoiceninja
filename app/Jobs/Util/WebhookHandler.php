@@ -41,7 +41,7 @@ class WebhookHandler implements ShouldQueue
      */
     public function handle() :bool
     {
-        if (! $this->entity->company || $this->entity->company->company_users->first()->is_migrating == true) {
+        if (! $this->entity->company || $this->entity->company->is_disabled) {
             return true;
         }
 

@@ -89,7 +89,6 @@ class UserRepository extends BaseRepository
                 $cu->fill($data['company_user']);
                 $cu->restore();
                 $cu->tokens()->restore();
-                $cu->is_migrating = true;
                 $cu->save();
             }
 
