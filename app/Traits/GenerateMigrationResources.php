@@ -1204,6 +1204,10 @@ trait GenerateMigrationResources
 
         foreach ($projects as $project)
         {
+
+            if(!($project->deleted_at instanceof Carbon))
+                $project->deleted_at = Carbon::parse($project->deleted_at);
+
             $transformed[] = [
                 'id' => $project->id,
                 'company_id' => $this->account->id,
