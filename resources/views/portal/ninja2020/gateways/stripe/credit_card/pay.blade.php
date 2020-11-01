@@ -2,8 +2,8 @@
 
 @section('gateway_head')
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
-    <meta name="stripe-token" content="{{ $token->token }}">
     <meta name="stripe-secret" content="{{ $intent->client_secret }}">
+    <meta name="stripe-token" content="{{ optional($token)->token }}">
     <meta name="only-authorization" content="">
 @endsection
 
@@ -12,7 +12,7 @@
         @csrf
         <input type="hidden" name="gateway_response">
         <input type="hidden" name="store_card">
-        <input type="hidden" name="payment_hash" value="{{$payment_hash}}">
+        <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
 
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
@@ -26,9 +26,7 @@
 
     @include('portal.ninja2020.gateways.includes.payment_details')
 
-    @if((int)$total['amount_with_fee'] == 0)
-        @include('portal.ninja2020.gateways.stripe.includes.pay_with_credit')
-    @elseif($token)
+    @if($token)
         @include('portal.ninja2020.gateways.stripe.includes.pay_with_token')
         @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-with-token'])
     @else

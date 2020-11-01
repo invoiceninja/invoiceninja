@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Events\Payment\PaymentWasCreated;
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
@@ -159,14 +160,27 @@ class CreditCard
     {
         PaymentFailureMailer::dispatch($this->stripe->client, $server_response->cancellation_reason, $this->stripe->client->company, $server_response->amount);
 
+        PaymentFailureMailer::dispatch(
+            $this->stripe->client,
+            $server_response,
+            $this->stripe->client->company,
+            $server_response->amount
+        );
+
         $message = [
             'server_response' => $server_response,
-            'data' => [],
+            'data' => $this->stripe->payment_hash->data,
         ];
 
-        SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_STRIPE,
+            $this->stripe->client
+        );
 
-        throw new \Exception('Failed to process the payment.', 1);
+        throw new PaymentFailed('Failed to process the payment.', 500);
     }
 
     private function storePaymentMethod(\Stripe\PaymentMethod $method, $payment_method_id, $customer)
