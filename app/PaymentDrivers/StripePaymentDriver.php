@@ -15,6 +15,7 @@ namespace App\PaymentDrivers;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Http\Requests\Request;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
@@ -33,7 +34,6 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Stripe\PaymentIntent;
 use Stripe\SetupIntent;
@@ -50,7 +50,7 @@ class StripePaymentDriver extends BaseDriver
     public $can_authorise_credit_card = true;
 
     /** @var \Stripe\StripeClient */
-    protected $stripe;
+    public $stripe;
 
     protected $customer_reference = 'customerReferenceParam';
 
@@ -328,9 +328,9 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->verificationView($payment_method);
     }
 
-    public function processVerification(ClientGatewayToken $payment_method)
+    public function processVerification(Request $request, ClientGatewayToken $payment_method)
     {
-        return $this->payment_method->processVerification($payment_method);
+        return $this->payment_method->processVerification($request, $payment_method);
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Company $company, CompanyGateway $company_gateway, Payment $payment)

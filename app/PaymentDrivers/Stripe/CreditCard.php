@@ -102,17 +102,6 @@ class CreditCard
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
         $this->stripe->payment_hash->save();
 
-        /*Hydrate the invoices from the payment hash*/
-        // $invoices = Invoice::whereIn('id', $this->stripe->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))
-        //     ->whereClientId($this->stripe->client->id)
-        //     ->get();
-
-        // if ($this->stripe->getContact()) {
-        //     $client_contact = $this->stripe->getContact();
-        // } else {
-        //     $client_contact = $invoices->first()->invitations->first()->contact;
-        // }
-
         $server_response = $this->stripe->payment_hash->data->server_response;
 
         if ($server_response->status == 'succeeded') {
