@@ -1168,6 +1168,11 @@ trait GenerateMigrationResources
 
         foreach ($tasks as $task)
         {
+
+
+            if(!($task->deleted_at instanceof Carbon))
+                $task->deleted_at = Carbon::parse($task->deleted_at);
+
             $transformed[] = [
                 'id' => $task->id,
                 'company_id' => $this->account->id,
