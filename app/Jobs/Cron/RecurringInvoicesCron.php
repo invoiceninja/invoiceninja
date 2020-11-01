@@ -14,6 +14,7 @@ namespace App\Jobs\Cron;
 use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Libraries\MultiDB;
 use App\Models\RecurringInvoice;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -46,6 +47,9 @@ class RecurringInvoicesCron
 
                 $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '=', now())
                                                         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                                                        ->whereHas('company', function(Builder $query){
+                                                            $query->where('is_disabled', false);
+                                                        })
                                                         ->cursor();
 
                 Log::info(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = '.$recurring_invoices->count());
@@ -66,6 +70,9 @@ class RecurringInvoicesCron
 
                 $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '=', now())
                                                         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                                                        ->whereHas('company', function(Builder $query){
+                                                            $query->where('is_disabled', false);
+                                                        })
                                                         ->cursor();
 
                 Log::info(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = '.$recurring_invoices->count().' On Database # '.$db);

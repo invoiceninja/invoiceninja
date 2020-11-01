@@ -107,6 +107,7 @@ class Company extends BaseModel
         'enable_shop_api',
         'invoice_task_timelog',
         'auto_start_tasks',
+        'is_disabled',
     ];
 
     protected $hidden = [
