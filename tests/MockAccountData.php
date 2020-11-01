@@ -570,6 +570,8 @@ trait MockAccountData
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 10;
+        $item->task_id = $this->encodePrimaryKey($this->task->id);
+        $item->expense_id = $this->encodePrimaryKey($this->expense->id);
 
         $line_items[] = $item;
 

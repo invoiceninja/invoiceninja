@@ -14,8 +14,10 @@ namespace App\Services\Invoice;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\CompanyGateway;
+use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Task;
 use App\Services\Client\ClientService;
 use App\Services\Invoice\ApplyNumber;
 use App\Services\Invoice\ApplyPayment;
@@ -30,10 +32,13 @@ use App\Services\Invoice\MarkInvoicePaid;
 use App\Services\Invoice\MarkSent;
 use App\Services\Invoice\TriggeredActions;
 use App\Services\Invoice\UpdateBalance;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 
 class InvoiceService
 {
+    use MakesHash;
+
     private $invoice;
 
     protected $client_service;
@@ -324,6 +329,30 @@ class InvoiceService
                 // code...
                 break;
         }
+
+        return $this;
+    }
+
+    public function linkEntities()
+    {
+        //set all task.invoice_ids = 0
+        $this->invoice->tasks()->update(['invoice_id' => null]);
+
+        //set all tasks.invoice_ids = x with the current  line_items
+        $tasks = collect($this->invoice->line_items)->map(function ($item){
+
+            if(isset($item->task_id))
+                $item->task_id = $this->decodePrimaryKey($item->task_id);
+
+            if(isset($item->expense_id))
+                $item->expense_id = $this->decodePrimaryKey($item->expense_id);
+
+            return $item;
+
+        });
+
+        Task::whereIn('id',$tasks->pluck('task_id'))->update(['invoice_id' => $this->invoice->id]);
+        Expense::whereIn('id',$tasks->pluck('expense_id'))->update(['invoice_id' => $this->invoice->id]);
 
         return $this;
     }

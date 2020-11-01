@@ -38,8 +38,8 @@ class StoreTaskRequest extends Request
     {
         $rules = [];
         
-        $rules['number'] = Rule::unique('tasks')
-                                ->where('company_id', auth()->user()->company()->id);
+        if(isset($this->number))
+            $rules['number'] = Rule::unique('tasks')->where('company_id', auth()->user()->company()->id);
     
        return $this->globalRules($rules);
     }

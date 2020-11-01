@@ -33,6 +33,7 @@ class TaskFactory extends Factory
 	    {
 	    return [
 	        'description' => $this->faker->text(50),
+            'invoice_id' => null,
 	    ];
 	}
 }
