@@ -9,7 +9,9 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org)
 
-### We're on Slack, join us at [slack.invoiceninja.com](http://slack.invoiceninja.com)
+### We're on Slack, join us at [slack.invoiceninja.com](http://slack.invoiceninja.com) or if you like [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
+
+Just make sure to add the `invoice-ninja` tag to your question.
 
 All Pro and Enterprise features from the hosted app are included in the open-source code. We offer a $30 per year white-label license to remove our branding for personal use.
 
@@ -49,6 +51,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Event Scheduler](https://github.com/cytech/Scheduler-InvoiceNinja)
 * [Manufacturer Module](https://github.com/dicarlosystems/manufacturer-invoiceninja)
 * [Point of Sale](https://github.com/dicarlosystems/pointofsale-invoiceninja)
+* [Invoice Design Import/Export](https://github.com/feyst/invoicedesignexport)
 
 > Feel free to email us for help if you're working on a module, we're happy to provide developer support.
 

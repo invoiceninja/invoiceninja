@@ -298,8 +298,8 @@ class AccountApiController extends BaseAPIController
         $timestamp = $request->timestamp;
         $productId = $request->product_id;
 
-        if (Carbon::createFromTimestamp($timestamp) < Carbon::now()->subYear()) {
-            return '{"message":"The order is expired"}';
+        if ($company->app_store_order_id) {
+            return '{"message":"error"}';
         }
 
         if ($productId == 'v1_pro_yearly') {
@@ -328,7 +328,7 @@ class AccountApiController extends BaseAPIController
         $company->plan_term = PLAN_TERM_YEARLY;
         $company->plan_started = $company->plan_started ?: date('Y-m-d');
         $company->plan_paid = date('Y-m-d');
-        $company->plan_expires = Carbon::createFromTimestamp($timestamp)->addYear()->format('Y-m-d');
+        $company->plan_expires = Carbon::now()->addYear()->format('Y-m-d');
         $company->trial_plan = null;
         $company->save();
 

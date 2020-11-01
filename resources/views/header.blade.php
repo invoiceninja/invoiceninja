@@ -354,7 +354,7 @@
 
       </div>
 
-      {!! Former::open('/handle_command')->id('search-form')->addClass('navbar-form navbar-right')->role('search') !!}
+      {!! Former::open(env('SPEECH_ENABLED') ? '/handle_command' : '/#')->id('search-form')->addClass('navbar-form navbar-right')->role('search') !!}
         <div class="form-group has-feedback">
           <input type="text" name="command" id="search" style="width: 280px;padding-top:0px;padding-bottom:0px;margin-right:12px;"
             class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}"/>
@@ -547,7 +547,9 @@
 
 @include('partials.contact_us')
 @include('partials.sign_up')
-@include('partials.keyboard_shortcuts')
+@if (!request()->is('*proposals*'))
+    @include('partials.keyboard_shortcuts')
+@endif
 
 @if (auth()->check() && auth()->user()->registered && ! auth()->user()->hasAcceptedLatestTerms())
     @include('partials.accept_terms')
