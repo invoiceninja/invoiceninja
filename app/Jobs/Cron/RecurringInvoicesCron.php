@@ -47,9 +47,7 @@ class RecurringInvoicesCron
 
                 $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '=', now())
                                                         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
-                                                        ->whereHas('company', function(Builder $query){
-                                                            $query->where('is_disabled', false);
-                                                        })
+                                                        ->with('company')
                                                         ->cursor();
 
                 Log::info(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = '.$recurring_invoices->count());
@@ -58,7 +56,8 @@ class RecurringInvoicesCron
 
                 info("Current date = " . now()->format("Y-m-d") . " Recurring date = " .$recurring_invoice->next_send_date);
 
-                SendRecurring::dispatchNow($recurring_invoice, $recurring_invoice->company->db);
+                if(!$recurring_invoice->company->is_disabled)
+                    SendRecurring::dispatchNow($recurring_invoice, $recurring_invoice->company->db);
 
             });
 
@@ -70,9 +69,7 @@ class RecurringInvoicesCron
 
                 $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '=', now())
                                                         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
-                                                        ->whereHas('company', function(Builder $query){
-                                                            $query->where('is_disabled', false);
-                                                        })
+                                                        ->with('company')
                                                         ->cursor();
 
                 Log::info(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = '.$recurring_invoices->count().' On Database # '.$db);
@@ -81,7 +78,8 @@ class RecurringInvoicesCron
 
                     info("Current date = " . now()->format("Y-m-d") . " Recurring date = " .$recurring_invoice->next_send_date);
 
-                    SendRecurring::dispatchNow($recurring_invoice, $recurring_invoice->company->db);
+                    if(!$recurring_invoice->company->is_disabled)
+                        SendRecurring::dispatchNow($recurring_invoice, $recurring_invoice->company->db);
     
                 });
             }
