@@ -169,7 +169,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $payment->amount = $data['amount'];
         $payment->type_id = $data['payment_type'];
-        $payment->transaction_reference = $data['payment_method'];
+        $payment->transaction_reference = $data['transaction_reference'];
         $payment->client_contact_id = $client_contact_id;
         $payment->save();
 

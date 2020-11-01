@@ -39,14 +39,16 @@ class PaymentResponseRequest extends FormRequest
 
     public function prepareForValidation()
     {
-        $store_card = false;
-
-        if ($this->has('store_card') && ($this->store_card === "true" || $this->store_card === true)) {
-            $store_card = true;
+        if ($this->has('store_card')) {
+            $this->merge([
+                'store_card' => ($this->store_card === "true" || $this->store_card === true) ? true : false,
+            ]);
         }
 
-        $this->merge([
-            'store_card' => $store_card,
-        ]);
+        if ($this->has('pay_with_token')) {
+            $this->merge([
+                'pay_with_token' => ($this->pay_with_token === "true" || $this->pay_with_token === true) ? true : false,
+            ]);
+        }
     }
 }

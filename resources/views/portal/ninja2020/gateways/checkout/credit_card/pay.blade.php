@@ -20,6 +20,7 @@
         <input type="hidden" name="value" value="{{ $value }}">
         <input type="hidden" name="raw_value" value="{{ $raw_value }}">
         <input type="hidden" name="currency" value="{{ $currency }}">
+        <input type="hidden" name="pay_with_token" value="false">
         
         @isset($token)
             <input type="hidden" name="token" value="{{ $token->token }}">
@@ -31,16 +32,42 @@
     @endcomponent
 
     @include('portal.ninja2020.gateways.includes.payment_details')
+
+    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+        <label class="mr-4">
+            <input 
+                type="radio" 
+                id="toggle-payment-with-token" 
+                class="form-radio cursor-pointer" name="payment-type" />
+            <span class="ml-1 cursor-pointer">**** {{ $token->meta->last4 }}</span>
+        </label>
+        <label>
+            <input 
+                type="radio"
+                id="toggle-payment-with-credit-card"
+                class="form-radio cursor-pointer"
+                name="payment-type" 
+                checked/>
+            <span class="ml-1 cursor-pointer">{{ __('texts.credit_card') }}</span>
+        </label>
+    @endcomponent
+
     @include('portal.ninja2020.gateways.includes.save_card')
 
     @component('portal.ninja2020.components.general.card-element-single')
-        <form class="payment-form" method="POST" action="#">
+        <form class="payment-form" method="POST" action="#" id="checkout--container">
             @if(app()->environment() == 'production')
                 <script async src="https://cdn.checkout.com/js/checkout.js"></script>
             @else
                 <script async src="https://cdn.checkout.com/sandbox/js/checkout.js"></script>
             @endif
         </form>
+    @endcomponent
+
+    @component('portal.ninja2020.components.general.card-element-single')
+       <div class="hidden" id="pay-now-with-token--container">
+            @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-with-token'])
+       </div>
     @endcomponent
 @endsection
 

@@ -1,5 +1,5 @@
 @unless(isset($show_save) && $show_save == false)
-    <div class="{{ ($gateway->token_billing == 'optin' || $gateway->token_billing == 'optout') ? 'sm:grid' : 'hidden' }} px-4 py-5 sm:grid-cols-3 sm:gap-4 sm:px-6">
+    <div class="{{ ($gateway->token_billing == 'optin' || $gateway->token_billing == 'optout') ? 'sm:grid' : 'hidden' }} px-4 py-5 sm:grid-cols-3 sm:gap-4 sm:px-6" id="save-card--container">
         <dt class="text-sm leading-5 font-medium text-gray-500">
             {{ ctrans('texts.token_billing_checkbox') }}
         </dt>
