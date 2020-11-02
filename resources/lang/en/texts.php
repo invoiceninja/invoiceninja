@@ -3294,4 +3294,6 @@ return [
     'payment_method_saving_failed' => 'Payment method can\'t be saved for future use.',
     
     'pay_with' => 'Pay with',
+
+    'n/a' => 'N/A',
 ];

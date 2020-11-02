@@ -13,6 +13,8 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Events\Payment\PaymentWasCreated;
+use App\Exceptions\PaymentFailed;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
@@ -37,81 +39,88 @@ class Alipay
     public function paymentView(array $data)
     {
         $data['gateway'] = $this->stripe;
-        $data['return_url'] = $this->buildReturnUrl($data);
+        $data['return_url'] = $this->buildReturnUrl();
         $data['currency'] = $this->stripe->client->getCurrencyCode();
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['amount_with_fee'], $this->stripe->client->currency()->precision);
+        $data['invoices'] = $this->stripe->payment_hash->invoices();
+
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
+        $this->stripe->payment_hash->save();
 
         return render('gateways.stripe.alipay.pay', $data);
     }
 
-    private function buildReturnUrl($data): string
+    private function buildReturnUrl(): string
     {
         return route('client.payments.response', [
             'company_gateway_id' => $this->stripe->company_gateway->id,
-            'gateway_type_id' => GatewayType::ALIPAY,
-            'hashed_ids' => implode(',', $data['hashed_ids']),
-            'amount' => $data['amount'],
-            'fee' => $data['fee'],
+            'payment_hash' => $this->stripe->payment_hash->hash,
             'payment_method_id' => GatewayType::ALIPAY,
         ]);
     }
 
-    public function paymentResponse($request)
+    public function paymentResponse(PaymentResponseRequest $request)
     {
-        $state = array_merge($request->all(), []);
-        $amount = $state['amount'] + $state['fee'];
-        $state['amount'] = $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision);
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
+        $this->stripe->payment_hash->save();
 
         if ($request->redirect_status == 'succeeded') {
-            return $this->processSuccesfulRedirect($state);
+            return $this->processSuccesfulRedirect();
         }
 
-        return $this->processUnsuccesfulRedirect($state);
+        return $this->processUnsuccesfulRedirect();
     }
 
-    public function processSuccesfulRedirect($state)
+    public function processSuccesfulRedirect()
     {
-        $state['charge_id'] = $state['source'];
-
         $this->stripe->init();
 
-        $state['payment_type'] = PaymentType::ALIPAY;
-
         $data = [
-            'payment_method' => $state['charge_id'],
-            'payment_type' => $state['payment_type'],
-            'amount' => $state['amount'],
+            'payment_method' => $this->stripe->payment_hash->data->source,
+            'payment_type' => PaymentType::ALIPAY,
+            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision),
+            'transaction_reference' => ctrans('texts.n/a'),
         ];
 
-        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, \App\Models\Payment::STATUS_PENDING);
 
-        if (isset($state['hashed_ids'])) {
-            $this->stripe->attachInvoices($payment, $state['hashed_ids']);
-        }
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
-
-        $logger_message = [
-            'server_response' => $state,
-            'data' => $data,
-        ];
-
-        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client);
+        SystemLogger::dispatch(
+            ['response' => $this->stripe->payment_hash->data, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_STRIPE,
+            $this->stripe->client
+        );
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }
 
-    public function processUnsuccesfulRedirect($state)
+    public function processUnsuccesfulRedirect()
     {
-        PaymentFailureMailer::dispatch($this->stripe->client, $state['charge']->failure_message, $this->stripe->client->company, $state['amount']);
+        $server_response = $this->stripe->payment_hash->data;
+
+        PaymentFailureMailer::dispatch($this->stripe->client, $server_response->redirect_status, $this->stripe->client->company, $server_response->amount);
+
+        PaymentFailureMailer::dispatch(
+            $this->stripe->client,
+            $server_response,
+            $this->stripe->client->company,
+            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision)
+        );
 
         $message = [
-            'server_response' => $state['charge'],
-            'data' => $state,
+            'server_response' => $server_response,
+            'data' => $this->stripe->payment_hash->data,
         ];
 
-        SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_STRIPE,
+            $this->stripe->client
+        );
 
-        throw new Exception('Failed to process the payment.', 1);
+        throw new PaymentFailed('Failed to process the payment.', 500);
     }
 }
