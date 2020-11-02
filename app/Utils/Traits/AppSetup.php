@@ -30,12 +30,12 @@ trait AppSetup
         return $check['system_health'] == 'true';
     }
 
-    public function buildCache()
+    public function buildCache($force = false)
     {
         $cached_tables = config('ninja.cached_tables');
 
         foreach ($cached_tables as $name => $class) {
-            if (request()->has('clear_cache') || ! Cache::has($name)) {
+            if (request()->has('clear_cache') || ! Cache::has($name) || $force) {
 
                 // check that the table exists in case the migration is pending
                 if (! Schema::hasTable((new $class())->getTable())) {
