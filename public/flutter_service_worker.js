@@ -28,8 +28,8 @@ const RESOURCES = {
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "c1242726c7eac4eb5e843d826f78fb1b",
 "assets/AssetManifest.json": "ea09ed4b9b8b6c83d6896248aac7c527",
 "manifest.json": "77215c1737c7639764e64a192be2f7b8",
-"main.dart.js": "123473a96a184ff8e30f60c8aead36fe",
-"version.json": "7f6afc720135d94ffcde7ff3441dd3f9",
+"main.dart.js": "4af77a7efd8c3d710a93fa6496efe7d4",
+"version.json": "8c6b6a59553be3d444a306a4cf18513a",
 "/": "23224b5e03519aaa87594403d54412cf",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35"
