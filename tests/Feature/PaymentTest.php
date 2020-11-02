@@ -1302,4 +1302,87 @@ $contact =             ClientContact::factory()->create([
             $this->assertEquals(1, $payment->invoices()->count());
         }
     }
+
+    public function testPaymentActionArchive()
+    {
+        $this->invoice = null;
+
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->save();
+
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
+        $this->invoice->client_id = $client->id;
+
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->save();
+        $this->invoice->service()->markSent()->save();
+
+        $data = [
+            'amount' => 20.0,
+            'client_id' => $this->encodePrimaryKey($client->id),
+            'invoices' => [
+                    [
+                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
+                        'amount' => 10,
+                    ],
+                ],
+            'date' => '2019/12/12',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $payment_id = $arr['data']['id'];
+
+        $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
+
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($payment->id)],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/bulk?action=archive', $data);
+
+        $arr = $response->json();
+
+        $this->assertGreaterThan(0, $arr['data'][0]['archived_at']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/bulk?action=restore', $data);
+
+        $arr = $response->json();
+
+        $this->assertEquals(0, $arr['data'][0]['archived_at']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/bulk?action=delete', $data);
+
+        $arr = $response->json();
+info(print_r($arr,1));
+        $this->assertEquals(1, $arr['data'][0]['is_deleted']);
+    }
+
+
+
 }

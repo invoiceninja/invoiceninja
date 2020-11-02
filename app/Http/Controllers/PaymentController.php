@@ -509,7 +509,8 @@ class PaymentController extends BaseController
 
         $payments->each(function ($payment, $key) use ($action) {
             if (auth()->user()->can('edit', $payment)) {
-                $this->payment_repo->{$action}($payment);
+                $this->performAction($payment, $action, true);
+                // $this->payment_repo->{$action}($payment);
             }
         });
 
@@ -587,30 +588,31 @@ class PaymentController extends BaseController
      * @param Payment $payment
      * @param $action
      */
-    public function action(ActionPaymentRequest $request, Payment $payment, $action)
+    public function performAction(Payment $payment, $action, $bulk = false)
     {
         switch ($action) {
-            case 'clone_to_invoice':
-                //$payment = CloneInvoiceFactory::create($payment, auth()->user()->id);
-                //return $this->itemResponse($payment);
-                break;
-            case 'clone_to_quote':
-                //$quote = CloneInvoiceToQuoteFactory::create($payment, auth()->user()->id);
-                // todo build the quote transformer and return response here
-                break;
-            case 'history':
-                // code...
-                break;
-            case 'delivery_note':
-                // code...
-                break;
-            case 'mark_paid':
-                // code...
+            case 'restore':
+             $this->payment_repo->restore($payment);
+                
+                if (! $bulk) {
+                    return $this->listResponse($payment);
+                }
+
                 break;
             case 'archive':
+             $this->payment_repo->archive($payment);
+                
+                if (! $bulk) {
+                    return $this->listResponse($payment);
+                }
                 // code...
                 break;
             case 'delete':
+             $this->payment_repo->delete($payment);
+                
+                if (! $bulk) {
+                    return $this->listResponse($payment);
+                }
                 // code...
                 break;
             case 'email':
