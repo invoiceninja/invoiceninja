@@ -218,8 +218,9 @@ class PaymentController extends Controller
             'amount_with_fee' => $invoice_totals + $fee_totals,
         ];
 
-        if($is_credit_payment)
+        if($is_credit_payment) {
             return $this->processCreditPayment($request, $data);
+        }
 
         return $gateway
             ->driver(auth()->user()->client)
