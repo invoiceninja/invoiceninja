@@ -29,8 +29,10 @@ use App\Repositories\BaseRepository;
 use App\Repositories\PaymentRepository;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Traits\MakesHash;
+use App\Events\Payment\PaymentWasUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Utils\Ninja;
 
 /**
  * Class PaymentController.
@@ -379,6 +381,7 @@ class PaymentController extends BaseController
 
         $payment = $this->payment_repo->save($request->all(), $payment);
 
+        event(new PaymentWasUpdated($payment, $payment->company, Ninja::eventVars()));
         return $this->itemResponse($payment);
     }
 
