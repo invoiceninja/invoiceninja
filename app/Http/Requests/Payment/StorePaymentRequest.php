@@ -13,6 +13,7 @@ namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Credit\ValidCreditsRules;
+use App\Http\ValidationRules\Credit\CreditsSumRule;
 use App\Http\ValidationRules\Payment\ValidInvoicesRules;
 use App\Http\ValidationRules\PaymentAmountsBalanceRule;
 use App\Http\ValidationRules\ValidCreditsPresentRule;
@@ -76,7 +77,6 @@ class StorePaymentRequest extends Request
         }
 
         if (! isset($input['amount']) || $input['amount'] == 0) {
-            //$input['amount'] = $invoices_total - $credits_total;
             $input['amount'] = $invoices_total - $credits_total; //todo the payment amount is always less the credit amount applied
         }
 
@@ -100,7 +100,7 @@ class StorePaymentRequest extends Request
             'invoices.*.amount' => 'required',
             'credits.*.credit_id' => 'bail|required|exists:credits,id',
             'credits.*.credit_id' => new ValidCreditsRules($this->all()),
-            'credits.*.amount' => 'required',
+            'credits.*.amount' => ['required', new CreditsSumRule($this->all())],
             'invoices' => new ValidPayableInvoicesRule(),
             'number' => 'bail|nullable|unique:payments,number,'.$this->id.',id,company_id,'.$this->company_id,
         ];
