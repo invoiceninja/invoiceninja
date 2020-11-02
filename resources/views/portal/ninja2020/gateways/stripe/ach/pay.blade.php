@@ -14,6 +14,7 @@
             <input type="hidden" name="amount" value="{{ $amount }}">
             <input type="hidden" name="currency" value="{{ $currency }}">
             <input type="hidden" name="customer" value="{{ $customer->id }}">
+            <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         </form>
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])

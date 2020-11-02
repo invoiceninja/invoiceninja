@@ -22,6 +22,7 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
+use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
 
