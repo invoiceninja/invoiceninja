@@ -131,7 +131,7 @@ class SetupController extends Controller
 
             VersionCheck::dispatchNow();
             
-            $this->buildCache();
+            $this->buildCache(true);
 
             return redirect('/');
         } catch (Exception $e) {
