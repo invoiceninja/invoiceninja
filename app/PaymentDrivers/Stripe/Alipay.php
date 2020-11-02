@@ -22,6 +22,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Ninja;
+use Exception;
 
 class Alipay
 {
@@ -111,6 +112,6 @@ class Alipay
 
         SystemLogger::dispatch($message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
 
-        throw new \Exception('Failed to process the payment.', 1);
+        throw new Exception('Failed to process the payment.', 1);
     }
 }

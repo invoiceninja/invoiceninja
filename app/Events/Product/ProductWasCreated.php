@@ -33,7 +33,10 @@ class ProductWasCreated
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param Product $product
+     * @param $input
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Product $product, $input, Company $company, array $event_vars)
     {

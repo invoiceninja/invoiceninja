@@ -22,6 +22,8 @@ use Illuminate\Support\Str;
  */
 class ClientContactRepository extends BaseRepository
 {
+    public $is_primary;
+    
     public function save(array $data, Client $client) : void
     {
         if (isset($data['contacts'])) {

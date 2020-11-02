@@ -12,7 +12,7 @@
 namespace App\Events\Quote;
 
 use App\Models\Company;
-use App\Models\QuoteWasViewed;
+use App\Models\QuoteInvitation;
 use Illuminate\Queue\SerializesModels;
 
 /**

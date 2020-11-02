@@ -14,9 +14,9 @@ namespace App\Models;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Invoice\CreateInvoicePdf;
-use App\Jobs\Quote\CreateQuotePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Filterable;
+use App\Models\Presenters\QuotePresenter;
 use App\Services\Quote\QuoteService;
 use App\Utils\Ninja;
 use App\Utils\Traits\Archivable;
@@ -40,7 +40,7 @@ class Quote extends BaseModel
     use PresentableTrait;
     use MakesInvoiceValues;
 
-    protected $presenter = \App\Models\Presenters\QuotePresenter::class;
+    protected $presenter = QuotePresenter::class;
 
     protected $touches = [];
 
@@ -159,7 +159,7 @@ class Quote extends BaseModel
     /**
      * Access the quote calculator object.
      *
-     * @return object The quote calculator object getters
+     * @return stdClass The quote calculator object getters
      */
     public function calc()
     {
@@ -206,7 +206,7 @@ class Quote extends BaseModel
 
         event(new QuoteWasUpdated($this, $this->company, Ninja::eventVars()));
 
-        CreateQuotePdf::dispatchNow($invitation);
+        CreateEntityPdf::dispatchNow($invitation);
 
         return $storage_path;
     }

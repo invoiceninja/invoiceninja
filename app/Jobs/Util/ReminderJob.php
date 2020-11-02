@@ -66,7 +66,7 @@ class ReminderJob implements ShouldQueue
 
             if ($invoice->isPayable()) {
 
-                $reminder_template = $invoice->calculateTemplate();    
+                $reminder_template = $invoice->calculateTemplate('invoice');    
                 $invoice->service()->touchReminder($this->reminder_template)->save();
 
                 $invoice->invitations->each(function ($invitation) use ($invoice) {

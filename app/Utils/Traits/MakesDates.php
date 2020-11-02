@@ -12,6 +12,8 @@
 namespace App\Utils\Traits;
 
 use Carbon\Carbon;
+use DateTime;
+use DateTimeZone;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -31,14 +33,13 @@ trait MakesDates
             $utc_date = $this->convertToDateObject($utc_date);
         }
 
-        return $utc_date->setTimezone(new \DateTimeZone($timezone));
+        return $utc_date->setTimezone(new DateTimeZone($timezone));
     }
 
     /**
      * Converts from client timezone to UTC.
-     * @param  datetime 	object 		$utc_date
-     * @param  string 		$timezone 	ie Australia/Sydney
-     * @return Carbon           		Carbon object
+     * @param datetime    object        $utc_date
+     * @return Carbon                Carbon object
      */
     public function createUtcDate($client_date)
     {
@@ -46,20 +47,22 @@ trait MakesDates
             $client_date = $this->convertToDateObject($client_date);
         }
 
-        return $client_date->setTimezone(new \DateTimeZone('GMT'));
+        return $client_date->setTimezone(new DateTimeZone('GMT'));
     }
 
     /**
      * Formats a date.
-     * @param  Carbon/String $date   Carbon object or date string
+     * @param  Carbon|string $date   Carbon object or date string
      * @param  string $format The date display format
      * @return string         The formatted date
      */
     public function formatDate($date, string $format) :string
     {
-        if (! $date || strlen($date) < 1) {
+        if(!isset($date))
             return '';
-        }
+        // if (!$date || strlen($date) < 1) {
+        //     return '';
+        // }
 
         if (is_string($date)) {
             $date = $this->convertToDateObject($date);
@@ -81,6 +84,6 @@ trait MakesDates
 
     private function convertToDateObject($date)
     {
-        return new \DateTime($date);
+        return new DateTime($date);
     }
 }

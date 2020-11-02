@@ -49,13 +49,15 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $payment
+     * @param $user
+     * @param $company
      */
-    public function __construct($payment, $user, $company)
+    public function __construct($payment, $company)
     {
         $this->company = $company;
 
-        $this->user = $user;
+        $this->user = $payment->user;
 
         $this->payment = $payment;
 
@@ -69,27 +71,35 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
+        /*If we are migrating data we don't want to fire these notification*/
+        if ($this->company->is_disabled) 
+            return true;
+          
         //Set DB
         MultiDB::setDb($this->company->db);
-
-        /*If we are migrating data we don't want to fire these notification*/
-        if ($this->company->company_users->first()->is_migrating) {
-            return true;
-        }
 
         //if we need to set an email driver do it now
         $this->setMailDriver();
 
-        $mail_obj = (new EntityPaidObject($this->payment))->build();
-        $mail_obj->from = [$this->payment->user->email, $this->payment->user->present()->name()];
+        try {
 
-        //send email
-        Mail::to($this->user->email)
-            ->send(new EntityNotificationMailer($mail_obj));
+            $mail_obj = (new EntityPaidObject($this->payment))->build();
+            $mail_obj->from = [$this->payment->user->email, $this->payment->user->present()->name()];
 
-        //catch errors
-        if (count(Mail::failures()) > 0) {
-            return $this->logMailError(Mail::failures(), $this->payment->client);
+            //send email
+            Mail::to($this->user->email)
+                ->send(new EntityNotificationMailer($mail_obj));
+
+        } catch (Swift_TransportException $e) {
+            $this->failed($e->getMessage());
+            //$this->entityEmailFailed($e->getMessage());
         }
+
+        if (count(Mail::failures()) > 0) {
+            $this->logMailError(Mail::failures(), $this->entity->client);
+        } else {
+          //  $this->entityEmailSucceeded();
+        }
+
     }
 }

@@ -12,6 +12,7 @@
 namespace App\Providers;
 
 use App\Libraries\MultiDB;
+use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\ServiceProvider;
 
 class MultiDBProvider extends ServiceProvider
@@ -33,7 +34,7 @@ class MultiDBProvider extends ServiceProvider
     public function register()
     {
         $this->app['events']->listen(
-            \Illuminate\Queue\Events\JobProcessing::class,
+            JobProcessing::class,
             function ($event) {
                 if (isset($event->job->payload()['db'])) {
                     MultiDB::setDb($event->job->payload()['db']);

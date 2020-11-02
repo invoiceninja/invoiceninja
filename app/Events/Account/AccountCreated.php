@@ -38,7 +38,9 @@ class AccountCreated
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param $user
+     * @param $company
+     * @param $event_vars
      */
     public function __construct($user, $company, $event_vars)
     {
@@ -50,7 +52,7 @@ class AccountCreated
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return Channel|array
      */
     public function broadcastOn()
     {

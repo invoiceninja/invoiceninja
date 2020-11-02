@@ -26,7 +26,7 @@ class Expense extends BaseModel
         'assigned_user_id',
         'vendor_id',
         'invoice_id',
-        'expense_currency_id',
+        'currency_id',
         'date',
         'invoice_currency_id',
         'amount',
@@ -53,6 +53,7 @@ class Expense extends BaseModel
         'custom_value2',
         'custom_value3',
         'custom_value4',
+        'number',
     ];
 
     protected $casts = [

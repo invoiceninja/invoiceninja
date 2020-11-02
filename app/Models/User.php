@@ -16,13 +16,16 @@ use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Filterable;
 use App\Models\Language;
+use App\Models\Presenters\UserPresenter;
 use App\Models\Traits\UserTrait;
+use App\Notifications\ResetPasswordNotification;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\UserSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -30,6 +33,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Laracasts\Presenter\PresentableTrait;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -40,14 +44,14 @@ class User extends Authenticatable implements MustVerifyEmail
     use UserSessionAttributes;
     use UserSettings;
     use Filterable;
-    use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
+    use HasRelationships;
     use HasFactory;
-    
+
     protected $guard = 'user';
 
     protected $dates = ['deleted_at'];
 
-    protected $presenter = \App\Models\Presenters\UserPresenter::class;
+    protected $presenter = UserPresenter::class;
 
     protected $with = []; // ? companies also
 
@@ -117,7 +121,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Returns a account.
      *
-     * @return Collection
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function account()
     {
@@ -127,7 +131,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Returns all company tokens.
      *
-     * @return Collection
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function tokens()
     {
@@ -137,7 +141,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Returns all companies a user has access to.
      *
-     * @return Collection
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function companies()
     {
@@ -148,6 +152,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * As we are authenticating on CompanyToken,
      * we need to link the company to the user manually. This allows
      * us to decouple a $user and their attached companies.
+     * @param $company
      */
     public function setCompany($company)
     {
@@ -266,7 +271,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Returns all user created contacts.
      *
-     * @return Collection
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function contacts()
     {
@@ -345,13 +350,25 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Retrieve the model for a bound value.
      *
-     * @param  mixed  $value
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * @param mixed $value
+     * @param null $field
+     * @return Model|null
      */
     public function resolveRouteBinding($value, $field = NULL)
     {
         return $this
             ->withTrashed()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

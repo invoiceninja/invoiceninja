@@ -56,6 +56,10 @@ class PdfMaker
 
     public function build()
     {
+        if (isset($this->data['template']) && isset($this->data['variables'])) {
+          $this->getEmptyElements($this->data['template'], $this->data['variables']);
+        }
+
         if (isset($this->data['template'])) {
             $this->updateElementProperties($this->data['template']);
         }
@@ -72,7 +76,7 @@ class PdfMaker
     public function getCompiledHTML($final = false)
     {
         $html =  $this->document->saveHTML();
-    
+
         return str_replace('%24', '$', $html);
     }
 }

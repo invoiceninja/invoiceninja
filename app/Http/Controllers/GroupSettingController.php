@@ -18,6 +18,7 @@ use App\Http\Requests\GroupSetting\EditGroupSettingRequest;
 use App\Http\Requests\GroupSetting\ShowGroupSettingRequest;
 use App\Http\Requests\GroupSetting\StoreGroupSettingRequest;
 use App\Http\Requests\GroupSetting\UpdateGroupSettingRequest;
+use App\Http\Requests\SignupRequest;
 use App\Models\GroupSetting;
 use App\Repositories\GroupSettingRepository;
 use App\Transformers\GroupSettingTransformer;
@@ -25,6 +26,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class GroupSettingController extends BaseController
 {
@@ -48,7 +50,7 @@ class GroupSettingController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -94,7 +96,8 @@ class GroupSettingController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateGroupSettingRequest $request
+     * @return Response
      *
      *
      *
@@ -139,8 +142,8 @@ class GroupSettingController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\SignupRequest $request
-     * @return \Illuminate\Http\Response
+     * @param StoreGroupSettingRequest $request
+     * @return Response
      *
      *
      *
@@ -192,8 +195,9 @@ class GroupSettingController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowGroupSettingRequest $request
+     * @param GroupSetting $group_setting
+     * @return Response
      *
      *
      * @OA\Get(
@@ -246,8 +250,9 @@ class GroupSettingController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditGroupSettingRequest $request
+     * @param GroupSetting $group_setting
+     * @return Response
      *
      *
      * @OA\Get(
@@ -300,9 +305,9 @@ class GroupSettingController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateGroupSettingRequest $request
+     * @param GroupSetting $group_setting
+     * @return Response
      *
      *
      * @OA\Put(
@@ -359,10 +364,12 @@ class GroupSettingController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyGroupSettingRequest $request
+     * @param GroupSetting $group_setting
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/group_settings/{id}",
      *      operationId="deleteGroupSetting",

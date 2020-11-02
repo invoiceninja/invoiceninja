@@ -21,6 +21,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\ActivityRepository;
 use App\Utils\Ninja;
+use stdClass;
 
 class RefundPayment
 {
@@ -67,6 +68,7 @@ class RefundPayment
      * Process the refund through the gateway.
      *
      * @return $this
+     * @throws PaymentRefundFailed
      */
     private function processGatewayRefund()
     {
@@ -99,7 +101,7 @@ class RefundPayment
      */
     private function createActivity($notes)
     {
-        $fields = new \stdClass;
+        $fields = new stdClass;
         $activity_repo = new ActivityRepository();
 
         $fields->payment_id = $this->payment->id;

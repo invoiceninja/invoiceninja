@@ -4,14 +4,15 @@ namespace App\Http\Middleware;
 
 use App\Models\Company;
 use Closure;
+use Illuminate\Http\Request;
 
 class ContactRegister
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  Request  $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)

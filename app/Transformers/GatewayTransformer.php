@@ -31,8 +31,7 @@ class GatewayTransformer extends EntityTransformer
     ];
 
     /**
-     * @param Client $client
-     *
+     * @param Gateway $gateway
      * @return array
      */
     public function transform(Gateway $gateway)

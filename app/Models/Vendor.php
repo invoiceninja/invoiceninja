@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Models\Filterable;
+use App\Models\Presenters\VendorPresenter;
 use App\Models\VendorContact;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
@@ -31,7 +32,7 @@ class Vendor extends BaseModel
         'assigned_user_id',
         'id_number',
         'vat_number',
-        'work_phone',
+        'phone',
         'address1',
         'address2',
         'city',
@@ -64,7 +65,7 @@ class Vendor extends BaseModel
     //    'contacts',
     ];
 
-    protected $presenter = \App\Models\Presenters\VendorPresenter::class;
+    protected $presenter = VendorPresenter::class;
 
     public function getEntityType()
     {

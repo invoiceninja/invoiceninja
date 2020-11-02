@@ -17,6 +17,7 @@ use App\Models\ClientContact;
 use App\Models\CompanyToken;
 use Auth;
 use Closure;
+use Illuminate\Http\Request;
 
 class ContactKeyLogin
 {
@@ -26,15 +27,13 @@ class ContactKeyLogin
      * Sets a contact LOGGED IN if an appropriate client_hash is provided as a query parameter
      * OR
      * If the contact_key is provided in the route
-     * 
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     *
+     * @param  Request  $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        info($request->segment(3));
-        info($request->route('contact_key'));
 
         if(Auth::guard('contact')->check())
             Auth::guard('contact')->logout();
@@ -42,14 +41,14 @@ class ContactKeyLogin
         if ($request->segment(3) && config('ninja.db.multi_db_enabled')) {
 
             if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
-                
+
                 $client_contact = ClientContact::where('contact_key', $request->segment(3))->first();
                 Auth::guard('contact')->login($client_contact, true);
                 return redirect()->to('client/dashboard');
 
             }
 
-        } 
+        }
         else if ($request->has('contact_key')) {
 
             if($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()){
@@ -61,7 +60,7 @@ class ContactKeyLogin
         else if($request->has('client_hash') && config('ninja.db.multi_db_enabled')){
 
             if (MultiDB::findAndSetDbByClientHash($request->input('client_hash'))) {
-                
+
                 $client = Client::where('client_hash', $request->input('client_hash'))->first();
                 Auth::guard('contact')->login($client->primary_contact()->first(), true);
                 return redirect()->to('client/dashboard');

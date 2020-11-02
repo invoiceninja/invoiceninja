@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 class CreateInvoiceInvitation implements ShouldQueue
 {

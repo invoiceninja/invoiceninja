@@ -17,6 +17,7 @@ use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class CompanyUserController extends BaseController
 {
@@ -32,7 +33,7 @@ class CompanyUserController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function index()
     {
@@ -41,7 +42,7 @@ class CompanyUserController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function create()
     {
@@ -54,8 +55,8 @@ class CompanyUserController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return void
      */
     public function show($id)
     {
@@ -65,8 +66,8 @@ class CompanyUserController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return void
      */
     public function edit($id)
     {
@@ -97,7 +98,6 @@ class CompanyUserController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -105,6 +105,9 @@ class CompanyUserController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param UpdateCompanyUserRequest $request
+     * @param User $user
+     * @return Response|mixed|void
      */
     public function update(UpdateCompanyUserRequest $request, User $user)
     {
@@ -133,8 +136,8 @@ class CompanyUserController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return void
      */
     public function destroy($id)
     {

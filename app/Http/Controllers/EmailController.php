@@ -13,16 +13,20 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Email\InvoiceEmail;
 use App\Http\Requests\Email\SendEmailRequest;
+use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Jobs\Mail\EntitySentMailer;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Notifications\SendGenericNotification;
 use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;
+use App\Transformers\RecurringInvoiceTransformer;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Response;
 
 class EmailController extends BaseController
 {
@@ -40,7 +44,8 @@ class EmailController extends BaseController
     /**
      * Returns a template filled with entity variables.
      *
-     * @return \Illuminate\Http\Response
+     * @param SendEmailRequest $request
+     * @return Response
      *
      * @OA\Post(
      *      path="/api/v1/emails",
@@ -97,7 +102,6 @@ class EmailController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -116,9 +120,9 @@ class EmailController extends BaseController
 
         $entity_obj->invitations->each(function ($invitation) use ($subject, $body, $entity_string, $entity_obj) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                $when = now()->addSeconds(1);
 
-                $invitation->contact->notify((new SendGenericNotification($invitation, $entity_string, $subject, $body))->delay($when));
+                EmailEntity::dispatchNow($invitation, $invitation->company);
+                //$invitation->contact->notify((new SendGenericNotification($invitation, $entity_string, $subject, $body))->delay($when));
             }
         });
 
@@ -130,20 +134,26 @@ class EmailController extends BaseController
 
         EntitySentMailer::dispatch($invitation, $entity_string, $entity_obj->user, $invitation->company);
 
-        if ($this instanceof Invoice) {
+        if ($entity_obj instanceof Invoice) {
             $this->entity_type = Invoice::class;
             $this->entity_transformer = InvoiceTransformer::class;
         }
 
-        if ($this instanceof Quote) {
+        if ($entity_obj instanceof Quote) {
             $this->entity_type = Quote::class;
             $this->entity_transformer = QuoteTransformer::class;
         }
 
-        if ($this instanceof Credit) {
+        if ($entity_obj instanceof Credit) {
             $this->entity_type = Credit::class;
             $this->entity_transformer = CreditTransformer::class;
         }
+
+        if ($entity_obj instanceof RecurringInvoice) {
+            $this->entity_type = RecurringInvoice::class;
+            $this->entity_transformer = RecurringInvoiceTransformer::class;
+        }
+
 
         $entity_obj->service()->markSent()->save();
 

@@ -15,6 +15,7 @@ use App\Models\Credit;
 use App\Services\Credit\ApplyPayment;
 use App\Services\Credit\CreateInvitations;
 use App\Services\Credit\MarkSent;
+use App\Services\Credit\SendEmail;
 
 class CreditService
 {
@@ -54,6 +55,14 @@ class CreditService
 
         return $this;
     }
+
+    public function sendEmail($contact = null)
+    {
+        $send_email = new SendEmail($this->credit, null, $contact);
+
+        return $send_email->run();
+    }
+
 
     public function setCalculatedStatus()
     {

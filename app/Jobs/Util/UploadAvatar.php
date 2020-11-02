@@ -39,13 +39,16 @@ class UploadAvatar implements ShouldQueue
     {
 
         //make dir
-        Storage::makeDirectory('public/'.$this->directory, 0775);
+        Storage::makeDirectory($this->directory, 0775);
 
         $tmp_file = sha1(time()).'.png';
 
-        $file_png = imagepng(imagecreatefromstring(file_get_contents($this->file)), sys_get_temp_dir().'/'.$tmp_file);
+        $im = imagecreatefromstring(file_get_contents($this->file));
+        imagealphablending($im, false);
+        imagesavealpha($im, true);
+        $file_png = imagepng($im, sys_get_temp_dir().'/'.$tmp_file);
 
-        $path = Storage::putFile('public/'.$this->directory, new File(sys_get_temp_dir().'/'.$tmp_file));
+        $path = Storage::putFile($this->directory, new File(sys_get_temp_dir().'/'.$tmp_file));
 
         info($path);
         info($tmp_file);

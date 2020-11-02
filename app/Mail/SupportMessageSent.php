@@ -7,6 +7,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use LimitIterator;
+use SplFileObject;
 
 class SupportMessageSent extends Mailable
 {
@@ -40,11 +42,11 @@ class SupportMessageSent extends Mailable
         if (Ninja::isSelfHost() && $this->send_logs !== false) {
             $system_info = Ninja::getDebugInfo();
 
-            $log_file = new \SplFileObject(sprintf('%s/laravel.log', base_path('storage/logs')));
+            $log_file = new SplFileObject(sprintf('%s/laravel.log', base_path('storage/logs')));
 
             $log_file->seek(PHP_INT_MAX);
             $last_line = $log_file->key();
-            $lines = new \LimitIterator($log_file, $last_line - 10, $last_line);
+            $lines = new LimitIterator($log_file, $last_line - 10, $last_line);
 
             $log_lines = iterator_to_array($lines);
         }

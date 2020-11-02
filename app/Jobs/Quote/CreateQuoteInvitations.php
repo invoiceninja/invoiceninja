@@ -21,7 +21,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
 
 class CreateQuoteInvitations implements ShouldQueue
 {
@@ -34,7 +33,8 @@ class CreateQuoteInvitations implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Quote $quote
+     * @param Company $company
      */
     public function __construct(Quote $quote, Company $company)
     {

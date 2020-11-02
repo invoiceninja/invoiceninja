@@ -40,20 +40,21 @@ class PaymentNotification implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  object  $event
-     * @return void
+     * @param object $event
+     * @return bool
      */
     public function handle($event)
     {
         MultiDB::setDb($event->company->db);
 
         $payment = $event->payment;
+        
+        if ($event->company->is_disabled) {
+            return true;
+        }
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
-            if ($company_user->is_migrating) {
-                return true;
-            }
 
             $user = $company_user->user;
 
@@ -62,11 +63,8 @@ class PaymentNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                //Fire mail notification here!!!
-                //This allows us better control of how we
-                //handle the mailer
+                EntityPaidMailer::dispatch($payment, $payment->company);
 
-                EntityPaidMailer::dispatch($payment, $user, $payment->company);
             }
 
             $notification = new NewPaymentNotification($payment, $payment->company);
@@ -84,7 +82,6 @@ class PaymentNotification implements ShouldQueue
         }
 
         /*Google Analytics Track Revenue*/
-
         if (isset($payment->company->google_analytics_key)) {
             $this->trackRevenue($event);
         }

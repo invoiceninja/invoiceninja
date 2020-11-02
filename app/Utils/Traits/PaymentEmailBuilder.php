@@ -24,7 +24,8 @@ trait PaymentEmailBuilder
 {
     /**
      * Builds the correct template to send.
-     * @param  string $reminder_template The template name ie reminder1
+     * @param null $reminder_template The template name ie reminder1
+     * @param null $contact
      * @return array
      */
     public function getEmailData($reminder_template = null, $contact = null) :array
@@ -67,7 +68,7 @@ trait PaymentEmailBuilder
 
     private function parseTemplate(string $template_data, bool $is_markdown, $contact) :string
     {
-        $invoice_variables = $this->makeValues($contact);
+        //$invoice_variables = $this->makeValues($contact);
 
         //process variables
         //$data = str_replace(array_keys($invoice_variables), array_values($invoice_variables), $template_data);

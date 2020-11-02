@@ -10,7 +10,7 @@
  */
 namespace Tests\Integration;
 
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
@@ -36,7 +36,7 @@ class InvoiceUploadTest extends TestCase
 
     public function testInvoiceUploadWorks()
     {
-        CreateInvoicePdf::dispatchNow($this->invoice->invitations->first());
+        CreateEntityPdf::dispatchNow($this->invoice->invitations->first());
 
         $this->assertNotNull($this->invoice->service()->getInvoicePdf($this->invoice->client->primary_contact()->first()));
     }

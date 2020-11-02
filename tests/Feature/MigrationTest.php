@@ -8,7 +8,7 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-namespace Feature;
+namespace Tests\Feature;
 
 use App\Jobs\Account\CreateAccount;
 use App\Models\Account;

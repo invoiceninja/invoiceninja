@@ -40,6 +40,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Turbo124\Beacon\Facades\LightLogs;
@@ -63,6 +64,7 @@ class CompanyController extends BaseController
 
     /**
      * CompanyController constructor.
+     * @param CompanyRepository $company_repo
      */
     public function __construct(CompanyRepository $company_repo)
     {
@@ -74,7 +76,7 @@ class CompanyController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      * @OA\Get(
      *      path="/api/v1/companies",
@@ -119,7 +121,8 @@ class CompanyController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateCompanyRequest $request
+     * @return Response
      *
      *
      *
@@ -164,8 +167,8 @@ class CompanyController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\SignupRequest $request
-     * @return \Illuminate\Http\Response
+     * @param StoreCompanyRequest $request
+     * @return Response
      *
      *
      * @OA\Post(
@@ -246,8 +249,9 @@ class CompanyController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowCompanyRequest $request
+     * @param Company $company
+     * @return Response
      *
      *
      * @OA\Get(
@@ -300,8 +304,9 @@ class CompanyController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditCompanyRequest $request
+     * @param Company $company
+     * @return Response
      *
      *
      * @OA\Get(
@@ -354,9 +359,9 @@ class CompanyController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateCompanyRequest $request
+     * @param Company $company
+     * @return Response
      *
      *
      * @OA\Put(
@@ -415,10 +420,12 @@ class CompanyController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyCompanyRequest $request
+     * @param Company $company
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/companies/{id}",
      *      operationId="deleteCompany",
@@ -479,7 +486,7 @@ class CompanyController extends BaseController
             LightLogs::create(new AccountDeleted())
                      ->increment()
                      ->batch();
-                 
+
         } else {
             $company_id = $company->id;
             $company->delete();

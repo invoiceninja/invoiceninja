@@ -124,11 +124,6 @@ class EmailTemplateDefaults
 
     public static function emailInvoiceTemplate()
     {
-        $converter = new CommonMarkConverter([
-            'html_input' => 'strip',
-            'allow_unsafe_links' => false,
-        ]);
-
         $invoice_message = '<p>'.self::transformText('invoice_message').'</p><br><br><p>$view_link</p>';
 
         return $invoice_message;
@@ -141,12 +136,9 @@ class EmailTemplateDefaults
 
     public static function emailQuoteTemplate()
     {
-        $converter = new CommonMarkConverter([
-            'html_input' => 'strip',
-            'allow_unsafe_links' => false,
-        ]);
+        $quote_message = '<p>'.self::transformText('quote_message').'</p><br><br><p>$view_link</p>';
 
-        return $converter->convertToHtml(self::transformText('quote_message'));
+        return $quote_message;
     }
 
     public static function emailPaymentSubject()
@@ -156,34 +148,27 @@ class EmailTemplateDefaults
 
     public static function emailPaymentTemplate()
     {
-        $converter = new CommonMarkConverter([
-            'html_input' => 'strip',
-            'allow_unsafe_links' => false,
-        ]);
 
-        return $converter->convertToHtml(self::transformText('payment_message'));
+        $payment_message = '<p>'.self::transformText('payment_message').'</p><br><br><p>$view_link</p>';
+
+        return $payment_message;
 
     }
 
     public static function emailCreditTemplate()
     {
-        $converter = new CommonMarkConverter([
-            'html_input' => 'strip',
-            'allow_unsafe_links' => false,
-        ]);
+        $credit_message = '<p>'.self::transformText('credit_message').'</p><br><br><p>$view_link</p>';
 
-        return $converter->convertToHtml(self::transformText('credit_message'));
-
+        return $credit_message;
     }
 
     public static function emailPaymentPartialTemplate()
     {
-        $converter = new CommonMarkConverter([
-            'html_input' => 'strip',
-            'allow_unsafe_links' => false,
-        ]);
 
-        return $converter->convertToHtml(self::transformText('payment_message'));        
+        $payment_message = '<p>'.self::transformText('payment_message').'</p><br><br><p>$view_link</p>';
+
+        return $payment_message;
+
     }
 
     public static function emailPaymentPartialSubject()

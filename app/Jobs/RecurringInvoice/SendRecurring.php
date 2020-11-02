@@ -15,7 +15,7 @@ use App\DataMapper\Analytics\SendRecurringFailure;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Helpers\Email\InvoiceEmail;
-use App\Jobs\Invoice\EmailInvoice;
+use App\Jobs\Entity\EmailEntity;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
@@ -41,7 +41,8 @@ class SendRecurring implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param RecurringInvoice $recurring_invoice
+     * @param string $db
      */
     public function __construct(RecurringInvoice $recurring_invoice, string $db = 'db-ninja-01')
     {
@@ -76,7 +77,7 @@ class SendRecurring implements ShouldQueue
             $email_builder = (new InvoiceEmail())->build($invitation);
 
             if($invitation->contact && strlen($invitation->contact->email) >=1){
-                EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
+                EmailEntity::dispatch($invitation, $invoice->company);
                 info("Firing email for invoice {$invoice->number}");
             }
 
@@ -92,7 +93,7 @@ class SendRecurring implements ShouldQueue
         $this->recurring_invoice->last_sent_date = date('Y-m-d');
 
         /* Set completed if we don't have any more cycles remaining*/
-        if ($this->recurring_invoice->remaining_cycles == 0) 
+        if ($this->recurring_invoice->remaining_cycles == 0)
             $this->recurring_invoice->setCompleted();
 
         info("next send date = " . $this->recurring_invoice->next_send_date);
@@ -101,7 +102,7 @@ class SendRecurring implements ShouldQueue
 
         $this->recurring_invoice->save();
 
-        if ($invoice->invitations->count() > 0) 
+        if ($invoice->invitations->count() > 0)
             event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
 
     }

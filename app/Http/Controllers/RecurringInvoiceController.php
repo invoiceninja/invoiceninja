@@ -29,6 +29,7 @@ use App\Repositories\RecurringInvoiceRepository;
 use App\Transformers\RecurringInvoiceTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -52,7 +53,7 @@ class RecurringInvoiceController extends BaseController
     /**
      * RecurringInvoiceController constructor.
      *
-     * @param      \App\Repositories\RecurringInvoiceRepository  $recurring_invoice_repo  The RecurringInvoice repo
+     * @param RecurringInvoiceRepository $recurring_invoice_repo  The RecurringInvoice repo
      */
     public function __construct(RecurringInvoiceRepository $recurring_invoice_repo)
     {
@@ -64,9 +65,9 @@ class RecurringInvoiceController extends BaseController
     /**
      * Show the list of recurring_invoices.
      *
-     * @param      \App\Filters\RecurringInvoiceFilters  $filters  The filters
+     * @param RecurringInvoiceFilters $filters  The filters
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -112,9 +113,9 @@ class RecurringInvoiceController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @param      \App\Http\Requests\RecurringInvoice\CreateRecurringInvoiceRequest  $request  The request
+     * @param CreateRecurringInvoiceRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
@@ -159,9 +160,9 @@ class RecurringInvoiceController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param      \App\Http\Requests\RecurringInvoice\StoreRecurringInvoiceRequest  $request  The request
+     * @param StoreRecurringInvoiceRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
@@ -206,10 +207,10 @@ class RecurringInvoiceController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param      \App\Http\Requests\RecurringInvoice\ShowRecurringInvoiceRequest  $request  The request
-     * @param      \App\Models\RecurringInvoice                            $recurring_invoice  The RecurringInvoice
+     * @param ShowRecurringInvoiceRequest $request  The request
+     * @param RecurringInvoice $recurring_invoice  The RecurringInvoice
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -262,10 +263,10 @@ class RecurringInvoiceController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param      \App\Http\Requests\RecurringInvoice\EditRecurringInvoiceRequest  $request  The request
-     * @param      \App\Models\RecurringInvoice                            $recurring_invoice  The RecurringInvoice
+     * @param EditRecurringInvoiceRequest $request  The request
+     * @param RecurringInvoice $recurring_invoice  The RecurringInvoice
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -318,10 +319,10 @@ class RecurringInvoiceController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param      \App\Http\Requests\RecurringInvoice\UpdateRecurringInvoiceRequest  $request  The request
-     * @param      \App\Models\RecurringInvoice                              $recurring_invoice  The RecurringInvoice
+     * @param UpdateRecurringInvoiceRequest $request  The request
+     * @param RecurringInvoice $recurring_invoice  The RecurringInvoice
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Put(
@@ -380,12 +381,13 @@ class RecurringInvoiceController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param      \App\Http\Requests\RecurringInvoice\DestroyRecurringInvoiceRequest  $request
-     * @param      \App\Models\RecurringInvoice                               $recurring_invoice
+     * @param DestroyRecurringInvoiceRequest $request
+     * @param RecurringInvoice $recurring_invoice
      *
-     * @return     \Illuminate\Http\Response
+     * @return     Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/recurring_invoices/{id}",
      *      operationId="deleteRecurringInvoice",
@@ -514,16 +516,16 @@ class RecurringInvoiceController extends BaseController
      *      summary="Performs a custom action on an RecurringInvoice",
      *      description="Performs a custom action on an RecurringInvoice.
 
-        The current range of actions are as follows
-        - clone_to_RecurringInvoice
-        - clone_to_quote
-        - history
-        - delivery_note
-        - mark_paid
-        - download
-        - archive
-        - delete
-        - email",
+    The current range of actions are as follows
+    - clone_to_RecurringInvoice
+    - clone_to_quote
+    - history
+    - delivery_note
+    - mark_paid
+    - download
+    - archive
+    - delete
+    - email",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -570,6 +572,10 @@ class RecurringInvoiceController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param ActionRecurringInvoiceRequest $request
+     * @param RecurringInvoice $recurring_invoice
+     * @param $action
+     * @return Response|mixed
      */
     public function action(ActionRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice, $action)
     {
@@ -605,14 +611,14 @@ class RecurringInvoiceController extends BaseController
                 break;
             case 'start':
                 $recurring_invoice = $recurring_invoice->service()->start()->save();
-    
+
                 if (! $bulk) {
                     $this->itemResponse($recurring_invoice);
                 }
                 break;
             case 'stop':
                 $recurring_invoice = $recurring_invoice->service()->stop()->save();
-    
+
                 if (! $bulk) {
                     $this->itemResponse($recurring_invoice);
                 }

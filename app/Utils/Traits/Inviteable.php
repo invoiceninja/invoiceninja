@@ -44,12 +44,8 @@ trait Inviteable
 
     public function getLink() :string
     {
-        //$entity_type = strtolower(class_basename($this->entityType()));
 
         $entity_type = Str::snake(class_basename($this->entityType()));
-
-        //$this->with('company','contact',$this->entity_type);
-        //$this->with('company');
 
         $domain = isset($this->company->portal_domain) ?: $this->company->domain();
 
@@ -65,6 +61,9 @@ trait Inviteable
                 return $domain.'client/'.$entity_type.'/'.$this->key;
                 break;
 
+            default:
+                return '';
+                break;
         }
     }
 

@@ -31,17 +31,19 @@ class UpdateProjectRequest extends Request
 
     public function rules()
     {
-        return [];
+        $rules = [];
+        
+        if ($this->input('number')) {
+            $rules['number'] = 'unique:projects,number,'.$this->id.',id,company_id,'.$this->project->company_id;
+        }
+
+        return $this->globalRules($rules);
     }
 
     protected function prepareForValidation()
     {
-        $input = $this->all();
+        $input = $this->decodePrimaryKeys($this->all()); 
 
-        if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
-            unset($input['client_id']);
-        }
-        
         $this->replace($input);
     }
 }

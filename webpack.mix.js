@@ -3,10 +3,6 @@ const tailwindcss = require("tailwindcss");
 
 mix.js("resources/js/app.js", "public/js")
     .js(
-        "resources/js/clients/payment_methods/authorize-stripe-card.js",
-        "public/js/clients/payment_methods/authorize-stripe-card.js"
-    )
-    .js(
         "resources/js/clients/payment_methods/authorize-authorize-card.js",
         "public/js/clients/payment_methods/authorize-authorize-card.js"
     )
@@ -15,8 +11,8 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/payments/authorize-credit-card-payment.js"
     )
     .js(
-        "resources/js/clients/payment_methods/authorize-ach.js",
-        "public/js/clients/payment_methods/authorize-ach.js"
+        "resources/js/clients/payments/stripe-ach.js",
+        "public/js/clients/payments/stripe-ach.js"
     )
     .js(
         "resources/js/clients/invoices/action-selectors.js",
@@ -27,12 +23,12 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/invoices/payment.js"
     )
     .js(
-        "resources/js/clients/payments/sofort.js",
-        "public/js/clients/payments/sofort.js"
+        "resources/js/clients/payments/stripe-sofort.js",
+        "public/js/clients/payments/stripe-sofort.js"
     )
     .js(
-        "resources/js/clients/payments/alipay.js",
-        "public/js/clients/payments/alipay.js"
+        "resources/js/clients/payments/stripe-alipay.js",
+        "public/js/clients/payments/stripe-alipay.js"
     )
     .js(
         "resources/js/clients/payments/checkout.com.js",
@@ -47,8 +43,8 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/quotes/approve.js"
     )
     .js(
-        "resources/js/clients/payments/process.js",
-        "public/js/clients/payments/process.js"
+        "resources/js/clients/payments/stripe-credit-card.js",
+        "public/js/clients/payments/stripe-credit-card.js"
     )
     .js(
         "resources/js/setup/setup.js", 

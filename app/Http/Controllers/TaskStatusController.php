@@ -13,6 +13,7 @@ use App\Repositories\TaskStatusRepository;
 use App\Transformers\TaskStatusTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TaskStatusController extends BaseController
 {
@@ -30,7 +31,7 @@ class TaskStatusController extends BaseController
     /**
      * TaskStatusController constructor.
      *
-     * @param      \App\Repositories\TaskStatusRepository  $task_status_repo  The payment term repo
+     * @param TaskStatusRepository $task_status_repo  The payment term repo
      */
     public function __construct(TaskStatusRepository $task_status_repo)
     {
@@ -41,8 +42,8 @@ class TaskStatusController extends BaseController
 
     /**
      *      @OA\Get(
-     *      path="/api/v1/task_status",
-     *      operationId="getTaskStatuss",
+     *      path="/api/v1/task_statuses",
+     *      operationId="getTaskStatuses",
      *      tags={"task_status"},
      *      summary="Gets a list of task statuses",
      *      description="Lists task statuses",
@@ -82,9 +83,9 @@ class TaskStatusController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @param      \App\Http\Requests\TaskStatus\CreateTaskStatusRequest  $request  The request
+     * @param CreateTaskStatusRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
@@ -129,14 +130,14 @@ class TaskStatusController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param      \App\Http\Requests\TaskStatus\StoreTaskStatusRequest  $request  The request
+     * @param StoreTaskStatusRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
      * @OA\Post(
-     *      path="/api/v1/task_status",
+     *      path="/api/v1/task_statuses",
      *      operationId="storeTaskStatus",
      *      tags={"task_status"},
      *      summary="Adds a TaskStatus",
@@ -222,6 +223,9 @@ class TaskStatusController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param ShowTaskStatusRequest $request
+     * @param TaskStatus $task_status
+     * @return Response|mixed
      */
     public function show(ShowTaskStatusRequest $request, TaskStatus $task_status)
     {
@@ -270,6 +274,9 @@ class TaskStatusController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param EditTaskStatusRequest $request
+     * @param TaskStatus $payment
+     * @return Response|mixed
      */
     public function edit(EditTaskStatusRequest $request, TaskStatus $payment)
     {
@@ -279,10 +286,10 @@ class TaskStatusController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param      \App\Http\Requests\TaskStatus\UpdateTaskStatusRequest  $request  The request
-     * @param      \App\Models\TaskStatus                                  $task_status   The payment term
+     * @param UpdateTaskStatusRequest $request  The request
+     * @param TaskStatus $task_status   The payment term
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Put(
@@ -338,12 +345,13 @@ class TaskStatusController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param      \App\Http\Requests\TaskStatus\DestroyTaskStatusRequest  $request
-     * @param      \App\Models\TaskStatus                                   $task_status
+     * @param DestroyTaskStatusRequest $request
+     * @param TaskStatus $task_status
      *
-     * @return     \Illuminate\Http\Response
+     * @return     Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/task_statuses/{id}",
      *      operationId="deleteTaskStatus",

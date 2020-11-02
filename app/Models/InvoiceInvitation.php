@@ -12,11 +12,12 @@
 namespace App\Models;
 
 use App\Events\Invoice\InvoiceWasUpdated;
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Invoice;
 use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -105,7 +106,7 @@ class InvoiceInvitation extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function company()
     {
@@ -144,7 +145,7 @@ class InvoiceInvitation extends BaseModel
 
         if (! Storage::exists($this->invoice->client->invoice_filepath().$this->invoice->number.'.pdf')) {
             event(new InvoiceWasUpdated($this->invoice, $this->company, Ninja::eventVars()));
-            CreateInvoicePdf::dispatchNow($this);
+            CreateEntityPdf::dispatchNow($this);
         }
 
         return $storage_path;

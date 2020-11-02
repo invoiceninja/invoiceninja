@@ -41,6 +41,10 @@ class PaymentRepository extends BaseRepository
         $this->credit_repo = $credit_repo;
     }
 
+    /** 
+     * @return string
+     */
+
     public function getClassName()
     {
         return Payment::class;
@@ -97,7 +101,7 @@ class PaymentRepository extends BaseRepository
                     $data['amount'] = 0;
                 else
                     $client->service()->updatePaidToDate($_credit_totals)->save();
-            
+
             }
 
         }
@@ -175,6 +179,9 @@ class PaymentRepository extends BaseRepository
     /**
      * If the client is paying in a currency other than
      * the company currency, we need to set a record.
+     * @param $data
+     * @param $payment
+     * @return
      */
     private function processExchangeRates($data, $payment)
     {

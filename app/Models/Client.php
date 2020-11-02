@@ -30,6 +30,7 @@ use App\Models\GatewayType;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\Language;
+use App\Models\Presenters\ClientPresenter;
 use App\Models\Quote;
 use App\Models\Timezone;
 use App\Models\User;
@@ -38,6 +39,7 @@ use App\Utils\Traits\CompanyGatewaySettings;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use Exception;
 use Hashids\Hashids;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -54,7 +56,7 @@ class Client extends BaseModel implements HasLocalePreference
     use Filterable;
     use GeneratesCounter;
 
-    protected $presenter = \App\Models\Presenters\ClientPresenter::class;
+    protected $presenter = ClientPresenter::class;
 
     protected $hidden = [
         'id',
@@ -98,6 +100,8 @@ class Client extends BaseModel implements HasLocalePreference
     ];
 
     protected $with = [
+        'gateway_tokens',
+        'documents'
         //'currency',
         // 'primary_contact',
         // 'country',
@@ -281,7 +285,7 @@ class Client extends BaseModel implements HasLocalePreference
      * of settings which have been merged from
      * Client > Group > Company levels.
      *
-     * @return object stdClass object of settings
+     * @return stdClass stdClass object of settings
      */
     public function getMergedSettings() :object
     {
@@ -348,7 +352,7 @@ class Client extends BaseModel implements HasLocalePreference
             return $this->company;
         }
 
-        throw new \Exception('Could not find a settings object', 1);
+        throw new Exception('Could not find a settings object', 1);
     }
 
     public function documents()
@@ -467,14 +471,14 @@ class Client extends BaseModel implements HasLocalePreference
         $company_gateways = $this->getSetting('company_gateway_ids');
 
         //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
-        if ($company_gateways || $company_gateways == '0') { 
+        if ($company_gateways || $company_gateways == '0') {
 
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
             $gateways = $this->company
                              ->company_gateways
                              ->whereIn('id', $transformed_ids)
-                             ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority 
-                                 return array_search($model->id, $transformed_ids);// this closure sorts for us 
+                             ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority
+                                 return array_search($model->id, $transformed_ids);// this closure sorts for us
                              });
         } else {
             $gateways = $this->company->company_gateways->where('is_deleted', false);
@@ -490,13 +494,13 @@ class Client extends BaseModel implements HasLocalePreference
 
                     if($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $amount))
                         $payment_methods[] = [$gateway->id => $type];
-                    
+
                 }
-                else 
+                else
                 {
 
                     $payment_methods[] = [$gateway->id => $type];
-                    
+
                 }
 
             }
@@ -523,7 +527,7 @@ class Client extends BaseModel implements HasLocalePreference
             }
         }
 
-        if(($this->company->use_credits_payment == 'option' || $this->company->use_credits_payment == 'always') && $this->service()->getCreditBalance() > 0) {
+        if(($this->getSetting('use_credits_payment') == 'option' || $this->getSetting('use_credits_payment') == 'always') && $this->service()->getCreditBalance() > 0) {
                 $payment_urls[] = [
                     'label' => ctrans('texts.apply_credit'),
                     'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
@@ -537,7 +541,7 @@ class Client extends BaseModel implements HasLocalePreference
     public function validGatewayForAmount($fees_and_limits_for_payment_type, $amount) :bool
     {
             if (isset($fees_and_limits_for_payment_type)) {
-                $fees_and_limits = $fees_and_limits_for_payment_type; 
+                $fees_and_limits = $fees_and_limits_for_payment_type;
             } else {
                 return true;
             }

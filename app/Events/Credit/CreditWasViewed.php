@@ -12,7 +12,6 @@
 namespace App\Events\Credit;
 
 use App\Models\Company;
-use App\Models\CreditWasViewed;
 use Illuminate\Queue\SerializesModels;
 
 /**

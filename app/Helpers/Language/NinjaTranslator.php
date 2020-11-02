@@ -10,9 +10,9 @@ class NinjaTranslator extends Translator
     /**
      * Set translation.
      *
-     * @param  string  $key
-     * @param  mixed   $value
-     * @param  string  $locale
+     * @param string $key
+     * @param mixed $value
+     * @param null $locale
      * @return void
      */
     public function set($key, $value, $locale = null)

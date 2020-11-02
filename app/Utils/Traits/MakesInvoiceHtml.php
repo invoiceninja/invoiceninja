@@ -12,10 +12,13 @@
 namespace App\Utils\Traits;
 
 use App\Designs\Designer;
+use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
+use Illuminate\View\Factory;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Throwable;
 
 /**
  * Class MakesInvoiceHtml.
@@ -26,52 +29,52 @@ trait MakesInvoiceHtml
      * Generate the HTML invoice parsing variables
      * and generating the final invoice HTML.
      *
-     * @param  string $design either the path to the design template, OR the full design template string
-     * @param  Collection $invoice  The invoice object
-     *
+     * @param $labels
+     * @param $values
+     * @param $section
+     * @return string           The invoice string in HTML format
      * @deprecated replaced by generateEntityHtml
      *
-     * @return string           The invoice string in HTML format
      */
-    public function generateEntityHtml(Designer $designer, $entity, $contact = null) :string
-    {
-        $entity->load('client');
+    // public function generateEntityHtml(Designer $designer, $entity, $contact = null) :string
+    // {
+    //     $entity->load('client');
 
-        $client = $entity->client;
+    //     $client = $entity->client;
 
-        App::setLocale($client->preferredLocale());
+    //     App::setLocale($client->preferredLocale());
 
-        $values_and_labels = $entity->buildLabelsAndValues($contact);
+    //     $values_and_labels = $entity->buildLabelsAndValues($contact);
 
-        $designer->build();
+    //     $designer->build();
 
-        $data = [];
-        $data['entity'] = $entity;
-        $data['lang'] = $client->preferredLocale();
-        $data['includes'] = $designer->getIncludes();
-        $data['header'] = $designer->getHeader();
-        $data['body'] = $designer->getBody();
-        $data['footer'] = $designer->getFooter();
+    //     $data = [];
+    //     $data['entity'] = $entity;
+    //     $data['lang'] = $client->preferredLocale();
+    //     $data['includes'] = $designer->getIncludes();
+    //     $data['header'] = $designer->getHeader();
+    //     $data['body'] = $designer->getBody();
+    //     $data['footer'] = $designer->getFooter();
 
-        $html = view('pdf.stub', $data)->render();
+    //     $html = view('pdf.stub', $data)->render();
 
-        $html = $this->parseLabelsAndValues($values_and_labels['labels'], $values_and_labels['values'], $html);
+    //     $html = $this->parseLabelsAndValues($values_and_labels['labels'], $values_and_labels['values'], $html);
 
-        return $html;
-    }
+    //     return $html;
+    // }
 
-    public function generateEmailEntityHtml($entity, $content, $contact = null) :string
-    {
-        $entity->load('client');
+    // public function generateEmailEntityHtml($entity, $content, $contact = null) :string
+    // {
+    //     $entity->load('client');
 
-        $client = $entity->client;
+    //     $client = $entity->client;
 
-        App::setLocale($client->preferredLocale());
+    //     App::setLocale($client->preferredLocale());
 
-        $data = $entity->buildLabelsAndValues($contact);
+    //     $data = $entity->buildLabelsAndValues($contact);
 
-        return $this->parseLabelsAndValues($data['labels'], $data['values'], $content);
-    }
+    //     return $this->parseLabelsAndValues($data['labels'], $data['values'], $content);
+    // }
 
     private function parseLabelsAndValues($labels, $values, $section) :string
     {
@@ -84,13 +87,14 @@ trait MakesInvoiceHtml
     /**
      * Parses the blade file string and processes the template variables.
      *
-     * @param  string $string The Blade file string
-     * @param  array $data   The array of template variables
+     * @param string $string The Blade file string
+     * @param array $data The array of template variables
      * @return string         The return HTML string
+     * @throws FatalThrowableError
      */
     public function renderView($string, $data = []) :string
     {
-        $data['__env'] = app(\Illuminate\View\Factory::class);
+        $data['__env'] = app(Factory::class);
 
         $php = Blade::compileString($string);
 
@@ -100,13 +104,13 @@ trait MakesInvoiceHtml
 
         try {
             eval('?'.'>'.$php);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             while (ob_get_level() > $obLevel) {
                 ob_end_clean();
             }
 
             throw $e;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             while (ob_get_level() > $obLevel) {
                 ob_end_clean();
             }

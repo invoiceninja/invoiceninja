@@ -13,8 +13,12 @@
 namespace App\PaymentDrivers;
 
 use App\Events\Invoice\InvoiceWasPaid;
+use App\Events\Payment\PaymentWasCreated;
+use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\PaymentFailureMailer;
+use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
@@ -22,10 +26,13 @@ use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\SystemLog;
 use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
+use Checkout\Library\Exceptions\CheckoutHttpException;
+use Exception;
 use Illuminate\Support\Carbon;
 
 /**
@@ -57,6 +64,11 @@ class BaseDriver extends AbstractPaymentDriver
     /* The initiated gateway driver class*/
     public $payment_method;
 
+    /**
+     * @var PaymentHash
+     */
+    public $payment_hash;
+
     public static $methods = [];
 
     public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
@@ -72,8 +84,8 @@ class BaseDriver extends AbstractPaymentDriver
      * Authorize a payment method.
      *
      * Returns a reusable token for storage for future payments
-     * @param  const $payment_method    The GatewayType::constant
-     * @return view                     Return a view for collecting payment method information
+     * @param const $payment_method The GatewayType::constant
+     * @return void Return a view for collecting payment method information
      */
     public function authorize($payment_method)
     {
@@ -111,11 +123,18 @@ class BaseDriver extends AbstractPaymentDriver
     {
     }
 
+    public function setPaymentHash(PaymentHash $payment_hash)
+    {
+        $this->payment_hash = $payment_hash;
+
+        return $this;
+    }
+
     /**
      * Helper method to attach invoices to a payment.
      *
-     * @param  Payment $payment    The payment
-     * @param  array  $hashed_ids  The array of invoice hashed_ids
+     * @param Payment $payment The payment
+     * @param PaymentHash $payment_hash
      * @return Payment             The payment object
      */
     public function attachInvoices(Payment $payment, PaymentHash $payment_hash): Payment
@@ -147,15 +166,33 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->currency_id = $this->client->getSetting('currency_id');
         $payment->date = Carbon::now();
 
+        $client_contact = $this->getContact();
+        $client_contact_id = $client_contact ? $client_contact->id : null;
+
+        $payment->amount = $data['amount'];
+        $payment->type_id = $data['payment_type'];
+        $payment->transaction_reference = $data['transaction_reference'];
+        $payment->client_contact_id = $client_contact_id;
+        $payment->save();
+
+        $this->payment_hash->payment_id = $payment->id;
+        $this->payment_hash->save();
+
+        $this->attachInvoices($payment, $this->payment_hash);
+
+        $payment->service()->updateInvoicePayment($this->payment_hash);
+
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+
         return $payment->service()->applyNumber()->save();
     }
 
     /**
      * Process an unattended payment.
      *
-     * @param  ClientGatewayToken $cgt           The client gateway token object
-     * @param  PaymentHash        $payment_hash  The Payment hash containing the payment meta data
-     * @return Response                          The payment response
+     * @param ClientGatewayToken $cgt The client gateway token object
+     * @param PaymentHash $payment_hash The Payment hash containing the payment meta data
+     * @return void The payment response
      */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
@@ -195,11 +232,11 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     /**
-     * In case of a payment failure we should always 
+     * In case of a payment failure we should always
      * return the invoice to its original state
-     * 
+     *
      * @param  PaymentHash $payment_hash The payment hash containing the list of invoices
-     * @return void                    
+     * @return void
      */
     public function unWindGatewayFees(PaymentHash $payment_hash)
     {
@@ -209,7 +246,7 @@ class BaseDriver extends AbstractPaymentDriver
         $invoices->each(function ($invoice) {
             $invoice->service()->removeUnpaidGatewayFees();
         });
-        
+
     }
 
     /**
@@ -228,4 +265,64 @@ class BaseDriver extends AbstractPaymentDriver
         }
     }
 
+
+    /**
+     * Store payment method as company gateway token.
+     *
+     * @param array $data
+     * @return null|ClientGatewayToken
+     */
+    public function storeGatewayToken(array $data, array $additional = []): ?ClientGatewayToken
+    {
+        $company_gateway_token = new ClientGatewayToken();
+        $company_gateway_token->company_id = $this->client->company->id;
+        $company_gateway_token->client_id = $this->client->id;
+        $company_gateway_token->token = $data['token'];
+        $company_gateway_token->company_gateway_id = $this->company_gateway->id;
+        $company_gateway_token->gateway_type_id = $data['payment_method_id'];
+        $company_gateway_token->meta = $data['payment_meta'];
+
+        foreach ($additional as $key => $value) {
+            $company_gateway_token->{$key} = $value;
+        }
+
+        $company_gateway_token->save();
+
+        if ($this->client->gateway_tokens->count() == 1) {
+            $this->client->gateway_tokens()->update(['is_default' => 0]);
+
+            $company_gateway_token->is_default = 1;
+            $company_gateway_token->save();
+        }
+
+        return $company_gateway_token;
+    }
+
+    public function processInternallyFailedPayment($gateway, $e)
+    {
+        if ($e instanceof Exception) {
+            $error = $e->getMessage();
+        }
+
+        if ($e instanceof CheckoutHttpException) {
+            $error = $e->getBody();
+        }
+
+        PaymentFailureMailer::dispatch(
+            $gateway->client,
+            $error,
+            $gateway->client->company,
+            $this->payment_hash->data->value
+        );
+
+        SystemLogger::dispatch(
+            $gateway->payment_hash,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_ERROR,
+            $gateway::SYSTEM_LOG_TYPE,
+            $gateway->client,
+        );
+
+        throw new PaymentFailed($error, $e->getCode());
+    }
 }

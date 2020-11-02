@@ -322,7 +322,7 @@ class CheckData extends Command
             $total_invoice_payments = 0;
 
             foreach ($client->invoices as $invoice) {
-                $total_amount = $invoice->payments->sum('pivot.amount'); 
+                $total_amount = $invoice->payments->sum('pivot.amount');
                 $total_refund = $invoice->payments->sum('pivot.refunded');
 
                  $total_invoice_payments += ($total_amount - $total_refund);
@@ -330,7 +330,7 @@ class CheckData extends Command
 
             foreach($client->payments as $payment)
             {
-              $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(\DB::raw('amount'));
+              $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(DB::raw('amount'));
             }
 
             if($credit_total_applied < 0)
@@ -484,9 +484,9 @@ class CheckData extends Command
                 } else {
                     $company_id = 'company_id';
                 }
-                $records = \DB::table($table)
+                $records = DB::table($table)
                                 ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
-                                ->where("{$table}.{$company_id}", '!=', \DB::raw("{$tableName}.company_id"))
+                                ->where("{$table}.{$company_id}", '!=', DB::raw("{$tableName}.company_id"))
                                 ->get(["{$table}.id"]);
 
                 if ($records->count()) {

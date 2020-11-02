@@ -19,6 +19,7 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Services\Payment\PaymentService;
@@ -44,26 +45,26 @@ class AutoBillInvoice extends AbstractService
     public function run()
     {
         /* Is the invoice payable? */
-        if (! $this->invoice->isPayable()) 
+        if (! $this->invoice->isPayable())
             return $this->invoice;
-        
+
         /* Mark the invoice as sent */
         $this->invoice = $this->invoice->service()->markSent()->save();
 
         /* Mark the invoice as paid if there is no balance */
-        if ((int)$this->invoice->balance == 0) 
+        if ((int)$this->invoice->balance == 0)
             return $this->invoice->service()->markPaid()->save();
 
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
-        
-        if($this->invoice->company->use_credits_payment != 'off')
-            $this->applyCreditPayment(); 
+
+        if($this->client->getSetting('use_credits_payment') != 'off')
+            $this->applyCreditPayment();
 
         info("partial = {$this->invoice->partial}");
         info("balance = {$this->invoice->balance}");
 
         /* Determine $amount */
-        if ($this->invoice->partial > 0) 
+        if ($this->invoice->partial > 0)
             $amount = $this->invoice->partial;
         elseif($this->invoice->balance > 0)
             $amount = $this->invoice->balance;
@@ -75,7 +76,7 @@ class AutoBillInvoice extends AbstractService
         $gateway_token = $this->getGateway($amount);
 
         /* Bail out if no payment methods available */
-        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing) 
+        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing)
             return $this->invoice;
 
         /* $gateway fee */
@@ -101,7 +102,7 @@ class AutoBillInvoice extends AbstractService
     /**
      * If the credits on file cover the invoice amount
      * the we create a matching payment using credits only
-     *     
+     *
      * @return Invoice $invoice
      */
     private function finalizePaymentUsingCredits()
@@ -116,6 +117,7 @@ class AutoBillInvoice extends AbstractService
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->date = now();
         $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->type_id = PaymentType::CREDIT;
         $payment->service()->applyNumber()->save();
 
         $payment->invoices()->attach($this->invoice->id, ['amount' => $amount]);
@@ -126,7 +128,7 @@ class AutoBillInvoice extends AbstractService
             {
                 $current_credit = Credit::find($credit['credit_id']);
                 $payment->credits()->attach($current_credit->id, ['amount' => $credit['amount']]);
-                
+
                 info("adjusting credit balance {$current_credit->balance} by this amount ". $credit['amount']);
 
                 $current_credit->balance -= $credit['amount'];
@@ -158,12 +160,12 @@ class AutoBillInvoice extends AbstractService
     /**
      * Applies credits to a payment prior to push
      * to the payment gateway
-     * 
+     *
      * @return $this
      */
-    private function applyCreditPayment() 
+    private function applyCreditPayment()
     {
-        
+
         $available_credits = $this->client
                                   ->credits
                                   ->where('is_deleted', false)
@@ -272,6 +274,7 @@ class AutoBillInvoice extends AbstractService
      * Adds a gateway fee to the invoice.
      *
      * @param float $fee The fee amount.
+     * @return AutoBillInvoice
      */
     private function addFeeToInvoice(float $fee)
     {

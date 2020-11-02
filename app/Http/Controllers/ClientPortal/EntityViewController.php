@@ -5,7 +5,11 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class EntityViewController extends Controller
 {
@@ -21,7 +25,9 @@ class EntityViewController extends Controller
     /**
      * Show the entity outside client portal.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @param string $entity_type
+     * @param string $invitation_key
+     * @return Factory|View
      */
     public function index(string $entity_type, string $invitation_key)
     {
@@ -65,7 +71,7 @@ class EntityViewController extends Controller
      * @param string $entity_type
      * @param string $invitation_key
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function password(string $entity_type, string $invitation_key)
     {
@@ -81,7 +87,7 @@ class EntityViewController extends Controller
      * @param string $entity_type
      * @param string $invitation_key
      *
-     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|mixed
+     * @return Redirector|RedirectResponse|mixed
      */
     public function handlePassword(string $entity_type, string $invitation_key)
     {

@@ -13,6 +13,7 @@ namespace App\Transformers;
 
 use App\Models\GroupSetting;
 use App\Utils\Traits\MakesHash;
+use stdClass;
 
 /**
  * class ClientTransformer.
@@ -31,8 +32,7 @@ class GroupSettingTransformer extends EntityTransformer
     ];
 
     /**
-     * @param Client $client
-     *
+     * @param GroupSetting $group_setting
      * @return array
      */
     public function transform(GroupSetting $group_setting)
@@ -40,7 +40,7 @@ class GroupSettingTransformer extends EntityTransformer
         return [
             'id' => $this->encodePrimaryKey($group_setting->id),
             'name' => (string) $group_setting->name ?: '',
-            'settings' => $group_setting->settings ?: new \stdClass,
+            'settings' => $group_setting->settings ?: new stdClass,
             'created_at' => (int) $group_setting->created_at,
             'updated_at' => (int) $group_setting->updated_at,
             'archived_at' => (int) $group_setting->deleted_at,

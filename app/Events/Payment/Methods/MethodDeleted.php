@@ -38,6 +38,8 @@ class MethodDeleted
      * Create a new event instance.
      *
      * @param ClientGatewayToken $payment_method
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(ClientGatewayToken $payment_method, Company $company, array $event_vars)
     {
@@ -49,7 +51,7 @@ class MethodDeleted
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return Channel|array
      */
     public function broadcastOn()
     {

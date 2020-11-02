@@ -11,8 +11,46 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\ApiSecretCheck;
+use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\CheckForMaintenanceMode;
+use App\Http\Middleware\ClientPortalEnabled;
+use App\Http\Middleware\ContactKeyLogin;
+use App\Http\Middleware\ContactRegister;
+use App\Http\Middleware\ContactSetDb;
 use App\Http\Middleware\ContactTokenAuth;
+use App\Http\Middleware\Cors;
+use App\Http\Middleware\EncryptCookies;
+use App\Http\Middleware\Locale;
+use App\Http\Middleware\PasswordProtection;
+use App\Http\Middleware\PhantomSecret;
+use App\Http\Middleware\QueryLogging;
+use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\SetDb;
+use App\Http\Middleware\SetDbByCompanyKey;
+use App\Http\Middleware\SetDomainNameDb;
+use App\Http\Middleware\SetEmailDb;
+use App\Http\Middleware\SetInviteDb;
+use App\Http\Middleware\SetWebDb;
+use App\Http\Middleware\Shop\ShopTokenAuth;
+use App\Http\Middleware\TokenAuth;
+use App\Http\Middleware\TrimStrings;
+use App\Http\Middleware\TrustProxies;
+use App\Http\Middleware\UrlSetDb;
+use App\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
+use Illuminate\Auth\Middleware\Authorize;
+use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
+use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
+use Illuminate\Http\Middleware\SetCacheHeaders;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Routing\Middleware\ValidateSignature;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class Kernel extends HttpKernel
 {
@@ -24,13 +62,13 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        \App\Http\Middleware\CheckForMaintenanceMode::class,
-        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
-        \App\Http\Middleware\TrimStrings::class,
-        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        \App\Http\Middleware\TrustProxies::class,
+        CheckForMaintenanceMode::class,
+        ValidatePostSize::class,
+        TrimStrings::class,
+        ConvertEmptyStringsToNull::class,
+        TrustProxies::class,
         //\Fruitcake\Cors\HandleCors::class,
-        \App\Http\Middleware\Cors::class,
+        Cors::class,
 
     ];
 
@@ -41,21 +79,21 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
-            \App\Http\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
             // \Illuminate\Session\Middleware\AuthenticateSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \App\Http\Middleware\VerifyCsrfToken::class,
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\QueryLogging::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
+            QueryLogging::class,
         ],
 
         'api' => [
             'throttle:300,1',
             'bindings',
             'query_logging',
-            \App\Http\Middleware\Cors::class,
+            Cors::class,
         ],
         'contact' => [
             'throttle:60,1',
@@ -63,15 +101,15 @@ class Kernel extends HttpKernel
             'query_logging',
         ],
         'client' => [
-            \App\Http\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
             // \Illuminate\Session\Middleware\AuthenticateSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \App\Http\Middleware\VerifyCsrfToken::class,
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
             //\App\Http\Middleware\StartupCheck::class,
-            \App\Http\Middleware\QueryLogging::class,
+            QueryLogging::class,
         ],
         'shop' => [
             'throttle:120,1',
@@ -88,34 +126,34 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
-        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
-        'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
-        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'query_logging' => \App\Http\Middleware\QueryLogging::class,
-        'token_auth' => \App\Http\Middleware\TokenAuth::class,
-        'api_secret_check' => \App\Http\Middleware\ApiSecretCheck::class,
-        'contact_token_auth' => \App\Http\Middleware\ContactTokenAuth::class,
-        'contact_db' => \App\Http\Middleware\ContactSetDb::class,
-        'domain_db' => \App\Http\Middleware\SetDomainNameDb::class,
-        'email_db' => \App\Http\Middleware\SetEmailDb::class,
-        'invite_db' => \App\Http\Middleware\SetInviteDb::class,
-        'password_protected' => \App\Http\Middleware\PasswordProtection::class,
-        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
-        'portal_enabled' => \App\Http\Middleware\ClientPortalEnabled::class,
-        'url_db' =>  \App\Http\Middleware\UrlSetDb::class,
-        'web_db' => \App\Http\Middleware\SetWebDb::class,
-        'api_db' => \App\Http\Middleware\SetDb::class,
-        'company_key_db' => \App\Http\Middleware\SetDbByCompanyKey::class,
-        'locale' => \App\Http\Middleware\Locale::class,
-        'contact.register' => \App\Http\Middleware\ContactRegister::class,
-        'shop_token_auth' => \App\Http\Middleware\Shop\ShopTokenAuth::class,
-        'phantom_secret' => \App\Http\Middleware\PhantomSecret::class,
-        'contact_key_login' => \App\Http\Middleware\ContactKeyLogin::class,
+        'auth' => Authenticate::class,
+        'auth.basic' => AuthenticateWithBasicAuth::class,
+        'bindings' => SubstituteBindings::class,
+        'cache.headers' => SetCacheHeaders::class,
+        'can' => Authorize::class,
+        'guest' => RedirectIfAuthenticated::class,
+        'signed' => ValidateSignature::class,
+        'throttle' => ThrottleRequests::class,
+        'verified' => EnsureEmailIsVerified::class,
+        'query_logging' => QueryLogging::class,
+        'token_auth' => TokenAuth::class,
+        'api_secret_check' => ApiSecretCheck::class,
+        'contact_token_auth' => ContactTokenAuth::class,
+        'contact_db' => ContactSetDb::class,
+        'domain_db' => SetDomainNameDb::class,
+        'email_db' => SetEmailDb::class,
+        'invite_db' => SetInviteDb::class,
+        'password_protected' => PasswordProtection::class,
+        'signed' => ValidateSignature::class,
+        'portal_enabled' => ClientPortalEnabled::class,
+        'url_db' =>  UrlSetDb::class,
+        'web_db' => SetWebDb::class,
+        'api_db' => SetDb::class,
+        'company_key_db' => SetDbByCompanyKey::class,
+        'locale' => Locale::class,
+        'contact.register' => ContactRegister::class,
+        'shop_token_auth' => ShopTokenAuth::class,
+        'phantom_secret' => PhantomSecret::class,
+        'contact_key_login' => ContactKeyLogin::class,
     ];
 }

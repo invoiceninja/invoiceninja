@@ -12,6 +12,7 @@
 
 namespace App\Services\PdfMaker;
 
+use App\Models\Quote;
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Number;
@@ -125,7 +126,7 @@ class Design extends BaseDesign
         $elements = [];
 
         foreach ($variables as $variable) {
-            $elements[] = ['element' => 'p', 'content' => $variable];
+            $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false];
         }
 
         return $elements;
@@ -138,7 +139,7 @@ class Design extends BaseDesign
         $elements = [];
 
         foreach ($variables as $variable) {
-            $elements[] = ['element' => 'p', 'content' => $variable];
+            $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false];
         }
 
         return $elements;
@@ -151,7 +152,7 @@ class Design extends BaseDesign
         $elements = [];
 
         foreach ($variables as $variable) {
-            $elements[] = ['element' => 'p', 'content' => $variable];
+            $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false];
         }
 
         return $elements;
@@ -161,7 +162,7 @@ class Design extends BaseDesign
     {
         $variables = $this->context['pdf_variables']['invoice_details'];
 
-        if ($this->entity instanceof \App\Models\Quote) {
+        if ($this->entity instanceof Quote) {
             $variables = $this->context['pdf_variables']['quote_details'];
         }
 
@@ -170,7 +171,7 @@ class Design extends BaseDesign
         foreach ($variables as $variable) {
             $_variable = explode('.', $variable)[1];
             $_customs = ['custom1', 'custom2', 'custom3', 'custom4'];
-            
+
             if (in_array($_variable, $_customs)) {
                 $elements[] = ['element' => 'tr', 'elements' => [
                     ['element' => 'th', 'content' => $variable . '_label'],

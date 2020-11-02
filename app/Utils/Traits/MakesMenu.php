@@ -40,7 +40,7 @@ trait MakesMenu
 
     /**
      * Builds an array items to be presented on the sidebar.
-     * @return array menu items
+     * @return void menu items
      */
     public function makeSideBarMenu()
     {

@@ -8,10 +8,10 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-namespace Feature;
+namespace Tests\Feature;
 
 use App\Helpers\Email\InvoiceEmail;
-use App\Jobs\Invoice\EmailInvoice;
+use App\Jobs\Entity\EmailEntity;
 use App\Mail\TemplateEmail;
 use App\Models\ClientContact;
 use App\Models\Invoice;
@@ -69,11 +69,10 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                $email_builder = (new InvoiceEmail())->build($invitation, null);
 
-                EmailInvoice::dispatchNow($email_builder, $invitation, $invitation->company);
+                EmailEntity::dispatchNow($invitation, $invitation->company);
 
-                $this->expectsJobs(EmailInvoice::class);
+                $this->expectsJobs(EmailEntity::class);
             }
         });
 
@@ -99,11 +98,9 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                $email_builder = (new InvoiceEmail())->build($invitation, null);
+                EmailEntity::dispatchNow($invitation, $invitation->company);
 
-                EmailInvoice::dispatchNow($email_builder, $invitation, $invitation->company);
-
-                $this->expectsJobs(EmailInvoice::class);
+                $this->expectsJobs(EmailEntity::class);
             }
         });
 
@@ -129,11 +126,9 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                $email_builder = (new InvoiceEmail())->build($invitation, null);
+                EmailEntity::dispatchNow($invitation, $invitation->company);
 
-                EmailInvoice::dispatchNow($email_builder, $invitation, $invitation->company);
-
-                $this->expectsJobs(EmailInvoice::class);
+                $this->expectsJobs(EmailEntity::class);
             }
         });
 
@@ -154,11 +149,9 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                $email_builder = (new InvoiceEmail())->build($invitation, null);
+                EmailEntity::dispatchNow($invitation, $invitation->company);
 
-                EmailInvoice::dispatchNow($email_builder, $invitation, $invitation->company);
-
-                $this->expectsJobs(EmailInvoice::class);
+                $this->expectsJobs(EmailEntity::class);
             }
         });
 

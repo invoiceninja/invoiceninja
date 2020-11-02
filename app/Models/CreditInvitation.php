@@ -12,12 +12,13 @@
 namespace App\Models;
 
 use App\Events\Credit\CreditWasUpdated;
-use App\Jobs\Credit\CreateCreditPdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Invoice;
 use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -107,7 +108,7 @@ class CreditInvitation extends BaseModel
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function company()
     {
@@ -131,7 +132,7 @@ class CreditInvitation extends BaseModel
 
         if (! Storage::exists($this->credit->client->credit_filepath().$this->credit->number.'.pdf')) {
             event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
-            CreateCreditPdf::dispatchNow($this);
+            CreateEntityPdf::dispatchNow($this);
         }
 
         return $storage_path;

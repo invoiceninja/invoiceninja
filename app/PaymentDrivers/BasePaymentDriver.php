@@ -72,7 +72,7 @@ class BasePaymentDriver
 
     /**
      * Returns the Omnipay driver.
-     * @return object Omnipay initialized object
+     * @return stdClass Omnipay initialized object
      */
     protected function gateway()
     {
@@ -128,7 +128,7 @@ class BasePaymentDriver
     /**
      * Returns whether gateway can
      * authorise and credit card.
-     * @return [type] [description]
+     * @return bool [type] [description]
      */
     public function canAuthoriseCreditCard(): bool
     {
@@ -137,7 +137,9 @@ class BasePaymentDriver
 
     /**
      * Refunds a given payment.
-     * @return void
+     * @param $payment
+     * @param int $amount
+     * @return false
      */
     public function refundPayment($payment, $amount = 0)
     {
@@ -210,14 +212,16 @@ class BasePaymentDriver
     }
 
     /************************************* Omnipay ******************************************
-        authorize($options) - authorize an amount on the customer's card
-        completeAuthorize($options) - handle return from off-site gateways after authorization
-        capture($options) - capture an amount you have previously authorized
-        purchase($options) - authorize and immediately capture an amount on the customer's card
-        completePurchase($options) - handle return from off-site gateways after purchase
-        refund($options) - refund an already processed transaction
-        void($options) - generally can only be called up to 24 hours after submitting a transaction
-        acceptNotification() - convert an incoming request from an off-site gateway to a generic notification object for further processing
+     * authorize($options) - authorize an amount on the customer's card
+     * completeAuthorize($options) - handle return from off-site gateways after authorization
+     * capture($options) - capture an amount you have previously authorized
+     * purchase($options) - authorize and immediately capture an amount on the customer's card
+     * completePurchase($options) - handle return from off-site gateways after purchase
+     * refund($options) - refund an already processed transaction
+     * void($options) - generally can only be called up to 24 hours after submitting a transaction
+     * acceptNotification() - convert an incoming request from an off-site gateway to a generic notification object for further processing
+     * @param $input
+     * @return array
      */
 
     protected function paymentDetails($input): array

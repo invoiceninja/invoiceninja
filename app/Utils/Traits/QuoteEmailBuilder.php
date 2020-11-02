@@ -24,7 +24,8 @@ trait QuoteEmailBuilder
 {
     /**
      * Builds the correct template to send.
-     * @param  string $reminder_template The template name ie reminder1
+     * @param null $reminder_template The template name ie reminder1
+     * @param null $contact
      * @return array
      */
     public function getEmailData($reminder_template = null, $contact = null) :array
@@ -33,7 +34,7 @@ trait QuoteEmailBuilder
         //$client = $this->client;
 
         if (! $reminder_template) {
-            $reminder_template = $this->calculateTemplate();
+            $reminder_template = $this->calculateTemplate('quote');
         }
 
         //Need to determine which email template we are producing
@@ -75,7 +76,7 @@ trait QuoteEmailBuilder
 
     private function parseTemplate(string $template_data, bool $is_markdown, $contact) :string
     {
-        $quote_variables = $this->makeValues($contact);
+        // $quote_variables = $this->makeValues($contact);
 
         //process variables
 //        $data = str_replace(array_keys($quote_variables), array_values($quote_variables), $template_data);

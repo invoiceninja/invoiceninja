@@ -44,22 +44,17 @@ class ExpenseRepository extends BaseRepository
      * @param      array                           $data    The data
      * @param      \App\Models\expense              $expense  The expense
      *
-     * @return     expense|\App\Models\expense|null  expense Object
+     * @return     expense|null  expense Object
      */
     public function save(array $data, Expense $expense) : ?Expense
     {
         $expense->fill($data);
-
+        $expense->number = empty($expense->number) ? $this->getNextExpenseNumber($expense) : $expense->number;
         $expense->save();
-
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $expense);
         }
-
-        // if ($expense->id_number == "" || !$expense->id_number) {
-        //     $expense->id_number = $this->getNextExpenseNumber($expense);
-        // } //todo write tests for this and make sure that custom expense numbers also works as expected from here
 
         return $expense;
     }

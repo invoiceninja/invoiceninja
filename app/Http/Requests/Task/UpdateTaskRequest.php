@@ -37,49 +37,21 @@ class UpdateTaskRequest extends Request
     public function rules()
     {
         $rules = [];
-        /* Ensure we have a client name, and that all emails are unique*/
 
-        if ($this->input('number')) {
-            $rules['number'] = 'unique:tasks,number,'.$this->id.',id,company_id,'.$this->taskss->company_id;
-        }
+        if(isset($this->number))
+            $rules['number'] = Rule::unique('tasks')->where('company_id', auth()->user()->company()->id)->ignore($this->task->id);
 
-        return $rules;
+        return $this->globalRules($rules);
     }
-
-    // public function messages()
-    // {
-    //     return [
-    //         'unique' => ctrans('validation.unique', ['attribute' => 'email']),
-    //         'email' => ctrans('validation.email', ['attribute' => 'email']),
-    //         'name.required' => ctrans('validation.required', ['attribute' => 'name']),
-    //         'required' => ctrans('validation.required', ['attribute' => 'email']),
-    //     ];
-    // }
 
     protected function prepareForValidation()
     {
-         $input = $this->all();
+        $input = $this->decodePrimaryKeys($this->all()); 
 
-        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
-            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
+        if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
+            $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
         }
-
-        if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
-
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
-
-        if (array_key_exists('project_id', $input) && is_string($input['project_id'])) {
-            $input['project_id'] = $this->decodePrimaryKey($input['project_id']);
-        }        
-
-        if (array_key_exists('invoice_id', $input) && is_string($input['invoice_id'])) {
-            $input['invoice_id'] = $this->decodePrimaryKey($input['invoice_id']);
-        }    
-
-         $this->replace($input);
+        
+        $this->replace($input);
     }
 }

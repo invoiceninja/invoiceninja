@@ -57,7 +57,7 @@ class EmailStats
      * Iterates through a list of companies
      * and flushes the email sent data.
      *
-     * @param  string $companies The company key
+     * @param  Collection $companies The company key
      * @return void
      */
     public static function clearCompanies($companies)

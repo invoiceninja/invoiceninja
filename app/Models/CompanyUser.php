@@ -13,10 +13,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class CompanyUser extends Pivot
 {
-    use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
+    use HasRelationships;
     use SoftDeletes;
 
     //   protected $guarded = ['id'];

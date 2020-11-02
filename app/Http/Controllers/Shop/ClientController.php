@@ -26,6 +26,7 @@ use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
+use stdClass;
 
 class ClientController extends BaseController
 {
@@ -43,7 +44,7 @@ class ClientController extends BaseController
 
     /**
      * ClientController constructor.
-     * @param ClientRepository $clientRepo
+     * @param ClientRepository $client_repo
      */
     public function __construct(ClientRepository $client_repo)
     {
@@ -57,7 +58,7 @@ class ClientController extends BaseController
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
         if (! $company->enable_shop_api) {
-            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass], 403);
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new stdClass], 403);
         }
 
         $contact = ClientContact::with('client')
@@ -73,7 +74,7 @@ class ClientController extends BaseController
         $company = Company::where('company_key', $request->header('X-API-COMPANY-KEY'))->first();
 
         if (! $company->enable_shop_api) {
-            return response()->json(['message' => 'Shop is disabled', 'errors' => new \stdClass], 403);
+            return response()->json(['message' => 'Shop is disabled', 'errors' => new stdClass], 403);
         }
 
         app('queue')->createPayloadUsing(function () use ($company) {

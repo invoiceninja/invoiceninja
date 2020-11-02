@@ -20,6 +20,7 @@ use App\Transformers\ActivityTransformer;
 use App\Transformers\VendorContactTransformer;
 use App\Transformers\VendorGatewayTokenTransformer;
 use App\Utils\Traits\MakesHash;
+use League\Fractal\Resource\Collection;
 
 /**
  * class VendorTransformer.
@@ -44,7 +45,7 @@ class VendorTransformer extends EntityTransformer
     /**
      * @param Vendor $vendor
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeActivities(Vendor $vendor)
     {
@@ -56,7 +57,7 @@ class VendorTransformer extends EntityTransformer
     /**
      * @param Vendor $vendor
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeContacts(Vendor $vendor)
     {

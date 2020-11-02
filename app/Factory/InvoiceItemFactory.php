@@ -11,15 +11,17 @@
 
 namespace App\Factory;
 
+use Faker\Factory;
 use Illuminate\Support\Carbon;
+use stdClass;
 
 //use Faker\Generator as Faker;
 
 class InvoiceItemFactory
 {
-    public static function create() :\stdClass
+    public static function create() : stdClass
     {
-        $item = new \stdClass;
+        $item = new stdClass;
         $item->quantity = 0;
         $item->cost = 0;
         $item->product_key = '';
@@ -50,7 +52,7 @@ class InvoiceItemFactory
      */
     public static function generate(int $items = 1) :array
     {
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         $data = [];
 
@@ -70,7 +72,7 @@ class InvoiceItemFactory
             $item->tax_name1 = 'GST';
             $item->tax_rate1 = 10.00;
             $item->type_id = "1";
-            
+
             $data[] = $item;
         }
 
@@ -84,7 +86,7 @@ class InvoiceItemFactory
      */
     public static function generateCredit(int $items = 1) :array
     {
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         $data = [];
 

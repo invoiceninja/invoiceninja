@@ -23,8 +23,11 @@ use App\Models\PaymentHash;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 /**
  * Class PaymentController.
@@ -37,7 +40,7 @@ class PaymentController extends Controller
     /**
      * Show the list of payments.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -49,7 +52,7 @@ class PaymentController extends Controller
      *
      * @param Request $request
      * @param Payment $payment
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function show(Request $request, Payment $payment)
     {
@@ -66,7 +69,8 @@ class PaymentController extends Controller
      * The request will also contain the amount
      * and invoice ids for reference.
      *
-     * @return \Illuminate\Http\RedirectResponse|mixed
+     * @param Request $request
+     * @return RedirectResponse|mixed
      */
     public function process(Request $request)
     {
@@ -107,7 +111,7 @@ class PaymentController extends Controller
 
         /*iterate through invoices and add gateway fees and other payment metadata*/
         $payable_invoices = $payable_invoices->map(function($payable_invoice) use($invoices, $settings){
-        
+
             $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
 
             $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
@@ -175,15 +179,15 @@ class PaymentController extends Controller
         $payment_method_id = $request->input('payment_method_id');
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
-        $credit_totals = $first_invoice->company->use_credits_payment == 'off' ? 0 : $first_invoice->client->service()->getCreditBalance();
+        $credit_totals = $first_invoice->client->getSetting('use_credits_payment') == 'off' ? 0 : $first_invoice->client->service()->getCreditBalance();
         $starting_invoice_amount = $first_invoice->amount;
 
         if($gateway)
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
 
         /**
-         * Gateway fee is calculated 
-         * by adding it as a line item, and then subtract 
+         * Gateway fee is calculated
+         * by adding it as a line item, and then subtract
          * the starting and finishing amounts of the invoice.
          */
         $fee_totals = $first_invoice->amount - $starting_invoice_amount;
@@ -193,7 +197,7 @@ class PaymentController extends Controller
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);
-        $payment_hash->data = $payable_invoices->toArray();
+        $payment_hash->data = ['invoices' => $payable_invoices->toArray()];
         $payment_hash->fee_total = $fee_totals;
         $payment_hash->fee_invoice_id = $first_invoice->id;
         $payment_hash->save();
@@ -220,23 +224,25 @@ class PaymentController extends Controller
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($payment_method_id)
+            ->setPaymentHash($payment_hash)
             ->processPaymentView($data);
     }
 
     public function response(PaymentResponseRequest $request)
     {
-        /*Payment Gateway*/
         $gateway = CompanyGateway::find($request->input('company_gateway_id'))->firstOrFail();
+        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
 
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->input('payment_method_id'))
+            ->setPaymentHash($payment_hash)
             ->processPaymentResponse($request);
     }
 
     /**
      * Pay for invoice/s using credits only.
-     * 
+     *
      * @param  Request $request The request object
      * @return Response         The response view
      */
@@ -266,9 +272,9 @@ class PaymentController extends Controller
                                     ->client
                                     ->service()
                                     ->getCredits();
-                                    
+
                 foreach($credits as $credit)
-                {   
+                {
                     //starting invoice balance
                     $invoice_balance = $invoice->balance;
 

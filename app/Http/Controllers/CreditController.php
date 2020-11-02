@@ -15,16 +15,20 @@ use App\Http\Requests\Credit\EditCreditRequest;
 use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
+use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Jobs\Credit\StoreCredit;
+use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailCredit;
 use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Invoice;
 use App\Repositories\CreditRepository;
 use App\Transformers\CreditTransformer;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Response;
 
 /**
  * Class CreditController.
@@ -49,9 +53,9 @@ class CreditController extends BaseController
     /**
      * Show the list of Credits.
      *
-     * @param      \App\Filters\CreditFilters  $filters  The filters
+     * @param CreditFilters $filters  The filters
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      * @OA\Get(
      *      path="/api/v1/credits",
@@ -96,9 +100,9 @@ class CreditController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @param      \App\Http\Requests\Credit\CreateCreditRequest  $request  The request
+     * @param CreateCreditRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -142,9 +146,9 @@ class CreditController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param      \App\Http\Requests\Credit\StoreCreditRequest  $request  The request
+     * @param StoreCreditRequest $request  The request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(
@@ -194,10 +198,10 @@ class CreditController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param      \App\Http\Requests\Credit\ShowCreditRequest  $request  The request
-     * @param      \App\Models\Credit                            $credit  The credit
+     * @param ShowCreditRequest $request  The request
+     * @param Credit $credit  The credit
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Get(
@@ -250,10 +254,10 @@ class CreditController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param      \App\Http\Requests\Invoice\EditInvoiceRequest  $request  The request
-     * @param      \App\Models\Invoice                            $credit  The credit
+     * @param EditCreditRequest $request The request
+     * @param Credit $credit The credit
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      * @OA\Get(
      *      path="/api/v1/credits/{id}/edit",
@@ -305,12 +309,12 @@ class CreditController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param      \App\Http\Requests\Credit\UpdateCreditRequest  $request  The request
-     * @param      \App\Models\Credit                              $Credit  The Credit
+     * @param UpdateCreditRequest $request The request
+     * @param Credit $credit
+     * @return Response
      *
-     * @return \Illuminate\Http\Response
      *
-     *
+     * @throws \ReflectionException
      * @OA\Put(
      *      path="/api/v1/Credits/{id}",
      *      operationId="updateCredit",
@@ -369,11 +373,12 @@ class CreditController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param      \App\Http\Requests\Credit\DestroyCreditRequest  $request
-     * @param      \App\Models\Credit                               $credit
+     * @param DestroyCreditRequest $request
+     * @param Credit $credit
      *
-     * @return     \Illuminate\Http\Response
+     * @return     Response
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/credits/{id}",
      *      operationId="deleteCredit",
@@ -545,7 +550,13 @@ class CreditController extends BaseController
                 }
                 break;
             case 'email':
-                EmailCredit::dispatch($credit, $credit->company);
+                // EmailCredit::dispatch($credit, $credit->company);
+
+                $credit->invitations->load('contact.client.country', 'credit.client.country', 'credit.company')->each(function ($invitation) use ($credit) {
+                    EmailEntity::dispatch($invitation, $credit->company);
+                });
+
+
                 if (! $bulk) {
                     return response()->json(['message'=>'email sent'], 200);
                 }

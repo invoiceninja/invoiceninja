@@ -33,7 +33,9 @@ class CreditWasRestored
     /**
      * Create a new event instance.
      *
-     * @param Client $client
+     * @param Credit $credit
+     * @param Company $company
+     * @param array $event_vars
      */
     public function __construct(Credit $credit, Company $company, array $event_vars)
     {

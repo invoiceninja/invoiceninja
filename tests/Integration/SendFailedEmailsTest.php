@@ -40,7 +40,7 @@ class SendFailedEmailsTest extends TestCase
     public function testReminderFires()
     {
         $invitation = $this->invoice->invitations->first();
-        $reminder_template = $this->invoice->calculateTemplate();
+        $reminder_template = $this->invoice->calculateTemplate('invoice');
 
         $sl = [
             'entity_name' => \App\Models\InvoiceInvitation::class,
@@ -63,11 +63,6 @@ class SendFailedEmailsTest extends TestCase
 
         $this->assertNotNull($sys_log);
 
-        // Queue::fake();
         SendFailedEmails::dispatch();
-
-        //Queue::assertPushed(SendFailedEmails::class);
-        //Queue::assertPushed(EmailInvoice::class);
-        //$this->expectsJobs(EmailInvoice::class);
     }
 }

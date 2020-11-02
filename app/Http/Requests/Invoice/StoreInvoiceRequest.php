@@ -52,7 +52,10 @@ class StoreInvoiceRequest extends Request
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
-        $rules['number'] = new UniqueInvoiceNumberRule($this->all());
+        if ($this->input('number')) {
+            $rules['number'] = 'unique:invoices,number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
+        }
+//        $rules['number'] = new UniqueInvoiceNumberRule($this->all());
 
         $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
@@ -66,7 +69,7 @@ class StoreInvoiceRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
-        //$input['line_items'] = json_encode($input['line_items']);
+
         $this->replace($input);
     }
 }

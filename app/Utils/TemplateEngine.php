@@ -16,9 +16,11 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
+use DB;
 use League\CommonMark\CommonMarkConverter;
 
 class TemplateEngine
@@ -151,7 +153,9 @@ class TemplateEngine
 
     private function entityValues($contact)
     {
-        $data = $this->entity_obj->buildLabelsAndValues($contact);
+        //$data = $this->entity_obj->buildLabelsAndValues($contact);
+
+        $data = (new HtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
         // $arrKeysLength = array_map('strlen', array_keys($data));
         // array_multisort($arrKeysLength, SORT_DESC, $data);
 
@@ -177,7 +181,7 @@ class TemplateEngine
         $data['title'] = '';
         $data['body'] = '$body';
         $data['footer'] = '';
-        
+
         $data = array_merge($data, Helpers::sharedEmailVariables($this->entity_obj->client));
 
         if ($email_style == 'custom') {
@@ -209,7 +213,7 @@ class TemplateEngine
 
     private function mockEntity()
     {
-        \DB::beginTransaction();
+        DB::beginTransaction();
 
         $client = Client::factory()->create([
                 'user_id' => auth()->user()->id,
@@ -249,7 +253,7 @@ class TemplateEngine
     private function tearDown()
     {
 
-        \DB::rollBack();
+        DB::rollBack();
 
     }
 

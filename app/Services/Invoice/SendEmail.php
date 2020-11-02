@@ -12,7 +12,7 @@
 namespace App\Services\Invoice;
 
 use App\Helpers\Email\InvoiceEmail;
-use App\Jobs\Invoice\EmailInvoice;
+use App\Jobs\Entity\EmailEntity;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Services\AbstractService;
@@ -37,20 +37,20 @@ class SendEmail extends AbstractService
 
     /**
      * Builds the correct template to send.
-     * @param string $reminder_template The template name ie reminder1
-     * @return array
+     * @return void
      */
     public function run()
     {
         if (! $this->reminder_template) {
-            $this->reminder_template = $this->invoice->calculateTemplate();
+            $this->reminder_template = $this->invoice->calculateTemplate('invoice');
         }
 
         $this->invoice->invitations->each(function ($invitation) {
             $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
 
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                EmailInvoice::dispatch($email_builder, $invitation, $invitation->company);
+                EmailEntity::dispatchNow($invitation, $invitation->company);
+
             }
         });
     }

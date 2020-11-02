@@ -48,7 +48,10 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param $invitation
+     * @param $entity_type
+     * @param $user
+     * @param $company
      */
     public function __construct($invitation, $entity_type, $user, $company)
     {
@@ -72,6 +75,10 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
+        /*If we are migrating data we don't want to fire these notification*/
+        if ($this->company->is_disabled) 
+            return true;
+        
         //Set DB
         MultiDB::setDb($this->company->db);
 

@@ -26,7 +26,7 @@ class BouncedEmail extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      *
-     * @return void
+     * @param $invitation
      */
     public function __construct($invitation)
     {

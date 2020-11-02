@@ -23,6 +23,7 @@ use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Document;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\GroupSetting;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
@@ -32,6 +33,7 @@ use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\SystemLog;
 use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Webhook;
@@ -40,12 +42,15 @@ use App\Transformers\CompanyTokenHashedTransformer;
 use App\Transformers\CompanyTokenTransformer;
 use App\Transformers\CreditTransformer;
 use App\Transformers\DocumentTransformer;
+use App\Transformers\ExpenseCategoryTransformer;
 use App\Transformers\PaymentTermTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
 use App\Transformers\SystemLogTransformer;
+use App\Transformers\TaskStatusTransformer;
 use App\Transformers\TaskTransformer;
 use App\Transformers\WebhookTransformer;
 use App\Utils\Traits\MakesHash;
+use stdClass;
 
 /**
  * Class CompanyTransformer.
@@ -95,6 +100,8 @@ class CompanyTransformer extends EntityTransformer
         'tokens',
         'tokens_hashed',
         'system_logs',
+        'expense_categories',
+        'task_statuses',
     ];
 
     /**
@@ -104,7 +111,7 @@ class CompanyTransformer extends EntityTransformer
      */
     public function transform(Company $company)
     {
-        $std = new \stdClass;
+        $std = new stdClass;
 
         return [
             'id' => (string) $this->encodePrimaryKey($company->id),
@@ -141,14 +148,31 @@ class CompanyTransformer extends EntityTransformer
             'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates,
             'client_can_register' => (bool) $company->client_can_register,
             'is_large' => (bool) $company->is_large,
+            'is_disabled' => (bool) $company->is_disabled,
             'enable_shop_api' => (bool) $company->enable_shop_api,
             'mark_expenses_invoiceable'=> (bool) $company->mark_expenses_invoiceable,
             'mark_expenses_paid' => (bool) $company->mark_expenses_paid,
             'invoice_expense_documents' => (bool) $company->invoice_expense_documents,
             'invoice_task_timelog' => (bool) $company->invoice_task_timelog,
             'auto_start_tasks' => (bool) $company->auto_start_tasks,
-            'use_credits_payment' => (string) $company->use_credits_payment,
+            'invoice_task_documents' => (bool) $company->invoice_task_documents,
+            'show_tasks_table' => (bool) $company->show_tasks_table,
+            'use_credits_payment' => 'always', //todo remove
         ];
+    }
+
+    public function includeExpenseCategories(Company $company)
+    {
+        $transformer = new ExpenseCategoryTransformer($this->serializer);
+
+        return $this->includeCollection($company->expense_categories, $transformer, ExpenseCategory::class);
+    }
+
+    public function includeTaskStatuses(Company $company)
+    {
+        $transformer = new TaskStatusTransformer($this->serializer);
+
+        return $this->includeCollection($company->task_statuses, $transformer, TaskStatus::class);
     }
 
     public function includeDocuments(Company $company)

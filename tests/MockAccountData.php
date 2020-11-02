@@ -11,12 +11,8 @@
 
 namespace Tests;
 
-use App\DataMapper\BaseSettings;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
-use App\DataMapper\FeesAndLimits;
-use App\Factory\ClientFactory;
 use App\Factory\CompanyUserFactory;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
@@ -30,11 +26,10 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
-use App\Models\Credit;
+use App\Models\CreditInvitation;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\GroupSetting;
-use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Product;
 use App\Models\Project;
@@ -46,7 +41,6 @@ use App\Models\TaskStatus;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
-use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
@@ -62,32 +56,74 @@ trait MockAccountData
     use MakesHash;
     use GeneratesCounter;
 
+    /**
+     * @var
+     */
     public $account;
 
+    /**
+     * @var
+     */
     public $company;
 
+    /**
+     * @var
+     */
     public $user;
 
+    /**
+     * @var
+     */
     public $client;
 
+    /**
+     * @var
+     */
     public $token;
 
+    /**
+     * @var
+     */
     public $invoice;
 
+    /**
+     * @var
+     */
     public $quote;
 
+    /**
+     * @var
+     */
     public $vendor;
 
+    /**
+     * @var
+     */
     public $expense;
 
+    /**
+     * @var
+     */
     public $task;
 
+    /**
+     * @var
+     */
     public $task_status;
 
+    /**
+     * @var
+     */
     public $expense_category;
 
+    /**
+     * @var
+     */
     public $cu;
 
+    /**
+     *
+     */
     public function makeTestData()
     {
 
@@ -135,6 +171,7 @@ trait MockAccountData
         $settings->country_id = '840';
         $settings->vat_number = 'vat number';
         $settings->id_number = 'id number';
+        $settings->use_credits_payment = 'always';
 
         $this->company->settings = $settings;
         $this->company->save();
@@ -177,7 +214,7 @@ trait MockAccountData
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
         ]);
-        
+
         $this->client = Client::factory()->create([
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
@@ -348,21 +385,47 @@ trait MockAccountData
         $this->credit->tax_rate1 = 0;
         $this->credit->tax_rate2 = 0;
         $this->credit->tax_rate3 = 0;
-        
-        $this->credit->uses_inclusive_taxes = false;
 
+        $this->credit->uses_inclusive_taxes = false;
         $this->credit->save();
-        $this->credit->service()->createInvitations()->markSent();
+
 
         $this->credit_calc = new InvoiceSum($this->credit);
         $this->credit_calc->build();
 
         $this->credit = $this->credit_calc->getCredit();
-        $this->credit->service()->markSent();
 
         $this->client->service()->adjustCreditBalance($this->credit->balance)->save();
         $this->credit->ledger()->updateCreditBalance($this->credit->balance)->save();
-        
+        $this->credit->number = $this->getNextCreditNumber($this->client);
+
+
+        CreditInvitation::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact->id,
+                'credit_id' => $this->credit->id,
+            ]);
+
+        CreditInvitation::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'client_contact_id' => $contact2->id,
+                'credit_id' => $this->credit->id,
+            ]);
+
+        $invitations = CreditInvitation::whereCompanyId($this->credit->company_id)
+                                        ->whereCreditId($this->credit->id);
+
+        $this->credit->setRelation('invitations', $invitations);
+
+        $this->credit->service()->markSent();
+
+        $this->credit->setRelation('client', $this->client);
+        $this->credit->setRelation('company', $this->company);
+
+        $this->credit->save();
+
         $contacts = $this->invoice->client->contacts;
 
         $contacts->each(function ($contact) {
@@ -497,6 +560,9 @@ trait MockAccountData
         }
     }
 
+    /**
+     * @return array
+     */
     private function buildLineItems()
     {
         $line_items = [];
@@ -504,6 +570,8 @@ trait MockAccountData
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 10;
+        $item->task_id = $this->encodePrimaryKey($this->task->id);
+        $item->expense_id = $this->encodePrimaryKey($this->expense->id);
 
         $line_items[] = $item;
 

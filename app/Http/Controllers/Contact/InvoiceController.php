@@ -17,6 +17,7 @@ use App\Models\Invoice;
 use App\Transformers\Contact\InvoiceTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class InvoiceController extends BaseController
 {
@@ -34,9 +35,9 @@ class InvoiceController extends BaseController
     /**
      * List Invoices.
      *
-     * @param  \App\Filters\InvoiceFilters  $filters  The filters
+     * @param InvoiceFilters $filters  The filters
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index(InvoiceFilters $filters)
     {

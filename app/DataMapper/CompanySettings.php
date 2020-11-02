@@ -13,6 +13,7 @@ namespace App\DataMapper;
 
 use App\DataMapper\CompanySettings;
 use App\Utils\Traits\MakesHash;
+use stdClass;
 
 /**
  * CompanySettings.
@@ -189,6 +190,7 @@ class CompanySettings extends BaseSettings
     public $enable_reminder1 = false;
     public $enable_reminder2 = false;
     public $enable_reminder3 = false;
+    public $enable_reminder_endless = false;
 
     public $num_days_reminder1 = 0;
     public $num_days_reminder2 = 0;
@@ -253,7 +255,11 @@ class CompanySettings extends BaseSettings
     public $client_portal_under_payment_minimum = 0;
     public $client_portal_allow_over_payment = false;
 
+    public $use_credits_payment = 'off'; //always, option, off
+
     public static $casts = [
+        'enable_reminder_endless'            => 'bool',
+        'use_credits_payment'                => 'string',
         'recurring_invoice_number_pattern'   => 'string',
         'recurring_invoice_number_counter'   => 'int',
         'client_portal_under_payment_minimum'=> 'float',
@@ -492,7 +498,7 @@ class CompanySettings extends BaseSettings
      * prevents missing properties from not being returned
      * and always ensure an up to date class is returned.
      *
-     * @return \stdClass
+     * @param $obj
      */
     public function __construct($obj)
     {
@@ -501,9 +507,9 @@ class CompanySettings extends BaseSettings
 
     /**
      * Provides class defaults on init.
-     * @return object
+     * @return stdClass
      */
-    public static function defaults():\stdClass
+    public static function defaults(): stdClass
     {
         $config = json_decode(config('ninja.settings'));
 
@@ -532,9 +538,10 @@ class CompanySettings extends BaseSettings
      * need to provide a fallback catch on old settings objects which will
      * set new properties to the object prior to being returned.
      *
-     * @param object $data The settings object to be checked
+     * @param $settings
+     * @return stdClass
      */
-    public static function setProperties($settings):\stdClass
+    public static function setProperties($settings): stdClass
     {
         $company_settings = (object) get_class_vars(self::class);
 
@@ -549,7 +556,7 @@ class CompanySettings extends BaseSettings
 
     public static function notificationDefaults()
     {
-        $notification = new \stdClass;
+        $notification = new stdClass;
         $notification->email = ['all_notifications'];
 
         return $notification;

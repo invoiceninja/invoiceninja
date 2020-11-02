@@ -16,6 +16,7 @@ use Illuminate\Contracts\Auth\Authenticatable as UserContract;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -24,7 +25,7 @@ class MultiDatabaseUserProvider implements UserProvider
     /**
      * The hasher implementation.
      *
-     * @var \Illuminate\Contracts\Hashing\Hasher
+     * @var HasherContract
      */
     protected $hasher;
 
@@ -38,7 +39,7 @@ class MultiDatabaseUserProvider implements UserProvider
     /**
      * Create a new database user provider.
      *
-     * @param  \Illuminate\Contracts\Hashing\Hasher  $hasher
+     * @param HasherContract $hasher
      * @param  string  $model
      * @return void
      */
@@ -52,7 +53,7 @@ class MultiDatabaseUserProvider implements UserProvider
      * Retrieve a user by their unique identifier.
      *
      * @param  mixed  $identifier
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     * @return UserContract|null
      */
     public function retrieveById($identifier)
     {
@@ -70,7 +71,7 @@ class MultiDatabaseUserProvider implements UserProvider
      *
      * @param  mixed  $identifier
      * @param  string  $token
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     * @return UserContract|null
      */
     public function retrieveByToken($identifier, $token)
     {
@@ -92,7 +93,7 @@ class MultiDatabaseUserProvider implements UserProvider
     /**
      * Update the "remember me" token for the given user in storage.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|\Illuminate\Database\Eloquent\Model  $user
+     * @param UserContract|Model  $user
      * @param  string  $token
      * @return void
      */
@@ -113,7 +114,7 @@ class MultiDatabaseUserProvider implements UserProvider
      * Retrieve a user by the given credentials.
      *
      * @param  array  $credentials
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     * @return UserContract|null
      */
     public function retrieveByCredentials(array $credentials)
     {
@@ -148,7 +149,7 @@ class MultiDatabaseUserProvider implements UserProvider
     /**
      * Validate a user against the given credentials.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param UserContract $user
      * @param  array  $credentials
      * @return bool
      */
@@ -162,7 +163,7 @@ class MultiDatabaseUserProvider implements UserProvider
     /**
      * Create a new instance of the model.
      *
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return Model
      */
     public function createModel()
     {
@@ -174,7 +175,7 @@ class MultiDatabaseUserProvider implements UserProvider
     /**
      * Gets the hasher implementation.
      *
-     * @return \Illuminate\Contracts\Hashing\Hasher
+     * @return HasherContract
      */
     public function getHasher()
     {
@@ -184,7 +185,7 @@ class MultiDatabaseUserProvider implements UserProvider
     /**
      * Sets the hasher implementation.
      *
-     * @param  \Illuminate\Contracts\Hashing\Hasher  $hasher
+     * @param HasherContract $hasher
      * @return $this
      */
     public function setHasher(HasherContract $hasher)
@@ -219,6 +220,9 @@ class MultiDatabaseUserProvider implements UserProvider
 
     /**
      * Sets correct database by variable.
+     * @param bool $id
+     * @param bool $email
+     * @param bool $token
      */
     private function setDefaultDatabase($id = false, $email = false, $token = false) : void
     {
@@ -258,6 +262,7 @@ class MultiDatabaseUserProvider implements UserProvider
 
     /**
      * Sets the database at runtime.
+     * @param $database
      */
     private function setDB($database)
     {

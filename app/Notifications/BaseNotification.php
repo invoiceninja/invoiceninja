@@ -48,7 +48,7 @@ class BaseNotification extends Notification implements ShouldQueue
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @return MailMessage
      */
     public function toMail($notifiable)
     {
@@ -117,7 +117,6 @@ class BaseNotification extends Notification implements ShouldQueue
             'design' => $design_style,
             'footer' => '',
             'title' => '',
-            'settings' => '',
             'company' => '',
             'view_link' => $this->invitation->getLink(),
             'view_text' => ctrans('texts.view_'.$this->entity_string),

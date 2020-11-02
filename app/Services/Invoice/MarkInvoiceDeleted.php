@@ -53,6 +53,10 @@ class MarkInvoiceDeleted extends AbstractService
 
         $this->invoice->number = $number;
 
+        //wipe references to invoices from related entities.
+        $this->invoice->tasks()->update(['invoice_id' => null]);
+        $this->invoice->expenses()->update(['invoice_id' => null]);
+
         return $this->invoice;
     }
 

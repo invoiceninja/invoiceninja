@@ -23,6 +23,7 @@ use App\Repositories\BaseRepository;
 use App\Transformers\TaxRateTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Class TaxRateController.
@@ -76,7 +77,7 @@ class TaxRateController extends BaseController
      *
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
@@ -88,7 +89,8 @@ class TaxRateController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateTaxRateRequest $request
+     * @return Response
      *
      *
      *
@@ -132,8 +134,8 @@ class TaxRateController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreTaxRateRequest $request
+     * @return Response
      */
     public function store(StoreTaxRateRequest $request)
     {
@@ -147,8 +149,9 @@ class TaxRateController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowTaxRateRequest $request
+     * @param TaxRate $tax_rate
+     * @return Response
      *
      *
      * @OA\Get(
@@ -200,8 +203,9 @@ class TaxRateController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditTaxRateRequest $request
+     * @param TaxRate $tax_rate
+     * @return Response
      *
      *
      * @OA\Get(
@@ -253,9 +257,9 @@ class TaxRateController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Client $client
-     * @return \Illuminate\Http\Response
+     * @param UpdateTaxRateRequest $request
+     * @param TaxRate $tax_rate
+     * @return Response
      *
      *
      *
@@ -311,10 +315,12 @@ class TaxRateController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyTaxRateRequest $request
+     * @param TaxRate $tax_rate
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/tax_rates/{id}",
      *      operationId="deleteTaxRate",
@@ -367,8 +373,7 @@ class TaxRateController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkTaxRateRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(

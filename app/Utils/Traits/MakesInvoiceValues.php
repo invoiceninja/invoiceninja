@@ -141,6 +141,7 @@ trait MakesInvoiceValues
      * Transforms all placeholders
      * to invoice values.
      *
+     * @param null $contact
      * @return array returns an array
      * of keyed labels (appended with _label)
      */
@@ -157,300 +158,300 @@ trait MakesInvoiceValues
         return $data;
     }
 
-    public function buildLabelsAndValues($contact)
-    {
-        $data = [];
+    // public function buildLabelsAndValues($contact)
+    // {
+    //     $data = [];
 
-        $values = $this->makeLabelsAndValues($contact);
+    //     $values = $this->makeLabelsAndValues($contact);
 
-        foreach ($values as $key => $value) {
-            $data['values'][$key] = $value['value'];
-            $data['labels'][$key.'_label'] = $value['label'];
-        }
+    //     foreach ($values as $key => $value) {
+    //         $data['values'][$key] = $value['value'];
+    //         $data['labels'][$key.'_label'] = $value['label'];
+    //     }
 
-        return $data;
-    }
+    //     return $data;
+    // }
 
-    private function makeLabelsAndValues($contact = null) :array
-    {
-        if (! $this->client->currency() || ! $this->client) {
-            throw new \Exception(debug_backtrace()[1]['function'], 1);
-            exit;
-        }
+    // private function makeLabelsAndValues($contact = null) :array
+    // {
+    //     if (! $this->client->currency() || ! $this->client) {
+    //         throw new \Exception(debug_backtrace()[1]['function'], 1);
+    //         exit;
+    //     }
 
-        $settings = $this->client->getMergedSettings();
+    //     $settings = $this->client->getMergedSettings();
 
-        if (! $contact) {
-            $contact = $this->client->primary_contact()->first();
-        }
+    //     if (! $contact) {
+    //         $contact = $this->client->primary_contact()->first();
+    //     }
 
-        $calc = $this->calc();
-        $invitation = $this->invitations->where('client_contact_id', $contact->id)->first();
+    //     $calc = $this->calc();
+    //     $invitation = $this->invitations->where('client_contact_id', $contact->id)->first();
 
-        $data = [];
-        $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
-        $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
-        $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
-        $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
-        $data['$total_tax_labels'] = ['value' => $this->totalTaxLabels(), 'label' => ctrans('texts.taxes')];
-        $data['$total_tax_values'] = ['value' => $this->totalTaxValues(), 'label' => ctrans('texts.taxes')];
-        $data['$line_tax_labels'] = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
-        $data['$line_tax_values'] = ['value' => $this->lineTaxValues(), 'label' => ctrans('texts.taxes')];
-        $data['$date'] = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.date')];
-        //$data['$invoice_date']           = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
-        $data['$invoice.date'] = &$data['$date'];
-        $data['$invoice.due_date'] = ['value' => $this->due_date ?: '&nbsp;', 'label' => ctrans('texts.due_date')];
-        $data['$due_date'] = &$data['$invoice.due_date'];
-        $data['$invoice.number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
-        $data['$invoice.po_number'] = ['value' => $this->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
-        $data['$line_taxes'] = ['value' => $this->makeLineTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
-        $data['$invoice.line_taxes'] = &$data['$line_taxes'];
-        $data['$total_taxes'] = ['value' => $this->makeTotalTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
-        $data['$invoice.total_taxes'] = &$data['$total_taxes'];
+    //     $data = [];
+    //     $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
+    //     $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
+    //     $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
+    //     $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
+    //     $data['$total_tax_labels'] = ['value' => $this->totalTaxLabels(), 'label' => ctrans('texts.taxes')];
+    //     $data['$total_tax_values'] = ['value' => $this->totalTaxValues(), 'label' => ctrans('texts.taxes')];
+    //     $data['$line_tax_labels'] = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
+    //     $data['$line_tax_values'] = ['value' => $this->lineTaxValues(), 'label' => ctrans('texts.taxes')];
+    //     $data['$date'] = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.date')];
+    //     //$data['$invoice_date']           = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
+    //     $data['$invoice.date'] = &$data['$date'];
+    //     $data['$invoice.due_date'] = ['value' => $this->due_date ?: '&nbsp;', 'label' => ctrans('texts.due_date')];
+    //     $data['$due_date'] = &$data['$invoice.due_date'];
+    //     $data['$invoice.number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
+    //     $data['$invoice.po_number'] = ['value' => $this->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
+    //     $data['$line_taxes'] = ['value' => $this->makeLineTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
+    //     $data['$invoice.line_taxes'] = &$data['$line_taxes'];
+    //     $data['$total_taxes'] = ['value' => $this->makeTotalTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
+    //     $data['$invoice.total_taxes'] = &$data['$total_taxes'];
 
-        if ($this instanceof Invoice) {
-            $data['$entity_label'] = ['value' => '', 'label' => ctrans('texts.invoice')];
-            $data['$number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
-            $data['$entity.terms'] = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.invoice_terms')];
-            $data['$terms'] = &$data['$entity.terms'];
+    //     if ($this instanceof Invoice) {
+    //         $data['$entity_label'] = ['value' => '', 'label' => ctrans('texts.invoice')];
+    //         $data['$number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
+    //         $data['$entity.terms'] = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.invoice_terms')];
+    //         $data['$terms'] = &$data['$entity.terms'];
 
-            if($invitation)
-                $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
-            // $data['$view_link']          = ['value' => $invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
-        }
+    //         if($invitation)
+    //             $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
+    //         // $data['$view_link']          = ['value' => $invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
+    //     }
 
-        if ($this instanceof Quote) {
-            $data['$entity_label'] = ['value' => '', 'label' => ctrans('texts.quote')];
-            $data['$number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
-            $data['$entity.terms'] = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.quote_terms')];
-            $data['$terms'] = &$data['$entity.terms'];
-            
-            if($invitation)
-                $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
-            // $data['$view_link']          = ['value' => $invitation->getLink(), 'label' => ctrans('texts.view_quote')];
-        }
+    //     if ($this instanceof Quote) {
+    //         $data['$entity_label'] = ['value' => '', 'label' => ctrans('texts.quote')];
+    //         $data['$number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
+    //         $data['$entity.terms'] = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.quote_terms')];
+    //         $data['$terms'] = &$data['$entity.terms'];
 
-        if ($this instanceof Credit) {
-            $data['$entity_label'] = ['value' => '', 'label' => ctrans('texts.credit')];
-            $data['$number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
-            $data['$entity.terms'] = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.credit_terms')];
-            $data['$terms'] = &$data['$entity.terms'];
-            
-            if($invitation)
-                $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
-            // $data['$view_link']          = ['value' => $invitation->getLink(), 'label' => ctrans('texts.view_credit')];
-        }
+    //         if($invitation)
+    //             $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
+    //         // $data['$view_link']          = ['value' => $invitation->getLink(), 'label' => ctrans('texts.view_quote')];
+    //     }
 
-        $data['$entity_number'] = &$data['$number'];
+    //     if ($this instanceof Credit) {
+    //         $data['$entity_label'] = ['value' => '', 'label' => ctrans('texts.credit')];
+    //         $data['$number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
+    //         $data['$entity.terms'] = ['value' => $this->terms ?: '&nbsp;', 'label' => ctrans('texts.credit_terms')];
+    //         $data['$terms'] = &$data['$entity.terms'];
 
-        $data['$invoice.discount'] = ['value' => Number::formatMoney($calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
-        $data['$discount'] = &$data['$invoice.discount'];
-        $data['$subtotal'] = ['value' => Number::formatMoney($calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
-        $data['$invoice.subtotal'] = &$data['$subtotal'];
-        $data['$invoice.balance_due'] = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
-        $data['$quote.balance_due'] = &$data['$invoice.balance_due'];
-        $data['$balance_due'] = &$data['$invoice.balance_due'];
-        $data['$invoice.partial_due'] = ['value' => Number::formatMoney($this->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
-        $data['$total'] = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.total')];
-        $data['$amount'] = &$data['$total'];
-        $data['$quote.total'] = &$data['$total'];
-        $data['$invoice.total'] = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.invoice_total')];
-        $data['$invoice.amount'] = &$data['$total'];
-        $data['$quote.amount'] = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.quote_total')];
-        $data['$credit.total'] = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_total')];
-        $data['$credit.number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
-        $data['$credit.total'] = &$data['$credit.total'];
-        $data['$credit.po_number'] = &$data['$invoice.po_number'];
-        $data['$credit.date'] = ['value' => $this->date, 'label' => ctrans('texts.credit_date')];
-        $data['$balance'] = ['value' => Number::formatMoney($calc->getBalance(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance')];
-        $data['$credit.balance'] = &$data['$balance'];
+    //         if($invitation)
+    //             $data['$view_link'] = ['value' => '<a href="'.$invitation->getLink().'">'.ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
+    //         // $data['$view_link']          = ['value' => $invitation->getLink(), 'label' => ctrans('texts.view_credit')];
+    //     }
 
-        $data['$invoice.balance'] = &$data['$balance'];
-        $data['$taxes'] = ['value' => Number::formatMoney($calc->getItemTotalTaxes(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
-        $data['$invoice.taxes'] = &$data['$taxes'];
+    //     $data['$entity_number'] = &$data['$number'];
 
-        $data['$invoice.custom1'] = ['value' => $this->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice1')];
-        $data['$invoice.custom2'] = ['value' => $this->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
-        $data['$invoice.custom3'] = ['value' => $this->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
-        $data['$invoice.custom4'] = ['value' => $this->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
-        $data['$invoice.public_notes'] = ['value' => $this->public_notes ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
-        $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
+    //     $data['$invoice.discount'] = ['value' => Number::formatMoney($calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
+    //     $data['$discount'] = &$data['$invoice.discount'];
+    //     $data['$subtotal'] = ['value' => Number::formatMoney($calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
+    //     $data['$invoice.subtotal'] = &$data['$subtotal'];
+    //     $data['$invoice.balance_due'] = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+    //     $data['$quote.balance_due'] = &$data['$invoice.balance_due'];
+    //     $data['$balance_due'] = &$data['$invoice.balance_due'];
+    //     $data['$invoice.partial_due'] = ['value' => Number::formatMoney($this->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
+    //     $data['$total'] = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.total')];
+    //     $data['$amount'] = &$data['$total'];
+    //     $data['$quote.total'] = &$data['$total'];
+    //     $data['$invoice.total'] = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.invoice_total')];
+    //     $data['$invoice.amount'] = &$data['$total'];
+    //     $data['$quote.amount'] = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.quote_total')];
+    //     $data['$credit.total'] = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_total')];
+    //     $data['$credit.number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
+    //     $data['$credit.total'] = &$data['$credit.total'];
+    //     $data['$credit.po_number'] = &$data['$invoice.po_number'];
+    //     $data['$credit.date'] = ['value' => $this->date, 'label' => ctrans('texts.credit_date')];
+    //     $data['$balance'] = ['value' => Number::formatMoney($calc->getBalance(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance')];
+    //     $data['$credit.balance'] = &$data['$balance'];
 
-        // $data['$your_invoice'] = ;
-        // $data['$quote'] = ;
-        // $data['$your_quote'] = ;
-        //
-        $data['$quote.date'] = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
-        $data['$quote.number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
-        $data['$quote.po_number'] = &$data['$invoice.po_number'];
-        $data['$quote.quote_number'] = &$data['$quote.number'];
-        $data['$quote_no'] = &$data['$quote.number'];
-        $data['$quote.quote_no'] = &$data['$quote.number'];
-        $data['$quote.valid_until'] = ['value' => $this->due_date, 'label' => ctrans('texts.valid_until')];
-        $data['$credit_amount'] = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_amount')];
-        $data['$credit_balance'] = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
+    //     $data['$invoice.balance'] = &$data['$balance'];
+    //     $data['$taxes'] = ['value' => Number::formatMoney($calc->getItemTotalTaxes(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
+    //     $data['$invoice.taxes'] = &$data['$taxes'];
 
-        $data['$credit_number'] = &$data['$number'];
-        $data['$credit_no'] = &$data['$number'];
-        $data['$credit.credit_no'] = &$data['$number'];
+    //     $data['$invoice.custom1'] = ['value' => $this->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice1')];
+    //     $data['$invoice.custom2'] = ['value' => $this->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
+    //     $data['$invoice.custom3'] = ['value' => $this->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
+    //     $data['$invoice.custom4'] = ['value' => $this->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
+    //     $data['$invoice.public_notes'] = ['value' => $this->public_notes ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
+    //     $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
 
-        // $data['$invoice_issued_to'] = ;
-        // $data['$quote_issued_to'] = ;
-        // $data['$rate'] = ;
-        // $data['$hours'] = ;
-        // $data['$from'] = ;
-        // $data['$to'] = ;
-        // $data['$invoice_to'] = ;
-        // $data['$quote_to'] = ;
-        // $data['$details'] = ;
-        $data['$invoice_no'] = &$data['$number'];
-        $data['$invoice.invoice_no'] = &$data['$number'];
-        $data['$client1'] = ['value' => $this->client->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('client1')];
-        $data['$client2'] = ['value' => $this->client->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('client2')];
-        $data['$client3'] = ['value' => $this->client->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('client3')];
-        $data['$client4'] = ['value' => $this->client->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('client4')];
-        $data['$address1'] = ['value' => $this->client->address1 ?: '&nbsp;', 'label' => ctrans('texts.address1')];
-        $data['$address2'] = ['value' => $this->client->address2 ?: '&nbsp;', 'label' => ctrans('texts.address2')];
-        $data['$id_number'] = ['value' => $this->client->id_number ?: '&nbsp;', 'label' => ctrans('texts.id_number')];
-        $data['$vat_number'] = ['value' => $this->client->vat_number ?: '&nbsp;', 'label' => ctrans('texts.vat_number')];
-        $data['$website'] = ['value' => $this->client->present()->website() ?: '&nbsp;', 'label' => ctrans('texts.website')];
-        $data['$phone'] = ['value' => $this->client->present()->phone() ?: '&nbsp;', 'label' => ctrans('texts.phone')];
-        $data['$country'] = ['value' => isset($this->client->country->name) ? $this->client->country->name : 'No Country Set', 'label' => ctrans('texts.country')];
-        $data['$email'] = ['value' => isset($contact) ? $contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
-        $data['$client_name'] = ['value' => $this->present()->clientName() ?: '&nbsp;', 'label' => ctrans('texts.client_name')];
-        $data['$client.name'] = &$data['$client_name'];
-        $data['$client.balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
-        $data['$outstanding'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
+    //     // $data['$your_invoice'] = ;
+    //     // $data['$quote'] = ;
+    //     // $data['$your_quote'] = ;
+    //     //
+    //     $data['$quote.date'] = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
+    //     $data['$quote.number'] = ['value' => $this->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
+    //     $data['$quote.po_number'] = &$data['$invoice.po_number'];
+    //     $data['$quote.quote_number'] = &$data['$quote.number'];
+    //     $data['$quote_no'] = &$data['$quote.number'];
+    //     $data['$quote.quote_no'] = &$data['$quote.number'];
+    //     $data['$quote.valid_until'] = ['value' => $this->due_date, 'label' => ctrans('texts.valid_until')];
+    //     $data['$credit_amount'] = ['value' => Number::formatMoney($calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_amount')];
+    //     $data['$credit_balance'] = ['value' => Number::formatMoney($this->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
 
-        $data['$client_balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
+    //     $data['$credit_number'] = &$data['$number'];
+    //     $data['$credit_no'] = &$data['$number'];
+    //     $data['$credit.credit_no'] = &$data['$number'];
 
-        $data['$paid_to_date'] = ['value' => Number::formatMoney($this->client->paid_to_date, $this->client), 'label' => ctrans('texts.paid_to_date')];
+    //     // $data['$invoice_issued_to'] = ;
+    //     // $data['$quote_issued_to'] = ;
+    //     // $data['$rate'] = ;
+    //     // $data['$hours'] = ;
+    //     // $data['$from'] = ;
+    //     // $data['$to'] = ;
+    //     // $data['$invoice_to'] = ;
+    //     // $data['$quote_to'] = ;
+    //     // $data['$details'] = ;
+    //     $data['$invoice_no'] = &$data['$number'];
+    //     $data['$invoice.invoice_no'] = &$data['$number'];
+    //     $data['$client1'] = ['value' => $this->client->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('client1')];
+    //     $data['$client2'] = ['value' => $this->client->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('client2')];
+    //     $data['$client3'] = ['value' => $this->client->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('client3')];
+    //     $data['$client4'] = ['value' => $this->client->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('client4')];
+    //     $data['$address1'] = ['value' => $this->client->address1 ?: '&nbsp;', 'label' => ctrans('texts.address1')];
+    //     $data['$address2'] = ['value' => $this->client->address2 ?: '&nbsp;', 'label' => ctrans('texts.address2')];
+    //     $data['$id_number'] = ['value' => $this->client->id_number ?: '&nbsp;', 'label' => ctrans('texts.id_number')];
+    //     $data['$vat_number'] = ['value' => $this->client->vat_number ?: '&nbsp;', 'label' => ctrans('texts.vat_number')];
+    //     $data['$website'] = ['value' => $this->client->present()->website() ?: '&nbsp;', 'label' => ctrans('texts.website')];
+    //     $data['$phone'] = ['value' => $this->client->present()->phone() ?: '&nbsp;', 'label' => ctrans('texts.phone')];
+    //     $data['$country'] = ['value' => isset($this->client->country->name) ? $this->client->country->name : 'No Country Set', 'label' => ctrans('texts.country')];
+    //     $data['$email'] = ['value' => isset($contact) ? $contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
+    //     $data['$client_name'] = ['value' => $this->present()->clientName() ?: '&nbsp;', 'label' => ctrans('texts.client_name')];
+    //     $data['$client.name'] = &$data['$client_name'];
+    //     $data['$client.balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
+    //     $data['$outstanding'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
 
-        $data['$client.address1'] = &$data['$address1'];
-        $data['$client.address2'] = &$data['$address2'];
-        $data['$client_address'] = ['value' => $this->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
-        $data['$client.address'] = &$data['$client_address'];
-        $data['$client.id_number'] = &$data['$id_number'];
-        $data['$client.vat_number'] = &$data['$vat_number'];
-        $data['$client.website'] = &$data['$website'];
-        $data['$client.phone'] = &$data['$phone'];
-        $data['$city_state_postal'] = ['value' => $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
-        $data['$client.city_state_postal'] = &$data['$city_state_postal'];
-        $data['$postal_city_state'] = ['value' => $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
-        $data['$client.postal_city_state'] = &$data['$postal_city_state'];
-        $data['$client.country'] = &$data['$country'];
-        $data['$client.email'] = &$data['$email'];
+    //     $data['$client_balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
 
-        $data['$contact.full_name'] = ['value' => $contact->present()->name(), 'label' => ctrans('texts.name')];
-        $data['$contact.email'] = ['value' => $contact->email, 'label' => ctrans('texts.email')];
-        $data['$contact.phone'] = ['value' => $contact->phone, 'label' => ctrans('texts.phone')];
+    //     $data['$paid_to_date'] = ['value' => Number::formatMoney($this->client->paid_to_date, $this->client), 'label' => ctrans('texts.paid_to_date')];
 
-        $data['$contact.name'] = ['value' => isset($contact) ? $contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
-        $data['$contact.first_name'] = ['value' => isset($contact) ? $contact->first_name : '', 'label' => ctrans('texts.first_name')];
-        $data['$contact.last_name'] = ['value' => isset($contact) ? $contact->last_name : '', 'label' => ctrans('texts.last_name')];
-        $data['$contact.custom1'] = ['value' => isset($contact) ? $contact->custom_value1 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
-        $data['$contact.custom2'] = ['value' => isset($contact) ? $contact->custom_value2 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
-        $data['$contact.custom3'] = ['value' => isset($contact) ? $contact->custom_value3 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
-        $data['$contact.custom4'] = ['value' => isset($contact) ? $contact->custom_value4 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
+    //     $data['$client.address1'] = &$data['$address1'];
+    //     $data['$client.address2'] = &$data['$address2'];
+    //     $data['$client_address'] = ['value' => $this->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
+    //     $data['$client.address'] = &$data['$client_address'];
+    //     $data['$client.id_number'] = &$data['$id_number'];
+    //     $data['$client.vat_number'] = &$data['$vat_number'];
+    //     $data['$client.website'] = &$data['$website'];
+    //     $data['$client.phone'] = &$data['$phone'];
+    //     $data['$city_state_postal'] = ['value' => $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
+    //     $data['$client.city_state_postal'] = &$data['$city_state_postal'];
+    //     $data['$postal_city_state'] = ['value' => $this->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
+    //     $data['$client.postal_city_state'] = &$data['$postal_city_state'];
+    //     $data['$client.country'] = &$data['$country'];
+    //     $data['$client.email'] = &$data['$email'];
 
-        $data['$company.city_state_postal'] = ['value' => $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
-        $data['$company.postal_city_state'] = ['value' => $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
-        $data['$company.name'] = ['value' => $this->company->present()->name() ?: '&nbsp;', 'label' => ctrans('texts.company_name')];
-        $data['$company.address1'] = ['value' => $settings->address1 ?: '&nbsp;', 'label' => ctrans('texts.address1')];
-        $data['$company.address2'] = ['value' => $settings->address2 ?: '&nbsp;', 'label' => ctrans('texts.address2')];
-        $data['$company.city'] = ['value' => $settings->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
-        $data['$company.state'] = ['value' => $settings->state ?: '&nbsp;', 'label' => ctrans('texts.state')];
-        $data['$company.postal_code'] = ['value' => $settings->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
-        $data['$company.country'] = ['value' => Country::find($settings->country_id)->first()->name ?: '&nbsp;', 'label' => ctrans('texts.country')];
-        $data['$company.phone'] = ['value' => $settings->phone ?: '&nbsp;', 'label' => ctrans('texts.phone')];
-        $data['$company.email'] = ['value' => $settings->email ?: '&nbsp;', 'label' => ctrans('texts.email')];
-        $data['$company.vat_number'] = ['value' => $settings->vat_number ?: '&nbsp;', 'label' => ctrans('texts.vat_number')];
-        $data['$company.id_number'] = ['value' => $settings->id_number ?: '&nbsp;', 'label' => ctrans('texts.id_number')];
-        $data['$company.website'] = ['value' => $settings->website ?: '&nbsp;', 'label' => ctrans('texts.website')];
-        $data['$company.address'] = ['value' => $this->company->present()->address($settings) ?: '&nbsp;', 'label' => ctrans('texts.address')];
+    //     $data['$contact.full_name'] = ['value' => $contact->present()->name(), 'label' => ctrans('texts.name')];
+    //     $data['$contact.email'] = ['value' => $contact->email, 'label' => ctrans('texts.email')];
+    //     $data['$contact.phone'] = ['value' => $contact->phone, 'label' => ctrans('texts.phone')];
 
-        $logo = $this->company->present()->logo($settings);
+    //     $data['$contact.name'] = ['value' => isset($contact) ? $contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
+    //     $data['$contact.first_name'] = ['value' => isset($contact) ? $contact->first_name : '', 'label' => ctrans('texts.first_name')];
+    //     $data['$contact.last_name'] = ['value' => isset($contact) ? $contact->last_name : '', 'label' => ctrans('texts.last_name')];
+    //     $data['$contact.custom1'] = ['value' => isset($contact) ? $contact->custom_value1 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
+    //     $data['$contact.custom2'] = ['value' => isset($contact) ? $contact->custom_value2 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
+    //     $data['$contact.custom3'] = ['value' => isset($contact) ? $contact->custom_value3 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
+    //     $data['$contact.custom4'] = ['value' => isset($contact) ? $contact->custom_value4 : '&nbsp;', 'label' => $this->makeCustomField('contact1')];
 
-        $data['$company.logo'] = ['value' => "<img src='{$logo}' class='h-32' alt='logo'>" ?: '&nbsp;', 'label' => ctrans('texts.logo')];
-        $data['$company_logo'] = &$data['$company.logo'];
-        $data['$company1'] = ['value' => $settings->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('company1')];
-        $data['$company2'] = ['value' => $settings->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];
-        $data['$company3'] = ['value' => $settings->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
-        $data['$company4'] = ['value' => $settings->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
+    //     $data['$company.city_state_postal'] = ['value' => $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
+    //     $data['$company.postal_city_state'] = ['value' => $this->company->present()->cityStateZip($settings->city, $settings->state, $settings->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
+    //     $data['$company.name'] = ['value' => $this->company->present()->name() ?: '&nbsp;', 'label' => ctrans('texts.company_name')];
+    //     $data['$company.address1'] = ['value' => $settings->address1 ?: '&nbsp;', 'label' => ctrans('texts.address1')];
+    //     $data['$company.address2'] = ['value' => $settings->address2 ?: '&nbsp;', 'label' => ctrans('texts.address2')];
+    //     $data['$company.city'] = ['value' => $settings->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
+    //     $data['$company.state'] = ['value' => $settings->state ?: '&nbsp;', 'label' => ctrans('texts.state')];
+    //     $data['$company.postal_code'] = ['value' => $settings->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
+    //     $data['$company.country'] = ['value' => Country::find($settings->country_id)->first()->name ?: '&nbsp;', 'label' => ctrans('texts.country')];
+    //     $data['$company.phone'] = ['value' => $settings->phone ?: '&nbsp;', 'label' => ctrans('texts.phone')];
+    //     $data['$company.email'] = ['value' => $settings->email ?: '&nbsp;', 'label' => ctrans('texts.email')];
+    //     $data['$company.vat_number'] = ['value' => $settings->vat_number ?: '&nbsp;', 'label' => ctrans('texts.vat_number')];
+    //     $data['$company.id_number'] = ['value' => $settings->id_number ?: '&nbsp;', 'label' => ctrans('texts.id_number')];
+    //     $data['$company.website'] = ['value' => $settings->website ?: '&nbsp;', 'label' => ctrans('texts.website')];
+    //     $data['$company.address'] = ['value' => $this->company->present()->address($settings) ?: '&nbsp;', 'label' => ctrans('texts.address')];
 
-        $data['$custom_surcharge1'] = ['value' => $this->custom_surcharge1, 'label' => $this->makeCustomField('custom_surcharge1')];
-        $data['$custom_surcharge2'] = ['value' => $this->custom_surcharge2, 'label' => $this->makeCustomField('custom_surcharge2')];
-        $data['$custom_surcharge3'] = ['value' => $this->custom_surcharge3, 'label' => $this->makeCustomField('custom_surcharge3')];
-        $data['$custom_surcharge4'] = ['value' => $this->custom_surcharge4, 'label' => $this->makeCustomField('custom_surcharge4')];
+    //     $logo = $this->company->present()->logo($settings);
 
-        $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
-        $data['$product.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
-        $data['$product.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
-        $data['$product.notes'] = ['value' => '', 'label' => ctrans('texts.notes')];
-        $data['$product.cost'] = ['value' => '', 'label' => ctrans('texts.cost')];
-        $data['$product.quantity'] = ['value' => '', 'label' => ctrans('texts.quantity')];
-        $data['$product.tax_name1'] = ['value' => '', 'label' => ctrans('texts.tax')];
-        $data['$product.tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
-        $data['$product.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
-        $data['$product.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
-        $data['$product.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
+    //     $data['$company.logo'] = ['value' => "<img src='{$logo}' class='h-32' alt='logo'>" ?: '&nbsp;', 'label' => ctrans('texts.logo')];
+    //     $data['$company_logo'] = &$data['$company.logo'];
+    //     $data['$company1'] = ['value' => $settings->custom_value1 ?: '&nbsp;', 'label' => $this->makeCustomField('company1')];
+    //     $data['$company2'] = ['value' => $settings->custom_value2 ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];
+    //     $data['$company3'] = ['value' => $settings->custom_value3 ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
+    //     $data['$company4'] = ['value' => $settings->custom_value4 ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
 
-        $data['$task.date'] = ['value' => '', 'label' => ctrans('texts.date')];
-        $data['$task.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
-        $data['$task.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
-        $data['$task.notes'] = ['value' => '', 'label' => ctrans('texts.notes')];
-        $data['$task.cost'] = ['value' => '', 'label' => ctrans('texts.cost')];
-        $data['$task.quantity'] = ['value' => '', 'label' => ctrans('texts.quantity')];
-        $data['$task.tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
-        $data['$task.tax_name1'] = ['value' => '', 'label' => ctrans('texts.tax')];
-        $data['$task.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
-        $data['$task.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
-        $data['$task.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
-        //$data['$contact.signature']
+    //     $data['$custom_surcharge1'] = ['value' => $this->custom_surcharge1, 'label' => $this->makeCustomField('custom_surcharge1')];
+    //     $data['$custom_surcharge2'] = ['value' => $this->custom_surcharge2, 'label' => $this->makeCustomField('custom_surcharge2')];
+    //     $data['$custom_surcharge3'] = ['value' => $this->custom_surcharge3, 'label' => $this->makeCustomField('custom_surcharge3')];
+    //     $data['$custom_surcharge4'] = ['value' => $this->custom_surcharge4, 'label' => $this->makeCustomField('custom_surcharge4')];
 
-        // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label3']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label4']              = ['value' => '', 'label' => ctrans('texts.')];
-        //$data['$blank'] = ;
-        //$data['$surcharge'] = ;
-        /*
-        $data['$tax_invoice'] =
-        $data['$tax_quote'] =
-        $data['$statement'] = ;
-        $data['$statement_date'] = ;
-        $data['$your_statement'] = ;
-        $data['$statement_issued_to'] = ;
-        $data['$statement_to'] = ;
-        $data['$credit_note'] = ;
-        $data['$credit_date'] = ;
-        $data['$credit_issued_to'] = ;
-        $data['$credit_to'] = ;
-        $data['$your_credit'] = ;
-        $data['$phone'] = ;
+    //     $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
+    //     $data['$product.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
+    //     $data['$product.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
+    //     $data['$product.notes'] = ['value' => '', 'label' => ctrans('texts.notes')];
+    //     $data['$product.cost'] = ['value' => '', 'label' => ctrans('texts.cost')];
+    //     $data['$product.quantity'] = ['value' => '', 'label' => ctrans('texts.quantity')];
+    //     $data['$product.tax_name1'] = ['value' => '', 'label' => ctrans('texts.tax')];
+    //     $data['$product.tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
+    //     $data['$product.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
+    //     $data['$product.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
+    //     $data['$product.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
 
-        $data['$outstanding'] = ;
-        $data['$invoice_due_date'] = ;
-        $data['$quote_due_date'] = ;
-        $data['$service'] = ;
-        $data['$product_key'] = ;
-        $data['$unit_cost'] = ;
-        $data['$custom_value1'] = ;
-        $data['$custom_value2'] = ;
-        $data['$delivery_note'] = ;
-        $data['$date'] = ;
-        $data['$method'] = ;
-        $data['$payment_date'] = ;
-        $data['$reference'] = ;
-        $data['$amount'] = ;
-        $data['$amount_paid'] =;
-        	*/
+    //     $data['$task.date'] = ['value' => '', 'label' => ctrans('texts.date')];
+    //     $data['$task.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
+    //     $data['$task.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
+    //     $data['$task.notes'] = ['value' => '', 'label' => ctrans('texts.notes')];
+    //     $data['$task.cost'] = ['value' => '', 'label' => ctrans('texts.cost')];
+    //     $data['$task.quantity'] = ['value' => '', 'label' => ctrans('texts.quantity')];
+    //     $data['$task.tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
+    //     $data['$task.tax_name1'] = ['value' => '', 'label' => ctrans('texts.tax')];
+    //     $data['$task.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
+    //     $data['$task.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
+    //     $data['$task.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
+    //     //$data['$contact.signature']
 
-        $arrKeysLength = array_map('strlen', array_keys($data));
-        array_multisort($arrKeysLength, SORT_DESC, $data);
+    //     // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
+    //     // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
+    //     // $data['custom_label3']              = ['value' => '', 'label' => ctrans('texts.')];
+    //     // $data['custom_label4']              = ['value' => '', 'label' => ctrans('texts.')];
+    //     //$data['$blank'] = ;
+    //     //$data['$surcharge'] = ;
+    //     /*
+    //     $data['$tax_invoice'] =
+    //     $data['$tax_quote'] =
+    //     $data['$statement'] = ;
+    //     $data['$statement_date'] = ;
+    //     $data['$your_statement'] = ;
+    //     $data['$statement_issued_to'] = ;
+    //     $data['$statement_to'] = ;
+    //     $data['$credit_note'] = ;
+    //     $data['$credit_date'] = ;
+    //     $data['$credit_issued_to'] = ;
+    //     $data['$credit_to'] = ;
+    //     $data['$your_credit'] = ;
+    //     $data['$phone'] = ;
 
-        return $data;
-    }
+    //     $data['$outstanding'] = ;
+    //     $data['$invoice_due_date'] = ;
+    //     $data['$quote_due_date'] = ;
+    //     $data['$service'] = ;
+    //     $data['$product_key'] = ;
+    //     $data['$unit_cost'] = ;
+    //     $data['$custom_value1'] = ;
+    //     $data['$custom_value2'] = ;
+    //     $data['$delivery_note'] = ;
+    //     $data['$date'] = ;
+    //     $data['$method'] = ;
+    //     $data['$payment_date'] = ;
+    //     $data['$reference'] = ;
+    //     $data['$amount'] = ;
+    //     $data['$amount_paid'] =;
+    //     	*/
+
+    //     $arrKeysLength = array_map('strlen', array_keys($data));
+    //     array_multisort($arrKeysLength, SORT_DESC, $data);
+
+    //     return $data;
+    // }
 
     /**
      * V2 of building a table header for PDFs.
@@ -476,7 +477,9 @@ trait MakesInvoiceValues
 
     /**
      * V2 of building a table body for PDFs.
-     * @param  array $columns The array (or string of column headers)
+     * @param array $default_columns
+     * @param $user_columns
+     * @param string $table_prefix
      * @return string  injectable HTML string
      */
     public function buildTableBody(array $default_columns, $user_columns, string $table_prefix) :?string
@@ -588,7 +591,8 @@ trait MakesInvoiceValues
 
     /**
      * Formats the line items for display.
-     * @param  array  $items The array of invoice items
+     * @param array $items The array of invoice items
+     * @param string $table_type
      * @return array        The formatted array of invoice items
      */
     public function transformLineItems($items, $table_type = '$product') :array
@@ -603,13 +607,13 @@ trait MakesInvoiceValues
             if ($table_type == '$product' && $item->type_id != 1) {
                 if ($item->type_id != 4) {
                     continue;
-                } 
+                }
             }
 
             if ($table_type == '$task' && $item->type_id != 2) {
                 if ($item->type_id != 4) {
                     continue;
-                } 
+                }
             }
 
             $data[$key][$table_type.'.product_key'] = $item->product_key;
@@ -808,7 +812,7 @@ trait MakesInvoiceValues
 }
 
 @media print {
-   thead {display: table-header-group;} 
+   thead {display: table-header-group;}
    tfoot {display: table-footer-group;}
    button {display: none;}
    body {margin: 0;}
@@ -826,7 +830,7 @@ trait MakesInvoiceValues
 }
 
 @media print {
-   thead {display: table-header-group;} 
+   thead {display: table-header-group;}
    button {display: none;}
    body {margin: 0;}
 }';

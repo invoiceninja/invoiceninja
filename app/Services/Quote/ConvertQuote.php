@@ -33,7 +33,7 @@ class ConvertQuote
      */
     public function run($quote)
     {
-        $invoice = CloneQuoteToInvoiceFactory::create($quote, $quote->user_id, $quote->company_id);
+        $invoice = CloneQuoteToInvoiceFactory::create($quote, $quote->user_id);
         $invoice = $this->invoice_repo->save([], $invoice);
 
         $invoice->fresh();

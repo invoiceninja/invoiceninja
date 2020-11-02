@@ -25,6 +25,7 @@ use App\Repositories\BaseRepository;
 use App\Transformers\WebhookTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class WebhookController extends BaseController
 {
@@ -44,7 +45,7 @@ class WebhookController extends BaseController
     }
 
     /**
-     *      @OA\Get(
+     * @OA\Get(
      *      path="/api/v1/webhooks",
      *      operationId="getWebhooks",
      *      tags={"webhooks"},
@@ -69,7 +70,6 @@ class WebhookController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -77,6 +77,8 @@ class WebhookController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
+     * @param WebhookFilters $filters
+     * @return Response|mixed
      */
     public function index(WebhookFilters $filters)
     {
@@ -88,8 +90,9 @@ class WebhookController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param ShowWebhookRequest $request
+     * @param Webhook $webhook
+     * @return Response
      *
      *
      * @OA\Get(
@@ -142,8 +145,9 @@ class WebhookController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param EditWebhookRequest $request
+     * @param Webhook $webhook
+     * @return Response
      *
      *
      * @OA\Get(
@@ -196,9 +200,9 @@ class WebhookController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  App\Models\Webhook $Webhook
-     * @return \Illuminate\Http\Response
+     * @param UpdateWebhookRequest $request
+     * @param Webhook $webhook
+     * @return Response
      *
      *
      *
@@ -259,7 +263,8 @@ class WebhookController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param CreateWebhookRequest $request
+     * @return Response
      *
      *
      *
@@ -306,8 +311,8 @@ class WebhookController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreWebhookRequest $request
+     * @return Response
      *
      *
      *
@@ -368,10 +373,12 @@ class WebhookController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param DestroyWebhookRequest $request
+     * @param Webhook $webhook
+     * @return Response
      *
      *
+     * @throws \Exception
      * @OA\Delete(
      *      path="/api/v1/Webhooks/{id}",
      *      operationId="deleteWebhook",
@@ -424,8 +431,7 @@ class WebhookController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @param BulkWebhookRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      * @OA\Post(

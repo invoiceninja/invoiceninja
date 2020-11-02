@@ -20,6 +20,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
+use stdClass;
 
 class QuoteApprovedActivity implements ShouldQueue
 {
@@ -28,7 +29,7 @@ class QuoteApprovedActivity implements ShouldQueue
     /**
      * Create the event listener.
      *
-     * @return void
+     * @param ActivityRepository $activity_repo
      */
     public function __construct(ActivityRepository $activity_repo)
     {
@@ -45,15 +46,15 @@ class QuoteApprovedActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $fields = new \stdClass;
+        $fields = new stdClass;
 
         $fields->quote_id = $event->quote->id;
         $fields->client_id = $event->quote->client_id;
         $fields->user_id = $event->quote->user_id;
         $fields->client_contact_id = $event->contact->id;
-        $fields->company_id = $event->payment->company_id;
-        $fields->activity_type_id = Activity::RESTORE_PAYMENT;
+        $fields->company_id = $event->quote->company_id;
+        $fields->activity_type_id = Activity::APPROVE_QUOTE;
 
-        $this->activity_repo->save($fields, $event->payment, $event->event_vars);
+        $this->activity_repo->save($fields, $event->quote, $event->event_vars);
     }
 }

@@ -64,7 +64,7 @@ class UploadFile implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
+     * @return Document|null
      */
     public function handle() : ?Document
     {

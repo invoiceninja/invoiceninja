@@ -24,7 +24,8 @@ class StoreCredit implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param Credit $credit
+     * @param array $data
      */
     public function __construct(Credit $credit, array $data)
     {
@@ -36,7 +37,8 @@ class StoreCredit implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
+     * @param CreditRepository $credit_repository
+     * @return Credit|null
      */
     public function handle(CreditRepository $credit_repository): ?Credit
     {

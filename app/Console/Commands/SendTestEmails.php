@@ -18,7 +18,7 @@ use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceInvitationFactory;
 use App\Helpers\Email\InvoiceEmail;
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Invoice\CreateEntityPdf;
 use App\Mail\TemplateEmail;
 use App\Models\Account;
 use App\Models\Client;
@@ -26,6 +26,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
+use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -70,7 +71,7 @@ class SendTestEmails extends Command
 
     private function sendTemplateEmails($template)
     {
-        $faker = \Faker\Factory::create();
+        $faker = Factory::create();
 
         $message = [
             'title' => 'Invoice XJ-3838',
@@ -82,7 +83,7 @@ class SendTestEmails extends Command
         $user = User::whereEmail('user@example.com')->first();
 
         if (! $user) {
-            
+
             $account = Account::factory()->create();
 
             $user = User::factory()->create([
@@ -149,7 +150,7 @@ class SendTestEmails extends Command
         $invoice->setRelation('invitations', $ii);
         $invoice->service()->markSent()->save();
 
-        CreateInvoicePdf::dispatch($invoice->invitations()->first());
+        CreateEntityPdf::dispatch($invoice->invitations()->first());
 
         $cc_emails = [config('ninja.testvars.test_email')];
         $bcc_emails = [config('ninja.testvars.test_email')];

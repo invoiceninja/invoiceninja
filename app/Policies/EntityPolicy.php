@@ -25,9 +25,9 @@ class EntityPolicy
      *
      * Do not use this function!!!! We MUST also check company_id,
      *
-     * @param  User $user
+     * @param User $user
      * @param  $ability
-     * @return bool/void
+     * @return void /void
      */
     public function before($user, $ability)
     {

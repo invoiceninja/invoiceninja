@@ -12,6 +12,7 @@
 namespace App\Factory;
 
 use App\Models\ClientContact;
+use Illuminate\Support\Str;
 
 class ClientContactFactory
 {
@@ -21,7 +22,7 @@ class ClientContactFactory
         $client_contact->first_name = '';
         $client_contact->user_id = $user_id;
         $client_contact->company_id = $company_id;
-        $client_contact->contact_key = \Illuminate\Support\Str::random(40);
+        $client_contact->contact_key = Str::random(40);
         $client_contact->id = 0;
 
         return $client_contact;

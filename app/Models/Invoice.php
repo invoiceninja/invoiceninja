@@ -18,19 +18,19 @@ use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Client\UpdateClientBalance;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Backup;
 use App\Models\CompanyLedger;
 use App\Models\Currency;
 use App\Models\Filterable;
 use App\Models\PaymentTerm;
+use App\Models\Presenters\InvoicePresenter;
 use App\Services\Invoice\InvoiceService;
 use App\Services\Ledger\LedgerService;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\Archivable;
 use App\Utils\Traits\Invoice\ActionsInvoice;
-use App\Utils\Traits\InvoiceEmailBuilder;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\MakesReminders;
@@ -50,11 +50,10 @@ class Invoice extends BaseModel
     use MakesDates;
     use PresentableTrait;
     use MakesInvoiceValues;
-    use InvoiceEmailBuilder;
     use MakesReminders;
     use ActionsInvoice;
 
-    protected $presenter = \App\Models\Presenters\InvoicePresenter::class;
+    protected $presenter = InvoicePresenter::class;
 
     protected $touches = [];
 
@@ -180,11 +179,6 @@ class Invoice extends BaseModel
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    // public function contacts()
-    // {
-    //     return $this->hasManyThrough(ClientContact::class, Client::class);
-    // }
-
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
@@ -215,14 +209,15 @@ class Invoice extends BaseModel
         return $this->hasMany(Credit::class);
     }
 
-    // public function credits()
-    // {
-    //     return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot(
-    //         'amount',
-    //         'refunded'
-    //     )->withTimestamps();
-    // }
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
 
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
+    }
     /**
      * Service entry points.
      */
@@ -370,7 +365,7 @@ class Invoice extends BaseModel
     /**
      * Access the invoice calculator object.
      *
-     * @return object The invoice calculator object getters
+     * @return stdClass The invoice calculator object getters
      */
     public function calc()
     {
@@ -395,7 +390,7 @@ class Invoice extends BaseModel
 
         if (! Storage::exists($this->client->invoice_filepath().$this->number.'.pdf')) {
             event(new InvoiceWasUpdated($this, $this->company, Ninja::eventVars()));
-            CreateInvoicePdf::dispatchNow($invitation);
+            CreateEntityPdf::dispatchNow($invitation);
         }
 
         return $storage_path;
@@ -439,50 +434,6 @@ class Invoice extends BaseModel
                 break;
         }
     }
-
-    /* Graveyard */
-
-//    /**
-//     * Determines if invoice overdue.
-//     *
-//     * @param      float    $balance   The balance
-//     * @param      date.    $due_date  The due date
-//     *
-//     * @return     boolean  True if overdue, False otherwise.
-//     */
-//    public static function isOverdue($balance, $due_date)
-//    {
-//        if (! $this->formatValue($balance,2) > 0 || ! $due_date) {
-//            return false;
-//        }
-//
-//        // it isn't considered overdue until the end of the day
-//        return strtotime($this->createClientDate(date(), $this->client->timezone()->name)) > (strtotime($due_date) + (60 * 60 * 24));
-//    }
-
-    /**
-     * @param bool $save
-     *
-     * Has this been dragged from V1?
-     */
-    // public function updatePaidStatus($paid = false, $save = true) : bool
-    // {
-    //     $status_id = false;
-    //     if ($paid && $this->balance == 0) {
-    //         $status_id = self::STATUS_PAID;
-    //     } elseif ($paid && $this->balance > 0 && $this->balance < $this->amount) {
-    //         $status_id = self::STATUS_PARTIAL;
-    //     } elseif ($this->hasPartial() && $this->balance > 0) {
-    //         $status_id = ($this->balance == $this->amount ? self::STATUS_SENT : self::STATUS_PARTIAL);
-    //     }
-
-    //     if ($status_id && $status_id != $this->status_id) {
-    //         $this->status_id = $status_id;
-    //         if ($save) {
-    //             $this->save();
-    //         }
-    //     }
-    // }
 
     public function getBalanceDueAttribute()
     {

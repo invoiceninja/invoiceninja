@@ -13,6 +13,7 @@ namespace App\Console\Commands;
 
 use App\Models\Design;
 use Illuminate\Console\Command;
+use stdClass;
 
 class DesignUpdate extends Command
 {
@@ -52,7 +53,7 @@ class DesignUpdate extends Command
             $invoice_design = new $class();
             $invoice_design->document();
 
-            $design_object = new \stdClass;
+            $design_object = new stdClass;
             $design_object->includes = $invoice_design->getSectionHTML('style');
             $design_object->header = $invoice_design->getSectionHTML('header');
             $design_object->body = $invoice_design->getSectionHTML('body');

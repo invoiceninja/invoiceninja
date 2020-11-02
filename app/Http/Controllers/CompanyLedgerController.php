@@ -15,6 +15,7 @@ use App\Http\Requests\CompanyLedger\ShowCompanyLedgerRequest;
 use App\Models\CompanyLedger;
 use App\Transformers\CompanyLedgerTransformer;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class CompanyLedgerController extends BaseController
 {
@@ -30,7 +31,8 @@ class CompanyLedgerController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Illuminate\Http\Response
+     * @param ShowCompanyLedgerRequest $request
+     * @return Response
      *
      * @OA\Get(
      *      path="/api/v1/company_ledger",
@@ -54,7 +56,6 @@ class CompanyLedgerController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",

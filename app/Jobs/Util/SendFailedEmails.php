@@ -12,6 +12,7 @@
 namespace App\Jobs\Util;
 
 use App\Helpers\Email\InvoiceEmail;
+use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Libraries\MultiDB;
 use App\Models\SystemLog;
@@ -56,9 +57,6 @@ class SendFailedEmails implements ShouldQueue
 
     private function processEmails()
     {
-        //\Log::error('processing emails');
-        //info("process emails");
-        //@todo check that the quota is available for the job
 
         $email_jobs = SystemLog::where('event_id', SystemLog::EVENT_MAIL_RETRY_QUEUE)->get();
 
@@ -71,7 +69,7 @@ class SendFailedEmails implements ShouldQueue
                 $email_builder = (new InvoiceEmail())->build($invitation, $job_meta_array['reminder_template']);
 
                 if ($invitation->contact->send_email && $invitation->contact->email) {
-                    EmailInvoice::dispatch($email_builder, $invitation, $invitation->company);
+                    EmailEntity::dispatch($invitation, $invitation->company);
                 }
             }
         });

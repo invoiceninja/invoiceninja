@@ -29,16 +29,15 @@ class SendEmail
 
     /**
      * Builds the correct template to send.
-     * @param string $reminder_template The template name ie reminder1
-     * @return array
+     * @return void
      */
     public function run()
     {
-        $email_builder = (new PaymentEmail())->build($this->payment, $contact);
+        $email_builder = (new PaymentEmail())->build($this->payment, $this->contact);
 
         $this->payment->client->contacts->each(function ($contact) use ($email_builder) {
             if ($contact->send && $contact->email) {
-                EmailPayment::dispatchNow($this->payment, $email_builder, $contact);
+                EmailPayment::dispatchNow($this->payment, $email_builder, $contact, $this->payment->company);
             }
         });
     }
