@@ -28,10 +28,10 @@ class ExpenseRepository extends BaseRepository
     /**
      * Saves the expense and its contacts.
      *
-     * @param      array                           $data    The data
-     * @param      \App\Models\expense              $expense  The expense
+     * @param      array  $data    The data
+     * @param      \App\Models\Expense              $expense  The expense
      *
-     * @return     expense|null  expense Object
+     * @return     \App\Models\Expense|Null  expense Object
      */
     public function save(array $data, Expense $expense) : ?Expense
     {
@@ -50,7 +50,7 @@ class ExpenseRepository extends BaseRepository
      * Store expenses in bulk.
      *
      * @param array $expense
-     * @return expense|null
+     * @return \App\Models\Expense|null
      */
     public function create($expense): ?Expense
     {

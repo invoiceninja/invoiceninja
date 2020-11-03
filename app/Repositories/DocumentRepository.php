@@ -34,8 +34,8 @@ class DocumentRepository extends BaseRepository
 
         $document->restore();
 
-        if (class_exists($className)) {
-            event(new $className($document, $document->company, Ninja::eventVars()));
-        }
+        // if (class_exists($className)) {
+        //     event(new $className($document, $document->company, Ninja::eventVars()));
+        // }
     }
 }

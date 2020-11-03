@@ -66,17 +66,15 @@ class InvoiceRepository extends BaseRepository
      * ie. invoice can be deleted from a business logic perspective.
      *
      * @param Invoice $invoice
-     * @return void $invoice
+     * @return Invoice $invoice
      */
-    public function delete($invoice)
+    public function delete($invoice) :Invoice
     {
         if ($invoice->is_deleted) {
-            return;
+            return $invoice;
         }
 
         $invoice->service()->markDeleted()->handleCancellation()->save();
-
-
 
         $invoice = parent::delete($invoice);
 

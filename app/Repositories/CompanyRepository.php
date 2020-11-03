@@ -28,7 +28,7 @@ class CompanyRepository extends BaseRepository
      *
      * @param array $data The data
      * @param Company $company
-     * @return     Client|Company|null  Company Object
+     * @return Company|null  Company Object
      */
     public function save(array $data, Company $company) : ?Company
     {
