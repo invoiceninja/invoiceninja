@@ -27,6 +27,11 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasRestored;
 use App\Events\Payment\PaymentWasUpdated;
+use App\Events\Quote\QuoteWasArchived;
+use App\Events\Quote\QuoteWasCreated;
+use App\Events\Quote\QuoteWasDeleted;
+use App\Events\Quote\QuoteWasRestored;
+use App\Events\Quote\QuoteWasUpdated;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
@@ -58,6 +63,69 @@ class EventTest extends TestCase
 
         $this->makeTestData();
     }
+
+    public function testQuoteEvents()
+    {
+
+        /* Test fire new invoice */
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'number' => 'dude',
+        ];
+
+        $this->expectsEvents([
+            QuoteWasCreated::class,
+            QuoteWasUpdated::class,
+            QuoteWasArchived::class,
+            QuoteWasRestored::class,
+            QuoteWasDeleted::class,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/quotes/', $data)
+        ->assertStatus(200);
+
+
+        $arr = $response->json();
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'number' => 'dude2',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/quotes/' . $arr['data']['id'], $data)
+        ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$arr['data']['id']],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/quotes/bulk?action=archive', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/quotes/bulk?action=restore', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/quotes/bulk?action=delete', $data)
+        ->assertStatus(200);
+
+    }
+
 
     //@TODO paymentwasvoided
     //@TODO paymentwasrefunded
