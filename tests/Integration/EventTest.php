@@ -17,6 +17,11 @@ use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasDeleted;
 use App\Events\Client\ClientWasRestored;
 use App\Events\Client\ClientWasUpdated;
+use App\Events\Credit\CreditWasArchived;
+use App\Events\Credit\CreditWasCreated;
+use App\Events\Credit\CreditWasDeleted;
+use App\Events\Credit\CreditWasRestored;
+use App\Events\Credit\CreditWasUpdated;
 use App\Events\Invoice\InvoiceWasArchived;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasDeleted;
@@ -27,11 +32,17 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasRestored;
 use App\Events\Payment\PaymentWasUpdated;
+use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasArchived;
 use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasDeleted;
 use App\Events\Quote\QuoteWasRestored;
 use App\Events\Quote\QuoteWasUpdated;
+use App\Events\Task\TaskWasArchived;
+use App\Events\Task\TaskWasCreated;
+use App\Events\Task\TaskWasDeleted;
+use App\Events\Task\TaskWasRestored;
+use App\Events\Task\TaskWasUpdated;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
@@ -64,6 +75,130 @@ class EventTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testTaskEvents()
+    {
+
+        /* Test fire new invoice */
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'description' => 'dude',
+        ];
+
+        $this->expectsEvents([
+            TaskWasCreated::class,
+            TaskWasUpdated::class,
+            TaskWasArchived::class,
+            TaskWasRestored::class,
+            TaskWasDeleted::class,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tasks/', $data)
+        ->assertStatus(200);
+
+
+        $arr = $response->json();
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'description' => 'dude2',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/tasks/' . $arr['data']['id'], $data)
+        ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$arr['data']['id']],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tasks/bulk?action=archive', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tasks/bulk?action=restore', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tasks/bulk?action=delete', $data)
+        ->assertStatus(200);
+
+    }
+
+    public function testCreditEvents()
+    {
+
+        /* Test fire new invoice */
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'number' => 'dude',
+        ];
+
+        $this->expectsEvents([
+            CreditWasCreated::class,
+            CreditWasUpdated::class,
+            CreditWasArchived::class,
+            CreditWasRestored::class,
+            CreditWasDeleted::class,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/', $data)
+        ->assertStatus(200);
+
+
+        $arr = $response->json();
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'number' => 'dude2',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/credits/' . $arr['data']['id'], $data)
+        ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$arr['data']['id']],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/bulk?action=archive', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/bulk?action=restore', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/bulk?action=delete', $data)
+        ->assertStatus(200);
+
+    }
+
     public function testQuoteEvents()
     {
 
@@ -79,6 +214,7 @@ class EventTest extends TestCase
             QuoteWasArchived::class,
             QuoteWasRestored::class,
             QuoteWasDeleted::class,
+            QuoteWasApproved::class,
         ]);
 
         $response = $this->withHeaders([
@@ -106,6 +242,10 @@ class EventTest extends TestCase
             'ids' => [$arr['data']['id']],
         ];
 
+        $quote = Quote::find($this->decodePrimaryKey($arr['data']['id']));
+        $quote->status_id = Quote::STATUS_SENT;
+        $quote->save();
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -116,6 +256,12 @@ class EventTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/quotes/bulk?action=restore', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/quotes/bulk?action=approve', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([

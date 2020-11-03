@@ -109,8 +109,8 @@ class QuoteController extends Controller
 
         if ($process) {
             foreach ($quotes as $quote) {
-                $quote->service()->approve()->save();
-                event(new QuoteWasApproved(auth()->user(), $quote, $quote->company, Ninja::eventVars()));
+                $quote->service()->approve(auth()->user())->save();
+                event(new QuoteWasApproved($quote, $quote->company, Ninja::eventVars()));
             }
 
             return redirect()

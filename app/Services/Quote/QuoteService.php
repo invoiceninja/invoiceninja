@@ -11,12 +11,14 @@
 
 namespace App\Services\Quote;
 
+use App\Events\Quote\QuoteWasApproved;
 use App\Factory\CloneQuoteToInvoiceFactory;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
 use App\Services\Quote\CreateInvitations;
 use App\Services\Quote\GetQuotePdf;
+use App\Utils\Ninja;
 
 class QuoteService
 {
@@ -108,9 +110,14 @@ class QuoteService
         return $this;
     }
 
-    public function approve() :self
+    public function approve($contact = null) :self
     {
         $this->setStatus(Quote::STATUS_APPROVED)->save();
+
+        if(!$contact)
+            $contact = $this->quote->invitations->first()->contact;
+
+        event(new QuoteWasApproved($contact, $this->quote, $this->quote->company, Ninja::eventVars()));
 
         $invoice = null;
 
