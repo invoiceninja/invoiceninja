@@ -18,7 +18,6 @@ use App\Models\Product;
 use App\Repositories\InvoiceRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Capsule\Eloquent;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -27,11 +26,11 @@ class UpdateOrCreateProduct implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $products;
+    public $products;
 
-    private $invoice;
+    public $invoice;
 
-    private $company;
+    public $company;
 
     /**
      * Create a new job instance.
@@ -59,7 +58,14 @@ class UpdateOrCreateProduct implements ShouldQueue
     {
         MultiDB::setDB($this->company->db);
 
-        foreach ($this->products as $item) {
+        //only update / create products - not tasks or gateway fees
+        $updateable_products = collect($this->products)->filter(function ($item) {
+
+            return $item->type_id == 1;
+          
+        });
+
+        foreach ($updateable_products as $item) {
             if (empty($item->product_key)) {
                 continue;
             }
