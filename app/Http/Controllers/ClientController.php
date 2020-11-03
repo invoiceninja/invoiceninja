@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use App\DataMapper\ClientSettings;
 use App\Events\Client\ClientWasCreated;
+use App\Events\Client\ClientWasUpdated;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
 use App\Http\Requests\Client\BulkClientRequest;
@@ -287,6 +288,8 @@ class ClientController extends BaseController
         $client = $this->client_repo->save($request->all(), $client);
 
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
+
+        event(new ClientWasUpdated($client, $client->company, Ninja::eventVars()));
 
         return $this->itemResponse($client->fresh());
     }

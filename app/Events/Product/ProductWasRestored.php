@@ -9,23 +9,23 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Events\Vendor;
+namespace App\Events\Product;
 
 use App\Models\Company;
-use App\Models\Vendor;
+use App\Models\Invoice;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class VendorWasRestored.
+ * Class ProductWasRestored.
  */
-class VendorWasRestored
+class ProductWasRestored
 {
     use SerializesModels;
 
     /**
-     * @var Vendor
+     * @var Product
      */
-    public $vendor;
+    public $invoice;
 
     public $company;
 
@@ -35,13 +35,13 @@ class VendorWasRestored
     /**
      * Create a new event instance.
      *
-     * @param Vendor $vendor
+     * @param Product $invoice
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(Vendor $vendor, $fromDeleted, Company $company, array $event_vars)
+    public function __construct(Product $product, $fromDeleted, Company $company, array $event_vars)
     {
-        $this->vendor = $vendor;
+        $this->product = $product;
         $this->fromDeleted = $fromDeleted;
         $this->company = $company;
         $this->event_vars = $event_vars;

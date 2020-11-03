@@ -11,6 +11,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Expense\ExpenseWasCreated;
+use App\Events\Expense\ExpenseWasUpdated;
 use App\Factory\ExpenseFactory;
 use App\Filters\ExpenseFilters;
 use App\Http\Requests\Expense\CreateExpenseRequest;
@@ -29,6 +31,7 @@ use App\Models\Size;
 use App\Repositories\BaseRepository;
 use App\Repositories\ExpenseRepository;
 use App\Transformers\ExpenseTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
@@ -281,6 +284,8 @@ class ExpenseController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $expense->company, $expense);
 
+        event(new ExpenseWasUpdated($expense, $expense->company, Ninja::eventVars()));
+
         return $this->itemResponse($expense->fresh());
     }
 
@@ -372,6 +377,8 @@ class ExpenseController extends BaseController
     public function store(StoreExpenseRequest $request)
     {
         $expense = $this->expense_repo->save($request->all(), ExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id));
+
+        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars()));
 
         return $this->itemResponse($expense);
     }

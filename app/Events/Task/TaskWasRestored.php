@@ -31,6 +31,7 @@ class TaskWasRestored
 
     public $event_vars;
 
+    public $fromDeleted;
     /**
      * Create a new event instance.
      *
@@ -38,9 +39,10 @@ class TaskWasRestored
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(Task $task, Company $company, array $event_vars)
+    public function __construct(Task $task, $fromDeleted, Company $company, array $event_vars)
     {
         $this->task = $task;
+        $this->fromDeleted = $fromDeleted;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }
