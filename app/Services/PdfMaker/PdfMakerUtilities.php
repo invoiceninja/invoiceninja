@@ -22,7 +22,7 @@ trait PdfMakerUtilities
         $document = new DOMDocument();
 
         $document->validateOnParse = true;
-        @$document->loadHTML($this->design->html());
+        @$document->loadHTML(mb_convert_encoding($this->design->html(), 'HTML-ENTITIES', 'UTF-8'));
 
         $this->document = $document;
         $this->xpath = new DOMXPath($document);
