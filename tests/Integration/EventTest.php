@@ -22,6 +22,11 @@ use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasDeleted;
 use App\Events\Credit\CreditWasRestored;
 use App\Events\Credit\CreditWasUpdated;
+use App\Events\Expense\ExpenseWasArchived;
+use App\Events\Expense\ExpenseWasCreated;
+use App\Events\Expense\ExpenseWasDeleted;
+use App\Events\Expense\ExpenseWasRestored;
+use App\Events\Expense\ExpenseWasUpdated;
 use App\Events\Invoice\InvoiceWasArchived;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasDeleted;
@@ -43,6 +48,11 @@ use App\Events\Task\TaskWasCreated;
 use App\Events\Task\TaskWasDeleted;
 use App\Events\Task\TaskWasRestored;
 use App\Events\Task\TaskWasUpdated;
+use App\Events\Vendor\VendorWasArchived;
+use App\Events\Vendor\VendorWasCreated;
+use App\Events\Vendor\VendorWasDeleted;
+use App\Events\Vendor\VendorWasRestored;
+use App\Events\Vendor\VendorWasUpdated;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
@@ -74,6 +84,125 @@ class EventTest extends TestCase
 
         $this->makeTestData();
     }
+
+    public function testExpenseEvents()
+    {
+        $this->expectsEvents([
+            ExpenseWasCreated::class,
+            ExpenseWasUpdated::class,
+            ExpenseWasArchived::class,
+            ExpenseWasRestored::class,
+            ExpenseWasDeleted::class,
+        ]);
+
+        $data = [
+            'public_notes' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/expenses/', $data)
+            ->assertStatus(200);
+
+
+        $arr = $response->json();
+
+        $data = [
+            'public_notes' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/expenses/' . $arr['data']['id'], $data)
+        ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$arr['data']['id']],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/expenses/bulk?action=archive', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/expenses/bulk?action=restore', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/expenses/bulk?action=delete', $data)
+        ->assertStatus(200);
+
+    }
+
+
+    public function testVendorEvents()
+    {
+        $this->expectsEvents([
+            VendorWasCreated::class,
+            VendorWasUpdated::class,
+            VendorWasArchived::class,
+            VendorWasRestored::class,
+            VendorWasDeleted::class,
+        ]);
+
+        $data = [
+            'name' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/vendors/', $data)
+            ->assertStatus(200);
+
+
+        $arr = $response->json();
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'id_number' => 'Coolio',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/vendors/' . $arr['data']['id'], $data)
+        ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$arr['data']['id']],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/vendors/bulk?action=archive', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/vendors/bulk?action=restore', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/vendors/bulk?action=delete', $data)
+        ->assertStatus(200);
+
+    }
+
 
     public function testTaskEvents()
     {
