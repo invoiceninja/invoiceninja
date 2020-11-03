@@ -49,8 +49,8 @@ class CompanyGatewayTransformer extends EntityTransformer
             'gateway_key' => (string) $company_gateway->gateway_key ?: '',
             'accepted_credit_cards' => (int) $company_gateway->accepted_credit_cards,
             'require_cvv' => (bool) $company_gateway->require_cvv,
-            'show_billing_address' => (bool) $company_gateway->show_billing_address,
-            'show_shipping_address' => (bool) $company_gateway->show_shipping_address,
+            'show_billing_address' => (bool) $company_gateway->show_billing_address, //@deprecated
+            'show_shipping_address' => (bool) $company_gateway->show_shipping_address, //@deprecated
             'update_details' => (bool) $company_gateway->update_details,
             'config' => (string) $company_gateway->getConfigTransformed(),
             'fees_and_limits' => $company_gateway->fees_and_limits ?: new stdClass,
@@ -75,3 +75,12 @@ class CompanyGatewayTransformer extends EntityTransformer
         return $this->includeItem($company_gateway->gateway, $transformer, Gateway::class);
     }
 }
+
+
+            $table->renameColumn('show_billing_address', 'require_billing_address');
+            $table->renameColumn('show_shipping_address', 'require_billing_address');
+            $table->boolean('require_client_name')->default(false);
+            $table->boolean('require_zip')->default(false);
+            $table->boolean('require_client_phone')->default(false);
+            $table->boolean('require_contact_name')->default(false);
+            $table->boolean('require_contact_email')->default(false);
