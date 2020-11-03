@@ -57,7 +57,7 @@ class UpdateOrCreateProduct implements ShouldQueue
     public function handle()
     {
         MultiDB::setDB($this->company->db);
-
+        
         //only update / create products - not tasks or gateway fees
         $updateable_products = collect($this->products)->filter(function ($item) {
 
