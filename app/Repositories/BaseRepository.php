@@ -270,7 +270,7 @@ class BaseRepository
         $model = $model->service()->applyNumber()->save();
 
         if ($model->company->update_products !== false) {
-            UpdateOrCreateProduct::dispatchNow($model->line_items, $model, $model->company);
+            UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
         }
 
         if ($class->name == Invoice::class) {

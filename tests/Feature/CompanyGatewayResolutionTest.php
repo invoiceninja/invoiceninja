@@ -101,7 +101,7 @@ class CompanyGatewayResolutionTest extends TestCase
             $this->cg->user_id = $this->user->id;
             $this->cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
             $this->cg->require_cvv = true;
-            $this->cg->show_billing_address = true;
+            $this->cg->require_billing_address = true;
             $this->cg->show_shipping_address = true;
             $this->cg->update_details = true;
             $this->cg->config = encrypt(json_encode($json_config));
