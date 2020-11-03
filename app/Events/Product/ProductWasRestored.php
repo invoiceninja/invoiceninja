@@ -9,35 +9,40 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Events\Quote;
+namespace App\Events\Product;
 
 use App\Models\Company;
-use App\Models\Quote;
+use App\Models\Invoice;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class QuoteWasCreated.
+ * Class ProductWasRestored.
  */
-class QuoteWasCreated
+class ProductWasRestored
 {
     use SerializesModels;
 
-    public $quote;
+    /**
+     * @var Product
+     */
+    public $invoice;
 
     public $company;
 
     public $event_vars;
 
+    public $fromDeleted;
     /**
      * Create a new event instance.
      *
-     * @param Quote $quote
+     * @param Product $invoice
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(Quote $quote, Company $company, array $event_vars)
+    public function __construct(Product $product, $fromDeleted, Company $company, array $event_vars)
     {
-        $this->quote = $quote;
+        $this->product = $product;
+        $this->fromDeleted = $fromDeleted;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }

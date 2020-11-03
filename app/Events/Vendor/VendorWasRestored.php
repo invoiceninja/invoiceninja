@@ -31,6 +31,7 @@ class VendorWasRestored
 
     public $event_vars;
 
+    public $fromDeleted;
     /**
      * Create a new event instance.
      *
@@ -38,9 +39,10 @@ class VendorWasRestored
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(Vendor $vendor, Company $company, array $event_vars)
+    public function __construct(Vendor $vendor, $fromDeleted, Company $company, array $event_vars)
     {
         $this->vendor = $vendor;
+        $this->fromDeleted = $fromDeleted;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }

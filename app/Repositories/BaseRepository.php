@@ -60,7 +60,7 @@ class BaseRepository
      */
     private function getEventClass($entity, $type)
     {
-        return 'App\Events\\'.ucfirst(class_basename($entity)).'Was'.$type;
+        return 'App\Events\\'.ucfirst(class_basename($entity)).'\\'.ucfirst(class_basename($entity)).'Was'.$type;
     }
 
     /**

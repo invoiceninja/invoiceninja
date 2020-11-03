@@ -31,6 +31,7 @@ class DocumentWasRestored
 
     public $event_vars;
 
+    public $fromDeleted;
     /**
      * Create a new event instance.
      *
@@ -38,9 +39,10 @@ class DocumentWasRestored
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(Document $document, Company $company, array $event_vars)
+    public function __construct(Document $document, $fromDeleted, Company $company, array $event_vars)
     {
         $this->document = $document;
+        $this->fromDeleted = $fromDeleted;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }

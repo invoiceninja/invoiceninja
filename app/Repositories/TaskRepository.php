@@ -51,7 +51,7 @@ class TaskRepository extends BaseRepository
         $task->fill($data);
         $task->save();
 
-        $task->number = empty($task->number) ? $this->getNextTaskNumber($task) : $data['number'];
+        $task->number = empty($task->number) || !array_key_exists('number', $data) ? $this->getNextTaskNumber($task) : $data['number'];
 
         if (isset($data['description'])) {
             $task->description = trim($data['description']);
