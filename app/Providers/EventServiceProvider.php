@@ -60,8 +60,10 @@ use App\Events\Quote\QuoteWasViewed;
 use App\Events\User\UserLoggedIn;
 use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
+use App\Events\Vendor\VendorWasCreated;
 use App\Listeners\Activity\ArchivedClientActivity;
 use App\Listeners\Activity\CreatedClientActivity;
+use App\Listeners\Activity\CreatedVendorActivity;
 use App\Listeners\Activity\CreatedCreditActivity;
 use App\Listeners\Activity\CreatedQuoteActivity;
 use App\Listeners\Activity\CreditArchivedActivity;
@@ -286,6 +288,10 @@ class EventServiceProvider extends ServiceProvider
         QuoteWasRestored::class => [
             QuoteRestoredActivity::class,
         ],
+        VendorWasCreated::class => [
+            CreatedVendorActivity::class,
+        ]
+
     ];
 
     /**

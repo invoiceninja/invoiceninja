@@ -47,7 +47,7 @@ class Activity extends StaticModel
     const RESTORE_PAYMENT = 27; //
     const RESTORE_CREDIT = 28; //
     const APPROVE_QUOTE = 29; //
-    const CREATE_VENDOR = 30;
+    const CREATE_VENDOR = 30; //
     const ARCHIVE_VENDOR = 31;
     const DELETE_VENDOR = 32;
     const RESTORE_VENDOR = 33;

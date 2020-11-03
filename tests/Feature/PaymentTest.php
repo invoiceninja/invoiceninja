@@ -1379,7 +1379,7 @@ $contact =             ClientContact::factory()->create([
         ])->post('/api/v1/payments/bulk?action=delete', $data);
 
         $arr = $response->json();
-info(print_r($arr,1));
+
         $this->assertEquals(1, $arr['data'][0]['is_deleted']);
     }
 

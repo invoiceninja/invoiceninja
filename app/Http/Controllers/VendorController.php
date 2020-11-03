@@ -13,6 +13,8 @@ namespace App\Http\Controllers;
 
 use App\Factory\VendorFactory;
 use App\Filters\VendorFilters;
+use App\Utils\Ninja;
+use App\Events\Vendor\VendorWasCreated;
 use App\Http\Requests\Vendor\CreateVendorRequest;
 use App\Http\Requests\Vendor\DestroyVendorRequest;
 use App\Http\Requests\Vendor\EditVendorRequest;
@@ -375,6 +377,8 @@ class VendorController extends BaseController
         $vendor->load('contacts', 'primary_contact');
 
         $this->uploadLogo($request->file('company_logo'), $vendor->company, $vendor);
+
+        event(new VendorWasCreated($vendor, $vendor->company, Ninja::eventVars()));
 
         return $this->itemResponse($vendor);
     }
