@@ -100,7 +100,7 @@ class InvoiceMigrationRepository extends BaseRepository
             $invitations = collect($data['invitations']);
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-            $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
+            $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use($resource){
                 $this->getInvitation($invitation, $resource)->delete();
             });
 

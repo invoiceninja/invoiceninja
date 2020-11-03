@@ -39,17 +39,7 @@ class ClientRepository extends BaseRepository
     {
         $this->contact_repo = $contact_repo;
     }
-
-    /**
-     * Gets the class name.
-     *
-     * @return     string The class name.
-     */
-    public function getClassName()
-    {
-        return Client::class;
-    }
-
+    
     /**
      * Saves the client and its contacts.
      *

@@ -30,15 +30,6 @@ class CreditRepository extends BaseRepository
     {
     }
 
-    /**
-     * Gets the class name.
-     *
-     * @return     string The class name.
-     */
-    public function getClassName()
-    {
-        return Credit::class;
-    }
 
     /**
      * Saves the client and its contacts.

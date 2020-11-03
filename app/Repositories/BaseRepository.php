@@ -35,24 +35,6 @@ class BaseRepository
     use SavesDocuments;
 
     /**
-     * @return null
-     */
-    public function getClassName()
-    {
-        return null;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function getInstance()
-    {
-        $className = $this->getClassName();
-
-        return new $className();
-    }
-
-    /**
      * @param $entity
      * @param $type
      *
@@ -153,25 +135,6 @@ class BaseRepository
         return count($entities);
     }
 
-    /**
-     * @param $ids
-     *
-     * @return mixed
-     */
-    public function findByPublicIds($ids)
-    {
-        return $this->getInstance()->scope($ids)->get();
-    }
-
-    /**
-     * @param $ids
-     *
-     * @return mixed
-     */
-    public function findByPublicIdsWithTrashed($ids)
-    {
-        return $this->getInstance()->scope($ids)->withTrashed()->get();
-    }
 
     public function getInvitation($invitation, $resource)
     {

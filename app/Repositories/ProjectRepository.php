@@ -19,13 +19,4 @@ use App\Models\Project;
 class ProjectRepository extends BaseRepository
 {
 
-    /**
-     * Gets the class name.
-     *
-     * @return     string The class name.
-     */
-    public function getClassName()
-    {
-        return Project::class;
-    }
 }

@@ -23,19 +23,6 @@ class TaskRepository extends BaseRepository
 {
     use GeneratesCounter;
 
-    public function __construct()
-    {
-    }
-
-    /**
-     * Gets the class name.
-     *
-     * @return string The class name.
-     */
-    public function getClassName() 
-    {
-        return Task::class;
-    }
 
     /**
      * Saves the task and its contacts.

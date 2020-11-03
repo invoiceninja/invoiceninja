@@ -41,15 +41,6 @@ class PaymentRepository extends BaseRepository
         $this->credit_repo = $credit_repo;
     }
 
-    /** 
-     * @return string
-     */
-
-    public function getClassName()
-    {
-        return Payment::class;
-    }
-
     /**
      * Saves and updates a payment. //todo refactor to handle refunds and payments.
      *

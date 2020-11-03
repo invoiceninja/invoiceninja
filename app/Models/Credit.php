@@ -26,6 +26,7 @@ use App\Utils\Traits\MakesInvoiceValues;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Laracasts\Presenter\PresentableTrait;
 
 class Credit extends BaseModel
