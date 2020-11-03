@@ -27,12 +27,7 @@ use Illuminate\Http\Request;
  */
 class QuoteRepository extends BaseRepository
 {
-    use MakesHash;
 
-    public function getClassName()
-    {
-        return Quote::class;
-    }
 
     public function save($data, Quote $quote) : ?Quote
     {

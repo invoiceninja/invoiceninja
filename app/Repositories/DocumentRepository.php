@@ -19,15 +19,6 @@ use App\Utils\Ninja;
  */
 class DocumentRepository extends BaseRepository
 {
-    /**
-     * Gets the class name.
-     *
-     * @return     string The class name.
-     */
-    public function getClassName()
-    {
-        return Document::class;
-    }
 
     public function delete($document)
     {

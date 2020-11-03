@@ -48,11 +48,6 @@ class PaymentMigrationRepository extends BaseRepository
         $this->activity_repo = new ActivityRepository();
     }
 
-    public function getClassName()
-    {
-        return Payment::class;
-    }
-
     /**
      * Saves and updates a payment. //todo refactor to handle refunds and payments.
      *

@@ -40,7 +40,7 @@ class CreateInvitations extends AbstractService
                 $ii->credit_id = $this->credit->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && ! $contact->send_email) {
+            } elseif (! $contact->send_email) {
                 $invitation->delete();
             }
         });

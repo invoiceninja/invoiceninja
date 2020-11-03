@@ -12,21 +12,9 @@
 namespace App\Repositories;
 
 use App\Models\GroupSetting;
-use App\Utils\Traits\MakesHash;
 
 class GroupSettingRepository extends BaseRepository
 {
-    use MakesHash;
-
-    /**
-     * Gets the class name.
-     *
-     * @return     string  The class name.
-     */
-    public function getClassName()
-    {
-        return GroupSetting::class;
-    }
 
     public function save($data, GroupSetting $group_setting) :?GroupSetting
     {

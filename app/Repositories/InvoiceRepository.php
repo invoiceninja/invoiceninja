@@ -27,23 +27,14 @@ class InvoiceRepository extends BaseRepository
 {
     use MakesHash;
 
-    /**
-     * Gets the class name.
-     *
-     * @return     string  The class name.
-     */
-    public function getClassName()
-    {
-        return Invoice::class;
-    }
 
     /**
      * Saves the invoices.
      *
-     * @param      array.                                        $data     The invoice data
-     * @param      InvoiceSum|Invoice $invoice  The invoice
+     * @param      array $data       The invoice data
+     * @param      Invoice $invoice  The invoice
      *
-     * @return     Invoice|InvoiceSum|null  Returns the invoice object
+     * @return     Invoice|null  Returns the invoice object
      */
     public function save($data, Invoice $invoice):?Invoice
     {

@@ -24,16 +24,6 @@ class CompanyRepository extends BaseRepository
     }
 
     /**
-     * Gets the class name.
-     *
-     * @return     string The class name.
-     */
-    public function getClassName()
-    {
-        return Company::class;
-    }
-
-    /**
      * Saves the client and its contacts.
      *
      * @param array $data The data

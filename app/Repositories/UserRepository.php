@@ -27,24 +27,15 @@ class UserRepository extends BaseRepository
 {
     use MakesHash;
 
-    /**
-     * Gets the class name.
-     *
-     * @return     string The class name.
-     */
-    public function getClassName()
-    {
-        return User::class;
-    }
 
     /**
      * Saves the user and its contacts.
      *
      * @param array $data The data
-     * @param \App\Models\user $user The user
+     * @param \App\Models\User $user The user
      *
      * @param bool $unset_company_user
-     * @return     user|\App\Models\user|null  user Object
+     * @return \App\Models\User user Object
      */
     public function save(array $data, User $user, $unset_company_user = false)
     {

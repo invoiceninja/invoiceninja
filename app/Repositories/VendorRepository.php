@@ -13,7 +13,7 @@ namespace App\Repositories;
 
 use App\Factory\VendorFactory;
 use App\Models\Vendor;
-use App\Repositories\VSendorContactRepository;
+use App\Repositories\VendorContactRepository;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Http\Request;
 
@@ -23,14 +23,11 @@ use Illuminate\Http\Request;
 class VendorRepository extends BaseRepository
 {
     use GeneratesCounter;
-    /**
-     * @var vendorContactRepository
-     */
+
     protected $contact_repo;
 
     /**
-     * vendorController constructor.
-     * @param vendorContactRepository $contact_repo
+     * VendorContactRepository constructor.
      */
     public function __construct(VendorContactRepository $contact_repo)
     {
@@ -38,22 +35,12 @@ class VendorRepository extends BaseRepository
     }
 
     /**
-     * Gets the class name.
-     *
-     * @return     string The class name.
-     */
-    public function getClassName()
-    {
-        return Vendor::class;
-    }
-
-    /**
      * Saves the vendor and its contacts.
      *
      * @param array $data The data
-     * @param \App\Models\vendor $vendor The vendor
+     * @param \App\Models\Vendor $vendor The vendor
      *
-     * @return     vendor|\App\Models\vendor|null  vendor Object
+     * @return     vendor|\App\Models\Vendor|null  Vendor Object
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
     public function save(array $data, Vendor $vendor) : ?Vendor
@@ -70,7 +57,7 @@ class VendorRepository extends BaseRepository
         $vendor->save();
 
         if (isset($data['contacts'])) {
-            $contacts = $this->contact_repo->save($data, $vendor);
+            $this->contact_repo->save($data, $vendor);
         }
 
         if (empty($data['name'])) {

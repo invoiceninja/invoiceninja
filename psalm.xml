@@ -61,6 +61,11 @@
       <directory name="app" /> 
     </errorLevel>
   </InvalidNullableReturnType> 
+    <ImplementedReturnTypeMismatch>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </ImplementedReturnTypeMismatch> 
  
 
 </issueHandlers>
