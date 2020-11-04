@@ -19,9 +19,12 @@ use App\Repositories\QuoteRepository;
 use App\Services\Quote\CreateInvitations;
 use App\Services\Quote\GetQuotePdf;
 use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 
 class QuoteService
 {
+    use MakesHash;
+    
     protected $quote;
 
     public $invoice;
@@ -156,6 +159,23 @@ class QuoteService
         }
 
         return true;
+    }
+
+    public function fillDefaults()
+    {
+        $settings = $this->quote->client->getMergedSettings();
+
+        if(! $this->quote->design_id) 
+            $this->quote->design_id = $this->decodePrimaryKey($settings->quote_design_id);
+            
+        if(!isset($this->quote->footer))
+            $this->quote->footer = $settings->quote_footer;
+
+        if(!isset($this->quote->terms))
+            $this->quote->terms = $settings->quote_terms;
+
+        
+        return $this;        
     }
 
     /**

@@ -311,7 +311,11 @@ class HtmlEngine
         $data['$task.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
-        $data['$contact.signature'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
+
+        if($this->settings->signature_on_pdf)
+            $data['$contact.signature'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
+        else
+            $data['$contact.signature'] = ['value' => '', 'label' => ''];
 
         $data['$thanks'] = ['value' => '', 'label' => ctrans('texts.thanks')];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];

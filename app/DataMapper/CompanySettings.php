@@ -24,177 +24,176 @@ class CompanySettings extends BaseSettings
     /*Group settings based on functionality*/
 
     /*Invoice*/
-    public $auto_archive_invoice = false;
+    public $auto_archive_invoice = false; // @implemented
 
-    public $lock_invoices = 'off';          //off,when_sent,when_paid
+    public $lock_invoices = 'off'; //off,when_sent,when_paid //@implemented
 
-    public $enable_client_portal_tasks = false;
-    public $enable_client_portal_password = false;
-    public $enable_client_portal = true; //implemented
-    public $enable_client_portal_dashboard = true; //implemented
-    public $signature_on_pdf = false;
-    public $document_email_attachment = false;
-    //public $send_portal_password          = false;
+    public $enable_client_portal_tasks = false; //@ben to implement
+    public $enable_client_portal_password = false; //@implemented
+    public $enable_client_portal = true; //@implemented
+    public $enable_client_portal_dashboard = true; // @TODO There currently is no dashboard so this is pending
+    public $signature_on_pdf = false; //@implemented
+    public $document_email_attachment = false; //@TODO I assume this is 3rd party attachments on the entity to be included
 
-    public $portal_design_id = '1';
+    public $portal_design_id = '1'; //?@deprecated
 
-    public $timezone_id = '';
-    public $date_format_id = '';
-    public $military_time = false;
+    public $timezone_id = ''; //@implemented
+    public $date_format_id = ''; //@implemented
+    public $military_time = false; // @TODOImplemented in Tasks only?
 
-    public $language_id = '';
-    public $show_currency_code = false;
+    public $language_id = ''; //@implemented
+    public $show_currency_code = false; //@implemented
 
-    public $company_gateway_ids = '';
+    public $company_gateway_ids = ''; //@implemented
 
-    public $currency_id = '1';
+    public $currency_id = '1'; //@implemented
 
-    public $custom_value1 = '';
-    public $custom_value2 = '';
-    public $custom_value3 = '';
-    public $custom_value4 = '';
+    public $custom_value1 = ''; //@implemented
+    public $custom_value2 = ''; //@implemented
+    public $custom_value3 = ''; //@implemented
+    public $custom_value4 = ''; //@implemented
 
-    public $default_task_rate = 0;
+    public $default_task_rate = 0; // @TODO Where do we inject this?
 
-    public $payment_terms = '';
-    public $send_reminders = false;
+    public $payment_terms = ''; //@implemented
+    public $send_reminders = false; //@TODO
 
-    public $custom_message_dashboard = '';
-    public $custom_message_unpaid_invoice = '';
-    public $custom_message_paid_invoice = '';
-    public $custom_message_unapproved_quote = '';
-    public $auto_archive_quote = false;
-    public $auto_convert_quote = true;
-    public $auto_email_invoice = true;
+    public $custom_message_dashboard = ''; // @TODO There currently is no dashboard so this is pending
+    public $custom_message_unpaid_invoice = '';  //@ben to implement
+    public $custom_message_paid_invoice = '';  //@ben to implement
+    public $custom_message_unapproved_quote = '';  //@ben to implement
+    public $auto_archive_quote = false; //@implemented
+    public $auto_convert_quote = true; //@implemented
+    public $auto_email_invoice = true; //@only used for Recurring Invoices, if set to false, we never send?
 
-    public $inclusive_taxes = false;
-    public $quote_footer = '';
+    public $inclusive_taxes = false; //@implemented
+    public $quote_footer = ''; //@implmented
 
-    public $translations;
+    public $translations; //@TODO not used anywhere
 
-    public $counter_number_applied = 'when_saved'; // when_saved , when_sent
-    public $quote_number_applied = 'when_saved'; // when_saved , when_sent
+    public $counter_number_applied = 'when_saved'; // when_saved , when_sent //@implemented
+    public $quote_number_applied = 'when_saved'; // when_saved , when_sent //@implemented
 
     /* Counters */
-    public $invoice_number_pattern = '';
-    public $invoice_number_counter = 1;
+    public $invoice_number_pattern = ''; //@implemented
+    public $invoice_number_counter = 1; //@implemented
 
-    public $recurring_invoice_number_pattern = '';
-    public $recurring_invoice_number_counter = 1;
+    public $recurring_invoice_number_pattern = ''; //@implemented
+    public $recurring_invoice_number_counter = 1; //@implemented
 
-    public $quote_number_pattern = '';
-    public $quote_number_counter = 1;
+    public $quote_number_pattern = ''; //@implemented
+    public $quote_number_counter = 1; //@implemented
 
-    public $client_number_pattern = '';
-    public $client_number_counter = 1;
+    public $client_number_pattern = ''; //@implemented
+    public $client_number_counter = 1; //@implemented
 
-    public $credit_number_pattern = '';
-    public $credit_number_counter = 1;
+    public $credit_number_pattern = ''; //@implemented
+    public $credit_number_counter = 1; //@implemented
 
-    public $task_number_pattern = '';
-    public $task_number_counter = 1;
+    public $task_number_pattern = ''; //@implemented
+    public $task_number_counter = 1; //@implemented
 
-    public $expense_number_pattern = '';
-    public $expense_number_counter = 1;
+    public $expense_number_pattern = ''; //@implemented
+    public $expense_number_counter = 1; //@implemented
 
-    public $vendor_number_pattern = '';
-    public $vendor_number_counter = 1;
+    public $vendor_number_pattern = ''; //@implemented
+    public $vendor_number_counter = 1; //@implemented
 
-    public $ticket_number_pattern = '';
-    public $ticket_number_counter = 1;
+    public $ticket_number_pattern = ''; //@implemented
+    public $ticket_number_counter = 1; //@implemented
 
-    public $payment_number_pattern = '';
-    public $payment_number_counter = 1;
+    public $payment_number_pattern = ''; //@implemented
+    public $payment_number_counter = 1; //@implemented
 
-    public $project_number_pattern = '';
-    public $project_number_counter = 1;
+    public $project_number_pattern = ''; //@implemented
+    public $project_number_counter = 1; //@implemented
 
-    public $shared_invoice_quote_counter = false;
-    public $recurring_number_prefix = 'R';
-    public $reset_counter_frequency_id = '0';
-    public $reset_counter_date = '';
-    public $counter_padding = 4;
+    public $shared_invoice_quote_counter = false; //@implemented
+    public $recurring_number_prefix = 'R'; //@implemented
+    public $reset_counter_frequency_id = '0'; //@implemented
+    public $reset_counter_date = ''; //@implemented
+    public $counter_padding = 4; //@implemented
 
-    public $auto_bill = 'off'; //off,always,optin,optout
-    public $auto_bill_date = 'on_due_date'; // on_due_date , on_send_date
+    public $auto_bill = 'off'; //off,always,optin,optout //@implemented
+    public $auto_bill_date = 'on_due_date'; // on_due_date , on_send_date //@implemented
 
-    public $design = 'views/pdf/design1.blade.php';
+    //public $design = 'views/pdf/design1.blade.php'; //@deprecated - never used
 
-    public $invoice_terms = '';
-    public $quote_terms = '';
-    public $invoice_taxes = 0;
+    public $invoice_terms = ''; //@implemented
+    public $quote_terms = ''; //@implemented
+    public $invoice_taxes = 0; // ? used in AP only?
     // public $enabled_item_tax_rates = 0;
-    public $invoice_design_id = 'VolejRejNm';
-    public $quote_design_id = 'VolejRejNm';
-    public $credit_design_id = 'VolejRejNm';
-    public $invoice_footer = '';
-    public $credit_footer = '';
-    public $credit_terms = '';
-    public $invoice_labels = '';
-    public $tax_name1 = '';
-    public $tax_rate1 = 0;
-    public $tax_name2 = '';
-    public $tax_rate2 = 0;
-    public $tax_name3 = '';
-    public $tax_rate3 = 0;
-    public $payment_type_id = '0';
-    public $invoice_fields = '';
+    public $invoice_design_id = 'VolejRejNm'; //@implemented
+    public $quote_design_id = 'VolejRejNm'; //@implemented
+    public $credit_design_id = 'VolejRejNm'; //@implemented
+    public $invoice_footer = ''; //@implemented
+    public $credit_footer = ''; //@implemented
+    public $credit_terms = ''; //@implemented
+    public $invoice_labels = ''; //@TODO used in AP only?
+    public $tax_name1 = ''; //@TODO where do we use this?
+    public $tax_rate1 = 0; //@TODO where do we use this?
+    public $tax_name2 = ''; //@TODO where do we use this?
+    public $tax_rate2 = 0; //@TODO where do we use this?
+    public $tax_name3 = ''; //@TODO where do we use this?
+    public $tax_rate3 = 0; //@TODO where do we use this?
+    public $payment_type_id = '0'; //@TODO where do we use this?
+    public $invoice_fields = ''; //@TODO is this redundant, we store this in the custom_fields on the company?
 
-    public $show_accept_invoice_terms = false;
-    public $show_accept_quote_terms = false;
-    public $require_invoice_signature = false;
-    public $require_quote_signature = false;
+    public $show_accept_invoice_terms = false; //@TODO ben to confirm
+    public $show_accept_quote_terms = false;  //@TODO ben to confirm
+    public $require_invoice_signature = false;  //@TODO ben to confirm
+    public $require_quote_signature = false;  //@TODO ben to confirm
 
     //email settings
-    public $email_sending_method = 'default'; //enum 'default','gmail'
-    public $gmail_sending_user_id = '0';
+    public $email_sending_method = 'default'; //enum 'default','gmail' //@implemented
+    public $gmail_sending_user_id = '0'; //@implemented
 
-    public $reply_to_email = '';
-    public $bcc_email = '';
-    public $pdf_email_attachment = false;
-    public $ubl_email_attachment = false;
+    public $reply_to_email = ''; //@TODO
+    public $bcc_email = ''; //@TODO
+    public $pdf_email_attachment = false; //@implemented
+    public $ubl_email_attachment = false; //@implemented
 
-    public $email_style = 'light'; //plain, light, dark, custom
-    public $email_style_custom = '';      //the template itself
-    public $email_subject_invoice = '';
-    public $email_subject_quote = '';
-    public $email_subject_credit = '';
-    public $email_subject_payment = '';
-    public $email_subject_payment_partial = '';
-    public $email_subject_statement = '';
-    public $email_template_invoice = '';
-    public $email_template_credit = '';
-    public $email_template_quote = '';
-    public $email_template_payment = '';
-    public $email_template_payment_partial = '';
-    public $email_template_statement = '';
-    public $email_subject_reminder1 = '';
-    public $email_subject_reminder2 = '';
-    public $email_subject_reminder3 = '';
-    public $email_subject_reminder_endless = '';
-    public $email_template_reminder1 = '';
-    public $email_template_reminder2 = '';
-    public $email_template_reminder3 = '';
-    public $email_template_reminder_endless = '';
-    public $email_signature = '';
-    public $enable_email_markup = true;
+    public $email_style = 'light'; //plain, light, dark, custom  //@implemented
+    public $email_style_custom = '';      //the template itself  //@implemented
+    public $email_subject_invoice = '';  //@implemented
+    public $email_subject_quote = '';  //@implemented
+    public $email_subject_credit = ''; //@implemented
+    public $email_subject_payment = ''; //@implemented
+    public $email_subject_payment_partial = ''; //@implemented
+    public $email_subject_statement = ''; //@implemented
+    public $email_template_invoice = ''; //@implemented
+    public $email_template_credit = ''; //@implemented
+    public $email_template_quote = ''; //@implemented
+    public $email_template_payment = ''; //@implemented
+    public $email_template_payment_partial = ''; //@implemented
+    public $email_template_statement = ''; //@implemented
+    public $email_subject_reminder1 = ''; //@implemented
+    public $email_subject_reminder2 = ''; //@implemented
+    public $email_subject_reminder3 = ''; //@implemented
+    public $email_subject_reminder_endless = ''; //@implemented
+    public $email_template_reminder1 = ''; //@implemented
+    public $email_template_reminder2 = ''; //@implemented
+    public $email_template_reminder3 = ''; //@implemented
+    public $email_template_reminder_endless = ''; //@implemented
+    public $email_signature = ''; //@implemented
+    public $enable_email_markup = true; //@TODO
 
-    public $email_subject_custom1 = '';
-    public $email_subject_custom2 = '';
-    public $email_subject_custom3 = '';
+    public $email_subject_custom1 = ''; //@TODO
+    public $email_subject_custom2 = ''; //@TODO
+    public $email_subject_custom3 = ''; //@TODO
 
-    public $email_template_custom1 = '';
-    public $email_template_custom2 = '';
-    public $email_template_custom3 = '';
+    public $email_template_custom1 = ''; //@TODO 
+    public $email_template_custom2 = ''; //@TODO
+    public $email_template_custom3 = ''; //@TODO
 
-    public $enable_reminder1 = false;
-    public $enable_reminder2 = false;
-    public $enable_reminder3 = false;
-    public $enable_reminder_endless = false;
+    public $enable_reminder1 = false; //@partially implmemented
+    public $enable_reminder2 = false; //@partially implmemented
+    public $enable_reminder3 = false; //@partially implmemented
+    public $enable_reminder_endless = false; //@partially implmemented
 
-    public $num_days_reminder1 = 0;
-    public $num_days_reminder2 = 0;
-    public $num_days_reminder3 = 0;
+    public $num_days_reminder1 = 0;//@partially implmemented
+    public $num_days_reminder2 = 0;//@partially implmemented
+    public $num_days_reminder3 = 0;//@partially implmemented
 
     public $schedule_reminder1 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
     public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
@@ -202,32 +201,36 @@ class CompanySettings extends BaseSettings
 
     public $reminder_send_time = 32400; //number of seconds from UTC +0 to send reminders
 
-    public $late_fee_amount1 = 0;
-    public $late_fee_amount2 = 0;
-    public $late_fee_amount3 = 0;
+    public $late_fee_amount1 = 0; //@TODO
+    public $late_fee_amount2 = 0; //@TODO
+    public $late_fee_amount3 = 0; //@TODO
 
-    public $endless_reminder_frequency_id = '0';
-    public $late_fee_endless_amount = 0;
-    public $late_fee_endless_percent = 0;
+    public $late_fee_percent1 = 0; //@TODO
+    public $late_fee_percent2 = 0; //@TODO
+    public $late_fee_percent3 = 0; //@TODO
+
+    public $endless_reminder_frequency_id = '0'; //@implemented
+    public $late_fee_endless_amount = 0; //@TODO
+    public $late_fee_endless_percent = 0; //@TODO
 
     public $client_online_payment_notification = true; //@todo implement in notifications
     public $client_manual_payment_notification = true; //@todo implement in notifications
 
     /* Company Meta data that we can use to build sub companies*/
 
-    public $name = '';
-    public $company_logo = '';
-    public $website = '';
-    public $address1 = '';
-    public $address2 = '';
-    public $city = '';
-    public $state = '';
-    public $postal_code = '';
-    public $phone = '';
-    public $email = '';
-    public $country_id;
-    public $vat_number = '';
-    public $id_number = '';
+    public $name = ''; //@implemented
+    public $company_logo = ''; //@implemented
+    public $website = ''; //@implemented
+    public $address1 = ''; //@implemented
+    public $address2 = ''; //@implemented
+    public $city = ''; //@implemented
+    public $state = ''; //@implemented
+    public $postal_code = ''; //@implemented
+    public $phone = ''; //@implemented
+    public $email = ''; //@implemented
+    public $country_id; //@implemented
+    public $vat_number = ''; //@implemented
+    public $id_number = ''; //@implemented
 
     public $page_size = 'A4';  //Letter, Legal, Tabloid, Ledger, A0, A1, A2, A3, A4, A5, A6
     public $font_size = 9;
@@ -236,26 +239,26 @@ class CompanySettings extends BaseSettings
     public $primary_color = '#4caf50';
     public $secondary_color = '#2196f3';
 
-    public $hide_paid_to_date = false;
-    public $embed_documents = false;
-    public $all_pages_header = false;
-    public $all_pages_footer = false;
-    public $pdf_variables = '';
+    public $hide_paid_to_date = false; //@TODO where?
+    public $embed_documents = false; //@TODO
+    public $all_pages_header = false; //@implemented
+    public $all_pages_footer = false; //@implemented
+    public $pdf_variables = ''; //@implemented
 
-    public $portal_custom_head = '';
-    public $portal_custom_css = '';
-    public $portal_custom_footer = '';
-    public $portal_custom_js = '';
+    public $portal_custom_head = ''; //@TODO
+    public $portal_custom_css = ''; //@TODO
+    public $portal_custom_footer = ''; //@TODO
+    public $portal_custom_js = ''; //@TODO
 
-    public $client_can_register = false;
-    public $client_portal_terms = '';
-    public $client_portal_privacy_policy = '';
-    public $client_portal_enable_uploads = false;
-    public $client_portal_allow_under_payment = false;
-    public $client_portal_under_payment_minimum = 0;
-    public $client_portal_allow_over_payment = false;
+    public $client_can_register = false; //@implemented
+    public $client_portal_terms = ''; //@TODO
+    public $client_portal_privacy_policy = ''; //@TODO
+    public $client_portal_enable_uploads = false; //@implemented
+    public $client_portal_allow_under_payment = false; //@implemented
+    public $client_portal_under_payment_minimum = 0; //@implemented
+    public $client_portal_allow_over_payment = false; //@implemented
 
-    public $use_credits_payment = 'off'; //always, option, off
+    public $use_credits_payment = 'off'; //always, option, off //@implemented
 
     public static $casts = [
         'enable_reminder_endless'            => 'bool',
@@ -301,6 +304,9 @@ class CompanySettings extends BaseSettings
         'late_fee_amount1'                   => 'float',
         'late_fee_amount2'                   => 'float',
         'late_fee_amount3'                   => 'float',
+        'late_fee_percent1'                  => 'float',
+        'late_fee_percent2'                  => 'float',
+        'late_fee_percent3'                  => 'float',
         'endless_reminder_frequency_id'      => 'integer',
         'client_online_payment_notification' => 'bool',
         'client_manual_payment_notification' => 'bool',
@@ -312,7 +318,6 @@ class CompanySettings extends BaseSettings
         'email_template_statement'           => 'string',
         'email_subject_statement'            => 'string',
         'signature_on_pdf'                   => 'bool',
-       // 'send_portal_password'               => 'bool',
         'quote_footer'                       => 'string',
         'page_size'                          => 'string',
         'font_size'                          => 'int',
@@ -431,7 +436,7 @@ class CompanySettings extends BaseSettings
         'auto_convert_quote'                 => 'bool',
         'shared_invoice_quote_counter'       => 'bool',
         'counter_padding'                    => 'integer',
-        'design'                             => 'string',
+        //'design'                             => 'string',
         'website'                            => 'string',
         'pdf_variables'                  	 => 'object',
         'portal_custom_head'                 => 'string',

@@ -79,7 +79,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
 
         $this->entity = $invitation->{$this->entity_string};
 
-        $this->reminder_template = $reminder_template ?: $this->findReminderTemplate();
+        $this->reminder_template = $reminder_template ?: $this->entity->calculateTemplate($this->entity_string);
 
         $this->html_engine = new HtmlEngine($invitation);
 

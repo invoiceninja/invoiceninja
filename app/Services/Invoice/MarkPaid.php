@@ -66,6 +66,8 @@ class MarkPaid extends AbstractService
             'amount' => $payment->amount,
         ]);
 
+        $this->invoice->next_send_date = null;
+        
         $this->invoice->service()
                 ->updateBalance($payment->amount * -1)
                 ->setStatus(Invoice::STATUS_PAID)

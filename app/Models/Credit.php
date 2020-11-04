@@ -23,6 +23,7 @@ use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;
+use App\Utils\Traits\MakesReminders;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -37,7 +38,8 @@ class Credit extends BaseModel
     use SoftDeletes;
     use PresentableTrait;
     use MakesInvoiceValues;
-
+    use MakesReminders;
+    
     protected $presenter = CreditPresenter::class;
 
     protected $fillable = [

@@ -16,7 +16,6 @@ use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Invoice\EditInvoiceRequest;
-use App\Jobs\Credit\StoreCredit;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailCredit;
 use App\Jobs\Invoice\MarkInvoicePaid;
@@ -188,7 +187,9 @@ class CreditController extends BaseController
 
         $credit = $this->credit_repository->save($request->all(), CreditFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $credit = StoreCredit::dispatchNow($credit, $request->all(), $credit->company);
+        $credit = $credit->service()        
+                         ->fillDefaults()
+                         ->save();
 
         event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars()));
 

@@ -12,15 +12,15 @@
  *         @OA\License(
  *             name="Attribution Assurance License",
  *             url="https://opensource.org/licenses/AAL"
- *         )
+ *         ),
  *     ),
  *     @OA\Server(
  *         description="Example InvoiceNinja base url",
- *         url="https://ninja.test"
+ *         url="https://ninja.test",
  *     ),
  *     @OA\ExternalDocumentation(
  *         description="http://docs.invoiceninja.com",
  *         url="http://docs.invoiceninja.com"
- *     )
- * )
+ *     ),
+ * ),
  */
