@@ -29,7 +29,7 @@ class GroupTest extends TestCase
 
     public function testGroupsPropertiesExistsResponses()
     {
-        $this->assertTrue(property_exists($this->settings, 'design'));
+        $this->assertTrue(property_exists($this->settings, 'timezone_id'));
     }
 
     public function testPropertyValueAccessors()
