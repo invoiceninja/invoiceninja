@@ -58,7 +58,7 @@
         flex-direction: column;
     }
 
-    #product-table {
+    #product-table, #task-table {
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -66,25 +66,29 @@
         margin-bottom: 200px;
     }
 
-    #product-table > thead {
+    #product-table, #task-table > thead {
         text-align: left;
     }
 
-    #product-table > thead > tr > th {
+    #product-table > thead > tr > th,
+    #task-table > thead > tr > th {
         padding: 1rem;
         background-color: #e6e6e6;
     }
 
-    #product-table > thead > tr > th:last-child {
+    #product-table > thead > tr > th:last-child,
+    #task-table > thead > tr > th:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr > td {
+    #product-table > tbody > tr > td,
+    #task-table > tbody > tr > td {
         border-bottom: 1px solid #e6e6e6;
         padding: 1rem;
     }
 
-    #product-table > tbody > tr > td:last-child {
+    #product-table > tbody > tr > td:last-child,
+    #task-table > tbody > tr > td:last-child {
         text-align: right;
     }
 
@@ -136,6 +140,8 @@
     <div id="client-details"></div>
 
     <table id="product-table" cellspacing="0"></table>
+
+    <table id="task-table" cellspacing="0"></table>
 
     <div id="table-totals" cellspacing="0"></div>
 </div>
