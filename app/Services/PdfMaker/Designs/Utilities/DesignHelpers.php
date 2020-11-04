@@ -94,35 +94,52 @@ trait DesignHelpers
      *
      * Logic below will help us calculate that & inject the result in the
      * global state of the $context (design state).
-     *
+     * 
+     * @param string $type "product" or "task"
      * @return void
      */
-    public function processTaxColumns(): void
+    public function processTaxColumns(string $type): void
     {
-        if (in_array('$product.tax', (array) $this->context['pdf_variables']['product_columns'])) {
-            $line_items = collect($this->entity->line_items);
+        if ($type == 'product') {
+            $type_id = 1;
+        }
 
-            $tax1 = $line_items->where('tax_name1', '<>', '')->where('type_id', 1)->count();
-            $tax2 = $line_items->where('tax_name2', '<>', '')->where('type_id', 1)->count();
-            $tax3 = $line_items->where('tax_name3', '<>', '')->where('type_id', 1)->count();
+        if ($type == 'task') {
+            $type_id = 2;
+        }
+
+        // At the moment we pass "task" or "product" as type.
+        // However, "pdf_variables" contains "$task.tax" or "$product.tax" <-- Notice the dollar sign.
+        // This sprintf() will help us convert "task" or "product" into "$task" or "$product" without
+        // evaluating the variable.
+
+        if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->context['pdf_variables']["{$type}_columns"])) {
+            $line_items = collect($this->entity->line_items)->filter(function ($item) use ($type_id) {
+                return $item->type_id = $type_id;
+            });
+
+            $tax1 = $line_items->where('tax_name1', '<>', '')->where('type_id', $type_id)->count();
+            $tax2 = $line_items->where('tax_name2', '<>', '')->where('type_id', $type_id)->count();
+            $tax3 = $line_items->where('tax_name3', '<>', '')->where('type_id', $type_id)->count();
+
             $taxes = [];
 
             if ($tax1 > 0) {
-                array_push($taxes, '$product.tax_rate1');
+                array_push($taxes, sprintf('%s%s.tax_rate1', '$', $type));
             }
 
             if ($tax2 > 0) {
-                array_push($taxes, '$product.tax_rate2');
+                array_push($taxes, sprintf('%s%s.tax_rate2', '$', $type));
             }
 
             if ($tax3 > 0) {
-                array_push($taxes, '$product.tax_rate3');
+                array_push($taxes, sprintf('%s%s.tax_rate3', '$', $type));
             }
 
-            $key = array_search('$product.tax', $this->context['pdf_variables']['product_columns'], true);
+            $key = array_search(sprintf('%s%s.tax', '$', $type), $this->context['pdf_variables']["{$type}_columns"], true);
 
             if ($key) {
-                array_splice($this->context['pdf_variables']['product_columns'], $key, 1, $taxes);
+                array_splice($this->context['pdf_variables']["{$type}_columns"], $key, 1, $taxes);
             }
         }
     }

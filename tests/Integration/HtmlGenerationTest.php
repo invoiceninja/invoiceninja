@@ -80,7 +80,7 @@ class HtmlGenerationTest extends TestCase
                 'client' => $entity->client,
                 'entity' => $entity,
                 'pdf_variables' => (array) $entity->company->settings->pdf_variables,
-                'products' => $design->design->product,
+                '$product' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'options' => [
