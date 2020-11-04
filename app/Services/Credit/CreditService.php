@@ -98,6 +98,13 @@ class CreditService
         return $this;
     }
 
+
+    public function fillDefaults()
+    {
+        
+        return $this;        
+    }
+    
     /**
      * Saves the credit.
      * @return Credit object

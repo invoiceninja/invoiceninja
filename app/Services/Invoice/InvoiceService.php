@@ -362,6 +362,13 @@ class InvoiceService
         return $this;
     }
 
+
+    public function fillDefaults()
+    {
+        
+        return $this;        
+    }
+    
     /**
      * Saves the invoice.
      * @return Invoice object

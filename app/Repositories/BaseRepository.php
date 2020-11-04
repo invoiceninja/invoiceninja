@@ -301,10 +301,6 @@ class BaseRepository
 
         if ($class->name == Quote::class) {
             $model = $model->calc()->getQuote();
-
-            if (! $model->design_id) {
-                $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
-            }
         }
 
         $model->save();

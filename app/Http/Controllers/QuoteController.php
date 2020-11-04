@@ -82,8 +82,8 @@ class QuoteController extends BaseController
      *      tags={"quotes"},
      *      summary="Gets a list of quotes",
      *      description="Lists quotes, search and filters allow fine grained lists to be generated.
-
-    Query parameters can be added to performed more fine grained filtering of the quotes, these are handled by the QuoteFilters class which defines the methods available",
+     *
+     *      Query parameters can be added to performed more fine grained filtering of the quotes, these are handled by the QuoteFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -206,6 +206,8 @@ class QuoteController extends BaseController
         $client = Client::find($request->input('client_id'));
 
         $quote = $this->quote_repo->save($request->all(), QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id));
+
+        $quote = $quote->service()->fillDefaults()->save();
 
         event(new QuoteWasCreated($quote, $quote->company, Ninja::eventVars()));
 

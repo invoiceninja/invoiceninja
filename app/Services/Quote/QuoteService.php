@@ -158,6 +158,23 @@ class QuoteService
         return true;
     }
 
+    public function fillDefaults()
+    {
+        $settings = $this->quote->client->getMergedSettings();
+
+        if(! $this->quote->design_id) 
+            $this->quote->design_id = $this->decodePrimaryKey($settings->quote_design_id);
+            
+        if(!isset($this->quote->footer))
+            $this->quote->footer = $settings->quote_footer;
+
+        if(!isset($this->quote->terms))
+            $this->quote->terms = $settings->quote_terms;
+
+        
+        return $this;        
+    }
+
     /**
      * Saves the quote.
      * @return Quote|null
