@@ -33,7 +33,7 @@ class CompanySettings extends BaseSettings
     public $enable_client_portal = true; //@implemented
     public $enable_client_portal_dashboard = true; // @TODO There currently is no dashboard so this is pending
     public $signature_on_pdf = false; //@implemented
-    public $document_email_attachment = false;
+    public $document_email_attachment = false; //@TODO I assume this is 3rd party attachments on the entity to be included
 
     public $portal_design_id = '1'; //?@deprecated
 
@@ -119,16 +119,16 @@ class CompanySettings extends BaseSettings
 
     //public $design = 'views/pdf/design1.blade.php'; //@deprecated - never used
 
-    public $invoice_terms = '';
+    public $invoice_terms = ''; //@implemented
     public $quote_terms = ''; //@implemented
     public $invoice_taxes = 0; // ? used in AP only?
     // public $enabled_item_tax_rates = 0;
     public $invoice_design_id = 'VolejRejNm'; //@implemented
     public $quote_design_id = 'VolejRejNm'; //@implemented
     public $credit_design_id = 'VolejRejNm'; //@implemented
-    public $invoice_footer = '';
-    public $credit_footer = '';
-    public $credit_terms = '';
+    public $invoice_footer = ''; //@implemented
+    public $credit_footer = ''; //@implemented
+    public $credit_terms = ''; //@implemented
     public $invoice_labels = ''; //@TODO used in AP only?
     public $tax_name1 = ''; //@TODO where do we use this?
     public $tax_rate1 = 0; //@TODO where do we use this?

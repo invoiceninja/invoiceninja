@@ -213,7 +213,10 @@ class InvoiceController extends BaseController
 
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
 
-        $invoice = $invoice->service()->triggeredActions($request)->save();
+        $invoice = $invoice->service()
+                           ->fillDefaults()
+                           ->triggeredActions($request)
+                           ->save();
 
         return $this->itemResponse($invoice);
     }

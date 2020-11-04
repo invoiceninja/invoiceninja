@@ -104,6 +104,17 @@ class CreditService
 
     public function fillDefaults()
     {
+        $settings = $this->credit->client->getMergedSettings();
+
+        if(! $this->credit->design_id) 
+            $this->credit->design_id = $this->decodePrimaryKey($settings->credit_design_id);
+            
+        if(!isset($this->credit->footer))
+            $this->credit->footer = $settings->credit_footer;
+
+        if(!isset($this->credit->terms))
+            $this->credit->terms = $settings->credit_terms;
+
         
         return $this;        
     }

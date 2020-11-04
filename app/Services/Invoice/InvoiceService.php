@@ -365,6 +365,17 @@ class InvoiceService
 
     public function fillDefaults()
     {
+        $settings = $this->invoice->client->getMergedSettings();
+
+        if(! $this->invoice->design_id) 
+            $this->invoice->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
+            
+        if(!isset($this->invoice->footer))
+            $this->invoice->footer = $settings->invoice_footer;
+
+        if(!isset($this->invoice->terms))
+            $this->invoice->terms = $settings->invoice_terms;
+
         
         return $this;        
     }
