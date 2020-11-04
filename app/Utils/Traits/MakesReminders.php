@@ -190,22 +190,22 @@ trait MakesReminders
             return $entity_string;
 
         //if the invoice
-        if ($client->getSetting('enable_reminder1') !== false && $this->inReminderWindow(
+        if ($this->inReminderWindow(
             $client->getSetting('schedule_reminder1'),
             $client->getSetting('num_days_reminder1')
         )) {
             return 'reminder1';
-        } elseif ($client->getSetting('enable_reminder2') !== false && $this->inReminderWindow(
+        } elseif ($this->inReminderWindow(
             $client->getSetting('schedule_reminder2'),
             $client->getSetting('num_days_reminder2')
         )) {
             return 'reminder2';
-        } elseif ($client->getSetting('enable_reminder3') !== false && $this->inReminderWindow(
+        } elseif ($this->inReminderWindow(
             $client->getSetting('schedule_reminder3'),
             $client->getSetting('num_days_reminder3')
         )) {
             return 'reminder3';
-        } elseif($client->getSetting('enable_reminder_endless') !== false && $this->checkEndlessReminder(
+        } elseif($this->checkEndlessReminder(
             $this->last_sent_date, 
             $client->getSetting('endless_reminder_frequency_id')
         )){
