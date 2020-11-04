@@ -201,32 +201,32 @@ class CompanySettings extends BaseSettings
 
     public $reminder_send_time = 32400; //number of seconds from UTC +0 to send reminders
 
-    public $late_fee_amount1 = 0;
-    public $late_fee_amount2 = 0;
-    public $late_fee_amount3 = 0;
+    public $late_fee_amount1 = 0; //@TODO
+    public $late_fee_amount2 = 0; //@TODO
+    public $late_fee_amount3 = 0; //@TODO
 
-    public $endless_reminder_frequency_id = '0';
-    public $late_fee_endless_amount = 0;
-    public $late_fee_endless_percent = 0;
+    public $endless_reminder_frequency_id = '0'; //@implemented
+    public $late_fee_endless_amount = 0; //@TODO
+    public $late_fee_endless_percent = 0; //@TODO
 
     public $client_online_payment_notification = true; //@todo implement in notifications
     public $client_manual_payment_notification = true; //@todo implement in notifications
 
     /* Company Meta data that we can use to build sub companies*/
 
-    public $name = '';
-    public $company_logo = '';
-    public $website = '';
-    public $address1 = '';
-    public $address2 = '';
-    public $city = '';
-    public $state = '';
-    public $postal_code = '';
-    public $phone = '';
-    public $email = '';
-    public $country_id;
-    public $vat_number = '';
-    public $id_number = '';
+    public $name = ''; //@implemented
+    public $company_logo = ''; //@implemented
+    public $website = ''; //@implemented
+    public $address1 = ''; //@implemented
+    public $address2 = ''; //@implemented
+    public $city = ''; //@implemented
+    public $state = ''; //@implemented
+    public $postal_code = ''; //@implemented
+    public $phone = ''; //@implemented
+    public $email = ''; //@implemented
+    public $country_id; //@implemented
+    public $vat_number = ''; //@implemented
+    public $id_number = ''; //@implemented
 
     public $page_size = 'A4';  //Letter, Legal, Tabloid, Ledger, A0, A1, A2, A3, A4, A5, A6
     public $font_size = 9;
@@ -235,26 +235,26 @@ class CompanySettings extends BaseSettings
     public $primary_color = '#4caf50';
     public $secondary_color = '#2196f3';
 
-    public $hide_paid_to_date = false;
-    public $embed_documents = false;
-    public $all_pages_header = false;
-    public $all_pages_footer = false;
-    public $pdf_variables = '';
+    public $hide_paid_to_date = false; //@TODO where?
+    public $embed_documents = false; //@TODO
+    public $all_pages_header = false; //@implemented
+    public $all_pages_footer = false; //@implemented
+    public $pdf_variables = ''; //@implemented
 
-    public $portal_custom_head = '';
-    public $portal_custom_css = '';
-    public $portal_custom_footer = '';
-    public $portal_custom_js = '';
+    public $portal_custom_head = ''; //@TODO
+    public $portal_custom_css = ''; //@TODO
+    public $portal_custom_footer = ''; //@TODO
+    public $portal_custom_js = ''; //@TODO
 
-    public $client_can_register = false;
-    public $client_portal_terms = '';
-    public $client_portal_privacy_policy = '';
-    public $client_portal_enable_uploads = false;
-    public $client_portal_allow_under_payment = false;
-    public $client_portal_under_payment_minimum = 0;
-    public $client_portal_allow_over_payment = false;
+    public $client_can_register = false; //@implemented
+    public $client_portal_terms = ''; //@TODO
+    public $client_portal_privacy_policy = ''; //@TODO
+    public $client_portal_enable_uploads = false; //@implemented
+    public $client_portal_allow_under_payment = false; //@implemented
+    public $client_portal_under_payment_minimum = 0; //@implemented
+    public $client_portal_allow_over_payment = false; //@implemented
 
-    public $use_credits_payment = 'off'; //always, option, off
+    public $use_credits_payment = 'off'; //always, option, off //@implemented
 
     public static $casts = [
         'enable_reminder_endless'            => 'bool',

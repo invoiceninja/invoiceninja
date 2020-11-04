@@ -16,9 +16,12 @@ use App\Services\Credit\ApplyPayment;
 use App\Services\Credit\CreateInvitations;
 use App\Services\Credit\MarkSent;
 use App\Services\Credit\SendEmail;
+use App\Utils\Traits\MakesHash;
 
 class CreditService
 {
+    use MakesHash;
+
     protected $credit;
 
     public function __construct($credit)

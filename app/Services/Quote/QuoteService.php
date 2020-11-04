@@ -19,9 +19,12 @@ use App\Repositories\QuoteRepository;
 use App\Services\Quote\CreateInvitations;
 use App\Services\Quote\GetQuotePdf;
 use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 
 class QuoteService
 {
+    use MakesHash;
+    
     protected $quote;
 
     public $invoice;
