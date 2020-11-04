@@ -74,6 +74,7 @@ use App\Repositories\VendorRepository;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Uploadable;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -91,7 +92,7 @@ class Import implements ShouldQueue
     use CompanyGatewayFeesAndLimitsSaver;
     use MakesHash;
     use CleanLineItems;
-
+    use Uploadable;
     /**
      * @var array
      */
@@ -259,6 +260,14 @@ class Import implements ShouldQueue
 
         $company_repository = new CompanyRepository();
         $company_repository->save($data, $this->company);
+
+        if(isset($data['settings']->company_logo)) {
+
+            $tempImage = tempnam(sys_get_temp_dir(), basename($data['settings']->company_logo));
+            copy($data['settings']->company_logo, $tempImage);
+            $this->uploadLogo($tempImage, $this->company, $this->company);
+            
+        }
 
         Company::reguard();
 

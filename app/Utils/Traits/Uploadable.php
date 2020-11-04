@@ -25,8 +25,6 @@ trait Uploadable
     {
         $company_logo = $company->settings->company_logo;
 
-info("company logo to be deleted = {$company_logo}");
-
         $file_name = basename($company_logo);
 
         $storage_path = $company->company_key . '/' . $file_name;
