@@ -106,9 +106,9 @@ class Design extends BaseDesign
                 'id' => 'product-table',
                 'elements' => $this->productTable(),
             ],
-            'product-table-footer' => [
-                'id' => 'product-table-footer',
-                'elements' => $this->tableFooter(),
+            'table-totals' => [
+                'id' => 'table-totals',
+                'elements' => $this->tableTotals(),
             ],
             'footer-elements' => [
                 'id' => 'footer',
@@ -257,13 +257,13 @@ class Design extends BaseDesign
         return $elements;
     }
 
-    public function tableFooter()
+    public function tableTotals(): array
     {
         $variables = $this->context['pdf_variables']['total_columns'];
 
         $elements = [
             ['element' => 'div', 'elements' => [
-                ['element' => 'span', 'content' => '$entity.public_notes', 'properties' => ['data-element' => 'product-table-public-notes-label']],
+                ['element' => 'span', 'content' => '$entity.public_notes', 'properties' => ['data-element' => 'total-table-public-notes-label']],
             ]],
         ];
 
