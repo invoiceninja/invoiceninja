@@ -99,7 +99,7 @@ trait GenerateMigrationResources
             'recurring_number_prefix' => $this->account->recurring_invoice_number_prefix ? $this->account->recurring_invoice_number_prefix : 'R',
             'enable_client_portal' => $this->account->enable_client_portal ? (bool) $this->account->enable_client_portal : false,
             'invoice_fields' => $this->account->invoice_fields ?: '',
-            'company_logo' => $this->account->logo ?: '',
+            'company_logo' => $this->account->getLogoURL() ?: '',
             'embed_documents' => $this->account->invoice_embed_documents ? (bool) $this->account->invoice_embed_documents : false,
             'document_email_attachment' => $this->account->document_email_attachment ? (bool) $this->account->document_email_attachment : false,
             'enable_client_portal_dashboard' => $this->account->enable_client_portal_dashboard ? (bool) $this->account->enable_client_portal_dashboard : true,
