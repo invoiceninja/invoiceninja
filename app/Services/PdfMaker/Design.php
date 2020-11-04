@@ -106,9 +106,13 @@ class Design extends BaseDesign
                 'id' => 'product-table',
                 'elements' => $this->productTable(),
             ],
-            'product-table-footer' => [
-                'id' => 'product-table-footer',
-                'elements' => $this->tableFooter(),
+            'task-table' => [
+                'id' => 'task-table',
+                'elements' => $this->taskTable(),
+            ],
+            'table-totals' => [
+                'id' => 'table-totals',
+                'elements' => $this->tableTotals(),
             ],
             'footer-elements' => [
                 'id' => 'footer',
@@ -188,47 +192,95 @@ class Design extends BaseDesign
         return $elements;
     }
 
+    /**
+     * Parent method for building products table.
+     * 
+     * @return array 
+     */
     public function productTable(): array
     {
+        $product_items = collect($this->entity->line_items)->filter(function ($item) {
+            return $item->type_id == 1;
+        });
+
+        if ($product_items->count() == 0) {
+            return [];
+        }
+
         return  [
-            ['element' => 'thead', 'elements' => $this->buildTableHeader()],
-            ['element' => 'tbody', 'elements' => $this->buildTableBody()],
+            ['element' => 'thead', 'elements' => $this->buildTableHeader('product')],
+            ['element' => 'tbody', 'elements' => $this->buildTableBody('$product')],
         ];
     }
 
-    public function buildTableHeader(): array
+    /**
+     * Parent method for building tasks table.
+     * 
+     * @return array 
+     */
+    public function taskTable(): array
     {
-        $this->processTaxColumns();
+        $task_items = collect($this->entity->line_items)->filter(function ($item) {
+            return $item->type_id = 2;
+        });
+
+        if ($task_items->count() == 0) {
+            return [];
+        }
+
+        return [
+            ['element' => 'thead', 'elements' => $this->buildTableHeader('task')],
+            ['element' => 'tbody', 'elements' => $this->buildTableBody('$task')],
+        ];
+    }
+
+    /**
+     * Generate the structure of table headers. (<thead/>)
+     * 
+     * @param string $type "product" or "task"
+     * @return array 
+     */
+    public function buildTableHeader(string $type): array
+    {
+        $this->processTaxColumns($type);
 
         $elements = [];
 
-        foreach ($this->context['pdf_variables']["{$this->type}_columns"] as $column) {
+        foreach ($this->context['pdf_variables']["{$type}_columns"] as $column) {
             $elements[] = ['element' => 'th', 'content' => $column . '_label'];
         }
 
         return $elements;
     }
 
-    public function buildTableBody(): array
+    /**
+     * Generate the structure of table body. (<tbody/>)
+     * 
+     * @param string $type "$product" or "$task"
+     * @return array 
+     */
+    public function buildTableBody(string $type): array
     {
         $elements = [];
 
-        $items = $this->transformLineItems($this->entity->line_items);
+        $items = $this->transformLineItems($this->entity->line_items, $type);
 
         if (count($items) == 0) {
             return [];
         }
 
+        info($this->context);
+
         foreach ($items as $row) {
             $element = ['element' => 'tr', 'elements' => []];
 
             if (
-                isset($this->context['products']) &&
-                !empty($this->context['products']) &&
-                !is_null($this->context['products'])
+                array_key_exists($type, $this->context) &&
+                !empty($this->context[$type]) &&
+                !is_null($this->context[$type])
             ) {
                 $document = new DOMDocument();
-                $document->loadHTML($this->context['products'], LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+                $document->loadHTML($this->context[$type], LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
                 $td = $document->getElementsByTagName('tr')->item(0);
 
@@ -246,8 +298,20 @@ class Design extends BaseDesign
                     }
                 }
             } else {
-                foreach ($this->context['pdf_variables']["{$this->type}_columns"] as $key => $cell) {
-                    $element['elements'][] = ['element' => 'td', 'content' => $row[$cell]];
+                $_type = Str::startsWith($type, '$') ? ltrim($type, '$') : $type;
+
+                foreach ($this->context['pdf_variables']["{$_type}_columns"] as $key => $cell) {
+                    // We want to keep aliases like these:
+                    // $task.cost => $task.rate
+                    // $task.quantity => $task.hours
+    
+                    if ($cell == '$task.rate') {
+                        $element['elements'][] = ['element' => 'td', 'content' => $row['$task.cost']];
+                    } else if ($cell == '$task.hours') {
+                        $element['elements'][] = ['element' => 'td', 'content' => $row['$task.quantity']];
+                    } else {
+                        $element['elements'][] = ['element' => 'td', 'content' => $row[$cell]];
+                    }
                 }
             }
 
@@ -257,13 +321,13 @@ class Design extends BaseDesign
         return $elements;
     }
 
-    public function tableFooter()
+    public function tableTotals(): array
     {
         $variables = $this->context['pdf_variables']['total_columns'];
 
         $elements = [
             ['element' => 'div', 'elements' => [
-                ['element' => 'span', 'content' => '$entity.public_notes', 'properties' => ['data-element' => 'product-table-public-notes-label']],
+                ['element' => 'span', 'content' => '$entity.public_notes', 'properties' => ['data-element' => 'total-table-public-notes-label']],
             ]],
         ];
 

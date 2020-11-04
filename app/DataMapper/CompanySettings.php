@@ -624,8 +624,8 @@ class CompanySettings extends BaseSettings
             'task_columns' =>[
                 '$task.product_key',
                 '$task.notes',
-                '$task.cost',
-                '$task.quantity',
+                '$task.rate',
+                '$task.hours',
                 '$task.discount',
                 '$task.tax',
                 '$task.line_total',
