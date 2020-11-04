@@ -186,6 +186,9 @@ trait MakesReminders
         //if invoice is currently a draft, or being marked as sent, this will be the initial email
         $client = $this->client;
 
+        if($entity_string != 'invoice')
+            return $entity_string;
+
         //if the invoice
         if ($client->getSetting('enable_reminder1') !== false && $this->inReminderWindow(
             $client->getSetting('schedule_reminder1'),

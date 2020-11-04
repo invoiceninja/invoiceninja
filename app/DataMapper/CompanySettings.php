@@ -205,6 +205,10 @@ class CompanySettings extends BaseSettings
     public $late_fee_amount2 = 0; //@TODO
     public $late_fee_amount3 = 0; //@TODO
 
+    public $late_fee_percent1 = 0; //@TODO
+    public $late_fee_percent2 = 0; //@TODO
+    public $late_fee_percent3 = 0; //@TODO
+
     public $endless_reminder_frequency_id = '0'; //@implemented
     public $late_fee_endless_amount = 0; //@TODO
     public $late_fee_endless_percent = 0; //@TODO
@@ -300,6 +304,9 @@ class CompanySettings extends BaseSettings
         'late_fee_amount1'                   => 'float',
         'late_fee_amount2'                   => 'float',
         'late_fee_amount3'                   => 'float',
+        'late_fee_percent1'                  => 'float',
+        'late_fee_percent2'                  => 'float',
+        'late_fee_percent3'                  => 'float',
         'endless_reminder_frequency_id'      => 'integer',
         'client_online_payment_notification' => 'bool',
         'client_manual_payment_notification' => 'bool',
