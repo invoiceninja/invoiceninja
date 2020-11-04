@@ -24,50 +24,49 @@ class CompanySettings extends BaseSettings
     /*Group settings based on functionality*/
 
     /*Invoice*/
-    public $auto_archive_invoice = false;
+    public $auto_archive_invoice = false; // @implemented
 
-    public $lock_invoices = 'off';          //off,when_sent,when_paid
+    public $lock_invoices = 'off'; //off,when_sent,when_paid //@implemented
 
-    public $enable_client_portal_tasks = false;
-    public $enable_client_portal_password = false;
-    public $enable_client_portal = true; //implemented
-    public $enable_client_portal_dashboard = true; //implemented
-    public $signature_on_pdf = false;
+    public $enable_client_portal_tasks = false; //@ben to implement
+    public $enable_client_portal_password = false; //@implemented
+    public $enable_client_portal = true; //@implemented
+    public $enable_client_portal_dashboard = true; // @TODO There currently is no dashboard so this is pending
+    public $signature_on_pdf = false; //@implemented
     public $document_email_attachment = false;
-    //public $send_portal_password          = false;
 
-    public $portal_design_id = '1';
+    public $portal_design_id = '1'; //?@deprecated
 
-    public $timezone_id = '';
-    public $date_format_id = '';
-    public $military_time = false;
+    public $timezone_id = ''; //@implemented
+    public $date_format_id = ''; //@implemented
+    public $military_time = false; // @TODOImplemented in Tasks only?
 
-    public $language_id = '';
-    public $show_currency_code = false;
+    public $language_id = ''; //@implemented
+    public $show_currency_code = false; //@implemented
 
-    public $company_gateway_ids = '';
+    public $company_gateway_ids = ''; //@implemented
 
-    public $currency_id = '1';
+    public $currency_id = '1'; //@implemented
 
-    public $custom_value1 = '';
-    public $custom_value2 = '';
-    public $custom_value3 = '';
-    public $custom_value4 = '';
+    public $custom_value1 = ''; //@implemented
+    public $custom_value2 = ''; //@implemented
+    public $custom_value3 = ''; //@implemented
+    public $custom_value4 = ''; //@implemented
 
-    public $default_task_rate = 0;
+    public $default_task_rate = 0; // @TODO Where do we inject this?
 
-    public $payment_terms = '';
-    public $send_reminders = false;
+    public $payment_terms = ''; //@implemented
+    public $send_reminders = false; //@TODO
 
-    public $custom_message_dashboard = '';
-    public $custom_message_unpaid_invoice = '';
-    public $custom_message_paid_invoice = '';
-    public $custom_message_unapproved_quote = '';
-    public $auto_archive_quote = false;
-    public $auto_convert_quote = true;
-    public $auto_email_invoice = true;
+    public $custom_message_dashboard = ''; // @TODO There currently is no dashboard so this is pending
+    public $custom_message_unpaid_invoice = '';  //@ben to implement
+    public $custom_message_paid_invoice = '';  //@ben to implement
+    public $custom_message_unapproved_quote = '';  //@ben to implement
+    public $auto_archive_quote = false; //@implemented
+    public $auto_convert_quote = true; //@implemented
+    public $auto_email_invoice = true; //@only used for Recurring Invoices, if set to false, we never send?
 
-    public $inclusive_taxes = false;
+    public $inclusive_taxes = false; //@implemented
     public $quote_footer = '';
 
     public $translations;
@@ -312,7 +311,6 @@ class CompanySettings extends BaseSettings
         'email_template_statement'           => 'string',
         'email_subject_statement'            => 'string',
         'signature_on_pdf'                   => 'bool',
-       // 'send_portal_password'               => 'bool',
         'quote_footer'                       => 'string',
         'page_size'                          => 'string',
         'font_size'                          => 'int',
