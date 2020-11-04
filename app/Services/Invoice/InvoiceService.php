@@ -143,6 +143,11 @@ class InvoiceService
         return (new GetInvoicePdf($this->invoice, $contact))->run();
     }
 
+    public function getInvoiceDeliveryNote($contact = null)
+    {
+        //stubbed
+    }
+
     public function sendEmail($contact = null)
     {
         $send_email = new SendEmail($this->invoice, null, $contact);

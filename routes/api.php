@@ -35,6 +35,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
 
+    Route::get('invoices/{invoice}/delivery_note', 'InvoiceController@deliveryNote')->name('invoices.delivery_note');
+
     Route::get('invoices/{invoice}/{action}', 'InvoiceController@action')->name('invoices.action');
 
     Route::get('invoice/{invitation_key}/download', 'InvoiceController@downloadPdf')->name('invoices.downloadPdf');

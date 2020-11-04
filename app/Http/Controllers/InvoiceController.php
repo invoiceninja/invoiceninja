@@ -790,4 +790,57 @@ class InvoiceController extends BaseController
 
         return response()->download($file_path, basename($file_path));
     }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/invoices/{id}/delivery_note",
+     *      operationId="deliveryNote",
+     *      tags={"invoices"},
+     *      summary="Download a specific invoice delivery notes",
+     *      description="Downloads a specific invoice delivery notes",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Invoice Hahsed Id",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the invoice delivery note pdf",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     * @param $invoice
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function deliveryNote(ShowInvoiceRequest $request, Invoice $invoice)
+    {
+
+        $file_path = $invoice->service()->getInvoiceDeliveryNote($invoice->invitations->first()->contact);
+
+        return response()->download($file_path, basename($file_path));
+
+    }
 }

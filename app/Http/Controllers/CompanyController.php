@@ -409,7 +409,7 @@ class CompanyController extends BaseController
     public function update(UpdateCompanyRequest $request, Company $company)
     {
         
-        if($request->hasFile('company_logo') || !array_key_exists('company_logo', $request->input('settings')))
+        if($request->hasFile('company_logo') || (is_array($request->input('settings')) && !array_key_exists('company_logo', $request->input('settings'))))
             $this->removeLogo($company);
 
         $company = $this->company_repo->save($request->all(), $company);
