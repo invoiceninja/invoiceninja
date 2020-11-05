@@ -18,6 +18,7 @@ use App\Libraries\MultiDB;
 use App\Models\Invoice;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesReminders;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -27,7 +28,7 @@ use Illuminate\Support\Carbon;
 
 class SendReminders implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesDates;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesDates, MakesReminders;
 
     /**
      * Create a new job instance.
@@ -115,34 +116,73 @@ class SendReminders implements ShouldQueue
         }
     }
 
+    /**
+     * Create a collection of all possible reminder dates
+     * and pass back the first one in chronology
+     * 
+     * @param  Invoice $invoice
+     * @return Carbon $date          
+     */
     private function calculateNextSendDate($invoice)
     {
         $dates = collect();
 
         $settings = $invoice->client->getMergedSettings();
 
-        if((int)$settings->schedule_reminder1 > 0)
-            $dates->push($this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder1, (int)$settings->num_days_reminder1));
+        $set_reminder1 = false;
+        $set_reminder2 = false;
+        $set_reminder3 = false;
 
-        if((int)$settings->num_days_reminder2 > 0)
-            $dates->push($this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder2, (int)$settings->num_days_reminder2));
+        if((int)$settings->schedule_reminder1 > 0){
+            
+            $next_reminder_date = $this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder1, (int)$settings->num_days_reminder1);
 
-        if((int)$settings->num_days_reminder3 > 0)
-            $dates->push($this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder3, (int)$settings->num_days_reminder3));
+            if($next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
+                $dates->push($next_reminder_date);
 
-        if((int)$settings->endless_reminder_frequency_id > 0)
-            $dates->push();
+            if(!$invoice->reminder1_sent)
+                $set_reminder1 = true;
+        }
 
-        //calculate every potential date, then pluck the next one
-        
-        //reminder1,2,3, and endless could potentially be the NEXT_SEND_DATE
-        //
-        //we check num_days to determine if the setting is ACTIVE
+        if((int)$settings->num_days_reminder2 > 0){
+
+            $next_reminder_date = $this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder2, (int)$settings->num_days_reminder2);
+
+            if($next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
+                $dates->push($next_reminder_date);
+
+            if(!$invoice->reminder2_sent)
+                $set_reminder3 = true;
+        }
+
+        if((int)$settings->num_days_reminder3 > 0){
+
+            $next_reminder_date = $this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder3, (int)$settings->num_days_reminder3);
+
+            if($next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
+                $dates->push($next_reminder_date);
+
+            if(!$invoice->reminder3_sent)
+                $set_reminder3 = true;
+        }
+
+        //If all the available reminders have fired, we then start to fire the endless reminders
+        if((int)$settings->endless_reminder_frequency_id > 0 && !$set_reminder1 && !$set_reminder2 && !$set_reminder3) {
+            $dates->push($this->addTimeInterval($invoice->last_sent_date, (int)$settings->endless_reminder_frequency_id));
+        }
+
+        //order the dates ascending and get first one
+        return $dates->sort()->first();
     }
 
-
-
-    private function calculateScheduledDate($invoice, $schedule_reminder, $num_days_reminder)
+    /**
+     * Helper method which switches values based on the $schedule_reminder
+     * @param  Invoice $invoice           
+     * @param  string $schedule_reminder 
+     * @param  int $num_days_reminder 
+     * @return Carbon  $date 
+     */
+    private function calculateScheduledDate($invoice, $schedule_reminder, $num_days_reminder) :?Carbon
     {
         switch ($schedule_reminder) {
             case 'after_invoice_date':
@@ -160,8 +200,14 @@ class SendReminders implements ShouldQueue
         }
     }
 
-
-    private function sendReminder($invoice, $template)
+    /**
+     * Sends the reminder and/or late fee for the invoice.
+     * 
+     * @param  Invoice $invoice  
+     * @param  string $template 
+     * @return void           
+     */
+    private function sendReminder($invoice, $template) :void
     {
         $invoice = $this->calcLateFee($invoice, $template);
 
@@ -183,11 +229,17 @@ class SendReminders implements ShouldQueue
             if(in_array($template, ['reminder1', 'reminder2', 'reminder3']))
                 $invoice->{$template."_send"} = now();
 
-            //calculate next_send_date
 
             $invoice->save();
     }
 
+    /**
+     * Calculates the late if - if any - and rebuilds the invoice
+     * 
+     * @param  Invoice $invoice  
+     * @param  string $template 
+     * @return Invoice           
+     */
     private function calcLateFee($invoice, $template) :Invoice
     {
         $late_fee_amount = 0;
@@ -220,12 +272,18 @@ class SendReminders implements ShouldQueue
 
     }
 
-
+    /**
+     * Applies the late fee to the invoice line items
+     * 
+     * @param Invoice $invoice 
+     * @param float $amount  The fee amount
+     * @param float $percent The fee percentage amount
+     * @return Invoice           
+     */
     private function setLateFee($invoice, $amount, $percent) :Invoice
     {
-        if ($amount <= 0 && $percent <= 0) {
+        if ($amount <= 0 && $percent <= 0) 
             return $invoice;
-        }
 
         $fee = $amount;
 
@@ -249,6 +307,7 @@ class SendReminders implements ShouldQueue
         /**Refresh Invoice values*/
         $invoice = $invoice->calc()->getInvoice();
 
+        //@todo update the ledger!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         return $invoice;
 
     }
