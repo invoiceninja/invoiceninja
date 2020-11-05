@@ -82,7 +82,8 @@
         padding-bottom: 0.5rem;
     }
 
-    #product-table {
+    #product-table,
+    #task-table {
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -90,40 +91,47 @@
         margin-bottom: 200px;
     }
 
-    #product-table > thead {
+    #product-table > thead,
+    #task-table > thead {
         text-align: left;
     }
 
-    #product-table > thead > tr > th {
+    #product-table > thead > tr > th,
+    #task-table > thead > tr > th {
         padding: 2rem;
         font-size: 1.5rem;
     }
 
-    #product-table > thead > tr > th:last-child {
+    #product-table > thead > tr > th:last-child,
+    #task-table > thead > tr > th:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr > td {
+    #product-table > tbody > tr > td,
+    #task-table > tbody > tr > td {
         padding: 1.5rem;
     }
 
-    #product-table > tbody > tr > td:last-child {
+    #product-table > tbody > tr > td:last-child,
+    #task-table > tbody > tr > td:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr > td:first-child {
+    #product-table > tbody > tr > td:first-child,
+    #task-table > tbody > tr > td:first-child {
         font-weight: bold;
     }
 
-    #product-table > tbody > tr:nth-child(odd) {
+    #product-table > tbody > tr:nth-child(odd),
+    #task-table > tbody > tr:nth-child(odd) {
         background-color: #ebebeb;
     }
 
-    #product-table-footer {
+    #table-totals {
         page-break-inside: avoid;
     }
 
-    #product-table-footer > * {
+    #table-totals > * {
         display: grid;
         grid-template-columns: 3fr 1fr 1fr;
         padding-top: .5rem;
@@ -131,23 +139,23 @@
         gap: 20px;
     }
 
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due-label'],
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due'] {
         font-weight: bold;
         font-size: 1.4rem;
     }
 
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due'] {
         color: var(--primary-color);
     }
 
-    #product-table-footer > * > :last-child {
+    #table-totals > * > :last-child {
         text-align: right;
         padding-right: 1.5rem;
     }
@@ -177,8 +185,9 @@
 
     <table id="product-table" cellspacing="0"></table>
 
-    <div id="product-table-footer" cellspacing="0"></div>
+    <table id="task-table" cellspacing="0"></table>
+
+    <div id="table-totals" cellspacing="0"></div>
 </div>
 
 <div id="footer"></div>
-

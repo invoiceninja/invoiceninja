@@ -87,7 +87,8 @@
         border-bottom: 1px solid var(--primary-color);
     }
 
-    #product-table {
+    #product-table,
+    #task-table {
         margin-top: 3rem;
         margin-bottom: 200px;
         min-width: 100%;
@@ -95,49 +96,57 @@
         overflow-wrap: break-word;
     }
 
-    #product-table > thead {
+    #product-table > thead,
+    #task-table > thead {
         text-align: left;
     }
 
-    #product-table > thead > tr > th {
+    #product-table > thead > tr > th,
+    #task-table > thead > tr > th {
         font-size: 1.2rem;
         padding: 1rem;
         background: var(--primary-color);
         color: white;
     }
 
-    #product-table > thead tr > th:last-child {
+    #product-table > thead tr > th:last-child,
+    #task-table > thead tr > th:last-child {
         text-align: right;
     }
 
-    #product-table > thead tr > th:first-child {
+    #product-table > thead tr > th:first-child,
+    #task-table > thead tr > th:first-child {
         border-top-left-radius: 10px;
         border-bottom-left-radius: 10px;
     }
 
-    #product-table > thead tr > th:last-child {
+    #product-table > thead tr > th:last-child,
+    #task-table > thead tr > th:last-child {
         border-top-right-radius: 10px;
         border-bottom-right-radius: 10px;
     }
 
-    #product-table > tbody > tr > td {
+    #product-table > tbody > tr > td,
+    #task-table > tbody > tr > td {
         border-bottom: 1px solid var(--primary-color);
         padding: 1rem;
     }
 
-    #product-table > tbody > tr > td:first-child {
+    #product-table > tbody > tr > td:first-child,
+    #task-table > tbody > tr > td:first-child {
         color: var(--primary-color);
     }
 
-    #product-table > tbody > tr > td:last-child {
+    #product-table > tbody > tr > td:last-child,
+    #task-table > tbody > tr > td:last-child {
         text-align: right;
     }
 
-    #product-table-footer {
+    #table-totals {
         page-break-inside: avoid;
     }
 
-    #product-table-footer > * {
+    #table-totals > * {
         display: grid;
         grid-template-columns: 3fr 1fr 1fr;
         padding-top: 0.5rem;
@@ -145,22 +154,22 @@
         gap: 20px;
     }
 
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due-label'],
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due'] {
         font-weight: bold;
     }
 
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due'] {
         color: var(--primary-color);
     }
 
-    #product-table-footer > * > :last-child {
+    #table-totals > * > :last-child {
         text-align: right;
         padding-right: 1rem;
     }
@@ -200,7 +209,9 @@
 
     <table id="product-table" cellspacing="0"></table>
 
-    <div id="product-table-footer" cellspacing="0"></div>
+    <table id="task-table" cellspacing="0"></table>
+
+    <div id="table-totals" cellspacing="0"></div>
 </div>
 
 <div id="footer"></div>

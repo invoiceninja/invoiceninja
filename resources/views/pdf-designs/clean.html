@@ -77,7 +77,8 @@
         font-weight: bold;
     }
 
-    #product-table {
+    #product-table,
+    #task-table {
         margin-top: 3rem;
         margin-bottom: 200px;
         min-width: 100%;
@@ -85,34 +86,39 @@
         overflow-wrap: break-word;
     }
 
-    #product-table > thead {
+    #product-table > thead,
+    #task-table > thead {
         text-align: left;
     }
 
-    #product-table > thead > tr > th {
+    #product-table > thead > tr > th,
+    #task-table > thead > tr > th {
         font-size: 1.1rem;
         padding-bottom: 1.5rem;
         padding-left: 1rem;
     }
 
-    #product-table > tbody > tr > td {
+    #product-table > tbody > tr > td,
+    #task-table > tbody > tr > td {
         border-bottom: 1px solid #9f9f9f;
         padding: 1rem;
     }
 
-    #product-table > tbody > tr > td:first-child {
+    #product-table > tbody > tr > td:first-child,
+    #task-table > tbody > tr > td:first-child {
         color: var(--primary-color);
     }
 
-    #product-table > tbody > tr:nth-child(odd) {
+    #product-table > tbody > tr:nth-child(odd),
+    #task-table > tbody > tr:nth-child(odd) {
         background-color: #f5f5f5;
     }
 
-    #product-table-footer {
+    #table-totals {
         page-break-inside: avoid;
     }
 
-    #product-table-footer > * {
+    #table-totals > * {
         display: grid;
         grid-template-columns: 3fr 1fr 1fr;
         padding-top: .5rem;
@@ -120,22 +126,22 @@
         gap: 20px;
     }
 
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due-label'],
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due'] {
         font-weight: bold;
     }
 
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due'] {
         color: var(--primary-color);
     }
 
-    #product-table-footer > * > :last-child {
+    #table-totals > * > :last-child {
         text-align: right;
         padding-right: 1rem;
     }
@@ -163,7 +169,10 @@
     </div>
 
     <table id="product-table" cellspacing="0"></table>
-    <div id="product-table-footer" cellspacing="0"></div>
+
+    <table id="task-table" cellspacing="0"></table>
+
+    <div id="table-totals" cellspacing="0"></div>
 </div>
 
 <div id="footer"></div>
