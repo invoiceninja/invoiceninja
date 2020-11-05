@@ -61,13 +61,14 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
 
     public $email_entity_builder;
 
+    public $template_data;
     /**
      * EmailEntity constructor.
      * @param Invitation $invitation
      * @param Company    $company
      * @param ?string    $reminder_template
      */
-    public function __construct($invitation, Company $company, ?string $reminder_template = null)
+    public function __construct($invitation, Company $company, ?string $reminder_template = null, ?array $template_data = null)
     {
         $this->company = $company;
 
@@ -83,7 +84,10 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
 
         $this->html_engine = new HtmlEngine($invitation);
 
+        $this->template_data = $template_data;
+
         $this->email_entity_builder = $this->resolveEmailBuilder();
+
     }
 
     /**
@@ -186,6 +190,6 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
     {
         $class = 'App\Mail\Engine\\' . ucfirst(Str::camel($this->entity_string)) . "EmailEngine";
 
-        return (new $class($this->invitation, $this->reminder_template))->build();
+        return (new $class($this->invitation, $this->reminder_template, $this->template_data))->build();
     }
 }
