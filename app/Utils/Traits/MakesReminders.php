@@ -31,6 +31,7 @@ trait MakesReminders
 
             return; //exit early
         }
+        //@TODO buiuld collection, then ->sort()->first
 
         $nsd = null; //abbreviation for next_send_date
 
