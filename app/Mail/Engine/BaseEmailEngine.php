@@ -54,6 +54,9 @@ class BaseEmailEngine implements EngineInterface
 
     public function setSubject($subject)
     {
+        if (! empty($this->variables)) 
+            $subject = str_replace(array_keys($this->variables), array_values($this->variables), $subject);
+
     	$this->subject = $subject;
 
     	return $this;
@@ -61,6 +64,9 @@ class BaseEmailEngine implements EngineInterface
     
     public function setBody($body)
     {
+        if (! empty($this->variables)) 
+            $body = str_replace(array_keys($this->variables), array_values($this->variables), $body);
+
     	$this->body = $body;
 
     	return $this;

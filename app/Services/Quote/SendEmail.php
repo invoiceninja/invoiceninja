@@ -49,7 +49,7 @@ class SendEmail
                 $email_builder = (new QuoteEmail())->build($invitation, $this->reminder_template);
 
                 // EmailQuote::dispatchNow($email_builder, $invitation, $invitation->company);
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatchNow($invitation, $invitation->company, $this->reminder_template);
 
             }
         });

@@ -31,11 +31,11 @@ trait MakesReminders
 
             return; //exit early
         }
+        //@TODO buiuld collection, then ->sort()->first
 
         $nsd = null; //abbreviation for next_send_date
 
-        if ($settings->enable_reminder1 !== false &&
-            $settings->schedule_reminder1 == 'after_invoice_date' &&
+        if ($settings->schedule_reminder1 == 'after_invoice_date' &&
             $settings->num_days_reminder1 > 0) {
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder1);
 
@@ -47,8 +47,7 @@ trait MakesReminders
             }
         }
 
-        if ($settings->enable_reminder1 !== false &&
-            $settings->schedule_reminder1 == 'before_due_date' &&
+        if ($settings->schedule_reminder1 == 'before_due_date' &&
             $settings->num_days_reminder1 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder1);
 
@@ -61,8 +60,7 @@ trait MakesReminders
             }
         }
 
-        if ($settings->enable_reminder1 !== false &&
-            $settings->schedule_reminder1 == 'after_due_date' &&
+        if ($settings->schedule_reminder1 == 'after_due_date' &&
             $settings->num_days_reminder1 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder1);
 
@@ -75,8 +73,7 @@ trait MakesReminders
             }
         }
 
-        if ($settings->enable_reminder2 !== false &&
-            $settings->schedule_reminder2 == 'after_invoice_date' &&
+        if ($settings->schedule_reminder2 == 'after_invoice_date' &&
             $settings->num_days_reminder2 > 0) {
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder2);
 
@@ -89,8 +86,7 @@ trait MakesReminders
             }
         }
 
-        if ($settings->enable_reminder2 !== false &&
-            $settings->schedule_reminder2 == 'before_due_date' &&
+        if ($settings->schedule_reminder2 == 'before_due_date' &&
             $settings->num_days_reminder2 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder2);
 
@@ -103,8 +99,7 @@ trait MakesReminders
             }
         }
 
-        if ($settings->enable_reminder2 !== false &&
-            $settings->schedule_reminder2 == 'after_due_date' &&
+        if ($settings->schedule_reminder2 == 'after_due_date' &&
             $settings->num_days_reminder2 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder2);
 
@@ -117,8 +112,7 @@ trait MakesReminders
             }
         }
 
-        if ($settings->enable_reminder3 !== false &&
-            $settings->schedule_reminder3 == 'after_invoice_date' &&
+        if ($settings->schedule_reminder3 == 'after_invoice_date' &&
             $settings->num_days_reminder3 > 0) {
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder3);
 
@@ -131,8 +125,7 @@ trait MakesReminders
             }
         }
 
-        if ($settings->enable_reminder3 !== false &&
-            $settings->schedule_reminder3 == 'before_due_date' &&
+        if ($settings->schedule_reminder3 == 'before_due_date' &&
             $settings->num_days_reminder3 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder3);
 
@@ -145,8 +138,7 @@ trait MakesReminders
             }
         }
 
-        if ($settings->enable_reminder3 !== false &&
-            $settings->schedule_reminder3 == 'after_due_date' &&
+        if ($settings->schedule_reminder3 == 'after_due_date' &&
             $settings->num_days_reminder3 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder3);
 

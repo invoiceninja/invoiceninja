@@ -49,7 +49,7 @@ class SendEmail extends AbstractService
             $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
 
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatchNow($invitation, $invitation->company, $this->reminder_template);
 
             }
         });

@@ -725,7 +725,8 @@ class InvoiceController extends BaseController
                 $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
                     $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
 
-                    EmailEntity::dispatch($invitation, $invoice->company);
+                    EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template);
+                    
                 });
 
                 if (! $bulk) {

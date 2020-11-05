@@ -26,19 +26,30 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
     public $reminder_template;
 
-    public function __construct($invitation, $reminder_template)
+    public $template_data;
+
+    public function __construct($invitation, $reminder_template, $template_data)
     {
     	$this->invitation = $invitation;
         $this->reminder_template = $reminder_template;
         $this->client = $invitation->contact->client;
         $this->invoice = $invitation->invoice;
         $this->contact = $invitation->contact;
+        $this->template_data = $template_data;
     }
 
     public function build()
     {
 
-        $body_template = $this->client->getSetting('email_template_'.$this->reminder_template);
+info(print_r($this->template_data,1));
+info((bool) is_array($this->template_data));
+info((bool) array_key_exists('body', $this->template_data));
+info((bool) strlen($this->template_data['body']) > 0);
+
+        if(is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0)
+            $body_template = $this->template_data['body'];
+        else
+            $body_template = $this->client->getSetting('email_template_'.$this->reminder_template);
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
@@ -54,7 +65,10 @@ class InvoiceEmailEngine extends BaseEmailEngine
             );
         }
 
-        $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
+        if(is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0)
+            $subject_template = $this->template_data['subject'];
+        else
+            $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
 
         if (iconv_strlen($subject_template) == 0) {
 
