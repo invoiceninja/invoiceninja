@@ -44,6 +44,10 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
+        if (file_exists(base_path() . '/.env')) {
+            exit('Error: app is already configured, backup then delete the .env file to re-run the setup');
+        }
+
         return View::make('setup');
     }
 
