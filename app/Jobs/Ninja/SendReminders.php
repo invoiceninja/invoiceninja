@@ -23,6 +23,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 
 class SendReminders implements ShouldQueue
 {
@@ -68,17 +69,13 @@ class SendReminders implements ShouldQueue
     }
 
 
-    private function chargeLateFee()
-    {
-
-    }
-
     private function sendReminderEmails()
     {
         $invoices = Invoice::where('is_deleted', 0)
                            ->where('balance', '>', 0)
                            ->whereDate('next_send_date', '<=', now()->startOfDay())
                            ->whereNotNull('next_send_date')
+                           ->with('client')
                            ->cursor();
 
         //we only need invoices that are payable
@@ -118,10 +115,51 @@ class SendReminders implements ShouldQueue
         }
     }
 
-    private function calculateNextSendDate($invoice, $template)
+    private function calculateNextSendDate($invoice)
     {
+        $dates = collect();
+
+        $settings = $invoice->client->getMergedSettings();
+
+        if((int)$settings->schedule_reminder1 > 0)
+            $dates->push($this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder1, (int)$settings->num_days_reminder1));
+
+        if((int)$settings->num_days_reminder2 > 0)
+            $dates->push($this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder2, (int)$settings->num_days_reminder2));
+
+        if((int)$settings->num_days_reminder3 > 0)
+            $dates->push($this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder3, (int)$settings->num_days_reminder3));
+
+        if((int)$settings->endless_reminder_frequency_id > 0)
+            $dates->push();
+
+        //calculate every potential date, then pluck the next one
         
+        //reminder1,2,3, and endless could potentially be the NEXT_SEND_DATE
+        //
+        //we check num_days to determine if the setting is ACTIVE
     }
+
+
+
+    private function calculateScheduledDate($invoice, $schedule_reminder, $num_days_reminder)
+    {
+        switch ($schedule_reminder) {
+            case 'after_invoice_date':
+                return Carbon::parse($invoice->date)->addDays($num_days_reminder)->startOfDay();
+                break;
+            case 'before_due_date':
+                return Carbon::parse($invoice->due_date)->subDays($num_days_reminder)->startOfDay();
+                break;
+            case 'after_due_date':
+                return Carbon::parse($invoice->due_date)->addDays($num_days_reminder)->startOfDay();
+                break;
+            default:
+                return null;
+                break;
+        }
+    }
+
 
     private function sendReminder($invoice, $template)
     {
@@ -140,7 +178,7 @@ class SendReminders implements ShouldQueue
 
             $invoice->last_sent_date = now();
             $invoice->reminder_last_send = now();
-            $invoice->next_send_date = $this->calculateNextSendDate($invoice, $template);
+            $invoice->next_send_date = $this->calculateNextSendDate($invoice);
 
             if(in_array($template, ['reminder1', 'reminder2', 'reminder3']))
                 $invoice->{$template."_send"} = now();

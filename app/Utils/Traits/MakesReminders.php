@@ -234,27 +234,27 @@ trait MakesReminders
 
         switch ($endless_reminder_frequency_id) {
             case RecurringInvoice::FREQUENCY_WEEKLY:
-                return Carbon::parse($this->next_send_date)->addWeek()->startOfDay();
+                return Carbon::parse($this->last_sent_date)->addWeek()->startOfDay();
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
-                return Carbon::parse($this->next_send_date)->addWeeks(2)->startOfDay();
+                return Carbon::parse($this->last_sent_date)->addWeeks(2)->startOfDay();
             case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
-                return Carbon::parse($this->next_send_date)->addWeeks(4)->startOfDay();
+                return Carbon::parse($this->last_sent_date)->addWeeks(4)->startOfDay();
             case RecurringInvoice::FREQUENCY_MONTHLY:
-                return Carbon::parse($this->next_send_date)->addMonthNoOverflow()->startOfDay();
+                return Carbon::parse($this->last_sent_date)->addMonthNoOverflow()->startOfDay();
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                return Carbon::parse($this->next_send_date)->addMonthsNoOverflow(2)->startOfDay();
+                return Carbon::parse($this->last_sent_date)->addMonthsNoOverflow(2)->startOfDay();
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                return Carbon::parse($this->next_send_date)->addMonthsNoOverflow(3)->startOfDay();
+                return Carbon::parse($this->last_sent_date)->addMonthsNoOverflow(3)->startOfDay();
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                return Carbon::parse($this->next_send_date)->addMonthsNoOverflow(4)->startOfDay();
+                return Carbon::parse($this->last_sent_date)->addMonthsNoOverflow(4)->startOfDay();
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                return Carbon::parse($this->next_send_date)->addMonthsNoOverflow(6)->startOfDay();
+                return Carbon::parse($this->last_sent_date)->addMonthsNoOverflow(6)->startOfDay();
             case RecurringInvoice::FREQUENCY_ANNUALLY:
-                return Carbon::parse($this->next_send_date)->addYear()->startOfDay();
+                return Carbon::parse($this->last_sent_date)->addYear()->startOfDay();
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
-                return Carbon::parse($this->next_send_date)->addYears(2)->startOfDay();
+                return Carbon::parse($this->last_sent_date)->addYears(2)->startOfDay();
             case RecurringInvoice::FREQUENCY_THREE_YEARS:
-                return Carbon::parse($this->next_send_date)->addYears(3)->startOfDay();
+                return Carbon::parse($this->last_sent_date)->addYears(3)->startOfDay();
             default:
                 return null;
         }
