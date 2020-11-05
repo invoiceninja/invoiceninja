@@ -92,7 +92,8 @@
         font-weight: normal;
     }
 
-    #product-table {
+    #product-table,
+    #task-table {
         margin-top: 3.5rem;
         margin-bottom: 200px;
         min-width: 100%;
@@ -100,44 +101,54 @@
         overflow-wrap: break-word;
     }
 
-    #product-table > thead {
+    #product-table > thead,
+    #task-table > thead {
         text-align: left;
         background: var(--secondary-color);
     }
 
-    #product-table > thead > tr > th {
+    #product-table > thead > tr > th,
+    #task-table > thead > tr > th {
         padding: 1rem;
         color: white;
         font-weight: semibold;
     }
 
-    #product-table > thead > tr > th:first-child {
+    #product-table > thead > tr > th:first-child,
+    #task-table > thead > tr > th:first-child {
         border-top-left-radius: 1rem;
     }
 
-    #product-table > thead > tr > th:last-child {
+    #product-table > thead > tr > th:last-child,
+    #task-table > thead > tr > th:last-child {
         border-top-right-radius: 1rem;
         text-align: right;
     }
 
-    #product-table > tbody > tr > td {
+    #product-table > tbody > tr > td,
+    #task-table > tbody > tr > td {
         padding: 1rem;
     }
 
-    #product-table > tbody > tr > td:last-child {
+    #product-table > tbody > tr > td:last-child,
+    #task-table > tbody > tr > td:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr:nth-child(odd) > td {
+    #product-table > tbody > tr:nth-child(odd) > td,
+    #task-table > tbody > tr:nth-child(odd) > td {
         background: #e8e8e8;
     }
 
-    #product-table > tbody > tr:nth-child(even) > td {
+    #product-table > tbody > tr:nth-child(even) > td,
+    #task-table > tbody > tr:nth-child(even) > td {
         background: #f7f7f7;
     }
 
     [data-element='product-table-balance-due-label'],
-    [data-element='product-table-balance-due'] {
+    [data-element='product-table-balance-due'],
+    [data-element='task-table-balance-due-label'],
+    [data-element='task-table-balance-due'] {
         color: var(--secondary-color) !important;
         font-weight: bold !important;
     }
@@ -149,16 +160,16 @@
         }
     }
 
-    #product-table-footer {
+    #table-totals {
         page-break-inside: avoid;
     }
 
-    #product-table-footer > *:last-child {
+    #table-totals > *:last-child {
         border-bottom-left-radius: 1rem;
         border-bottom-right-radius: 1rem;
     }
 
-    #product-table-footer > * {
+    #table-totals > * {
         background-color: #f7f7f7;
         display: grid;
         grid-template-columns: 3fr 1fr 1fr;
@@ -168,23 +179,23 @@
         padding-bottom: 0.8rem;
     }
 
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due-label'],
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due'] {
         font-weight: bold;
         font-size: 1.2rem;
     }
 
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due'] {
         color: red;
     }
 
-    #product-table-footer > * > :last-child {
+    #table-totals > * > :last-child {
         text-align: right;
         padding-right: 1rem;
     }
@@ -215,7 +226,9 @@
 
     <table id="product-table" cellspacing="0"></table>
 
-    <div id="product-table-footer" cellspacing="0"></div>
+    <table id="task-table" cellspacing="0"></table>
+
+    <div id="table-totals" cellspacing="0"></div>
 </div>
 
 <div id="footer"></div>
