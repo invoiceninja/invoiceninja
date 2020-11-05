@@ -70,36 +70,43 @@
         margin: 3rem 1.5rem;
     }
 
-    #product-table {
+    #product-table,
+    #task-table {
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
     }
 
-    #product-table > thead {
+    #product-table > thead,
+    #task-table > thead {
         text-align: left;
     }
 
-    #product-table > thead > tr > th {
+    #product-table > thead > tr > th,
+    #task-table > thead > tr > th {
         padding: 0.8rem;
         background-color: var(--secondary-color);
         color: white;
     }
 
-    #product-table > thead > tr > th:last-child {
+    #product-table > thead > tr > th:last-child,
+    #task-table > thead > tr > th:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr > td {
+    #product-table > tbody > tr > td,
+    #task-table > tbody > tr > td {
         border-bottom: 1px solid var(--secondary-color);
         padding: 1rem;
     }
 
-    #product-table > tbody > tr > td:first-child {
+    #product-table > tbody > tr > td:first-child,
+    #task-table > tbody > tr > td:first-child {
         font-weight: bold;
     }
 
-    #product-table > tbody > tr > td:last-child {
+    #product-table > tbody > tr > td:last-child,
+    #task-table > tbody > tr > td:last-child {
         text-align: right;
     }
 
@@ -134,11 +141,11 @@
         margin-bottom: 0.5rem;
     }
 
-    #product-table-footer {
+    #table-totals {
         page-break-inside: avoid;
     }
 
-    #product-table-footer > * {
+    #table-totals > * {
         display: grid;
         grid-template-columns: 3fr 1fr 1fr;
         margin-top: 0.5rem;
@@ -146,26 +153,26 @@
         margin-left: 1.5rem;
     }
 
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due-label'],
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due'] {
         font-weight: bold;
         font-size: 1.3rem;
     }
 
-    #product-table-footer > * > * {
+    #table-totals > * > * {
         padding-left: 1.5rem;
     }
 
-    #product-table-footer > * > :last-child {
+    #table-totals > * > :last-child {
         text-align: right;
         padding-right: 1rem;
     }
 
-    #product-table-footer > *:last-child {
+    #table-totals > *:last-child {
         background-color: var(--secondary-color);
         color: white;
         padding-top: 0.7rem;
@@ -227,9 +234,10 @@
 
             <div class="table-wrapper">
                 <table id="product-table" cellspacing="0"></table>
+                <table id="task-table" cellspacing="0"></table>
             </div>
 
-            <div id="product-table-footer" cellspacing="0"></div>
+            <div id="table-totals" cellspacing="0"></div>
         </td>
     </tr>
     </tbody>
