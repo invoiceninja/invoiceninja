@@ -117,13 +117,22 @@ class EmailController extends BaseController
         $subject = $request->input('subject');
         $body = $request->input('body');
         $entity_string = strtolower(class_basename($entity_obj));
+        $template = $request->input('template');
+        $template = str_replace("email_template_", "", $template);
 
-        $entity_obj->invitations->each(function ($invitation) use ($subject, $body, $entity_string, $entity_obj) {
+        $entity_obj->invitations->each(function ($invitation) use ($subject, $body, $entity_string, $entity_obj, $template) {
+
             if ($invitation->contact->send_email && $invitation->contact->email) {
 
-                EmailEntity::dispatchNow($invitation, $invitation->company);
-                //$invitation->contact->notify((new SendGenericNotification($invitation, $entity_string, $subject, $body))->delay($when));
+                $data = [
+                    'subject' => $subject,
+                    'body' => $body
+                ];
+                
+                EmailEntity::dispatchNow($invitation, $invitation->company, $template, $data);
+
             }
+
         });
 
         $entity_obj->last_sent_date = now();

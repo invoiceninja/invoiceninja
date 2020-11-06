@@ -554,7 +554,7 @@ class CreditController extends BaseController
                 // EmailCredit::dispatch($credit, $credit->company);
 
                 $credit->invitations->load('contact.client.country', 'credit.client.country', 'credit.company')->each(function ($invitation) use ($credit) {
-                    EmailEntity::dispatch($invitation, $credit->company);
+                    EmailEntity::dispatch($invitation, $credit->company, 'credit');
                 });
 
 

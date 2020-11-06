@@ -49,7 +49,7 @@ class SendEmail
                 $email_builder = (new CreditEmail())->build($invitation, $this->reminder_template);
 
                 // EmailCredit::dispatchNow($email_builder, $invitation, $invitation->company);
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatchNow($invitation, $invitation->company, $this->reminder_template);
 
             }
         });

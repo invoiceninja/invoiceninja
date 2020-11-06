@@ -114,9 +114,6 @@ class CheckRemindersTest extends TestCase
         $settings->enable_reminder1 = true;
         $settings->schedule_reminder1 = 'after_invoice_date';
         $settings->num_days_reminder1 = 50;
-        $settings->enable_reminder2 = false;
-        $settings->schedule_reminder2 = 'before_due_date';
-        $settings->num_days_reminder2 = 50;
         $settings->enable_reminder3 = true;
         $settings->schedule_reminder3 = 'after_due_date';
         $settings->num_days_reminder3 = 1;
@@ -136,13 +133,13 @@ class CheckRemindersTest extends TestCase
         $settings = $this->company->settings;
         $settings->enable_reminder1 = false;
         $settings->schedule_reminder1 = 'after_invoice_date';
-        $settings->num_days_reminder1 = 50;
+        $settings->num_days_reminder1 = 0;
         $settings->enable_reminder2 = false;
         $settings->schedule_reminder2 = 'before_due_date';
-        $settings->num_days_reminder2 = 50;
+        $settings->num_days_reminder2 = 0;
         $settings->enable_reminder3 = false;
         $settings->schedule_reminder3 = 'after_due_date';
-        $settings->num_days_reminder3 = 1;
+        $settings->num_days_reminder3 = 0;
 
         $this->company->settings = $settings;
         $this->invoice->service()->markSent();
