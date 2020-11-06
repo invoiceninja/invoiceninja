@@ -380,7 +380,7 @@ class WebhookController extends BaseController
      *
      * @throws \Exception
      * @OA\Delete(
-     *      path="/api/v1/Webhooks/{id}",
+     *      path="/api/v1/webhooks/{id}",
      *      operationId="deleteWebhook",
      *      tags={"Webhooks"},
      *      summary="Deletes a Webhook",

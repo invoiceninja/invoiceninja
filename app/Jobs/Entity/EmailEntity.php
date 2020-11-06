@@ -68,7 +68,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
      * @param Company    $company
      * @param ?string    $reminder_template
      */
-    public function __construct($invitation, Company $company, ?string $reminder_template = null, ?array $template_data = null)
+    public function __construct($invitation, Company $company, ?string $reminder_template = null, $template_data = null)
     {
         $this->company = $company;
 

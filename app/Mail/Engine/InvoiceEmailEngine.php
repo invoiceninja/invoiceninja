@@ -41,11 +41,6 @@ class InvoiceEmailEngine extends BaseEmailEngine
     public function build()
     {
 
-info(print_r($this->template_data,1));
-info((bool) is_array($this->template_data));
-info((bool) array_key_exists('body', $this->template_data));
-info((bool) strlen($this->template_data['body']) > 0);
-
         if(is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0)
             $body_template = $this->template_data['body'];
         else
