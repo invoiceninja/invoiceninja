@@ -666,6 +666,8 @@ trait MakesInvoiceValues
                 $data[$key][$table_type.'.tax_rate3'] = '';
                 $data[$key][$table_type.'.tax3'] = &$data[$key][$table_type.'.tax_rate3'];
             }
+
+            $data[$key]['task_id'] = optional($item)->task_id;
         }
 
         return $data;
