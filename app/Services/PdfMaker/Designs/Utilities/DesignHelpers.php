@@ -12,12 +12,16 @@
 
 namespace App\Services\PdfMaker\Designs\Utilities;
 
+use App\Models\Task;
+use App\Utils\Traits\MakesHash;
 use DOMDocument;
 use DOMXPath;
 use Exception;
 
 trait DesignHelpers
 {
+    use MakesHash;
+
     public $document;
 
     public $xpath;
@@ -218,5 +222,25 @@ trait DesignHelpers
         $html .= $partials['footer'];
 
         return $html;
+    }
+
+    public function getTaskTimeLogs(array $row)
+    {
+        if (!array_key_exists('task_id', $row)) {
+            return [];
+        }
+
+        $task = Task::find($this->decodePrimaryKey($row['task_id']));
+
+        if (!$task) {
+            return [];
+        }
+
+        foreach (json_decode($task['time_log']) as $log) {
+            info($log);
+            $logs[] = sprintf('%s - %s', \Carbon\Carbon::createFromTimestamp($log[0])->toDateTimeString(), \Carbon\Carbon::createFromTimestamp($log[1])->toDateTimeString());
+        }
+
+        return $logs;
     }
 }
