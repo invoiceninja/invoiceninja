@@ -203,7 +203,7 @@ class Design extends BaseDesign
             return $item->type_id == 1;
         });
 
-        if ($product_items->count() == 0) {
+        if (count($product_items) == 0) {
             return [];
         }
 
@@ -224,7 +224,7 @@ class Design extends BaseDesign
             return $item->type_id = 2;
         });
 
-        if ($task_items->count() == 0) {
+        if (count($task_items) == 0) {
             return [];
         }
 
@@ -269,8 +269,6 @@ class Design extends BaseDesign
             return [];
         }
 
-        //info($this->context);
-
         foreach ($items as $row) {
             $element = ['element' => 'tr', 'elements' => []];
 
@@ -304,11 +302,21 @@ class Design extends BaseDesign
                     // We want to keep aliases like these:
                     // $task.cost => $task.rate
                     // $task.quantity => $task.hours
-    
+
                     if ($cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.cost']];
                     } else if ($cell == '$task.hours') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.quantity']];
+                    } else if ($cell == '$task.notes') {
+                        $_element = ['element' => 'td', 'content' => '', 'elements' => [
+                            ['element' => 'span', 'content' => $row[$cell]],
+                        ]];
+
+                        foreach ($this->getTaskTimeLogs($row) as $log) {
+                            $_element['elements'][] = ['element' => 'span', 'content' => $log, 'properties' => ['class' => 'task-duration']];
+                        }
+
+                        $element['elements'][] = $_element;
                     } else {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell]];
                     }
