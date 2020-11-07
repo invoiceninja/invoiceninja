@@ -44,10 +44,13 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
         if(is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0)
             $body_template = $this->template_data['body'];
+        elseif(strlen($this->client->getSetting('email_template_'.$this->reminder_template)) > 0)
+            $body_template = $this->client->getSetting('email_template_'.$this->reminder_template);
         else{
             //$body_template = $this->client->getSetting('email_template_'.$this->reminder_template);
-            $body_template = EmailTemplateDefaults::getDefaultTemplate($this->client->getSetting('email_template_'.$this->reminder_template), $this->client->locale());
+            $body_template = EmailTemplateDefaults::getDefaultTemplate('email_template_'.$this->reminder_template, $this->client->locale());
         }
+
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
@@ -63,10 +66,17 @@ class InvoiceEmailEngine extends BaseEmailEngine
             );
         }
 
-        if(is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0)
+        if(is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0){
             $subject_template = $this->template_data['subject'];
+            info("subject = template data");
+        }
+        elseif(strlen($this->client->getSetting('email_subject_'.$this->reminder_template)) > 0){
+            $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
+            info("subject = settings var");
+        }
         else{
-            $subject_template = EmailTemplateDefaults::getDefaultTemplate($this->client->getSetting('email_subject_'.$this->reminder_template), $this->client->locale());
+            info("subject = default template " . 'email_subject_'.$this->reminder_template);
+            $subject_template = EmailTemplateDefaults::getDefaultTemplate('email_subject_'.$this->reminder_template, $this->client->locale());
            // $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
         }
 
