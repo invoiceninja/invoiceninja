@@ -38,7 +38,8 @@ trait MakesReminders
             $settings->num_days_reminder1 > 0) {
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder1);
 
-            $date_collection->push($reminder_date->format('Y-m-d'));
+            if($reminder_date->gt(Carbon::parse($this->next_send_date)));
+                $date_collection->push($reminder_date->format('Y-m-d'));
             
         }
 
@@ -46,7 +47,8 @@ trait MakesReminders
             $settings->num_days_reminder1 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder1);
 
-            $date_collection->push($reminder_date->format('Y-m-d'));
+            if($reminder_date->gt(Carbon::parse($this->next_send_date)));
+                $date_collection->push($reminder_date->format('Y-m-d'));
 
         }
 
@@ -54,7 +56,8 @@ trait MakesReminders
             $settings->num_days_reminder1 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder1);
 
-            $date_collection->push($reminder_date->format('Y-m-d'));
+            if($reminder_date->gt(Carbon::parse($this->next_send_date)));
+                $date_collection->push($reminder_date->format('Y-m-d'));
 
         }
 
@@ -62,7 +65,8 @@ trait MakesReminders
             $settings->num_days_reminder2 > 0) {
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder2);
 
-            $date_collection->push($reminder_date->format('Y-m-d'));
+            if($reminder_date->gt(Carbon::parse($this->next_send_date)));
+                $date_collection->push($reminder_date->format('Y-m-d'));
 
         }
 
@@ -70,7 +74,8 @@ trait MakesReminders
             $settings->num_days_reminder2 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder2);
 
-            $date_collection->push($reminder_date->format('Y-m-d'));
+            if($reminder_date->gt(Carbon::parse($this->next_send_date)));
+                $date_collection->push($reminder_date->format('Y-m-d'));
 
         }
 
@@ -78,7 +83,8 @@ trait MakesReminders
             $settings->num_days_reminder2 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder2);
 
-            $date_collection->push($reminder_date->format('Y-m-d'));
+            if($reminder_date->gt(Carbon::parse($this->next_send_date)));
+                $date_collection->push($reminder_date->format('Y-m-d'));
 
         }
 
@@ -86,7 +92,8 @@ trait MakesReminders
             $settings->num_days_reminder3 > 0) {
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder3);
 
-            $date_collection->push($reminder_date->format('Y-m-d'));
+            if($reminder_date->gt(Carbon::parse($this->next_send_date)));
+                $date_collection->push($reminder_date->format('Y-m-d'));
 
         }
 
@@ -94,7 +101,8 @@ trait MakesReminders
             $settings->num_days_reminder3 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder3);
 
-              $date_collection->push($reminder_date->format('Y-m-d'));
+            if($reminder_date->gt(Carbon::parse($this->next_send_date)));
+                $date_collection->push($reminder_date->format('Y-m-d'));
 
         }
 
@@ -102,7 +110,8 @@ trait MakesReminders
             $settings->num_days_reminder3 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder3);
 
-            $date_collection->push($reminder_date->format('Y-m-d'));
+            if($reminder_date->gt(Carbon::parse($this->next_send_date)));
+                $date_collection->push($reminder_date->format('Y-m-d'));
 
         }
 
