@@ -972,6 +972,7 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             $cgt = ClientGatewayToken::Create($modified);
 
@@ -1001,7 +1002,7 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             $task_status = TaskStatus::Create($modified);
 
@@ -1031,7 +1032,7 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             $expense_category = ExpenseCategory::Create($modified);
 
@@ -1060,7 +1061,7 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             if(isset($modified['client_id']))
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
@@ -1101,7 +1102,7 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             if(isset($modified['client_id']))
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
@@ -1134,7 +1135,7 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             if(isset($resource['client_id']))
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);

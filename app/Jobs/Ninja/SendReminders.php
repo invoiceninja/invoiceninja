@@ -223,11 +223,10 @@ class SendReminders implements ShouldQueue
                 event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
 
             $invoice->last_sent_date = now();
-            $invoice->reminder_last_send = now();
             $invoice->next_send_date = $this->calculateNextSendDate($invoice);
 
             if(in_array($template, ['reminder1', 'reminder2', 'reminder3']))
-                $invoice->{$template."_send"} = now();
+                $invoice->{$template."_sent"} = now();
 
 
             $invoice->save();
