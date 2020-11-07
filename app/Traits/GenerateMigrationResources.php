@@ -1053,7 +1053,6 @@ trait GenerateMigrationResources
                 $status = TaskStatus::createNew();
                 $status->name = trans('texts.' . $defaults[$i]);
                 $status->sort_order = $i;
-                $status->is_deleted = false;
                 $status->save();
             }
 
@@ -1071,7 +1070,7 @@ trait GenerateMigrationResources
                 'company_id' => $this->account->id,
                 'user_id' => $task_status->user_id,
                 'status_sort_order' => $task_status->sort_order,
-                'is_deleted' => $task_status->is_deleted ?: false,
+                'is_deleted' => false,
                 'created_at' => $task_status->created_at ? $task_status->created_at->toDateString() : null,
                 'updated_at' => $task_status->updated_at ? $task_status->updated_at->toDateString() : null,
                 'deleted_at' => $task_status->deleted_at ? $task_status->deleted_at->toDateString() : null,
