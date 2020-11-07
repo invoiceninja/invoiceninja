@@ -261,7 +261,7 @@ class Import implements ShouldQueue
         $company_repository = new CompanyRepository();
         $company_repository->save($data, $this->company);
 
-        if(isset($data['settings']->company_logo)) {
+        if(isset($data['settings']->company_logo) && strlen($data['settings']->company_logo) > 0) {
 
             $tempImage = tempnam(sys_get_temp_dir(), basename($data['settings']->company_logo));
             copy($data['settings']->company_logo, $tempImage);
