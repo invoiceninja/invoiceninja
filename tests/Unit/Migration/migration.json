@@ -65638,7 +65638,7 @@
             "accepted_credit_cards": 0,
             "require_cvv": 1,
             "require_billing_address": null,
-            "show_shipping_address": 0,
+            "require_shipping_address": 0,
             "update_details": null,
             "config": "{\"apiKey\":\"345345345\",\"publishableKey\":\"5435345\",\"plaidClientId\":\"\",\"plaidSecret\":\"\",\"plaidPublicKey\":\"\",\"enableAlipay\":false,\"enableSofort\":false,\"enableSepa\":false,\"enableBitcoin\":false,\"enableApplePay\":false,\"enableAch\":false}",
             "fees_and_limits": {
@@ -65667,7 +65667,7 @@
             "accepted_credit_cards": 0,
             "require_cvv": 1,
             "require_billing_address": null,
-            "show_shipping_address": 0,
+            "require_shipping_address": 0,
             "update_details": null,
             "config": "{\"apiKey\":\"345345345\",\"publishableKey\":\"5435345\",\"plaidClientId\":\"\",\"plaidSecret\":\"\",\"plaidPublicKey\":\"\",\"enableAlipay\":false,\"enableSofort\":false,\"enableSepa\":false,\"enableBitcoin\":false,\"enableApplePay\":false,\"enableAch\":false}",
             "fees_and_limits": {},

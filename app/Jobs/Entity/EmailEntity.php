@@ -181,11 +181,6 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
         }
     }
 
-    private function findReminderTemplate()
-    {
-
-    }
-
     private function resolveEmailBuilder()
     {
         $class = 'App\Mail\Engine\\' . ucfirst(Str::camel($this->entity_string)) . "EmailEngine";
