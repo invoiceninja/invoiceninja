@@ -3296,4 +3296,6 @@ return [
     'pay_with' => 'Pay with',
 
     'n/a' => 'N/A',
+    'payment_number' => 'Payment Number',
+    
 ];
