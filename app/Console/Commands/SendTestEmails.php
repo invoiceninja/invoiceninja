@@ -17,7 +17,6 @@ use App\Factory\ClientFactory;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceInvitationFactory;
-use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Invoice\CreateEntityPdf;
 use App\Mail\TemplateEmail;
 use App\Models\Account;
@@ -155,7 +154,6 @@ class SendTestEmails extends Command
         $cc_emails = [config('ninja.testvars.test_email')];
         $bcc_emails = [config('ninja.testvars.test_email')];
 
-        $email_builder = (new InvoiceEmail())->build($ii, 'invoice');
 
         $email_builder->setFooter($message['footer'])
                       ->setSubject($message['subject'])
@@ -165,6 +163,6 @@ class SendTestEmails extends Command
             ->cc($cc_emails)
             ->bcc($bcc_emails)
             //->replyTo(also_available_if_needed)
-            ->send(new TemplateEmail($email_builder, $user, $client));
+            //->send(new TemplateEmail($email_builder, $user, $client));
     }
 }

@@ -516,7 +516,7 @@ class CreateTestData extends Command
         if (rand(0, 1)) {
             $invoice = $invoice->service()->markPaid()->save();
         }
-        //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
+
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
     }
 

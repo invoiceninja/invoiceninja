@@ -47,10 +47,8 @@ class InvoiceEmailEngine extends BaseEmailEngine
         elseif(strlen($this->client->getSetting('email_template_'.$this->reminder_template)) > 0)
             $body_template = $this->client->getSetting('email_template_'.$this->reminder_template);
         else{
-            //$body_template = $this->client->getSetting('email_template_'.$this->reminder_template);
             $body_template = EmailTemplateDefaults::getDefaultTemplate('email_template_'.$this->reminder_template, $this->client->locale());
         }
-
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {

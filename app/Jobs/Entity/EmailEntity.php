@@ -14,7 +14,6 @@ namespace App\Jobs\Entity;
 use App\DataMapper\Analytics\EmailInvoiceFailure;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
-use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;

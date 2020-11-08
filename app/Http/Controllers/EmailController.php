@@ -11,7 +11,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Email\InvoiceEmail;
 use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailInvoice;

@@ -431,7 +431,7 @@ class DemoMode extends Command
                 $payment->save();
             });
         }
-        //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
+
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
     }
 
