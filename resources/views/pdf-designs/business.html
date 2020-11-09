@@ -93,6 +93,7 @@
     }
 
     #product-table,
+    #delivery-note-table,
     #task-table {
         margin-top: 3.5rem;
         /* margin-bottom: 200px; */
@@ -108,12 +109,14 @@
     }
 
     #product-table > thead,
+    #delivery-note-table > thead,
     #task-table > thead {
         text-align: left;
         background: var(--secondary-color);
     }
 
     #product-table > thead > tr > th,
+    #delivery-note-table > thead > tr > th,
     #task-table > thead > tr > th {
         padding: 1rem;
         color: white;
@@ -121,32 +124,38 @@
     }
 
     #product-table > thead > tr > th:first-child,
+    #delivery-note-table > thead > tr > th:first-child,
     #task-table > thead > tr > th:first-child {
         border-top-left-radius: 1rem;
     }
 
     #product-table > thead > tr > th:last-child,
+    #delivery-note-table > thead > tr > th:last-child,
     #task-table > thead > tr > th:last-child {
         border-top-right-radius: 1rem;
         text-align: right;
     }
 
     #product-table > tbody > tr > td,
+    #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
         padding: 1rem;
     }
 
     #product-table > tbody > tr > td:last-child,
+    #delivery-note-table > tbody > tr > td:last-child,
     #task-table > tbody > tr > td:last-child {
         text-align: right;
     }
 
     #product-table > tbody > tr:nth-child(odd) > td,
+    #delivery-note-table > tbody > tr:nth-child(odd) > td,
     #task-table > tbody > tr:nth-child(odd) > td {
         background: #e8e8e8;
     }
 
     #product-table > tbody > tr:nth-child(even) > td,
+    #delivery-note-table > tbody > tr:nth-child(even) > td,
     #task-table > tbody > tr:nth-child(even) > td {
         background: #f7f7f7;
     }
@@ -235,6 +244,8 @@
     <table id="task-table" cellspacing="0"></table>
 
     <div id="table-totals" cellspacing="0"></div>
+
+    <table id="delivery-note-table" cellspacing="0"></table>
 </div>
 
 <div id="footer"></div>

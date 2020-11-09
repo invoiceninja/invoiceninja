@@ -98,6 +98,7 @@
     }
 
     #product-table,
+    #delivery-note-table,
     #task-table {
         margin-top: 3rem;
         /* margin-bottom: 200px; */
@@ -113,6 +114,7 @@
     }
 
     #product-table > thead,
+    #product-table > thead,
     #task-table > thead {
         text-align: left;
         text-transform: uppercase;
@@ -120,6 +122,7 @@
     }
 
     #product-table > thead > tr > th,
+    #delivery-note-table > thead > tr > th,
     #task-table > thead > tr > th {
         font-size: 1.1rem;
         padding-bottom: 1.5rem;
@@ -128,17 +131,20 @@
     }
 
     #product-table > thead > tr > th:last-child,
+    #delivery-note-table > thead > tr > th:last-child,
     #task-table > thead > tr > th:last-child {
         text-align: right;
     }
 
     #product-table > tbody > tr > td,
+    #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
         padding: 1rem;
         border-left: 1px solid;
     }
 
     #product-table > tbody > tr td:last-child,
+    #delivery-note-table > tbody > tr td:last-child,
     #task-table > tbody > tr td:last-child {
         text-align: right;
     }
@@ -233,6 +239,8 @@
     <table id="task-table" cellspacing="0"></table>
 
     <div id="table-totals" cellspacing="0"></div>
+
+    <table id="delivery-note-table" cellspacing="0"></table>
 </div>
 
 <div id="footer"></div>

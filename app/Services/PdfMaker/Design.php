@@ -102,6 +102,10 @@ class Design extends BaseDesign
                 'id' => 'entity-details',
                 'elements' => $this->entityDetails(),
             ],
+            'delivery-note-table' => [
+                'id' => 'delivery-note-table',
+                'elements' => $this->deliveryNoteTable(),
+            ],
             'product-table' => [
                 'id' => 'product-table',
                 'elements' => $this->productTable(),
@@ -151,9 +155,25 @@ class Design extends BaseDesign
 
     public function clientDetails(): array
     {
-        $variables = $this->context['pdf_variables']['client_details'];
-
         $elements = [];
+
+        if ($this->type == 'delivery_note') {
+            $elements = [
+                ['element' => 'p', 'content' => $this->entity->client->name, 'show_empty' => false],
+                ['element' => 'p', 'content' => $this->entity->client->shipping_address1, 'show_empty' => false],
+                ['element' => 'p', 'content' => $this->entity->client->shipping_address2, 'show_empty' => false],
+                ['element' => 'p', 'content' => "{$this->entity->client->shipping_city} {$this->entity->client->shipping_state} {$this->entity->client->shipping_postal_code}", 'show_empty' => false],
+                ['element' => 'p', 'content' => optional($this->entity->client->shipping_country)->name, 'show_empty' => false],
+            ];
+
+            if (!is_null($this->context['contact'])) {
+                $elements[] = ['element' => 'p', 'content' => $this->context['contact']->email, 'show_empty' => false];
+            }
+
+            return $elements;
+        }
+
+        $variables = $this->context['pdf_variables']['client_details'];
 
         foreach ($variables as $variable) {
             $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false];
@@ -192,6 +212,24 @@ class Design extends BaseDesign
         return $elements;
     }
 
+    public function deliveryNoteTable(): array
+    {
+         if ($this->type !== 'delivery_note') {
+             return [];
+         }
+
+        $elements = [
+            ['element' => 'thead', 'elements' => [
+                ['element' => 'th', 'content' => '$item_label'],
+                ['element' => 'th', 'content' => '$description_label'],
+                ['element' => 'th', 'content' => '$product.quantity_label'],
+            ]],
+            ['element' => 'tbody', 'elements' => $this->buildTableBody('delivery_note')],
+        ];
+
+        return $elements;
+    }
+
     /**
      * Parent method for building products table.
      * 
@@ -204,6 +242,10 @@ class Design extends BaseDesign
         });
 
         if (count($product_items) == 0) {
+            return [];
+        }
+
+        if ($this->type == 'delivery_note') {
             return [];
         }
 
@@ -221,10 +263,14 @@ class Design extends BaseDesign
     public function taskTable(): array
     {
         $task_items = collect($this->entity->line_items)->filter(function ($item) {
-            return $item->type_id = 2;
+            return $item->type_id == 2;
         });
 
         if (count($task_items) == 0) {
+            return [];
+        }
+
+        if ($this->type == 'delivery_note') {
             return [];
         }
 
@@ -267,6 +313,20 @@ class Design extends BaseDesign
 
         if (count($items) == 0) {
             return [];
+        }
+
+        if ($type == 'delivery_note') {            
+            foreach ($items as $row) {
+                $element = ['element' => 'tr', 'elements' => []];
+
+                $element['elements'][] = ['element' => 'td', 'content' => $row['delivery_note.product_key']];
+                $element['elements'][] = ['element' => 'td', 'content' => $row['delivery_note.notes']];
+                $element['elements'][] = ['element' => 'td', 'content' => $row['delivery_note.quantity']];
+                
+                $elements[] = $element;
+            }
+
+            return $elements;
         }
 
         foreach ($items as $row) {
@@ -331,6 +391,10 @@ class Design extends BaseDesign
 
     public function tableTotals(): array
     {
+        if ($this->type == 'delivery_note') {
+            return [];
+        }
+
         $variables = $this->context['pdf_variables']['total_columns'];
 
         $elements = [

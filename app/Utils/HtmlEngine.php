@@ -333,6 +333,9 @@ class HtmlEngine
         $data['$primary_color'] = ['value' => $this->settings->primary_color, 'label' => ''];
         $data['$secondary_color'] = ['value' => $this->settings->secondary_color, 'label' => ''];
 
+        $data['$item'] = ['value' => '', 'label' => ctrans('texts.item')];
+        $data['$description'] = ['value' => '', 'label' => ctrans('texts.description')];
+
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label3']              = ['value' => '', 'label' => ctrans('texts.')];
