@@ -58,7 +58,9 @@
         flex-direction: column;
     }
 
-    #product-table, #task-table {
+    #product-table, 
+    #delivery-note-table, 
+    #task-table {
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -72,28 +74,34 @@
         color: grey;
     }
 
-    #product-table, #task-table > thead {
+    #product-table > thead,
+    #delivery-note-table > thead,
+    #task-table > thead {
         text-align: left;
     }
 
     #product-table > thead > tr > th,
+    #delivery-note-table > thead > tr > th,
     #task-table > thead > tr > th {
         padding: 1rem;
         background-color: #e6e6e6;
     }
 
     #product-table > thead > tr > th:last-child,
+    #delivery-note-table > thead > tr > th:last-child,
     #task-table > thead > tr > th:last-child {
         text-align: right;
     }
 
     #product-table > tbody > tr > td,
+    #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
         border-bottom: 1px solid #e6e6e6;
         padding: 1rem;
     }
 
     #product-table > tbody > tr > td:last-child,
+    #delivery-note-table > tbody > tr > td:last-child,
     #task-table > tbody > tr > td:last-child {
         text-align: right;
     }
@@ -150,6 +158,8 @@
     <table id="task-table" cellspacing="0"></table>
 
     <div id="table-totals" cellspacing="0"></div>
+
+    <div id="delivery-note-table" cellspacing="0"></div>
 </div>
 
 <div id="footer"></div>

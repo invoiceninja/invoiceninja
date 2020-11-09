@@ -71,6 +71,7 @@
     }
 
     #product-table,
+    #delivery-note-table,
     #task-table {
         min-width: 100%;
         table-layout: fixed;
@@ -78,11 +79,13 @@
     }
 
     #product-table > thead,
+    #delivery-note-table > thead,
     #task-table > thead {
         text-align: left;
     }
 
     #product-table > thead > tr > th,
+    #delivery-note-table > thead > tr > th,
     #task-table > thead > tr > th {
         padding: 0.8rem;
         background-color: var(--secondary-color);
@@ -90,22 +93,26 @@
     }
 
     #product-table > thead > tr > th:last-child,
+    #delivery-note-table > thead > tr > th:last-child,
     #task-table > thead > tr > th:last-child {
         text-align: right;
     }
 
     #product-table > tbody > tr > td,
+    #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
         border-bottom: 1px solid var(--secondary-color);
         padding: 1rem;
     }
 
     #product-table > tbody > tr > td:first-child,
+    #delivery-note-table > tbody > tr > td:first-child,
     #task-table > tbody > tr > td:first-child {
         font-weight: bold;
     }
 
     #product-table > tbody > tr > td:last-child,
+    #delivery-note-table > tbody > tr > td:last-child,
     #task-table > tbody > tr > td:last-child {
         text-align: right;
     }
@@ -235,6 +242,7 @@
             <div class="table-wrapper">
                 <table id="product-table" cellspacing="0"></table>
                 <table id="task-table" cellspacing="0"></table>
+                <div id="delivery-note-table" cellspacing="0"></div>
             </div>
 
             <div id="table-totals" cellspacing="0"></div>

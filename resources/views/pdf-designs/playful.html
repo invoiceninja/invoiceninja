@@ -88,6 +88,7 @@
     }
 
     #product-table,
+    #delivery-note-table,
     #task-table {
         margin-top: 3rem;
         /* margin-bottom: 200px; */
@@ -103,11 +104,13 @@
     }
 
     #product-table > thead,
+    #delivery-note-table > thead,
     #task-table > thead {
         text-align: left;
     }
 
     #product-table > thead > tr > th,
+    #delivery-note-table > thead > tr > th,
     #task-table > thead > tr > th {
         font-size: 1.2rem;
         padding: 1rem;
@@ -116,34 +119,40 @@
     }
 
     #product-table > thead tr > th:last-child,
+    #delivery-note-table > thead tr > th:last-child,
     #task-table > thead tr > th:last-child {
         text-align: right;
     }
 
     #product-table > thead tr > th:first-child,
+    #delivery-note-table > thead tr > th:first-child,
     #task-table > thead tr > th:first-child {
         border-top-left-radius: 10px;
         border-bottom-left-radius: 10px;
     }
 
     #product-table > thead tr > th:last-child,
+    #delivery-note-table > thead tr > th:last-child,
     #task-table > thead tr > th:last-child {
         border-top-right-radius: 10px;
         border-bottom-right-radius: 10px;
     }
 
     #product-table > tbody > tr > td,
+    #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
         border-bottom: 1px solid var(--primary-color);
         padding: 1rem;
     }
 
     #product-table > tbody > tr > td:first-child,
+    #delivery-note-table > tbody > tr > td:first-child,
     #task-table > tbody > tr > td:first-child {
         color: var(--primary-color);
     }
 
     #product-table > tbody > tr > td:last-child,
+    #delivery-note-table > tbody > tr > td:last-child,
     #task-table > tbody > tr > td:last-child {
         text-align: right;
     }
@@ -218,6 +227,8 @@
     <table id="task-table" cellspacing="0"></table>
 
     <div id="table-totals" cellspacing="0"></div>
+
+    <div id="delivery-note-table" cellspacing="0"></div>
 </div>
 
 <div id="footer"></div>

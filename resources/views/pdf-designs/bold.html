@@ -83,7 +83,8 @@
     }
 
     #product-table,
-    #task-table {
+    #task-table,
+    #delivery-note-table {
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -98,37 +99,44 @@
     }
 
     #product-table > thead,
+    #delivery-note-table > thead,
     #task-table > thead {
         text-align: left;
     }
 
     #product-table > thead > tr > th,
+    #delivery-note-table > thead > tr > th,
     #task-table > thead > tr > th {
         padding: 2rem;
         font-size: 1.5rem;
     }
 
     #product-table > thead > tr > th:last-child,
+    #delivery-note-table > thead > tr > th:last-child,
     #task-table > thead > tr > th:last-child {
         text-align: right;
     }
 
     #product-table > tbody > tr > td,
+    #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
         padding: 1.5rem;
     }
 
     #product-table > tbody > tr > td:last-child,
+    #delivery-note-table > tbody > tr > td:last-child,
     #task-table > tbody > tr > td:last-child {
         text-align: right;
     }
 
     #product-table > tbody > tr > td:first-child,
+    #delivery-note-table > tbody > tr > td:first-child,
     #task-table > tbody > tr > td:first-child {
         font-weight: bold;
     }
 
     #product-table > tbody > tr:nth-child(odd),
+    #delivery-note-table > tbody > tr:nth-child(odd),
     #task-table > tbody > tr:nth-child(odd) {
         background-color: #ebebeb;
     }
@@ -194,6 +202,8 @@
     <table id="task-table" cellspacing="0"></table>
 
     <div id="table-totals" cellspacing="0"></div>
+
+    <div id="delivery-note-table" cellspacing="0"></div>
 </div>
 
 <div id="footer"></div>
