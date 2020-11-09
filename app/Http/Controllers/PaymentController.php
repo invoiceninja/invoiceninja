@@ -510,7 +510,6 @@ class PaymentController extends BaseController
         $payments->each(function ($payment, $key) use ($action) {
             if (auth()->user()->can('edit', $payment)) {
                 $this->performAction($payment, $action, true);
-                // $this->payment_repo->{$action}($payment);
             }
         });
 

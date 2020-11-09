@@ -3297,5 +3297,9 @@ return [
 
     'n/a' => 'N/A',
     'payment_number' => 'Payment Number',
-    
+
+    'activity_63' => ':user emailed reminder 1 for invoice :invoice to :contact',
+    'activity_64' => ':user emailed reminder 2 for invoice :invoice to :contact',
+    'activity_65' => ':user emailed reminder 3 for invoice :invoice to :contact',
+
 ];

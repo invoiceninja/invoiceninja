@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Payment;
 
+use App\DataMapper\Analytics\EmailInvoiceFailure;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailed;
@@ -10,7 +11,9 @@ use App\Helpers\Email\BuildEmail;
 use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
+use App\Mail\Engine\PaymentEmailEngine;
 use App\Mail\TemplateEmail;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Payment;
 use App\Models\SystemLog;
@@ -21,6 +24,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class EmailPayment extends BaseMailerJob implements ShouldQueue
 {
@@ -33,6 +37,8 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
     private $contact;
 
     private $company;
+
+    public $settings;
     /**
      * Create a new job instance.
      *
@@ -41,12 +47,12 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
      * @param $contact
      * @param $company
      */
-    public function __construct(Payment $payment, $email_builder, $contact, company)
+    public function __construct(Payment $payment, Company $company, ClientContact $contact)
     {
         $this->payment = $payment;
-        $this->email_builder = $email_builder;
         $this->contact = $contact;
         $this->company = $company;
+        $this->settings = $payment->client->getMergedSettings();
     }
 
     /**
@@ -62,14 +68,15 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
         
         if ($this->contact->email) {
 
-            MultiDB::setDb($this->payment->company->db); //this may fail if we don't pass the serialized object with the company record
-            //todo fix!!
+            MultiDB::setDb($this->company->db); 
 
             //if we need to set an email driver do it now
             $this->setMailDriver();
 
+            $email_builder = (new PaymentEmailEngine($this->payment, $this->contact))->build();
+
             Mail::to($this->contact->email, $this->contact->present()->name())
-                ->send(new TemplateEmail($this->email_builder, $this->contact->user, $this->contact->customer));
+                ->send(new TemplateEmail($email_builder, $this->contact->user, $this->contact->client));
 
             if (count(Mail::failures()) > 0) {
                 event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures(), Ninja::eventVars()));
@@ -77,21 +84,22 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
                 return $this->logMailError(Mail::failures());
             }
 
-            //fire any events
             event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars()));
 
-            //sleep(5);
         }
     }
 
-    private function logMailError($errors)
+    public function failed($exception = null)
     {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->payment->client
-        );
+        info('the job failed');
+
+        $job_failure = new EmailInvoiceFailure();
+        $job_failure->string_metric5 = 'payment';
+        $job_failure->string_metric6 = $exception->getMessage();
+
+        LightLogs::create($job_failure)
+                 ->batch();
+
     }
+
 }

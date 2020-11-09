@@ -288,4 +288,10 @@ class Payment extends BaseModel
 
         event(new PaymentWasVoided($this, $this->company, Ninja::eventVars()));
     }
+
+    public function getLink()
+    {
+        return route('client.payments.show', $this->hashed_id);
+    }
+    
 }

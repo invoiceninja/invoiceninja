@@ -69,7 +69,7 @@ class BaseMailerJob implements ShouldQueue
     }
 
     public function logMailError($errors, $recipient_object)
-    {
+    {info(print_r($errors,1));
         SystemLogger::dispatch(
             $errors,
             SystemLog::CATEGORY_MAIL,
