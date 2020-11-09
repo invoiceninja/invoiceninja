@@ -214,6 +214,10 @@ class Design extends BaseDesign
 
     public function deliveryNoteTable(): array
     {
+         if ($this->type !== 'delivery_note') {
+             return [];
+         }
+
         $elements = [
             ['element' => 'thead', 'elements' => [
                 ['element' => 'th', 'content' => '$item_label'],
@@ -259,7 +263,7 @@ class Design extends BaseDesign
     public function taskTable(): array
     {
         $task_items = collect($this->entity->line_items)->filter(function ($item) {
-            return $item->type_id = 2;
+            return $item->type_id == 2;
         });
 
         if (count($task_items) == 0) {
