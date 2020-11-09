@@ -143,9 +143,9 @@ class InvoiceService
         return (new GetInvoicePdf($this->invoice, $contact))->run();
     }
 
-    public function getInvoiceDeliveryNote($contact = null)
+    public function getInvoiceDeliveryNote(\App\Models\Invoice $invoice,  \App\Models\ClientContact $contact = null)
     {
-        //stubbed
+        return (new GenerateDeliveryNote($invoice, $contact))->run();
     }
 
     public function sendEmail($contact = null)
