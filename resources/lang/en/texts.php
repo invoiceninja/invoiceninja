@@ -3301,5 +3301,6 @@ return [
     'activity_63' => ':user emailed reminder 1 for invoice :invoice to :contact',
     'activity_64' => ':user emailed reminder 2 for invoice :invoice to :contact',
     'activity_65' => ':user emailed reminder 3 for invoice :invoice to :contact',
+    'activity_66' => ':user emailed reminder endless for invoice :invoice to :contact',
 
 ];
