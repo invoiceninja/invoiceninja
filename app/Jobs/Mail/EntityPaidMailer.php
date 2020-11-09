@@ -53,11 +53,11 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
      * @param $user
      * @param $company
      */
-    public function __construct($payment, $company)
+    public function __construct($payment, $company, $user)
     {
         $this->company = $company;
 
-        $this->user = $payment->user;
+        $this->user = $user;
 
         $this->payment = $payment;
 
@@ -84,7 +84,7 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
         try {
 
             $mail_obj = (new EntityPaidObject($this->payment))->build();
-            $mail_obj->from = [$this->payment->user->email, $this->payment->user->present()->name()];
+            $mail_obj->from = [$this->user->email, $this->user->present()->name()];
 
             //send email
             Mail::to($this->user->email)
@@ -96,7 +96,7 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
         }
 
         if (count(Mail::failures()) > 0) {
-            $this->logMailError(Mail::failures(), $this->entity->client);
+            $this->logMailError(Mail::failures(), $this->payment->client);
         } else {
           //  $this->entityEmailSucceeded();
         }
