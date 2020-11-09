@@ -110,7 +110,7 @@ class QuoteController extends Controller
         if ($process) {
             foreach ($quotes as $quote) {
                 $quote->service()->approve(auth()->user())->save();
-                event(new QuoteWasApproved($quote, $quote->company, Ninja::eventVars()));
+                event(new QuoteWasApproved(auth('contact')->user(), $quote, $quote->company, Ninja::eventVars()));
             }
 
             return redirect()
