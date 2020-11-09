@@ -39,6 +39,7 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
     private $company;
 
     public $settings;
+    
     /**
      * Create a new job instance.
      *

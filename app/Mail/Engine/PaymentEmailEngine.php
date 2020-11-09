@@ -103,6 +103,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
         $data['$number'] = ['value' => $this->payment->number ?: '&nbsp;', 'label' => ctrans('texts.payment_number')];
+        $data['$payment.number'] = &$data['$number'];
         $data['$entity'] = ['value' => '', 'label' => ctrans('texts.payment')];
         $data['$payment.amount'] = ['value' => Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.amount')];
         $data['$amount'] = &$data['$payment.amount'];
