@@ -12,12 +12,14 @@
 namespace App\Jobs\Entity;
 
 use App\DataMapper\Analytics\EmailInvoiceFailure;
+use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
+use App\Models\Activity;
 use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\Invoice;
@@ -169,11 +171,22 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
 
     private function entityEmailSucceeded()
     {
-        switch ($this->entity_string) {
+        switch ($this->reminder_template) {
             case 'invoice':
                 event(new InvoiceWasEmailed($this->invitation, $this->company, Ninja::eventVars()));
                 break;
-
+            case 'reminder1':
+                event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER1_SENT));
+                break;
+            case 'reminder2':
+                event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER2_SENT));
+                break;
+            case 'reminder3':
+                event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER3_SENT));
+                break;
+            case 'reminder_endless':
+                event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER_ENDLESS_SENT));
+                break;
             default:
                 # code...
                 break;

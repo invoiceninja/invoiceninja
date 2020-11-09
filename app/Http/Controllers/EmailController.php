@@ -138,9 +138,8 @@ class EmailController extends BaseController
         $entity_obj->save();
 
         /*Only notify the admin ONCE, not once per contact/invite*/
-        $invitation = $entity_obj->invitations->first();
-
-        EntitySentMailer::dispatch($invitation, $entity_string, $entity_obj->user, $invitation->company);
+        // $invitation = $entity_obj->invitations->first();
+        // EntitySentMailer::dispatch($invitation, $entity_string, $entity_obj->user, $invitation->company);
 
         if ($entity_obj instanceof Invoice) {
             $this->entity_type = Invoice::class;
