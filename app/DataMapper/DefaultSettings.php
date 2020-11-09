@@ -28,7 +28,6 @@ class DefaultSettings extends BaseSettings
     /**
      * @return stdClass
      *
-     * //todo user specific settings / preferences.
      */
     public static function userSettings() : stdClass
     {

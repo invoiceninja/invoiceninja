@@ -12,7 +12,6 @@
 namespace App\Jobs\Util;
 
 use App\Events\Invoice\InvoiceWasEmailed;
-use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Libraries\MultiDB;
 use App\Models\Account;

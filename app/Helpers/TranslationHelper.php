@@ -23,6 +23,8 @@
 function ctrans(string $string, $replace = [], $locale = null) : string
 {
     //todo pass through the cached version of the custom strings here else return trans();
+    //note** This may no longer be required as we are injecting the custom translations
+    //into the singleton now?
 
     return trans($string, $replace, $locale);
 }

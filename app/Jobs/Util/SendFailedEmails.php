@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Util;
 
-use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Entity\EmailEntity;
 use App\Libraries\MultiDB;
 use App\Models\SystemLog;
