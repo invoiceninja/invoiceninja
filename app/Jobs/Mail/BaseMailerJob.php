@@ -16,12 +16,15 @@ use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
 use App\Models\User;
 use App\Providers\MailServiceProvider;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Lang;
 use Turbo124\Beacon\Facades\LightLogs;
 
 /*Multi Mailer implemented*/
@@ -32,6 +35,9 @@ class BaseMailerJob implements ShouldQueue
 
     public function setMailDriver()
     {
+        App::forgetInstance('translator');
+        Lang::replace(Ninja::transformTranslations($this->settings));
+
         switch ($this->settings->email_sending_method) {
             case 'default':
                 break;
