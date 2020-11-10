@@ -22,8 +22,5 @@
  */
 function ctrans(string $string, $replace = [], $locale = null) : string
 {
-    //todo pass through the cached version of the custom strings here else return trans();
-    //note** This may no longer be required as we can simply set Lang::set() at runtime
-
     return trans($string, $replace, $locale);
 }
