@@ -249,7 +249,7 @@
 						<div class="col-lg-8 col-sm-8">
 							<div class="help-block">{{ trans('texts.migrate_intro_text')}}</div><br/>
 							<a class="btn btn-primary btn-lg"
-						   		href="/migration/start">{!! trans('texts.start_migration') !!}</a>
+						   		href="{{ url('/migration/start') }}">{!! trans('texts.start_migration') !!}</a>
 						</div>
 					</div>
 				</div>
