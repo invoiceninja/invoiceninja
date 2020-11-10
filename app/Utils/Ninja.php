@@ -121,4 +121,22 @@ class Ninja
             'is_system' => app()->runningInConsole(),
         ];
     }
+
+    public static function transformTranslations($settings) :array
+    {
+        $translations = [];
+
+        $trans = (array)$settings->translations;
+
+        if(count($trans) == 0)
+            return $translations;
+
+        foreach($trans as $key => $value)
+        {
+            $translations['texts.'.$key] = $value;  
+        }
+
+        return $translations;
+
+    }
 }
