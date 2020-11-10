@@ -17,7 +17,7 @@ use App\Models\Company;
 
 trait SavesDocuments
 {
-    public function saveDocuments($document_array, $entity, $is_public = false)
+    public function saveDocuments($document_array, $entity, $is_public = true)
     {
         if ($entity instanceof Company) {
             $account = $entity->account;

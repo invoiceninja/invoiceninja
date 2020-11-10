@@ -10,7 +10,6 @@
  */
 namespace Tests\Feature;
 
-use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Entity\EmailEntity;
 use App\Mail\TemplateEmail;
 use App\Models\ClientContact;

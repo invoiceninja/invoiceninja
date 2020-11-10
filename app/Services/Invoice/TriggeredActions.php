@@ -14,7 +14,6 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
-use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Invoice\EmailEntity;
 use App\Models\Client;
 use App\Models\Invoice;

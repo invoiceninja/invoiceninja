@@ -11,7 +11,6 @@
 
 namespace App\Services\Payment;
 
-use App\Helpers\Email\PaymentEmail;
 use App\Jobs\Payment\EmailPayment;
 
 class SendEmail
@@ -33,11 +32,9 @@ class SendEmail
      */
     public function run()
     {
-        $email_builder = (new PaymentEmail())->build($this->payment, $this->contact);
-
-        $this->payment->client->contacts->each(function ($contact) use ($email_builder) {
-            if ($contact->send && $contact->email) {
-                EmailPayment::dispatchNow($this->payment, $email_builder, $contact, $this->payment->company);
+        $this->payment->client->contacts->each(function ($contact) {
+            if ($contact->send_email && $contact->email) {
+                EmailPayment::dispatchNow($this->payment, $this->payment->company, $contact);
             }
         });
     }

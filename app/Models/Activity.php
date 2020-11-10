@@ -80,6 +80,11 @@ class Activity extends StaticModel
     const UPDATE_CLIENT = 61; //
     const UPDATE_VENDOR = 62; //
 
+    const INVOICE_REMINDER1_SENT = 63;
+    const INVOICE_REMINDER2_SENT = 64;
+    const INVOICE_REMINDER3_SENT = 65;
+    const INVOICE_REMINDER_ENDLESS_SENT = 66;
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',

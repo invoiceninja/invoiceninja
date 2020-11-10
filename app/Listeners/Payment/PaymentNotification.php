@@ -63,7 +63,7 @@ class PaymentNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                EntityPaidMailer::dispatch($payment, $payment->company);
+                EntityPaidMailer::dispatch($payment, $payment->company, $user);
 
             }
 

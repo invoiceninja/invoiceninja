@@ -63,7 +63,7 @@ class GmailTransport extends Transport
         $this->gmail->cc($message->getCc());
         $this->gmail->bcc($message->getBcc());
 
-        Log::error(print_r($message->getChildren(), 1));
+        info(print_r($message->getChildren(), 1));
 
         foreach ($message->getChildren() as $child) {
             $this->gmail->attach($child);

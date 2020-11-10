@@ -67,6 +67,10 @@ class Payment extends BaseModel
         'number',
         'is_manual',
         'private_notes',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
     ];
 
     protected $casts = [
@@ -284,4 +288,10 @@ class Payment extends BaseModel
 
         event(new PaymentWasVoided($this, $this->company, Ninja::eventVars()));
     }
+
+    public function getLink()
+    {
+        return route('client.payments.show', $this->hashed_id);
+    }
+    
 }

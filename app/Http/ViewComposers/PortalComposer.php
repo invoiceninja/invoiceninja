@@ -12,7 +12,9 @@
 namespace App\Http\ViewComposers;
 
 use App\Models\ClientContact;
+use App\Utils\Ninja;
 use App\Utils\TranslationHelper;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\View\View;
 
 /**
@@ -29,6 +31,9 @@ class PortalComposer
     public function compose(View $view) :void
     {
         $view->with($this->portalData());
+
+        if(auth()->user())
+            Lang::replace(Ninja::transformTranslations(auth()->user()->client->getMergedSettings()));
     }
 
     /**

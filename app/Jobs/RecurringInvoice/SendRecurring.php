@@ -14,7 +14,6 @@ namespace App\Jobs\RecurringInvoice;
 use App\DataMapper\Analytics\SendRecurringFailure;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
-use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Entity\EmailEntity;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
@@ -73,8 +72,6 @@ class SendRecurring implements ShouldQueue
        info("Invoice {$invoice->number} created");
 
         $invoice->invitations->each(function ($invitation) use ($invoice) {
-
-            $email_builder = (new InvoiceEmail())->build($invitation);
 
             if($invitation->contact && strlen($invitation->contact->email) >=1){
                 EmailEntity::dispatch($invitation, $invoice->company);

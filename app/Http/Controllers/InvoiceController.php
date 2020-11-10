@@ -20,7 +20,6 @@ use App\Factory\CloneInvoiceFactory;
 use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\InvoiceFactory;
 use App\Filters\InvoiceFilters;
-use App\Helpers\Email\InvoiceEmail;
 use App\Http\Requests\Invoice\ActionInvoiceRequest;
 use App\Http\Requests\Invoice\CreateInvoiceRequest;
 use App\Http\Requests\Invoice\DestroyInvoiceRequest;
@@ -723,8 +722,6 @@ class InvoiceController extends BaseController
                 $invoice->service()->touchReminder($this->reminder_template)->save();
 
                 $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
-                    $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
-
                     EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template);
                     
                 });

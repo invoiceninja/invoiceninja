@@ -178,6 +178,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder1Subject()
     {
+        info("reminder 1 subject");
         return ctrans('texts.reminder_subject', ['invoice'=>'$invoice.number', 'account'=>'$company.name']);
     }
 

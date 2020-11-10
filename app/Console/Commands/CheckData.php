@@ -355,8 +355,6 @@ class CheckData extends Command
         $wrong_balances = 0;
         $wrong_paid_to_dates = 0;
 
-        //todo reversing an invoice breaks the check data at this point;
-
         Client::cursor()->each(function ($client) use ($wrong_balances) {
             $client->invoices->where('is_deleted', false)->each(function ($invoice) use ($wrong_balances, $client) {
                 $total_amount = $invoice->payments->sum('pivot.amount');

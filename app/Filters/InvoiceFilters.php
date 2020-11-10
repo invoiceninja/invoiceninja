@@ -26,7 +26,6 @@ class InvoiceFilters extends QueryFilters
      * Filter based on client status.
      *
      * Statuses we need to handle
-     * //todo ?partials as a status?
      * - all
      * - paid
      * - unpaid
