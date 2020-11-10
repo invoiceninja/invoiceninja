@@ -3790,7 +3790,9 @@ $LANG = array(
     'tax_name1' => 'Tax Name 1',
     'tax_name2' => 'Tax Name 2',
     'transaction_id' => 'Transaction ID',
-);
+    'migration_select_company_label' => 'Awesome! Please select the companies you would like to migrate.',
+    'force_migration' => 'Force migration',
+); 
 
 return $LANG;
 
