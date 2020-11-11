@@ -4,7 +4,6 @@ namespace App\Services\Migration;
 
 use Illuminate\Support\Facades\Storage;
 use Unirest\Request;
-use Unirest\Request\Body;
 
 class CompleteService
 {
@@ -12,7 +11,7 @@ class CompleteService
 
     protected $endpoint = 'https://app.invoiceninja.com';
 
-    protected $uri = '/api/v1/migration/start/';
+    protected $uri = 'api/v1/migration/start';
 
     protected $errors = [];
 
@@ -41,24 +40,23 @@ class CompleteService
 
     public function start()
     {
-        $body = [
-            'companies' => [],
-        ];
+        $files = [];
 
         foreach ($this->data as $companyKey => $companyData) {
-            $body['companies'][] = [
+            $data[] = [
                 'company_key' => $companyKey,
-                'migration' => \Unirest\Request\Body::file($companyData['file'], 'application/zip'),
                 'force' => $companyData['force'],
             ];
+
+            $files[$companyKey] = $companyData['file'];
         }
 
-        try {
-            $response = Request::post($this->getUrl(), $this->getHeaders(), json_encode($body));
+        $body = \Unirest\Request\Body::multipart(['companies' => json_encode($data)], $files);
 
-            dd($response);
+        try {
+            $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            info($e->getMessage());
         }
 
         if ($response->code == 200) {
