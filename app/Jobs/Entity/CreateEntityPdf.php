@@ -31,6 +31,7 @@ use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\HtmlEngine;
+use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
@@ -42,6 +43,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 
@@ -102,6 +104,7 @@ class CreateEntityPdf implements ShouldQueue
         }
 
         App::setLocale($this->contact->preferredLocale());
+        App::forgetInstance('translator');
 
         $entity_design_id = '';
 
@@ -117,6 +120,8 @@ class CreateEntityPdf implements ShouldQueue
             $path = $this->entity->client->credit_filepath();
             $entity_design_id = 'credit_design_id';
         }
+
+        Lang::replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
 
         $file_path = $path.$this->entity->number.'.pdf';
 
@@ -139,7 +144,7 @@ class CreateEntityPdf implements ShouldQueue
                 'client' => $this->entity->client,
                 'entity' => $this->entity,
                 'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
-                'products' => $design->design->product,
+                '$product' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'options' => [

@@ -12,7 +12,6 @@
 namespace App\Jobs\Util;
 
 use App\Events\Invoice\InvoiceWasEmailed;
-use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Libraries\MultiDB;
 use App\Models\Account;
@@ -69,11 +68,9 @@ class ReminderJob implements ShouldQueue
                 $reminder_template = $invoice->calculateTemplate('invoice');    
                 $invoice->service()->touchReminder($this->reminder_template)->save();
 
-                $invoice->invitations->each(function ($invitation) use ($invoice) {
-                    $email_builder = (new InvoiceEmail())->build($invitation);
+                $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
 
-                    EmailInvoice::dispatch($email_builder, $invitation, $invoice->company);
-
+                    EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
                     info("Firing email for invoice {$invoice->number}");
                 });
 

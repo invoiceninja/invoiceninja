@@ -19,11 +19,6 @@ class ProductRepository extends BaseRepository
 {
     use SavesDocuments;
 
-    public function getClassName()
-    {
-        return Product::class;
-    }
-
     /**
      * @param array $data
      * @param Product $product

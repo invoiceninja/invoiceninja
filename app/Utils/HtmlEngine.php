@@ -304,14 +304,18 @@ class HtmlEngine
         $data['$task.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$task.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
         $data['$task.notes'] = ['value' => '', 'label' => ctrans('texts.notes')];
-        $data['$task.cost'] = ['value' => '', 'label' => ctrans('texts.cost')];
-        $data['$task.quantity'] = ['value' => '', 'label' => ctrans('texts.quantity')];
+        $data['$task.rate'] = ['value' => '', 'label' => ctrans('texts.rate')];
+        $data['$task.hours'] = ['value' => '', 'label' => ctrans('texts.hours')];
         $data['$task.tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name1'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
-        $data['$contact.signature'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
+
+        if($this->settings->signature_on_pdf)
+            $data['$contact.signature'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
+        else
+            $data['$contact.signature'] = ['value' => '', 'label' => ''];
 
         $data['$thanks'] = ['value' => '', 'label' => ctrans('texts.thanks')];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
@@ -328,6 +332,9 @@ class HtmlEngine
 
         $data['$primary_color'] = ['value' => $this->settings->primary_color, 'label' => ''];
         $data['$secondary_color'] = ['value' => $this->settings->secondary_color, 'label' => ''];
+
+        $data['$item'] = ['value' => '', 'label' => ctrans('texts.item')];
+        $data['$description'] = ['value' => '', 'label' => ctrans('texts.description')];
 
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];

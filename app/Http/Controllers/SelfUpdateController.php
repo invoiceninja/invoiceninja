@@ -84,4 +84,9 @@ class SelfUpdateController extends BaseController
 
         return response()->json(['message' => ''], 200);
     }
+
+    public function checkVersion()
+    {
+        return trim(file_get_contents(config('ninja.version_url')));
+    }
 }

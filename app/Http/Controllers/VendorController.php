@@ -11,6 +11,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Vendor\VendorWasCreated;
+use App\Events\Vendor\VendorWasUpdated;
 use App\Factory\VendorFactory;
 use App\Filters\VendorFilters;
 use App\Http\Requests\Vendor\CreateVendorRequest;
@@ -29,6 +31,7 @@ use App\Models\Vendor;
 use App\Repositories\BaseRepository;
 use App\Repositories\VendorRepository;
 use App\Transformers\VendorTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
@@ -280,6 +283,8 @@ class VendorController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $vendor->company, $vendor);
 
+        event(new VendorWasUpdated($vendor, $vendor->company, Ninja::eventVars()));
+
         return $this->itemResponse($vendor->fresh());
     }
 
@@ -375,6 +380,8 @@ class VendorController extends BaseController
         $vendor->load('contacts', 'primary_contact');
 
         $this->uploadLogo($request->file('company_logo'), $vendor->company, $vendor);
+
+        event(new VendorWasCreated($vendor, $vendor->company, Ninja::eventVars()));
 
         return $this->itemResponse($vendor);
     }

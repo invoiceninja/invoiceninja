@@ -23,19 +23,6 @@ class TaskRepository extends BaseRepository
 {
     use GeneratesCounter;
 
-    public function __construct()
-    {
-    }
-
-    /**
-     * Gets the class name.
-     *
-     * @return string The class name.
-     */
-    public function getClassName() 
-    {
-        return Task::class;
-    }
 
     /**
      * Saves the task and its contacts.
@@ -51,7 +38,7 @@ class TaskRepository extends BaseRepository
         $task->fill($data);
         $task->save();
 
-        $task->number = empty($task->number) ? $this->getNextTaskNumber($task) : $data['number'];
+        $task->number = empty($task->number) || !array_key_exists('number', $data) ? $this->getNextTaskNumber($task) : $data['number'];
 
         if (isset($data['description'])) {
             $task->description = trim($data['description']);

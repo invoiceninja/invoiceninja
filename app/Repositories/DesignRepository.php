@@ -11,30 +11,10 @@
 
 namespace App\Repositories;
 
-use App\Libraries\MultiDB;
-use App\Models\Activity;
-use App\Models\Backup;
-use App\Models\Client;
-use App\Models\Design;
-use App\Models\Invoice;
-use App\Models\User;
-use App\Utils\Traits\MakesInvoiceHtml;
-use Illuminate\Support\Facades\Log;
-
 /**
- * Class for activity repository.
+ * Class for DesignRepository .
  */
 class DesignRepository extends BaseRepository
 {
-    use MakesInvoiceHtml;
 
-    /**
-     * Gets the class name.
-     *
-     * @return     string The class name.
-     */
-    public function getClassName()
-    {
-        return Design::class;
-    }
 }

@@ -27,23 +27,14 @@ class InvoiceRepository extends BaseRepository
 {
     use MakesHash;
 
-    /**
-     * Gets the class name.
-     *
-     * @return     string  The class name.
-     */
-    public function getClassName()
-    {
-        return Invoice::class;
-    }
 
     /**
      * Saves the invoices.
      *
-     * @param      array.                                        $data     The invoice data
-     * @param      InvoiceSum|Invoice $invoice  The invoice
+     * @param      array $data       The invoice data
+     * @param      Invoice $invoice  The invoice
      *
-     * @return     Invoice|InvoiceSum|null  Returns the invoice object
+     * @return     Invoice|null  Returns the invoice object
      */
     public function save($data, Invoice $invoice):?Invoice
     {
@@ -75,19 +66,17 @@ class InvoiceRepository extends BaseRepository
      * ie. invoice can be deleted from a business logic perspective.
      *
      * @param Invoice $invoice
-     * @return void $invoice
+     * @return Invoice $invoice
      */
-    public function delete($invoice)
+    public function delete($invoice) :Invoice
     {
         if ($invoice->is_deleted) {
-            return;
+            return $invoice;
         }
 
         $invoice->service()->markDeleted()->handleCancellation()->save();
 
-
-
-        $invoice = parent::delete($invoice);
+        parent::delete($invoice);
 
         return $invoice;
     }

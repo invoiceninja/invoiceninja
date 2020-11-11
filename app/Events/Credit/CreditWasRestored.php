@@ -11,6 +11,7 @@
 
 namespace App\Events\Credit;
 
+use App\Models\Company;
 use App\Models\Credit;
 use Illuminate\Queue\SerializesModels;
 
@@ -30,6 +31,7 @@ class CreditWasRestored
 
     public $event_vars;
 
+    public $fromDeleted;
     /**
      * Create a new event instance.
      *
@@ -37,9 +39,10 @@ class CreditWasRestored
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(Credit $credit, Company $company, array $event_vars)
+    public function __construct(Credit $credit, $fromDeleted, Company $company, array $event_vars)
     {
         $this->credit = $credit;
+        $this->fromDeleted = $fromDeleted;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }

@@ -23,9 +23,11 @@ use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;
+use App\Utils\Traits\MakesReminders;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Laracasts\Presenter\PresentableTrait;
 
 class Credit extends BaseModel
@@ -36,7 +38,8 @@ class Credit extends BaseModel
     use SoftDeletes;
     use PresentableTrait;
     use MakesInvoiceValues;
-
+    use MakesReminders;
+    
     protected $presenter = CreditPresenter::class;
 
     protected $fillable = [
@@ -221,8 +224,6 @@ class Credit extends BaseModel
         if ($this->balance == 0) {
             $this->status_id = self::STATUS_APPLIED;
             $this->save();
-            //event(new InvoiceWasPaid($this, $this->company));//todo
-
             return;
         }
 
@@ -245,10 +246,10 @@ class Credit extends BaseModel
 
         if (! $invitation) {
             event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
-            CreateEntityPdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
+            CreateEntityPdf::dispatchNow($this->invitations->first());
         } else {
             event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
-            CreateEntityPdf::dispatchNow($invitation->credit, $invitation->company, $invitation->contact);
+            CreateEntityPdf::dispatchNow($invitation);
         }
 
         return $storage_path;

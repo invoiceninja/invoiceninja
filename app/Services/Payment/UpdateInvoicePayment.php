@@ -12,7 +12,6 @@
 namespace App\Services\Payment;
 
 use App\Events\Invoice\InvoiceWasUpdated;
-use App\Helpers\Email\PaymentEmail;
 use App\Jobs\Payment\EmailPayment;
 use App\Jobs\Util\SystemLogger;
 use App\Models\Invoice;

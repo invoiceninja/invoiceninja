@@ -3294,4 +3294,13 @@ return [
     'payment_method_saving_failed' => 'Payment method can\'t be saved for future use.',
     
     'pay_with' => 'Pay with',
+
+    'n/a' => 'N/A',
+    'payment_number' => 'Payment Number',
+
+    'activity_63' => ':user emailed reminder 1 for invoice :invoice to :contact',
+    'activity_64' => ':user emailed reminder 2 for invoice :invoice to :contact',
+    'activity_65' => ':user emailed reminder 3 for invoice :invoice to :contact',
+    'activity_66' => ':user emailed reminder endless for invoice :invoice to :contact',
+
 ];

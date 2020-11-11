@@ -12,6 +12,7 @@
 namespace App\Events\Client;
 
 use App\Models\Client;
+use App\Models\Company;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -26,6 +27,8 @@ class ClientWasRestored
      */
     public $client;
 
+    public $fromDeleted;
+    
     public $company;
 
     public $event_vars;
@@ -37,9 +40,10 @@ class ClientWasRestored
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(Client $client, Company $company, array $event_vars)
+    public function __construct(Client $client, $fromDeleted, Company $company, array $event_vars)
     {
         $this->client = $client;
+        $this->fromDeleted = $fromDeleted;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }

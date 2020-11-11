@@ -16,7 +16,6 @@ use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Invoice\EditInvoiceRequest;
-use App\Jobs\Credit\StoreCredit;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailCredit;
 use App\Jobs\Invoice\MarkInvoicePaid;
@@ -188,7 +187,9 @@ class CreditController extends BaseController
 
         $credit = $this->credit_repository->save($request->all(), CreditFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $credit = StoreCredit::dispatchNow($credit, $request->all(), $credit->company);
+        $credit = $credit->service()        
+                         ->fillDefaults()
+                         ->save();
 
         event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars()));
 
@@ -553,7 +554,7 @@ class CreditController extends BaseController
                 // EmailCredit::dispatch($credit, $credit->company);
 
                 $credit->invitations->load('contact.client.country', 'credit.client.country', 'credit.company')->each(function ($invitation) use ($credit) {
-                    EmailEntity::dispatch($invitation, $credit->company);
+                    EmailEntity::dispatch($invitation, $credit->company, 'credit');
                 });
 
 
@@ -571,10 +572,10 @@ class CreditController extends BaseController
     public function downloadPdf($invitation_key)
     {
         $invitation = $this->credit_repository->getInvitationByKey($invitation_key);
-        $contact = $invitation->contact;
+        // $contact = $invitation->contact;
         $credit = $invitation->credit;
 
-        $file_path = $credit->service()->getCreditPdf($contact);
+        $file_path = $credit->service()->getCreditPdf($invitation);
 
         return response()->download($file_path);
     }

@@ -19,14 +19,17 @@ use Illuminate\Support\Facades\Storage;
 
 class GetCreditPdf extends AbstractService
 {
-    private $credit;
+    public $credit;
 
-    private $contact;
+    public $contact;
 
-    public function __construct(Credit $credit, ClientContact $contact = null)
+    public $invitation;
+
+    public function __construct($invitation)
     {
-        $this->credit = $credit;
-        $this->contact = $contact;
+        $this->invitation = $invitation;
+        $this->credit = $invitation->credit;
+        $this->contact = $invitation->contact;
     }
 
     public function run()
@@ -44,7 +47,7 @@ class GetCreditPdf extends AbstractService
         $file = Storage::disk($disk)->exists($file_path);
 
         if (! $file) {
-            $file_path = CreateEntityPdf::dispatchNow($this->credit, $this->credit->company, $this->contact);
+            $file_path = CreateEntityPdf::dispatchNow($this->invitation);
         }
 
         return Storage::disk($disk)->path($file_path);

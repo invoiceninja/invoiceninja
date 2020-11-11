@@ -12,6 +12,7 @@
 namespace App\Events\Client;
 
 use App\Models\Client;
+use App\Models\Company;
 use Illuminate\Queue\SerializesModels;
 
 /**

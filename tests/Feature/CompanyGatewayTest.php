@@ -63,8 +63,8 @@ class CompanyGatewayTest extends TestCase
         $cg->user_id = $this->user->id;
         $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
         $cg->require_cvv = true;
-        $cg->show_billing_address = true;
-        $cg->show_shipping_address = true;
+        $cg->require_billing_address = true;
+        $cg->require_shipping_address = true;
         $cg->update_details = true;
         $cg->config = encrypt(config('ninja.testvars.stripe'));
         $cg->fees_and_limits = $data;
@@ -133,8 +133,8 @@ class CompanyGatewayTest extends TestCase
         $cg->user_id = $this->user->id;
         $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
         $cg->require_cvv = true;
-        $cg->show_billing_address = true;
-        $cg->show_shipping_address = true;
+        $cg->require_billing_address = true;
+        $cg->require_shipping_address = true;
         $cg->update_details = true;
         $cg->config = encrypt(config('ninja.testvars.stripe'));
         $cg->fees_and_limits = $data;
@@ -170,8 +170,8 @@ class CompanyGatewayTest extends TestCase
         $cg->user_id = $this->user->id;
         $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
         $cg->require_cvv = true;
-        $cg->show_billing_address = true;
-        $cg->show_shipping_address = true;
+        $cg->require_billing_address = true;
+        $cg->require_shipping_address = true;
         $cg->update_details = true;
         $cg->config = encrypt(config('ninja.testvars.stripe'));
         $cg->fees_and_limits = $data;

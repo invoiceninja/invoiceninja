@@ -30,11 +30,10 @@ trait QuoteEmailBuilder
      */
     public function getEmailData($reminder_template = null, $contact = null) :array
     {
-        //client
-        //$client = $this->client;
-
         if (! $reminder_template) {
-            $reminder_template = $this->calculateTemplate('quote');
+            $reminder_template = 'quote';
+
+            //$reminder_template = $this->calculateTemplate('quote');
         }
 
         //Need to determine which email template we are producing

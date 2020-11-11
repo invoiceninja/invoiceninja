@@ -20,10 +20,7 @@ use Illuminate\Http\Request;
  */
 class RecurringQuoteRepository extends BaseRepository
 {
-    public function getClassName()
-    {
-        return RecurringQuote::class;
-    }
+
 
     public function save(Request $request, RecurringQuote $quote) : ?RecurringQuote
     {
@@ -31,12 +28,9 @@ class RecurringQuoteRepository extends BaseRepository
 
         $quote->save();
 
-        $quote_calc = new InvoiceSum($quote, $quote->settings);
+        $quote_calc = new InvoiceSum($quote);
 
         $quote = $quote_calc->build()->getQuote();
-
-        //fire events here that cascading from the saving of an Quote
-        //ie. client balance update...
 
         return $quote;
     }

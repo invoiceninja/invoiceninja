@@ -86,67 +86,87 @@
         font-weight: normal;
     }
 
-    #product-table {
+    #product-table,
+    #delivery-note-table,
+    #task-table {
         margin-top: 3rem;
-        margin-bottom: 200px;
+        /* margin-bottom: 200px; */
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
         border-top: 5px solid var(--primary-color);
     }
 
-    #product-table > thead {
+    .task-duration {
+        display: block;
+        margin-top: 5px;
+        color: grey;
+    }
+
+    #product-table > thead,
+    #delivery-note-table > thead,
+    #task-table > thead {
         text-align: left;
     }
 
-    #product-table > thead > tr > th {
+    #product-table > thead > tr > th,
+    #delivery-note-table > thead > tr > th,
+    #task-table > thead > tr > th {
         font-size: 1.1rem;
         padding: 1rem;
     }
 
-    #product-table > thead > tr > th:last-child {
+    #product-table > thead > tr > th:last-child,
+    #delivery-note-table > thead > tr > th:last-child,
+    #task-table > thead > tr > th:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr > td:last-child {
+    #product-table > tbody > tr > td:last-child,
+    #delivery-note-table > tbody > tr > td:last-child,
+    #task-table > tbody > tr > td:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr > td {
+    #product-table > tbody > tr > td,
+    #delivery-note-table > tbody > tr > td,
+    #task-table > tbody > tr > td {
         padding: 1rem;
     }
 
-    #product-table > tbody > tr:nth-child(odd) {
+    #product-table > tbody > tr:nth-child(odd),
+    #delivery-note-table > tbody > tr:nth-child(odd),
+    #task-table > tbody > tr:nth-child(odd) {
         background-color: #e8e8e8;
     }
 
-    #product-table-footer {
+    #table-totals {
         page-break-inside: avoid;
     }
 
-    #product-table-footer > * {
+    #table-totals > * {
         display: grid;
         grid-template-columns: 3fr 1fr 1fr;
         padding-top: 1rem;
     }
 
-    #product-table-footer
+    #table-totals
     > *
     [data-element='product-table-balance-due'] {
         font-weight: bold;
         color: var(--primary-color);
     }
 
-    #product-table-footer > * > * {
+    #table-totals > * > * {
         padding-left: 1rem;
     }
 
-    #product-table-footer > *:last-child > * {
+    #table-totals > *:last-child > * {
         border-top: 5px solid var(--primary-color);
         padding-top: 1rem;
     }
 
-    #product-table-footer > * > :last-child {
+    #table-totals > * > :last-child {
         text-align: right;
         padding-right: 1rem;
     }
@@ -181,7 +201,11 @@
 
     <table id="product-table" cellspacing="0"></table>
 
-    <div id="product-table-footer" cellspacing="0"></div>
+    <table id="task-table" cellspacing="0"></table>
+
+    <div id="table-totals" cellspacing="0"></div>
+
+    <table id="delivery-note-table" cellspacing="0"></table>
 </div>
 
 <div id="footer"></div>

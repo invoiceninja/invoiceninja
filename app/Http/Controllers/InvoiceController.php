@@ -20,7 +20,6 @@ use App\Factory\CloneInvoiceFactory;
 use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\InvoiceFactory;
 use App\Filters\InvoiceFilters;
-use App\Helpers\Email\InvoiceEmail;
 use App\Http\Requests\Invoice\ActionInvoiceRequest;
 use App\Http\Requests\Invoice\CreateInvoiceRequest;
 use App\Http\Requests\Invoice\DestroyInvoiceRequest;
@@ -35,8 +34,10 @@ use App\Jobs\Util\UnlinkFile;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Quote;
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
+use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
@@ -213,7 +214,10 @@ class InvoiceController extends BaseController
 
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
 
-        $invoice = $invoice->service()->triggeredActions($request)->save();
+        $invoice = $invoice->service()
+                           ->fillDefaults()
+                           ->triggeredActions($request)
+                           ->save();
 
         return $this->itemResponse($invoice);
     }
@@ -637,7 +641,12 @@ class InvoiceController extends BaseController
                 break;
             case 'clone_to_quote':
                 $quote = CloneInvoiceToQuoteFactory::create($invoice, auth()->user()->id);
-                // todo build the quote transformer and return response here
+
+                $this->entity_transformer = QuoteTransformer::class;
+                $this->entity_type = Quote::class;
+
+                return $this->itemResponse($quote);
+
                 break;
             case 'history':
                 // code...
@@ -720,9 +729,8 @@ class InvoiceController extends BaseController
                 $invoice->service()->touchReminder($this->reminder_template)->save();
 
                 $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
-                    $email_builder = (new InvoiceEmail())->build($invitation, $this->reminder_template);
-
-                    EmailEntity::dispatch($invitation, $invoice->company);
+                    EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template);
+                    
                 });
 
                 if (! $bulk) {
@@ -789,5 +797,58 @@ class InvoiceController extends BaseController
         $file_path = $invoice->service()->getInvoicePdf($contact);
 
         return response()->download($file_path, basename($file_path));
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/invoices/{id}/delivery_note",
+     *      operationId="deliveryNote",
+     *      tags={"invoices"},
+     *      summary="Download a specific invoice delivery notes",
+     *      description="Downloads a specific invoice delivery notes",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Invoice Hahsed Id",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the invoice delivery note pdf",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     * @param $invoice
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function deliveryNote(ShowInvoiceRequest $request, Invoice $invoice)
+    {
+        $file_path = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
+        
+        $file = base_path("storage/app/public/{$file_path}");
+
+        return response()->download($file, basename($file));
     }
 }

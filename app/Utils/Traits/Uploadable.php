@@ -11,13 +11,31 @@
 
 namespace App\Utils\Traits;
 
+use App\Jobs\Util\UnlinkFile;
 use App\Jobs\Util\UploadAvatar;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class Uploadable.
  */
 trait Uploadable
 {
+
+    public function removeLogo($company)
+    {
+        $company_logo = $company->settings->company_logo;
+
+        $file_name = basename($company_logo);
+
+        $storage_path = $company->company_key . '/' . $file_name;
+
+        if (Storage::exists($storage_path)) {
+            UnlinkFile::dispatchNow(config('filesystems.default'), $storage_path);
+        }
+
+
+    }
+
     public function uploadLogo($file, $company, $entity)
     {
         if ($file) {

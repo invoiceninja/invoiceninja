@@ -11,7 +11,6 @@
 
 namespace App\Services\Quote;
 
-use App\Helpers\Email\QuoteEmail;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Quote\EmailQuote;
 use App\Models\ClientContact;
@@ -46,10 +45,7 @@ class SendEmail
 
         $this->quote->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                $email_builder = (new QuoteEmail())->build($invitation, $this->reminder_template);
-
-                // EmailQuote::dispatchNow($email_builder, $invitation, $invitation->company);
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatchNow($invitation, $invitation->company, $this->reminder_template);
 
             }
         });

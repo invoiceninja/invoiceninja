@@ -60,8 +60,8 @@ class AutoBillInvoice extends AbstractService
         if($this->client->getSetting('use_credits_payment') != 'off')
             $this->applyCreditPayment();
 
-        info("partial = {$this->invoice->partial}");
-        info("balance = {$this->invoice->balance}");
+        // info("partial = {$this->invoice->partial}");
+        // info("balance = {$this->invoice->balance}");
 
         /* Determine $amount */
         if ($this->invoice->partial > 0)

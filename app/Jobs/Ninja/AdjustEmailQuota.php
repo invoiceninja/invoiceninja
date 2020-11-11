@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Ninja;
 
-use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Invoice\EmailInvoice;
 use App\Libraries\MultiDB;
 use App\Models\Account;

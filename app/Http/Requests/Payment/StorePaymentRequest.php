@@ -77,7 +77,7 @@ class StorePaymentRequest extends Request
         }
 
         if (! isset($input['amount']) || $input['amount'] == 0) {
-            $input['amount'] = $invoices_total - $credits_total; //todo the payment amount is always less the credit amount applied
+            $input['amount'] = $invoices_total - $credits_total; 
         }
 
         $input['is_manual'] = true;

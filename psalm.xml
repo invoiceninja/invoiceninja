@@ -61,6 +61,16 @@
       <directory name="app" /> 
     </errorLevel>
   </InvalidNullableReturnType> 
+    <ImplementedReturnTypeMismatch>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </ImplementedReturnTypeMismatch> 
+      <NoInterfaceProperties>
+    <errorLevel type="suppress">
+      <directory name="app" /> 
+    </errorLevel>
+  </NoInterfaceProperties> 
  
 
 </issueHandlers>

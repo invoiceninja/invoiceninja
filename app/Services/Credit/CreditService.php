@@ -16,9 +16,12 @@ use App\Services\Credit\ApplyPayment;
 use App\Services\Credit\CreateInvitations;
 use App\Services\Credit\MarkSent;
 use App\Services\Credit\SendEmail;
+use App\Utils\Traits\MakesHash;
 
 class CreditService
 {
+    use MakesHash;
+
     protected $credit;
 
     public function __construct($credit)
@@ -26,9 +29,9 @@ class CreditService
         $this->credit = $credit;
     }
 
-    public function getCreditPdf($contact)
+    public function getCreditPdf($invitation)
     {
-        return (new GetCreditPdf($this->credit, $contact))->run();
+        return (new GetCreditPdf($invitation))->run();
     }
 
     /**
@@ -98,6 +101,24 @@ class CreditService
         return $this;
     }
 
+
+    public function fillDefaults()
+    {
+        $settings = $this->credit->client->getMergedSettings();
+
+        if(! $this->credit->design_id) 
+            $this->credit->design_id = $this->decodePrimaryKey($settings->credit_design_id);
+            
+        if(!isset($this->credit->footer))
+            $this->credit->footer = $settings->credit_footer;
+
+        if(!isset($this->credit->terms))
+            $this->credit->terms = $settings->credit_terms;
+
+        
+        return $this;        
+    }
+    
     /**
      * Saves the credit.
      * @return Credit object

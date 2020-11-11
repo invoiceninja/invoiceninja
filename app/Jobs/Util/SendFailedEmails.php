@@ -11,9 +11,7 @@
 
 namespace App\Jobs\Util;
 
-use App\Helpers\Email\InvoiceEmail;
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Invoice\EmailInvoice;
 use App\Libraries\MultiDB;
 use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
@@ -66,10 +64,9 @@ class SendFailedEmails implements ShouldQueue
             $invitation = $job_meta_array['entity_name']::where('key', $job_meta_array['invitation_key'])->with('contact')->first();
 
             if ($invitation->invoice) {
-                $email_builder = (new InvoiceEmail())->build($invitation, $job_meta_array['reminder_template']);
 
                 if ($invitation->contact->send_email && $invitation->contact->email) {
-                    EmailEntity::dispatch($invitation, $invitation->company);
+                    EmailEntity::dispatch($invitation, $invitation->company, $job_meta_array['reminder_template']);
                 }
             }
         });

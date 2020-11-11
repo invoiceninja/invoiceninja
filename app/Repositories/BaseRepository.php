@@ -35,24 +35,6 @@ class BaseRepository
     use SavesDocuments;
 
     /**
-     * @return null
-     */
-    public function getClassName()
-    {
-        return null;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function getInstance()
-    {
-        $className = $this->getClassName();
-
-        return new $className();
-    }
-
-    /**
      * @param $entity
      * @param $type
      *
@@ -60,7 +42,7 @@ class BaseRepository
      */
     private function getEventClass($entity, $type)
     {
-        return 'App\Events\\'.ucfirst(class_basename($entity)).'Was'.$type;
+        return 'App\Events\\'.ucfirst(class_basename($entity)).'\\'.ucfirst(class_basename($entity)).'Was'.$type;
     }
 
     /**
@@ -153,25 +135,6 @@ class BaseRepository
         return count($entities);
     }
 
-    /**
-     * @param $ids
-     *
-     * @return mixed
-     */
-    public function findByPublicIds($ids)
-    {
-        return $this->getInstance()->scope($ids)->get();
-    }
-
-    /**
-     * @param $ids
-     *
-     * @return mixed
-     */
-    public function findByPublicIdsWithTrashed($ids)
-    {
-        return $this->getInstance()->scope($ids)->withTrashed()->get();
-    }
 
     public function getInvitation($invitation, $resource)
     {
@@ -338,10 +301,6 @@ class BaseRepository
 
         if ($class->name == Quote::class) {
             $model = $model->calc()->getQuote();
-
-            if (! $model->design_id) {
-                $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
-            }
         }
 
         $model->save();

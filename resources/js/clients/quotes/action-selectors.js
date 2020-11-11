@@ -54,7 +54,7 @@ class ActionSelectors {
 
         let _temp = document.createElement('INPUT');
 
-        _temp.setAttribute('name', 'invoices[]');
+        _temp.setAttribute('name', 'quotes[]');
         _temp.setAttribute('value', element.dataset.value);
         _temp.setAttribute('class', 'child-hidden-input');
         _temp.hidden = true;

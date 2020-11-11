@@ -364,10 +364,14 @@ class DemoMode extends Command
 
     private function createProject($client, $assigned_user_id = null)
     {
-        $vendor = Project::factory()->create([
+        $project = Project::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company_id,
+                'client_id' => $client->id,
             ]);
+
+        $project->number = $this->getNextProjectNumber($project);
+        $project->save();
     }
 
     private function createInvoice($client, $assigned_user_id = null)
@@ -431,7 +435,7 @@ class DemoMode extends Command
                 $payment->save();
             });
         }
-        //@todo this slow things down, but gives us PDFs of the invoices for inspection whilst debugging.
+
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
     }
 

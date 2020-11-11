@@ -47,24 +47,24 @@ class Activity extends StaticModel
     const RESTORE_PAYMENT = 27; //
     const RESTORE_CREDIT = 28; //
     const APPROVE_QUOTE = 29; //
-    const CREATE_VENDOR = 30;
-    const ARCHIVE_VENDOR = 31;
-    const DELETE_VENDOR = 32;
-    const RESTORE_VENDOR = 33;
-    const CREATE_EXPENSE = 34;
-    const ARCHIVE_EXPENSE = 35;
-    const DELETE_EXPENSE = 36;
-    const RESTORE_EXPENSE = 37;
+    const CREATE_VENDOR = 30; //
+    const ARCHIVE_VENDOR = 31;//
+    const DELETE_VENDOR = 32;//
+    const RESTORE_VENDOR = 33;//
+    const CREATE_EXPENSE = 34;//
+    const ARCHIVE_EXPENSE = 35;//
+    const DELETE_EXPENSE = 36;//
+    const RESTORE_EXPENSE = 37;//
 
     const VOIDED_PAYMENT = 39; //
     const REFUNDED_PAYMENT = 40; //
     const FAILED_PAYMENT = 41;
-    const CREATE_TASK = 42;
-    const UPDATE_TASK = 43;
-    const ARCHIVE_TASK = 44;
-    const DELETE_TASK = 45;
-    const RESTORE_TASK = 46;
-    const UPDATE_EXPENSE = 47;
+    const CREATE_TASK = 42; //
+    const UPDATE_TASK = 43; //
+    const ARCHIVE_TASK = 44; //
+    const DELETE_TASK = 45; //
+    const RESTORE_TASK = 46; //
+    const UPDATE_EXPENSE = 47;//
 
     const CREATE_USER = 48; // only used in CreateUser::job
     const UPDATE_USER = 49; // not needed?
@@ -77,6 +77,13 @@ class Activity extends StaticModel
     const REVERSED_INVOICE = 58; //
     const CANCELLED_INVOICE = 59; //
     const VIEW_CREDIT = 60; //
+    const UPDATE_CLIENT = 61; //
+    const UPDATE_VENDOR = 62; //
+
+    const INVOICE_REMINDER1_SENT = 63;
+    const INVOICE_REMINDER2_SENT = 64;
+    const INVOICE_REMINDER3_SENT = 65;
+    const INVOICE_REMINDER_ENDLESS_SENT = 66;
 
     protected $casts = [
         'is_system' => 'boolean',

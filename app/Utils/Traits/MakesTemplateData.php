@@ -193,8 +193,8 @@ trait MakesTemplateData
         $data['$task.discount'] = ['value' => '5%', 'label' => ctrans('texts.discount')];
         $data['$task.product_key'] = ['value' => 'key', 'label' => ctrans('texts.product_key')];
         $data['$task.notes'] = ['value' => 'Note for Tasks', 'label' => ctrans('texts.notes')];
-        $data['$task.cost'] = ['value' => '$100.00', 'label' => ctrans('texts.cost')];
-        $data['$task.quantity'] = ['value' => '1', 'label' => ctrans('texts.quantity')];
+        $data['$task.rate'] = ['value' => '$100.00', 'label' => ctrans('texts.rate')];
+        $data['$task.hours'] = ['value' => '1', 'label' => ctrans('texts.hours')];
         $data['$task.tax_name1'] = ['value' => 'GST', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name2'] = ['value' => 'VAT', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name3'] = ['value' => 'CA Sales Tax', 'label' => ctrans('texts.tax')];

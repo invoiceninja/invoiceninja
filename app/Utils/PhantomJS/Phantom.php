@@ -117,7 +117,7 @@ class Phantom
                 'client' => $this->entity->client,
                 'entity' => $this->entity,
                 'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
-                'products' => $design->design->product,
+                '$product' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'options' => [

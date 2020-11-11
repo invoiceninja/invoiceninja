@@ -143,6 +143,11 @@ class InvoiceService
         return (new GetInvoicePdf($this->invoice, $contact))->run();
     }
 
+    public function getInvoiceDeliveryNote(\App\Models\Invoice $invoice,  \App\Models\ClientContact $contact = null)
+    {
+        return (new GenerateDeliveryNote($invoice, $contact))->run();
+    }
+
     public function sendEmail($contact = null)
     {
         $send_email = new SendEmail($this->invoice, null, $contact);
@@ -357,6 +362,24 @@ class InvoiceService
         return $this;
     }
 
+
+    public function fillDefaults()
+    {
+        $settings = $this->invoice->client->getMergedSettings();
+
+        if(! $this->invoice->design_id) 
+            $this->invoice->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
+            
+        if(!isset($this->invoice->footer))
+            $this->invoice->footer = $settings->invoice_footer;
+
+        if(!isset($this->invoice->terms))
+            $this->invoice->terms = $settings->invoice_terms;
+
+        
+        return $this;        
+    }
+    
     /**
      * Saves the invoice.
      * @return Invoice object

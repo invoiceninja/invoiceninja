@@ -30,6 +30,12 @@ use App\Events\Credit\CreditWasRestored;
 use App\Events\Credit\CreditWasUpdated;
 use App\Events\Credit\CreditWasViewed;
 use App\Events\Design\DesignWasArchived;
+use App\Events\Expense\ExpenseWasArchived;
+use App\Events\Expense\ExpenseWasCreated;
+use App\Events\Expense\ExpenseWasDeleted;
+use App\Events\Expense\ExpenseWasRestored;
+use App\Events\Expense\ExpenseWasUpdated;
+use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\Events\Invoice\InvoiceWasArchived;
 use App\Events\Invoice\InvoiceWasCancelled;
 use App\Events\Invoice\InvoiceWasCreated;
@@ -57,16 +63,34 @@ use App\Events\Quote\QuoteWasEmailed;
 use App\Events\Quote\QuoteWasRestored;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Events\Quote\QuoteWasViewed;
+use App\Events\Task\TaskWasArchived;
+use App\Events\Task\TaskWasCreated;
+use App\Events\Task\TaskWasDeleted;
+use App\Events\Task\TaskWasRestored;
+use App\Events\Task\TaskWasUpdated;
 use App\Events\User\UserLoggedIn;
 use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
+use App\Events\Vendor\VendorWasArchived;
+use App\Events\Vendor\VendorWasCreated;
+use App\Events\Vendor\VendorWasDeleted;
+use App\Events\Vendor\VendorWasRestored;
+use App\Events\Vendor\VendorWasUpdated;
 use App\Listeners\Activity\ArchivedClientActivity;
+use App\Listeners\Activity\ClientUpdatedActivity;
 use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\CreatedCreditActivity;
+use App\Listeners\Activity\CreatedExpenseActivity;
 use App\Listeners\Activity\CreatedQuoteActivity;
+use App\Listeners\Activity\CreatedTaskActivity;
+use App\Listeners\Activity\CreatedVendorActivity;
 use App\Listeners\Activity\CreditArchivedActivity;
 use App\Listeners\Activity\DeleteClientActivity;
 use App\Listeners\Activity\DeleteCreditActivity;
+use App\Listeners\Activity\ExpenseArchivedActivity;
+use App\Listeners\Activity\ExpenseDeletedActivity;
+use App\Listeners\Activity\ExpenseRestoredActivity;
+use App\Listeners\Activity\ExpenseUpdatedActivity;
 use App\Listeners\Activity\PaymentCreatedActivity;
 use App\Listeners\Activity\PaymentDeletedActivity;
 use App\Listeners\Activity\PaymentRefundedActivity;
@@ -74,7 +98,15 @@ use App\Listeners\Activity\PaymentUpdatedActivity;
 use App\Listeners\Activity\PaymentVoidedActivity;
 use App\Listeners\Activity\QuoteUpdatedActivity;
 use App\Listeners\Activity\RestoreClientActivity;
+use App\Listeners\Activity\TaskArchivedActivity;
+use App\Listeners\Activity\TaskDeletedActivity;
+use App\Listeners\Activity\TaskRestoredActivity;
+use App\Listeners\Activity\TaskUpdatedActivity;
 use App\Listeners\Activity\UpdatedCreditActivity;
+use App\Listeners\Activity\VendorArchivedActivity;
+use App\Listeners\Activity\VendorDeletedActivity;
+use App\Listeners\Activity\VendorRestoredActivity;
+use App\Listeners\Activity\VendorUpdatedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Credit\CreditRestoredActivity;
 use App\Listeners\Credit\CreditViewedActivity;
@@ -90,6 +122,7 @@ use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\InvoicePaidActivity;
+use App\Listeners\Invoice\InvoiceReminderEmailActivity;
 use App\Listeners\Invoice\InvoiceRestoredActivity;
 use App\Listeners\Invoice\InvoiceReversedActivity;
 use App\Listeners\Invoice\InvoiceViewedActivity;
@@ -161,6 +194,7 @@ class EventServiceProvider extends ServiceProvider
             ArchivedClientActivity::class,
         ],
         ClientWasUpdated::class =>[
+            ClientUpdatedActivity::class,
         ],
         ClientWasDeleted::class =>[
             DeleteClientActivity::class,
@@ -204,13 +238,28 @@ class EventServiceProvider extends ServiceProvider
             CreditViewedActivity::class,
         ],
         //Designs
-        DesignWasArchived::class => [
-        ],
         DesignWasUpdated::class => [
+        ],
+        DesignWasArchived::class => [
         ],
         DesignWasDeleted::class => [
         ],
         DesignWasRestored::class => [
+        ],
+        ExpenseWasCreated::class => [
+            CreatedExpenseActivity::class,
+        ],
+        ExpenseWasUpdated::class => [
+            ExpenseUpdatedActivity::class,
+        ],
+        ExpenseWasArchived::class => [
+            ExpenseArchivedActivity::class,
+        ],
+        ExpenseWasDeleted::class => [
+            ExpenseDeletedActivity::class,
+        ],
+        ExpenseWasRestored::class => [
+            ExpenseRestoredActivity::class
         ],
         //Invoices
         InvoiceWasMarkedSent::class => [
@@ -237,6 +286,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasEmailedAndFailed::class => [
             InvoiceEmailFailedActivity::class,
+        ],
+        InvoiceReminderWasEmailed::class => [
+            InvoiceReminderEmailActivity::class,
         ],
         InvoiceWasDeleted::class => [
             InvoiceDeletedActivity::class,
@@ -286,6 +338,37 @@ class EventServiceProvider extends ServiceProvider
         QuoteWasRestored::class => [
             QuoteRestoredActivity::class,
         ],
+        TaskWasCreated::class => [
+            CreatedTaskActivity::class,
+        ],
+        TaskWasUpdated::class => [
+            TaskUpdatedActivity::class,
+        ],
+        TaskWasArchived::class => [
+            TaskArchivedActivity::class,
+        ],
+        TaskWasDeleted::class => [
+            TaskDeletedActivity::class,
+        ],
+        TaskWasRestored::class => [
+            TaskRestoredActivity::class,
+        ],
+        VendorWasCreated::class => [
+            CreatedVendorActivity::class,
+        ],
+        VendorWasArchived::class => [
+            VendorArchivedActivity::class,
+        ],
+        VendorWasDeleted::class => [
+            VendorDeletedActivity::class,
+        ],
+        VendorWasRestored::class => [
+            VendorRestoredActivity::class,
+        ],
+        VendorWasUpdated::class => [
+            VendorUpdatedActivity::class,
+        ],
+
     ];
 
     /**

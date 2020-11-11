@@ -55,7 +55,7 @@ class ContactTokenAuth
             //stateless, don't remember the contact.
             auth()->guard('contact')->login($client_contact, false);
 
-            event(new ContactLoggedIn($client_contact, $client_contact->company, Ninja::eventVars())); //todo
+            event(new ContactLoggedIn($client_contact, $client_contact->company, Ninja::eventVars())); 
         } else {
             $error = [
                 'message' => 'Invalid token',

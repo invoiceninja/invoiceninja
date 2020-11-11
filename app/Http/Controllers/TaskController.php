@@ -11,6 +11,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Task\TaskWasCreated;
+use App\Events\Task\TaskWasUpdated;
 use App\Factory\TaskFactory;
 use App\Filters\TaskFilters;
 use App\Http\Requests\Task\CreateTaskRequest;
@@ -24,11 +26,12 @@ use App\Jobs\Util\ProcessBulk;
 use App\Jobs\Util\UploadAvatar;
 use App\Models\Country;
 use App\Models\Currency;
-use App\Models\Task;
 use App\Models\Size;
+use App\Models\Task;
 use App\Repositories\BaseRepository;
 use App\Repositories\TaskRepository;
 use App\Transformers\TaskTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
@@ -278,6 +281,8 @@ class TaskController extends BaseController
 
         $task = $this->task_repo->save($request->all(), $task);
 
+        event(new TaskWasUpdated($task, $task->company, Ninja::eventVars()));
+
         return $this->itemResponse($task->fresh());
     }
 
@@ -369,6 +374,8 @@ class TaskController extends BaseController
     public function store(StoreTaskRequest $request)
     {
         $task = $this->task_repo->save($request->all(), TaskFactory::create(auth()->user()->company()->id, auth()->user()->id));
+
+        event(new TaskWasCreated($task, $task->company, Ninja::eventVars()));
 
         return $this->itemResponse($task);
     }

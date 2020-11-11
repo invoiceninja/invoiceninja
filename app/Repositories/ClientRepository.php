@@ -39,17 +39,7 @@ class ClientRepository extends BaseRepository
     {
         $this->contact_repo = $contact_repo;
     }
-
-    /**
-     * Gets the class name.
-     *
-     * @return     string The class name.
-     */
-    public function getClassName()
-    {
-        return Client::class;
-    }
-
+    
     /**
      * Saves the client and its contacts.
      *
@@ -63,27 +53,24 @@ class ClientRepository extends BaseRepository
      */
     public function save(array $data, Client $client) : ?Client
     {
-        $client->fill($data);
 
-        $client->save();
-
-        if ($client->id_number == '' || ! $client->id_number) {
-            $client->id_number = $this->getNextClientNumber($client);
+        /* When uploading documents, only the document array is sent, so we must return early*/
+        if (array_key_exists('documents', $data) && count($data['documents']) >=1) {
+            $this->saveDocuments($data['documents'], $client);
+            return $client;
         }
 
+        $client->fill($data);
+        
+        if (!isset($client->id_number)) 
+            $client->id_number = $this->getNextClientNumber($client);
+
+        if (empty($data['name'])) 
+            $data['name'] = $client->present()->name();
+        
         $client->save();
 
         $this->contact_repo->save($data, $client);
-
-        if (empty($data['name'])) {
-            $data['name'] = $client->present()->name();
-        }
-
-        //info("{$client->present()->name} has a balance of {$client->balance} with a paid to date of {$client->paid_to_date}");
-
-        if (array_key_exists('documents', $data)) {
-            $this->saveDocuments($data['documents'], $client);
-        }
 
         return $client;
     }

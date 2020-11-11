@@ -74,6 +74,7 @@ use App\Repositories\VendorRepository;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Uploadable;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -91,7 +92,7 @@ class Import implements ShouldQueue
     use CompanyGatewayFeesAndLimitsSaver;
     use MakesHash;
     use CleanLineItems;
-
+    use Uploadable;
     /**
      * @var array
      */
@@ -259,6 +260,14 @@ class Import implements ShouldQueue
 
         $company_repository = new CompanyRepository();
         $company_repository->save($data, $this->company);
+
+        if(isset($data['settings']->company_logo) && strlen($data['settings']->company_logo) > 0) {
+
+            $tempImage = tempnam(sys_get_temp_dir(), basename($data['settings']->company_logo));
+            copy($data['settings']->company_logo, $tempImage);
+            $this->uploadLogo($tempImage, $this->company, $this->company);
+            
+        }
 
         Company::reguard();
 
@@ -963,6 +972,7 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             $cgt = ClientGatewayToken::Create($modified);
 
@@ -992,7 +1002,7 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             $task_status = TaskStatus::Create($modified);
 
@@ -1022,7 +1032,7 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             $expense_category = ExpenseCategory::Create($modified);
 
@@ -1051,7 +1061,7 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             if(isset($modified['client_id']))
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
@@ -1092,7 +1102,7 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             if(isset($modified['client_id']))
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
@@ -1125,7 +1135,7 @@ class Import implements ShouldQueue
             unset($modified['id']);
 
             $modified['company_id'] = $this->company->id;
-            $modified['user_id'] = $this->transformId('users', $resource['user_id']);
+            $modified['user_id'] = $this->processUserId($resource);
 
             if(isset($resource['client_id']))
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);

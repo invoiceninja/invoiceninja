@@ -9,7 +9,8 @@
         "expenses",
         "CRM",
         "Credit card billing",
-        "projects"
+        "projects",
+        "tasks"
     ],
     "license": "Attribution Assurance License",
     "authors": [

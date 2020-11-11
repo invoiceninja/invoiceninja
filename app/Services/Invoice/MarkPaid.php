@@ -14,6 +14,7 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
+use App\Jobs\Payment\EmailPayment;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
@@ -66,12 +67,16 @@ class MarkPaid extends AbstractService
             'amount' => $payment->amount,
         ]);
 
+        $this->invoice->next_send_date = null;
+        
         $this->invoice->service()
                 ->updateBalance($payment->amount * -1)
                 ->setStatus(Invoice::STATUS_PAID)
                 ->applyNumber()
                 ->save();
 
+        EmailPayment::dispatch($payment, $payment->company, $payment->client->primary_contact()->first());
+        
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
         event(new InvoiceWasPaid($this->invoice, $payment->company, Ninja::eventVars()));

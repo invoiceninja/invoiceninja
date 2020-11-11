@@ -11,6 +11,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Quote\QuoteWasCreated;
+use App\Events\Quote\QuoteWasUpdated;
 use App\Factory\CloneInvoiceFactory;
 use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\CloneQuoteFactory;
@@ -31,6 +33,7 @@ use App\Models\Quote;
 use App\Repositories\QuoteRepository;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;
+use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -79,8 +82,8 @@ class QuoteController extends BaseController
      *      tags={"quotes"},
      *      summary="Gets a list of quotes",
      *      description="Lists quotes, search and filters allow fine grained lists to be generated.
-
-    Query parameters can be added to performed more fine grained filtering of the quotes, these are handled by the QuoteFilters class which defines the methods available",
+     *
+     *      Query parameters can be added to performed more fine grained filtering of the quotes, these are handled by the QuoteFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -203,6 +206,10 @@ class QuoteController extends BaseController
         $client = Client::find($request->input('client_id'));
 
         $quote = $this->quote_repo->save($request->all(), QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id));
+
+        $quote = $quote->service()->fillDefaults()->save();
+
+        event(new QuoteWasCreated($quote, $quote->company, Ninja::eventVars()));
 
         return $this->itemResponse($quote);
     }
@@ -377,6 +384,8 @@ class QuoteController extends BaseController
         }
 
         $quote = $this->quote_repo->save($request->all(), $quote);
+
+        event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars()));
 
         return $this->itemResponse($quote);
     }
@@ -658,15 +667,26 @@ class QuoteController extends BaseController
                     }, basename($quote->pdf_file_path()));
                     //return response()->download(TempFile::path($quote->pdf_file_path()), basename($quote->pdf_file_path()));
                 break;
+            case 'restore':
+                $this->quote_repo->restore($quote);
+
+                if (!$bulk)
+                    return $this->listResponse($quote);
+
+                break;
             case 'archive':
                 $this->quote_repo->archive($quote);
 
-                return $this->listResponse($quote);
+                if (!$bulk)
+                    return $this->listResponse($quote);
+
                 break;
             case 'delete':
                 $this->quote_repo->delete($quote);
 
-                return $this->listResponse($quote);
+                if (!$bulk)
+                    return $this->listResponse($quote);
+
                 break;
             case 'email':
                 $quote->service()->sendEmail();
@@ -679,6 +699,7 @@ class QuoteController extends BaseController
                 if (! $bulk) {
                     return $this->itemResponse($quote);
                 }
+                break;
                 // no break
             default:
                 return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
