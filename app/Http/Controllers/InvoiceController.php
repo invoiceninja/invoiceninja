@@ -34,8 +34,10 @@ use App\Jobs\Util\UnlinkFile;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Quote;
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
+use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
@@ -639,7 +641,12 @@ class InvoiceController extends BaseController
                 break;
             case 'clone_to_quote':
                 $quote = CloneInvoiceToQuoteFactory::create($invoice, auth()->user()->id);
-                // todo build the quote transformer and return response here
+
+                $this->entity_transformer = QuoteTransformer::class;
+                $this->entity_type = Quote::class;
+
+                return $this->itemResponse($quote);
+
                 break;
             case 'history':
                 // code...

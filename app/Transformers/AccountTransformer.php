@@ -74,7 +74,7 @@ class AccountTransformer extends EntityTransformer
             'utm_content' => (string) $account->utm_content,
             'utm_term' => (string) $account->utm_term,
             'referral_code' => (string) $account->referral_code,
-            'latest_version' => (string) $account->latest_version,
+            'latest_version' => (string) trim($account->latest_version),
             'current_version' => (string) config('ninja.app_version'),
             'updated_at' => (int) $account->updated_at,
             'archived_at' => (int) $account->deleted_at,

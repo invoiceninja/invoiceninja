@@ -109,22 +109,20 @@ class StoreRecurringInvoiceRequest extends Request
         }
     
     $this->replace($input);
-}
-
-private function setAutoBillFlag($auto_bill)
-{
-    if($auto_bill == 'always')
-        return true;
-
-    if($auto_bill == 'off')
-        return false;
-
-    //todo do we need to handle optin / optout here?
-    
-}
-
-    public function messages()
-    {
-        return [];
     }
+
+    private function setAutoBillFlag($auto_bill)
+    {
+        if($auto_bill == 'always')
+            return true;
+
+        if($auto_bill == 'off')
+            return false;
+        
+    }
+
+        public function messages()
+        {
+            return [];
+        }
 }

@@ -75,7 +75,7 @@ class StoreClientRequest extends Request
         $input = $this->all();
 
         //@todo implement feature permissions for > 100 clients
-        //
+        
         $settings = ClientSettings::defaults();
 
         if (array_key_exists('settings', $input) && ! empty($input['settings'])) {

@@ -572,10 +572,10 @@ class CreditController extends BaseController
     public function downloadPdf($invitation_key)
     {
         $invitation = $this->credit_repository->getInvitationByKey($invitation_key);
-        $contact = $invitation->contact;
+        // $contact = $invitation->contact;
         $credit = $invitation->credit;
 
-        $file_path = $credit->service()->getCreditPdf($contact);
+        $file_path = $credit->service()->getCreditPdf($invitation);
 
         return response()->download($file_path);
     }
