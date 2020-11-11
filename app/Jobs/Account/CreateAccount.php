@@ -18,6 +18,7 @@ use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\User\CreateUser;
+use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
 use App\Models\User;
 use App\Notifications\Ninja\NewAccountCreated;
@@ -92,6 +93,8 @@ class CreateAccount
         $spaa9f78->fresh();
 
         $sp035a66->notification(new NewAccountCreated($spaa9f78, $sp035a66))->ninja();
+
+        VersionCheck::dispatchNow();
 
         LightLogs::create(new AnalyticsAccountCreated())
                  ->increment()
