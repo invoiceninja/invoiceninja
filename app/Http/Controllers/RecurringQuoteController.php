@@ -23,9 +23,11 @@ use App\Http\Requests\RecurringQuote\ShowRecurringQuoteRequest;
 use App\Http\Requests\RecurringQuote\StoreRecurringQuoteRequest;
 use App\Http\Requests\RecurringQuote\UpdateRecurringQuoteRequest;
 use App\Jobs\Entity\ActionEntity;
+use App\Models\Quote;
 use App\Models\RecurringQuote;
 use App\Repositories\BaseRepository;
 use App\Repositories\RecurringQuoteRepository;
+use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringQuoteTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -583,8 +585,11 @@ class RecurringQuoteController extends BaseController
           //      return $this->itemResponse($recurring_invoice);
                 break;
             case 'clone_to_quote':
-            //    $quote = CloneRecurringQuoteToQuoteFactory::create($recurring_invoice, auth()->user()->id);
-                // todo build the quote transformer and return response here
+                $quote = CloneRecurringQuoteToQuoteFactory::create($recurring_invoice, auth()->user()->id);
+                $this->entity_transformer = QuoteTransformer::class;
+                $this->entity_type = Quote::class;
+
+                return $this->itemResponse($quote);
                 break;
             case 'history':
                 // code...

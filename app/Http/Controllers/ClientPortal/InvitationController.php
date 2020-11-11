@@ -40,7 +40,7 @@ class InvitationController extends Controller
 
         $key = $entity.'_id';
 
-        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation'; //todo sensitive to the route parameters here
+        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
 
         $invitation = $entity_obj::whereRaw('BINARY `key`= ?', [$invitation_key])
                                     ->with('contact.client')

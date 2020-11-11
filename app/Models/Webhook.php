@@ -40,7 +40,10 @@ class Webhook extends BaseModel
     const EVENT_UPDATE_TASK = 19;
     const EVENT_DELETE_TASK = 20;
     const EVENT_APPROVE_QUOTE = 21;
-
+    const EVENT_LATE_INVOICE = 22;
+    const EVENT_EXPIRED_QUOTE = 23;
+    const EVENT_REMIND_INVOICE = 24;
+    
     public static $valid_events = [
         self::EVENT_CREATE_CLIENT,
         self::EVENT_CREATE_PAYMENT,

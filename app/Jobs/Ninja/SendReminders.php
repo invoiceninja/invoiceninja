@@ -285,10 +285,13 @@ class SendReminders implements ShouldQueue
      * @param Invoice $invoice 
      * @param float $amount  The fee amount
      * @param float $percent The fee percentage amount
+     * 
      * @return Invoice           
      */
     private function setLateFee($invoice, $amount, $percent) :Invoice
     {
+        $temp_invoice_balance = $invoice->balance;
+
         if ($amount <= 0 && $percent <= 0) 
             return $invoice;
 
@@ -314,7 +317,9 @@ class SendReminders implements ShouldQueue
         /**Refresh Invoice values*/
         $invoice = $invoice->calc()->getInvoice();
 
-        //@todo update the ledger!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        $this->invoice->client->service()->updateBalance($this->invoice->balance - $temp_invoice_balance)->save();
+        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance - $temp_invoice_balance);
+
         return $invoice;
 
     }

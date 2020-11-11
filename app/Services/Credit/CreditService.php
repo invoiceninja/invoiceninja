@@ -29,9 +29,9 @@ class CreditService
         $this->credit = $credit;
     }
 
-    public function getCreditPdf($contact)
+    public function getCreditPdf($invitation)
     {
-        return (new GetCreditPdf($this->credit, $contact))->run();
+        return (new GetCreditPdf($invitation))->run();
     }
 
     /**

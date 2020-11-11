@@ -224,8 +224,6 @@ class Credit extends BaseModel
         if ($this->balance == 0) {
             $this->status_id = self::STATUS_APPLIED;
             $this->save();
-            //event(new InvoiceWasPaid($this, $this->company));//todo
-
             return;
         }
 
@@ -248,10 +246,10 @@ class Credit extends BaseModel
 
         if (! $invitation) {
             event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
-            CreateEntityPdf::dispatchNow($this, $this->company, $this->client->primary_contact()->first());
+            CreateEntityPdf::dispatchNow($this->invitations->first());
         } else {
             event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
-            CreateEntityPdf::dispatchNow($invitation->credit, $invitation->company, $invitation->contact);
+            CreateEntityPdf::dispatchNow($invitation);
         }
 
         return $storage_path;

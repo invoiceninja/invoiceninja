@@ -384,7 +384,7 @@ class Client extends BaseModel implements HasLocalePreference
                                  return array_search($model->id, $transformed_ids);
                              });
         } else {
-            $gateways = $this->company->company_gateways; //todo perhaps we can remove this or keep as a catch all.
+            $gateways = $this->company->company_gateways; 
         }
 
         foreach ($gateways as $gateway) {

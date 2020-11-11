@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 namespace App\Jobs\Util;
 
 use App\Models\Webhook;
@@ -40,7 +48,7 @@ class WebhookHandler implements ShouldQueue
      * @return bool
      */
     public function handle() :bool
-    {
+    {//todo set multidb here
         if (! $this->entity->company || $this->entity->company->is_disabled) {
             return true;
         }
