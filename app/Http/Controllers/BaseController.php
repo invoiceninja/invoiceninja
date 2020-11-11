@@ -218,7 +218,7 @@ class BaseController extends Controller
                 $query->whereNotNull('updated_at');
             },
             'company.credits'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents',);
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
             },
             'company.designs'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at)->with('company');
@@ -227,7 +227,7 @@ class BaseController extends Controller
                 $query->where('updated_at', '>=', $updated_at);
             },
             'company.expenses'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('documents' );
+                $query->where('updated_at', '>=', $updated_at)->with('documents');
             },
             'company.groups' => function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at);
@@ -236,7 +236,7 @@ class BaseController extends Controller
                 $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
             },
             'company.payments'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('paymentables','documents', );
+                $query->where('updated_at', '>=', $updated_at)->with('paymentables','documents');
             },
             'company.payment_terms'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at);
@@ -248,7 +248,7 @@ class BaseController extends Controller
                 $query->where('updated_at', '>=', $updated_at)->with('documents' );
             },
             'company.quotes'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents',);
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
             },
             'company.recurring_invoices'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
@@ -260,7 +260,7 @@ class BaseController extends Controller
                 $query->where('updated_at', '>=', $updated_at);
             },
             'company.vendors'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('contacts','documents' );
+                $query->where('updated_at', '>=', $updated_at)->with('contacts','documents');
             },
             'company.expense_categories'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at);
