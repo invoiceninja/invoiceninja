@@ -94,14 +94,17 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
             }catch(\Exception $e) {
 
                 info("mailing failed with message " . $e->getMessage());
-            
+                event(new PaymentWasEmailedAndFailed($this->payment, $this->company, Mail::failures(), Ninja::eventVars()));
+                return $this->logMailError($e->getMessage(), $this->payment->client);
+
             }
 
-            if (count(Mail::failures()) > 0) {
-                event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures(), Ninja::eventVars()));
+            // if (count(Mail::failures()) > 0) {
+            //     info("logging mail failures");
+            //     info(print_r(Mail::failures(),1));
 
-                return $this->logMailError(Mail::failures());
-            }
+
+            // }
 
             event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars()));
 

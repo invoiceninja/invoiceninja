@@ -12,8 +12,10 @@
 namespace App\Jobs\Mail;
 
 use App\DataMapper\Analytics\EmailFailure;
+use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
+use App\Models\SystemLog;
 use App\Models\User;
 use App\Providers\MailServiceProvider;
 use App\Utils\Ninja;
@@ -75,7 +77,7 @@ class BaseMailerJob implements ShouldQueue
     }
 
     public function logMailError($errors, $recipient_object)
-    {info(print_r($errors,1));
+    {
         SystemLogger::dispatch(
             $errors,
             SystemLog::CATEGORY_MAIL,
