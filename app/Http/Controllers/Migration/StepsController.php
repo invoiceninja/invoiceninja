@@ -224,7 +224,7 @@ class StepsController extends BaseController
 
             $fileName = "{$accountKey}-{$date}-invoiceninja";
 
-            $migrationData[$company['id']]['data'] = [
+            $localMigrationData['data'] = [
                 'company' => $this->getCompany(),
                 'users' => $this->getUsers(),
                 'tax_rates' => $this->getTaxRates(),
@@ -247,16 +247,18 @@ class StepsController extends BaseController
                 'tasks' => $this->getTasks(),
             ];
 
-            $migrationData[$company['id']]['force'] = array_key_exists('force', $company) ? true : false;
+            $localMigrationData['force'] = array_key_exists('force', $company) ? true : false;
 
             $file = storage_path("migrations/{$fileName}.zip");
 
             $zip = new \ZipArchive();
             $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-            $zip->addFromString('migration.json', json_encode($data, JSON_PRETTY_PRINT));
+            $zip->addFromString('migration.json', json_encode($localMigrationData, JSON_PRETTY_PRINT));
             $zip->close();
 
-            $migrationData[$company['id']]['file'] = $file;
+            $localMigrationData['file'] = $file;
+
+            $migrationData[] = $localMigrationData;
         }
 
         return $migrationData;
