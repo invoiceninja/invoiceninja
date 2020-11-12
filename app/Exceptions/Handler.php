@@ -46,7 +46,7 @@ class Handler extends ExceptionHandler
      */
     protected $dontReport = [
         PDOException::class,
-        Swift_TransportException::class,
+        //Swift_TransportException::class,
         MaxAttemptsExceededException::class,
         CommandNotFoundException::class,
     ];
