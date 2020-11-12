@@ -54,8 +54,15 @@ class TemplateEmail extends Mailable
 
         $company = $this->client->company;
 
-        $message = $this->from($this->user->email, $this->user->present()->name())//todo this needs to be fixed to handle the hosted version
-            ->subject($this->build_email->getSubject())
+        $this->from($this->user->email, $this->user->present()->name());
+
+        if(strlen($settings->reply_to_email) > 1)
+            $this->replyTo($settings->reply_to_email, $settings->reply_to_email);
+
+        if(strlen($settings->bcc_email) > 1)
+            $this->bcc($settings->bcc_email, $settings->bcc_email);
+
+            $this->subject($this->build_email->getSubject())
             ->text('email.template.plain', [
                 'body' => $this->build_email->getBody(),
                 'footer' => $this->build_email->getFooter(),
@@ -78,10 +85,10 @@ class TemplateEmail extends Mailable
         //conditionally attach files
         if ($settings->pdf_email_attachment !== false && ! empty($this->build_email->getAttachments())) {
             foreach ($this->build_email->getAttachments() as $file) {
-                $message->attach($file);
+                $this->attach($file);
             }
         }
 
-        return $message;
+        return $this;
     }
 }

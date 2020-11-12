@@ -175,7 +175,7 @@ class CompanySettings extends BaseSettings
     public $email_template_reminder3 = ''; //@implemented
     public $email_template_reminder_endless = ''; //@implemented
     public $email_signature = ''; //@implemented
-    public $enable_email_markup = true; //@TODO
+    public $enable_email_markup = true; //@TODO - 
 
     public $email_subject_custom1 = ''; //@TODO
     public $email_subject_custom2 = ''; //@TODO
@@ -185,35 +185,35 @@ class CompanySettings extends BaseSettings
     public $email_template_custom2 = ''; //@TODO
     public $email_template_custom3 = ''; //@TODO
 
-    public $enable_reminder1 = false; //@partially implmemented
-    public $enable_reminder2 = false; //@partially implmemented
-    public $enable_reminder3 = false; //@partially implmemented
-    public $enable_reminder_endless = false; //@partially implmemented
+    public $enable_reminder1 = false; //@implmemented
+    public $enable_reminder2 = false; //@implmemented
+    public $enable_reminder3 = false; //@implmemented
+    public $enable_reminder_endless = false; //@implmemented
 
-    public $num_days_reminder1 = 0;//@partially implmemented
-    public $num_days_reminder2 = 0;//@partially implmemented
-    public $num_days_reminder3 = 0;//@partially implmemented
+    public $num_days_reminder1 = 0;//@implmemented
+    public $num_days_reminder2 = 0;//@implmemented
+    public $num_days_reminder3 = 0;//@implmemented
 
-    public $schedule_reminder1 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
-    public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
-    public $schedule_reminder3 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
+    public $schedule_reminder1 = ''; // (enum: after_invoice_date, before_due_date, after_due_date) implmemented
+    public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date) implmemented 
+    public $schedule_reminder3 = ''; // (enum: after_invoice_date, before_due_date, after_due_date) implmemented
 
-    public $reminder_send_time = 32400; //number of seconds from UTC +0 to send reminders
+    public $reminder_send_time = 32400; //number of seconds from UTC +0 to send reminders @TODO
 
-    public $late_fee_amount1 = 0; //@TODO
-    public $late_fee_amount2 = 0; //@TODO
-    public $late_fee_amount3 = 0; //@TODO
+    public $late_fee_amount1 = 0; //@implemented
+    public $late_fee_amount2 = 0; //@implemented
+    public $late_fee_amount3 = 0; //@implemented
 
-    public $late_fee_percent1 = 0; //@TODO
-    public $late_fee_percent2 = 0; //@TODO
-    public $late_fee_percent3 = 0; //@TODO
+    public $late_fee_percent1 = 0; //@implemented
+    public $late_fee_percent2 = 0; //@implemented
+    public $late_fee_percent3 = 0; //@implemented
 
     public $endless_reminder_frequency_id = '0'; //@implemented
-    public $late_fee_endless_amount = 0; //@TODO
-    public $late_fee_endless_percent = 0; //@TODO
+    public $late_fee_endless_amount = 0; //@implemented
+    public $late_fee_endless_percent = 0; //@implemented
 
-    public $client_online_payment_notification = true; //@todo implement in notifications
-    public $client_manual_payment_notification = true; //@todo implement in notifications
+    public $client_online_payment_notification = true; //@todo implement in notifications check this bool prior to sending payment notification to client
+    public $client_manual_payment_notification = true; //@todo implement in notifications check this bool prior to sending manual payment notification to client
 
     /* Company Meta data that we can use to build sub companies*/
 
@@ -232,26 +232,26 @@ class CompanySettings extends BaseSettings
     public $id_number = ''; //@implemented
 
     public $page_size = 'A4';  //Letter, Legal, Tabloid, Ledger, A0, A1, A2, A3, A4, A5, A6
-    public $font_size = 9;
+    public $font_size = 9; //@implemented
     public $primary_font = 'Roboto';
     public $secondary_font = 'Roboto';
     public $primary_color = '#4caf50';
     public $secondary_color = '#2196f3';
 
     public $hide_paid_to_date = false; //@TODO where?
-    public $embed_documents = false; //@TODO
+    public $embed_documents = false; //@TODO where?
     public $all_pages_header = false; //@implemented
     public $all_pages_footer = false; //@implemented
     public $pdf_variables = ''; //@implemented
 
-    public $portal_custom_head = ''; //@TODO
-    public $portal_custom_css = ''; //@TODO
-    public $portal_custom_footer = ''; //@TODO
-    public $portal_custom_js = ''; //@TODO
+    public $portal_custom_head = ''; //@TODO @BEN
+    public $portal_custom_css = ''; //@TODO @BEN
+    public $portal_custom_footer = ''; //@TODO @BEN
+    public $portal_custom_js = ''; //@TODO @BEN
 
     public $client_can_register = false; //@implemented
-    public $client_portal_terms = ''; //@TODO
-    public $client_portal_privacy_policy = ''; //@TODO
+    public $client_portal_terms = ''; //@TODO @BEN
+    public $client_portal_privacy_policy = ''; //@TODO @BEN
     public $client_portal_enable_uploads = false; //@implemented
     public $client_portal_allow_under_payment = false; //@implemented
     public $client_portal_under_payment_minimum = 0; //@implemented
@@ -511,6 +511,7 @@ class CompanySettings extends BaseSettings
 
     /**
      * Provides class defaults on init.
+     * 
      * @return stdClass
      */
     public static function defaults(): stdClass
@@ -543,6 +544,7 @@ class CompanySettings extends BaseSettings
      * set new properties to the object prior to being returned.
      *
      * @param $settings
+     * 
      * @return stdClass
      */
     public static function setProperties($settings): stdClass
@@ -558,7 +560,12 @@ class CompanySettings extends BaseSettings
         return $settings;
     }
 
-    public static function notificationDefaults()
+    /**
+     * Stubs the notification defaults
+     * 
+     * @return stdClass
+     */
+    public static function notificationDefaults() :stdClass
     {
         $notification = new stdClass;
         $notification->email = ['all_notifications'];
@@ -566,7 +573,12 @@ class CompanySettings extends BaseSettings
         return $notification;
     }
 
-    private static function getEntityVariableDefaults()
+    /**
+     * Defines entity variables for PDF generation
+     * 
+     * @return stdClass The stdClass of PDF variables
+     */
+    private static function getEntityVariableDefaults() :stdClass
     {
         $variables = [
             'client_details' => [

@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Jobs\Payment;
 
@@ -63,7 +72,7 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
      * @return void
      */
     public function handle()
-    {
+    {info("inside email payment");
         if($this->company->is_disabled)
             return true;
         
@@ -76,8 +85,8 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
 
             $email_builder = (new PaymentEmailEngine($this->payment, $this->contact))->build();
 
-            Mail::to($this->contact->email, $this->contact->present()->name())
-                ->send(new TemplateEmail($email_builder, $this->contact->user, $this->contact->client));
+            $mail = Mail::to($this->contact->email, $this->contact->present()->name());
+            $mail->send(new TemplateEmail($email_builder, $this->contact->user, $this->contact->client));
 
             if (count(Mail::failures()) > 0) {
                 event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures(), Ninja::eventVars()));
