@@ -41,7 +41,7 @@ class CompanyGateway extends BaseModel
         'require_billing_address',
         'require_shipping_address',
         'require_client_name',
-        'require_zip',
+        'require_postal_code',
         'require_client_phone',
         'require_contact_name',
         'update_details',

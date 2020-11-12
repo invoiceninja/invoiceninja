@@ -553,7 +553,7 @@ class CompanySettings extends BaseSettings
 
         foreach ($company_settings as $key => $value) {
             if (! property_exists($settings, $key)) {
-                $settings->{ $key} = self::castAttribute($key, $company_settings->{ $key});
+                $settings->{$key} = self::castAttribute($key, $company_settings->{$key});
             }
         }
 

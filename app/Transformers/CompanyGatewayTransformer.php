@@ -53,6 +53,7 @@ class CompanyGatewayTransformer extends EntityTransformer
             'require_shipping_address' => (bool) $company_gateway->require_shipping_address,
             'require_client_name' => (bool) $company_gateway->require_client_name,
             'require_zip' => (bool) $company_gateway->require_zip,
+            'require_postal_code' => (bool) $company_gateway->require_postal_code,
             'require_client_phone' => (bool) $company_gateway->require_client_phone,
             'require_contact_name' => (bool) $company_gateway->require_contact_name,
             'require_contact_email' => (bool) $company_gateway->require_contact_email,
