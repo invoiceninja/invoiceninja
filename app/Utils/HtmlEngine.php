@@ -328,7 +328,7 @@ class HtmlEngine
 
         $data['$font_size'] = ['value' => $this->settings->font_size . 'px', 'label' => ''];
 
-        $data['$invoiceninja.whitelabel'] = ['value' => asset('images/created-by-invoiceninja-new.png'), 'label' => ''];
+        $data['$invoiceninja.whitelabel'] = ['value' => Helpers::asset('images/created-by-invoiceninja-new.png'), 'label' => ''];
 
         $data['$primary_color'] = ['value' => $this->settings->primary_color, 'label' => ''];
         $data['$secondary_color'] = ['value' => $this->settings->secondary_color, 'label' => ''];

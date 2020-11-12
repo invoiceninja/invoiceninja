@@ -133,4 +133,5 @@ return [
     'designs' => [
         'base_path' => resource_path('views/pdf-designs/'),
     ],
+    'docker_url' => env('DOCKER_URL', false),
 ];
