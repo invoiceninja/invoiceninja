@@ -72,7 +72,8 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
      * @return void
      */
     public function handle()
-    {info("inside email payment");
+    {
+        
         if($this->company->is_disabled)
             return true;
         
@@ -85,8 +86,16 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
 
             $email_builder = (new PaymentEmailEngine($this->payment, $this->contact))->build();
 
-            $mail = Mail::to($this->contact->email, $this->contact->present()->name());
-            $mail->send(new TemplateEmail($email_builder, $this->contact->user, $this->contact->client));
+            try{
+
+                $mail = Mail::to($this->contact->email, $this->contact->present()->name());
+                $mail->send(new TemplateEmail($email_builder, $this->contact->user, $this->contact->client));
+
+            }catch(\Exception $e) {
+
+                info("mailing failed with message " . $e->getMessage());
+            
+            }
 
             if (count(Mail::failures()) > 0) {
                 event(new PaymentWasEmailedAndFailed($this->payment, Mail::failures(), Ninja::eventVars()));
