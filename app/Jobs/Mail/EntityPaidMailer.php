@@ -90,15 +90,9 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
             Mail::to($this->user->email)
                 ->send(new EntityNotificationMailer($mail_obj));
 
-        } catch (Swift_TransportException $e) {
-            $this->failed($e->getMessage());
-            //$this->entityEmailFailed($e->getMessage());
-        }
-
-        if (count(Mail::failures()) > 0) {
-            $this->logMailError(Mail::failures(), $this->payment->client);
-        } else {
-          //  $this->entityEmailSucceeded();
+        } catch (\Exception $e) {
+            $this->failed($e);
+            $this->logMailError($e->getMessage(), $this->payment->client);
         }
 
     }

@@ -116,31 +116,18 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
                         $this->invitation->contact->client
                     )
                 );
-        } catch (Swift_TransportException $e) {
+        } catch (\Exception $e) {
+            $this->failed($e);
             $this->entityEmailFailed($e->getMessage());
+            $this->logMailError($e->getMessage(), $this->entity->client);
         }
 
-        if (count(Mail::failures()) > 0) {
-            $this->logMailError(Mail::failures(), $this->entity->client);
-        } else {
+        if (count(Mail::failures()) == 0) {
             $this->entityEmailSucceeded();
         }
 
         /* Mark entity sent */
         $this->entity->service()->markSent()->save();
-    }
-
-    public function failed($exception = null)
-    {
-        info('the job failed');
-
-        $job_failure = new EmailInvoiceFailure();
-        $job_failure->string_metric5 = $this->entity_string;
-        $job_failure->string_metric6 = $exception->getMessage();
-
-        LightLogs::create($job_failure)
-                 ->batch();
-
     }
 
     private function resolveEntityString() :string

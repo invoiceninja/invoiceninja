@@ -94,9 +94,15 @@ class ZipInvoices extends BaseMailerJob implements ShouldQueue
 
         $this->setMailDriver();
 
-        Mail::to($this->email)
-            ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path.$file_name), $this->company));
+        try {
+            Mail::to($this->email)
+                ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path.$file_name), $this->company));
+        }
+        catch (\Exception $e) {
+            $this->failed($e);
 
+        }
+        
         UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
     }
 }

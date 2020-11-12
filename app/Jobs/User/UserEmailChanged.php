@@ -72,16 +72,21 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
         $mail_obj->data = $this->getData();
 
         //Send email via a Mailable class
+        //
+        try {
         Mail::to($this->old_email)
             ->send(new UserNotificationMailer($mail_obj));
 
         Mail::to($this->new_email)
             ->send(new UserNotificationMailer($mail_obj));
-
-        //Catch errors and report.
-        if (count(Mail::failures()) > 0) {
-            return $this->logMailError(Mail::failures(), $this->company);
         }
+        catch (\Exception $e) {
+
+            $this->failed($e);
+            $this->logMailError($e->getMessage(), $this->company->owner());
+
+        }
+
     }
 
     private function getData()

@@ -88,13 +88,15 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
         $mail_obj = (new EntitySentObject($this->invitation, $this->entity_type))->build();
         $mail_obj->from = [$this->entity->user->email, $this->entity->user->present()->name()];
 
-        //send email
-        Mail::to($this->user->email)
-            ->send(new EntityNotificationMailer($mail_obj));
+        try {
+            Mail::to($this->user->email)
+                ->send(new EntityNotificationMailer($mail_obj));
+        }catch(\Exception $e) {
+            
+            $this->failed($e);
+            $this->logMailError($e->getMessage(), $this->entity->client);
 
-        //catch errors
-        if (count(Mail::failures()) > 0) {
-            return $this->logMailError(Mail::failures(), $this->entity->client);
         }
+
     }
 }

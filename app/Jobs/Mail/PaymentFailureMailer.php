@@ -100,13 +100,17 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
                 $mail_obj->from = [$this->company->owner()->email, $this->company->owner()->present()->name()];
 
                 //send email
-                Mail::to($company_user->user->email)
-                    ->send(new EntityNotificationMailer($mail_obj));
-
-                //catch errors
-                if (count(Mail::failures()) > 0) {
-                    return $this->logMailError(Mail::failures(), $this->client);
+                try {
+                    Mail::to($company_user->user->email)
+                        ->send(new EntityNotificationMailer($mail_obj));
                 }
+                catch(\Exception $e) {
+                
+                    $this->failed($e);
+                    $this->logMailError($e->getMessage(), $this->client);
+
+                }
+
             }
         });
     }
