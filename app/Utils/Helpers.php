@@ -42,11 +42,9 @@ class Helpers
      * Return absolute url to asset based on envinronment.
      *  
      * @param string $path 
-     * @param string $url 
-     * 
      * @return null|string 
      */
-    public static function asset(string $path, string $url = 'app'): ?string
+    public static function asset(string $path): ?string
     {
         if (config('ninja.docker_url')) {
             return config('ninja.docker_url') . parse_url(asset($path), PHP_URL_PATH);
