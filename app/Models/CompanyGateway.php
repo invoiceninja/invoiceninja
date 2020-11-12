@@ -287,7 +287,11 @@ class CompanyGateway extends BaseModel
         }
 
         if ($fees_and_limits->fee_percent) {
-            $fee += round(($amount * $fees_and_limits->fee_percent / 100),2);
+            if ($fees_and_limits->adjust_fee_percent) {
+                $fee += round(($amount / (1 - $fees_and_limits->fee_percent / 100) - $amount),2);
+            } else {
+                $fee += round(($amount * $fees_and_limits->fee_percent / 100),2);
+            }
             info("fee after adding fee percent = {$fee}");
         }
 
