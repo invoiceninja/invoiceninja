@@ -56,6 +56,7 @@ class CompanyGatewayTest extends TestCase
         $data[1]['fee_tax_rate2'] = '';
         $data[1]['fee_tax_name3'] = '';
         $data[1]['fee_tax_rate3'] = 0;
+        $data[1]['adjust_fee_percent'] = true;
         $data[1]['fee_cap'] = 0;
 
         $cg = new CompanyGateway;
@@ -126,6 +127,7 @@ class CompanyGatewayTest extends TestCase
         $data[1]['fee_tax_rate2'] = 0;
         $data[1]['fee_tax_name3'] = '';
         $data[1]['fee_tax_rate3'] = 0;
+        $data[1]['adjust_fee_percent'] = true;
         $data[1]['fee_cap'] = 0;
 
         $cg = new CompanyGateway;
@@ -163,6 +165,7 @@ class CompanyGatewayTest extends TestCase
         $data[1]['fee_tax_rate2'] = 10;
         $data[1]['fee_tax_name3'] = 'GST';
         $data[1]['fee_tax_rate3'] = 10;
+        $data[1]['adjust_fee_percent'] = true;
         $data[1]['fee_cap'] = 0;
 
         $cg = new CompanyGateway;

@@ -360,7 +360,7 @@ class BaseController extends Controller
         if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) 
             $this->entity_type = null;
         
-        $resource = new Item($data, $transformer, $entity_type);
+        $resource = new Item($item, $transformer, $this->entity_type);
 
         if (auth()->user() && request()->include_static) 
             $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());

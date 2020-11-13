@@ -58,7 +58,7 @@ class TokenAuth
             });
 
             //user who once existed, but has been soft deleted
-            if ($user->company_user->is_locked) {
+            if ($company_token->company_user->is_locked) {
                 $error = [
                     'message' => 'User access locked',
                     'errors' => new stdClass,

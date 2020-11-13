@@ -10,11 +10,13 @@
  */
 namespace Tests\Integration;
 
+use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
 use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyToken;
+use App\Models\CompanyUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -60,7 +62,7 @@ class MultiDBUserTest extends TestCase
 
         $coco = Company::on('db-ninja-01')->create($company->toArray());
 
-        Company::on('db-ninja-02')->create($company2->toArray());
+        $coco2 = Company::on('db-ninja-02')->create($company2->toArray());
 
         $user = [
             'account_id' => $account->id,
@@ -91,12 +93,30 @@ class MultiDBUserTest extends TestCase
 
         $user = User::on('db-ninja-01')->create($user);
 
-        $cu = CompanyUserFactory::create($user->id, $coco->id, $account->id);
-        $cu->is_owner = true;
-        $cu->is_admin = true;
-        $cu->save();
+        // $cu = CompanyUserFactory::create($user->id, $coco->id, $account->id);
+        // $cu->is_owner = true;
+        // $cu->is_admin = true;
+        // $cu->setConnection('db-ninja-01');
+        // $cu->save();
 
-        User::on('db-ninja-02')->create($user2);
+        CompanyUser::on('db-ninja-01')->create([
+            'company_id' => $coco->id,
+            'account_id' => $account->id,
+            'user_id' => $user->id,
+            'is_owner' => true,
+            'is_admin' => true,
+        ]);
+
+        $user2 = User::on('db-ninja-02')->create($user2);
+
+        CompanyUser::on('db-ninja-02')->create([
+            'company_id' => $coco2->id,
+            'account_id' => $account2->id,
+            'user_id' => $user2->id,
+            'is_owner' => true,
+            'is_admin' => true,
+        ]);
+
 
         $this->token = \Illuminate\Support\Str::random(40);
 
