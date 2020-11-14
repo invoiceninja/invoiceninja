@@ -3792,7 +3792,30 @@ $LANG = array(
     'transaction_id' => 'Transaction ID',
     'migration_select_company_label' => 'Awesome! Please select the companies you would like to migrate.',
     'force_migration' => 'Force migration',
-); 
+    'invoice_late' => 'Invoice Late',
+    'quote_expired' => 'Quote Expired',
+    'recurring_invoice_total' => 'Invoice Total',
+    'actions' => 'Actions',
+    'expense_number' => 'Expense Number',
+    'task_number' => 'Task Number',
+    'project_number' => 'Project Number',
+    'view_settings' => 'View Settings',
+    'company_disabled_warning' => 'Warning: this company has not yet been activated',
+    'late_invoice' => 'Late Invoice',
+    'expired_quote' => 'Expired Quote',
+    'remind_invoice' => 'Remind Invoice',
+    'client_phone' => 'Client Phone',
+    'required_fields' => 'Required Fields',
+    'enabled_modules' => 'Enabled Modules',
+    'activity_60' => ':contact viewed quote :quote',
+    'activity_61' => ':user updated client :client',
+    'activity_62' => ':user updated vendor :vendor',
+    'activity_63' => ':user emailed first reminder for invoice :invoice to :contact',
+    'activity_64' => ':user emailed second reminder for invoice :invoice to :contact',
+    'activity_65' => ':user emailed third reminder for invoice :invoice to :contact',
+    'activity_66' => ':user emailed endless reminder for invoice :invoice to :contact',
+    'expense_category_id' => 'Expense Category ID',
+);
 
 return $LANG;
 
