@@ -2,46 +2,34 @@
 
 namespace App\Services\Migration;
 
+use App\Models\Account;
 use Unirest\Request;
 use Unirest\Request\Body;
 
 class CompanyService
 {
-    protected $token;
-    protected $endpoint = 'https://app.invoiceninja.com';
-    protected $uri = '/api/v1/companies';
-    protected $errors = [];
     protected $isSuccessful;
     protected $companies = [];
 
-
-    public function __construct(string $token)
-    {
-        $this->token = $token;
-    }
-
-    public function endpoint(string $endpoint)
-    {
-        $this->endpoint = $endpoint;
-
-        return $this;
-    }
-
     public function start()
     {
-        $response = Request::get($this->getUrl(), $this->getHeaders());
+        try {
+            foreach (session(SESSION_USER_ACCOUNTS) as $company) {
+                $account = Account::find($company->account_id);
 
-        if ($response->code == 200) {
-            $this->isSuccessful = true;
-
-            foreach($response->body->data as $company) {
-                $this->companies[] = $company;
+                if ($account) {
+                    $this->companies[] = [
+                        'id' => $company->account_id, 
+                        'name' => $account->name,
+                        'company_key' => $account->account_key, 
+                    ];
+                }
             }
-        }
 
-        if (in_array($response->code, [401, 422, 500])) {
+            $this->isSuccessful = true;
+        } catch (\Exception $th) {
             $this->isSuccessful = false;
-            $this->processErrors($response->body);
+            $this->errors = [];
         }
 
         return $this;
@@ -61,29 +49,8 @@ class CompanyService
         return [];
     }
 
-
     public function getErrors()
     {
         return $this->errors;
-    }
-
-    private function getHeaders()
-    {
-        return [
-            'X-Requested-With' => 'XMLHttpRequest',
-            'X-Api-Token' => $this->token,
-        ];
-    }
-
-    private function getUrl()
-    {
-        return $this->endpoint . $this->uri;
-    }
-
-    private function processErrors($errors)
-    {
-        $array = (array) $errors;
-
-        $this->errors = $array;
     }
 }

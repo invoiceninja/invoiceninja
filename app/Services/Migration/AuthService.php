@@ -38,24 +38,21 @@ class AuthService
 
         $body = Body::json($data);
 
-        $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
+        try {
+            $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
 
-        if ($response->code == 200) {
-            
-            try {
-                $this->isSuccessful = true;
-                $this->token = $response->body->data[0]->token->token;
-            } catch (\Exception $e) {
-                info($e->getMessage());
+            $this->isSuccessful = true;
+            $this->token = $response->body->data[0]->token->token;
 
+            if (in_array($response->code, [401, 422, 500])) {
                 $this->isSuccessful = false;
-                $this->errors = [trans('texts.migration_went_wrong')];
+                $this->processErrors($response->body);
             }
-        }
+        } catch (\Exception $e) {
+            info($e->getMessage());
 
-        if (in_array($response->code, [401, 422, 500])) {
             $this->isSuccessful = false;
-            $this->processErrors($response->body);
+            $this->errors = [trans('texts.migration_went_wrong')];
         }
 
         return $this;
