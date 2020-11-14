@@ -583,7 +583,6 @@ class CompanySettings extends BaseSettings
         $variables = [
             'client_details' => [
                 '$client.name',
-                '$client.id_number',
                 '$client.vat_number',
                 '$client.address1',
                 '$client.address2',
@@ -630,19 +629,17 @@ class CompanySettings extends BaseSettings
             ],
             'product_columns' => [
                 '$product.product_key',
-                '$product.notes',
-                '$product.cost',
+                '$product.description',
+                '$product.unit_cost',
                 '$product.quantity',
-                '$product.discount',
                 '$product.tax',
                 '$product.line_total',
             ],
             'task_columns' =>[
                 '$task.product_key',
-                '$task.notes',
+                '$task.description',
                 '$task.rate',
                 '$task.hours',
-                '$task.discount',
                 '$task.tax',
                 '$task.line_total',
             ],

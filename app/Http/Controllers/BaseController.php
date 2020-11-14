@@ -21,6 +21,7 @@ use App\Utils\Ninja;
 use App\Utils\Statics;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as Input;
@@ -68,7 +69,7 @@ class BaseController extends Controller
           'company.task_statuses',
           'company.expense_categories',
           'company.documents',
-          'company.users.company_user',
+          //'company.users.company_user',
           'company.clients.contacts.company',
           'company.clients.gateway_tokens',
           'company.clients.documents',
@@ -107,7 +108,7 @@ class BaseController extends Controller
           'user.company_user',
           'token',
           'company.activities',
-          'company.users.company_user',
+          //'company.users.company_user',
           'company.tax_rates',
           'company.groups',
           'company.payment_terms',
@@ -130,7 +131,6 @@ class BaseController extends Controller
             $include = implode(',', array_merge($this->forced_includes, $this->getRequestIncludes([])));
         } elseif (request()->input('include') !== null) {
             $include = array_merge($this->forced_includes, explode(',', request()->input('include')));
-
             $include = implode(',', $include);
         } elseif (count($this->forced_includes) >= 1) {
             $include = implode(',', $this->forced_includes);
@@ -271,8 +271,8 @@ class BaseController extends Controller
           ]
         );
 
-        if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
-            $limit = Input::get('per_page', 20);
+        if ($query instanceof Builder) {
+            $limit = request()->input('per_page', 20);
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
@@ -289,7 +289,7 @@ class BaseController extends Controller
     {
         $this->buildManager();
 
-        $transformer = new $this->entity_transformer(Input::get('serializer'));
+        $transformer = new $this->entity_transformer(request()->input('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
 
@@ -297,40 +297,27 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        if (auth()->user() && ! auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
+        if (auth()->user() && ! auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) 
             $query->where('user_id', '=', auth()->user()->id);
-        }
 
-        if (request()->has('updated_at') && request()->input('updated_at') > 0) {
-            $updated_at = intval(request()->input('updated_at'));
-            $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updated_at));
-        }
+        if (request()->has('updated_at') && request()->input('updated_at') > 0) 
+            $query->where('updated_at', '>=', date('Y-m-d H:i:s', intval(request()->input('updated_at'))));
 
-        $data = $this->createCollection($query, $transformer, $this->entity_type);
+        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) 
+            $this->entity_type = null;
 
-        return $this->response($data);
-    }
-
-    protected function createCollection($query, $transformer, $entity_type)
-    {
-        $this->buildManager();
-
-        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
-            $entity_type = null;
-        }
-
-        if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
-            $limit = Input::get('per_page', 20);
-
+        if ($query instanceof Builder) {
+            $limit = request()->input('per_page', 20);
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
-            $resource = new Collection($query, $transformer, $entity_type);
+            $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         } else {
-            $resource = new Collection($query, $transformer, $entity_type);
+            $resource = new Collection($query, $transformer, $this->entity_type);
         }
 
-        return $this->manager->createData($resource)->toArray();
+        return $this->response($this->manager->createData($resource)->toArray());
+
     }
 
     protected function response($response)
@@ -368,26 +355,17 @@ class BaseController extends Controller
     {
         $this->buildManager();
 
-        $transformer = new $this->entity_transformer(Input::get('serializer'));
+        $transformer = new $this->entity_transformer(request()->input('serializer'));
 
-        $data = $this->createItem($item, $transformer, $this->entity_type);
+        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) 
+            $this->entity_type = null;
+        
+        $resource = new Item($item, $transformer, $this->entity_type);
 
-        if (auth()->user() && request()->include_static) {
+        if (auth()->user() && request()->include_static) 
             $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
-        }
 
-        return $this->response($data);
-    }
-
-    protected function createItem($data, $transformer, $entity_type)
-    {
-        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
-            $entity_type = null;
-        }
-
-        $resource = new Item($data, $transformer, $entity_type);
-
-        return $this->manager->createData($resource)->toArray();
+        return $this->response($this->manager->createData($resource)->toArray());
     }
 
     public static function getApiHeaders($count = 0)
@@ -429,7 +407,7 @@ class BaseController extends Controller
 
     public function flutterRoute()
     {
-      //  if ((bool) $this->checkAppSetup() !== false && Schema::hasTable('accounts') && $account = Account::first()) {
+
         if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
             if (config('ninja.require_https') && ! request()->isSecure()) {
                 return redirect()->secure(request()->getRequestUri());
@@ -443,7 +421,7 @@ class BaseController extends Controller
                 $data['report_errors'] = true;
             }
 
-            $data['hash'] = md5(public_path('main.dart.js'));
+            // $data['hash'] = md5_file(public_path('main.dart.js'));
 
             $this->buildCache();
 

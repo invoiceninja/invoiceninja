@@ -27,10 +27,7 @@ class CompanyUserTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
-    //     'account',
-    //     'company',
          'user',
-    //     'token'
      ];
 
     /**
@@ -76,6 +73,7 @@ class CompanyUserTransformer extends EntityTransformer
     public function includeUser(CompanyUser $company_user)
     {
         $transformer = new UserTransformer($this->serializer);
+        $company_user->user->company_id = $company_user->company_id;
 
         return $this->includeItem($company_user->user, $transformer, User::class);
     }
