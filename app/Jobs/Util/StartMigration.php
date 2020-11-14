@@ -107,8 +107,7 @@ class StartMigration implements ShouldQueue
 
             $data = json_decode(file_get_contents($file), 1);
 
-            Import::dispatchNow($data, $this->company, $this->user);
-
+            Import::dispatchNow($data['data'], $this->company, $this->user);
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
 
             Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
