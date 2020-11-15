@@ -158,6 +158,7 @@ class BaseRepository
      */
     protected function alternativeSave($data, $model)
     {
+
         $class = new ReflectionClass($model);
 
         if (array_key_exists('client_id', $data)) {
