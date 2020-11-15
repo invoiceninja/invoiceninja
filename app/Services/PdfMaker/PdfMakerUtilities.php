@@ -140,7 +140,7 @@ trait PdfMakerUtilities
                 // .. in case string doesn't contain any HTML, we'll just return
                 // raw $content.
 
-                $_child = $this->document->createElement($child['element'], isset($child['content']) ? $child['content'] : '');
+                $_child = $this->document->createElement($child['element'], isset($child['content']) ? htmlspecialchars($child['content']) : '');
             }
 
             $element->appendChild($_child);
