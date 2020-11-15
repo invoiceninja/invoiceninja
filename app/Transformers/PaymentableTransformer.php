@@ -46,6 +46,7 @@ class PaymentableTransformer extends EntityTransformer
             'refunded' => (float) $paymentable->refunded,
             'created_at' => (int) $paymentable->created_at,
             'updated_at' => (int) $paymentable->updated_at,
+            'archived_at' => (int) $paymentable->deleted_at,
         ];
     }
 }

@@ -40,6 +40,7 @@ class DeletePayment
             ->updateCreditables() //return the credits first
             ->adjustInvoices()
             ->updateClient()
+            ->deletePaymentables()
             ->save();
     }
 
@@ -50,6 +51,13 @@ class DeletePayment
     //set refunded to amount
 
     //set applied amount to 0
+
+    private function deletePaymentables()
+    {
+        $this->payment->paymentables()->update(['deleted_at' => now()]);
+
+        return $this;
+    }
 
     private function updateClient()
     {
@@ -66,7 +74,7 @@ class DeletePayment
                 $paymentable_invoice->ledger()->updateInvoiceBalance($paymentable_invoice->pivot->amount)->save();
                 $paymentable_invoice->client->service()->updateBalance($paymentable_invoice->pivot->amount)->save();
 
-                if (floatval($paymentable_invoice->balance) == 0) {
+                if ($paymentable_invoice->balance == $paymentable_invoice->amount) {
                     $paymentable_invoice->service()->setStatus(Invoice::STATUS_SENT)->save();
                 } else {
                     $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();

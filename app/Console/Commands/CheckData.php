@@ -322,8 +322,8 @@ class CheckData extends Command
             $total_invoice_payments = 0;
 
             foreach ($client->invoices->where('is_deleted', false) as $invoice) {
-                $total_amount = $invoice->payments->sum('pivot.amount');
-                $total_refund = $invoice->payments->sum('pivot.refunded');
+                $total_amount = $invoice->payments->whereNull('deleted_at')->sum('pivot.amount');
+                $total_refund = $invoice->payments->whereNull('deleted_at')->sum('pivot.refunded');
 
                  $total_invoice_payments += ($total_amount - $total_refund);
             }
