@@ -56,7 +56,7 @@
 
         <link rel="canonical" href="{{ config('ninja.site_url') }}/{{ request()->path() }}"/>
 
-        @if((bool) Ninja::isSelfHost())
+        @if((bool) \App\Utils\Ninja::isSelfHost())
             <style>
                 {!! $client->getSetting('portal_custom_css') !!}
             </style>
@@ -67,7 +67,7 @@
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
 
-        @if((bool) Ninja::isSelfHost())
+        @if((bool) \App\Utils\Ninja::isSelfHost())
             {!! $client->getSetting('portal_custom_head') !!}
         @endif
     </head>
@@ -92,12 +92,12 @@
         @yield('footer')
         @stack('footer')
 
-        @if((bool) Ninja::isSelfHost())
+        @if((bool) \App\Utils\Ninja::isSelfHost())
             {!! $client->getSetting('portal_custom_footer') !!}
         @endif
     </footer>
 
-    @if((bool) Ninja::isSelfHost())
+    @if((bool) \App\Utils\Ninja::isSelfHost())
         <script>
             {!! $client->getSetting('portal_custom_js') !!}
         </script>
