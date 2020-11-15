@@ -617,14 +617,14 @@ trait MakesInvoiceValues
             }
 
             $data[$key][$table_type.'.product_key'] = $item->product_key;
-            $data[$key][$table_type.'.notes'] = $item->notes;
+            $data[$key][$table_type.'.description'] = $item->notes;
             $data[$key][$table_type.'.custom_value1'] = $item->custom_value1;
             $data[$key][$table_type.'.custom_value2'] = $item->custom_value2;
             $data[$key][$table_type.'.custom_value3'] = $item->custom_value3;
             $data[$key][$table_type.'.custom_value4'] = $item->custom_value4;
             $data[$key][$table_type.'.quantity'] = $item->quantity;
 
-            $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $this->client);
+            $data[$key][$table_type.'.unit_cost'] = Number::formatMoney($item->cost, $this->client);
             $data[$key][$table_type.'.line_total'] = Number::formatMoney($item->line_total, $this->client);
 
             if (isset($item->discount) && $item->discount > 0) {
