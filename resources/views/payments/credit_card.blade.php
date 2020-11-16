@@ -47,6 +47,16 @@
 
         $(function() {
             $('.payment-form').submit(function(event) {
+                if(document.getElementById('cctoken').value == ''){
+                    event.preventDefault();
+                    setTimeout(function(){
+                        if(document.getElementById('cctoken').value != ''){
+                            $('.payment-form').submit();
+                        }
+                    }, 750);
+                    
+                    return false;
+                }
                 var $form = $(this);
 
                 if ($form.find('button').is(':disabled')) {
@@ -537,6 +547,17 @@
                         <div class="col-md-12">
                             @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
                                 <div id="card_number" class="braintree-hosted form-control"></div>
+                            @elseif ($accountGateway->gateway_id == GATEWAY_CARDCONNECT)
+                            <iframe id="tokenFrame" name="tokenFrame" src="https://fts-uat.cardconnect.com/itoke/ajax-tokenizer.html?usecvv=true&formatinput=true&useexpiry=true&&enhancedresponse=true&css=input%2Cselect%7Bbackground%3A%20%23f9f9f9%3B%0Aborder%3A%201px%20solid%20%23ebe7e7%3B%0Aborder-radius%3A%203px%3B%0Afont-size%3A%2016px%3B%0Amin-height%3A%2042px%20%21important%3B%0Afont-weight%3A%20400%3B%0Amargin-top%3A10px%3B%0Amargin-bottom%3A30px%3B%0A%7D%0Alabel%7B%0Afont-weight%3Abold%3B%0A%7D" frameborder="0" scrolling="no" height=300></iframe>
+                            <input type="hidden" name="cctoken" id="cctoken"/>
+                            <script language="JavaScript">
+                                window.addEventListener('message', function(event) {
+                                    var token = JSON.parse(event.data);
+                                    var mytoken = document.getElementById('cctoken');
+                                    mytoken.value = token.message;
+                                    // alert(token.message)
+                                }, false);
+                            </script>
                             @else
                                 {!! Former::text(!empty($tokenize) ? '' : 'card_number')
                                         ->id('card_number')
@@ -550,6 +571,7 @@
                         <div class="col-md-5">
                             @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
                                 <div id="expiration_month" class="braintree-hosted form-control"></div>
+                            @elseif ($accountGateway->gateway_id == GATEWAY_CARDCONNECT)
                             @else
                                 {!! Former::select(!empty($tokenize) ? '' : 'expiration_month')
                                         ->id('expiration_month')
@@ -573,6 +595,7 @@
                         <div class="col-md-4">
                             @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
                                 <div id="expiration_year" class="braintree-hosted form-control"></div>
+                            @elseif ($accountGateway->gateway_id == GATEWAY_CARDCONNECT)
                             @else
                                 {!! Former::select(!empty($tokenize) ? '' : 'expiration_year')
                                         ->id('expiration_year')
@@ -590,6 +613,7 @@
                         <div class="col-md-3">
                             @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
                                 <div id="cvv" class="braintree-hosted form-control"></div>
+                            @elseif ($accountGateway->gateway_id == GATEWAY_CARDCONNECT)
                             @else
                                 {!! Former::text(!empty($tokenize) ? '' : 'cvv')
                                         ->id('cvv')

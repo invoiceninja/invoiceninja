@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5ebbda0ec4f775dcd10261da641f4c27",
+    "content-hash": "131262c4d7e6f29c4617d7fb9bdc3448",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -111,60 +111,6 @@
                 "purchase"
             ],
             "time": "2015-03-21T20:06:25+00:00"
-        },
-        {
-            "name": "alfaproject/omnipay-skrill",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/xcaliber-tech/omnipay-skrill.git",
-                "reference": "f90a185b5e26fb5b4150d664f01ad8048b460bcf"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/xcaliber-tech/omnipay-skrill/zipball/f90a185b5e26fb5b4150d664f01ad8048b460bcf",
-                "reference": "f90a185b5e26fb5b4150d664f01ad8048b460bcf",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/common": "~2.0"
-            },
-            "require-dev": {
-                "omnipay/tests": "~2.0",
-                "satooshi/php-coveralls": "dev-master"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Omnipay\\Skrill\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Joao Dias",
-                    "email": "joao.dias@cherrygroup.com"
-                }
-            ],
-            "description": "Skrill driver for the Omnipay payment processing library",
-            "homepage": "https://github.com/alfaproject/omnipay-skrill",
-            "keywords": [
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment",
-                "skrill"
-            ],
-            "time": "2017-08-23T08:56:17+00:00"
         },
         {
             "name": "anahkiasen/former",
@@ -388,6 +334,7 @@
                 "open financial exchange",
                 "parser"
             ],
+            "abandoned": true,
             "time": "2018-10-29T10:10:13+00:00"
         },
         {
@@ -1490,6 +1437,57 @@
             "time": "2017-09-15T17:25:40+00:00"
         },
         {
+            "name": "dewbud/cardconnect",
+            "version": "2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Dewbud/CardConnect.git",
+                "reference": "8356c5531b78d143be4f57085ba5ac6671759707"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Dewbud/CardConnect/zipball/8356c5531b78d143be4f57085ba5ac6671759707",
+                "reference": "8356c5531b78d143be4f57085ba5ac6671759707",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^6.5",
+                "php": "^7.2"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "phpunit/phpunit": "^8.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Dewbud\\CardConnect\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dewbud",
+                    "email": "jalfonso1134@gmail.com"
+                },
+                {
+                    "name": "Contributors",
+                    "homepage": "https://github.com/Dewbud/CardConnect/contributors"
+                }
+            ],
+            "description": "PHP adapter for CardConnect CardPointe API",
+            "homepage": "https://github.com/Dewbud/CardConnect",
+            "keywords": [
+                "cardconnect",
+                "cardpointe"
+            ],
+            "time": "2020-07-31T23:58:04+00:00"
+        },
+        {
             "name": "digitickets/omnipay-barclays-epdq",
             "version": "3.0.0",
             "source": {
@@ -2390,6 +2388,59 @@
             "time": "2019-08-13T17:33:27+00:00"
         },
         {
+            "name": "erik-ropez/omnipay-cardconnect",
+            "version": "1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/erik-ropez/omnipay-cardconnect.git",
+                "reference": "0b16a5a17bafd0019c1959728c498154a7bc0c1b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/erik-ropez/omnipay-cardconnect/zipball/0b16a5a17bafd0019c1959728c498154a7bc0c1b",
+                "reference": "0b16a5a17bafd0019c1959728c498154a7bc0c1b",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Cardconnect\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jeremy Bueler",
+                    "email": "jeremy@roundhouseagency.com"
+                }
+            ],
+            "description": "Cardconnect driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/roundhouse/omnipay-cardconnect",
+            "keywords": [
+                "cardconnect",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2017-01-12T19:57:52+00:00"
+        },
+        {
             "name": "erusev/parsedown",
             "version": "1.7.1",
             "source": {
@@ -2685,6 +2736,7 @@
                 "faker",
                 "fixtures"
             ],
+            "abandoned": true,
             "time": "2017-08-15T16:48:10+00:00"
         },
         {
@@ -3103,6 +3155,7 @@
             "keywords": [
                 "google"
             ],
+            "abandoned": true,
             "time": "2018-02-26T17:01:46+00:00"
         },
         {
@@ -3285,7 +3338,7 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "6.3.0",
+            "version": "6.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
@@ -3723,6 +3776,7 @@
                     "homepage": "http://www.acci.cz"
                 }
             ],
+            "abandoned": "php-parallel-lint/php-console-color",
             "time": "2014-04-08T15:00:19+00:00"
         },
         {
@@ -3767,6 +3821,7 @@
                     "homepage": "http://www.acci.cz/"
                 }
             ],
+            "abandoned": "php-parallel-lint/php-console-highlighter",
             "time": "2015-04-20T18:58:01+00:00"
         },
         {
@@ -3938,6 +3993,7 @@
                 "serialize",
                 "tokenizer"
             ],
+            "abandoned": "opis/closure",
             "time": "2016-12-07T09:37:55+00:00"
         },
         {
@@ -5295,12 +5351,12 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/meebio/omnipay-secure-trading.git",
+                "url": "https://github.com/digitickets/omnipay-secure-trading.git",
                 "reference": "ee432c82e47c16f921091a05b6fc8d8e13234fd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/meebio/omnipay-secure-trading/zipball/ee432c82e47c16f921091a05b6fc8d8e13234fd1",
+                "url": "https://api.github.com/repos/digitickets/omnipay-secure-trading/zipball/ee432c82e47c16f921091a05b6fc8d8e13234fd1",
                 "reference": "ee432c82e47c16f921091a05b6fc8d8e13234fd1",
                 "shasum": ""
             },
@@ -8214,12 +8270,12 @@
             "version": "v1.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/nrk/predis.git",
+                "url": "https://github.com/predis/predis.git",
                 "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nrk/predis/zipball/f0210e38881631afeafb56ab43405a92cafd9fd1",
+                "url": "https://api.github.com/repos/predis/predis/zipball/f0210e38881631afeafb56ab43405a92cafd9fd1",
                 "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1",
                 "shasum": ""
             },
@@ -11226,12 +11282,12 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/websightgmbh/l5-google-cloud-storage.git",
+                "url": "https://github.com/hillelcoren/l5-google-cloud-storage.git",
                 "reference": "4bf1d928ec553fca1e7202738bc0fc7d9dc069d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/websightgmbh/l5-google-cloud-storage/zipball/4bf1d928ec553fca1e7202738bc0fc7d9dc069d2",
+                "url": "https://api.github.com/repos/hillelcoren/l5-google-cloud-storage/zipball/4bf1d928ec553fca1e7202738bc0fc7d9dc069d2",
                 "reference": "4bf1d928ec553fca1e7202738bc0fc7d9dc069d2",
                 "shasum": ""
             },
@@ -11765,6 +11821,7 @@
                 "push",
                 "zf2"
             ],
+            "abandoned": true,
             "time": "2015-12-09T22:55:07+00:00"
         },
         {
@@ -12206,12 +12263,12 @@
             "version": "1.5.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/facebook/php-webdriver.git",
+                "url": "https://github.com/php-webdriver/php-webdriver-archive.git",
                 "reference": "86b5ca2f67173c9d34340845dd690149c886a605"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/86b5ca2f67173c9d34340845dd690149c886a605",
+                "url": "https://api.github.com/repos/php-webdriver/php-webdriver-archive/zipball/86b5ca2f67173c9d34340845dd690149c886a605",
                 "reference": "86b5ca2f67173c9d34340845dd690149c886a605",
                 "shasum": ""
             },
@@ -12254,6 +12311,7 @@
                 "selenium",
                 "webdriver"
             ],
+            "abandoned": "php-webdriver/webdriver",
             "time": "2017-11-15T11:08:09+00:00"
         },
         {
@@ -12829,6 +12887,7 @@
             "keywords": [
                 "tokenizer"
             ],
+            "abandoned": true,
             "time": "2017-11-27T05:48:46+00:00"
         },
         {
@@ -13685,5 +13744,6 @@
         "ext-json": "*",
         "ext-zip": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }

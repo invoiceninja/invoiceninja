@@ -1552,6 +1552,8 @@ class Account extends Eloquent
             return GATEWAY_BRAINTREE;
         } elseif ($this->isGatewayConfigured(GATEWAY_WEPAY)) {
             return GATEWAY_WEPAY;
+        } elseif ($this->isGatewayConfigured(GATEWAY_CARDCONNECT)) {
+            return GATEWAY_CARDCONNECT;
         } else {
             return false;
         }
