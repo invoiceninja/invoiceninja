@@ -88,14 +88,15 @@ class ImportMigrations extends Command
             'confirmation_code' => $this->createDbHash(config('database.default')),
         ]);
 
+CompanyToken::unguard();
         $company_token = CompanyToken::create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'account_id' => $account->id,
-            'name' => 'test token',
+            'name' => 'First token',
             'token' => Str::random(64),
         ]);
-
+        
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
             'is_owner' => 1,
