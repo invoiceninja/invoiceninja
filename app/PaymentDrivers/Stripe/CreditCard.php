@@ -120,6 +120,16 @@ class CreditCard
     {
         $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
 
+        $data = [
+            'payment_method' => $this->stripe->payment_hash->data->server_response->payment_method,
+            'payment_type' => PaymentType::parseCardType(strtolower($stripe_method->card->brand)),
+            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->server_response->amount, $this->stripe->client->currency()->precision),
+            'transaction_reference' => $this->stripe->payment_hash->data->server_response->id,
+        ];
+
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['amount' => $data['amount']]);
+        $this->stripe->payment_hash->save();
+
         if ($this->stripe->payment_hash->data->store_card) {
             $customer = $this->stripe->findOrCreateCustomer();
 
@@ -127,13 +137,6 @@ class CreditCard
 
             $this->storePaymentMethod($stripe_method, $this->stripe->payment_hash->data->payment_method_id, $customer);
         }
-
-        $data = [
-            'payment_method' => $this->stripe->payment_hash->data->server_response->payment_method,
-            'payment_type' => PaymentType::parseCardType(strtolower($stripe_method->card->brand)),
-            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->server_response->amount, $this->stripe->client->currency()->precision),
-            'transaction_reference' => $this->stripe->payment_hash->data->server_response->id,
-        ];
 
         $payment = $this->stripe->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
 
