@@ -51,11 +51,11 @@ class StartMigration implements ShouldQueue
      * @param User $user
      * @param Company $company
      */
-    public $tries = 1;
+    public $tries = 0;
 
     public $timeout = 86400;
 
-    public $backoff = 86430;
+    //public $backoff = 86430;
 
     public function __construct($filepath, User $user, Company $company)
     {
