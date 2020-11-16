@@ -88,7 +88,8 @@ class ImportMigrations extends Command
             'confirmation_code' => $this->createDbHash(config('database.default')),
         ]);
 
-CompanyToken::unguard();
+        CompanyToken::unguard();
+
         $company_token = CompanyToken::create([
             'user_id' => $user->id,
             'company_id' => $company->id,
