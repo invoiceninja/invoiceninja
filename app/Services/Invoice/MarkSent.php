@@ -46,6 +46,7 @@ class MarkSent extends AbstractService
              ->setStatus(Invoice::STATUS_SENT)
              ->applyNumber()
              ->setDueDate()
+             ->updateBalance($this->invoice->amount)
              ->save();
 
         $this->client->service()->updateBalance($this->invoice->balance)->save();

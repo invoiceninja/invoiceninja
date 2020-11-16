@@ -12,9 +12,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Paymentable extends Pivot
 {
+    use SoftDeletes;
+
     protected $table = 'paymentables';
 
     //protected $dateFormat = 'Y-m-d H:i:s.u';

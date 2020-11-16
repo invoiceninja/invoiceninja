@@ -304,6 +304,8 @@ class HtmlEngine
         $data['$product.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
+        $data['$product.description'] = ['value' => '', 'label' => ctrans('texts.description')];
+        $data['$product.unit_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
 
         $data['$task.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$task.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
