@@ -288,7 +288,7 @@ trait GenerateMigrationResources
                 'first_name' => $user->first_name ?: '',
                 'last_name' => $user->last_name ?: '',
                 'phone' => $user->phone ?: '',
-                'email' => $user->email,
+                'email' => $user->username,
                 'confirmation_code' => $user->confirmation_code,
                 'failed_logins' => $user->failed_logins,
                 'referral_code' => $user->referral_code,
@@ -954,6 +954,10 @@ trait GenerateMigrationResources
         $transformed = [];
 
         foreach ($account_gateways as $account_gateway) {
+
+            if($account_gateway->gateway_id > 55)
+                continue;
+
             $gateway_types = $account_gateway->paymentDriver()->gatewayTypes();
 
             foreach ($gateway_types as $gateway_type_id) {
@@ -988,8 +992,8 @@ trait GenerateMigrationResources
         $is_default = true;
 
         foreach ($payment_methods as $payment_method) {
-            $contact = Contact::find($payment_method->contact_id)->first();
-            $agt = AccountGatewayToken::find($payment_method->account_gateway_token_id)->first();
+            $contact = Contact::where('id', $payment_method->contact_id)->withTrashed()->first();
+            $agt = AccountGatewayToken::where('id', $payment_method->account_gateway_token_id)->withTrashed()->first();
 
             $transformed[] = [
                 'id' => $payment_method->id,
@@ -1053,7 +1057,6 @@ trait GenerateMigrationResources
                 $status = TaskStatus::createNew();
                 $status->name = trans('texts.' . $defaults[$i]);
                 $status->sort_order = $i;
-                $status->is_deleted = false;
                 $status->save();
             }
 
@@ -1071,7 +1074,7 @@ trait GenerateMigrationResources
                 'company_id' => $this->account->id,
                 'user_id' => $task_status->user_id,
                 'status_sort_order' => $task_status->sort_order,
-                'is_deleted' => $task_status->is_deleted ?: false,
+                'is_deleted' => false,
                 'created_at' => $task_status->created_at ? $task_status->created_at->toDateString() : null,
                 'updated_at' => $task_status->updated_at ? $task_status->updated_at->toDateString() : null,
                 'deleted_at' => $task_status->deleted_at ? $task_status->deleted_at->toDateString() : null,
@@ -1366,7 +1369,7 @@ trait GenerateMigrationResources
 
     private function getGatewayKeyById($gateway_id)
     {
-        $gateways = [
+        $gateways = collect([
             ['id' => 1, 'key' => '3b6621f970ab18887c4f6dca78d3f8bb'],
             ['id' => 2, 'key' => '46c5c1fed2c43acf4f379bae9c8b9f76'],
             ['id' => 3, 'key' => '944c20175bbe6b9972c05bcfe294c2c7'],
@@ -1422,8 +1425,10 @@ trait GenerateMigrationResources
             ['id' => 53, 'key' => 'ef498756b54db63c143af0ec433da803'],
             ['id' => 54, 'key' => 'ca52f618a39367a4c944098ebf977e1c'],
             ['id' => 55, 'key' => '54faab2ab6e3223dbe848b1686490baa'],
-        ];
+        ]);
 
-        return $gateways[$gateway_id]['key'];
+        $search = $gateways->where('id', $gateway_id)->pluck('key');
+
+        return $search[0];
     }
 }
