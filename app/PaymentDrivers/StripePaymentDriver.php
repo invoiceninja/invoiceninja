@@ -68,6 +68,8 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::SEPA => 1, // TODO
     ];
 
+    const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
+
     /**
      * Initializes the Stripe API.
      * @return void

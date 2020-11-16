@@ -84,6 +84,8 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         ];
     }
 
+    const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYPAL;
+
     /**
      * Processes the payment with this gateway.
      *
