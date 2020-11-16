@@ -56,8 +56,6 @@ class SendRecurring implements ShouldQueue
      */
     public function handle() : void
     {
-        info(" in the handle ");
-
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
@@ -99,8 +97,9 @@ class SendRecurring implements ShouldQueue
 
         $this->recurring_invoice->save();
 
-        if ($invoice->invitations->count() > 0)
-            event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
+        //this is duplicated!!
+        // if ($invoice->invitations->count() > 0)
+            // event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
 
     }
 
