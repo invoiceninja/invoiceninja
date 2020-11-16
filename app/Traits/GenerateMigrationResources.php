@@ -764,7 +764,7 @@ trait GenerateMigrationResources
                 'date' => $item->created_at,
                 'custom_value1' => $item->custom_value1,
                 'custom_value2' => $item->custom_value2,
-                'line_item_type_id' => $item->invoice_item_type_id,
+                'type_id' => $item->invoice_item_type_id,
             ];
         }
 
