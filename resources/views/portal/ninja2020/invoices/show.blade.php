@@ -8,21 +8,15 @@
 
 @section('body')
 
-    @if($invoice->isPayable() && !empty($client->getSetting('custom_message_unpaid_invoice')))
+    @if(!$invoice->isApproved() && $client->getSetting('custom_message_unapproved_quote'))
         @component('portal.ninja2020.components.message')
-            {!! CustomMessage::client($client)
-                ->company($client->company)
-                ->entity($invoice)
-                ->message($client->getSetting('custom_message_unpaid_invoice')) !!}
+            {{ $client->getSetting('custom_message_unapproved_quote') }}
         @endcomponent
     @endif
 
-    @if(!$invoice->isPayable() && !empty($client->getSetting('custom_message_paid_invoice')))
+    @if(!$invoice->isPayable() && $client->getSetting('custom_message_paid_invoice'))
         @component('portal.ninja2020.components.message')
-            {!! CustomMessage::client($client)
-                ->company($client->company)
-                ->entity($invoice)
-                ->message($client->getSetting('custom_message_paid_invoice')) !!}
+            {{ $client->getSetting('custom_message_paid_invoice') }}
         @endcomponent
     @endif
 
