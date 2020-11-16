@@ -58,9 +58,9 @@ class CompanySettings extends BaseSettings
     public $send_reminders = false; //@TODO
 
     public $custom_message_dashboard = ''; // @TODO There currently is no dashboard so this is pending
-    public $custom_message_unpaid_invoice = '';  //@ben to implement
-    public $custom_message_paid_invoice = '';  //@ben to implement
-    public $custom_message_unapproved_quote = '';  //@ben to implement
+    public $custom_message_unpaid_invoice = '';
+    public $custom_message_paid_invoice = '';
+    public $custom_message_unapproved_quote = '';
     public $auto_archive_quote = false; //@implemented
     public $auto_convert_quote = true; //@implemented
     public $auto_email_invoice = true; //@only used for Recurring Invoices, if set to false, we never send?
