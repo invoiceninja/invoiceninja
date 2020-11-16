@@ -131,10 +131,13 @@ class CreditCard
         $this->stripe->payment_hash->save();
 
         if ($this->stripe->payment_hash->data->store_card) {
-            $customer = $this->stripe->findOrCreateCustomer();
+            $customer = new \stdClass;
+            $customer->id = $this->stripe->payment_hash->data->customer;
 
             $this->stripe->attach($this->stripe->payment_hash->data->server_response->payment_method, $customer);
-
+    
+            $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
+    
             $this->storePaymentMethod($stripe_method, $this->stripe->payment_hash->data->payment_method_id, $customer);
         }
 
