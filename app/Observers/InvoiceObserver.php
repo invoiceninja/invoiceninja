@@ -26,7 +26,7 @@ class InvoiceObserver
      */
     public function created(Invoice $invoice)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice, $invoice->company);
     }
 
     /**
@@ -37,7 +37,7 @@ class InvoiceObserver
      */
     public function updated(Invoice $invoice)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_INVOICE, $invoice);
+        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_INVOICE, $invoice, $invoice->company);
     }
 
     /**
@@ -48,7 +48,7 @@ class InvoiceObserver
      */
     public function deleted(Invoice $invoice)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_DELETE_INVOICE, $invoice);
+        WebhookHandler::dispatch(Webhook::EVENT_DELETE_INVOICE, $invoice, $invoice->company);
     }
 
     /**

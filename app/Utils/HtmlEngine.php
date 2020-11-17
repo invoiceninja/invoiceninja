@@ -152,7 +152,12 @@ class HtmlEngine
         $data['$discount'] = &$data['$invoice.discount'];
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
         $data['$invoice.subtotal'] = &$data['$subtotal'];
-        $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+
+        if($this->entity->partial > 0)
+            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+        else
+            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+        
         $data['$quote.balance_due'] = &$data['$balance_due'];
         $data['$invoice.balance_due'] = &$data['$balance_due'];
         $data['$balance_due'] = &$data['$balance_due'];
@@ -291,19 +296,21 @@ class HtmlEngine
         $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$product.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$product.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
-        $data['$product.notes'] = ['value' => '', 'label' => ctrans('texts.notes')];
-        $data['$product.cost'] = ['value' => '', 'label' => ctrans('texts.cost')];
+        $data['$product.description'] = ['value' => '', 'label' => ctrans('texts.description')];
+        $data['$product.unit_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
         $data['$product.quantity'] = ['value' => '', 'label' => ctrans('texts.quantity')];
         $data['$product.tax_name1'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
+        $data['$product.description'] = ['value' => '', 'label' => ctrans('texts.description')];
+        $data['$product.unit_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
 
         $data['$task.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$task.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$task.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
-        $data['$task.notes'] = ['value' => '', 'label' => ctrans('texts.notes')];
+        $data['$task.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$task.rate'] = ['value' => '', 'label' => ctrans('texts.rate')];
         $data['$task.hours'] = ['value' => '', 'label' => ctrans('texts.hours')];
         $data['$task.tax'] = ['value' => '', 'label' => ctrans('texts.tax')];

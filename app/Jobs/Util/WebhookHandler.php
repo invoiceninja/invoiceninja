@@ -21,6 +21,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
+use App\Libraries\MultiDB;
 
 class WebhookHandler implements ShouldQueue
 {
@@ -30,16 +31,18 @@ class WebhookHandler implements ShouldQueue
 
     private $event_id;
 
+    private $company;
     /**
      * Create a new job instance.
      *
      * @param $event_id
      * @param $entity
      */
-    public function __construct($event_id, $entity)
+    public function __construct($event_id, $entity, $company)
     {
         $this->event_id = $event_id;
         $this->entity = $entity;
+        $this->company = $company;
     }
 
     /**
@@ -49,6 +52,9 @@ class WebhookHandler implements ShouldQueue
      */
     public function handle() :bool
     {//todo set multidb here
+
+        MultiDB::setDb($this->company->db);
+
         if (! $this->entity->company || $this->entity->company->is_disabled) {
             return true;
         }

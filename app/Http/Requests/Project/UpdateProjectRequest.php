@@ -33,9 +33,8 @@ class UpdateProjectRequest extends Request
     {
         $rules = [];
         
-        if ($this->input('number')) {
-            $rules['number'] = 'unique:projects,number,'.$this->id.',id,company_id,'.$this->project->company_id;
-        }
+        if(isset($this->number))
+            $rules['number'] = Rule::unique('projects')->where('company_id', auth()->user()->company()->id)->ignore($this->project->id);
 
         return $this->globalRules($rules);
     }
@@ -43,6 +42,9 @@ class UpdateProjectRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->decodePrimaryKeys($this->all()); 
+
+        if(isset($input['client_id']))
+            unset($input['client_id']);
 
         $this->replace($input);
     }

@@ -22,7 +22,6 @@ use App\Models\Company;
 use App\Models\SystemLog;
 use App\Models\User;
 use App\Providers\MailServiceProvider;
-use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -77,12 +76,16 @@ class MailRouter extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver();
 
         //send email
-        Mail::to($this->to_user->email)
-            ->send($this->mailable);
-
-        //catch errors
-        if (count(Mail::failures()) > 0) {
-            $this->logMailError(Mail::failures(), $this->to_user);
+        try {
+            Mail::to($this->to_user->email)
+                ->send($this->mailable);
         }
+        catch (\Exception $e) {
+
+            $this->failed($e);
+            $this->logMailError($e->getMessage(), $this->to_user);
+
+        }
+
     }
 }

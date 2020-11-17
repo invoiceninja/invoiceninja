@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -308,11 +307,13 @@ class BaseDriver extends AbstractPaymentDriver
             $error = $e->getBody();
         }
 
+        $amount = optional($this->payment_hash->data)->value ?? optional($this->payment_hash->data)->amount;
+
         PaymentFailureMailer::dispatch(
             $gateway->client,
             $error,
             $gateway->client->company,
-            $this->payment_hash->data->value
+            $amount
         );
 
         SystemLogger::dispatch(

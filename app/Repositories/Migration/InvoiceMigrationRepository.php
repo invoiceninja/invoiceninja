@@ -138,10 +138,6 @@ class InvoiceMigrationRepository extends BaseRepository
 
         $model = $model->service()->applyNumber()->save();
 
-        if ($model->company->update_products !== false) {
-            UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
-        }
-
         if ($class->name == Invoice::class || $class->name == RecurringInvoice::class) {
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
 
@@ -151,6 +147,11 @@ class InvoiceMigrationRepository extends BaseRepository
 
             if (! $model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
+            }
+
+            
+            if ($model->company->update_products !== false) {
+                UpdateOrCreateProduct::dispatchNow($model->line_items, $model, $model->company);
             }
         }
 

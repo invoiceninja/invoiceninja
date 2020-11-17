@@ -168,11 +168,13 @@ class LoginController extends BaseController
 
             $user = $this->guard()->user();
 
-            $user->setCompany($user->company_user->account->default_company);
+            $user->setCompany($user->account->default_company);
 
-            $ct = CompanyUser::whereUserId($user->id);
+            $cu = CompanyUser::query()
+                  ->where('user_id', auth()->user()->id);
 
-            return $this->listResponse($ct);
+                return $this->listResponse($cu);
+
         } else {
             LightLogs::create(new LoginFailure())
                 ->increment()
@@ -280,9 +282,10 @@ class LoginController extends BaseController
                 Auth::login($existing_user, true);
                 $existing_user->setCompany($existing_user->account->default_company);
 
-                $ct = CompanyUser::whereUserId(auth()->user()->id);
+                $cu = CompanyUser::query()
+                                  ->where('user_id', auth()->user()->id);
 
-                return $this->listResponse($ct);
+                return $this->listResponse($cu);
             }
         }
 

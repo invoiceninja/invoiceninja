@@ -729,6 +729,7 @@ class InvoiceController extends BaseController
                 $invoice->service()->touchReminder($this->reminder_template)->save();
 
                 $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
+                    info("firing email");
                     EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template);
                     
                 });

@@ -78,6 +78,7 @@ class CompanyGatewayResolutionTest extends TestCase
             $data[1]['fee_tax_rate2'] = 10;
             $data[1]['fee_tax_name3'] = 'GST';
             $data[1]['fee_tax_rate3'] = 10;
+            $data[1]['adjust_fee_percent'] = true;
             $data[1]['fee_cap'] = 0;
 
             $data[2]['min_limit'] = -1;
@@ -90,6 +91,7 @@ class CompanyGatewayResolutionTest extends TestCase
             $data[2]['fee_tax_rate2'] = 10;
             $data[2]['fee_tax_name3'] = 'GST';
             $data[2]['fee_tax_rate3'] = 10;
+            $data[2]['adjust_fee_percent'] = true;
             $data[2]['fee_cap'] = 0;
 
             //disable ach here 

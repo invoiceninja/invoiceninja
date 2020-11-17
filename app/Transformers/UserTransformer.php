@@ -95,10 +95,16 @@ class UserTransformer extends EntityTransformer
     }
 
     public function includeCompanyUser(User $user)
-    {
+    {  
+        
+        if(!$user->company_id && request()->header('X-API-TOKEN')){
+            $company_token = CompanyToken::whereRaw('BINARY `token`= ?', [request()->header('X-API-TOKEN')])->first();
+            $user->company_id = $company_token->company_id;
+        }
+
         $transformer = new CompanyUserTransformer($this->serializer);
 
-        $cu = $user->company_users()->whereCompanyId(config('ninja.company_id'))->first();
+        $cu = $user->company_users()->whereCompanyId($user->company_id)->first();
 
         return $this->includeItem($cu, $transformer, CompanyUser::class);
     }

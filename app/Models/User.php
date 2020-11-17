@@ -166,8 +166,14 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getCompany()
     {
+
         if ($this->company) {
             return $this->company;
+        }
+
+        if(request()->header('X-API-TOKEN')){
+            $company_token = CompanyToken::whereRaw('BINARY `token`= ?', [request()->header('X-API-TOKEN')])->first();
+            return $company_token->company;
         }
 
         return Company::find(config('ninja.company_id'));
@@ -201,21 +207,17 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->id = auth()->user()->id;
         }
 
-        return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
+        if(request()->header('X-API-TOKEN')){
+            return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
+            ->where('company_tokens.token', request()->header('X-API-TOKEN'))
+            ->withTrashed();
+        }
+        else {
+
+            return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
             ->where('company_user.user_id', $this->id)
             ->withTrashed();
-
-        // if(request()->header('X-API-TOKEN')){
-        //     return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
-        //     ->where('company_tokens.token', request()->header('X-API-TOKEN'))
-        //     ->withTrashed();
-        // }
-        // else {
-
-        //     return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
-        //     ->where('company_user.user_id', $this->id)
-        //     ->withTrashed();
-        // }
+        }
     }
 
     /**

@@ -25,7 +25,7 @@ class TaskObserver
      */
     public function created(Task $task)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_CREATE_TASK, $task);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_TASK, $task, $task->company);
     }
 
     /**
@@ -36,7 +36,7 @@ class TaskObserver
      */
     public function updated(Task $task)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_TASK, $task);
+        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_TASK, $task, $task->company);
     }
 
     /**
@@ -47,7 +47,7 @@ class TaskObserver
      */
     public function deleted(Task $task)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_DELETE_TASK, $task);
+        WebhookHandler::dispatch(Webhook::EVENT_DELETE_TASK, $task, $task->company);
     }
 
     /**

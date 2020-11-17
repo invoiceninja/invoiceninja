@@ -17,6 +17,7 @@ use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\SystemLog;
 use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
 use App\PaymentDrivers\Authorize\ChargePaymentProfile;
@@ -42,6 +43,8 @@ class AuthorizePaymentDriver extends BaseDriver
     public static $methods = [
         GatewayType::CREDIT_CARD => AuthorizeCreditCard::class,
     ];
+
+    const SYSTEM_LOG_TYPE = SystemLog::TYPE_AUTHORIZE;
 
     public function setPaymentMethod($payment_method_id)
     {

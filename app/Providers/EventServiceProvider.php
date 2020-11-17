@@ -51,6 +51,8 @@ use App\Events\Misc\InvitationWasViewed;
 use App\Events\Payment\PaymentWasArchived;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
+use App\Events\Payment\PaymentWasEmailed;
+use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasRestored;
 use App\Events\Payment\PaymentWasUpdated;
@@ -129,6 +131,8 @@ use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Invoice\UpdateInvoiceInvitations;
 use App\Listeners\Misc\InvitationViewedListener;
+use App\Listeners\Payment\PaymentEmailFailureActivity;
+use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
 use App\Listeners\Quote\QuoteApprovedActivity;
@@ -309,6 +313,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvitationWasViewed::class => [
             InvitationViewedListener::class,
+        ],
+        PaymentWasEmailed::class => [
+            PaymentEmailedActivity::class,
+        ],
+        PaymentWasEmailedAndFailed::class => [
+            PaymentEmailFailureActivity::class,
         ],
         CompanyDocumentsDeleted::class => [
             DeleteCompanyDocuments::class,

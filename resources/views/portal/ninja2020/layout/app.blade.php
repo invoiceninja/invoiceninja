@@ -56,16 +56,20 @@
 
         <link rel="canonical" href="{{ config('ninja.site_url') }}/{{ request()->path() }}"/>
 
-        <style>
-            {!! $client->getSetting('portal_custom_css') !!}
-        </style>
+        @if((bool) \App\Utils\Ninja::isSelfHost())
+            <style>
+                {!! $client->getSetting('portal_custom_css') !!}
+            </style>
+        @endif
 
         @livewireStyles
 
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
 
-        {!! $client->getSetting('portal_custom_head') !!}
+        @if((bool) \App\Utils\Ninja::isSelfHost())
+            {!! $client->getSetting('portal_custom_head') !!}
+        @endif
     </head>
 
     @include('portal.ninja2020.components.primary-color')
@@ -88,11 +92,14 @@
         @yield('footer')
         @stack('footer')
 
-        {!! $client->getSetting('portal_custom_footer') !!}
+        @if((bool) \App\Utils\Ninja::isSelfHost())
+            {!! $client->getSetting('portal_custom_footer') !!}
+        @endif
     </footer>
 
-    <script>
-        {!! $client->getSetting('portal_custom_js') !!}
-    </script>
-
+    @if((bool) \App\Utils\Ninja::isSelfHost())
+        <script>
+            {!! $client->getSetting('portal_custom_js') !!}
+        </script>
+    @endif
 </html>
