@@ -26,7 +26,7 @@ class PaymentObserver
      */
     public function created(Payment $payment)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_CREATE_PAYMENT, $payment);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_PAYMENT, $payment, $payment->company);
     }
 
     /**
@@ -47,7 +47,7 @@ class PaymentObserver
      */
     public function deleted(Payment $payment)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_DELETE_PAYMENT, $payment);
+        WebhookHandler::dispatch(Webhook::EVENT_DELETE_PAYMENT, $payment, $payment->company);
     }
 
     /**

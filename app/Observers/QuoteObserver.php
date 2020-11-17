@@ -25,7 +25,7 @@ class QuoteObserver
      */
     public function created(Quote $quote)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company);
     }
 
     /**
@@ -36,7 +36,7 @@ class QuoteObserver
      */
     public function updated(Quote $quote)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote);
+        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote, $quote->company);
     }
 
     /**
@@ -47,7 +47,7 @@ class QuoteObserver
      */
     public function deleted(Quote $quote)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_DELETE_QUOTE, $quote);
+        WebhookHandler::dispatch(Webhook::EVENT_DELETE_QUOTE, $quote, $quote->company);
     }
 
     /**
