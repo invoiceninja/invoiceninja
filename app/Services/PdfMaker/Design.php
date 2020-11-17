@@ -367,7 +367,7 @@ class Design extends BaseDesign
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.cost']];
                     } else if ($cell == '$task.hours') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.quantity']];
-                    } else if ($cell == '$task.notes') {
+                    } else if ($cell == '$task.description') {
                         $_element = ['element' => 'td', 'content' => '', 'elements' => [
                             ['element' => 'span', 'content' => $row[$cell]],
                         ]];
