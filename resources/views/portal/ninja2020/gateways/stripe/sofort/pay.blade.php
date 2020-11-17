@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'SOFORT (Stripe)', 'card_title' => 'SOFORT (Stripe)'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'SOFORT', 'card_title' => 'SOFORT'])
 
 @section('gateway_head')
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
