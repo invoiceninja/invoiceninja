@@ -25,7 +25,7 @@ class ClientObserver
      */
     public function created(Client $client)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company);
     }
 
     /**
@@ -36,7 +36,7 @@ class ClientObserver
      */
     public function updated(Client $client)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CLIENT, $client);
+        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CLIENT, $client, $client->company);
     }
 
     /**
@@ -47,7 +47,7 @@ class ClientObserver
      */
     public function deleted(Client $client)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_DELETE_CLIENT, $client);
+        WebhookHandler::dispatch(Webhook::EVENT_DELETE_CLIENT, $client, $client->company);
     }
 
     /**

@@ -1191,6 +1191,8 @@ class Import implements ShouldQueue
         if (! $user) {
             $user = UserFactory::create($this->company->account->id);
         }
+        
+        info("getting user id = {$user->id} - {$user->email}");
 
         return $user;
     }
