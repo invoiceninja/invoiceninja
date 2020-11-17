@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Stripe (Credit card)', 'card_title' => 'Stripe (Credit card)'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Credit card', 'card_title' => 'Credit card'])
 
 @section('gateway_head')
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
@@ -21,7 +21,7 @@
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
-        {{ ctrans('texts.credit_card') }} (Stripe)
+        {{ ctrans('texts.credit_card') }}
     @endcomponent
 
     @include('portal.ninja2020.gateways.includes.payment_details')
