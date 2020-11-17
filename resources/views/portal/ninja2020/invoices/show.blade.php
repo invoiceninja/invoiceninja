@@ -8,12 +8,6 @@
 
 @section('body')
 
-    @if(!$invoice->isApproved() && $client->getSetting('custom_message_unapproved_quote'))
-        @component('portal.ninja2020.components.message')
-            {{ $client->getSetting('custom_message_unapproved_quote') }}
-        @endcomponent
-    @endif
-
     @if(!$invoice->isPayable() && $client->getSetting('custom_message_paid_invoice'))
         @component('portal.ninja2020.components.message')
             {{ $client->getSetting('custom_message_paid_invoice') }}
