@@ -170,8 +170,8 @@ class PaymentController extends Controller
 
         });
 
-        if ((bool) $request->signature) {
-            $invoices->each(function ($invoice) {
+        if (request()->has('signature') && !is_null(request()->signature) && !empty(request()->signature)) {
+            $invoices->each(function ($invoice) use ($request) {
                 InjectSignature::dispatch($invoice, $request->signature);
             });
         }
