@@ -23,7 +23,7 @@ use Tests\TestCase;
 class GroupSettingTest extends TestCase
 {
     use MakesHash;
-    use DatabaseTransactions;
+    //use DatabaseTransactions;
     use MockAccountData;
 
     public function setUp(): void
@@ -42,7 +42,7 @@ class GroupSettingTest extends TestCase
     public function testAddGroupSettings()
     {
         $settings = new \stdClass;
-        $settings->currency_id = 1;
+        $settings->currency_id = '1';
 
         $data = [
             'name' => 'testX',
@@ -65,7 +65,7 @@ class GroupSettingTest extends TestCase
     public function testArchiveGroupSettings()
     {
         $settings = new \stdClass;
-        $settings->currency_id = 1;
+        $settings->currency_id = '1';
 
         $data = [
             'name' => 'testY',
