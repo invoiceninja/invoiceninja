@@ -60,12 +60,9 @@ class InvoiceEmailedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
                 unset($methods[$key]);
 
-                //Fire mail notification here!!!
-                //This allows us better control of how we
-                //handle the mailer
-
                 EntitySentMailer::dispatch($event->invitation, 'invoice', $user, $event->invitation->company);
                 $first_notification_sent = false;
+
             }
 
             $notification->method = $methods;

@@ -51,11 +51,11 @@ class StartMigration implements ShouldQueue
      * @param User $user
      * @param Company $company
      */
-    public $tries = 1;
+    public $tries = 0;
 
     public $timeout = 86400;
 
-    public $backoff = 86430;
+    //public $backoff = 86430;
 
     public function __construct($filepath, User $user, Company $company)
     {
@@ -107,7 +107,7 @@ class StartMigration implements ShouldQueue
 
             $data = json_decode(file_get_contents($file), 1);
 
-            Import::dispatchNow($data['data'], $this->company, $this->user);
+            Import::dispatchNow($data, $this->company, $this->user);
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
 
             Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
