@@ -25,7 +25,7 @@ class ExpenseObserver
      */
     public function created(Expense $expense)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_CREATE_EXPENSE, $expense);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_EXPENSE, $expense, $expense->company);
     }
 
     /**
@@ -36,7 +36,7 @@ class ExpenseObserver
      */
     public function updated(Expense $expense)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_EXPENSE, $expense);
+        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_EXPENSE, $expense, $expense->company);
     }
 
     /**
@@ -47,7 +47,7 @@ class ExpenseObserver
      */
     public function deleted(Expense $expense)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_DELETE_EXPENSE, $expense);
+        WebhookHandler::dispatch(Webhook::EVENT_DELETE_EXPENSE, $expense, $expense->company);
     }
 
     /**
