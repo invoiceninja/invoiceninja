@@ -66,7 +66,9 @@
         <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->user()->company->present()->name, 'email' => auth()->user()->company->email]) }}</label>
     @endcomponent
 
-    @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'save-button'])
+    @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'save-button'])
+        {{ ctrans('texts.add_payment_method') }}
+    @endcomponent
 @endsection
 
 @section('gateway_footer')

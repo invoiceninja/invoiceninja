@@ -25,7 +25,7 @@
     @include('portal.ninja2020.gateways.stripe.includes.card_widget')
 
     @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'authorize-card'])
-        {{ __('texts.save') }}
+        {{ ctrans('texts.add_payment_method') }}
     @endcomponent
 @endsection
 
