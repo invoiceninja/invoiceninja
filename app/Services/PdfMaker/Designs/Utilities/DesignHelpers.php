@@ -236,9 +236,19 @@ trait DesignHelpers
             return [];
         }
 
-        foreach (json_decode($task['time_log']) as $log) {
-            info($log);
-            $logs[] = sprintf('%s - %s', \Carbon\Carbon::createFromTimestamp($log[0])->toDateTimeString(), \Carbon\Carbon::createFromTimestamp($log[1])->toDateTimeString());
+        $logs = [];
+        $_logs = json_decode($task->time_log);
+
+        if (!$_logs) {
+            $_logs = [];
+        }
+
+        foreach ($_logs as $log) {
+            $logs[] = sprintf(
+                '%s - %s',
+                \Carbon\Carbon::createFromTimestamp($log[0])->format($task->client->date_format() . ' h:i:s'),
+                \Carbon\Carbon::createFromTimestamp($log[1])->format($task->client->date_format() . ' h:i:s')
+            );
         }
 
         return $logs;
