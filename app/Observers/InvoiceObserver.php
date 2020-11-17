@@ -26,7 +26,7 @@ class InvoiceObserver
      */
     public function created(Invoice $invoice)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice, $invoice->expense);
+        WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice, $invoice->company);
     }
 
     /**
