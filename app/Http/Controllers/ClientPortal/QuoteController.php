@@ -6,6 +6,7 @@ use App\Events\Quote\QuoteWasApproved;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\ProcessQuotesInBulkRequest;
 use App\Http\Requests\ClientPortal\ShowQuoteRequest;
+use App\Jobs\Invoice\InjectSignature;
 use App\Models\Company;
 use App\Models\Quote;
 use App\Utils\Ninja;
@@ -111,6 +112,10 @@ class QuoteController extends Controller
             foreach ($quotes as $quote) {
                 $quote->service()->approve(auth()->user())->save();
                 event(new QuoteWasApproved(auth('contact')->user(), $quote, $quote->company, Ninja::eventVars()));
+                
+                if (request()->has('signature') && !is_null(request()->signature) && !empty(request()->signature)) {
+                    InjectSignature::dispatch($quote, request()->signature);
+                }
             }
 
             return redirect()

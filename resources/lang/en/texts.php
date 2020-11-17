@@ -3303,4 +3303,6 @@ return [
     'activity_65' => ':user emailed reminder 3 for invoice :invoice to :contact',
     'activity_66' => ':user emailed reminder endless for invoice :invoice to :contact',
 
+    'by_clicking_next_you_accept_terms' => 'By clicking "Next step" you accept terms.',
+    'not_specified' => 'Not specified',
 ];

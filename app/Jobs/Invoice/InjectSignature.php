@@ -15,9 +15,9 @@ class InjectSignature implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * @var App\Models\Invoice
+     * @var App\Models\Invoice|App\Models\Quote
      */
-    public $invoice;
+    public $entity;
 
     /**
      * @var string
@@ -27,12 +27,12 @@ class InjectSignature implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param Invoice $invoice
+     * @param $entity
      * @param string $signature
      */
-    public function __construct(Invoice $invoice, string $signature)
+    public function __construct($entity, string $signature)
     {
-        $this->invoice = $invoice;
+        $this->entity = $entity;
 
         $this->signature = $signature;
     }
@@ -44,7 +44,7 @@ class InjectSignature implements ShouldQueue
      */
     public function handle()
     {
-        $invitation = $this->invoice->invitations->whereNotNull('signature_base64')->first();
+        $invitation = $this->entity->invitations->whereNotNull('signature_base64')->first();
 
         if (! $invitation) {
             return;
