@@ -304,7 +304,7 @@ class CheckData extends Command
 
             if ($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4)) {
                 $wrong_balances++;
-                $this->logMessage($client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
+                $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
 
                 $this->isValid = false;
             }
@@ -341,7 +341,7 @@ class CheckData extends Command
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
                 $wrong_paid_to_dates++;
 
-                $this->logMessage($client->present()->name.' - '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}");
+                $this->logMessage($client->present()->name.'id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}");
 
                 $this->isValid = false;
             }

@@ -148,7 +148,7 @@ class Import implements ShouldQueue
      */
     private $ids = [];
 
-    public $tries = 1;
+    public $tries = 0;
 
     public $timeout = 86400;
 
@@ -1192,8 +1192,6 @@ class Import implements ShouldQueue
             $user = UserFactory::create($this->company->account->id);
         }
         
-        info("getting user id = {$user->id} - {$user->email}");
-
         return $user;
     }
 

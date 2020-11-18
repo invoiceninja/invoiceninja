@@ -72,6 +72,7 @@ class ImportMigrations extends Command
         foreach ($directory as $file) {
             if ($file->getExtension() === 'zip') {
                 $this->info('Started processing: '.$file->getBasename().' at '.now());
+                info("dispatching");
                 StartMigration::dispatch($file->getRealPath(), $this->getUser(), $this->getUser()->companies()->first());
             }
         }
@@ -84,7 +85,7 @@ class ImportMigrations extends Command
 
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->email,
+            'email' => Str::random(10) . "@example.com",
             'confirmation_code' => $this->createDbHash(config('database.default')),
         ]);
 
