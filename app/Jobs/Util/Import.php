@@ -148,12 +148,13 @@ class Import implements ShouldQueue
      */
     private $ids = [];
 
-    public $tries = 0;
+    public $tries = 1;
 
     public $timeout = 86400;
 
     public $backoff = 86430;
 
+  //  public $maxExceptions = 2;
     /**
      * Create a new job instance.
      *
@@ -175,7 +176,7 @@ class Import implements ShouldQueue
      *
      * @return bool
      */
-    public function handle() :bool
+    public function handle() 
     {
         set_time_limit(0);
 
@@ -203,7 +204,6 @@ class Import implements ShouldQueue
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
-        return true;
     }
 
     private function setInitialCompanyLedgerBalances()
@@ -1246,6 +1246,7 @@ class Import implements ShouldQueue
                  ->batch();
 
         info(print_r($exception->getMessage(), 1));
+
     }
 
 }

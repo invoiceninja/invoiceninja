@@ -17,6 +17,7 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use DirectoryIterator;
 use Faker\Factory;
@@ -27,6 +28,8 @@ use Illuminate\Support\Str;
 class ImportMigrations extends Command
 {
     use MakesHash;
+    use AppSetup;
+
     /**
      * The name and signature of the console command.
      *
@@ -65,6 +68,8 @@ class ImportMigrations extends Command
      */
     public function handle()
     {
+        $this->buildCache();
+        
         $path = $this->option('path') ?? storage_path('migrations/import');
 
         $directory = new DirectoryIterator($path);
@@ -72,7 +77,6 @@ class ImportMigrations extends Command
         foreach ($directory as $file) {
             if ($file->getExtension() === 'zip') {
                 $this->info('Started processing: '.$file->getBasename().' at '.now());
-                info("dispatching");
                 StartMigration::dispatch($file->getRealPath(), $this->getUser(), $this->getUser()->companies()->first());
             }
         }

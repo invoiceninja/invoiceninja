@@ -383,17 +383,7 @@ class CheckData extends Command
         $wrong_paid_to_dates = 0;
 
         foreach (Client::cursor() as $client) {
-            $invoice_balance = $client->invoices->sum('balance');
-            // $invoice_amounts = $client->invoices->sum('amount') - $invoice_balance;
-
-            // $credit_amounts = 0;
-
-            // foreach ($client->invoices as $invoice) {
-            //     $credit_amounts += $invoice->credits->sum('amount');
-            // }
-
-            // /*To handle invoice reversals, we need to "ADD BACK" the credit amounts here*/
-            // $client_paid_to_date = $client->paid_to_date + $credit_amounts;
+            $invoice_balance = $client->invoices->where('is_deleted', false)->sum('balance');
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
