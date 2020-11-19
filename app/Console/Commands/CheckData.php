@@ -321,7 +321,7 @@ class CheckData extends Command
         Client::withTrashed()->cursor()->each(function ($client) use ($wrong_paid_to_dates, $credit_total_applied) {
             $total_invoice_payments = 0;
 
-            foreach ($client->invoices->where('is_deleted', false) as $invoice) {
+            foreach ($client->invoices->where('is_deleted', false)->where('status_id', '>', 1) as $invoice) {
                 $total_amount = $invoice->payments->whereNull('deleted_at')->sum('pivot.amount');
                 $total_refund = $invoice->payments->whereNull('deleted_at')->sum('pivot.refunded');
 
