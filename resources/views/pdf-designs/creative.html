@@ -89,12 +89,17 @@
     #product-table,
     #delivery-note-table,
     #task-table {
-        margin-top: 3rem;
         /* margin-bottom: 200px; */
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
+    }
+
+    #product-table:not(:empty),
+    #delivery-note-table:not(:empty),
+    #task-table:not(:empty) {
         border-top: 5px solid var(--primary-color);
+        margin-top: 3rem;
     }
 
     .task-duration {
