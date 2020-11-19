@@ -70,13 +70,15 @@
         @if((bool) \App\Utils\Ninja::isSelfHost())
             {!! $client->getSetting('portal_custom_head') !!}
         @endif
+
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
     </head>
 
     @include('portal.ninja2020.components.primary-color')
 
     <body class="antialiased">
         @if(session()->has('message'))
-            <div class="bg-primary text-sm py-1 text-white text-center disposable-alert">
+            <div class="py-1 text-sm text-center text-white bg-primary disposable-alert">
                 {{ session('message') }}
             </div>
         @endif
@@ -86,6 +88,31 @@
         @endcomponent
 
         @livewireScripts
+
+        <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>
+        <script>
+            window.addEventListener("load", function(){
+                if (! window.cookieconsent) {
+                    return;
+                }
+                window.cookieconsent.initialise({
+                    "palette": {
+                        "popup": {
+                            "background": "#000"
+                        },
+                        "button": {
+                            "background": "#f1d600"
+                        },
+                    },
+                    "content": {
+                        "href": "https://www.invoiceninja.com/privacy-policy/",
+                        "message": "This website uses cookies to ensure you get the best experience on our website.",
+                        "dismiss": "Got it!",
+                        "link": "Learn more",
+                    }
+                })}
+            );
+        </script>
     </body>
 
     <footer>
