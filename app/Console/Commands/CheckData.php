@@ -383,7 +383,7 @@ class CheckData extends Command
         $wrong_paid_to_dates = 0;
 
         foreach (Client::cursor() as $client) {
-            $invoice_balance = $client->invoices->where('is_deleted', false)->sum('balance');
+            $invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
