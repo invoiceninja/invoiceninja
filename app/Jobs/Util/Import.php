@@ -263,10 +263,14 @@ class Import implements ShouldQueue
 
         if(isset($data['settings']->company_logo) && strlen($data['settings']->company_logo) > 0) {
 
-            $tempImage = tempnam(sys_get_temp_dir(), basename($data['settings']->company_logo));
-            copy($data['settings']->company_logo, $tempImage);
-            $this->uploadLogo($tempImage, $this->company, $this->company);
-            
+            try {
+                $tempImage = tempnam(sys_get_temp_dir(), basename($data['settings']->company_logo));
+                copy($data['settings']->company_logo, $tempImage);
+                $this->uploadLogo($tempImage, $this->company, $this->company);
+            }
+            catch(\Exception $e){
+
+            }
         }
 
         Company::reguard();
@@ -972,7 +976,7 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
-            $modified['user_id'] = $this->processUserId($resource);
+            //$modified['user_id'] = $this->processUserId($resource);
 
             $cgt = ClientGatewayToken::Create($modified);
 
