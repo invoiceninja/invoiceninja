@@ -389,7 +389,7 @@ class CheckData extends Command
 
             if ($ledger && (string) $invoice_balance != (string) $client->balance) {
                 $wrong_paid_to_dates++;
-                $this->logMessage($client->present()->name.' - '.$client->id." - client paid to dates do not match {$invoice_balance} - ".rtrim($client->balance, '0'));
+                $this->logMessage($client->present()->name.' - '.$client->id." - calculated client balances do not match {$invoice_balance} - ".rtrim($client->balance, '0'));
 
                 $this->isValid = false;
             }
