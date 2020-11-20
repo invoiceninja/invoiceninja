@@ -195,6 +195,11 @@ trait DesignHelpers
         // Extract $invoice.date => date
         // so we can append date as $entity->date and not $entity->$invoice.date;
 
+        // When it comes to invoice balance, we'll always show it.
+        if ($variable == '$invoice.total') {
+            return false;
+        }
+
         try {
             $_variable = explode('.', $variable)[1];
         } catch (Exception $e) {
