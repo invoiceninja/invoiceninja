@@ -194,8 +194,8 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $url = $this->client->company->domain().'/client/payments/process/response';
         $url .= "?company_gateway_id={$this->company_gateway->id}&gateway_type_id=".GatewayType::PAYPAL;
         $url .= '&payment_hash='.$input['payment_hash'];
-        $url .= '&amount='.$input['amount'];
-        $url .= '&fee='.$input['fee'];
+        $url .= '&amount='.$input['total']['invoice_totals'];
+        $url .= '&fee='.$input['total']['fee_total'];
 
         return $url;
     }
@@ -212,7 +212,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $invoice_numbers = '';
 
         foreach ($input['invoices'] as $invoice) {
-            $invoice_numbers .= $invoice->number.' ';
+            $invoice_numbers .= "{$invoice['invoice_number']} ";
         }
 
         return ctrans('texts.invoice_number').": {$invoice_numbers}";
@@ -220,7 +220,13 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     private function buildTransactionId($input): string
     {
-        return implode(',', $input['hashed_ids']);
+        $arr = [''];
+
+        foreach ($input['invoices'] as $invoice) {
+            $arr[] = $invoice['invoice_id'];
+        }
+
+        return implode(',', $arr);
     }
 
     private function paymentItems($input): array
@@ -229,7 +235,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $total = 0;
 
         foreach ($input['invoices'] as $invoice) {
-            foreach ($invoice->line_items as $invoiceItem) {
+            foreach ($invoice['line_items'] as $invoiceItem) {
                 // Some gateways require quantity is an integer
                 if (floatval($invoiceItem->quantity) != intval($invoiceItem->quantity)) {
                     return null;
@@ -331,4 +337,13 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     {
         // PayPal doesn't support this feature.
     }
+
+    /**
+     *
+     */
+    public function setPaymentHash()
+    {
+        // PayPal doesn't support this feature.
+    }
+
 }

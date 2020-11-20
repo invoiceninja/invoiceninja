@@ -182,7 +182,7 @@ class CompanyGatewayTest extends TestCase
 
         $total = 10.93;
         $total_invoice_count = 5;
-        $total_gateway_fee = round($cg->calcGatewayFee($total, true, GatewayType::CREDIT_CARD), 2);
+        $total_gateway_fee = round($cg->calcGatewayFee($total, GatewayType::CREDIT_CARD, true), 2);
 
         $this->assertEquals(1.58, $total_gateway_fee);
 

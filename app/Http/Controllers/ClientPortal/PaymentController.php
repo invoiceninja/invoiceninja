@@ -155,6 +155,7 @@ class PaymentController extends Controller
 
             $payable_invoice['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             $payable_invoice['invoice_number'] = $invoice->number;
+            $payable_invoice['line_items'] = $invoice->line_items;
 
             if (isset($invoice->po_number)) {
                 $additional_info = $invoice->po_number;
@@ -222,11 +223,10 @@ class PaymentController extends Controller
             return $this->processCreditPayment($request, $data);
         }
 
-        return $gateway
-            ->driver(auth()->user()->client)
-            ->setPaymentMethod($payment_method_id)
-            ->setPaymentHash($payment_hash)
-            ->processPaymentView($data);
+        $driver = $gateway->driver(auth()->user()->client);
+        $driver->setPaymentMethod($payment_method_id);
+        $driver->setPaymentHash($payment_hash);
+        return $driver->processPaymentView($data);
     }
 
     public function response(PaymentResponseRequest $request)
