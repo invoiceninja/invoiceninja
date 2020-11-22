@@ -162,9 +162,9 @@ class BaseRepository
         $class = new ReflectionClass($model);
 
         if (array_key_exists('client_id', $data)) {
-            $client = Client::find($data['client_id']);
+            $client = Client::where('id', $data['client_id'])->withTrashed()->first();
         } else {
-            $client = Client::find($model->client_id);
+            $client = Client::where('id', $model->client_id)->withTrashed()->first();
         }
 
         $state = [];

@@ -834,6 +834,10 @@ class Import implements ShouldQueue
                     'new' => $payment->id,
                 ],
             ];
+
+            //depending on the status, we do a final action.
+            $payment = $this->updatePaymentForStatus($payment, $modified['status_id']);
+
         }
 
         Payment::reguard();
@@ -841,6 +845,45 @@ class Import implements ShouldQueue
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
         $payment_repository = null;
+    }
+
+    private function updatePaymentForStatus($payment, $status_id) :Payment
+    {
+        // define('PAYMENT_STATUS_PENDING', 1);
+        // define('PAYMENT_STATUS_VOIDED', 2);
+        // define('PAYMENT_STATUS_FAILED', 3);
+        // define('PAYMENT_STATUS_COMPLETED', 4);
+        // define('PAYMENT_STATUS_PARTIALLY_REFUNDED', 5);
+        // define('PAYMENT_STATUS_REFUNDED', 6);
+            
+        switch ($status_id) {
+            case 1:
+                return $payment;
+                break;
+            case 2:
+                return $payment->service()->deletePayment();
+                break;
+            case 3:
+                return $payment->service()->deletePayment();
+                break;
+            case 4:
+                return $payment;
+                break;
+            case 5:
+                $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+                $payment->save();
+                return $payment;
+                break;            
+            case 6:
+                $payment->status_id = Payment::STATUS_REFUNDED;
+                $payment->save();
+                return $payment;
+                break;  
+
+            default:
+                return $payment;
+                break;
+        }
     }
 
     private function processDocuments(array $data): void

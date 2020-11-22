@@ -98,6 +98,24 @@ class MigrationController extends BaseController
         return response()->json(['message' => 'Company purged'], 200);
     }
 
+    private function purgeCompanyWithForceFlag(Company $company)
+    {
+        $account = $company->account;
+        $company_id = $company->id;
+
+        $company->delete();
+
+        /*Update the new default company if necessary*/
+        if ($company_id == $account->default_company_id && $account->companies->count() >= 1) {
+            $new_default_company = $account->companies->first();
+
+            if ($new_default_company) {
+                $account->default_company_id = $new_default_company->id;
+                $account->save();
+            }
+        }
+    }
+    
     /**
      * Purge Company but save settings.
      *
@@ -241,7 +259,7 @@ class MigrationController extends BaseController
 
             // If there's existing company and force ** is provided ** - purge the company and migrate again.
             if ($checks['existing_company'] == true && $checks['force'] == true) {
-                $this->purgeCompany($existing_company);
+                $this->purgeCompanyWithForceFlag($existing_company);
 
                 $account = auth()->user()->account;
                 $fresh_company = (new ImportMigrations())->getCompany($account);
