@@ -157,8 +157,6 @@ class PaymentRepository extends BaseRepository
         if(!$is_existing_payment)
             event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-
-
          $payment->applied += ($invoice_totals - $credit_totals); //wont work because - check tests
         // $payment->applied += $invoice_totals; //wont work because - check tests
 

@@ -41,20 +41,20 @@ class NumberTest extends TestCase
         $this->assertEquals(2.15, $rounded);
     }
 
-    public function testParsingFloats()
-    {
-        Currency::all()->each(function ($currency) {
-            $amount = 123456789.12;
+    // public function testParsingFloats()
+    // {
+    //     Currency::all()->each(function ($currency) {
+    //         $amount = 123456789.12;
 
-            $formatted_amount = Number::formatValue($amount, $currency);
+    //         $formatted_amount = Number::formatValue($amount, $currency);
 
-            $float_amount = Number::parseFloat($formatted_amount);
+    //         $float_amount = Number::parseFloat($formatted_amount);
 
-            if ($currency->precision == 0) {
-                $this->assertEquals(123456789, $float_amount);
-            } else {
-                $this->assertEquals($amount, $float_amount);
-            }
-        });
-    }
+    //         if ($currency->precision == 0) {
+    //             $this->assertEquals(123456789, $float_amount);
+    //         } else {
+    //             $this->assertEquals($amount, $float_amount);
+    //         }
+    //     });
+    // }
 }

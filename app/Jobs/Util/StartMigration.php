@@ -51,9 +51,11 @@ class StartMigration implements ShouldQueue
      * @param User $user
      * @param Company $company
      */
-    public $tries = 0;
+    public $tries = 1;
 
     public $timeout = 86400;
+
+  //  public $maxExceptions = 2;
 
     //public $backoff = 86430;
 
@@ -124,5 +126,6 @@ class StartMigration implements ShouldQueue
 
     public function failed($exception = null)
     {
+        info(print_r($exception->getMessage(),1));
     }
 }

@@ -154,6 +154,7 @@ class Import implements ShouldQueue
 
     public $backoff = 86430;
 
+  //  public $maxExceptions = 2;
     /**
      * Create a new job instance.
      *
@@ -175,7 +176,7 @@ class Import implements ShouldQueue
      *
      * @return bool
      */
-    public function handle() :bool
+    public function handle() 
     {
         set_time_limit(0);
 
@@ -203,7 +204,6 @@ class Import implements ShouldQueue
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
-        return true;
     }
 
     private function setInitialCompanyLedgerBalances()
@@ -263,10 +263,14 @@ class Import implements ShouldQueue
 
         if(isset($data['settings']->company_logo) && strlen($data['settings']->company_logo) > 0) {
 
-            $tempImage = tempnam(sys_get_temp_dir(), basename($data['settings']->company_logo));
-            copy($data['settings']->company_logo, $tempImage);
-            $this->uploadLogo($tempImage, $this->company, $this->company);
-            
+            try {
+                $tempImage = tempnam(sys_get_temp_dir(), basename($data['settings']->company_logo));
+                copy($data['settings']->company_logo, $tempImage);
+                $this->uploadLogo($tempImage, $this->company, $this->company);
+            }
+            catch(\Exception $e){
+
+            }
         }
 
         Company::reguard();
@@ -972,7 +976,7 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
-            $modified['user_id'] = $this->processUserId($resource);
+            //$modified['user_id'] = $this->processUserId($resource);
 
             $cgt = ClientGatewayToken::Create($modified);
 
@@ -1192,8 +1196,6 @@ class Import implements ShouldQueue
             $user = UserFactory::create($this->company->account->id);
         }
         
-        info("getting user id = {$user->id} - {$user->email}");
-
         return $user;
     }
 
@@ -1248,6 +1250,7 @@ class Import implements ShouldQueue
                  ->batch();
 
         info(print_r($exception->getMessage(), 1));
+
     }
 
 }
