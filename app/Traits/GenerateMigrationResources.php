@@ -770,7 +770,7 @@ trait GenerateMigrationResources
                 'tax_rate2' => (float) $item->tax_rate2,
                 'tax_name3' => (string) '',
                 'tax_rate3' => (float) 0,
-                'date' => $item->created_at,
+                'date' => Carbon::parse($item->created_at)->toDateString(),
                 'custom_value1' => $item->custom_value1,
                 'custom_value2' => $item->custom_value2,
                 'type_id' => $item->invoice_item_type_id,
