@@ -99,7 +99,7 @@ trait GenerateMigrationResources
             'recurring_number_prefix' => $this->account->recurring_invoice_number_prefix ? $this->account->recurring_invoice_number_prefix : 'R',
             'enable_client_portal' => $this->account->enable_client_portal ? (bool) $this->account->enable_client_portal : false,
             'invoice_fields' => $this->account->invoice_fields ?: '',
-            'company_logo' => $this->account->logo ?: '',
+            'company_logo' => $this->account->getLogoURL() ?: '',
             'embed_documents' => $this->account->invoice_embed_documents ? (bool) $this->account->invoice_embed_documents : false,
             'document_email_attachment' => $this->account->document_email_attachment ? (bool) $this->account->document_email_attachment : false,
             'enable_client_portal_dashboard' => $this->account->enable_client_portal_dashboard ? (bool) $this->account->enable_client_portal_dashboard : true,
@@ -150,9 +150,9 @@ trait GenerateMigrationResources
                 'rate' => $rate->rate,
                 'company_id' => $rate->account_id,
                 'user_id' => $rate->user_id,
-                'created_at' => $rate->created_at ? $rate->created_at->toDateString() : null,
-                'updated_at' => $rate->updated_at ? $rate->updated_at->toDateString() : null,
-                'deleted_at' => $rate->deleted_at ? $rate->deleted_at->toDateString() : null,
+                'created_at' => $rate->created_at ? Carbon::parse($rate->created_at)->toDateString() : null,
+                'updated_at' => $rate->updated_at ? Carbon::parse($rate->updated_at)->toDateString() : null,
+                'deleted_at' => $rate->deleted_at ? Carbon::parse($rate->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -195,6 +195,9 @@ trait GenerateMigrationResources
                 'shipping_country_id' => $client->shipping_country_id,
                 'contacts' => $this->getClientContacts($client->contacts),
                 'settings' => $this->getClientSettings($client),
+                'created_at' => $client->created_at ? Carbon::parse($client->created_at)->toDateString() : null,
+                'updated_at' => $client->updated_at ? Carbon::parse($client->updated_at)->toDateString() : null,
+                'deleted_at' => $client->deleted_at ? Carbon::parse($client->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -237,6 +240,9 @@ trait GenerateMigrationResources
                 'password' => $contact->password,
                 'remember_token' => $contact->remember_token,
                 'contact_key' => $contact->contact_key,
+                'created_at' => $contact->created_at ? Carbon::parse($contact->created_at)->toDateString() : null,
+                'updated_at' => $contact->updated_at ? Carbon::parse($contact->updated_at)->toDateString() : null,
+                'deleted_at' => $contact->deleted_at ? Carbon::parse($contact->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -265,9 +271,9 @@ trait GenerateMigrationResources
                 'tax_name2' => $product->tax_name2,
                 'tax_rate1' => $product->tax_rate1,
                 'tax_rate2' => $product->tax_rate2,
-                'created_at' => $product->created_at ? $product->created_at->toDateString() : null,
-                'updated_at' => $product->updated_at ? $product->updated_at->toDateString() : null,
-                'deleted_at' => $product->deleted_at ? $product->deleted_at->toDateString() : null,
+                'created_at' => $product->created_at ? Carbon::parse($product->created_at)->toDateString() : null,
+                'updated_at' => $product->updated_at ? Carbon::parse($product->updated_at)->toDateString() : null,
+                'deleted_at' => $product->deleted_at ? Carbon::parse($product->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -288,7 +294,7 @@ trait GenerateMigrationResources
                 'first_name' => $user->first_name ?: '',
                 'last_name' => $user->last_name ?: '',
                 'phone' => $user->phone ?: '',
-                'email' => $user->email,
+                'email' => $user->username,
                 'confirmation_code' => $user->confirmation_code,
                 'failed_logins' => $user->failed_logins,
                 'referral_code' => $user->referral_code,
@@ -298,9 +304,9 @@ trait GenerateMigrationResources
                 'accepted_terms_version' => $user->accepted_terms_version,
                 'password' => $user->password,
                 'remember_token' => $user->remember_token,
-                'created_at' => $user->created_at ? $user->created_at->toDateString() : null,
-                'updated_at' => $user->updated_at ? $user->updated_at->toDateString() : null,
-                'deleted_at' => $user->deleted_at ? $user->deleted_at->toDateString() : null,
+                'created_at' => $user->created_at ? Carbon::parse($user->created_at)->toDateString() : null,
+                'updated_at' => $user->updated_at ? Carbon::parse($user->updated_at)->toDateString() : null,
+                'deleted_at' => $user->deleted_at ? Carbon::parse($user->deleted_at)->toDateString() : null,
                 'company_user' => [],
             ];
         }
@@ -353,9 +359,9 @@ trait GenerateMigrationResources
                 'partial' => $credit->partial ?: 0,
                 'partial_due_date' => $credit->partial_due_date,
                 'line_items' => $this->getInvoiceItems($credit->invoice_items),
-                'created_at' => $credit->created_at ? $credit->created_at->toDateString() : null,
-                'updated_at' => $credit->updated_at ? $credit->updated_at->toDateString() : null,
-                'deleted_at' => $credit->deleted_at ? $credit->deleted_at->toDateString() : null,
+                'created_at' => $credit->created_at ? Carbon::parse($credit->created_at)->toDateString() : null,
+                'updated_at' => $credit->updated_at ? Carbon::parse($credit->updated_at)->toDateString() : null,
+                'deleted_at' => $credit->deleted_at ? Carbon::parse($credit->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -368,8 +374,8 @@ trait GenerateMigrationResources
         $invoices = [];
 
         $export_invoices = Invoice::where('account_id', $this->account->id)
-            ->where('amount', '>=', '0')
-            ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+            ->where('amount', '>=', 0)
+            ->where('invoice_type_id', INVOICE_TYPE_STANDARD)
             ->where('is_recurring', false)
             ->withTrashed()
             ->get();
@@ -380,7 +386,7 @@ trait GenerateMigrationResources
                 'client_id' => $invoice->client_id,
                 'user_id' => $invoice->user_id,
                 'company_id' => $invoice->account_id,
-                'status_id' => $this->transformStatusId($invoice->invoice_status_id),
+                'status_id' => $this->transformStatusId($invoice->invoice_status_id, $invoice->is_public),
                 'design_id' => $this->getDesignId($invoice->invoice_design_id),
                 'number' => $invoice->invoice_number,
                 'discount' => $invoice->discount,
@@ -407,9 +413,9 @@ trait GenerateMigrationResources
                 'partial' => $invoice->partial ?: 0,
                 'partial_due_date' => $invoice->partial_due_date,
                 'line_items' => $this->getInvoiceItems($invoice->invoice_items),
-                'created_at' => $invoice->created_at ? $invoice->created_at->toDateString() : null,
-                'updated_at' => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
-                'deleted_at' => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
+                'created_at' => $invoice->created_at ? Carbon::parse($invoice->created_at)->toDateString() : null,
+                'updated_at' => $invoice->updated_at ? Carbon::parse($invoice->updated_at)->toDateString() : null,
+                'deleted_at' => $invoice->deleted_at ? Carbon::parse($invoice->deleted_at)->toDateString() : null,
                 //'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
             ];
         }
@@ -431,7 +437,7 @@ trait GenerateMigrationResources
         $invoices = [];
 
         $export_invoices = Invoice::where('account_id', $this->account->id)
-            ->where('amount', '>=', '0')
+            ->where('amount', '>=', 0)
             ->where('is_recurring', true)
             ->withTrashed()
             ->get();        
@@ -472,9 +478,9 @@ trait GenerateMigrationResources
                 'partial' => $invoice->partial ?: 0,
                 'partial_due_date' => $invoice->partial_due_date,
                 'line_items' => $this->getInvoiceItems($invoice->invoice_items),
-                'created_at' => $invoice->created_at ? $invoice->created_at->toDateString() : null,
-                'updated_at' => $invoice->updated_at ? $invoice->updated_at->toDateString() : null,
-                'deleted_at' => $invoice->deleted_at ? $invoice->deleted_at->toDateString() : null,
+                'created_at' => $invoice->created_at ? Carbon::parse($invoice->created_at)->toDateString() : null,
+                'updated_at' => $invoice->updated_at ? Carbon::parse($invoice->updated_at)->toDateString() : null,
+                'deleted_at' => $invoice->deleted_at ? Carbon::parse($invoice->deleted_at)->toDateString() : null,
                 'next_send_date' => $this->getNextSendDateForMigration($invoice),
                 'frequency_id' => $this->transformFrequencyId($invoice),
                 'due_date_days' => $this->transformDueDate($invoice),
@@ -687,11 +693,14 @@ trait GenerateMigrationResources
     const STATUS_CANCELLED = 5;
     const STATUS_REVERSED = 6;
      */
-    private function transformStatusId($status)
+    private function transformStatusId($status, $is_public)
     {
+        if(!$is_public)
+            return 1;
+
         switch ($status) {
             case 1:
-                return 1;
+                return 2;
                 break;
             case 2:
                 return 2;
@@ -734,9 +743,9 @@ trait GenerateMigrationResources
                 'sent_date' => $invitation->sent_date,
                 'viewed_date' => $invitation->viewed_date,
                 'opened_date' => $invitation->opened_date,
-                'created_at' => $invitation->created_at ? $invitation->created_at->toDateString() : null,
-                'updated_at' => $invitation->updated_at ? $invitation->updated_at->toDateString() : null,
-                'deleted_at' => $invitation->deleted_at ? $invitation->deleted_at->toDateString() : null,
+                'created_at' => $invitation->created_at ? Carbon::parse($invitation->created_at)->toDateString() : null,
+                'updated_at' => $invitation->updated_at ? Carbon::parse($invitation->updated_at)->toDateString() : null,
+                'deleted_at' => $invitation->deleted_at ? Carbon::parse($invitation->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -761,10 +770,10 @@ trait GenerateMigrationResources
                 'tax_rate2' => (float) $item->tax_rate2,
                 'tax_name3' => (string) '',
                 'tax_rate3' => (float) 0,
-                'date' => $item->created_at,
+                'date' => Carbon::parse($item->created_at)->toDateString(),
                 'custom_value1' => $item->custom_value1,
                 'custom_value2' => $item->custom_value2,
-                'line_item_type_id' => $item->invoice_item_type_id,
+                'type_id' => $item->invoice_item_type_id,
             ];
         }
 
@@ -776,7 +785,7 @@ trait GenerateMigrationResources
         $transformed = [];
 
         $quotes = Invoice::where('account_id', $this->account->id)
-            ->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)
+            ->where('invoice_type_id', INVOICE_TYPE_QUOTE)
             ->withTrashed()
             ->get();
 
@@ -813,9 +822,9 @@ trait GenerateMigrationResources
                 'partial' => $quote->partial ?: 0,
                 'partial_due_date' => $quote->partial_due_date,
                 'line_items' => $this->getInvoiceItems($quote->invoice_items),
-                'created_at' => $quote->created_at ? $quote->created_at->toDateString() : null,
-                'updated_at' => $quote->updated_at ? $quote->updated_at->toDateString() : null,
-                'deleted_at' => $quote->deleted_at ? $quote->deleted_at->toDateString() : null,
+                'created_at' => $quote->created_at ? Carbon::parse($quote->created_at)->toDateString() : null,
+                'updated_at' => $quote->updated_at ? Carbon::parse($quote->updated_at)->toDateString() : null,
+                'deleted_at' => $quote->deleted_at ? Carbon::parse($quote->deleted_at)->toDateString() : null,
                 //'invitations' => $this->getResourceInvitations($quote->invitations, 'quote_id'),
             ];
         }
@@ -881,9 +890,9 @@ trait GenerateMigrationResources
                 'exchange_rate' => $payment->exchange_rate ? number_format((float) $payment->exchange_rate, 6) : null,
                 'exchange_currency_id' => $payment->exchange_currency_id,
                 'currency_id' => isset($payment->client->currency->id) ? $payment->client->currency->id : $this->account->currency_id,
-                'updated_at' => $payment->updated_at ? $payment->updated_at->toDateString() : null,
-                'created_at' => $payment->created_at ? $payment->created_at->toDateString() : null,
-                'deleted_at' => $payment->deleted_at ? $payment->deleted_at->toDateString() : null,
+                'updated_at' => $payment->updated_at ? Carbon::parse($payment->updated_at)->toDateString() : null,
+                'created_at' => $payment->created_at ? Carbon::parse($payment->created_at)->toDateString() : null,
+                'deleted_at' => $payment->deleted_at ? Carbon::parse($payment->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -892,7 +901,7 @@ trait GenerateMigrationResources
 
     private function getCredits()
     {
-        $credits = Credit::where('account_id', $this->account->id)->where('balance', '>', '0')->whereIsDeleted(false)
+        $credits = Credit::where('account_id', $this->account->id)->where('balance', '>', 0)->whereIsDeleted(false)
             ->withTrashed()
             ->get();
 
@@ -908,9 +917,9 @@ trait GenerateMigrationResources
                 'applied' => 0,
                 'refunded' => 0,
                 'date' => $credit->date,
-                'created_at' => $credit->created_at ? $credit->created_at->toDateString() : null,
-                'updated_at' => $credit->updated_at ? $credit->updated_at->toDateString() : null,
-                'deleted_at' => $credit->deleted_at ? $credit->deleted_at->toDateString() : null,
+                'created_at' => $credit->created_at ? Carbon::parse($credit->created_at)->toDateString() : null,
+                'updated_at' => $credit->updated_at ? Carbon::parse($credit->updated_at)->toDateString() : null,
+                'deleted_at' => $credit->deleted_at ? Carbon::parse($credit->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -939,8 +948,8 @@ trait GenerateMigrationResources
                 'size' => $document->size,
                 'width' => $document->width,
                 'height' => $document->height,
-                'created_at' => $document->created_at ? $document->created_at->toDateString() : null,
-                'updated_at' => $document->updated_at ? $document->updated_at->toDateString() : null,
+                'created_at' => $document->created_at ? Carbon::parse($document->created_at)->toDateString() : null,
+                'updated_at' => $document->updated_at ? Carbon::parse($document->updated_at)->toDateString() : null,
             ];
         }
 
@@ -954,6 +963,10 @@ trait GenerateMigrationResources
         $transformed = [];
 
         foreach ($account_gateways as $account_gateway) {
+
+            if($account_gateway->gateway_id > 55)
+                continue;
+
             $gateway_types = $account_gateway->paymentDriver()->gatewayTypes();
 
             foreach ($gateway_types as $gateway_type_id) {
@@ -988,8 +1001,8 @@ trait GenerateMigrationResources
         $is_default = true;
 
         foreach ($payment_methods as $payment_method) {
-            $contact = Contact::find($payment_method->contact_id)->first();
-            $agt = AccountGatewayToken::find($payment_method->account_gateway_token_id)->first();
+            $contact = Contact::where('id', $payment_method->contact_id)->withTrashed()->first();
+            $agt = AccountGatewayToken::where('id', $payment_method->account_gateway_token_id)->withTrashed()->first();
 
             $transformed[] = [
                 'id' => $payment_method->id,
@@ -1026,9 +1039,9 @@ trait GenerateMigrationResources
                 'company_id' => $this->account->id,
                 'num_days' => $payment_term->num_days,
                 'is_deleted' => $payment_term->is_deleted,
-                'created_at' => $payment_term->created_at ? $payment_term->created_at->toDateString() : null,
-                'updated_at' => $payment_term->updated_at ? $payment_term->updated_at->toDateString() : null,
-                'deleted_at' => $payment_term->deleted_at ? $payment_term->deleted_at->toDateString() : null,
+                'created_at' => $payment_term->created_at ? Carbon::parse($payment_term->created_at)->toDateString() : null,
+                'updated_at' => $payment_term->updated_at ? Carbon::parse($payment_term->updated_at)->toDateString() : null,
+                'deleted_at' => $payment_term->deleted_at ? Carbon::parse($payment_term->deleted_at)->toDateString() : null,
             ];
 
         }
@@ -1071,9 +1084,9 @@ trait GenerateMigrationResources
                 'user_id' => $task_status->user_id,
                 'status_sort_order' => $task_status->sort_order,
                 'is_deleted' => false,
-                'created_at' => $task_status->created_at ? $task_status->created_at->toDateString() : null,
-                'updated_at' => $task_status->updated_at ? $task_status->updated_at->toDateString() : null,
-                'deleted_at' => $task_status->deleted_at ? $task_status->deleted_at->toDateString() : null,
+                'created_at' => $task_status->created_at ? Carbon::parse($task_status->created_at)->toDateString() : null,
+                'updated_at' => $task_status->updated_at ? Carbon::parse($task_status->updated_at)->toDateString() : null,
+                'deleted_at' => $task_status->deleted_at ? Carbon::parse($task_status->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -1095,9 +1108,9 @@ trait GenerateMigrationResources
                 'id' => $category->id,
                 'user_id' => $category->user_id,
                 'is_deleted' => $category->is_deleted,
-                'created_at' => $category->created_at ? $category->created_at->toDateString() : null,
-                'updated_at' => $category->updated_at ? $category->updated_at->toDateString() : null,
-                'deleted_at' => $category->deleted_at ? $category->deleted_at->toDateString() : null,
+                'created_at' => $category->created_at ? Carbon::parse($category->created_at)->toDateString() : null,
+                'updated_at' => $category->updated_at ? Carbon::parse($category->updated_at)->toDateString() : null,
+                'deleted_at' => $category->deleted_at ? Carbon::parse($category->deleted_at)->toDateString() : null,
             ];        
         }
 
@@ -1147,9 +1160,9 @@ trait GenerateMigrationResources
                 'transaction_reference' =>  $expense->transaction_reference,
                 'vendor_id' =>  $expense->vendor_id,
                 'is_deleted' => $expense->is_deleted,
-                'created_at' => $expense->created_at ? $expense->created_at->toDateString() : null,
-                'updated_at' => $expense->updated_at ? $expense->updated_at->toDateString() : null,
-                'deleted_at' => $expense->deleted_at ? $expense->deleted_at->toDateString() : null,
+                'created_at' => $expense->created_at ? Carbon::parse($expense->created_at)->toDateString() : null,
+                'updated_at' => $expense->updated_at ? Carbon::parse($expense->updated_at)->toDateString() : null,
+                'deleted_at' => $expense->deleted_at ? Carbon::parse($expense->deleted_at)->toDateString() : null,
             ];        
         }
 
@@ -1189,9 +1202,9 @@ trait GenerateMigrationResources
                 'time_log' => $task->time_log,
                 'user_id' => $task->user_id,
                 'is_deleted' => $task->is_deleted,
-                'created_at' => $task->created_at ? $task->created_at->toDateString() : null,
-                'updated_at' => $task->updated_at ? $task->updated_at->toDateString() : null,
-                'deleted_at' => $task->deleted_at ? $task->deleted_at->toDateString() : null,
+                'created_at' => $task->created_at ? Carbon::parse($task->created_at)->toDateString() : null,
+                'updated_at' => $task->updated_at ? Carbon::parse($task->updated_at)->toDateString() : null,
+                'deleted_at' => $task->deleted_at ? Carbon::parse($task->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -1228,9 +1241,9 @@ trait GenerateMigrationResources
                 'task_rate' => $project->task_rate,
                 'user_id' => $project->user_id,
                 'is_deleted' => $project->is_deleted,
-                'created_at' => $project->created_at ? $project->created_at->toDateString() : null,
-                'updated_at' => $project->updated_at ? $project->updated_at->toDateString() : null,
-                'deleted_at' => $project->deleted_at ? $project->deleted_at->toDateString() : null,
+                'created_at' => $project->created_at ? Carbon::parse($project->created_at)->toDateString() : null,
+                'updated_at' => $project->updated_at ? Carbon::parse($project->updated_at)->toDateString() : null,
+                'deleted_at' => $project->deleted_at ? Carbon::parse($project->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -1272,6 +1285,9 @@ trait GenerateMigrationResources
                 'custom_value4' => '',
                 'transaction_name' => '',
                 'contacts' => $this->getVendorContacts($vendor->vendor_contacts),
+                'created_at' => $vendor->created_at ? Carbon::parse($vendor->created_at)->toDateString() : null,
+                'updated_at' => $vendor->updated_at ? Carbon::parse($vendor->updated_at)->toDateString() : null,
+                'deleted_at' => $vendor->deleted_at ? Carbon::parse($vendor->deleted_at)->toDateString() : null,
             ];
         }
 
@@ -1305,6 +1321,9 @@ trait GenerateMigrationResources
                 'password' => $contact->password ?: '',
                 'is_locked' => false,
                 'confirmed' => true,
+                'created_at' => $contact->created_at ? Carbon::parse($contact->created_at)->toDateString() : null,
+                'updated_at' => $contact->updated_at ? Carbon::parse($contact->updated_at)->toDateString() : null,
+                'deleted_at' => $contact->deleted_at ? Carbon::parse($contact->deleted_at)->toDateString() : null,
                // 'remember_token' => $contact->remember_token,
                // 'contact_key' => $contact->contact_key,
             ];
@@ -1365,7 +1384,7 @@ trait GenerateMigrationResources
 
     private function getGatewayKeyById($gateway_id)
     {
-        $gateways = [
+        $gateways = collect([
             ['id' => 1, 'key' => '3b6621f970ab18887c4f6dca78d3f8bb'],
             ['id' => 2, 'key' => '46c5c1fed2c43acf4f379bae9c8b9f76'],
             ['id' => 3, 'key' => '944c20175bbe6b9972c05bcfe294c2c7'],
@@ -1421,8 +1440,10 @@ trait GenerateMigrationResources
             ['id' => 53, 'key' => 'ef498756b54db63c143af0ec433da803'],
             ['id' => 54, 'key' => 'ca52f618a39367a4c944098ebf977e1c'],
             ['id' => 55, 'key' => '54faab2ab6e3223dbe848b1686490baa'],
-        ];
+        ]);
 
-        return $gateways[$gateway_id]['key'];
+        $search = $gateways->where('id', $gateway_id)->pluck('key');
+
+        return $search[0];
     }
 }
