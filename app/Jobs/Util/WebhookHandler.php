@@ -32,6 +32,14 @@ class WebhookHandler implements ShouldQueue
     private $event_id;
 
     private $company;
+
+    public $tries = 5; //number of retries
+
+    public $backoff = 5; //seconds to wait until retry
+
+    public $deleteWhenMissingModels = true;
+
+
     /**
      * Create a new job instance.
      *
@@ -50,28 +58,26 @@ class WebhookHandler implements ShouldQueue
      *
      * @return bool
      */
-    public function handle() :bool
+    public function handle()
     {//todo set multidb here
 
         MultiDB::setDb($this->company->db);
 
-        if (! $this->company || $this->company->is_disabled) {
+        if (! $this->company || $this->company->is_disabled) 
             return true;
-        }
+
 
         $subscriptions = Webhook::where('company_id', $this->company->id)
                                     ->where('event_id', $this->event_id)
                                     ->get();
 
-        if (! $subscriptions || $subscriptions->count() == 0) {
-            return true;
-        }
-
+        if (! $subscriptions || $subscriptions->count() == 0)
+            return;
+        
         $subscriptions->each(function ($subscription) {
             $this->process($subscription);
         });
 
-        return true;
     }
 
     private function process($subscription)

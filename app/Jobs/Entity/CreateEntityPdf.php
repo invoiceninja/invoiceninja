@@ -162,9 +162,18 @@ class CreateEntityPdf implements ShouldQueue
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0775);
 
-        $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
+        $pdf = null;
 
-        $instance = Storage::disk($this->disk)->put($file_path, $pdf);
+        try {
+        
+            $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
+        }
+        catch(\Exception $e) {
+            info(print_r($e->getMessage(),1));
+        }
+
+        if($pdf)
+            $instance = Storage::disk($this->disk)->put($file_path, $pdf);
 
         return $file_path;
     }

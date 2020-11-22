@@ -46,8 +46,6 @@ class InvoicePaidActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $event->invoice->service()->touchPdf();
-
         $fields = new stdClass;
 
         $fields->invoice_id = $event->invoice->id;
@@ -56,5 +54,12 @@ class InvoicePaidActivity implements ShouldQueue
         $fields->activity_type_id = Activity::PAID_INVOICE;
 
         $this->activity_repo->save($fields, $event->invoice, $event->event_vars);
+
+        try {
+            $event->invoice->service()->touchPdf();
+        }
+        catch(\Exception $e){
+            info(print_r($e->getMessage(),1));
+        }
     }
 }

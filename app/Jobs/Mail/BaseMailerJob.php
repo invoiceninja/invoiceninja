@@ -35,6 +35,12 @@ class BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 5; //number of retries
+
+    public $backoff = 5; //seconds to wait until retry
+
+    public $deleteWhenMissingModels = true;
+
     public function setMailDriver()
     {
         App::forgetInstance('translator');
