@@ -773,7 +773,7 @@ trait GenerateMigrationResources
                 'date' => Carbon::parse($item->created_at)->toDateString(),
                 'custom_value1' => $item->custom_value1,
                 'custom_value2' => $item->custom_value2,
-                'type_id' => $item->invoice_item_type_id,
+                'type_id' => (string)$item->invoice_item_type_id,
             ];
         }
 
