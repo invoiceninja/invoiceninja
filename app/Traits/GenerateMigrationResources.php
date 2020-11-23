@@ -773,7 +773,7 @@ trait GenerateMigrationResources
                 'date' => Carbon::parse($item->created_at)->toDateString(),
                 'custom_value1' => $item->custom_value1,
                 'custom_value2' => $item->custom_value2,
-                'type_id' => $item->invoice_item_type_id,
+                'type_id' => (string)$item->invoice_item_type_id,
             ];
         }
 
@@ -879,7 +879,7 @@ trait GenerateMigrationResources
                 'invitation_id' => $payment->invitation_id,
                 'company_gateway_id' => $payment->account_gateway_id,
                 'type_id' => $payment->payment_type_id,
-                'status_id' => $payment->payment_status_id,
+                'status_id' => $this->transformPaymentStatus($payment),
                 'amount' => $payment->amount ?: 0,
                 'applied' => $payment->amount ?: 0,
                 'refunded' => $payment->refunded ?: 0,
@@ -897,6 +897,14 @@ trait GenerateMigrationResources
         }
 
         return $transformed;
+    }
+
+    private function transformPaymentStatus($payment)
+    {
+        if($payment->is_deleted && $payment->payment_status_id == 4)
+            return 2;
+
+        return $payment->payment_status_id;
     }
 
     private function getCredits()
