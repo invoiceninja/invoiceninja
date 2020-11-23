@@ -73,6 +73,9 @@ class ActivityRepository extends BaseRepository
      */
     public function createBackup($entity, $activity)
     {
+        if($entity->company->is_disabled)
+            return;
+
         $backup = new Backup();
 
         if (get_class($entity) == Invoice::class || get_class($entity) == Quote::class || get_class($entity) == Credit::class) {

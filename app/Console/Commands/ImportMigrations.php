@@ -125,6 +125,7 @@ class ImportMigrations extends Command
     {
         $company = Company::factory()->create([
             'account_id' => $account->id,
+            'is_disabled' => true,
         ]);
 
         if (! $account->default_company_id) {

@@ -115,10 +115,10 @@ class Import implements ShouldQueue
         'vendors',
         'projects',
         'products',
+        'credits',
         'invoices',
         'recurring_invoices',
         'quotes',
-        'credits',
         'payments',
         'company_gateways',
         'client_gateway_tokens',
@@ -179,6 +179,8 @@ class Import implements ShouldQueue
     public function handle() 
     {
         set_time_limit(0);
+
+info(print_r(array_keys($this->data),1));
 
         foreach ($this->data as $key => $resource) {
             if (! in_array($key, $this->available_imports)) {
@@ -777,7 +779,8 @@ class Import implements ShouldQueue
     }
 
     private function processPayments(array $data): void
-    {
+    {info(print_r($this->ids,1));
+
         Payment::reguard();
 
         $rules = [
@@ -838,6 +841,11 @@ class Import implements ShouldQueue
             //depending on the status, we do a final action.
             $payment = $this->updatePaymentForStatus($payment, $modified['status_id']);
 
+            if($modified['is_deleted'])
+                $payment->service()->deletePayment();
+
+            // if(isset($modified['deleted_at']))
+            //     $payment->delete();
         }
 
         Payment::reguard();

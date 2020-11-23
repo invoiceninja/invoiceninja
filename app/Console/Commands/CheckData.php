@@ -383,7 +383,8 @@ class CheckData extends Command
         $wrong_paid_to_dates = 0;
 
         foreach (Client::cursor() as $client) {
-            $invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
+            //$invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
+            $invoice_balance = Invoice::where('client_id', $client->id)->where('is_deleted', false)->where('status_id', '>', 1)->withTrashed()->sum('balance');
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
@@ -395,7 +396,7 @@ class CheckData extends Command
             }
         }
 
-        $this->logMessage("{$wrong_paid_to_dates} clients with incorrect paid_to_dates");
+        $this->logMessage("{$wrong_paid_to_dates} clients with incorrect client balances");
     }
 
     private function checkLogoFiles()

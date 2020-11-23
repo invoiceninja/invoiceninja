@@ -577,10 +577,10 @@ trait GeneratesCounter
         $search[] = '{$counter}';
         $replace[] = $counter;
 
-        $search[] = '{$clientCounter}';
+        $search[] = '{$client_counter}';
         $replace[] = $counter;
 
-        $search[] = '{$groupCounter}';
+        $search[] = '{$group_counter}';
         $replace[] = $counter;
 
         if (strstr($pattern, '{$user_id}')) {
@@ -600,20 +600,39 @@ trait GeneratesCounter
             $replace[] = str_replace($format, $date, $matches[1]);
         }
 
-        $search[] = '{$custom1}';
-        $replace[] = $entity->custom_value1;
+        if($entity instanceof Client){
+            $search[] = '{$client_custom1}';
+            $replace[] = $entity->custom_value1;
 
-        $search[] = '{$custom2}';
-        $replace[] = $entity->custom_value2;
+            $search[] = '{$client_custom2}';
+            $replace[] = $entity->custom_value2;
 
-        $search[] = '{$custom3}';
-        $replace[] = $entity->custom_value3;
+            $search[] = '{$client_custom3}';
+            $replace[] = $entity->custom_value3;
 
-        $search[] = '{$custom4}';
-        $replace[] = $entity->custom_value4;
+            $search[] = '{$client_custom4}';
+            $replace[] = $entity->custom_value4;
 
-        $search[] = '{$id_number}';
-        $replace[] = $entity->id_number;
+            $search[] = '{$id_number}';
+            $replace[] = $entity->id_number;
+        }
+        else
+        {
+            $search[] = '{$client_custom1}';
+            $replace[] = $entity->client->custom_value1;
+
+            $search[] = '{$client_custom2}';
+            $replace[] = $entity->client->custom_value2;
+
+            $search[] = '{$client_custom3}';
+            $replace[] = $entity->client->custom_value3;
+
+            $search[] = '{$client_custom4}';
+            $replace[] = $entity->client->custom_value4;
+
+            $search[] = '{$id_number}';
+            $replace[] = $entity->client->id_number;
+        }
 
         return str_replace($search, $replace, $pattern);
     }

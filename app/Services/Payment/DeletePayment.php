@@ -36,11 +36,15 @@ class DeletePayment
 
     public function run()
     {
+        if($this->payment->is_deleted)
+            return $this->payment;
+
         return $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
             ->updateCreditables() //return the credits first
             ->adjustInvoices()
             ->updateClient()
             ->deletePaymentables()
+            ->cleanupPayment()
             ->save();
     }
 
@@ -51,6 +55,15 @@ class DeletePayment
     //set refunded to amount
 
     //set applied amount to 0
+
+    private function cleanupPayment()
+    {
+        $this->payment->is_deleted = true;
+        // $entity->save();
+        $this->payment->delete();
+        
+        return $this;
+    }
 
     private function deletePaymentables()
     {
