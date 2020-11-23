@@ -1189,7 +1189,6 @@ trait GenerateMigrationResources
         foreach ($tasks as $task)
         {
 
-
             if(!($task->deleted_at instanceof Carbon))
                 $task->deleted_at = Carbon::parse($task->deleted_at);
 
