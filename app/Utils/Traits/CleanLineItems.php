@@ -29,9 +29,6 @@ trait CleanLineItems
 
         foreach ($items as $item) {
 
-            if(is_array($item))
-                continue;
-
             $cleaned_items[] = $this->cleanLineItem($item);
             
         }
