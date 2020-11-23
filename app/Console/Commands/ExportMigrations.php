@@ -68,7 +68,7 @@ class ExportMigrations extends Command
 
         $fileName = "{$accountKey}-{$date}-invoiceninja";
 
-        $data = [
+        $data['data'] = [
             'company' => $this->getCompany(),
             'users' => $this->getUsers(),
             'tax_rates' => $this->getTaxRates(),
