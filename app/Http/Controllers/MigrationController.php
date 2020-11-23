@@ -249,7 +249,7 @@ class MigrationController extends BaseController
             if ($checks['existing_company'] == true && $checks['force'] == false) {
                 info('Migrating: Existing company without force. (CASE_01)');
 
-                MailRouter::dispatch(new ExistingMigration(), $company, $user);
+                MailRouter::dispatch(new ExistingMigration(), $existing_company, $user);
 
                 return response()->json([
                     '_id' => Str::uuid(),

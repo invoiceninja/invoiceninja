@@ -53,11 +53,11 @@ class StartMigration implements ShouldQueue
      */
     public $tries = 1;
 
-    public $timeout = 86400;
+    public $timeout = 864000;
 
   //  public $maxExceptions = 2;
 
-    //public $backoff = 86430;
+    public $backoff = 86430;
 
     public function __construct($filepath, User $user, Company $company)
     {

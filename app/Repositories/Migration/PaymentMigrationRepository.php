@@ -102,13 +102,15 @@ class PaymentMigrationRepository extends BaseRepository
         /*Iterate through invoices and apply payments*/
         if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
+            $refund_totals = array_sum(array_column($data['invoices'], 'refunded'));
 
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
             $payment->invoices()->saveMany($invoices);
 
-            $payment->invoices->each(function ($inv) use ($invoice_totals) {
+            $payment->invoices->each(function ($inv) use ($invoice_totals, $refund_totals) {
                 $inv->pivot->amount = $invoice_totals;
+                $inv->pivot->refunded = $refund_totals;
                 $inv->pivot->save();
             });
         }

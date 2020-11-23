@@ -72,7 +72,7 @@ class PaymentRepository extends BaseRepository
             $this->processExchangeRates($data, $payment);
 
             $is_existing_payment = false;
-            $client = Client::find($data['client_id']);
+            $client = Client::find($data['client_id'])->withTrashed();
 
             /*We only update the paid to date ONCE per payment*/
             if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
@@ -146,7 +146,7 @@ class PaymentRepository extends BaseRepository
 
             //todo optimize into a single query
             foreach ($data['credits'] as $paid_credit) {
-                $credit = Credit::find($this->decodePrimaryKey($paid_credit['credit_id']));
+                $credit = Credit::find($this->decodePrimaryKey($paid_credit['credit_id']))->withTrashed();
 
                 if ($credit) {
                     ApplyCreditPayment::dispatchNow($credit, $payment, $paid_credit['amount'], $credit->company);
