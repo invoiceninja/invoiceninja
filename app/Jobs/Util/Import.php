@@ -96,7 +96,7 @@ class Import implements ShouldQueue
     /**
      * @var array
      */
-    private $data;
+    private $data; //the file path - using a different JSON parser here.
 
     /**
      * @var Company
@@ -163,7 +163,7 @@ class Import implements ShouldQueue
      * @param User $user
      * @param array $resources
      */
-    public function __construct(array $data, Company $company, User $user, array $resources = [])
+    public function __construct(string $data, Company $company, User $user, array $resources = [])
     {
         $this->data = $data;
         $this->company = $company;
@@ -180,9 +180,9 @@ class Import implements ShouldQueue
     {
         set_time_limit(0);
 
-info(print_r(array_keys($this->data),1));
+        $jsonStream = \JsonMachine\JsonMachine::fromFile($this->data, "/data");
 
-        foreach ($this->data as $key => $resource) {
+        foreach ($jsonStream as $key => $resource) {
             if (! in_array($key, $this->available_imports)) {
                 //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
                 info("Resource {$key} is not available for migration.");
@@ -779,8 +779,8 @@ info(print_r(array_keys($this->data),1));
     }
 
     private function processPayments(array $data): void
-    {info(print_r($this->ids,1));
-
+    {
+    
         Payment::reguard();
 
         $rules = [
