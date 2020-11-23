@@ -756,18 +756,18 @@ info(print_r(array_keys($this->data),1));
 
             unset($modified['id']);
 
-            $invoice = $quote_repository->save(
+            $quote = $quote_repository->save(
                 $modified,
                 QuoteFactory::create($this->company->id, $modified['user_id'])
             );
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
-            $key = "invoices_{$resource['id']}";
+            $key = "quotes_{$resource['id']}";
 
             $this->ids['quotes'][$key] = [
                 'old' => $resource['id'],
-                'new' => $invoice->id,
+                'new' => $quote->id,
             ];
         }
 
@@ -1164,14 +1164,13 @@ info(print_r(array_keys($this->data),1));
 
             $project = Project::Create($modified);
 
-            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+            $key = "projects_{$resource['id']}";
 
-            $this->ids['projects'] = [
-                "projects_{$old_user_key}" => [
-                    'old' => $resource['id'],
-                    'new' => $project->id,
-                ],
+            $this->ids['projects'][$key] = [
+                'old' => $resource['id'],
+                'new' => $project->id,
             ];
+
         }
 
         Project::reguard();
