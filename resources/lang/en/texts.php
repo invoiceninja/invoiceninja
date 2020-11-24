@@ -3227,7 +3227,7 @@ return [
     'bank_account_not_linked' => 'To pay with bank account, first you have to add it as payment method.',
 
     'application_settings_label' => 'Let\'s store basic information about your Invoice Ninja!',
-    'recommended_in_production' => 'Recommended in production',
+    'recommended_in_production' => 'Highly recommended in production',
     'enable_only_for_development' => 'Enable only for development',
 
     'test_pdf' => 'Test PDF',
