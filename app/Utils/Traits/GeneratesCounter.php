@@ -600,7 +600,7 @@ trait GeneratesCounter
             $replace[] = str_replace($format, $date, $matches[1]);
         }
 
-        if($entity instanceof Client){
+        if($entity instanceof Client || $entity instanceof Vendor){
             $search[] = '{$client_custom1}';
             $replace[] = $entity->custom_value1;
 

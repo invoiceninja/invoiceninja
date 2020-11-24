@@ -96,7 +96,7 @@ class Import implements ShouldQueue
     /**
      * @var array
      */
-    private $data; //the file path - using a different JSON parser here.
+    private $file_path; //the file path - using a different JSON parser here.
 
     /**
      * @var Company
@@ -163,9 +163,9 @@ class Import implements ShouldQueue
      * @param User $user
      * @param array $resources
      */
-    public function __construct(string $data, Company $company, User $user, array $resources = [])
+    public function __construct(string $file_path, Company $company, User $user, array $resources = [])
     {
-        $this->data = $data;
+        $this->file_path = $file_path;
         $this->company = $company;
         $this->user = $user;
         $this->resources = $resources;
@@ -180,20 +180,27 @@ class Import implements ShouldQueue
     {
         set_time_limit(0);
 
-        $jsonStream = \JsonMachine\JsonMachine::fromFile($this->data, "/data");
+     //   $jsonStream = \JsonMachine\JsonMachine::fromFile($this->file_path, "/data");
+        $array = json_decode(file_get_contents($this->file_path), 1);
+        $data = $array['data'];
 
-        foreach ($jsonStream as $key => $resource) {
-            if (! in_array($key, $this->available_imports)) {
+info(array_keys($data));
+
+        foreach ($this->available_imports as $import) {
+
+            info("the key = {$import}");
+
+            if (! array_key_exists($import, $data)) {
                 //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
-                info("Resource {$key} is not available for migration.");
+                info("Resource {$import} is not available for migration.");
                 continue;
             }
 
-            $method = sprintf('process%s', Str::ucfirst(Str::camel($key)));
+            $method = sprintf('process%s', Str::ucfirst(Str::camel($import)));
 
-            info("Importing {$key}");
+            info("Importing {$import}");
 
-            $this->{$method}($resource);
+            $this->{$method}($data[$import]);
         }
 
         $this->setInitialCompanyLedgerBalances();
