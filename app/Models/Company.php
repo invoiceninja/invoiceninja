@@ -46,8 +46,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
-use Staudenmeir\EloquentHasManyDeep\HasRelationships;
-use Staudenmeir\EloquentHasManyDeep\HasTableAlias;
 
 class Company extends BaseModel
 {
@@ -55,8 +53,6 @@ class Company extends BaseModel
     use MakesHash;
     use CompanySettingsSaver;
     use ThrottlesEmail;
-    use HasRelationships;
-    use HasTableAlias;
 
     const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
     const ENTITY_CREDIT = 'credit';

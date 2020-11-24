@@ -33,7 +33,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Laracasts\Presenter\PresentableTrait;
-use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -44,7 +43,6 @@ class User extends Authenticatable implements MustVerifyEmail
     use UserSessionAttributes;
     use UserSettings;
     use Filterable;
-    use HasRelationships;
     use HasFactory;
 
     protected $guard = 'user';

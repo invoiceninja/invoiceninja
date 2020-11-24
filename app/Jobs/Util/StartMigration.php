@@ -53,7 +53,7 @@ class StartMigration implements ShouldQueue
      */
     public $tries = 1;
 
-    public $timeout = 864000;
+    public $timeout = 0;
 
   //  public $maxExceptions = 2;
 

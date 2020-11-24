@@ -74,6 +74,7 @@ use App\Repositories\VendorRepository;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
 use Exception;
 use Illuminate\Bus\Queueable;
@@ -93,6 +94,7 @@ class Import implements ShouldQueue
     use MakesHash;
     use CleanLineItems;
     use Uploadable;
+    use SavesDocuments;
     /**
      * @var array
      */
@@ -126,7 +128,7 @@ class Import implements ShouldQueue
         'task_statuses',
         'expenses',
         'tasks',
-        // //'documents',
+        'documents',
     ];
 
     /**
@@ -150,7 +152,7 @@ class Import implements ShouldQueue
 
     public $tries = 1;
 
-    public $timeout = 864000;
+    public $timeout = 0;
 
     // public $backoff = 86430;
 
@@ -183,8 +185,6 @@ class Import implements ShouldQueue
      //   $jsonStream = \JsonMachine\JsonMachine::fromFile($this->file_path, "/data");
         $array = json_decode(file_get_contents($this->file_path), 1);
         $data = $array['data'];
-
-info(array_keys($data));
 
         foreach ($this->available_imports as $import) {
 
@@ -903,10 +903,11 @@ info(array_keys($data));
 
     private function processDocuments(array $data): void
     {
-        Document::unguard();
+       // Document::unguard();
         /* No validators since data provided by database is already valid. */
 
-        foreach ($data as $resource) {
+        foreach($data as $resource)
+        {
             $modified = $resource;
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && ! array_key_exists('invoices', $this->ids)) {
@@ -917,42 +918,67 @@ info(array_keys($data));
                 throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - expenses.');
             }
 
-            /* Remove because of polymorphic joins. */
-            unset($modified['invoice_id']);
-            unset($modified['expense_id']);
-
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
-                $modified['documentable_id'] = $this->transformId('invoices', $resource['invoice_id']);
-                $modified['documentable_type'] = Invoice::class;
+                $invoice_id = $this->transformId('invoices', $resource['invoice_id']);
+                $entity = Invoice::where('id', $invoice_id)->withTrashed()->first();
             }
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
-                $modified['documentable_id'] = $this->transformId('expenses', $resource['expense_id']);
-                $modified['documentable_type'] = Expense::class;
+                $expense_id = $this->transformId('expenses', $resource['expense_id']);
+                $entity = Expense::where('id', $expense_id)->withTrashed()->first();
             }
 
-            $modified['user_id'] = $this->processUserId($resource);
-            $modified['company_id'] = $this->company->id;
+            $this->saveDocument(file_get_contents($resource['url']), $entity, $is_public = true);
 
-            $document = Document::create($modified);
-
-            // $entity = $modified['documentable_type']::find($modified['documentable_id']);
-            // $entity->documents()->save($modified);
-
-            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
-
-            $this->ids['documents'] = [
-                "documents_{$old_user_key}" => [
-                    'old' => $resource['id'],
-                    'new' => $document->id,
-                ],
-            ];
         }
 
-        Document::reguard();
+        // foreach ($data as $resource) {
+        //     $modified = $resource;
 
-        /*Improve memory handling by setting everything to null when we have finished*/
-        $data = null;
+        //     if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && ! array_key_exists('invoices', $this->ids)) {
+        //         throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - invoices.');
+        //     }
+
+        //     if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && ! array_key_exists('expenses', $this->ids)) {
+        //         throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - expenses.');
+        //     }
+
+        //     /* Remove because of polymorphic joins. */
+        //     unset($modified['invoice_id']);
+        //     unset($modified['expense_id']);
+
+        //     if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
+        //         $modified['documentable_id'] = $this->transformId('invoices', $resource['invoice_id']);
+        //         $modified['documentable_type'] = Invoice::class;
+        //     }
+
+        //     if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
+        //         $modified['documentable_id'] = $this->transformId('expenses', $resource['expense_id']);
+        //         $modified['documentable_type'] = Expense::class;
+        //     }
+
+        //     $modified['user_id'] = $this->processUserId($resource);
+        //     $modified['company_id'] = $this->company->id;
+
+        //     $document = Document::create($modified);
+
+        //     // $entity = $modified['documentable_type']::find($modified['documentable_id']);
+        //     // $entity->documents()->save($modified);
+
+        //     $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+        //     $this->ids['documents'] = [
+        //         "documents_{$old_user_key}" => [
+        //             'old' => $resource['id'],
+        //             'new' => $document->id,
+        //         ],
+        //     ];
+        // }
+
+        // Document::reguard();
+
+        // /*Improve memory handling by setting everything to null when we have finished*/
+        // $data = null;
     }
 
     private function processPaymentTerms(array $data) :void

@@ -13,11 +13,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class CompanyUser extends Pivot
 {
-    use HasRelationships;
+
     use SoftDeletes;
 
     //   protected $guarded = ['id'];
@@ -95,7 +94,6 @@ class CompanyUser extends Pivot
         //return $this->hasMany(CompanyToken::class);
         //return $this->hasOne(CompanyToken::class, 'user_id', 'user_id','company_id', 'company_id');
 
-        //return $this->hasOneDeep(CompanyToken::class, [CompanyUser::class], ['user_id','company_id'], ['company_id','company_id']);
 
        //return $this->belongsTo(CompanyToken::class, 'user_id', 'user_id');
 
