@@ -53,7 +53,13 @@ class SetupController extends Controller
 
     public function doSetup(StoreSetupRequest $request)
     {
-        $check = SystemHealth::check(false);
+        try {
+            $check = SystemHealth::check(false);
+        } catch (\Exception $e) {
+            info(['message' => $e->getMessage(), 'action' => 'SetupController::doSetup()']);
+
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
 
         if ($check['system_health'] === false) {
             info($check);
@@ -63,7 +69,7 @@ class SetupController extends Controller
 
         $mail_driver = $request->input('mail_driver');
 
-        if (! $this->failsafeMailCheck($request)) {
+        if (!$this->failsafeMailCheck($request)) {
             $mail_driver = 'log';
         }
 
@@ -72,7 +78,7 @@ class SetupController extends Controller
         if (substr($url, -1) != '/') {
             $url = $url . '/';
         }
-      
+
         $env_values = [
             'APP_URL' => $url,
             'REQUIRE_HTTPS' => $request->input('https') ? 'true' : 'false',
@@ -95,7 +101,7 @@ class SetupController extends Controller
             'NINJA_ENVIRONMENT' => 'selfhost',
             'DB_CONNECTION' => 'db-ninja-01',
         ];
-        
+
         try {
             foreach ($env_values as $property => $value) {
                 $this->updateEnvironmentProperty($property, $value);
@@ -120,7 +126,7 @@ class SetupController extends Controller
             }
 
             VersionCheck::dispatchNow();
-            
+
             $this->buildCache(true);
 
             return redirect('/');
@@ -141,13 +147,19 @@ class SetupController extends Controller
      */
     public function checkDB(CheckDatabaseRequest $request): Response
     {
-        $status = SystemHealth::dbCheck($request);
+        try {
+            $status = SystemHealth::dbCheck($request);
 
-        if (is_array($status) && $status['success'] === true) {
-            return response([], 200);
+            if (is_array($status) && $status['success'] === true) {
+                return response([], 200);
+            }
+
+            return response($status, 400);
+        } catch (\Exception $e) {
+            info(['message' => $e->getMessage(), 'action' => 'SetupController::checkDB()']);
+
+            return response()->json(['message' => $e->getMessage()], 400);
         }
-
-        return response($status, 400);
     }
 
     /**
