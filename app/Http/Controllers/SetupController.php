@@ -61,8 +61,6 @@ class SetupController extends Controller
             return response('Oops, something went wrong. Check your logs.'); /* We should never reach this block, but just in case. */
         }
 
-        return $request->all();
-
         $mail_driver = $request->input('mail_driver');
 
         if (! $this->failsafeMailCheck($request)) {
@@ -71,47 +69,37 @@ class SetupController extends Controller
 
         $url = $request->input('url');
 
-        if (substr($url, -1) != '/')
+        if (substr($url, -1) != '/') {
             $url = $url . '/';
+        }
+      
+        $env_values = [
+            'APP_URL' => $url,
+            'REQUIRE_HTTPS' => $request->input('https') ? 'true' : 'false',
+            'APP_DEBUG' => $request->input('debug') ? 'true' : 'false',
 
-        $_ENV['APP_KEY'] = config('app.key');
-        $_ENV['APP_URL'] = $url;
-        $_ENV['APP_DEBUG'] = $request->input('debug') ? 'true' : 'false';
-        $_ENV['REQUIRE_HTTPS'] = $request->input('https') ? 'true' : 'false';
-        $_ENV['DB_TYPE'] = 'mysql';
-        $_ENV['DB_HOST1'] = $request->input('host');
-        $_ENV['DB_DATABASE1'] = $request->input('database');
-        $_ENV['DB_USERNAME1'] = $request->input('db_username');
-        $_ENV['DB_PASSWORD1'] = $request->input('db_password');
-        $_ENV['MAIL_MAILER'] = $mail_driver;
-        $_ENV['MAIL_PORT'] = $request->input('mail_port');
-        $_ENV['MAIL_ENCRYPTION'] = $request->input('encryption');
-        $_ENV['MAIL_HOST'] = $request->input('mail_host');
-        $_ENV['MAIL_USERNAME'] = $request->input('mail_username');
-        $_ENV['MAIL_FROM_NAME'] = $request->input('mail_name');
-        $_ENV['MAIL_FROM_ADDRESS'] = $request->input('mail_address');
-        $_ENV['MAIL_PASSWORD'] = $request->input('mail_password');
-        $_ENV['NINJA_ENVIRONMENT'] = 'selfhost';
-        $_ENV['DB_CONNECTION'] = 'db-ninja-01';
+            'DB_HOST1' => $request->input('host'),
+            'DB_DATABASE1' => $request->input('database'),
+            'DB_USERNAME1' => $request->input('db_username'),
+            'DB_PASSWORD1' => $request->input('db_password'),
 
-        $config = '';
+            'MAIL_MAILER' => $mail_driver,
+            'MAIL_PORT' => $request->input('mail_port'),
+            'MAIL_ENCRYPTION' => $request->input('encryption'),
+            'MAIL_HOST' => $request->input('mail_host'),
+            'MAIL_USERNAME' => $request->input('mail_username'),
+            'MAIL_FROM_NAME' => $request->input('mail_name'),
+            'MAIL_FROM_ADDRESS' => $request->input('mail_address'),
+            'MAIL_PASSWORD' => $request->input('mail_password'),
 
+            'NINJA_ENVIRONMENT' => 'selfhost',
+            'DB_CONNECTION' => 'db-ninja-01',
+        ];
+        
         try {
-            foreach ($_ENV as $key => $val) {
-                if (is_array($val)) {
-                    continue;
-                }
-                if (preg_match('/\s/', $val)) {
-                    $val = "'{$val}'";
-                }
-                $config .= "{$key}={$val}\n";
+            foreach ($env_values as $property => $value) {
+                $this->updateEnvironmentProperty($property, $value);
             }
-
-            /* Write the .env file */
-            $filePath = base_path() . '/.env';
-            $fp = fopen($filePath, 'w');
-            fwrite($fp, $config);
-            fclose($fp);
 
             /* We need this in some environments that do not have STDIN defined */
             define('STDIN', fopen('php://stdin', 'r'));
