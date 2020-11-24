@@ -37,12 +37,12 @@ class StoreSetupRequest extends Request
           'db_password' => '',
           /*Mail driver*/
           'mail_driver' => 'required',
-          'encryption' => 'required',
-          'mail_host' => 'required',
-          'mail_username' => 'required',
-          'mail_name' => 'required',
-          'mail_address' => 'required',
-          'mail_password' => 'required',
+          'encryption' => 'required_unless:mail_driver,log',
+          'mail_host' => 'required_unless:mail_driver,log',
+          'mail_username' => 'required_unless:mail_driver,log',
+          'mail_name' => 'required_unless:mail_driver,log',
+          'mail_address' => 'required_unless:mail_driver,log',
+          'mail_password' => 'required_unless:mail_driver,log',
           /*user registration*/
           'privacy_policy'    => 'required',
           'terms_of_service'  => 'required',

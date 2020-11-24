@@ -33,15 +33,17 @@ class CheckMailRequest extends Request
      */
     public function rules()
     {
+        info($this->driver);
+
         return [
-            'driver' => ['required', 'in:smtp,mail,sendmail'],
-            'from_name' => ['required'],
-            'from_address' => ['required'],
-            'username' => ['required'],
-            'host' => ['required'],
-            'port' => ['required'],
-            'encryption' => ['required'],
-            'password' => ['required'],
+            'driver' => ['required', 'in:smtp,mail,sendmail,log'],
+            'from_name' => ['required_unless:driver,log'],
+            'from_address' => ['required_unless:driver,log'],
+            'username' => ['required_unless:driver,log'],
+            'host' => ['required_unless:driver,log'],
+            'port' => ['required_unless:driver,log'],
+            'encryption' => ['required_unless:driver,log'],
+            'password' => ['required_unless:driver,log'],
         ];
     }
 }

@@ -196,6 +196,10 @@ class SystemHealth
 
     public static function testMailServer($request = null)
     {
+        if ($request->driver == 'log') {
+            return [];
+        }
+
         if ($request && $request instanceof CheckMailRequest) {
             config(['mail.driver' => $request->input('driver')]);
             config(['mail.host' => $request->input('host')]);
@@ -225,7 +229,7 @@ class SystemHealth
             return Mail::failures();
         }
 
-        return response()->json(['message'=>'Success'], 200);
+        return response()->json(['message' => 'Success'], 200);
     }
 
     private static function checkEnvWritable()

@@ -58,8 +58,10 @@ class SetupController extends Controller
         if ($check['system_health'] === false) {
             info($check);
 
-            return response('Oops, something went wrong. Check your logs.'); /* We should never reach this block, but jic. */
+            return response('Oops, something went wrong. Check your logs.'); /* We should never reach this block, but just in case. */
         }
+
+        return $request->all();
 
         $mail_driver = $request->input('mail_driver');
 
