@@ -23,7 +23,6 @@ class ProjectNameUniqueRemoval extends Migration
      */
     public function up()
     {
-        
         Schema::table('projects', function (Blueprint $table) {
             $table->dropUnique('projects_company_id_name_unique');
         });
@@ -39,7 +38,6 @@ class ProjectNameUniqueRemoval extends Migration
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('invoice_expense_documents')->default(false);
             $table->boolean('auto_start_tasks')->default(false);
-
         });
 
         Schema::create('task_statuses', function (Blueprint $table) {

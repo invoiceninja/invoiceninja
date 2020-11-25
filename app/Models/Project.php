@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Filterable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -12,7 +11,6 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Project extends BaseModel
 {
-
     use SoftDeletes;
     use PresentableTrait;
     use Filterable;

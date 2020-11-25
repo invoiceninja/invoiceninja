@@ -10,23 +10,13 @@
  */
 namespace Tests\Feature;
 
-use App\Jobs\Account\CreateAccount;
 use App\Jobs\Util\ReminderJob;
-use App\Models\Account;
-use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\UserSessionAttributes;
-use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
 

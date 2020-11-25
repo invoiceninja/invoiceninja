@@ -11,14 +11,9 @@
 
 namespace App\Services\Invoice;
 
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
 use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\Payment;
 use App\Services\AbstractService;
-use App\Services\Client\ClientService;
-use App\Services\Payment\PaymentService;
 use App\Utils\Traits\GeneratesCounter;
 
 class ApplyRecurringNumber extends AbstractService
@@ -48,7 +43,7 @@ class ApplyRecurringNumber extends AbstractService
                 break;
             case 'when_sent':
                 if ($this->invoice->status_id == Invoice::STATUS_SENT) {
-                $this->invoice->number = $this->getNextRecurringInvoiceNumber($this->client);
+                    $this->invoice->number = $this->getNextRecurringInvoiceNumber($this->client);
                 }
                 break;
 

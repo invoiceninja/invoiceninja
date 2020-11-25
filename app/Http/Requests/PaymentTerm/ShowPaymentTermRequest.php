@@ -12,7 +12,6 @@
 namespace App\Http\Requests\PaymentTerm;
 
 use App\Http\Requests\Request;
-use App\Models\PaymentTerm;
 
 class ShowPaymentTermRequest extends Request
 {

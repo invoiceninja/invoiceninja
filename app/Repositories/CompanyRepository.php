@@ -12,7 +12,6 @@
 namespace App\Repositories;
 
 use App\Models\Company;
-use Illuminate\Http\Request;
 
 /**
  * CompanyRepository.

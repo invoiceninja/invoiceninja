@@ -12,12 +12,9 @@
 namespace App\Services\Payment;
 
 use App\Events\Invoice\InvoiceWasUpdated;
-use App\Jobs\Payment\EmailPayment;
-use App\Jobs\Util\SystemLogger;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\SystemLog;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
@@ -42,7 +39,6 @@ class UpdateInvoicePayment
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
 
         collect($paid_invoices)->each(function ($paid_invoice) use ($invoices) {
-            
             $invoice = $invoices->first(function ($inv) use ($paid_invoice) {
                 return $paid_invoice->invoice_id == $inv->hashed_id;
             });
@@ -81,7 +77,6 @@ class UpdateInvoicePayment
                 ->save();
 
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
-
         });
         
         $this->payment->save();

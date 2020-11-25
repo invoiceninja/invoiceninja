@@ -13,15 +13,10 @@ namespace App\Listeners\Payment;
 
 use App\Jobs\Mail\EntityPaidMailer;
 use App\Libraries\MultiDB;
-use App\Models\Activity;
-use App\Models\Invoice;
-use App\Models\Payment;
 use App\Notifications\Admin\NewPaymentNotification;
-use App\Repositories\ActivityRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Notification;
 
 class PaymentNotification implements ShouldQueue
@@ -55,7 +50,6 @@ class PaymentNotification implements ShouldQueue
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
-
             $user = $company_user->user;
 
             $methods = $this->findUserEntityNotificationType($payment, $company_user, ['all_notifications']);
@@ -64,7 +58,6 @@ class PaymentNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 EntityPaidMailer::dispatch($payment, $payment->company, $user);
-
             }
 
             $notification = new NewPaymentNotification($payment, $payment->company);

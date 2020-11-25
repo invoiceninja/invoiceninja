@@ -18,7 +18,6 @@ use App\Http\Requests\GroupSetting\EditGroupSettingRequest;
 use App\Http\Requests\GroupSetting\ShowGroupSettingRequest;
 use App\Http\Requests\GroupSetting\StoreGroupSettingRequest;
 use App\Http\Requests\GroupSetting\UpdateGroupSettingRequest;
-use App\Http\Requests\SignupRequest;
 use App\Models\GroupSetting;
 use App\Repositories\GroupSettingRepository;
 use App\Transformers\GroupSettingTransformer;

@@ -11,8 +11,6 @@
 
 namespace App\Factory;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
 use App\Models\RecurringInvoice;
 
 class RecurringInvoiceFactory

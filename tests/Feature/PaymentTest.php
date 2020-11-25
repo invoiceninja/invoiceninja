@@ -11,14 +11,11 @@
 namespace Tests\Feature;
 
 use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
 use App\Factory\ClientFactory;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Models\Account;
-use App\Models\Activity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;
@@ -27,11 +24,8 @@ use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
@@ -272,7 +266,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-            ClientContact::factory()->create([
+        ClientContact::factory()->create([
             'user_id' => $this->user->id,
             'client_id' => $client->id,
             'company_id' =>$this->company->id,
@@ -348,7 +342,7 @@ class PaymentTest extends TestCase
         $client->setRelation('company', $this->company);
         $client->save();
 
-         $client_contact =    ClientContact::factory()->create([
+        $client_contact =    ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $client->id,
                 'company_id' => $this->company->id,
@@ -424,7 +418,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-            ClientContact::factory()->create([
+        ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $client->id,
                 'company_id' => $this->company->id,
@@ -432,7 +426,7 @@ class PaymentTest extends TestCase
                 'send_email' => true,
             ]);
 
-            ClientContact::factory()->create([
+        ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $client->id,
                 'company_id' => $this->company->id,
@@ -496,7 +490,7 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-$contact =             ClientContact::factory()->create([
+        $contact =             ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
@@ -504,7 +498,7 @@ $contact =             ClientContact::factory()->create([
                 'send_email' => true,
             ]);
 
-            ClientContact::factory()->create([
+        ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
@@ -1382,7 +1376,4 @@ $contact =             ClientContact::factory()->create([
 
         $this->assertEquals(1, $arr['data'][0]['is_deleted']);
     }
-
-
-
 }

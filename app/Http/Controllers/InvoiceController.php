@@ -12,9 +12,7 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\CompanySettings;
 use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\CloneInvoiceFactory;
 use App\Factory\CloneInvoiceToQuoteFactory;
@@ -33,7 +31,6 @@ use App\Jobs\Invoice\ZipInvoices;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
 use App\Models\Quote;
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
@@ -396,7 +393,7 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
-        UnlinkFile::dispatchNow(config('filesystems.default'),$invoice->client->invoice_filepath().$invoice->number.'.pdf');
+        UnlinkFile::dispatchNow(config('filesystems.default'), $invoice->client->invoice_filepath().$invoice->number.'.pdf');
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
 
@@ -731,7 +728,6 @@ class InvoiceController extends BaseController
                 $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
                     info("firing email");
                     EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template);
-                    
                 });
 
                 if (! $bulk) {

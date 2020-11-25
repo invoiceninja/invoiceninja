@@ -11,11 +11,6 @@
 
 namespace App\Services\Payment;
 
-use App\Exceptions\PaymentRefundFailed;
-use App\Factory\CreditFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Models\Activity;
-use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -36,8 +31,9 @@ class DeletePayment
 
     public function run()
     {
-        if($this->payment->is_deleted)
+        if ($this->payment->is_deleted) {
             return $this->payment;
+        }
 
         return $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
             ->updateCreditables() //return the credits first

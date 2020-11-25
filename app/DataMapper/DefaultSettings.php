@@ -11,7 +11,6 @@
 
 namespace App\DataMapper;
 
-use App\Models\Client;
 use App\Models\User;
 use stdClass;
 

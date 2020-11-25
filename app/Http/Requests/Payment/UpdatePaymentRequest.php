@@ -16,7 +16,6 @@ use App\Http\ValidationRules\PaymentAppliedValidAmount;
 use App\Http\ValidationRules\ValidCreditsPresentRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class UpdatePaymentRequest extends Request
 {
@@ -35,8 +34,7 @@ class UpdatePaymentRequest extends Request
 
     public function rules()
     {
-        
-       $rules = [
+        $rules = [
             'number' => 'nullable|unique:payments,number,'.$this->id.',id,company_id,'.$this->payment->company_id,
             'invoices' => ['array', new PaymentAppliedValidAmount, new ValidCreditsPresentRule],
             'invoices.*.invoice_id' => 'distinct',

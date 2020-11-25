@@ -10,11 +10,9 @@
  */
 namespace Database\Factories;
 
-
 use App\DataMapper\ClientSettings;
 use App\Models\Client;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class ClientFactory extends Factory
 {
@@ -32,7 +30,6 @@ class ClientFactory extends Factory
      */
     public function definition()
     {
-
         return [
             'name' => $this->faker->company(),
             'website' => $this->faker->url,

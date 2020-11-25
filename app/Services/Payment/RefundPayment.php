@@ -15,7 +15,6 @@ use App\Exceptions\PaymentRefundFailed;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Activity;
-use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -74,7 +73,6 @@ class RefundPayment
     {
         if ($this->refund_data['gateway_refund'] !== false && $this->total_refund > 0) {
             if ($this->payment->company_gateway) {
-
                 $response = $this->payment->company_gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
 
 

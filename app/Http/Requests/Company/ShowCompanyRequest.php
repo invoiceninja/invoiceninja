@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Company;
 
 use App\Http\Requests\Request;
-use App\Models\Company;
 
 class ShowCompanyRequest extends Request
 {

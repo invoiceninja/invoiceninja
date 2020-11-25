@@ -12,7 +12,6 @@
 
 use App\Models\Gateway;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 class UpdateGatewayTableVisibleColumn extends Migration
@@ -38,21 +37,18 @@ class UpdateGatewayTableVisibleColumn extends Migration
             $t->datetime('sent_date')->nullable();
             $t->datetime('viewed_date')->nullable();
             $t->datetime('opened_date')->nullable();
-
         });
 
-        Schema::table('expenses', function ($t){
+        Schema::table('expenses', function ($t) {
             $t->renameColumn('invoice_category_id', 'category_id');
         });
 
-        Schema::table('projects', function ($t){
+        Schema::table('projects', function ($t) {
             $t->text('public_notes')->nullable();
             $t->dropColumn('description');
-            $t->decimal('budgeted_hours', 12,2)->change();
+            $t->decimal('budgeted_hours', 12, 2)->change();
             $t->boolean('is_deleted')->default(0);
         });
-
-
     }
 
 

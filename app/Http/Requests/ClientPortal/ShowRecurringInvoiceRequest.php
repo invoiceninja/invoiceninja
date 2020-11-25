@@ -12,7 +12,6 @@
 namespace App\Http\Requests\ClientPortal;
 
 use App\Http\Requests\Request;
-use App\Models\Invoice;
 
 class ShowRecurringInvoiceRequest extends Request
 {

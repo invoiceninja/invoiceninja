@@ -11,10 +11,6 @@
 
 namespace App\Jobs\Ninja;
 
-use App\Jobs\Invoice\EmailInvoice;
-use App\Libraries\MultiDB;
-use App\Models\Account;
-use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

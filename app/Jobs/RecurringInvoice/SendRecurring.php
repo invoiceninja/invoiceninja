@@ -22,10 +22,8 @@ use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
 use Turbo124\Beacon\Facades\LightLogs;
 
 class SendRecurring implements ShouldQueue
@@ -67,19 +65,18 @@ class SendRecurring implements ShouldQueue
                            ->createInvitations()
                            ->save();
 
-       info("Invoice {$invoice->number} created");
+        info("Invoice {$invoice->number} created");
 
         $invoice->invitations->each(function ($invitation) use ($invoice) {
-
-            if($invitation->contact && strlen($invitation->contact->email) >=1){
+            if ($invitation->contact && strlen($invitation->contact->email) >=1) {
                 EmailEntity::dispatch($invitation, $invoice->company);
                 info("Firing email for invoice {$invoice->number}");
             }
-
         });
 
-        if($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $this->recurring_invoice->auto_bill_enabled)
+        if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $this->recurring_invoice->auto_bill_enabled) {
             $invoice->service()->autoBill()->save();
+        }
 
         info("updating recurring invoice dates");
         /* Set next date here to prevent a recurring loop forming */
@@ -88,8 +85,9 @@ class SendRecurring implements ShouldQueue
         $this->recurring_invoice->last_sent_date = date('Y-m-d');
 
         /* Set completed if we don't have any more cycles remaining*/
-        if ($this->recurring_invoice->remaining_cycles == 0)
+        if ($this->recurring_invoice->remaining_cycles == 0) {
             $this->recurring_invoice->setCompleted();
+        }
 
         info("next send date = " . $this->recurring_invoice->next_send_date);
         info("remaining cycles = " . $this->recurring_invoice->remaining_cycles);
@@ -100,7 +98,6 @@ class SendRecurring implements ShouldQueue
         //this is duplicated!!
         // if ($invoice->invitations->count() > 0)
             // event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
-
     }
 
     public function failed($exception = null)
@@ -116,5 +113,4 @@ class SendRecurring implements ShouldQueue
 
         info(print_r($exception->getMessage(), 1));
     }
-
 }

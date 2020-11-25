@@ -13,7 +13,6 @@
 namespace App\Http\Livewire;
 
 use App\Models\Client;
-use App\Models\Document;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
 use Livewire\WithPagination;

@@ -11,9 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\Gateway;
-use Illuminate\Database\Eloquent\Model;
-
 class GatewayType extends StaticModel
 {
     public $timestamps = false;

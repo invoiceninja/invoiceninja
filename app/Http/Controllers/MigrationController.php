@@ -21,7 +21,6 @@ use App\Models\Company;
 use App\Models\CompanyToken;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class MigrationController extends BaseController
@@ -219,7 +218,6 @@ class MigrationController extends BaseController
      */
     public function startMigration(Request $request)
     {
-
         $companies = json_decode($request->companies);
 
         if (app()->environment() === 'local') {
@@ -227,7 +225,6 @@ class MigrationController extends BaseController
         }
 
         foreach ($companies as $company) {
-
             $is_valid = $request->file($company->company_index)->isValid();
 
             if (!$is_valid) {

@@ -16,7 +16,6 @@ use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
-use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 
 class PaymentTransformer extends EntityTransformer

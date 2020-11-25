@@ -12,11 +12,8 @@
 namespace App\Jobs\Util;
 
 use App\Events\Invoice\InvoiceWasEmailed;
-use App\Jobs\Invoice\EmailInvoice;
 use App\Libraries\MultiDB;
-use App\Models\Account;
 use App\Models\Invoice;
-use App\Utils\ClientPortal\CustomMessage\invitation;
 use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,7 +21,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 
 class ReminderJob implements ShouldQueue
 {
@@ -55,37 +51,27 @@ class ReminderJob implements ShouldQueue
                 $this->processReminders($db);
             }
         }
-
     }
 
     private function processReminders($db = null)
     {
-
         Invoice::where('next_send_date', Carbon::today()->format('Y-m-d'))->with('invitations')->cursor()->each(function ($invoice) {
-
             if ($invoice->isPayable()) {
-
-                $reminder_template = $invoice->calculateTemplate('invoice');    
+                $reminder_template = $invoice->calculateTemplate('invoice');
                 $invoice->service()->touchReminder($this->reminder_template)->save();
 
                 $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
-
                     EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
                     info("Firing email for invoice {$invoice->number}");
                 });
 
-                if ($invoice->invitations->count() > 0) 
+                if ($invoice->invitations->count() > 0) {
                     event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
-                
-
+                }
             } else {
-
                 $invoice->next_send_date = null;
                 $invoice->save();
-
             }
-        
         });
-
     }
 }

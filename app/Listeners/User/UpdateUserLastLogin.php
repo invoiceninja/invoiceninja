@@ -12,12 +12,9 @@
 namespace App\Listeners\User;
 
 use App\Libraries\MultiDB;
-use App\Models\Activity;
-use App\Repositories\ActivityRepository;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 class UpdateUserLastLogin implements ShouldQueue

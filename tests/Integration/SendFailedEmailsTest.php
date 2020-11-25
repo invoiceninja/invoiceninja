@@ -10,14 +10,9 @@
  */
 namespace Tests\Integration;
 
-use App\Jobs\Invoice\EmailInvoice;
 use App\Jobs\Util\SendFailedEmails;
-use App\Jobs\Util\SystemLogger;
 use App\Models\SystemLog;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Queue;
 use Tests\MockAccountData;
 use Tests\TestCase;
 

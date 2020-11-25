@@ -11,7 +11,6 @@
 
 namespace App\Providers;
 
-use App\Helpers\Language\DecoratedTranslator;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
@@ -39,7 +38,6 @@ use App\Observers\QuoteObserver;
 use App\Observers\TaskObserver;
 use App\Observers\UserObserver;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Queue;

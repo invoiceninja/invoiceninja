@@ -11,7 +11,6 @@
 
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 class ProjectNumberColumn extends Migration
@@ -23,15 +22,15 @@ class ProjectNumberColumn extends Migration
      */
     public function up()
     {
-        Schema::table('projects', function($table){
+        Schema::table('projects', function ($table) {
             $table->string('number')->nullable();
         });
 
-        Schema::table('expenses', function ($t){
+        Schema::table('expenses', function ($t) {
             $t->renameColumn('expense_date', 'date');
         });
 
-        Schema::table('expense_categories', function ($t){
+        Schema::table('expense_categories', function ($t) {
             $t->boolean('is_deleted')->default(false);
         });
     }

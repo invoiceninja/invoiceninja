@@ -11,17 +11,9 @@
 namespace Tests\Feature;
 
 use App\Jobs\Entity\EmailEntity;
-use App\Mail\TemplateEmail;
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
 use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\InvoiceEmailBuilder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -68,7 +60,6 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-
                 EmailEntity::dispatchNow($invitation, $invitation->company);
 
                 $this->expectsJobs(EmailEntity::class);

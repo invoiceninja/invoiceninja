@@ -25,7 +25,6 @@ class VendorContactRepository extends BaseRepository
 
     public function save(array $data, Vendor $vendor) : void
     {
-
         if (isset($data['contacts'])) {
             $contacts = collect($data['contacts']);
         } else {

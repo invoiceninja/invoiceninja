@@ -10,7 +10,6 @@
  */
 namespace Database\Seeders;
 
-
 use App\Models\DateFormat;
 use App\Models\DatetimeFormat;
 use Illuminate\Database\Eloquent\Model;

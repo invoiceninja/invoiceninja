@@ -13,7 +13,6 @@ namespace App\Utils\Traits;
 
 use App\DataMapper\CompanySettings;
 use App\Models\Company;
-use App\Utils\Ninja;
 use stdClass;
 
 /**

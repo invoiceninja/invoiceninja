@@ -11,7 +11,6 @@
 
 namespace App\DataMapper;
 
-use App\DataMapper\CompanySettings;
 use App\Utils\Traits\MakesHash;
 use stdClass;
 

@@ -12,17 +12,9 @@
 namespace App\Listeners\Credit;
 
 use App\Factory\CreditInvitationFactory;
-use App\Factory\InvoiceInvitationFactory;
 use App\Libraries\MultiDB;
 use App\Models\CreditInvitation;
-use App\Models\InvoiceInvitation;
-use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Spatie\Browsershot\Browsershot;
 
 class CreateCreditInvitation implements ShouldQueue
 {

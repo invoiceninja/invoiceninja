@@ -13,7 +13,7 @@ class ChangeDefaultShowTasksTable extends Migration
      */
     public function up()
     {
-       Schema::table('companies', function(Blueprint $table){
+        Schema::table('companies', function (Blueprint $table) {
             $table->boolean('show_tasks_table')->default(false)->change();
         });
     }

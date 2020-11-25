@@ -15,8 +15,6 @@ use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
-use App\Transformers\DocumentTransformer;
-use App\Transformers\RecurringInvoiceInvitationTransformer;
 use App\Utils\Traits\MakesHash;
 
 class RecurringInvoiceTransformer extends EntityTransformer

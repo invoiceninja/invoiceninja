@@ -70,8 +70,9 @@ trait GeneratesCounter
         $padding = $client->getSetting('counter_padding');
         $prefix = '';
 
-        if($invoice && $invoice->recurring_id)
+        if ($invoice && $invoice->recurring_id) {
             $prefix = $client->getSetting('recurring_number_prefix');
+        }
 
         $invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $pattern, $prefix);
 
@@ -281,7 +282,6 @@ trait GeneratesCounter
      */
     public function getNextProjectNumber(Project $project) :string
     {
-
         $this->resetCompanyCounters($project->company);
 
         $counter = $project->company->settings->project_number_counter;
@@ -370,15 +370,15 @@ trait GeneratesCounter
 
             $number = $this->prefixCounter($number, $prefix);
 
-            if ($class == Invoice::class || $class == RecurringInvoice::class)
+            if ($class == Invoice::class || $class == RecurringInvoice::class) {
                 $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();
-            elseif ($class == Client::class || $class == Vendor::class)
+            } elseif ($class == Client::class || $class == Vendor::class) {
                 $check = $class::whereCompanyId($entity->company_id)->whereIdNumber($number)->withTrashed()->first();
-            else
+            } else {
                 $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();
+            }
 
             $counter++;
-
         } while ($check);
 
         return $number;
@@ -388,8 +388,9 @@ trait GeneratesCounter
     /*Check if a number is available for use. */
     public function checkNumberAvailable($class, $entity, $number) :bool
     {
-        if($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first())
+        if ($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first()) {
             return false;
+        }
 
         return true;
     }
@@ -600,7 +601,7 @@ trait GeneratesCounter
             $replace[] = str_replace($format, $date, $matches[1]);
         }
 
-        if($entity instanceof Client || $entity instanceof Vendor){
+        if ($entity instanceof Client || $entity instanceof Vendor) {
             $search[] = '{$client_custom1}';
             $replace[] = $entity->custom_value1;
 
@@ -615,9 +616,7 @@ trait GeneratesCounter
 
             $search[] = '{$id_number}';
             $replace[] = $entity->id_number;
-        }
-        else
-        {
+        } else {
             $search[] = '{$client_custom1}';
             $replace[] = $entity->client->custom_value1;
 

@@ -11,13 +11,9 @@
 
 namespace App\Http\Requests\Task;
 
-use App\DataMapper\TaskSettings;
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Task\UniqueTaskNumberRule;
-use App\Http\ValidationRules\ValidTaskGroupSettingsRule;
 use App\Models\Task;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class StoreTaskRequest extends Request
@@ -38,17 +34,18 @@ class StoreTaskRequest extends Request
     {
         $rules = [];
         
-        if(isset($this->number))
+        if (isset($this->number)) {
             $rules['number'] = Rule::unique('tasks')->where('company_id', auth()->user()->company()->id);
+        }
     
-       return $this->globalRules($rules);
+        return $this->globalRules($rules);
     }
 
     protected function prepareForValidation()
     {
         $input = $this->all();
 
-        $input = $this->decodePrimaryKeys($this->all()); 
+        $input = $this->decodePrimaryKeys($this->all());
 
         if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
@@ -56,5 +53,4 @@ class StoreTaskRequest extends Request
 
         $this->replace($input);
     }
-
 }

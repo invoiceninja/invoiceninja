@@ -15,7 +15,6 @@ use App\Jobs\Entity\EmailEntity;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Services\AbstractService;
-use Illuminate\Support\Carbon;
 
 class SendEmail extends AbstractService
 {
@@ -47,7 +46,6 @@ class SendEmail extends AbstractService
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatchNow($invitation, $invitation->company, $this->reminder_template);
-
             }
         });
     }

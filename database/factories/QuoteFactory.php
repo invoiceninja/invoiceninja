@@ -10,10 +10,8 @@
  */
 namespace Database\Factories;
 
-
 use App\Models\Quote;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class QuoteFactory extends Factory
 {

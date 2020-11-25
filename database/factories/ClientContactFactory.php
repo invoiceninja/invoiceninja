@@ -10,10 +10,8 @@
  */
 namespace Database\Factories;
 
-use App\Models\Account;
 use App\Models\ClientContact;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class ClientContactFactory extends Factory
 {
@@ -43,6 +41,4 @@ class ClientContactFactory extends Factory
             'contact_key' => \Illuminate\Support\Str::random(40),
         ];
     }
-
 }
-

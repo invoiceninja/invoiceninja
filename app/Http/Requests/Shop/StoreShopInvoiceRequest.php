@@ -13,9 +13,7 @@ namespace App\Http\Requests\Shop;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Invoice\UniqueInvoiceNumberRule;
-use App\Models\ClientContact;
 use App\Models\Company;
-use App\Models\Invoice;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 

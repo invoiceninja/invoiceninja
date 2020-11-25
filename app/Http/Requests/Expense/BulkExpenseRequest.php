@@ -12,9 +12,9 @@
 
 namespace App\Http\Requests\Expense;
 
+use App\Http\Requests\Request;
 use App\Models\Expense;
 use App\Utils\Traits\BulkOptions;
-use App\Http\Requests\Request;
 
 class BulkExpenseRequest extends Request
 {

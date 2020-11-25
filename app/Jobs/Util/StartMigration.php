@@ -55,7 +55,7 @@ class StartMigration implements ShouldQueue
 
     public $timeout = 0;
 
-  //  public $maxExceptions = 2;
+    //  public $maxExceptions = 2;
 
     //public $backoff = 86430;
 
@@ -111,7 +111,6 @@ class StartMigration implements ShouldQueue
             //Import::dispatchNow($data['data'], $this->company, $this->user);
             Import::dispatchNow($file, $this->company, $this->user);
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
-
             Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
 
             if (app()->environment() !== 'production') {
@@ -126,6 +125,6 @@ class StartMigration implements ShouldQueue
 
     public function failed($exception = null)
     {
-        info(print_r($exception->getMessage(),1));
+        info(print_r($exception->getMessage(), 1));
     }
 }

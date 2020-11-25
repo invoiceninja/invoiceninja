@@ -10,20 +10,9 @@
  */
 namespace Tests\Feature;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use App\Factory\InvoiceFactory;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Models\Task;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -54,16 +43,16 @@ class InvoiceLinkTasksTest extends TestCase
     {
         $temp_invoice_id = $this->invoice->id;
 
-        $tasks = collect($this->invoice->line_items)->map(function ($item){
-
-            if(isset($item->task_id))
+        $tasks = collect($this->invoice->line_items)->map(function ($item) {
+            if (isset($item->task_id)) {
                 $item->task_id = $this->decodePrimaryKey($item->task_id);
+            }
 
-            if(isset($item->expense_id))
+            if (isset($item->expense_id)) {
                 $item->expense_id = $this->decodePrimaryKey($item->expense_id);
+            }
 
             return $item;
-
         });
 
         $this->assertEquals($tasks->first()->task_id, $this->task->id);

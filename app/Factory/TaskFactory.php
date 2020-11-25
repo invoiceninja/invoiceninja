@@ -24,9 +24,9 @@ class TaskFactory
         $task->company_id = $company_id;
         $task->user_id = $user_id;
         $task->time_log = '[]';
-		$task->is_running = false;
-		$task->is_deleted = false;
-		$task->duration = 0;
+        $task->is_running = false;
+        $task->is_deleted = false;
+        $task->duration = 0;
 
         return $task;
     }

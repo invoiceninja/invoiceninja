@@ -12,25 +12,21 @@
 namespace App\Console\Commands;
 
 use App;
-use App\Libraries\CurlUtils;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\CompanyLedger;
 use App\Models\Contact;
 use App\Models\Credit;
-use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Utils\Ninja;
-use Carbon;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
 use Mail;
 use Symfony\Component\Console\Input\InputOption;
-use Utils;
 
 /*
 
@@ -332,16 +328,16 @@ class CheckData extends Command
                 $total_amount = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.amount');
                 $total_refund = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
 
-                 $total_invoice_payments += ($total_amount - $total_refund);
+                $total_invoice_payments += ($total_amount - $total_refund);
             }
 
-            foreach($client->payments as $payment)
-            {
-              $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(DB::raw('amount'));
+            foreach ($client->payments as $payment) {
+                $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(DB::raw('amount'));
             }
 
-            if($credit_total_applied < 0)
-                $total_invoice_payments += $credit_total_applied; //todo this is contentious
+            if ($credit_total_applied < 0) {
+                $total_invoice_payments += $credit_total_applied;
+            } //todo this is contentious
 
             info("total invoice payments = {$total_invoice_payments} with client paid to date of of {$client->paid_to_date}");
 

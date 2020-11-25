@@ -11,7 +11,6 @@
 
 namespace App\Observers;
 
-use App\Events\User\UserWasUpdated;
 use App\Models\User;
 
 class UserObserver

@@ -10,19 +10,7 @@
  */
 namespace Database\Seeders;
 
-
 use App\Models\Timezone;
-use Database\Seeders\BanksSeeder;
-use Database\Seeders\ConstantsSeeder;
-use Database\Seeders\CountriesSeeder;
-use Database\Seeders\CurrenciesSeeder;
-use Database\Seeders\DateFormatsSeeder;
-use Database\Seeders\DesignSeeder;
-use Database\Seeders\GatewayTypesSeeder;
-use Database\Seeders\IndustrySeeder;
-use Database\Seeders\LanguageSeeder;
-use Database\Seeders\PaymentLibrariesSeeder;
-use Database\Seeders\PaymentTypesSeeder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
@@ -58,6 +46,5 @@ class DatabaseSeeder extends Seeder
             DateFormatsSeeder::class,
             DesignSeeder::class,
         ]);
-
     }
 }

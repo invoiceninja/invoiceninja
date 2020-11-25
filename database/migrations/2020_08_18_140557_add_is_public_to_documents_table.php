@@ -54,7 +54,6 @@ class AddIsPublicToDocumentsTable extends Migration
             $table->timestamps(6);
 
             $table->foreign('payment_id')->references('id')->on('payments')->onDelete('cascade')->onUpdate('cascade');
-
         });
 
         Schema::table('recurring_invoices', function ($table) {
@@ -114,7 +113,5 @@ class AddIsPublicToDocumentsTable extends Migration
      */
     public function down()
     {
-        
     }
-
 }

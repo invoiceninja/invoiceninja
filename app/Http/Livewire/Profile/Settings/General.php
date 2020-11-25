@@ -65,9 +65,9 @@ class General extends Component
 
         $data = $this->validate($this->rules);
 
-         if (!empty($this->password)) {
-             $this->profile->password = Hash::make($this->password);
-         }
+        if (!empty($this->password)) {
+            $this->profile->password = Hash::make($this->password);
+        }
 
         $this->profile
             ->fill($data)

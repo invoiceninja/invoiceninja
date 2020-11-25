@@ -12,16 +12,11 @@
 namespace App\Services\Invoice;
 
 use App\DataMapper\InvoiceItem;
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
 use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
-use App\Services\Client\ClientService;
-use App\Services\Payment\PaymentService;
-use App\Utils\Traits\GeneratesCounter;
 
 class AddGatewayFee extends AbstractService
 {
@@ -48,8 +43,9 @@ class AddGatewayFee extends AbstractService
     {
         $gateway_fee = round($this->company_gateway->calcGatewayFee($this->amount, $this->gateway_type_id), $this->invoice->client->currency()->precision);
 
-        if((int)$gateway_fee == 0)
+        if ((int)$gateway_fee == 0) {
             return $this->invoice;
+        }
 
         $this->cleanPendingGatewayFees();
 

@@ -16,10 +16,6 @@ use App\Events\Invoice\InvoiceWasViewed;
 use App\Events\Misc\InvitationWasViewed;
 use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
-use App\Models\InvoiceInvitation;
-use App\Models\QuoteInvitation;
-use App\Models\CreditInvitation;
-use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -37,7 +33,6 @@ class InvitationController extends Controller
 
     public function router(string $entity, string $invitation_key)
     {
-
         $key = $entity.'_id';
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
@@ -48,18 +43,15 @@ class InvitationController extends Controller
 
         /* Return early if we have the correct client_hash embedded */
 
-        if(request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
+        if (request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
             auth()->guard('contact')->login($invitation->contact, true);
-        }
-        else if ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
+        } elseif ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
             $this->middleware('auth:contact');
-        } 
-        else {
+        } else {
             auth()->guard('contact')->login($invitation->contact, true);
         }
 
         if (auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
-
             $invitation->markViewed();
 
             event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
@@ -68,8 +60,6 @@ class InvitationController extends Controller
         }
 
         return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
-
-
     }
 
     private function fireEntityViewedEvent($invitation, $entity_string)

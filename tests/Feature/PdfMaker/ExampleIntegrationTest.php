@@ -10,9 +10,7 @@
  */
 namespace Tests\Feature\PdfMaker;
 
-use App\Models\Invoice;
 use App\Services\PdfMaker\Design;
-use App\Services\PdfMaker\Designs\Playful;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesInvoiceValues;

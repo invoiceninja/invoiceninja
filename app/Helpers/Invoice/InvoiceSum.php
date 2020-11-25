@@ -11,11 +11,6 @@
 
 namespace App\Helpers\Invoice;
 
-use App\Helpers\Invoice\Balancer;
-use App\Helpers\Invoice\CustomValuer;
-use App\Helpers\Invoice\Discounter;
-use App\Helpers\Invoice\InvoiceItemSum;
-use App\Helpers\Invoice\Taxer;
 use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
@@ -160,17 +155,21 @@ class InvoiceSum
     {
         $this->total += $this->total_taxes;
 
-        if(is_numeric($this->invoice->custom_value1) && $this->invoice->custom_value1 > 0)
+        if (is_numeric($this->invoice->custom_value1) && $this->invoice->custom_value1 > 0) {
             $this->total += $this->invoice->custom_value1;
+        }
 
-        if(is_numeric($this->invoice->custom_value2) && $this->invoice->custom_value2 > 0)
+        if (is_numeric($this->invoice->custom_value2) && $this->invoice->custom_value2 > 0) {
             $this->total += $this->invoice->custom_value2;
+        }
 
-        if(is_numeric($this->invoice->custom_value3) && $this->invoice->custom_value3 > 0)
+        if (is_numeric($this->invoice->custom_value3) && $this->invoice->custom_value3 > 0) {
             $this->total += $this->invoice->custom_value3;
+        }
 
-        if(is_numeric($this->invoice->custom_value4) && $this->invoice->custom_value4 > 0)
+        if (is_numeric($this->invoice->custom_value4) && $this->invoice->custom_value4 > 0) {
             $this->total += $this->invoice->custom_value4;
+        }
 
         return $this;
     }
@@ -202,7 +201,6 @@ class InvoiceSum
 
     public function getRecurringInvoice()
     {
-
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
         $this->invoice->total_taxes = $this->getTotalTaxes();
         $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
@@ -220,8 +218,7 @@ class InvoiceSum
     {
         /* If amount != balance then some money has been paid on the invoice, need to subtract this difference from the total to set the new balance */
 
-        if($this->invoice->status_id != Invoice::STATUS_DRAFT)
-        {
+        if ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
             if ($this->invoice->amount != $this->invoice->balance) {
                 $paid_to_date = $this->invoice->amount - $this->invoice->balance;
 
@@ -318,7 +315,6 @@ class InvoiceSum
 
     public function purgeTaxes()
     {
-
         $this->tax_rate1 = 0;
         $this->tax_name1 = '';
 
@@ -332,7 +328,7 @@ class InvoiceSum
 
         $line_items = collect($this->invoice->line_items);
 
-        $items = $line_items->map(function ($item){
+        $items = $line_items->map(function ($item) {
             $item->tax_rate1 = 0;
             $item->tax_rate2 = 0;
             $item->tax_rate3 = 0;
@@ -350,5 +346,4 @@ class InvoiceSum
 
         return $this;
     }
-
 }

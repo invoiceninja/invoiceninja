@@ -12,15 +12,9 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasEmailed;
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
 use App\Jobs\Invoice\EmailEntity;
-use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\Payment;
 use App\Services\AbstractService;
-use App\Services\Client\ClientService;
-use App\Services\Payment\PaymentService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Http\Request;
@@ -68,7 +62,6 @@ class TriggeredActions extends AbstractService
         $reminder_template = 'payment';
 
         $this->invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($reminder_template) {
-
             EmailEntity::dispatch($invitation, $this->invoice->company, $reminder_template);
         });
 

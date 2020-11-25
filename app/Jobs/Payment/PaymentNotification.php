@@ -11,10 +11,8 @@
 
 namespace App\Jobs\Payment;
 
-use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Payment;
-use App\Repositories\InvoiceRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

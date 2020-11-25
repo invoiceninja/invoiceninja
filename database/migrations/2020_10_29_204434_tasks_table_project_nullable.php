@@ -13,10 +13,8 @@ class TasksTableProjectNullable extends Migration
      */
     public function up()
     {
-        Schema::table('projects', function(Blueprint $table) {
-
+        Schema::table('projects', function (Blueprint $table) {
             $table->unsignedInteger('assigned_user_id')->nullable()->change();
-
         });
     }
 

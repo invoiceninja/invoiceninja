@@ -13,8 +13,6 @@ namespace App\Http\Controllers;
 
 use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasUpdated;
-use App\Factory\CloneInvoiceFactory;
-use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\CloneQuoteFactory;
 use App\Factory\CloneQuoteToInvoiceFactory;
 use App\Factory\QuoteFactory;
@@ -670,22 +668,25 @@ class QuoteController extends BaseController
             case 'restore':
                 $this->quote_repo->restore($quote);
 
-                if (!$bulk)
+                if (!$bulk) {
                     return $this->listResponse($quote);
+                }
 
                 break;
             case 'archive':
                 $this->quote_repo->archive($quote);
 
-                if (!$bulk)
+                if (!$bulk) {
                     return $this->listResponse($quote);
+                }
 
                 break;
             case 'delete':
                 $this->quote_repo->delete($quote);
 
-                if (!$bulk)
+                if (!$bulk) {
                     return $this->listResponse($quote);
+                }
 
                 break;
             case 'email':
@@ -700,7 +701,6 @@ class QuoteController extends BaseController
                     return $this->itemResponse($quote);
                 }
                 break;
-                // no break
             default:
                 return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
                 break;

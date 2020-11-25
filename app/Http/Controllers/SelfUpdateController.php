@@ -12,14 +12,10 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Ninja;
-use Composer\Factory;
-use Composer\Installer;
-use Composer\IO\NullIO;
 use Cz\Git\GitException;
 use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Storage;
 
 class SelfUpdateController extends BaseController
 {
@@ -74,7 +70,6 @@ class SelfUpdateController extends BaseController
         try {
             $res = $repo->pull();
         } catch (GitException $e) {
-
             info($e->getMessage());
             return response()->json(['message'=>$e->getMessage()], 500);
         }

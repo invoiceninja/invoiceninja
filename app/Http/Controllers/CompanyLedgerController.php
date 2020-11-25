@@ -14,7 +14,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CompanyLedger\ShowCompanyLedgerRequest;
 use App\Models\CompanyLedger;
 use App\Transformers\CompanyLedgerTransformer;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class CompanyLedgerController extends BaseController

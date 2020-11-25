@@ -13,7 +13,6 @@ namespace App\Observers;
 
 use App\Events\Company\CompanyDocumentsDeleted;
 use App\Models\Company;
-use App\Utils\Ninja;
 
 class CompanyObserver
 {

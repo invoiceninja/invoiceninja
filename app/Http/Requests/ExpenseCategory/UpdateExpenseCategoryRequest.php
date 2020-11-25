@@ -13,6 +13,7 @@ namespace App\Http\Requests\ExpenseCategory;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
+
 class UpdateExpenseCategoryRequest extends Request
 {
     use ChecksEntityStatus;
@@ -29,13 +30,12 @@ class UpdateExpenseCategoryRequest extends Request
 
     public function rules()
     {
-
         $rules = [];
 
-        if ($this->input('name')) 
+        if ($this->input('name')) {
             $rules['name'] = 'unique:expense_categories,name,'.$this->id.',id,company_id,'.$this->expense_category->company_id;
+        }
 
         return $rules;
     }
-
 }

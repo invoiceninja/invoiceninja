@@ -15,7 +15,6 @@ use App\Models\Company;
 use App\Models\Document;
 use App\Models\Product;
 use App\Models\User;
-use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\Resource\Collection;
 

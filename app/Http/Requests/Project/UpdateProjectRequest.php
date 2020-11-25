@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Project;
 
 use App\Http\Requests\Request;
-use App\Models\Project;
 use App\Utils\Traits\ChecksEntityStatus;
 
 class UpdateProjectRequest extends Request
@@ -33,18 +32,20 @@ class UpdateProjectRequest extends Request
     {
         $rules = [];
         
-        if(isset($this->number))
+        if (isset($this->number)) {
             $rules['number'] = Rule::unique('projects')->where('company_id', auth()->user()->company()->id)->ignore($this->project->id);
+        }
 
         return $this->globalRules($rules);
     }
 
     protected function prepareForValidation()
     {
-        $input = $this->decodePrimaryKeys($this->all()); 
+        $input = $this->decodePrimaryKeys($this->all());
 
-        if(isset($input['client_id']))
+        if (isset($input['client_id'])) {
             unset($input['client_id']);
+        }
 
         $this->replace($input);
     }

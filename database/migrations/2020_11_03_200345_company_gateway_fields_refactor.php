@@ -13,7 +13,7 @@ class CompanyGatewayFieldsRefactor extends Migration
      */
     public function up()
     {
-        Schema::table('company_gateways', function(Blueprint $table){
+        Schema::table('company_gateways', function (Blueprint $table) {
             $table->renameColumn('show_billing_address', 'require_billing_address');
             $table->renameColumn('show_shipping_address', 'require_shipping_address');
             $table->boolean('require_client_name')->default(false);

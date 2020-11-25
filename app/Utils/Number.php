@@ -12,7 +12,6 @@
 namespace App\Utils;
 
 use App\Models\Currency;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class Number.

@@ -11,7 +11,6 @@
 
 namespace App\Policies;
 
-use App\Models\Payment;
 use App\Models\User;
 
 /**

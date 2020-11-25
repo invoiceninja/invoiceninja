@@ -12,7 +12,6 @@
 namespace App\Http\Requests\ExpenseCategory;
 
 use App\Http\Requests\Request;
-use App\Models\ExpenseCategory;
 
 class DestroyExpenseCategoryRequest extends Request
 {

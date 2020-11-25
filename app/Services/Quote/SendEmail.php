@@ -12,9 +12,7 @@
 namespace App\Services\Quote;
 
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Quote\EmailQuote;
 use App\Models\ClientContact;
-use App\Models\Quote;
 
 class SendEmail
 {
@@ -46,7 +44,6 @@ class SendEmail
         $this->quote->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatchNow($invitation, $invitation->company, $this->reminder_template);
-
             }
         });
 

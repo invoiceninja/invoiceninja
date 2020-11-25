@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Webhook extends BaseModel

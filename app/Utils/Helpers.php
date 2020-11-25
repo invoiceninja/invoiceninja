@@ -19,15 +19,13 @@ class Helpers
 {
     public static function sharedEmailVariables(?Client $client, array $settings = null): array
     {
-    	if(!$client){
+        if (!$client) {
+            $elements['signature'] = '';
+            $elements['settings'] = new stdClass;
+            $elements['whitelabel'] = true;
 
-	        $elements['signature'] = '';
-	        $elements['settings'] = new stdClass;
-	        $elements['whitelabel'] = true;
-
-	        return $elements;
-
-    	}
+            return $elements;
+        }
 
         $_settings = is_null($settings) ? $client->getMergedSettings() : $settings;
 

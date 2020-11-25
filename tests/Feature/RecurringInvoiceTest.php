@@ -10,19 +10,13 @@
  */
 namespace Tests\Feature;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -57,7 +51,6 @@ class RecurringInvoiceTest extends TestCase
     public function testRecurringInvoiceList()
     {
         Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
-
             ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,
@@ -87,7 +80,6 @@ class RecurringInvoiceTest extends TestCase
     public function testRecurringInvoiceRESTEndPoints()
     {
         Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
-
             ClientContact::factory()->create([
                 'user_id' => $this->user->id,
                 'client_id' => $c->id,

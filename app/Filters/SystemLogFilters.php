@@ -12,10 +12,7 @@
 namespace App\Filters;
 
 use App\Models\User;
-use App\Models\Vendor;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * SystemLogFilters.
@@ -51,13 +48,11 @@ class SystemLogFilters extends QueryFilters
      */
     public function filter(string $filter = '') : Builder
     {
-
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return $this->builder;
-
     }
 
     /**

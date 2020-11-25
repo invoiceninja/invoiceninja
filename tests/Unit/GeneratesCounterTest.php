@@ -11,7 +11,6 @@
 namespace Tests\Unit;
 
 use App\DataMapper\ClientSettings;
-use App\DataMapper\DefaultSettings;
 use App\Factory\ClientFactory;
 use App\Factory\VendorFactory;
 use App\Models\Client;
@@ -19,13 +18,10 @@ use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
-use App\Models\User;
 use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\GeneratesNumberCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;

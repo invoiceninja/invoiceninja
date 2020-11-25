@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Expense;
 
 use App\Http\Requests\Request;
-use App\Models\Expense;
 
 class ShowExpenseRequest extends Request
 {

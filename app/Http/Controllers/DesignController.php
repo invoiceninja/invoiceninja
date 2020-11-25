@@ -19,15 +19,12 @@ use App\Http\Requests\Design\EditDesignRequest;
 use App\Http\Requests\Design\ShowDesignRequest;
 use App\Http\Requests\Design\StoreDesignRequest;
 use App\Http\Requests\Design\UpdateDesignRequest;
-use App\Jobs\Entity\ActionEntity;
 use App\Models\Design;
 use App\Repositories\DesignRepository;
 use App\Transformers\DesignTransformer;
-use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Class DesignController.

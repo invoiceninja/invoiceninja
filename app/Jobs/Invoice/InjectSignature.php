@@ -3,7 +3,6 @@
 namespace App\Jobs\Invoice;
 
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

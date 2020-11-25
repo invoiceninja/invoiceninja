@@ -12,7 +12,6 @@
 namespace App\Events\Product;
 
 use App\Models\Company;
-use App\Models\Invoice;
 use Illuminate\Queue\SerializesModels;
 
 /**

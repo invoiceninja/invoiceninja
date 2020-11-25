@@ -11,7 +11,6 @@
 
 namespace App\Mail\Admin;
 
-use App\Models\User;
 use Illuminate\Mail\Mailable;
 
 class EntityNotificationMailer extends Mailable

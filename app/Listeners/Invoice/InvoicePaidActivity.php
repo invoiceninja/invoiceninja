@@ -13,13 +13,8 @@ namespace App\Listeners\Invoice;
 
 use App\Libraries\MultiDB;
 use App\Models\Activity;
-use App\Models\ClientContact;
-use App\Models\InvoiceInvitation;
 use App\Repositories\ActivityRepository;
-use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Log;
 use stdClass;
 
 class InvoicePaidActivity implements ShouldQueue
@@ -57,9 +52,8 @@ class InvoicePaidActivity implements ShouldQueue
 
         try {
             $event->invoice->service()->touchPdf();
-        }
-        catch(\Exception $e){
-            info(print_r($e->getMessage(),1));
+        } catch (\Exception $e) {
+            info(print_r($e->getMessage(), 1));
         }
     }
 }

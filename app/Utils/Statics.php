@@ -11,9 +11,7 @@
 
 namespace App\Utils;
 
-use App\Models\Gateway;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -106,7 +104,6 @@ class Statics
             })->values();
 
             $data['templates'] = Cache::get('templates');
-            
         }
 
         return $data;

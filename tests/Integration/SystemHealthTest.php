@@ -10,9 +10,7 @@
  */
 namespace Tests\Integration;
 
-use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Cache;
 use Tests\MockAccountData;
 use Tests\TestCase;
 

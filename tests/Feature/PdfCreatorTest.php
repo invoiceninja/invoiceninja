@@ -11,7 +11,6 @@
 namespace Tests\Feature;
 
 use App\Jobs\Entity\CreateEntityPdf;
-use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Storage;
@@ -23,7 +22,6 @@ use Tests\TestCase;
  */
 class PdfCreatorTest extends TestCase
 {
-
     use DatabaseTransactions;
     use MockAccountData;
 
@@ -57,7 +55,5 @@ class PdfCreatorTest extends TestCase
         $quote_path = CreateEntityPdf::dispatchNow($this->quote->invitations->first());
     
         $this->assertTrue(Storage::exists($this->client->quote_filepath().$this->quote->number.'.pdf'));
-    }    
-
-
+    }
 }

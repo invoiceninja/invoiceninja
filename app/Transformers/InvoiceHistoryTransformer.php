@@ -13,7 +13,6 @@ namespace App\Transformers;
 
 use App\Models\Activity;
 use App\Models\Backup;
-use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\MakesHash;
 
 class InvoiceHistoryTransformer extends EntityTransformer

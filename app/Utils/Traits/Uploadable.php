@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Storage;
  */
 trait Uploadable
 {
-
     public function removeLogo($company)
     {
         $company_logo = $company->settings->company_logo;
@@ -32,8 +31,6 @@ trait Uploadable
         if (Storage::exists($storage_path)) {
             UnlinkFile::dispatchNow(config('filesystems.default'), $storage_path);
         }
-
-
     }
 
     public function uploadLogo($file, $company, $entity)

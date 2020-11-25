@@ -10,7 +10,6 @@
  */
 namespace Database\Factories;
 
-
 use App\Models\QuoteInvitation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -30,9 +29,9 @@ class QuoteInvitationFactory extends Factory
      * @return array
      */
     public function definition()
-	    {
-	    return [
-	        'key' => Str::random(40),
-	    ];
-	}
+    {
+        return [
+            'key' => Str::random(40),
+        ];
+    }
 }

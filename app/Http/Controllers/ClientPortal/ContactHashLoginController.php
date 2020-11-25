@@ -13,7 +13,6 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use Auth;
-use Illuminate\Http\Request;
 
 class ContactHashLoginController extends Controller
 {
@@ -25,11 +24,6 @@ class ContactHashLoginController extends Controller
      */
     public function login(string $contact_key)
     {
-
         return redirect('/client/login');
-
     }
-
 }
-    
-

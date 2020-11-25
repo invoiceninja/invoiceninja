@@ -17,7 +17,6 @@ use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
-use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use Exception;
 use Illuminate\Support\Facades\App;
@@ -44,7 +43,6 @@ class HtmlEngine
 
     public function __construct($invitation)
     {
-
         $this->invitation = $invitation;
 
         $this->entity_string = $this->resolveEntityString();
@@ -60,7 +58,6 @@ class HtmlEngine
         $this->settings = $this->client->getMergedSettings();
 
         $this->entity_calc = $this->entity->calc();
-
     }
 
 
@@ -153,10 +150,11 @@ class HtmlEngine
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
         $data['$invoice.subtotal'] = &$data['$subtotal'];
 
-        if($this->entity->partial > 0)
+        if ($this->entity->partial > 0) {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
-        else
+        } else {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+        }
         
         $data['$quote.balance_due'] = &$data['$balance_due'];
         $data['$invoice.balance_due'] = &$data['$balance_due'];
@@ -319,10 +317,11 @@ class HtmlEngine
         $data['$task.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
 
-        if($this->settings->signature_on_pdf)
+        if ($this->settings->signature_on_pdf) {
             $data['$contact.signature'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
-        else
+        } else {
             $data['$contact.signature'] = ['value' => '', 'label' => ''];
+        }
 
         $data['$thanks'] = ['value' => '', 'label' => ctrans('texts.thanks')];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
@@ -384,7 +383,7 @@ class HtmlEngine
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
 
-//info(print_r($data,1));
+        //info(print_r($data,1));
 
         return $data;
     }
@@ -531,8 +530,9 @@ class HtmlEngine
             $custom_field = $custom_fields->{$field};
             $custom_field_parts = explode('|', $custom_field);
 
-            if(count($custom_field_parts) >= 2)
+            if (count($custom_field_parts) >= 2) {
                 $custom_field = $custom_field_parts[1];
+            }
         }
 
         switch ($custom_field) {

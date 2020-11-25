@@ -11,9 +11,9 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
@@ -33,30 +33,25 @@ class PingTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-        
     }
 
     public function testPingEndPoint()
     {
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/ping');
 
         $response->assertStatus(200);
-
     }
 
     public function testHealthCheck()
     {
-
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/health_check');
 
         $response->assertStatus(200);
-
     }
 }

@@ -12,10 +12,7 @@
 namespace App\Listeners\Contact;
 
 use App\Libraries\MultiDB;
-use App\Models\Activity;
-use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class UpdateContactLastLogin implements ShouldQueue
 {

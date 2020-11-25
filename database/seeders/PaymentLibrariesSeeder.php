@@ -10,7 +10,6 @@
  */
 namespace Database\Seeders;
 
-
 use App\Models\Gateway;
 use App\Models\GatewayType;
 use Illuminate\Database\Eloquent\Model;
@@ -98,11 +97,9 @@ class PaymentLibrariesSeeder extends Seeder
 
         Gateway::whereIn('id', [1,15,20,39])->update(['visible' => 1]);
 
-        Gateway::all()->each(function ($gateway){
-
+        Gateway::all()->each(function ($gateway) {
             $gateway->site_url = $gateway->getHelp();
             $gateway->save();
-
         });
     }
 }

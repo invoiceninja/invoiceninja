@@ -12,9 +12,6 @@
 namespace App\Http\Controllers;
 
 use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
-use App\Events\User\UserEmailAddressChangedNewEmail;
-use App\Events\User\UserEmailAddressChangedOldEmail;
 use App\Events\User\UserWasCreated;
 use App\Factory\UserFactory;
 use App\Filters\UserFilters;
@@ -29,7 +26,6 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\User\UserEmailChanged;
-use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Repositories\UserRepository;
@@ -38,7 +34,6 @@ use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class UserController.

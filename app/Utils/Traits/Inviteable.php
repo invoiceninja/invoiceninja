@@ -44,7 +44,6 @@ trait Inviteable
 
     public function getLink() :string
     {
-
         $entity_type = Str::snake(class_basename($this->entityType()));
 
         $domain = isset($this->company->portal_domain) ?: $this->company->domain();

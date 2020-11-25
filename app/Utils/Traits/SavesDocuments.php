@@ -67,6 +67,5 @@ trait SavesDocuments
             null,
             $is_public
         );
-        
     }
 }

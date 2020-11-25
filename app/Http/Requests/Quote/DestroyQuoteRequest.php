@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Quote;
 
 use App\Http\Requests\Request;
-use App\Models\Quote;
 
 class DestroyQuoteRequest extends Request
 {

@@ -10,7 +10,6 @@
  */
 namespace Tests\Unit;
 
-use App\Models\PaymentTerm;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;

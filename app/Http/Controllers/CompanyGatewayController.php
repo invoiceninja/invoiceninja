@@ -18,7 +18,6 @@ use App\Http\Requests\CompanyGateway\EditCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\ShowCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\StoreCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
-use App\Http\Requests\SignupRequest;
 use App\Models\CompanyGateway;
 use App\Repositories\CompanyRepository;
 use App\Transformers\CompanyGatewayTransformer;
