@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasUpdated;
 use App\Factory\CloneCreditFactory;
-use App\Factory\CloneCreditToQuoteFactory;
 use App\Factory\CreditFactory;
 use App\Filters\CreditFilters;
 use App\Http\Requests\Credit\ActionCreditRequest;
@@ -15,10 +14,8 @@ use App\Http\Requests\Credit\EditCreditRequest;
 use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
-use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailCredit;
-use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
@@ -187,7 +184,7 @@ class CreditController extends BaseController
 
         $credit = $this->credit_repository->save($request->all(), CreditFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $credit = $credit->service()        
+        $credit = $credit->service()
                          ->fillDefaults()
                          ->save();
 

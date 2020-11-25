@@ -12,8 +12,8 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Credit\ValidCreditsRules;
 use App\Http\ValidationRules\Credit\CreditsSumRule;
+use App\Http\ValidationRules\Credit\ValidCreditsRules;
 use App\Http\ValidationRules\Payment\ValidInvoicesRules;
 use App\Http\ValidationRules\PaymentAmountsBalanceRule;
 use App\Http\ValidationRules\ValidCreditsPresentRule;
@@ -39,7 +39,7 @@ class StorePaymentRequest extends Request
     {
         $input = $this->all();
 
-       // info(print_r($input,1));
+        // info(print_r($input,1));
 
         $invoices_total = 0;
         $credits_total = 0;
@@ -77,7 +77,7 @@ class StorePaymentRequest extends Request
         }
 
         if (! isset($input['amount']) || $input['amount'] == 0) {
-            $input['amount'] = $invoices_total - $credits_total; 
+            $input['amount'] = $invoices_total - $credits_total;
         }
 
         $input['is_manual'] = true;

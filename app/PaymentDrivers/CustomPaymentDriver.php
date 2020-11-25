@@ -14,18 +14,7 @@ namespace App\PaymentDrivers;
 
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
-use App\Models\Invoice;
 use App\Models\Payment;
-use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
-use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
-use App\PaymentDrivers\Authorize\ChargePaymentProfile;
-use App\PaymentDrivers\Authorize\RefundTransaction;
-use net\authorize\api\constants\ANetEnvironment;
-use net\authorize\api\contract\v1\CreateTransactionRequest;
-use net\authorize\api\contract\v1\GetMerchantDetailsRequest;
-use net\authorize\api\contract\v1\MerchantAuthenticationType;
-use net\authorize\api\controller\CreateTransactionController;
-use net\authorize\api\controller\GetMerchantDetailsController;
 
 /**
  * Class CustomPaymentDriver.

@@ -19,19 +19,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Task;
 use App\Services\Client\ClientService;
-use App\Services\Invoice\ApplyNumber;
-use App\Services\Invoice\ApplyPayment;
-use App\Services\Invoice\ApplyRecurringNumber;
-use App\Services\Invoice\AutoBillInvoice;
-use App\Services\Invoice\CreateInvitations;
-use App\Services\Invoice\GetInvoicePdf;
-use App\Services\Invoice\HandleCancellation;
-use App\Services\Invoice\HandleReversal;
-use App\Services\Invoice\MarkInvoiceDeleted;
-use App\Services\Invoice\MarkInvoicePaid;
-use App\Services\Invoice\MarkSent;
-use App\Services\Invoice\TriggeredActions;
-use App\Services\Invoice\UpdateBalance;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 
@@ -118,8 +105,9 @@ class InvoiceService
     {
         $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment))->run();
 
-            if((int)$this->invoice->balance == 0)
-                $this->invoice->next_send_date = null;
+        if ((int)$this->invoice->balance == 0) {
+            $this->invoice->next_send_date = null;
+        }
             
         return $this;
     }
@@ -143,7 +131,7 @@ class InvoiceService
         return (new GetInvoicePdf($this->invoice, $contact))->run();
     }
 
-    public function getInvoiceDeliveryNote(\App\Models\Invoice $invoice,  \App\Models\ClientContact $contact = null)
+    public function getInvoiceDeliveryNote(\App\Models\Invoice $invoice, \App\Models\ClientContact $contact = null)
     {
         return (new GenerateDeliveryNote($invoice, $contact))->run();
     }
@@ -225,22 +213,24 @@ class InvoiceService
 
     public function setCalculatedStatus()
     {
-        if((int)$this->invoice->balance == 0)
+        if ((int)$this->invoice->balance == 0) {
             $this->setStatus(Invoice::STATUS_PAID);
-        elseif($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount)
+        } elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->setStatus(Invoice::STATUS_PARTIAL);
+        }
 
         return $this;
     }
 
     public function updateStatus()
     {
-
-        if((int)$this->invoice->balance == 0)
+        if ((int)$this->invoice->balance == 0) {
             $this->setStatus(Invoice::STATUS_PAID);
+        }
 
-        if($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount)
+        if ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->setStatus(Invoice::STATUS_PARTIAL);
+        }
 
         return $this;
     }
@@ -265,7 +255,7 @@ class InvoiceService
 
     public function deletePdf()
     {
-        UnlinkFile::dispatchNow(config('filesystems.default'),$this->invoice->client->invoice_filepath() . $this->invoice->number.'.pdf');
+        UnlinkFile::dispatchNow(config('filesystems.default'), $this->invoice->client->invoice_filepath() . $this->invoice->number.'.pdf');
 
         return $this;
     }
@@ -306,7 +296,7 @@ class InvoiceService
      */
     public function touchPdf()
     {
-        $this->invoice->invitations->each(function ($invitation){
+        $this->invoice->invitations->each(function ($invitation) {
             CreateEntityPdf::dispatch($invitation);
         });
 
@@ -344,20 +334,20 @@ class InvoiceService
         $this->invoice->tasks()->update(['invoice_id' => null]);
 
         //set all tasks.invoice_ids = x with the current  line_items
-        $tasks = collect($this->invoice->line_items)->map(function ($item){
-
-            if(isset($item->task_id))
+        $tasks = collect($this->invoice->line_items)->map(function ($item) {
+            if (isset($item->task_id)) {
                 $item->task_id = $this->decodePrimaryKey($item->task_id);
+            }
 
-            if(isset($item->expense_id))
+            if (isset($item->expense_id)) {
                 $item->expense_id = $this->decodePrimaryKey($item->expense_id);
+            }
 
             return $item;
-
         });
 
-        Task::whereIn('id',$tasks->pluck('task_id'))->update(['invoice_id' => $this->invoice->id]);
-        Expense::whereIn('id',$tasks->pluck('expense_id'))->update(['invoice_id' => $this->invoice->id]);
+        Task::whereIn('id', $tasks->pluck('task_id'))->update(['invoice_id' => $this->invoice->id]);
+        Expense::whereIn('id', $tasks->pluck('expense_id'))->update(['invoice_id' => $this->invoice->id]);
 
         return $this;
     }
@@ -367,17 +357,20 @@ class InvoiceService
     {
         $settings = $this->invoice->client->getMergedSettings();
 
-        if(! $this->invoice->design_id) 
+        if (! $this->invoice->design_id) {
             $this->invoice->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
+        }
             
-        if(!isset($this->invoice->footer))
+        if (!isset($this->invoice->footer)) {
             $this->invoice->footer = $settings->invoice_footer;
+        }
 
-        if(!isset($this->invoice->terms))
+        if (!isset($this->invoice->terms)) {
             $this->invoice->terms = $settings->invoice_terms;
+        }
 
         
-        return $this;        
+        return $this;
     }
     
     /**

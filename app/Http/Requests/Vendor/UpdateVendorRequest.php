@@ -12,12 +12,8 @@
 namespace App\Http\Requests\Vendor;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\IsDeletedRule;
-use App\Http\ValidationRules\ValidVendorGroupSettingsRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 
 class UpdateVendorRequest extends Request
 {

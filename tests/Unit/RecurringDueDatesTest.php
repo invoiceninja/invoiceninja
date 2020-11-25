@@ -21,13 +21,11 @@ use Tests\TestCase;
  */
 class RecurringDueDatesTest extends TestCase
 {
-
     use HasRecurrence;
 
 
     public function testFirstDate()
     {
-
         $date = Carbon::parse('2020-02-15');
 
         $due_date = $this->calculateFirstDayOfMonth($date);
@@ -37,59 +35,49 @@ class RecurringDueDatesTest extends TestCase
 
     public function testFirstOfMonthOnFirst()
     {
-
         $date = Carbon::parse('2020-02-01');
 
         $due_date = $this->calculateFirstDayOfMonth($date);
 
         $this->assertEquals('2020-03-01', $due_date->format('Y-m-d'));
-
-    }  
+    }
 
 
     public function testFirstOfMonthOnLast()
     {
-
         $date = Carbon::parse('2020-03-31');
 
         $due_date = $this->calculateFirstDayOfMonth($date);
 
         $this->assertEquals('2020-04-01', $due_date->format('Y-m-d'));
-        
-    }    
+    }
 
     public function testLastOfMonth()
     {
-
         $date = Carbon::parse('2020-02-15');
 
         $due_date = $this->calculateLastDayOfMonth($date);
 
         $this->assertEquals('2020-02-29', $due_date->format('Y-m-d'));
-
-    } 
+    }
 
     public function testLastOfMonthOnFirst()
     {
-
         $date = Carbon::parse('2020-02-1');
 
         $due_date = $this->calculateLastDayOfMonth($date);
 
         $this->assertEquals('2020-02-29', $due_date->format('Y-m-d'));
-
-    } 
+    }
 
     public function testLastOfMonthOnLast()
     {
-
         $date = Carbon::parse('2020-02-29');
 
         $due_date = $this->calculateLastDayOfMonth($date);
 
         $this->assertEquals('2020-03-31', $due_date->format('Y-m-d'));
-
-    } 
+    }
 
     public function testDayOfMonth()
     {
@@ -98,7 +86,6 @@ class RecurringDueDatesTest extends TestCase
         $due_date = $this->setDayOfMonth($date, '15');
 
         $this->assertEquals('2020-02-15', $due_date->format('Y-m-d'));
-
     }
 
     public function testDayOfMonthInFuture()
@@ -108,7 +95,6 @@ class RecurringDueDatesTest extends TestCase
         $due_date = $this->setDayOfMonth($date, '15');
 
         $this->assertEquals('2020-03-15', $due_date->format('Y-m-d'));
-
     }
 
     public function testDayOfMonthSameDay()
@@ -118,7 +104,6 @@ class RecurringDueDatesTest extends TestCase
         $due_date = $this->setDayOfMonth($date, '1');
 
         $this->assertEquals('2020-03-01', $due_date->format('Y-m-d'));
-
     }
 
 
@@ -129,7 +114,6 @@ class RecurringDueDatesTest extends TestCase
         $due_date = $this->setDayOfMonth($date, '31');
 
         $this->assertEquals('2020-02-29', $due_date->format('Y-m-d'));
-
     }
 
     public function testDayOfMonthWithOverflow2()
@@ -139,7 +123,6 @@ class RecurringDueDatesTest extends TestCase
         $due_date = $this->setDayOfMonth($date, '31');
 
         $this->assertEquals('2020-03-31', $due_date->format('Y-m-d'));
-
     }
 
     public function testDayOfMonthWithOverflow3()
@@ -149,7 +132,6 @@ class RecurringDueDatesTest extends TestCase
         $due_date = $this->setDayOfMonth($date, '30');
 
         $this->assertEquals('2020-02-29', $due_date->format('Y-m-d'));
-
     }
 
     public function testDayOfMonthWithOverflow4()
@@ -159,7 +141,6 @@ class RecurringDueDatesTest extends TestCase
         $due_date = $this->setDayOfMonth($date, '31');
 
         $this->assertEquals('2019-03-31', $due_date->format('Y-m-d'));
-
     }
 
     public function testDayOfMonthWithOverflow5()
@@ -169,7 +150,5 @@ class RecurringDueDatesTest extends TestCase
         $due_date = $this->setDayOfMonth($date, '31');
 
         $this->assertEquals('2019-02-28', $due_date->format('Y-m-d'));
-
     }
-
 }

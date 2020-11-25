@@ -30,11 +30,10 @@ class AccountFactory extends Factory
      */
     public function definition()
     {
-	    return [
-	        'default_company_id' => 1,
-	        'key' => Str::random(32),
-	        'report_errors' => 1,
-	    ];
+        return [
+            'default_company_id' => 1,
+            'key' => Str::random(32),
+            'report_errors' => 1,
+        ];
     }
-
 }

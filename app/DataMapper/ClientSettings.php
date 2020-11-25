@@ -11,10 +11,7 @@
 
 namespace App\DataMapper;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
 use App\Models\Client;
-use App\Utils\TranslationHelper;
 use stdClass;
 
 /**

@@ -11,17 +11,9 @@
 
 namespace App\Services\Credit;
 
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
-use App\Jobs\Customer\UpdateCustomerBalance;
-use App\Jobs\Customer\UpdateCustomerPaidToDate;
 use App\Models\Client;
 use App\Models\Credit;
-use App\Models\Invoice;
-use App\Models\Payment;
 use App\Services\AbstractService;
-use App\Services\Customer\CustomerService;
-use App\Services\Payment\PaymentService;
 use App\Utils\Traits\GeneratesCounter;
 
 class ApplyNumber extends AbstractService

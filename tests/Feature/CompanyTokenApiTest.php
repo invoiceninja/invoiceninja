@@ -10,21 +10,12 @@
  */
 namespace Tests\Feature;
 
-use App\DataMapper\DefaultSettings;
 use App\Http\Middleware\PasswordProtection;
-use App\Models\Account;
-use App\Models\Company;
 use App\Models\CompanyToken;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;

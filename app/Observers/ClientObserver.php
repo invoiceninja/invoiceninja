@@ -29,8 +29,9 @@ class ClientObserver
                                     ->where('event_id', Webhook::EVENT_CREATE_CLIENT)
                                     ->exists();
 
-        if($subscriptions)
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company);
+        }
     }
 
     /**
@@ -45,8 +46,9 @@ class ClientObserver
                                     ->where('event_id', Webhook::EVENT_UPDATE_CLIENT)
                                     ->exists();
 
-        if($subscriptions)
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CLIENT, $client, $client->company);
+        }
     }
 
     /**
@@ -61,8 +63,9 @@ class ClientObserver
                                     ->where('event_id', Webhook::EVENT_DELETE_CLIENT)
                                     ->exists();
 
-        if($subscriptions)
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_DELETE_CLIENT, $client, $client->company);
+        }
     }
 
     /**

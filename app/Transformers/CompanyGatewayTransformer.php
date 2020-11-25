@@ -12,7 +12,6 @@
 namespace App\Transformers;
 
 use App\Models\CompanyGateway;
-use App\Transformers\GatewayTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use stdClass;

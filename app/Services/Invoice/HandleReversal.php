@@ -12,10 +12,8 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasReversed;
-use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
-use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Client;
 use App\Models\Credit;
@@ -23,8 +21,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Services\AbstractService;
-use App\Services\Client\ClientService;
-use App\Services\Payment\PaymentService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 
@@ -97,8 +93,7 @@ class HandleReversal extends AbstractService
         }
 
         /*If there is a payment linked, then the credit needs to be linked back to that payment in case of refund*/
-        if($paymentables->count() > 0){
-
+        if ($paymentables->count() > 0) {
             $payment = $paymentables->first()->payment;
             $payment->credits()->save($credit);
 
@@ -110,7 +105,6 @@ class HandleReversal extends AbstractService
             //harvest the credit record and add in the amount for the credit.
             $paymentable_credit->pivot->amount = $total_paid;
             $paymentable_credit->pivot->save();
-
         }
 
         /* Set invoice balance to 0 */
@@ -136,5 +130,4 @@ class HandleReversal extends AbstractService
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
     }
-
 }

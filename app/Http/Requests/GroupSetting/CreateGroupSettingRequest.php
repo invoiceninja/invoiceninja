@@ -12,7 +12,6 @@
 namespace App\Http\Requests\GroupSetting;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\GroupSetting;
 
 class CreateGroupSettingRequest extends Request

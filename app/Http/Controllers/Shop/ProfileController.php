@@ -13,9 +13,6 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\BaseController;
 use App\Models\Company;
-use App\Models\CompanyToken;
-use App\Models\Product;
-use App\Transformers\ProductTransformer;
 use App\Transformers\Shop\CompanyShopProfileTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;

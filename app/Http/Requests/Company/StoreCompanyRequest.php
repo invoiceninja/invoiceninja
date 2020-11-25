@@ -15,7 +15,6 @@ use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Company\ValidCompanyQuantity;
 use App\Http\ValidationRules\ValidSettingsRule;
-use App\Models\ClientContact;
 use App\Models\Company;
 use App\Utils\Traits\MakesHash;
 

@@ -13,11 +13,9 @@ namespace App\Models;
 
 use App\Events\Credit\CreditWasUpdated;
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Models\Invoice;
 use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;

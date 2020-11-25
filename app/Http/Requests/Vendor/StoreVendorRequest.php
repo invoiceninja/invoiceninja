@@ -11,13 +11,10 @@
 
 namespace App\Http\Requests\Vendor;
 
-use App\DataMapper\VendorSettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidVendorGroupSettingsRule;
 use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 
 class StoreVendorRequest extends Request
 {

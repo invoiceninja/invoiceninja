@@ -13,7 +13,6 @@ namespace App\Http\Requests\CompanyGateway;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
-use App\Models\Company;
 use App\Models\Gateway;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 

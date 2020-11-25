@@ -18,5 +18,4 @@ use App\Models\Project;
  */
 class ProjectRepository extends BaseRepository
 {
-
 }

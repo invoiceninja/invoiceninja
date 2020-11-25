@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Activity;
 
 use App\Http\Requests\Request;
-use App\Models\Activity;
 
 class DownloadHistoricalEntityRequest extends Request
 {

@@ -11,9 +11,7 @@
 
 namespace App\Http\ValidationRules\Expense;
 
-use App\Libraries\MultiDB;
 use App\Models\Expense;
-use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
@@ -51,8 +49,9 @@ class UniqueExpenseNumberRule implements Rule
      */
     private function checkIfExpenseNumberUnique() : bool
     {
-        if(empty($this->input['number']))
+        if (empty($this->input['number'])) {
             return true;
+        }
 
         $expense = Expense::query()
                           ->where('number', $this->input['number'])

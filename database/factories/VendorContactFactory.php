@@ -10,10 +10,8 @@
  */
 namespace Database\Factories;
 
-
 use App\Models\VendorContact;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class VendorContactFactory extends Factory
 {
@@ -31,11 +29,11 @@ class VendorContactFactory extends Factory
      */
     public function definition()
     {
-	    return [
-	        'first_name' => $this->faker->firstName,
-	        'last_name' => $this->faker->lastName,
-	        'phone' => $this->faker->phoneNumber,
-	        'email' => $this->faker->unique()->safeEmail,
-	    ];
-	}
+        return [
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
+            'phone' => $this->faker->phoneNumber,
+            'email' => $this->faker->unique()->safeEmail,
+        ];
+    }
 }

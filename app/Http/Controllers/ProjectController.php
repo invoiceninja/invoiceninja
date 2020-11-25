@@ -19,17 +19,14 @@ use App\Http\Requests\Project\EditProjectRequest;
 use App\Http\Requests\Project\ShowProjectRequest;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
-use App\Jobs\Entity\ActionEntity;
 use App\Models\Project;
 use App\Repositories\ProjectRepository;
 use App\Transformers\ProjectTransformer;
-use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Class ProjectController.
@@ -363,7 +360,7 @@ class ProjectController extends BaseController
         $project->fill($request->all());
         $project->save();
 
-        if(empty($project->number)){
+        if (empty($project->number)) {
             $project->number = $this->getNextProjectNumber($project);
             $project->save();
         }

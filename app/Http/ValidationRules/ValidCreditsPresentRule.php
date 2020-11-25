@@ -11,9 +11,7 @@
 
 namespace App\Http\ValidationRules;
 
-use App\Libraries\MultiDB;
 use App\Models\Credit;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 
@@ -60,7 +58,6 @@ class ValidCreditsPresentRule implements Rule
 
 
         if (request()->input('credits') && is_array(request()->input('credits'))) {
-
             $credit_collection = Credit::whereIn('id', $this->transformKeys(array_column(request()->input('credits'), 'credit_id')))
                                        ->where('balance', '>', 0)
                                        ->get();

@@ -11,9 +11,6 @@
 
 namespace App\Repositories\Migration;
 
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\CreditFactory;
-use App\Jobs\Credit\ApplyCreditPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Activity;
 use App\Models\Client;
@@ -89,13 +86,13 @@ class PaymentMigrationRepository extends BaseRepository
         $payment->fill($data);
         //$payment->status_id = Payment::STATUS_COMPLETED;
         
-        if(!array_key_exists('status_id', $data)){
+        if (!array_key_exists('status_id', $data)) {
             info("payment with no status id?");
-            info(print_r($data,1));
+            info(print_r($data, 1));
         }
 
         $payment->status_id = $data['status_id'];
-        $payment->deleted_at = $data['deleted_at'] ?: NULL;
+        $payment->deleted_at = $data['deleted_at'] ?: null;
         $payment->save();
 
         /*Ensure payment number generated*/

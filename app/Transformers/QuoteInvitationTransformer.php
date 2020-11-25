@@ -11,7 +11,6 @@
 
 namespace App\Transformers;
 
-use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Utils\Traits\MakesHash;
 

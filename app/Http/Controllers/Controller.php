@@ -11,7 +11,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;

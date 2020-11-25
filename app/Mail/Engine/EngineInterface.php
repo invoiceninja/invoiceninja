@@ -13,7 +13,6 @@ namespace App\Mail\Engine;
 
 interface EngineInterface
 {
-
     public function setFooter($footer);
 
     public function setVariables($variables);
@@ -47,5 +46,4 @@ interface EngineInterface
     public function getViewText();
 
     public function build();
-
 }

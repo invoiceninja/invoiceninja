@@ -15,15 +15,15 @@ use App\DataMapper\EmailTemplateDefaults;
 use App\Utils\HtmlEngine;
 use App\Utils\Number;
 
-class InvoiceEmailEngine extends BaseEmailEngine 
+class InvoiceEmailEngine extends BaseEmailEngine
 {
-	public $invitation;
+    public $invitation;
 
-	public $client;
+    public $client;
 
-	public $invoice;
+    public $invoice;
 
-	public $contact;
+    public $contact;
 
     public $reminder_template;
 
@@ -31,7 +31,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
     public function __construct($invitation, $reminder_template, $template_data)
     {
-    	$this->invitation = $invitation;
+        $this->invitation = $invitation;
         $this->reminder_template = $reminder_template;
         $this->client = $invitation->contact->client;
         $this->invoice = $invitation->invoice;
@@ -41,12 +41,11 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
     public function build()
     {
-
-        if(is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0)
+        if (is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
-        elseif(strlen($this->client->getSetting('email_template_'.$this->reminder_template)) > 0)
+        } elseif (strlen($this->client->getSetting('email_template_'.$this->reminder_template)) > 0) {
             $body_template = $this->client->getSetting('email_template_'.$this->reminder_template);
-        else{
+        } else {
             $body_template = EmailTemplateDefaults::getDefaultTemplate('email_template_'.$this->reminder_template, $this->client->locale());
         }
 
@@ -64,22 +63,19 @@ class InvoiceEmailEngine extends BaseEmailEngine
             );
         }
 
-        if(is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0){
+        if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
             info("subject = template data");
-        }
-        elseif(strlen($this->client->getSetting('email_subject_'.$this->reminder_template)) > 0){
+        } elseif (strlen($this->client->getSetting('email_subject_'.$this->reminder_template)) > 0) {
             $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
             info("subject = settings var");
-        }
-        else{
+        } else {
             info("subject = default template " . 'email_subject_'.$this->reminder_template);
             $subject_template = EmailTemplateDefaults::getDefaultTemplate('email_subject_'.$this->reminder_template, $this->client->locale());
-           // $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
+            // $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
         }
 
         if (iconv_strlen($subject_template) == 0) {
-
             $subject_template = trans(
                 'texts.invoice_subject',
                 [
@@ -89,7 +85,6 @@ class InvoiceEmailEngine extends BaseEmailEngine
                 null,
                 $this->client->locale()
             );
-        
         }
 
         $this->setTemplate($this->client->getSetting('email_style'))
@@ -106,8 +101,5 @@ class InvoiceEmailEngine extends BaseEmailEngine
         }
 
         return $this;
-
     }
-
 }
-

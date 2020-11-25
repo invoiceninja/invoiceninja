@@ -11,15 +11,9 @@
 
 namespace App\Models;
 
-use App\Models\Company;
-use App\Models\Language;
 use App\Models\Presenters\ClientContactPresenter;
-use App\Models\User;
-use App\Notifications\ClientContactResetPassword as ResetPasswordNotification;
 use App\Notifications\ClientContactResetPassword;
 use App\Utils\Traits\MakesHash;
-use Hashids\Hashids;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,7 +21,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 
 class ClientContact extends Authenticatable implements HasLocalePreference
@@ -185,7 +178,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
      * @param null $field
      * @return Model|null
      */
-    public function resolveRouteBinding($value, $field = NULL)
+    public function resolveRouteBinding($value, $field = null)
     {
         return $this
             ->withTrashed()
@@ -212,11 +205,8 @@ class ClientContact extends Authenticatable implements HasLocalePreference
      */
     public function getLoginLink()
     {
-
         $domain = isset($this->company->portal_domain) ?: $this->company->domain();
 
         return $domain . 'client/key_login/' . $this->contact_key;
-
     }
-
 }

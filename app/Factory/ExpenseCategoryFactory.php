@@ -11,10 +11,7 @@
 
 namespace App\Factory;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
 use App\Models\ExpenseCategory;
-use Illuminate\Support\Facades\Log;
 
 class ExpenseCategoryFactory
 {

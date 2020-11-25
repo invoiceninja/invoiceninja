@@ -11,9 +11,7 @@
 
 namespace App\Http\ValidationRules;
 
-use App\Libraries\MultiDB;
 use App\Models\Payment;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 

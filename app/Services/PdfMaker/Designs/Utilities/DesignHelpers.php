@@ -98,7 +98,7 @@ trait DesignHelpers
      *
      * Logic below will help us calculate that & inject the result in the
      * global state of the $context (design state).
-     * 
+     *
      * @param string $type "product" or "task"
      * @return void
      */

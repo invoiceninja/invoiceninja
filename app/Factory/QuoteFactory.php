@@ -11,11 +11,7 @@
 
 namespace App\Factory;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use App\Models\Client;
 use App\Models\Quote;
-use Illuminate\Support\Facades\Log;
 
 class QuoteFactory
 {

@@ -12,8 +12,8 @@
 
 namespace App\Http\Requests\Credit;
 
-use App\Models\Credit;
 use App\Http\Requests\Request;
+use App\Models\Credit;
 
 class CreateCreditRequest extends Request
 {

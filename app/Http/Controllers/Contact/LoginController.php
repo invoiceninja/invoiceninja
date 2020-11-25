@@ -19,12 +19,10 @@ use App\Libraries\OAuth\OAuth;
 use App\Models\ClientContact;
 use App\Models\User;
 use App\Transformers\ClientContactLoginTransformer;
-use App\Transformers\UserTransformer;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends BaseController

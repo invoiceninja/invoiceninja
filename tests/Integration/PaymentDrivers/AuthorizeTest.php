@@ -10,10 +10,6 @@
  */
 namespace Tests\Integration\PaymentDrivers;
 
-use App\Factory\PaymentFactory;
-use App\Models\CompanyGateway;
-use App\PaymentDrivers\AuthorizePaymentDriver;
-use net\authorize\api\constants\ANetEnvironment;
 use net\authorize\api\contract\v1 as AnetAPI;
 use net\authorize\api\contract\v1\CreateCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
@@ -24,8 +20,6 @@ use net\authorize\api\contract\v1\CustomerProfilePaymentType;
 use net\authorize\api\contract\v1\CustomerProfileType;
 use net\authorize\api\contract\v1\GetCustomerProfileIdsRequest;
 use net\authorize\api\contract\v1\GetCustomerProfileRequest;
-use net\authorize\api\contract\v1\GetMerchantDetailsRequest;
-use net\authorize\api\contract\v1\MerchantAuthenticationType;
 use net\authorize\api\contract\v1\PaymentProfileType;
 use net\authorize\api\contract\v1\PaymentType;
 use net\authorize\api\contract\v1\TransactionRequestType;
@@ -179,7 +173,7 @@ class AuthorizeTest extends TestCase
         if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
             info('Succesfully created customer profile : '.$response->getCustomerProfileId()."\n");
             $paymentProfiles = $response->getCustomerPaymentProfileIdList();
-            // info(print_r($paymentProfiles, 1));
+        // info(print_r($paymentProfiles, 1));
         } else {
             info("ERROR :  Invalid response\n");
             $errorMessages = $response->getMessages()->getMessage();
@@ -276,11 +270,11 @@ class AuthorizeTest extends TestCase
         $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
 
         if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
-         //   info('Create Customer Payment Profile SUCCESS: '.$response->getCustomerPaymentProfileId()."\n");
+            //   info('Create Customer Payment Profile SUCCESS: '.$response->getCustomerPaymentProfileId()."\n");
         } else {
-        //    info("Create Customer Payment Profile: ERROR Invalid response\n");
+            //    info("Create Customer Payment Profile: ERROR Invalid response\n");
             $errorMessages = $response->getMessages()->getMessage();
-        //    info('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText()."\n");
+            //    info('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText()."\n");
         }
 
         $this->assertNotNull($response);
@@ -353,6 +347,5 @@ class AuthorizeTest extends TestCase
         $this->assertNotNull($response);
 
         $this->assertNotNull($tresponse);
-
     }
 }

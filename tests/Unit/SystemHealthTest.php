@@ -11,7 +11,6 @@
 namespace Tests\Unit;
 
 use App\Utils\SystemHealth;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**

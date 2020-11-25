@@ -11,9 +11,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Designs\Custom;
 use App\Designs\Designer;
-use App\Factory\InvoiceFactory;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -26,7 +24,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Storage;
 
 class PreviewController extends BaseController
 {

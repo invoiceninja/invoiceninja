@@ -36,8 +36,6 @@ class ProjectIdsToEntities extends Migration
             $table->boolean('mark_expenses_paid')->default(0);
             $table->enum('use_credits_payment', ['always', 'off', 'option'])->default('off');
         });
-        
-
     }
 
     /**

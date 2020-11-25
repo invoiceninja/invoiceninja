@@ -10,12 +10,7 @@
  */
 namespace Tests\Integration;
 
-use App\Models\Account;
-use App\Models\Company;
 use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\User;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;

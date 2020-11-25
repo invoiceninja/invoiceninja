@@ -10,28 +10,19 @@
  */
 namespace Tests\Feature;
 
-use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
-use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Factory\InvoiceInvitationFactory;
-use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\UserSessionAttributes;
-use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 

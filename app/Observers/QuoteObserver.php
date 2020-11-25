@@ -29,8 +29,9 @@ class QuoteObserver
                         ->where('event_id', Webhook::EVENT_CREATE_QUOTE)
                         ->exists();
 
-        if($subscriptions)
-        WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company);
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company);
+        }
     }
 
     /**
@@ -45,8 +46,9 @@ class QuoteObserver
                         ->where('event_id', Webhook::EVENT_UPDATE_QUOTE)
                         ->exists();
 
-        if($subscriptions)
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote, $quote->company);
+        }
     }
 
     /**
@@ -61,8 +63,9 @@ class QuoteObserver
                         ->where('event_id', Webhook::EVENT_DELETE_QUOTE)
                         ->exists();
 
-        if($subscriptions)
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_DELETE_QUOTE, $quote, $quote->company);
+        }
     }
 
     /**

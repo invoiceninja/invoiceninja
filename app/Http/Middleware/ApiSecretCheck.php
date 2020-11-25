@@ -11,7 +11,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use stdClass;
@@ -27,9 +26,9 @@ class ApiSecretCheck
      */
     public function handle($request, Closure $next)
     {
-
-        if(! config('ninja.api_secret'))
+        if (! config('ninja.api_secret')) {
             return $next($request);
+        }
 
         if ($request->header('X-API-SECRET') && ($request->header('X-API-SECRET') == config('ninja.api_secret'))) {
             return $next($request);

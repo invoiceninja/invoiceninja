@@ -11,7 +11,6 @@
 
 namespace App\Http\ValidationRules\Ninja;
 
-use App\Models\Company;
 use Illuminate\Contracts\Validation\Rule;
 
 /**

@@ -11,11 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\Client;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\GatewayType;
-use App\Models\User;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
 
@@ -71,7 +66,7 @@ class ClientGatewayToken extends BaseModel
      * @param null $field
      * @return Model|null
      */
-    public function resolveRouteBinding($value, $field = NULL)
+    public function resolveRouteBinding($value, $field = null)
     {
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();

@@ -13,7 +13,6 @@ namespace App\Http\Requests\ClientPortal;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
-use Zend\Diactoros\Response\JsonResponse;
 
 class UpdateContactRequest extends Request
 {

@@ -11,16 +11,11 @@
 
 namespace App\Http\Requests\Client;
 
-use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\IsDeletedRule;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
-use App\Http\ValidationRules\ValidSettingsRule;
-use App\Utils\Ninja;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class UpdateClientRequest extends Request
 {

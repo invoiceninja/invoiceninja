@@ -10,9 +10,6 @@
  */
 namespace Tests\Unit\Shop;
 
-use App\Factory\InvoiceFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;

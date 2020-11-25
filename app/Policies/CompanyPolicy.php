@@ -13,7 +13,6 @@ namespace App\Policies;
 
 use App\Models\Company;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class CompanyPolicy.

@@ -11,10 +11,7 @@
 
 namespace App\Http\ValidationRules\Recurring;
 
-use App\Libraries\MultiDB;
-use App\Models\Invoice;
 use App\Models\RecurringInvoice;
-use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
@@ -52,8 +49,9 @@ class UniqueRecurringInvoiceNumberRule implements Rule
      */
     private function checkIfInvoiceNumberUnique() : bool
     {
-        if(empty($this->input['number']))
+        if (empty($this->input['number'])) {
             return true;
+        }
 
         $invoice = RecurringInvoice::where('client_id', $this->input['client_id'])
                         ->where('number', $this->input['number'])

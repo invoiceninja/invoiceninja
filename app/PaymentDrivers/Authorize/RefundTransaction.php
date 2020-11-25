@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\Authorize;
 
 use App\Models\Payment;
-use App\PaymentDrivers\Authorize\AuthorizeTransactions;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\CustomerProfilePaymentType;

@@ -19,7 +19,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
-use App\Services\Payment\PaymentService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 
@@ -75,8 +74,9 @@ class MarkPaid extends AbstractService
                 ->applyNumber()
                 ->save();
 
-        if($this->invoice->client->getSetting('client_manual_payment_notification'))
+        if ($this->invoice->client->getSetting('client_manual_payment_notification')) {
             EmailPayment::dispatch($payment, $payment->company, $payment->client->primary_contact()->first());
+        }
         
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));

@@ -11,14 +11,9 @@
 
 namespace App\Jobs\Company;
 
-use App\DataMapper\CompanySettings;
-use App\Events\UserSignedUp;
-use App\Models\Company;
-use App\Models\PaymentTerm;
 use App\Models\TaskStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
 
 class CreateCompanyTaskStatuses
 {

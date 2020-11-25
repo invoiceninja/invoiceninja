@@ -14,7 +14,6 @@ namespace App\Services\Invoice;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
-use App\Services\Client\ClientService;
 
 class ApplyPayment extends AbstractService
 {

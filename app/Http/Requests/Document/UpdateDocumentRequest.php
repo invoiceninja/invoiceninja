@@ -12,9 +12,7 @@
 namespace App\Http\Requests\Document;
 
 use App\Http\Requests\Request;
-use App\Models\Document;
 use App\Utils\Traits\ChecksEntityStatus;
-use Illuminate\Support\Facades\Log;
 
 class UpdateDocumentRequest extends Request
 {

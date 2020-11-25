@@ -10,10 +10,8 @@
  */
 namespace Database\Factories;
 
-
 use App\Models\Task;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class TaskFactory extends Factory
 {
@@ -30,10 +28,10 @@ class TaskFactory extends Factory
      * @return array
      */
     public function definition()
-	    {
-	    return [
-	        'description' => $this->faker->text(50),
+    {
+        return [
+            'description' => $this->faker->text(50),
             'invoice_id' => null,
-	    ];
-	}
+        ];
+    }
 }

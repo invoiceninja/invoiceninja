@@ -10,7 +10,6 @@
  */
 namespace Tests\Pdf;
 
-use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 use Tests\TestCase;
 

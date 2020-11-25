@@ -123,7 +123,6 @@ class SystemHealth
 
     private static function checkPhpCli()
     {
-
         try {
             exec('php -v', $foo, $exitCode);
 
@@ -133,7 +132,6 @@ class SystemHealth
         } catch (Exception $e) {
             return false;
         }
-
     }
 
     private static function extensions() :array

@@ -11,13 +11,9 @@
 
 namespace App\Repositories;
 
-use App\Factory\CreditInvitationFactory;
-use App\Models\ClientContact;
-use App\Models\Company;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 
 /**
  * CreditRepository.

@@ -11,7 +11,6 @@
 
 namespace App\Transformers;
 
-use App\Models\Document;
 use App\Models\ExpenseCategory;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;

@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Webhook;
 
 use App\Http\Requests\Request;
-use App\Models\Vendor;
 
 class EditWebhookRequest extends Request
 {

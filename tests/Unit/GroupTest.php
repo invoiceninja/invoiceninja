@@ -12,7 +12,6 @@ namespace Tests\Unit;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**

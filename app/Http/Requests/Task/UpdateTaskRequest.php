@@ -12,11 +12,8 @@
 namespace App\Http\Requests\Task;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\IsDeletedRule;
-use App\Http\ValidationRules\ValidTaskGroupSettingsRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class UpdateTaskRequest extends Request
@@ -38,15 +35,16 @@ class UpdateTaskRequest extends Request
     {
         $rules = [];
 
-        if(isset($this->number))
+        if (isset($this->number)) {
             $rules['number'] = Rule::unique('tasks')->where('company_id', auth()->user()->company()->id)->ignore($this->task->id);
+        }
 
         return $this->globalRules($rules);
     }
 
     protected function prepareForValidation()
     {
-        $input = $this->decodePrimaryKeys($this->all()); 
+        $input = $this->decodePrimaryKeys($this->all());
 
         if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);

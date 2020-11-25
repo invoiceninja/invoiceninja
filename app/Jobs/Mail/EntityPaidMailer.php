@@ -11,21 +11,14 @@
 
 namespace App\Jobs\Mail;
 
-use App\Jobs\Util\SystemLogger;
-use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\EntityPaidObject;
-use App\Mail\Admin\EntitySentObject;
-use App\Models\SystemLog;
-use App\Models\User;
-use App\Providers\MailServiceProvider;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 
 /*Multi Mailer implemented*/
@@ -72,8 +65,9 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
     public function handle()
     {
         /*If we are migrating data we don't want to fire these notification*/
-        if ($this->company->is_disabled) 
+        if ($this->company->is_disabled) {
             return true;
+        }
           
         //Set DB
         MultiDB::setDb($this->company->db);
@@ -82,18 +76,15 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver();
 
         try {
-
             $mail_obj = (new EntityPaidObject($this->payment))->build();
             $mail_obj->from = [$this->user->email, $this->user->present()->name()];
 
             //send email
             Mail::to($this->user->email)
                 ->send(new EntityNotificationMailer($mail_obj));
-
         } catch (\Exception $e) {
             $this->failed($e);
             $this->logMailError($e->getMessage(), $this->payment->client);
         }
-
     }
 }

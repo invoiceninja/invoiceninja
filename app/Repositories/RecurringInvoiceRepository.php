@@ -13,14 +13,12 @@ namespace App\Repositories;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\RecurringInvoice;
-use Illuminate\Http\Request;
 
 /**
  * RecurringInvoiceRepository.
  */
 class RecurringInvoiceRepository extends BaseRepository
 {
-
     public function save($data, RecurringInvoice $invoice) : ?RecurringInvoice
     {
         $invoice->fill($data);

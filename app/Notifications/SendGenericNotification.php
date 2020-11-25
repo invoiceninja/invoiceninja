@@ -11,17 +11,14 @@
 
 namespace App\Notifications;
 
-use App\Jobs\Invoice\CreateUbl;
 use App\Models\Invoice;
 use App\Utils\Number;
-use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 class SendGenericNotification extends BaseNotification implements ShouldQueue

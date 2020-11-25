@@ -12,19 +12,13 @@ namespace Tests\Feature;
 
 use App\DataMapper\CompanySettings;
 use App\Models\Account;
-use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
-use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
-use Tests\TestCase;
 use Illuminate\Validation\ValidationException;
+use Tests\TestCase;
 
 /**
  * @test
@@ -142,7 +136,7 @@ class LoginTest extends TestCase
 
     public function testApiLogin()
     {
-        Account::all()->each(function ($account){
+        Account::all()->each(function ($account) {
             $account->delete();
         });
 
@@ -190,19 +184,18 @@ class LoginTest extends TestCase
             'password' => '123456',
         ];
 
-        try{
-        $response = $this->withHeaders([
+        try {
+            $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             ])->post('/api/v1/login', $data);
-
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            info(print_r($message,1));
+            info(print_r($message, 1));
         }
 
         $arr = $response->json();
 
-        info(print_r($arr,1));
+        info(print_r($arr, 1));
         
         $response->assertStatus(200);
     }

@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
-use App\Models\Client;
 
 class EditClientRequest extends Request
 {

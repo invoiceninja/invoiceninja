@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\Authorize;
 
 use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -21,13 +20,9 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
-use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
-use App\PaymentDrivers\Authorize\ChargePaymentProfile;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Carbon;
 
 /**
  * Class AuthorizeCreditCard.
@@ -136,8 +131,7 @@ class AuthorizeCreditCard
         $response = $data['response'];
 
         if ($response != null && $response->getMessages()->getResultCode() == 'Ok') {
-
-           $this->authorize->confirmGatewayFee($request);
+            $this->authorize->confirmGatewayFee($request);
 
             return $this->processSuccessfulResponse($data, $request);
         }

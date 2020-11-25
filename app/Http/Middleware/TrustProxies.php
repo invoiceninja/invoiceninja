@@ -12,8 +12,8 @@
 namespace App\Http\Middleware;
 
 use Fideloper\Proxy\TrustProxies as Middleware;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Http\Request;
 
 class TrustProxies extends Middleware
 {
@@ -36,12 +36,12 @@ class TrustProxies extends Middleware
      *
      * @param \Illuminate\Contracts\Config\Repository $config
      */
-    public function __construct(Repository $config) {
+    public function __construct(Repository $config)
+    {
+        parent::__construct($config);
     
-       parent::__construct($config);
-    
-       if (config('ninja.trusted_proxies'))
-           $this->proxies = config('ninja.trusted_proxies');
-    
+        if (config('ninja.trusted_proxies')) {
+            $this->proxies = config('ninja.trusted_proxies');
+        }
     }
 }

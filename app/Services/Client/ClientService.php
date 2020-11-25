@@ -47,7 +47,6 @@ class ClientService
 
     public function getCreditBalance() :float
     {
-
         $credits = $this->client->credits
                       ->where('is_deleted', false)
                       ->where('balance', '>', 0)
@@ -58,12 +57,10 @@ class ClientService
 
     public function getCredits() :Collection
     {
-
         return $this->client->credits
                   ->where('is_deleted', false)
                   ->where('balance', '>', 0)
                   ->sortBy('created_at');
-
     }
 
 

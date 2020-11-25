@@ -13,7 +13,6 @@ namespace App\Repositories;
 
 use App\DataMapper\CompanySettings;
 use App\Events\User\UserWasDeleted;
-use App\Factory\CompanyUserFactory;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Utils\Ninja;
@@ -62,8 +61,9 @@ class UserRepository extends BaseRepository
 
         $user->fill($details);
 
-        if(!$user->confirmation_code)
+        if (!$user->confirmation_code) {
             $user->confirmation_code = $this->createDbHash(config('database.default'));
+        }
 
         $user->account_id = $account->id;
         $user->save();
@@ -95,7 +95,6 @@ class UserRepository extends BaseRepository
 
     public function destroy(array $data, User $user)
     {
-
         if (array_key_exists('company_user', $data)) {
             $this->forced_includes = 'company_users';
 
@@ -121,7 +120,6 @@ class UserRepository extends BaseRepository
      */
     public function delete($user)
     {
-
         $company = auth()->user()->company();
 
         $cu = CompanyUser::whereUserId($user->id)

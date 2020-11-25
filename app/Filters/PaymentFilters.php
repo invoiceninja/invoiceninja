@@ -13,7 +13,6 @@ namespace App\Filters;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Log;
 
 /**
  * PaymentFilters.

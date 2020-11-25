@@ -19,7 +19,6 @@ use App\Http\Requests\Product\EditProductRequest;
 use App\Http\Requests\Product\ShowProductRequest;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
-use App\Jobs\Entity\ActionEntity;
 use App\Models\Product;
 use App\Repositories\ProductRepository;
 use App\Transformers\ProductTransformer;

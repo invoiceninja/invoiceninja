@@ -13,7 +13,7 @@ class SoftDeletePaymentables extends Migration
      */
     public function up()
     {
-        Schema::table('paymentables', function(Blueprint $table){
+        Schema::table('paymentables', function (Blueprint $table) {
             $table->softDeletes('deleted_at', 6);
         });
     }

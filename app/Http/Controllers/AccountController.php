@@ -12,16 +12,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Account\CreateAccountRequest;
-use App\Http\Requests\SignupRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
 use App\Models\CompanyUser;
-use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyUserTransformer;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 
 class AccountController extends BaseController
 {

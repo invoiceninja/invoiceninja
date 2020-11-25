@@ -12,7 +12,6 @@ namespace Database\Factories;
 
 use App\Models\ExpenseCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class ExpenseCategoryFactory extends Factory
 {

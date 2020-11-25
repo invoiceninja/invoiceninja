@@ -12,10 +12,10 @@
 
 namespace App\Http\Requests\Credit;
 
+use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use App\Http\Requests\Request;
 
 class UpdateCreditRequest extends Request
 {

@@ -14,9 +14,6 @@ namespace App\Http\Requests\GroupSetting;
 use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
-use App\Utils\Ninja;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 
 class UpdateGroupSettingRequest extends Request
 {

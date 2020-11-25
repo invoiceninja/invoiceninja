@@ -11,13 +11,8 @@
 
 namespace App\Services\Payment;
 
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
-use App\Models\Client;
 use App\Models\Payment;
 use App\Services\AbstractService;
-use App\Services\Client\ClientService;
-use App\Services\Payment\PaymentService;
 use App\Utils\Traits\GeneratesCounter;
 
 class ApplyNumber extends AbstractService

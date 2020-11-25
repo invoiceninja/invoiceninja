@@ -11,7 +11,6 @@
 
 namespace App\Policies;
 
-use App\Models\Quote;
 use App\Models\User;
 
 /**

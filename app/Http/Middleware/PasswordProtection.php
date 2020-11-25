@@ -11,8 +11,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Libraries\MultiDB;
-use App\Models\CompanyToken;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;

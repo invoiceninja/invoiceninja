@@ -14,7 +14,6 @@ namespace App\PaymentDrivers\Stripe;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Util\SystemLogger;
-use App\Models\Gateway;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;

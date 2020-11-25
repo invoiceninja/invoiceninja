@@ -10,7 +10,6 @@
  */
 namespace Database\Seeders;
 
-
 use App\Models\Design;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use Illuminate\Database\Eloquent\Model;

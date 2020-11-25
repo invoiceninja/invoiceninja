@@ -11,8 +11,6 @@
 
 namespace App\Utils;
 
-use App\Models\Account;
-use App\Utils\CurlUtils;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -128,15 +126,14 @@ class Ninja
 
         $trans = (array)$settings->translations;
 
-        if(count($trans) == 0)
+        if (count($trans) == 0) {
             return $translations;
+        }
 
-        foreach($trans as $key => $value)
-        {
-            $translations['texts.'.$key] = $value;  
+        foreach ($trans as $key => $value) {
+            $translations['texts.'.$key] = $value;
         }
 
         return $translations;
-
     }
 }

@@ -12,7 +12,6 @@
 namespace App\Http\Requests\TaskStatus;
 
 use App\Http\Requests\Request;
-use App\Models\Payment;
 
 class ActionTaskStatusRequest extends Request
 {

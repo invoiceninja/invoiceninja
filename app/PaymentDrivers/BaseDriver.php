@@ -26,7 +26,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
-use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
@@ -239,13 +238,11 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function unWindGatewayFees(PaymentHash $payment_hash)
     {
-
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->get();
 
         $invoices->each(function ($invoice) {
             $invoice->service()->removeUnpaidGatewayFees();
         });
-
     }
 
     /**

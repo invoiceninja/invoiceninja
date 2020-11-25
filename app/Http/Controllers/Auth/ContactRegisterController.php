@@ -7,7 +7,6 @@ use App\Factory\ClientFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\RegisterRequest;
 use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Company;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

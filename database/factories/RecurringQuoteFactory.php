@@ -10,10 +10,8 @@
  */
 namespace Database\Factories;
 
-use App\Models\QuoteInvitation;
 use App\Models\RecurringQuote;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class RecurringQuoteFactory extends Factory
 {
@@ -30,8 +28,8 @@ class RecurringQuoteFactory extends Factory
      * @return array
      */
     public function definition()
-        {
-            return [
+    {
+        return [
                 'status_id' => RecurringQuote::STATUS_DRAFT,
                 'number' => $this->faker->text(256),
                 'discount' => $this->faker->numberBetween(1, 10),
@@ -57,5 +55,5 @@ class RecurringQuoteFactory extends Factory
                 'next_send_date' => $this->faker->date(),
                 'remaining_cycles' => $this->faker->numberBetween(1, 10),
             ];
-        }
+    }
 }

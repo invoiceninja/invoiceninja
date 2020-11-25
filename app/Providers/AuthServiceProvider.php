@@ -61,7 +61,6 @@ use App\Policies\TaxRatePolicy;
 use App\Policies\UserPolicy;
 use App\Policies\VendorPolicy;
 use App\Policies\WebhookPolicy;
-use Auth;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 

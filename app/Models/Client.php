@@ -13,38 +13,15 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\Factory\CompanyLedgerFactory;
-use App\Factory\CreditFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\QuoteFactory;
-use App\Models\Activity;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\Country;
-use App\Models\Credit;
-use App\Models\Currency;
-use App\Models\DateFormat;
-use App\Models\DatetimeFormat;
-use App\Models\Filterable;
-use App\Models\GatewayType;
-use App\Models\GroupSetting;
-use App\Models\Invoice;
-use App\Models\Language;
 use App\Models\Presenters\ClientPresenter;
-use App\Models\Quote;
-use App\Models\Timezone;
-use App\Models\User;
 use App\Services\Client\ClientService;
-use App\Utils\Traits\CompanyGatewaySettings;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Exception;
-use Hashids\Hashids;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\URL;
 use Laracasts\Presenter\PresentableTrait;
 
 class Client extends BaseModel implements HasLocalePreference
@@ -243,7 +220,6 @@ class Client extends BaseModel implements HasLocalePreference
         return $date_formats->filter(function ($item) {
             return $item->id == $this->getSetting('date_format_id');
         })->first()->format;
-
     }
 
     public function currency()
@@ -384,7 +360,7 @@ class Client extends BaseModel implements HasLocalePreference
                                  return array_search($model->id, $transformed_ids);
                              });
         } else {
-            $gateways = $this->company->company_gateways; 
+            $gateways = $this->company->company_gateways;
         }
 
         foreach ($gateways as $gateway) {
@@ -472,7 +448,6 @@ class Client extends BaseModel implements HasLocalePreference
 
         //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
         if ($company_gateways || $company_gateways == '0') {
-
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
             $gateways = $this->company
                              ->company_gateways
@@ -488,21 +463,13 @@ class Client extends BaseModel implements HasLocalePreference
 
         foreach ($gateways as $gateway) {
             foreach ($gateway->driver($this)->gatewayTypes() as $type) {
-
-                if(isset($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type))
-                {
-
-                    if($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $amount))
+                if (isset($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {
+                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $amount)) {
                         $payment_methods[] = [$gateway->id => $type];
-
-                }
-                else
-                {
-
+                    }
+                } else {
                     $payment_methods[] = [$gateway->id => $type];
-
                 }
-
             }
         }
 
@@ -527,8 +494,8 @@ class Client extends BaseModel implements HasLocalePreference
             }
         }
 
-        if(($this->getSetting('use_credits_payment') == 'option' || $this->getSetting('use_credits_payment') == 'always') && $this->service()->getCreditBalance() > 0) {
-                $payment_urls[] = [
+        if (($this->getSetting('use_credits_payment') == 'option' || $this->getSetting('use_credits_payment') == 'always') && $this->service()->getCreditBalance() > 0) {
+            $payment_urls[] = [
                     'label' => ctrans('texts.apply_credit'),
                     'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
                     'gateway_type_id' => GatewayType::CREDIT,
@@ -540,21 +507,21 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function validGatewayForAmount($fees_and_limits_for_payment_type, $amount) :bool
     {
-            if (isset($fees_and_limits_for_payment_type)) {
-                $fees_and_limits = $fees_and_limits_for_payment_type;
-            } else {
-                return true;
-            }
-
-            if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && $amount < $fees_and_limits->min_limit) {
-                return false;
-            }
-
-            if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $fees_and_limits->max_limit != -1 && $amount > $fees_and_limits->max_limit) {
-                return false;
-            }
-
+        if (isset($fees_and_limits_for_payment_type)) {
+            $fees_and_limits = $fees_and_limits_for_payment_type;
+        } else {
             return true;
+        }
+
+        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && $amount < $fees_and_limits->min_limit) {
+            return false;
+        }
+
+        if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $fees_and_limits->max_limit != -1 && $amount > $fees_and_limits->max_limit) {
+            return false;
+        }
+
+        return true;
     }
 
     public function preferredLocale()

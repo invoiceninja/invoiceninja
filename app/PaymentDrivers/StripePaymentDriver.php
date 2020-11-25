@@ -12,20 +12,16 @@
 
 namespace App\PaymentDrivers;
 
-use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Http\Requests\Request;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
-use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
@@ -383,20 +379,19 @@ class StripePaymentDriver extends BaseDriver
     }
 
     /**
-     * Attach Stripe payment method to Stripe client. 
-     * 
-     * @param string $payment_method 
-     * @param mixed $customer 
-     * 
-     * @return void 
+     * Attach Stripe payment method to Stripe client.
+     *
+     * @param string $payment_method
+     * @param mixed $customer
+     *
+     * @return void
      */
     public function attach(string $payment_method, $customer): void
     {
         try {
             $stripe_payment_method = $this->getStripePaymentMethod($payment_method);
             $stripe_payment_method->attach(['customer' => $customer->id]);
-        }
-        catch(\Stripe\Exception\ApiErrorException | \Exception $e) {
+        } catch (\Stripe\Exception\ApiErrorException | \Exception $e) {
             $this->processInternallyFailedPayment($this, $e);
         }
     }
@@ -430,10 +425,10 @@ class StripePaymentDriver extends BaseDriver
 
     /**
      * Retrieve payment method from Stripe.
-     * 
-     * @param string $source 
      *
-     * @return \Stripe\PaymentMethod|void 
+     * @param string $source
+     *
+     * @return \Stripe\PaymentMethod|void
      */
     public function getStripePaymentMethod(string $source)
     {

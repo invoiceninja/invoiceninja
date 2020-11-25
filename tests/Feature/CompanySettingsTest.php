@@ -11,19 +11,9 @@
 namespace Tests\Feature;
 
 use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;

@@ -13,7 +13,7 @@ class CustomFieldsForPaymentsTable extends Migration
      */
     public function up()
     {
-        Schema::table('payments', function(Blueprint $table){
+        Schema::table('payments', function (Blueprint $table) {
             $table->string('custom_value1')->nullable();
             $table->string('custom_value2')->nullable();
             $table->string('custom_value3')->nullable();

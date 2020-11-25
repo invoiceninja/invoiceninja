@@ -17,7 +17,6 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
-use App\PaymentDrivers\BaseDriver;
 use App\PaymentDrivers\CheckoutCom\CreditCard;
 use App\PaymentDrivers\CheckoutCom\Utilities;
 use App\Utils\Traits\SystemLogTrait;

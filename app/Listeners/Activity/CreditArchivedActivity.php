@@ -13,11 +13,8 @@ namespace App\Listeners\Activity;
 
 use App\Libraries\MultiDB;
 use App\Models\Activity;
-use App\Models\Invoice;
-use App\Models\Payment;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use stdClass;
 
 class CreditArchivedActivity implements ShouldQueue

@@ -12,8 +12,8 @@
 
 namespace App\Http\Requests\Token;
 
-use App\Utils\Traits\BulkOptions;
 use App\Http\Requests\Request;
+use App\Utils\Traits\BulkOptions;
 
 class BulkTokenRequest extends Request
 {

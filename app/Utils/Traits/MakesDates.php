@@ -14,7 +14,6 @@ namespace App\Utils\Traits;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeZone;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class MakesDates.
@@ -58,8 +57,9 @@ trait MakesDates
      */
     public function formatDate($date, string $format) :string
     {
-        if(!isset($date))
+        if (!isset($date)) {
             return '';
+        }
         // if (!$date || strlen($date) < 1) {
         //     return '';
         // }

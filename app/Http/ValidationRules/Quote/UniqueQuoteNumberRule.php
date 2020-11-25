@@ -11,9 +11,7 @@
 
 namespace App\Http\ValidationRules\Quote;
 
-use App\Libraries\MultiDB;
 use App\Models\Quote;
-use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**

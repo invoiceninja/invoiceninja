@@ -11,7 +11,6 @@
 
 namespace App\Notifications;
 
-use App\Mail\RecurringCancellationRequest;
 use Closure;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

@@ -11,18 +11,9 @@
 
 namespace App\Listeners\Payment;
 
-use App\Jobs\Mail\EntityPaidMailer;
 use App\Libraries\MultiDB;
-use App\Models\Activity;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Notifications\Admin\NewPaymentNotification;
-use App\Repositories\ActivityRepository;
-use App\Utils\Ninja;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Notification;
 
 class PaymentEmailFailureActivity implements ShouldQueue
 {
@@ -50,8 +41,6 @@ class PaymentEmailFailureActivity implements ShouldQueue
         $payment = $event->payment;
 
         info("i failed emailing {$payment->number}");
-       // info(print_r($event->errors,1));
-        
+        // info(print_r($event->errors,1));
     }
 }
-

@@ -11,12 +11,6 @@
 
 namespace App\Services\Recurring;
 
-use App\Factory\InvoiceInvitationFactory;
-use App\Factory\RecurringInvoiceFactory;
-use App\Models\Invoice;
-use App\Models\RecurringInvoice;
-use App\Models\InvoiceInvitation;
-use App\Models\RecurringInvoiceInvitation;
 use App\Services\AbstractService;
 use Exception;
 use Illuminate\Support\Str;
@@ -44,10 +38,8 @@ class CreateRecurringInvitations extends AbstractService
 
     public function run()
     {
-
         try {
             $this->entity->client->contacts->each(function ($contact) {
-
                 $invitation = $this->invitation_class::whereCompanyId($this->entity->company_id)
                                             ->whereClientContactId($contact->id)
                                             ->where($this->entity_id_name, $this->entity->id)
@@ -62,11 +54,8 @@ class CreateRecurringInvitations extends AbstractService
                 } elseif ($invitation && ! $contact->send_email) {
                     $invitation->delete();
                 }
-
             });
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             info($e->getMessage());
         }
 

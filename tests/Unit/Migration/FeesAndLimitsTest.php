@@ -13,7 +13,6 @@ namespace Tests\Unit\Migration;
 
 use App\DataMapper\BaseSettings;
 use App\DataMapper\FeesAndLimits;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class FeesAndLimitsTest extends TestCase

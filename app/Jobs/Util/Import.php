@@ -32,13 +32,10 @@ use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\Ninja\CompanySizeCheck;
-use App\Jobs\Util\VersionCheck;
 use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
-use App\Mail\MigrationFailed;
 use App\Models\Activity;
 use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -62,10 +59,8 @@ use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\CompanyRepository;
 use App\Repositories\CreditRepository;
-use App\Repositories\InvoiceRepository;
 use App\Repositories\Migration\InvoiceMigrationRepository;
 use App\Repositories\Migration\PaymentMigrationRepository;
-use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
@@ -156,7 +151,7 @@ class Import implements ShouldQueue
 
     // public $backoff = 86430;
 
-  //  public $maxExceptions = 2;
+    //  public $maxExceptions = 2;
     /**
      * Create a new job instance.
      *
@@ -178,16 +173,15 @@ class Import implements ShouldQueue
      *
      * @return bool
      */
-    public function handle() 
+    public function handle()
     {
         set_time_limit(0);
 
-     //   $jsonStream = \JsonMachine\JsonMachine::fromFile($this->file_path, "/data");
+        //   $jsonStream = \JsonMachine\JsonMachine::fromFile($this->file_path, "/data");
         $array = json_decode(file_get_contents($this->file_path), 1);
         $data = $array['data'];
 
         foreach ($this->available_imports as $import) {
-
             if (! array_key_exists($import, $data)) {
                 //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
                 info("Resource {$import} is not available for migration.");
@@ -210,7 +204,6 @@ class Import implements ShouldQueue
         CompanySizeCheck::dispatch();
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
-
     }
 
     private function setInitialCompanyLedgerBalances()
@@ -268,15 +261,12 @@ class Import implements ShouldQueue
         $company_repository = new CompanyRepository();
         $company_repository->save($data, $this->company);
 
-        if(isset($data['settings']->company_logo) && strlen($data['settings']->company_logo) > 0) {
-
+        if (isset($data['settings']->company_logo) && strlen($data['settings']->company_logo) > 0) {
             try {
                 $tempImage = tempnam(sys_get_temp_dir(), basename($data['settings']->company_logo));
                 copy($data['settings']->company_logo, $tempImage);
                 $this->uploadLogo($tempImage, $this->company, $this->company);
-            }
-            catch(\Exception $e){
-
+            } catch (\Exception $e) {
             }
         }
 
@@ -596,7 +586,6 @@ class Import implements ShouldQueue
         $invoice_repository = new InvoiceMigrationRepository();
 
         foreach ($data as $key => $resource) {
-
             $modified = $resource;
 
             if (array_key_exists('client_id', $resource) && ! array_key_exists('clients', $this->ids)) {
@@ -621,7 +610,6 @@ class Import implements ShouldQueue
                 'old' => $resource['id'],
                 'new' => $invoice->id,
             ];
-
         }
 
         RecurringInvoice::reguard();
@@ -629,7 +617,6 @@ class Import implements ShouldQueue
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
         $invoice_repository = null;
-
     }
 
     private function processInvoices(array $data): void
@@ -785,7 +772,6 @@ class Import implements ShouldQueue
 
     private function processPayments(array $data): void
     {
-    
         Payment::reguard();
 
         $rules = [
@@ -818,14 +804,12 @@ class Import implements ShouldQueue
 
             if (isset($modified['invoices'])) {
                 foreach ($modified['invoices'] as $key => $invoice) {
-
-                    if($this->tryTransformingId('invoices', $invoice['invoice_id']))
+                    if ($this->tryTransformingId('invoices', $invoice['invoice_id'])) {
                         $modified['invoices'][$key]['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
-                    else{
+                    } else {
                         $modified['credits'][$key]['credit_id'] = $this->transformId('credits', $invoice['invoice_id']);
                         $modified['credits'][$key]['amount'] = $modified['invoices'][$key]['amount'];
                     }
-
                 }
             }
 
@@ -886,12 +870,12 @@ class Import implements ShouldQueue
                 $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
                 $payment->save();
                 return $payment;
-                break;            
+                break;
             case 6:
                 $payment->status_id = Payment::STATUS_REFUNDED;
                 $payment->save();
                 return $payment;
-                break;  
+                break;
 
             default:
                 return $payment;
@@ -901,11 +885,10 @@ class Import implements ShouldQueue
 
     private function processDocuments(array $data): void
     {
-       // Document::unguard();
+        // Document::unguard();
         /* No validators since data provided by database is already valid. */
 
-        foreach($data as $resource)
-        {
+        foreach ($data as $resource) {
             $modified = $resource;
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && ! array_key_exists('invoices', $this->ids)) {
@@ -927,7 +910,6 @@ class Import implements ShouldQueue
             }
 
             $this->saveDocument(file_get_contents($resource['url']), $entity, $is_public = true);
-
         }
 
         // foreach ($data as $resource) {
@@ -1079,7 +1061,8 @@ class Import implements ShouldQueue
     }
 
     private function processTaskStatuses(array $data) :void
-    {info('in task statuses');
+    {
+        info('in task statuses');
         TaskStatus::unguard();
 
         foreach ($data as $resource) {
@@ -1149,17 +1132,21 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
 
-            if(isset($modified['client_id']))
+            if (isset($modified['client_id'])) {
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            }
 
-            if(isset($modified['invoice_id']))
+            if (isset($modified['invoice_id'])) {
                 $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+            }
             
-            if(isset($modified['project_id']))
+            if (isset($modified['project_id'])) {
                 $modified['project_id'] = $this->transformId('projects', $resource['project_id']);
+            }
             
-            if(isset($modified['status_id']))
+            if (isset($modified['status_id'])) {
                 $modified['status_id'] = $this->transformId('task_statuses', $resource['status_id']);
+            }
 
             $task = Task::Create($modified);
 
@@ -1190,8 +1177,9 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
 
-            if(isset($modified['client_id']))
+            if (isset($modified['client_id'])) {
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            }
 
             $project = Project::Create($modified);
 
@@ -1201,7 +1189,6 @@ class Import implements ShouldQueue
                 'old' => $resource['id'],
                 'new' => $project->id,
             ];
-
         }
 
         Project::reguard();
@@ -1211,7 +1198,6 @@ class Import implements ShouldQueue
 
     private function processExpenses(array $data) :void
     {
-
         Expense::unguard();
 
         foreach ($data as $resource) {
@@ -1222,20 +1208,25 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
 
-            if(isset($resource['client_id']))
+            if (isset($resource['client_id'])) {
                 $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            }
             
-            if(isset($resource['category_id']))
+            if (isset($resource['category_id'])) {
                 $modified['category_id'] = $this->transformId('expense_categories', $resource['category_id']);
+            }
             
-            if(isset($resource['invoice_id']))
+            if (isset($resource['invoice_id'])) {
                 $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+            }
 
-            if(isset($resource['project_id']))
+            if (isset($resource['project_id'])) {
                 $modified['project_id'] = $this->transformId('projects', $resource['project_id']);
+            }
 
-            if(isset($resource['vendor_id']))
+            if (isset($resource['vendor_id'])) {
                 $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
+            }
 
             $expense = Expense::Create($modified);
 
@@ -1252,7 +1243,6 @@ class Import implements ShouldQueue
         Expense::reguard();
 
         $data = null;
-
     }
     /**
      * |--------------------------------------------------------------------------
@@ -1289,7 +1279,7 @@ class Import implements ShouldQueue
     public function transformId($resource, string $old): int
     {
         if (! array_key_exists($resource, $this->ids)) {
-            info(print_r($resource,1));
+            info(print_r($resource, 1));
             throw new Exception("Resource {$resource} not available.");
         }
 
@@ -1345,7 +1335,5 @@ class Import implements ShouldQueue
                  ->batch();
 
         info(print_r($exception->getMessage(), 1));
-
     }
-
 }

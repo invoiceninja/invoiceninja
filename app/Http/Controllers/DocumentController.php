@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Document\DestroyDocumentRequest;
-use App\Http\Requests\Document\EditDocumentRequest;
 use App\Http\Requests\Document\ShowDocumentRequest;
 use App\Http\Requests\Document\StoreDocumentRequest;
 use App\Http\Requests\Document\UpdateDocumentRequest;

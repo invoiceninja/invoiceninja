@@ -10,7 +10,6 @@
  */
 namespace Database\Seeders;
 
-
 use App\Models\GatewayType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;

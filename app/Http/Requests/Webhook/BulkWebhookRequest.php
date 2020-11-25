@@ -12,9 +12,8 @@
 
 namespace App\Http\Requests\Webhook;
 
-use App\Models\Vendor;
-use App\Utils\Traits\BulkOptions;
 use App\Http\Requests\Request;
+use App\Utils\Traits\BulkOptions;
 
 class BulkWebhookRequest extends Request
 {

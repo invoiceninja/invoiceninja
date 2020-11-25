@@ -14,13 +14,8 @@ namespace App\Transformers;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyUser;
-use App\Models\Payment;
 use App\Models\User;
-use App\Transformers\CompanyTransformer;
-use App\Transformers\CompanyUserTransformer;
-use App\Transformers\UserTransformer;
 use App\Utils\Traits\MakesHash;
-use Laracasts\Presenter\Exceptions\PresenterException;
 
 /**
  * Class AccountTransformer.
