@@ -25,7 +25,12 @@ class ClientObserver
      */
     public function created(Client $client)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company);
+        $subscriptions = Webhook::where('company_id', $client->company->id)
+                                    ->where('event_id', Webhook::EVENT_CREATE_CLIENT)
+                                    ->exists();
+
+        if($subscriptions)
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company);
     }
 
     /**
@@ -36,7 +41,12 @@ class ClientObserver
      */
     public function updated(Client $client)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CLIENT, $client, $client->company);
+        $subscriptions = Webhook::where('company_id', $client->company->id)
+                                    ->where('event_id', Webhook::EVENT_UPDATE_CLIENT)
+                                    ->exists();
+
+        if($subscriptions)
+            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CLIENT, $client, $client->company);
     }
 
     /**
@@ -47,7 +57,12 @@ class ClientObserver
      */
     public function deleted(Client $client)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_DELETE_CLIENT, $client, $client->company);
+        $subscriptions = Webhook::where('company_id', $client->company->id)
+                                    ->where('event_id', Webhook::EVENT_DELETE_CLIENT)
+                                    ->exists();
+
+        if($subscriptions)
+            WebhookHandler::dispatch(Webhook::EVENT_DELETE_CLIENT, $client, $client->company);
     }
 
     /**

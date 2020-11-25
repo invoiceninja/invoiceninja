@@ -70,7 +70,7 @@ class UpdateOrCreateProduct implements ShouldQueue
                 continue;
             }
 
-            $product = Product::firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
+            $product = Product::withTrashed()->firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
 
             $product->product_key = $item->product_key;
             $product->notes = isset($item->notes) ? $item->notes : '';
@@ -93,5 +93,11 @@ class UpdateOrCreateProduct implements ShouldQueue
             $product->vendor_id = $this->invoice->vendor_id;
             $product->save();
         }
+    }
+
+    public function failed($exception = null)
+    {
+        info("update create failed with = ");
+        info(print_r($exception->getMessage(),1));
     }
 }

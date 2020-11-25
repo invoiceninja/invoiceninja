@@ -66,7 +66,7 @@ class InvoiceSumInclusive
              ->calculateCustomValues()
              ->calculateInvoiceTaxes()
              ->setTaxMap()
-//			 ->calculateTotals()
+			 ->calculateTotals() //just don't add the taxes!!
              ->calculateBalance()
              ->calculatePartial();
 
@@ -170,7 +170,19 @@ class InvoiceSumInclusive
 
     private function calculateTotals()
     {
-        $this->total += $this->total_taxes;
+        //$this->total += $this->total_taxes;
+
+        if($this->invoice->custom_value1 > 0)
+            $this->total += $this->invoice->custom_value1;
+
+        if($this->invoice->custom_value2 > 0)
+            $this->total += $this->invoice->custom_value2;
+
+        if($this->invoice->custom_value3 > 0)
+            $this->total += $this->invoice->custom_value3;
+
+        if($this->invoice->custom_value4 > 0)
+            $this->total += $this->invoice->custom_value4;     
 
         return $this;
     }

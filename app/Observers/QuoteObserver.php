@@ -25,6 +25,11 @@ class QuoteObserver
      */
     public function created(Quote $quote)
     {
+        $subscriptions = Webhook::where('company_id', $quote->company->id)
+                        ->where('event_id', Webhook::EVENT_CREATE_QUOTE)
+                        ->exists();
+
+        if($subscriptions)
         WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company);
     }
 
@@ -36,7 +41,12 @@ class QuoteObserver
      */
     public function updated(Quote $quote)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote, $quote->company);
+        $subscriptions = Webhook::where('company_id', $quote->company->id)
+                        ->where('event_id', Webhook::EVENT_UPDATE_QUOTE)
+                        ->exists();
+
+        if($subscriptions)
+            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote, $quote->company);
     }
 
     /**
@@ -47,7 +57,12 @@ class QuoteObserver
      */
     public function deleted(Quote $quote)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_DELETE_QUOTE, $quote, $quote->company);
+        $subscriptions = Webhook::where('company_id', $quote->company->id)
+                        ->where('event_id', Webhook::EVENT_DELETE_QUOTE)
+                        ->exists();
+
+        if($subscriptions)
+            WebhookHandler::dispatch(Webhook::EVENT_DELETE_QUOTE, $quote, $quote->company);
     }
 
     /**

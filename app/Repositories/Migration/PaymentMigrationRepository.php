@@ -87,7 +87,15 @@ class PaymentMigrationRepository extends BaseRepository
 
         /*Fill the payment*/
         $payment->fill($data);
-        $payment->status_id = Payment::STATUS_COMPLETED;
+        //$payment->status_id = Payment::STATUS_COMPLETED;
+        
+        if(!array_key_exists('status_id', $data)){
+            info("payment with no status id?");
+            info(print_r($data,1));
+        }
+
+        $payment->status_id = $data['status_id'];
+        $payment->deleted_at = $data['deleted_at'] ?: NULL;
         $payment->save();
 
         /*Ensure payment number generated*/
@@ -104,7 +112,7 @@ class PaymentMigrationRepository extends BaseRepository
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
             $refund_totals = array_sum(array_column($data['invoices'], 'refunded'));
 
-            $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
+            $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->withTrashed()->get();
 
             $payment->invoices()->saveMany($invoices);
 
@@ -118,7 +126,7 @@ class PaymentMigrationRepository extends BaseRepository
         if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->get();
+            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->withTrashed()->get();
 
             $payment->credits()->saveMany($credits);
 

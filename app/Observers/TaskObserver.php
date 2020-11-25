@@ -25,7 +25,13 @@ class TaskObserver
      */
     public function created(Task $task)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_CREATE_TASK, $task, $task->company);
+
+        $subscriptions = Webhook::where('company_id', $task->company->id)
+                        ->where('event_id', Webhook::EVENT_CREATE_TASK)
+                        ->exists();
+
+        if($subscriptions)
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_TASK, $task, $task->company);
     }
 
     /**
@@ -36,7 +42,13 @@ class TaskObserver
      */
     public function updated(Task $task)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_UPDATE_TASK, $task, $task->company);
+
+        $subscriptions = Webhook::where('company_id', $task->company->id)
+                        ->where('event_id', Webhook::EVENT_UPDATE_TASK)
+                        ->exists();
+
+        if($subscriptions)
+            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_TASK, $task, $task->company);
     }
 
     /**
@@ -47,7 +59,14 @@ class TaskObserver
      */
     public function deleted(Task $task)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_DELETE_TASK, $task, $task->company);
+
+
+        $subscriptions = Webhook::where('company_id', $task->company->id)
+                        ->where('event_id', Webhook::EVENT_DELETE_TASK)
+                        ->exists();
+
+        if($subscriptions)
+            WebhookHandler::dispatch(Webhook::EVENT_DELETE_TASK, $task, $task->company);
     }
 
     /**
