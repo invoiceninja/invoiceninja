@@ -72,7 +72,7 @@ class PaymentRepository extends BaseRepository
             $this->processExchangeRates($data, $payment);
 
             $is_existing_payment = false;
-            $client = Client::where('id', $data['client_id'])->withTrashed()->first;
+            $client = Client::where('id', $data['client_id'])->withTrashed()->first();
 
             /*We only update the paid to date ONCE per payment*/
             if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
