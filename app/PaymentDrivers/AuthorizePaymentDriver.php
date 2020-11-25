@@ -67,6 +67,38 @@ class AuthorizePaymentDriver extends BaseDriver
         return $types;
     }
 
+    public function authorizeView($payment_method)
+    {
+        return (new AuthorizePaymentMethod($this))->authorizeView($payment_method);
+    }
+
+    public function authorizeResponseView(array $data)
+    {
+        return (new AuthorizePaymentMethod($this))->authorizeResponseView($data);
+    }
+
+    public function processPaymentView($data)
+    {
+        return $this->payment_method->processPaymentView($data);
+    }
+
+    public function processPaymentResponse($request)
+    {
+        return $this->payment_method->processPaymentResponse($request);
+    }
+
+    public function refund(Payment $payment, $refund_amount, $return_client_response = false)
+    {
+        return (new RefundTransaction($this))->refundTransaction($payment, $refund_amount);
+    }
+
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    {
+        $this->setPaymentMethod($cgt->gateway_type_id);
+
+        return $this->payment_method->tokenBilling($cgt, $payment_hash);
+    }
+
     public function init()
     {
         error_reporting(E_ALL & ~E_DEPRECATED);
@@ -98,41 +130,6 @@ class AuthorizePaymentDriver extends BaseDriver
         return $env = ANetEnvironment::PRODUCTION;
     }
 
-    public function authorizeView($payment_method)
-    {
-        return (new AuthorizePaymentMethod($this))->authorizeView($payment_method);
-    }
-
-    public function authorizeResponseView(array $data)
-    {
-        return (new AuthorizePaymentMethod($this))->authorizeResponseView($data);
-    }
-
-    public function authorize($payment_method)
-    {
-        return $this->authorizeView($payment_method);
-    }
-
-    public function processPaymentView($data)
-    {
-        return $this->payment_method->processPaymentView($data);
-    }
-
-    public function processPaymentResponse($request)
-    {
-        return $this->payment_method->processPaymentResponse($request);
-    }
-
-    public function purchase($amount, $return_client_response = false)
-    {
-        return false;
-    }
-
-    public function refund(Payment $payment, $refund_amount, $return_client_response = false)
-    {
-        return (new RefundTransaction($this))->refundTransaction($payment, $refund_amount);
-    }
-
     public function findClientGatewayRecord() :?ClientGatewayToken
     {
         return ClientGatewayToken::where('client_id', $this->client->id)
@@ -140,12 +137,6 @@ class AuthorizePaymentDriver extends BaseDriver
                                  ->first();
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
-    {
-        $this->setPaymentMethod($cgt->gateway_type_id);
-
-        return $this->payment_method->tokenBilling($cgt, $payment_hash);
-    }
 
     /**
      * Detach payment method from Authorize.net.

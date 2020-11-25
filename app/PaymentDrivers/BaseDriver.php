@@ -33,6 +33,7 @@ use App\Utils\Traits\SystemLogTrait;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Http\Request;
 
 /**
  * Class BaseDriver.
