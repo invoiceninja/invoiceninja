@@ -17,7 +17,7 @@ class ExportMigrations extends Command
      *
      * @var string
      */
-    protected $signature = 'migrations:export {--user=}';
+    protected $signature = 'migrations:export {--user=} {--random=}';
 
     /**
      * The console command description.
@@ -48,6 +48,15 @@ class ExportMigrations extends Command
         if($this->option('user')) {
             $record = User::findOrFail($this->option('user'));
             return $this->export($record);
+        }
+
+        if($this->option('random')){
+
+            User::all()->random(50)->each(function ($user){
+                 $this->export($user);
+            });
+
+            return;
         }
 
         $users = User::all();

@@ -245,6 +245,7 @@ class StepsController extends BaseController
                 'task_statuses' => $this->getTaskStatuses(),
                 'expenses' => $this->getExpenses(),
                 'tasks' => $this->getTasks(),
+                'documents' => $this->getDocuments(),
             ];
 
             $localMigrationData['force'] = array_key_exists('force', $company) ? true : false;
