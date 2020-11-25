@@ -57,6 +57,7 @@ class PaymentMethodController extends Controller
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->query('method'))
+            ->checkRequirements()
             ->authorizeView($data);
     }
 
@@ -73,6 +74,7 @@ class PaymentMethodController extends Controller
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->query('method'))
+            ->checkRequirements()
             ->authorizeResponse($request);
     }
 

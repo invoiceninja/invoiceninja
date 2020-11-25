@@ -17,7 +17,7 @@
                         <div class="grid grid-cols-6 gap-6">
                             <div class="col-span-6 sm:col-span-3">
                                 <label for="street" class="input-label">{{ ctrans('texts.name') }}</label>
-                                <input id="name" class="input w-full" name="name" wire:model.defer="name" />
+                                <input id="name" class="input w-full {{ in_array('name', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="name" wire:model.defer="name" />
                                 @error('name')
                                 <div class="validation validation-fail">
                                     {{ $message }}
