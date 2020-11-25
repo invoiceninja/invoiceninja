@@ -321,6 +321,7 @@ trait GenerateMigrationResources
         $export_credits = Invoice::where('account_id', $this->account->id)
             ->where('amount', '<', '0')
             ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+            ->where('is_public', true)
             ->withTrashed()
             ->get();
 
@@ -333,7 +334,7 @@ trait GenerateMigrationResources
                 'status_id' => $credit->invoice_status_id,
                 'design_id' => $this->getDesignId($credit->invoice_design_id),
                 'number' => $credit->invoice_number,
-                'discount' => $credit->discount ?: 0,
+                'discount' => $credit->discount ? $credit->discount*-1: 0,
                 'is_amount_discount' => $credit->is_amount_discount ?: false,
                 'po_number' => $credit->po_number ?: '',
                 'date' => $credit->invoice_date,
@@ -758,11 +759,13 @@ trait GenerateMigrationResources
 
         foreach ($items as $item) {
 
-            if($item->cost < 0)
-                $item->cost = $item->cost * -1;
+            // if($item->cost < 0)
+            //     $item->cost = $item->cost * -1;
 
-            if($item->qty < 0)
-                $item->qty = $item->qty * -1;
+            $item->qty = $item->qty * -1;
+
+            // if($item->discount < 0)
+            //     $item->discount = $item->discount * -1;
 
             $transformed[] = [
                 'id' => $item->id,

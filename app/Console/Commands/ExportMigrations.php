@@ -52,7 +52,7 @@ class ExportMigrations extends Command
 
         if($this->option('random')){
 
-            User::all()->random(50)->each(function ($user){
+            User::all()->random(200)->each(function ($user){
                  $this->export($user);
             });
 
