@@ -87,7 +87,15 @@ class PaymentMigrationRepository extends BaseRepository
 
         /*Fill the payment*/
         $payment->fill($data);
-        $payment->status_id = Payment::STATUS_COMPLETED;
+        //$payment->status_id = Payment::STATUS_COMPLETED;
+        
+        if(!array_key_exists('status_id', $data)){
+            info("payment with no status id?");
+            info(print_r($data,1));
+        }
+
+        $payment->status_id = $data['status_id'];
+        $payment->deleted_at = $data['deleted_at'] ?: NULL;
         $payment->save();
 
         /*Ensure payment number generated*/
@@ -102,13 +110,15 @@ class PaymentMigrationRepository extends BaseRepository
         /*Iterate through invoices and apply payments*/
         if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
+            $refund_totals = array_sum(array_column($data['invoices'], 'refunded'));
 
-            $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
+            $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->withTrashed()->get();
 
             $payment->invoices()->saveMany($invoices);
 
-            $payment->invoices->each(function ($inv) use ($invoice_totals) {
+            $payment->invoices->each(function ($inv) use ($invoice_totals, $refund_totals) {
                 $inv->pivot->amount = $invoice_totals;
+                $inv->pivot->refunded = $refund_totals;
                 $inv->pivot->save();
             });
         }
@@ -116,7 +126,7 @@ class PaymentMigrationRepository extends BaseRepository
         if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->get();
+            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->withTrashed()->get();
 
             $payment->credits()->saveMany($credits);
 
@@ -164,7 +174,7 @@ class PaymentMigrationRepository extends BaseRepository
      */
     private function processExchangeRates($data, $payment)
     {
-        $client = Client::find($data['client_id']);
+        $client = Client::where('id', $data['client_id'])->withTrashed()->first();
 
         $client_currency = $client->getSetting('currency_id');
         $company_currency = $client->company->settings->currency_id;

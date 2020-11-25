@@ -58,7 +58,6 @@
         "predis/predis": "^1.1",
         "sentry/sentry-laravel": "^2",
         "spatie/browsershot": "^3.37",
-        "staudenmeir/eloquent-has-many-deep": "^1.11",
         "stripe/stripe-php": "^7.50",
         "turbo124/beacon": "^1",
         "turbo124/laravel-gmail": "^5.0",

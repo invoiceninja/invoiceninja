@@ -43,4 +43,30 @@ trait SavesDocuments
             );
         }
     }
+
+    public function saveDocument($document, $entity, $is_public = true)
+    {
+        if ($entity instanceof Company) {
+            $account = $entity->account;
+            $company = $entity;
+        } else {
+            $account = $entity->company->account;
+            $company = $entity->company;
+        }
+
+        if (! $account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+            return false;
+        }
+
+        $document = UploadFile::dispatchNow(
+            $document,
+            UploadFile::DOCUMENT,
+            $entity->user,
+            $entity->company,
+            $entity,
+            null,
+            $is_public
+        );
+        
+    }
 }

@@ -98,6 +98,24 @@ class MigrationController extends BaseController
         return response()->json(['message' => 'Company purged'], 200);
     }
 
+    private function purgeCompanyWithForceFlag(Company $company)
+    {
+        $account = $company->account;
+        $company_id = $company->id;
+
+        $company->delete();
+
+        /*Update the new default company if necessary*/
+        if ($company_id == $account->default_company_id && $account->companies->count() >= 1) {
+            $new_default_company = $account->companies->first();
+
+            if ($new_default_company) {
+                $account->default_company_id = $new_default_company->id;
+                $account->save();
+            }
+        }
+    }
+
     /**
      * Purge Company but save settings.
      *
@@ -201,6 +219,7 @@ class MigrationController extends BaseController
      */
     public function startMigration(Request $request)
     {
+
         $companies = json_decode($request->companies);
 
         if (app()->environment() === 'local') {
@@ -208,21 +227,21 @@ class MigrationController extends BaseController
         }
 
         foreach ($companies as $company) {
-            $is_valid = $request->file($company->company_key)->isValid();
+
+            $is_valid = $request->file($company->company_index)->isValid();
 
             if (!$is_valid) {
                 // We might want to send user something's wrong with migration or nope?
-
                 continue;
             }
 
             $user = auth()->user();
 
             // Look for possible existing company (based on company keys).
-            $existing_company = Company::where('company_key', $request->company_key)->first();
+            $existing_company = Company::whereRaw('BINARY `company_key` = ?', [$company->company_key])->first();
 
             $checks = [
-                'existing_company' => (bool) $existing_company,
+                'existing_company' => $existing_company ? (bool)1 : false,
                 'force' => property_exists($company, 'force') ? (bool) $company->force : false,
             ];
 
@@ -230,7 +249,7 @@ class MigrationController extends BaseController
             if ($checks['existing_company'] == true && $checks['force'] == false) {
                 info('Migrating: Existing company without force. (CASE_01)');
 
-                MailRouter::dispatch(new ExistingMigration(), $company, $user);
+                MailRouter::dispatch(new ExistingMigration(), $existing_company, $user);
 
                 return response()->json([
                     '_id' => Str::uuid(),
@@ -241,7 +260,8 @@ class MigrationController extends BaseController
 
             // If there's existing company and force ** is provided ** - purge the company and migrate again.
             if ($checks['existing_company'] == true && $checks['force'] == true) {
-                $this->purgeCompany($existing_company);
+                info("purging the existing company here");
+                $this->purgeCompanyWithForceFlag($existing_company);
 
                 $account = auth()->user()->account;
                 $fresh_company = (new ImportMigrations())->getCompany($account);
@@ -300,10 +320,10 @@ class MigrationController extends BaseController
                 ]);
             }
 
-            $migration_file = $request->file($company->company_key)
+            $migration_file = $request->file($company->company_index)
                 ->storeAs(
                     'migrations',
-                    $request->file($company->company_key)->getClientOriginalName()
+                    $request->file($company->company_index)->getClientOriginalName()
                 );
 
             if (app()->environment() == 'testing') {
@@ -311,7 +331,7 @@ class MigrationController extends BaseController
             }
 
             try {
-                StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $fresh_company)->delay(now()->addSeconds(60));
+                StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $fresh_company)->delay(now()->addSeconds(5));
             } catch (\Exception $e) {
                 info($e->getMessage());
             }

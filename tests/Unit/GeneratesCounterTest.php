@@ -167,21 +167,21 @@ class GeneratesCounterTest extends TestCase
     public function testInvoiceClientNumberPattern()
     {
         $settings = $this->company->settings;
-        $settings->client_number_pattern = '{$year}-{$clientCounter}';
+        $settings->client_number_pattern = '{$year}-{$client_counter}';
         $settings->client_number_counter = 10;
 
         $this->company->settings = $settings;
         $this->company->save();
 
         $settings = $this->client->settings;
-        $settings->client_number_pattern = '{$year}-{$clientCounter}';
+        $settings->client_number_pattern = '{$year}-{$client_counter}';
         $settings->client_number_counter = 10;
         $this->client->settings = $settings;
         $this->client->save();
         $this->client->fresh();
 
         $this->assertEquals($this->client->settings->client_number_counter, 10);
-        $this->assertEquals($this->client->getSetting('client_number_pattern'), '{$year}-{$clientCounter}');
+        $this->assertEquals($this->client->getSetting('client_number_pattern'), '{$year}-{$client_counter}');
 
         $invoice_number = $this->getNextClientNumber($this->client);
 
