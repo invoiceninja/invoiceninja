@@ -819,7 +819,7 @@ class Import implements ShouldQueue
             if (isset($modified['invoices'])) {
                 foreach ($modified['invoices'] as $key => $invoice) {
 
-                    if($modified['amount'] >= 0)
+                    if($this->tryTransformingId('invoices', $invoice['invoice_id']))
                         $modified['invoices'][$key]['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
                     else{
                         $modified['credits'][$key]['credit_id'] = $this->transformId('credits', $invoice['invoice_id']);
@@ -1289,11 +1289,25 @@ class Import implements ShouldQueue
     public function transformId($resource, string $old): int
     {
         if (! array_key_exists($resource, $this->ids)) {
+            info(print_r($resource,1));
             throw new Exception("Resource {$resource} not available.");
         }
 
         if (! array_key_exists("{$resource}_{$old}", $this->ids[$resource])) {
             throw new Exception("Missing resource key: {$resource}_{$old}");
+        }
+
+        return $this->ids[$resource]["{$resource}_{$old}"]['new'];
+    }
+
+    private function tryTransformingId($resource, string $old): ?int
+    {
+        if (! array_key_exists($resource, $this->ids)) {
+            return false;
+        }
+
+        if (! array_key_exists("{$resource}_{$old}", $this->ids[$resource])) {
+            return false;
         }
 
         return $this->ids[$resource]["{$resource}_{$old}"]['new'];
