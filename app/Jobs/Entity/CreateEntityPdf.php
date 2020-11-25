@@ -72,19 +72,16 @@ class CreateEntityPdf implements ShouldQueue
     {
         $this->invitation = $invitation;
 
-        if($invitation instanceof InvoiceInvitation){
+        if ($invitation instanceof InvoiceInvitation) {
             $this->entity = $invitation->invoice;
             $this->entity_string = 'invoice';
-        }
-        elseif($invitation instanceof QuoteInvitation){
+        } elseif ($invitation instanceof QuoteInvitation) {
             $this->entity = $invitation->quote;
             $this->entity_string = 'quote';
-        }
-        elseif($invitation instanceof CreditInvitation){
+        } elseif ($invitation instanceof CreditInvitation) {
             $this->entity = $invitation->credit;
             $this->entity_string = 'credit';
-        }
-        elseif($invitation instanceof RecurringInvoiceInvitation){
+        } elseif ($invitation instanceof RecurringInvoiceInvitation) {
             $this->entity = $invitation->recurring_invoice;
             $this->entity_string = 'recurring_invoice';
         }
@@ -98,7 +95,6 @@ class CreateEntityPdf implements ShouldQueue
 
     public function handle()
     {
-
         if (config('ninja.phantomjs_key')) {
             return (new Phantom)->generate($this->invitation);
         }
@@ -108,15 +104,13 @@ class CreateEntityPdf implements ShouldQueue
 
         $entity_design_id = '';
 
-        if($this->entity instanceof Invoice){
+        if ($this->entity instanceof Invoice) {
             $path = $this->entity->client->invoice_filepath();
             $entity_design_id = 'invoice_design_id';
-        }
-        elseif($this->entity instanceof Quote){
+        } elseif ($this->entity instanceof Quote) {
             $path = $this->entity->client->quote_filepath();
             $entity_design_id = 'quote_design_id';
-        }
-        elseif($this->entity instanceof Credit){
+        } elseif ($this->entity instanceof Credit) {
             $path = $this->entity->client->credit_filepath();
             $entity_design_id = 'credit_design_id';
         }
@@ -131,12 +125,12 @@ class CreateEntityPdf implements ShouldQueue
         $html = new HtmlEngine($this->invitation);
 
         if ($design->is_custom) {
-          $options = [
+            $options = [
             'custom_partials' => json_decode(json_encode($design->design), true)
           ];
-          $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+            $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
         } else {
-          $template = new PdfMakerDesign(strtolower($design->name));
+            $template = new PdfMakerDesign(strtolower($design->name));
         }
 
         $state = [
@@ -165,15 +159,14 @@ class CreateEntityPdf implements ShouldQueue
         $pdf = null;
 
         try {
-        
             $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
-        }
-        catch(\Exception $e) {
-            info(print_r($e->getMessage(),1));
+        } catch (\Exception $e) {
+            info(print_r($e->getMessage(), 1));
         }
 
-        if($pdf)
+        if ($pdf) {
             $instance = Storage::disk($this->disk)->put($file_path, $pdf);
+        }
 
         return $file_path;
     }

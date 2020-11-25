@@ -72,8 +72,9 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
     public function handle()
     {
         /*If we are migrating data we don't want to fire these notification*/
-        if ($this->company->is_disabled) 
+        if ($this->company->is_disabled) {
             return true;
+        }
           
         //Set DB
         MultiDB::setDb($this->company->db);
@@ -82,18 +83,15 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver();
 
         try {
-
             $mail_obj = (new EntityPaidObject($this->payment))->build();
             $mail_obj->from = [$this->user->email, $this->user->present()->name()];
 
             //send email
             Mail::to($this->user->email)
                 ->send(new EntityNotificationMailer($mail_obj));
-
         } catch (\Exception $e) {
             $this->failed($e);
             $this->logMailError($e->getMessage(), $this->payment->client);
         }
-
     }
 }

@@ -173,8 +173,7 @@ class LoginController extends BaseController
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
 
-                return $this->listResponse($cu);
-
+            return $this->listResponse($cu);
         } else {
             LightLogs::create(new LoginFailure())
                 ->increment()

@@ -58,8 +58,9 @@ trait MakesDates
      */
     public function formatDate($date, string $format) :string
     {
-        if(!isset($date))
+        if (!isset($date)) {
             return '';
+        }
         // if (!$date || strlen($date) < 1) {
         //     return '';
         // }

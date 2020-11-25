@@ -16,13 +16,13 @@ use App\Utils\HtmlEngine;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 
-class PaymentEmailEngine extends BaseEmailEngine 
+class PaymentEmailEngine extends BaseEmailEngine
 {
     use MakesDates;
 
-	public $client;
+    public $client;
 
-	public $payment;
+    public $payment;
 
     public $template_data;
 
@@ -44,12 +44,11 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     public function build()
     {
-
-        if(is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0)
+        if (is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
-        elseif(strlen($this->client->getSetting('email_template_payment')) > 0)
+        } elseif (strlen($this->client->getSetting('email_template_payment')) > 0) {
             $body_template = $this->client->getSetting('email_template_payment');
-        else{
+        } else {
             $body_template = EmailTemplateDefaults::getDefaultTemplate('email_template_payment', $this->client->locale());
         }
 
@@ -63,13 +62,11 @@ class PaymentEmailEngine extends BaseEmailEngine
             );
         }
 
-        if(is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0){
+        if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
-        }
-        elseif(strlen($this->client->getSetting('email_subject_payment')) > 0){
+        } elseif (strlen($this->client->getSetting('email_subject_payment')) > 0) {
             $subject_template = $this->client->getSetting('email_subject_payment');
-        }
-        else{
+        } else {
             $subject_template = EmailTemplateDefaults::getDefaultTemplate('email_subject_payment', $this->client->locale());
         }
 
@@ -92,7 +89,6 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setViewText('');
 
         return $this;
-
     }
 
 
@@ -115,7 +111,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$payment2'] = ['value' => $this->formatCustomFieldValue('payment2', $this->payment->custom_value2) ?: '&nbsp;', 'label' => $this->makeCustomField('payment2')];
         $data['$payment3'] = ['value' => $this->formatCustomFieldValue('payment3', $this->payment->custom_value3) ?: '&nbsp;', 'label' => $this->makeCustomField('payment3')];
         $data['$payment4'] = ['value' => $this->formatCustomFieldValue('payment4', $this->payment->custom_value4) ?: '&nbsp;', 'label' => $this->makeCustomField('payment4')];
-       // $data['$type'] = ['value' => $this->payment->type->name ?: '', 'label' => ctrans('texts.payment_type')];
+        // $data['$type'] = ['value' => $this->payment->type->name ?: '', 'label' => ctrans('texts.payment_type')];
 
         $data['$client1'] = ['value' => $this->formatCustomFieldValue('client1', $this->client->custom_value1) ?: '&nbsp;', 'label' => $this->makeCustomField('client1')];
         $data['$client2'] = ['value' => $this->formatCustomFieldValue('client2', $this->client->custom_value2) ?: '&nbsp;', 'label' => $this->makeCustomField('client2')];
@@ -200,8 +196,7 @@ class PaymentEmailEngine extends BaseEmailEngine
     {
         $invoice_list = '';
 
-        foreach($this->payment->invoices as $invoice)
-        {
+        foreach ($this->payment->invoices as $invoice) {
             $invoice_list .= ctrans('texts.invoice_number_short') . " {$invoice->number} - " . Number::formatMoney($invoice->pivot->amount, $this->client) . "<br>";
         }
 
@@ -232,8 +227,9 @@ class PaymentEmailEngine extends BaseEmailEngine
             $custom_field = $custom_fields->{$field};
             $custom_field_parts = explode('|', $custom_field);
 
-            if(count($custom_field_parts) >= 2)
+            if (count($custom_field_parts) >= 2) {
                 $custom_field = $custom_field_parts[1];
+            }
         }
 
         switch ($custom_field) {
@@ -260,4 +256,3 @@ class PaymentEmailEngine extends BaseEmailEngine
         return $data;
     }
 }
-

@@ -69,8 +69,9 @@ class StartupCheck
 
 
         /*Build template cache*/
-        if ($request->has('clear_cache') || ! Cache::has('templates')) 
+        if ($request->has('clear_cache') || ! Cache::has('templates')) {
             $this->buildTemplates();
+        }
 
         $response = $next($request);
 

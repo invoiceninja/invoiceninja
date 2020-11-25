@@ -50,7 +50,6 @@ class SendEmail
 
                 // EmailCredit::dispatchNow($email_builder, $invitation, $invitation->company);
                 EmailEntity::dispatchNow($invitation, $invitation->company, $this->reminder_template);
-
             }
         });
 

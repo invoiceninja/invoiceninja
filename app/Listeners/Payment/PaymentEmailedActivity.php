@@ -52,4 +52,3 @@ class PaymentEmailedActivity implements ShouldQueue
         info("i succeeded in emailing payment {$payment->number}");
     }
 }
-

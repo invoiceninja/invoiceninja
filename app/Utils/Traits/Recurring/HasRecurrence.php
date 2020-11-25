@@ -18,11 +18,11 @@ trait HasRecurrence
 {
 
     /**
-     * Calculates the first day of the month, this will ALWAYS 
+     * Calculates the first day of the month, this will ALWAYS
      * be the first of NEXT month
-     * 
+     *
      * @param  Carbon $date The given date
-     * @return Carbon       The first of NEXT month 
+     * @return Carbon       The first of NEXT month
      */
     public function calculateFirstDayOfMonth($date)
     {
@@ -33,21 +33,22 @@ trait HasRecurrence
      * Calculates the last day of the month.
      *
      * If it is the last day of the month - we add a month on.
-     * 
+     *
      * @param  Carbon $date The start date
      * @return Carbon       The last day of month
      */
     public function calculateLastDayOfMonth($date)
     {
-        if($date->isLastOfMonth())
+        if ($date->isLastOfMonth()) {
             return $date->copy()->addMonthNoOverflow()->endOfMonth();
+        }
 
         return $date->copy()->endOfMonth();
     }
 
     /**
      * Sets the day of the month, if in the past we ADD a month
-     *     
+     *
      * @param Carbon $date              The start date
      * @param String|Int $day_of_month  The day of the month
      */
@@ -59,14 +60,15 @@ trait HasRecurrence
 
         //If the set date is less than the original date we need to add a month.
         //If we are overflowing dates, then we need to diff the dates and ensure it doesn't equal 0
-        if($set_date->lte($date) || $set_date->diffInDays($carbon_date) == 0)
+        if ($set_date->lte($date) || $set_date->diffInDays($carbon_date) == 0) {
             $set_date->addMonthNoOverflow();
+        }
 
-        if($day_of_month == '31')
+        if ($day_of_month == '31') {
             $set_date->endOfMonth();
+        }
 
 
         return $set_date;
     }
-
 }

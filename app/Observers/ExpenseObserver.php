@@ -29,8 +29,9 @@ class ExpenseObserver
                             ->where('event_id', Webhook::EVENT_CREATE_EXPENSE)
                             ->exists();
 
-        if($subscriptions)
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_EXPENSE, $expense, $expense->company);
+        }
     }
 
     /**
@@ -45,8 +46,9 @@ class ExpenseObserver
                             ->where('event_id', Webhook::EVENT_UPDATE_EXPENSE)
                             ->exists();
 
-        if($subscriptions)
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_UPDATE_EXPENSE, $expense, $expense->company);
+        }
     }
 
     /**
@@ -61,8 +63,9 @@ class ExpenseObserver
                             ->where('event_id', Webhook::EVENT_DELETE_EXPENSE)
                             ->exists();
 
-        if($subscriptions)
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_DELETE_EXPENSE, $expense, $expense->company);
+        }
     }
 
     /**

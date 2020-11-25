@@ -181,15 +181,16 @@ class RecurringInvoice extends BaseModel
     
     public function getStatusAttribute()
     {
-        if ($this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) 
+        if ($this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) {
             return self::STATUS_PENDING;
-        else 
+        } else {
             return $this->status_id;
+        }
     }
 
     public function nextSendDate() :?Carbon
     {
-        if(!$this->next_send_date){
+        if (!$this->next_send_date) {
             return null;
             // $this->next_send_date = now()->format('Y-m-d');
         }
@@ -224,7 +225,6 @@ class RecurringInvoice extends BaseModel
 
     public function nextDateByFrequency($date)
     {
-
         switch ($this->frequency_id) {
             case self::FREQUENCY_WEEKLY:
                 return Carbon::parse($date)->addWeek();
@@ -251,18 +251,15 @@ class RecurringInvoice extends BaseModel
             default:
                 return null;
         }
-
     }
 
     public function remainingCycles() : int
     {
         if ($this->remaining_cycles == 0) {
             return 0;
-        } 
-        else if($this->remaining_cycles == -1) {
+        } elseif ($this->remaining_cycles == -1) {
             return -1;
-        }
-        else {
+        } else {
             return $this->remaining_cycles - 1;
         }
     }
@@ -351,34 +348,33 @@ class RecurringInvoice extends BaseModel
         return $invoice_calc->build();
     }
 
-    /* 
-     * Important to note when playing with carbon dates - in order 
+    /*
+     * Important to note when playing with carbon dates - in order
      * not to modify the original instance, always use a `->copy()`
-     * 
+     *
      */
     public function recurringDates()
     {
 
-        /* Return early if nothing to send back! */        
-        if( $this->status_id == self::STATUS_COMPLETED ||
+        /* Return early if nothing to send back! */
+        if ($this->status_id == self::STATUS_COMPLETED ||
             $this->remaining_cycles == 0 ||
             !$this->next_send_date) {
-
             return [];
         }
 
         /* Endless - lets send 10 back*/
         $iterations = $this->remaining_cycles;
 
-        if($this->remaining_cycles == -1) 
+        if ($this->remaining_cycles == -1) {
             $iterations = 10;
+        }
             
         $next_send_date = Carbon::parse($this->next_send_date)->copy();
 
         $data = [];
 
-        for($x=0; $x<$iterations; $x++)
-        {
+        for ($x=0; $x<$iterations; $x++) {
             // we don't add the days... we calc the day of the month!!
             $next_due_date = $this->calculateDueDate($next_send_date->copy()->format('Y-m-d'));
             $next_due_date_string = $next_due_date ? $next_due_date->format('Y-m-d') : '';
@@ -386,12 +382,11 @@ class RecurringInvoice extends BaseModel
             $next_send_date = Carbon::parse($next_send_date);
 
             $data[] = [
-                'send_date' => $next_send_date->format('Y-m-d'), 
+                'send_date' => $next_send_date->format('Y-m-d'),
                 'due_date' => $next_due_date_string
             ];
 
-            $next_send_date = $this->nextDateByFrequency($next_send_date->format('Y-m-d'));        
-
+            $next_send_date = $this->nextDateByFrequency($next_send_date->format('Y-m-d'));
         }
 
         /*If no due date is set - unset the due_date value */
@@ -403,13 +398,11 @@ class RecurringInvoice extends BaseModel
         // }
 
         return $data;
-    
     }
 
 
-    public function calculateDueDate($date) 
+    public function calculateDueDate($date)
     {
-
         switch ($this->due_date_days) {
             case 'terms':
                 return $this->calculateDateFromTerms($date);
@@ -422,18 +415,19 @@ class RecurringInvoice extends BaseModel
 
     /**
      * Calculates a date based on the client payment terms.
-     * 
+     *
      * @param  Carbon $date A given date
      * @return NULL|Carbon  The date
      */
-    public function calculateDateFromTerms($date) 
+    public function calculateDateFromTerms($date)
     {
         $new_date = Carbon::parse($date);
 
         $client_payment_terms = $this->client->getSetting('payment_terms');
 
-        if($client_payment_terms == '')//no due date! return null;
+        if ($client_payment_terms == '') {//no due date! return null;
             return null;
+        }
 
         return $new_date->addDays($client_payment_terms); //add the number of days in the payment terms to the date
     }
@@ -445,5 +439,4 @@ class RecurringInvoice extends BaseModel
     {
         return new RecurringService($this);
     }
-
 }

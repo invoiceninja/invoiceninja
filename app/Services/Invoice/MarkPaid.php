@@ -75,8 +75,9 @@ class MarkPaid extends AbstractService
                 ->applyNumber()
                 ->save();
 
-        if($this->invoice->client->getSetting('client_manual_payment_notification'))
+        if ($this->invoice->client->getSetting('client_manual_payment_notification')) {
             EmailPayment::dispatch($payment, $payment->company, $payment->client->primary_contact()->first());
+        }
         
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));

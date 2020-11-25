@@ -34,7 +34,6 @@ class TaskRepository extends BaseRepository
      */
     public function save(array $data, Task $task) : ?Task
     {
-
         $task->fill($data);
         $task->save();
 
@@ -68,7 +67,7 @@ class TaskRepository extends BaseRepository
             } elseif ($data['action'] == 'stop' && $task->is_running) {
                 $time_log[count($time_log) - 1][1] = time();
                 $task->is_running = false;
-            } elseif ($data['action'] == 'offline'){
+            } elseif ($data['action'] == 'offline') {
                 $task->is_running = $data['is_running'] ? 1 : 0;
             }
         } elseif (isset($data['is_running'])) {

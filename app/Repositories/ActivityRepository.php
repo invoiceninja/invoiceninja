@@ -73,8 +73,9 @@ class ActivityRepository extends BaseRepository
      */
     public function createBackup($entity, $activity)
     {
-        if($entity->company->is_disabled)
+        if ($entity->company->is_disabled) {
             return;
+        }
 
         $backup = new Backup();
 
@@ -107,13 +108,11 @@ class ActivityRepository extends BaseRepository
     {
         $entity_design_id = '';
 
-        if($entity instanceof Invoice || $entity instanceof RecurringInvoice){
+        if ($entity instanceof Invoice || $entity instanceof RecurringInvoice) {
             $entity_design_id = 'invoice_design_id';
-        }
-        elseif($entity instanceof Quote){
+        } elseif ($entity instanceof Quote) {
             $entity_design_id = 'quote_design_id';
-        }
-        elseif($entity instanceof Credit){
+        } elseif ($entity instanceof Credit) {
             $entity_design_id = 'credit_design_id';
         }
 
@@ -123,12 +122,12 @@ class ActivityRepository extends BaseRepository
         $html = new HtmlEngine($entity->invitations->first());
 
         if ($design->is_custom) {
-          $options = [
+            $options = [
             'custom_partials' => json_decode(json_encode($design->design), true)
           ];
-          $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+            $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
         } else {
-          $template = new PdfMakerDesign(strtolower($design->name));
+            $template = new PdfMakerDesign(strtolower($design->name));
         }
 
         $state = [
@@ -150,7 +149,5 @@ class ActivityRepository extends BaseRepository
         return $maker->design($template)
                      ->build()
                      ->getCompiledHTML(true);
-
     }
-
 }

@@ -40,6 +40,5 @@ class DownloadInvoices extends Mailable
                             'logo' => $this->company->present()->logo,
                         ]
                     );
-
     }
 }

@@ -106,7 +106,6 @@ class Statics
             })->values();
 
             $data['templates'] = Cache::get('templates');
-            
         }
 
         return $data;

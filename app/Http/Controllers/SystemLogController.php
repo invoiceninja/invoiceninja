@@ -63,8 +63,9 @@ class SystemLogController extends BaseController
     {
         $system_logs = SystemLog::filter($filters);
 
-        if(auth()->user()->isAdmin())
+        if (auth()->user()->isAdmin()) {
             return $this->listResponse($system_logs);
+        }
 
         return $this->errorResponse('Insufficient permissions', 403);
     }

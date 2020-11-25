@@ -219,7 +219,6 @@ class MigrationController extends BaseController
      */
     public function startMigration(Request $request)
     {
-
         $companies = json_decode($request->companies);
 
         if (app()->environment() === 'local') {
@@ -227,7 +226,6 @@ class MigrationController extends BaseController
         }
 
         foreach ($companies as $company) {
-
             $is_valid = $request->file($company->company_index)->isValid();
 
             if (!$is_valid) {

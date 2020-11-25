@@ -88,7 +88,6 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
         $this->template_data = $template_data;
 
         $this->email_entity_builder = $this->resolveEmailBuilder();
-
     }
 
     /**
@@ -99,8 +98,9 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        if($this->company->is_disabled)
+        if ($this->company->is_disabled) {
             return true;
+        }
         
         MultiDB::setDB($this->company->db);
 
@@ -132,14 +132,15 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
 
     private function resolveEntityString() :string
     {
-        if($this->invitation instanceof InvoiceInvitation)
+        if ($this->invitation instanceof InvoiceInvitation) {
             return 'invoice';
-        elseif($this->invitation instanceof QuoteInvitation)
+        } elseif ($this->invitation instanceof QuoteInvitation) {
             return 'quote';
-        elseif($this->invitation instanceof CreditInvitation)
+        } elseif ($this->invitation instanceof CreditInvitation) {
             return 'credit';
-        elseif($this->invitation instanceof RecurringInvoiceInvitation)
+        } elseif ($this->invitation instanceof RecurringInvoiceInvitation) {
             return 'recurring_invoice';
+        }
     }
 
     private function entityEmailFailed($message)
@@ -153,7 +154,6 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
                 # code...
                 break;
         }
-
     }
 
     private function entityEmailSucceeded()

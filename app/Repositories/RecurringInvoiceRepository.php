@@ -20,7 +20,6 @@ use Illuminate\Http\Request;
  */
 class RecurringInvoiceRepository extends BaseRepository
 {
-
     public function save($data, RecurringInvoice $invoice) : ?RecurringInvoice
     {
         $invoice->fill($data);

@@ -55,7 +55,6 @@ class SendFailedEmails implements ShouldQueue
 
     private function processEmails()
     {
-
         $email_jobs = SystemLog::where('event_id', SystemLog::EVENT_MAIL_RETRY_QUEUE)->get();
 
         $email_jobs->each(function ($job) {
@@ -64,7 +63,6 @@ class SendFailedEmails implements ShouldQueue
             $invitation = $job_meta_array['entity_name']::where('key', $job_meta_array['invitation_key'])->with('contact')->first();
 
             if ($invitation->invoice) {
-
                 if ($invitation->contact->send_email && $invitation->contact->email) {
                     EmailEntity::dispatch($invitation, $invitation->company, $job_meta_array['reminder_template']);
                 }

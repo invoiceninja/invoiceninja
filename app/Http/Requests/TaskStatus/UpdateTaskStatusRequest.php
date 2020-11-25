@@ -33,10 +33,10 @@ class UpdateTaskStatusRequest extends Request
     {
         $rules = [];
 
-        if ($this->input('name')) 
-           $rules['name'] = 'unique:task_statuses,name,'.$this->id.',id,company_id,'.$this->task_status->company_id;
+        if ($this->input('name')) {
+            $rules['name'] = 'unique:task_statuses,name,'.$this->id.',id,company_id,'.$this->task_status->company_id;
+        }
 
-       return $rules;
+        return $rules;
     }
-
 }

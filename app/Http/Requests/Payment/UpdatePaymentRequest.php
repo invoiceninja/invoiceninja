@@ -35,8 +35,7 @@ class UpdatePaymentRequest extends Request
 
     public function rules()
     {
-        
-       $rules = [
+        $rules = [
             'number' => 'nullable|unique:payments,number,'.$this->id.',id,company_id,'.$this->payment->company_id,
             'invoices' => ['array', new PaymentAppliedValidAmount, new ValidCreditsPresentRule],
             'invoices.*.invoice_id' => 'distinct',

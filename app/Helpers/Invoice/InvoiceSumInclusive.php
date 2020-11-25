@@ -66,7 +66,7 @@ class InvoiceSumInclusive
              ->calculateCustomValues()
              ->calculateInvoiceTaxes()
              ->setTaxMap()
-			 ->calculateTotals() //just don't add the taxes!!
+             ->calculateTotals() //just don't add the taxes!!
              ->calculateBalance()
              ->calculatePartial();
 
@@ -172,24 +172,27 @@ class InvoiceSumInclusive
     {
         //$this->total += $this->total_taxes;
 
-        if(is_numeric($this->invoice->custom_value1) && $this->invoice->custom_value1 > 0)
+        if (is_numeric($this->invoice->custom_value1) && $this->invoice->custom_value1 > 0) {
             $this->total += $this->invoice->custom_value1;
+        }
 
-        if(is_numeric($this->invoice->custom_value2) && $this->invoice->custom_value2 > 0)
+        if (is_numeric($this->invoice->custom_value2) && $this->invoice->custom_value2 > 0) {
             $this->total += $this->invoice->custom_value2;
+        }
 
-        if(is_numeric($this->invoice->custom_value3) && $this->invoice->custom_value3 > 0)
+        if (is_numeric($this->invoice->custom_value3) && $this->invoice->custom_value3 > 0) {
             $this->total += $this->invoice->custom_value3;
+        }
 
-        if(is_numeric($this->invoice->custom_value4) && $this->invoice->custom_value4 > 0)
-            $this->total += $this->invoice->custom_value4;     
+        if (is_numeric($this->invoice->custom_value4) && $this->invoice->custom_value4 > 0) {
+            $this->total += $this->invoice->custom_value4;
+        }
 
         return $this;
     }
 
     public function getRecurringInvoice()
     {
-
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
         $this->invoice->total_taxes = $this->getTotalTaxes();
         $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
@@ -329,7 +332,6 @@ class InvoiceSumInclusive
 
     public function purgeTaxes()
     {
-
         return $this;
     }
 }

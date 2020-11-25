@@ -185,7 +185,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
      * @param null $field
      * @return Model|null
      */
-    public function resolveRouteBinding($value, $field = NULL)
+    public function resolveRouteBinding($value, $field = null)
     {
         return $this
             ->withTrashed()
@@ -212,11 +212,8 @@ class ClientContact extends Authenticatable implements HasLocalePreference
      */
     public function getLoginLink()
     {
-
         $domain = isset($this->company->portal_domain) ?: $this->company->domain();
 
         return $domain . 'client/key_login/' . $this->contact_key;
-
     }
-
 }

@@ -41,12 +41,11 @@ class CreditsSumRule implements Rule
 
     private function checkCreditTotals()
     {
-
-        if( array_sum(array_column($this->input['credits'],'amount')) > array_sum(array_column($this->input['invoices'], 'amount')))
+        if (array_sum(array_column($this->input['credits'], 'amount')) > array_sum(array_column($this->input['invoices'], 'amount'))) {
             return false;
+        }
 
         return true;
-
     }
 
     /**

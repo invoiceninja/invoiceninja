@@ -82,7 +82,6 @@ class SendTestEmails extends Command
         $user = User::whereEmail('user@example.com')->first();
 
         if (! $user) {
-
             $account = Account::factory()->create();
 
             $user = User::factory()->create([

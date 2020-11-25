@@ -51,8 +51,9 @@ class UniqueInvoiceNumberRule implements Rule
      */
     private function checkIfInvoiceNumberUnique() : bool
     {
-        if(empty($this->input['number']))
+        if (empty($this->input['number'])) {
             return true;
+        }
 
         $invoice = Invoice::where('client_id', $this->input['client_id'])
                         ->where('number', $this->input['number'])

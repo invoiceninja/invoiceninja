@@ -166,7 +166,7 @@ class BaseModel extends Model
      * @param null $field
      * @return Model|null
      */
-    public function resolveRouteBinding($value, $field = NULL)
+    public function resolveRouteBinding($value, $field = null)
     {
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");

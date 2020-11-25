@@ -51,13 +51,11 @@ class SystemLogFilters extends QueryFilters
      */
     public function filter(string $filter = '') : Builder
     {
-
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return $this->builder;
-
     }
 
     /**

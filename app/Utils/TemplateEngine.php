@@ -76,9 +76,9 @@ class TemplateEngine
         if (strlen($this->entity) > 1 && strlen($this->entity_id) > 1) {
             $class = 'App\Models\\'.ucfirst($this->entity);
             $this->entity_obj = $class::whereId($this->decodePrimaryKey($this->entity_id))->company()->first();
-        }
-        else
+        } else {
             $this->mockEntity();
+        }
 
         return $this;
     }
@@ -100,23 +100,21 @@ class TemplateEngine
     private function setTemplates()
     {
         if (strlen($this->subject) == 0 && strlen($this->template) > 1) {
-
             $subject_template = str_replace('template', 'subject', $this->template);
 
-            if(strlen($this->settings_entity->getSetting($subject_template)) > 1)
+            if (strlen($this->settings_entity->getSetting($subject_template)) > 1) {
                 $this->subject = $this->settings_entity->getSetting($subject_template);
-            else
+            } else {
                 $this->subject = EmailTemplateDefaults::getDefaultTemplate($subject_template, $this->settings_entity->locale());
-
+            }
         }
 
         if (strlen($this->body) == 0 && strlen($this->template) > 1) {
-
-            if(strlen($this->settings_entity->getSetting($this->template)) > 1)
+            if (strlen($this->settings_entity->getSetting($this->template)) > 1) {
                 $this->body = $this->settings_entity->getSetting($this->template);
-            else
+            } else {
                 $this->body = EmailTemplateDefaults::getDefaultTemplate($this->template, $this->settings_entity->locale());
-
+            }
         }
 
         return $this;
@@ -247,14 +245,10 @@ class TemplateEngine
         $this->entity_obj->load('client');
         $client->setRelation('company', auth()->user()->company());
         $client->load('company');
-
     }
 
     private function tearDown()
     {
-
         DB::rollBack();
-
     }
-
 }

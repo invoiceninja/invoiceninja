@@ -628,6 +628,5 @@ class RecurringInvoiceController extends BaseController
                 // code...
                 break;
         }
-
     }
 }

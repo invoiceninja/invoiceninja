@@ -175,13 +175,13 @@ class CompanySettings extends BaseSettings
     public $email_template_reminder3 = ''; //@implemented
     public $email_template_reminder_endless = ''; //@implemented
     public $email_signature = ''; //@implemented
-    public $enable_email_markup = true; //@TODO - 
+    public $enable_email_markup = true; //@TODO -
 
     public $email_subject_custom1 = ''; //@TODO
     public $email_subject_custom2 = ''; //@TODO
     public $email_subject_custom3 = ''; //@TODO
 
-    public $email_template_custom1 = ''; //@TODO 
+    public $email_template_custom1 = ''; //@TODO
     public $email_template_custom2 = ''; //@TODO
     public $email_template_custom3 = ''; //@TODO
 
@@ -195,7 +195,7 @@ class CompanySettings extends BaseSettings
     public $num_days_reminder3 = 0;//@implmemented
 
     public $schedule_reminder1 = ''; // (enum: after_invoice_date, before_due_date, after_due_date) implmemented
-    public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date) implmemented 
+    public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date) implmemented
     public $schedule_reminder3 = ''; // (enum: after_invoice_date, before_due_date, after_due_date) implmemented
 
     public $reminder_send_time = 32400; //number of seconds from UTC +0 to send reminders @TODO
@@ -511,7 +511,7 @@ class CompanySettings extends BaseSettings
 
     /**
      * Provides class defaults on init.
-     * 
+     *
      * @return stdClass
      */
     public static function defaults(): stdClass
@@ -544,7 +544,7 @@ class CompanySettings extends BaseSettings
      * set new properties to the object prior to being returned.
      *
      * @param $settings
-     * 
+     *
      * @return stdClass
      */
     public static function setProperties($settings): stdClass
@@ -562,7 +562,7 @@ class CompanySettings extends BaseSettings
 
     /**
      * Stubs the notification defaults
-     * 
+     *
      * @return stdClass
      */
     public static function notificationDefaults() :stdClass
@@ -575,7 +575,7 @@ class CompanySettings extends BaseSettings
 
     /**
      * Defines entity variables for PDF generation
-     * 
+     *
      * @return stdClass The stdClass of PDF variables
      */
     private static function getEntityVariableDefaults() :stdClass

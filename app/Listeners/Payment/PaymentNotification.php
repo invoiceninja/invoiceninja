@@ -55,7 +55,6 @@ class PaymentNotification implements ShouldQueue
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
-
             $user = $company_user->user;
 
             $methods = $this->findUserEntityNotificationType($payment, $company_user, ['all_notifications']);
@@ -64,7 +63,6 @@ class PaymentNotification implements ShouldQueue
                 unset($methods[$key]);
 
                 EntityPaidMailer::dispatch($payment, $payment->company, $user);
-
             }
 
             $notification = new NewPaymentNotification($payment, $payment->company);

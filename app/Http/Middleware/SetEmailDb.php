@@ -38,7 +38,7 @@ class SetEmailDb
             if (! MultiDB::userFindAndSetDb($request->input('email'))) {
                 return response()->json($error, 400);
             }
-        } 
+        }
         // else {
         //     return response()->json($error, 403);
         // }

@@ -46,7 +46,6 @@ class PostUpdate extends Command
      */
     public function handle()
     {
-
         set_time_limit(0);
 
         info('running post update');
@@ -73,6 +72,5 @@ class PostUpdate extends Command
         $application->run($input);
 
         echo "Done.";
-
     }
 }

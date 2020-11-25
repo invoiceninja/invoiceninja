@@ -36,12 +36,12 @@ class TrustProxies extends Middleware
      *
      * @param \Illuminate\Contracts\Config\Repository $config
      */
-    public function __construct(Repository $config) {
+    public function __construct(Repository $config)
+    {
+        parent::__construct($config);
     
-       parent::__construct($config);
-    
-       if (config('ninja.trusted_proxies'))
-           $this->proxies = config('ninja.trusted_proxies');
-    
+        if (config('ninja.trusted_proxies')) {
+            $this->proxies = config('ninja.trusted_proxies');
+        }
     }
 }

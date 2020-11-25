@@ -16,5 +16,4 @@ namespace App\Repositories;
  */
 class DesignRepository extends BaseRepository
 {
-
 }

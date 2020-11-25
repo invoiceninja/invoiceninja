@@ -54,8 +54,9 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
 
     public function handle()
     {
-        if($this->company->is_disabled)
+        if ($this->company->is_disabled) {
             return true;
+        }
         
         //Set DB
         MultiDB::setDb($this->company->db);
@@ -74,19 +75,15 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
         //Send email via a Mailable class
         //
         try {
-        Mail::to($this->old_email)
+            Mail::to($this->old_email)
             ->send(new UserNotificationMailer($mail_obj));
 
-        Mail::to($this->new_email)
+            Mail::to($this->new_email)
             ->send(new UserNotificationMailer($mail_obj));
-        }
-        catch (\Exception $e) {
-
+        } catch (\Exception $e) {
             $this->failed($e);
             $this->logMailError($e->getMessage(), $this->company->owner());
-
         }
-
     }
 
     private function getData()

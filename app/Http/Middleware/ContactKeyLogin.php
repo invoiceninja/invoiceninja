@@ -34,47 +34,32 @@ class ContactKeyLogin
      */
     public function handle($request, Closure $next)
     {
-
-        if(Auth::guard('contact')->check())
+        if (Auth::guard('contact')->check()) {
             Auth::guard('contact')->logout();
+        }
 
         if ($request->segment(3) && config('ninja.db.multi_db_enabled')) {
-
             if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
-
                 $client_contact = ClientContact::where('contact_key', $request->segment(3))->first();
                 Auth::guard('contact')->login($client_contact, true);
                 return redirect()->to('client/dashboard');
-
             }
-
-        }
-        else if ($request->has('contact_key')) {
-
-            if($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()){
+        } elseif ($request->has('contact_key')) {
+            if ($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()) {
                 Auth::guard('contact')->login($client_contact, true);
                 return redirect()->to('client/dashboard');
             }
-
-        }
-        else if($request->has('client_hash') && config('ninja.db.multi_db_enabled')){
-
+        } elseif ($request->has('client_hash') && config('ninja.db.multi_db_enabled')) {
             if (MultiDB::findAndSetDbByClientHash($request->input('client_hash'))) {
-
                 $client = Client::where('client_hash', $request->input('client_hash'))->first();
                 Auth::guard('contact')->login($client->primary_contact()->first(), true);
                 return redirect()->to('client/dashboard');
-
             }
-
-        }
-        else if($request->has('client_hash')){
-
-            if($client = Client::where('client_hash', $request->input('client_hash'))->first()){
+        } elseif ($request->has('client_hash')) {
+            if ($client = Client::where('client_hash', $request->input('client_hash'))->first()) {
                 Auth::guard('contact')->login($client->primary_contact()->first(), true);
                 return redirect()->to('client/dashboard');
             }
-
         }
 
         return $next($request);

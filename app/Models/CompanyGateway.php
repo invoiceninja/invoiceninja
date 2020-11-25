@@ -241,7 +241,6 @@ class CompanyGateway extends BaseModel
         }
 
         return $this->fees_and_limits->{$gateway_type_id};
-
     }
 
     /**
@@ -272,7 +271,6 @@ class CompanyGateway extends BaseModel
 
     public function calcGatewayFee($amount, $include_taxes = false, $gateway_type_id = GatewayType::CREDIT_CARD)
     {
-
         $fees_and_limits = $this->getFeesAndLimits($gateway_type_id);
 
         if (! $fees_and_limits) {
@@ -288,9 +286,9 @@ class CompanyGateway extends BaseModel
 
         if ($fees_and_limits->fee_percent) {
             if ($fees_and_limits->adjust_fee_percent) {
-                $fee += round(($amount / (1 - $fees_and_limits->fee_percent / 100) - $amount),2);
+                $fee += round(($amount / (1 - $fees_and_limits->fee_percent / 100) - $amount), 2);
             } else {
-                $fee += round(($amount * $fees_and_limits->fee_percent / 100),2);
+                $fee += round(($amount * $fees_and_limits->fee_percent / 100), 2);
             }
             info("fee after adding fee percent = {$fee}");
         }
@@ -305,17 +303,17 @@ class CompanyGateway extends BaseModel
         /**/
         if ($include_taxes) {
             if ($fees_and_limits->fee_tax_rate1) {
-                $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100),2);
+                $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100), 2);
                 info("fee after adding fee tax 1 = {$fee}");
             }
 
             if ($fees_and_limits->fee_tax_rate2) {
-                $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100),2);
+                $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100), 2);
                 info("fee after adding fee tax 2 = {$fee}");
             }
 
             if ($fees_and_limits->fee_tax_rate3) {
-                $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100),2);
+                $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100), 2);
                 info("fee after adding fee tax 3 = {$fee}");
             }
         }
@@ -359,7 +357,7 @@ class CompanyGateway extends BaseModel
     //     $fee_component_tax_rate3 = $fees_and_limits->fee_tax_rate3 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate3 / 100) : 0;
     // }
 
-    public function resolveRouteBinding($value, $field = NULL)
+    public function resolveRouteBinding($value, $field = null)
     {
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();

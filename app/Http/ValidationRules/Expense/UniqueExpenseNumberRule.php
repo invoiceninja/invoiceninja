@@ -51,8 +51,9 @@ class UniqueExpenseNumberRule implements Rule
      */
     private function checkIfExpenseNumberUnique() : bool
     {
-        if(empty($this->input['number']))
+        if (empty($this->input['number'])) {
             return true;
+        }
 
         $expense = Expense::query()
                           ->where('number', $this->input['number'])

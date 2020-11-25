@@ -60,9 +60,7 @@ class UpdateOrCreateProduct implements ShouldQueue
         
         //only update / create products - not tasks or gateway fees
         $updateable_products = collect($this->products)->filter(function ($item) {
-
             return $item->type_id == 1;
-          
         });
 
         foreach ($updateable_products as $item) {
@@ -98,6 +96,6 @@ class UpdateOrCreateProduct implements ShouldQueue
     public function failed($exception = null)
     {
         info("update create failed with = ");
-        info(print_r($exception->getMessage(),1));
+        info(print_r($exception->getMessage(), 1));
     }
 }

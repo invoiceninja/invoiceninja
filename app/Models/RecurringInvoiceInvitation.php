@@ -86,5 +86,4 @@ class RecurringInvoiceInvitation extends BaseModel
         $this->opened_date = now();
         $this->save();
     }
-
 }

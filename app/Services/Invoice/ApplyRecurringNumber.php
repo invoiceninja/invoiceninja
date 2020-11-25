@@ -48,7 +48,7 @@ class ApplyRecurringNumber extends AbstractService
                 break;
             case 'when_sent':
                 if ($this->invoice->status_id == Invoice::STATUS_SENT) {
-                $this->invoice->number = $this->getNextRecurringInvoiceNumber($this->client);
+                    $this->invoice->number = $this->getNextRecurringInvoiceNumber($this->client);
                 }
                 break;
 

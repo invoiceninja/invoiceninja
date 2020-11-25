@@ -47,7 +47,6 @@ class TemplateEmail extends Mailable
      */
     public function build()
     {
-
         $template_name = 'email.template.'.$this->build_email->getTemplate();
 
         $settings = $this->client->getMergedSettings();
@@ -56,13 +55,15 @@ class TemplateEmail extends Mailable
 
         $this->from($this->user->email, $this->user->present()->name());
 
-        if(strlen($settings->reply_to_email) > 1)
+        if (strlen($settings->reply_to_email) > 1) {
             $this->replyTo($settings->reply_to_email, $settings->reply_to_email);
+        }
 
-        if(strlen($settings->bcc_email) > 1)
+        if (strlen($settings->bcc_email) > 1) {
             $this->bcc($settings->bcc_email, $settings->bcc_email);
+        }
 
-            $this->subject($this->build_email->getSubject())
+        $this->subject($this->build_email->getSubject())
             ->text('email.template.plain', [
                 'body' => $this->build_email->getBody(),
                 'footer' => $this->build_email->getFooter(),

@@ -157,7 +157,7 @@ class Activity extends StaticModel
         return $this->belongsTo(Company::class);
     }
 
-    public function resolveRouteBinding($value, $field = NULL)
+    public function resolveRouteBinding($value, $field = null)
     {
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");

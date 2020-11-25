@@ -42,7 +42,6 @@ class UpdateInvoicePayment
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
 
         collect($paid_invoices)->each(function ($paid_invoice) use ($invoices) {
-            
             $invoice = $invoices->first(function ($inv) use ($paid_invoice) {
                 return $paid_invoice->invoice_id == $inv->hashed_id;
             });
@@ -81,7 +80,6 @@ class UpdateInvoicePayment
                 ->save();
 
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
-
         });
         
         $this->payment->save();

@@ -44,10 +44,8 @@ class CreateRecurringInvitations extends AbstractService
 
     public function run()
     {
-
         try {
             $this->entity->client->contacts->each(function ($contact) {
-
                 $invitation = $this->invitation_class::whereCompanyId($this->entity->company_id)
                                             ->whereClientContactId($contact->id)
                                             ->where($this->entity_id_name, $this->entity->id)
@@ -62,11 +60,8 @@ class CreateRecurringInvitations extends AbstractService
                 } elseif ($invitation && ! $contact->send_email) {
                     $invitation->delete();
                 }
-
             });
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             info($e->getMessage());
         }
 

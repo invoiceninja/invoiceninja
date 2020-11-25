@@ -207,7 +207,7 @@ class Payment extends BaseModel
         return new PaymentService($this);
     }
 
-    public function resolveRouteBinding($value, $field = NULL)
+    public function resolveRouteBinding($value, $field = null)
     {
         return $this
             ->withTrashed()
@@ -293,5 +293,4 @@ class Payment extends BaseModel
     {
         return route('client.payments.show', $this->hashed_id);
     }
-    
 }

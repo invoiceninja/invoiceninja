@@ -80,5 +80,4 @@ class ContactLoginController extends Controller
 
         return redirect('/client/login');
     }
-
 }

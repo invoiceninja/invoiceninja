@@ -97,8 +97,7 @@ class HandleReversal extends AbstractService
         }
 
         /*If there is a payment linked, then the credit needs to be linked back to that payment in case of refund*/
-        if($paymentables->count() > 0){
-
+        if ($paymentables->count() > 0) {
             $payment = $paymentables->first()->payment;
             $payment->credits()->save($credit);
 
@@ -110,7 +109,6 @@ class HandleReversal extends AbstractService
             //harvest the credit record and add in the amount for the credit.
             $paymentable_credit->pivot->amount = $total_paid;
             $paymentable_credit->pivot->save();
-
         }
 
         /* Set invoice balance to 0 */
@@ -136,5 +134,4 @@ class HandleReversal extends AbstractService
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
     }
-
 }

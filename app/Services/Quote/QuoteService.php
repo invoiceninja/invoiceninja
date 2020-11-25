@@ -117,8 +117,9 @@ class QuoteService
     {
         $this->setStatus(Quote::STATUS_APPROVED)->save();
 
-        if(!$contact)
+        if (!$contact) {
             $contact = $this->quote->invitations->first()->contact;
+        }
 
         event(new QuoteWasApproved($contact, $this->quote, $this->quote->company, Ninja::eventVars()));
 
@@ -165,17 +166,20 @@ class QuoteService
     {
         $settings = $this->quote->client->getMergedSettings();
 
-        if(! $this->quote->design_id) 
+        if (! $this->quote->design_id) {
             $this->quote->design_id = $this->decodePrimaryKey($settings->quote_design_id);
+        }
             
-        if(!isset($this->quote->footer))
+        if (!isset($this->quote->footer)) {
             $this->quote->footer = $settings->quote_footer;
+        }
 
-        if(!isset($this->quote->terms))
+        if (!isset($this->quote->terms)) {
             $this->quote->terms = $settings->quote_terms;
+        }
 
         
-        return $this;        
+        return $this;
     }
 
     /**

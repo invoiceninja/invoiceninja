@@ -27,8 +27,6 @@ use Illuminate\Http\Request;
  */
 class QuoteRepository extends BaseRepository
 {
-
-
     public function save($data, Quote $quote) : ?Quote
     {
         return $this->alternativeSave($data, $quote);

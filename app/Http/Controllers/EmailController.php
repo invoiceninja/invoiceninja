@@ -120,18 +120,14 @@ class EmailController extends BaseController
         $template = str_replace("email_template_", "", $template);
 
         $entity_obj->invitations->each(function ($invitation) use ($subject, $body, $entity_string, $entity_obj, $template) {
-
             if ($invitation->contact->send_email && $invitation->contact->email) {
-
                 $data = [
                     'subject' => $subject,
                     'body' => $body
                 ];
                 
                 EmailEntity::dispatchNow($invitation, $invitation->company, $template, $data);
-
             }
-
         });
 
         $entity_obj->last_sent_date = now();

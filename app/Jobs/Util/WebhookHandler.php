@@ -63,21 +63,22 @@ class WebhookHandler implements ShouldQueue
 
         MultiDB::setDb($this->company->db);
 
-        if (! $this->company || $this->company->is_disabled) 
+        if (! $this->company || $this->company->is_disabled) {
             return true;
+        }
 
 
         $subscriptions = Webhook::where('company_id', $this->company->id)
                                     ->where('event_id', $this->event_id)
                                     ->get();
 
-        if (! $subscriptions || $subscriptions->count() == 0)
+        if (! $subscriptions || $subscriptions->count() == 0) {
             return;
+        }
         
         $subscriptions->each(function ($subscription) {
             $this->process($subscription);
         });
-
     }
 
     private function process($subscription)

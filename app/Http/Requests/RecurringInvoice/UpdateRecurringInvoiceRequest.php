@@ -36,7 +36,6 @@ class UpdateRecurringInvoiceRequest extends Request
 
     public function rules()
     {
-        
         $rules = [];
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
@@ -90,33 +89,32 @@ class UpdateRecurringInvoiceRequest extends Request
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
 
-        if(isset($input['auto_bill']))
+        if (isset($input['auto_bill'])) {
             $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
+        }
 
         $this->replace($input);
     }
 
     /**
      * if($auto_bill == '')
-     * off / optin / optout will reset the status of this field to off to allow 
+     * off / optin / optout will reset the status of this field to off to allow
      * the client to choose whether to auto_bill or not.
-     * 
+     *
      * @param enum $auto_bill off/always/optin/optout
      *
      * @return bool
      */
     private function setAutoBillFlag($auto_bill) :bool
     {
-
-        if($auto_bill == 'always')
+        if ($auto_bill == 'always') {
             return true;
+        }
 
         // if($auto_bill == '')
-        // off / optin / optout will reset the status of this field to off to allow 
+        // off / optin / optout will reset the status of this field to off to allow
         // the client to choose whether to auto_bill or not.
         
         return false;
-
     }
-    
 }

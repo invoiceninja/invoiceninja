@@ -303,7 +303,7 @@ class DemoMode extends Command
                     'is_primary' => 1,
                 ]);
 
-        ClientContact::factory()->count(rand(1,5))->create([
+        ClientContact::factory()->count(rand(1, 5))->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
                     'company_id' => $company->id,
@@ -325,7 +325,7 @@ class DemoMode extends Command
 
     private function createExpense($client)
     {
-        Expense::factory()->count(rand(1,5))->create([
+        Expense::factory()->count(rand(1, 5))->create([
                 'user_id' => $client->user_id,
                 'client_id' => $client->id,
                 'company_id' => $client->company_id,
@@ -346,7 +346,7 @@ class DemoMode extends Command
                 'is_primary' => 1,
             ]);
 
-        VendorContact::factory()->count(rand(1,5))->create([
+        VendorContact::factory()->count(rand(1, 5))->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company_id,
@@ -376,7 +376,6 @@ class DemoMode extends Command
 
     private function createInvoice($client, $assigned_user_id = null)
     {
-
         $faker = \Faker\Factory::create();
 
         $invoice = InvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
@@ -441,7 +440,6 @@ class DemoMode extends Command
 
     private function createCredit($client, $assigned_user_id = null)
     {
-
         $faker = \Faker\Factory::create();
 
         $credit = Credit::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);

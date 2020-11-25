@@ -12,7 +12,6 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class Project extends BaseModel
 {
-
     use SoftDeletes;
     use PresentableTrait;
     use Filterable;

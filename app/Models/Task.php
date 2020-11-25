@@ -115,7 +115,6 @@ class Task extends BaseModel
         } else {
             return '';
         }
-
     }
 
     public function calcDuration($start_time_cutoff = 0, $end_time_cutoff = 0)
@@ -143,9 +142,4 @@ class Task extends BaseModel
 
         return round($duration);
     }
-
-
-
-
-
 }

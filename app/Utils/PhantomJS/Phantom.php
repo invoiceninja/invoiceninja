@@ -36,7 +36,7 @@ class Phantom
      *
      * @param $invitation
      */
-    public function generate($invitation) 
+    public function generate($invitation)
     {
         $entity = false;
 
@@ -68,7 +68,7 @@ class Phantom
         $file_path = $path.$entity_obj->number.'.pdf';
 
         $url = config('ninja.app_url').'phantom/'.$entity.'/'.$invitation->key.'?phantomjs_secret='.config('ninja.phantomjs_secret');
-info($url);
+        info($url);
 
         $key = config('ninja.phantomjs_key');
         $secret = config('ninja.phantomjs_key');
@@ -85,7 +85,6 @@ info($url);
 
     public function displayInvitation(string $entity, string $invitation_key)
     {
-
         $key = $entity.'_id';
 
         $invitation_instance = 'App\Models\\'.Str::camel(ucfirst($entity)).'Invitation';
@@ -105,12 +104,12 @@ info($url);
         $html = new HtmlEngine($invitation);
 
         if ($design->is_custom) {
-          $options = [
+            $options = [
             'custom_partials' => json_decode(json_encode($design->design), true)
           ];
-          $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+            $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
         } else {
-          $template = new PdfMakerDesign(strtolower($design->name));
+            $template = new PdfMakerDesign(strtolower($design->name));
         }
 
         $state = [

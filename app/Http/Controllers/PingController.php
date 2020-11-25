@@ -45,7 +45,9 @@ class PingController extends BaseController
         return response()->json(
             ['company_name' => auth()->user()->getCompany()->present()->name(),
              'user_name' => auth()->user()->present()->name(),
-            ], 200);
+            ],
+            200
+        );
     }
 
     /**

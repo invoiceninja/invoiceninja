@@ -137,7 +137,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
      * @param null $field
      * @return Model|null
      */
-    public function resolveRouteBinding($value, $field = NULL)
+    public function resolveRouteBinding($value, $field = null)
     {
         return $this
             ->withTrashed()

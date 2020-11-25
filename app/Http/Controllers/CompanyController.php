@@ -408,9 +408,9 @@ class CompanyController extends BaseController
      */
     public function update(UpdateCompanyRequest $request, Company $company)
     {
-        
-        if($request->hasFile('company_logo') || (is_array($request->input('settings')) && !array_key_exists('company_logo', $request->input('settings'))))
+        if ($request->hasFile('company_logo') || (is_array($request->input('settings')) && !array_key_exists('company_logo', $request->input('settings')))) {
             $this->removeLogo($company);
+        }
 
         $company = $this->company_repo->save($request->all(), $company);
 
@@ -490,7 +490,6 @@ class CompanyController extends BaseController
             LightLogs::create(new AccountDeleted())
                      ->increment()
                      ->batch();
-
         } else {
             $company_id = $company->id;
             $company->delete();

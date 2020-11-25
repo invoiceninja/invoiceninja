@@ -28,9 +28,7 @@ trait CleanLineItems
         $cleaned_items = [];
 
         foreach ($items as $item) {
-
             $cleaned_items[] = $this->cleanLineItem($item);
-            
         }
 
         return $cleaned_items;
@@ -51,20 +49,17 @@ trait CleanLineItems
 
             //if the key has not been set, we set it to a default value
             if (! array_key_exists($key, $item) || ! isset($item[$key])) {
-                
-                $item[$key] = $value;         
+                $item[$key] = $value;
                 $item[$key] = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $value);
-            
-            }
-            else{
+            } else {
                 //always cast the value!
                 $item[$key] = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $item[$key]);
             }
-
         }
 
-        if (array_key_exists('id', $item)) 
+        if (array_key_exists('id', $item)) {
             unset($item['id']);
+        }
         
 
         return $item;

@@ -187,7 +187,7 @@ class CreditController extends BaseController
 
         $credit = $this->credit_repository->save($request->all(), CreditFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $credit = $credit->service()        
+        $credit = $credit->service()
                          ->fillDefaults()
                          ->save();
 

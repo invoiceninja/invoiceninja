@@ -47,7 +47,6 @@ class SendEmail extends AbstractService
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatchNow($invitation, $invitation->company, $this->reminder_template);
-
             }
         });
     }

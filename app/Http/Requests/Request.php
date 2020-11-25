@@ -17,7 +17,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class Request extends FormRequest
 {
-	use MakesHash;
+    use MakesHash;
 
     /**
      * Get the validation rules that apply to the request.
@@ -31,22 +31,22 @@ class Request extends FormRequest
 
     public function globalRules($rules)
     {
-    	$merge_rules = [];
+        $merge_rules = [];
 
-    	foreach($this->all() as $key => $value)
-    	{
-    		if(method_exists($this, $key))
-    			$merge_rules = $this->{$key}($rules); 
-    	}
+        foreach ($this->all() as $key => $value) {
+            if (method_exists($this, $key)) {
+                $merge_rules = $this->{$key}($rules);
+            }
+        }
 
-    	return array_merge($merge_rules, $rules);
+        return array_merge($merge_rules, $rules);
     }
 
     private function assigned_user_id($rules)
-    {	
-    	$rules['assigned_user_id'] = [
-            'bail' , 
-            'sometimes', 
+    {
+        $rules['assigned_user_id'] = [
+            'bail' ,
+            'sometimes',
             'nullable',
                 new RelatedUserRule($this->all())
             ];
@@ -70,7 +70,6 @@ class Request extends FormRequest
 
     public function decodePrimaryKeys($input)
     {
-
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
@@ -81,15 +80,15 @@ class Request extends FormRequest
 
         if (array_key_exists('vendor_id', $input) && is_string($input['vendor_id'])) {
             $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
-        }        
+        }
 
         if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }   
+        }
 
         if (array_key_exists('invoice_id', $input) && is_string($input['invoice_id'])) {
             $input['invoice_id'] = $this->decodePrimaryKey($input['invoice_id']);
-        }  
+        }
 
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
@@ -146,6 +145,6 @@ class Request extends FormRequest
             }
         }
         
-    	return $input;
+        return $input;
     }
 }

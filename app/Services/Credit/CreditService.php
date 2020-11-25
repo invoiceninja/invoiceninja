@@ -69,13 +69,13 @@ class CreditService
 
     public function setCalculatedStatus()
     {
-        
-        if((int)$this->credit->balance == 0)
+        if ((int)$this->credit->balance == 0) {
             $this->credit->status_id = Credit::STATUS_APPLIED;
-        elseif((string)$this->credit->amount == (string)$this->credit->balance)
+        } elseif ((string)$this->credit->amount == (string)$this->credit->balance) {
             $this->credit->status_id = Credit::STATUS_SENT;
-        elseif($this->credit->balance > 0)
+        } elseif ($this->credit->balance > 0) {
             $this->credit->status_id = Credit::STATUS_PARTIAL;
+        }
 
         return $this;
     }
@@ -106,17 +106,20 @@ class CreditService
     {
         $settings = $this->credit->client->getMergedSettings();
 
-        if(! $this->credit->design_id) 
+        if (! $this->credit->design_id) {
             $this->credit->design_id = $this->decodePrimaryKey($settings->credit_design_id);
+        }
             
-        if(!isset($this->credit->footer))
+        if (!isset($this->credit->footer)) {
             $this->credit->footer = $settings->credit_footer;
+        }
 
-        if(!isset($this->credit->terms))
+        if (!isset($this->credit->terms)) {
             $this->credit->terms = $settings->credit_terms;
+        }
 
         
-        return $this;        
+        return $this;
     }
     
     /**

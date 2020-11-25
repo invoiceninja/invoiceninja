@@ -363,7 +363,7 @@ class ProjectController extends BaseController
         $project->fill($request->all());
         $project->save();
 
-        if(empty($project->number)){
+        if (empty($project->number)) {
             $project->number = $this->getNextProjectNumber($project);
             $project->save();
         }

@@ -42,8 +42,9 @@ class UpdateExpenseRequest extends Request
         //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
         $rules['contacts.*.email'] = 'nullable|distinct';
 
-        if(isset($this->number))
+        if (isset($this->number)) {
             $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id)->ignore($this->expense->id);
+        }
 
         return $this->globalRules($rules);
     }

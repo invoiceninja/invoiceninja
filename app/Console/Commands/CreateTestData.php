@@ -471,7 +471,6 @@ class CreateTestData extends Command
 
     private function createInvoice($client)
     {
-
         $faker = Factory::create();
 
         $invoice = InvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
@@ -522,7 +521,6 @@ class CreateTestData extends Command
 
     private function createCredit($client)
     {
-
         $faker = Factory::create();
 
         $credit = Credit::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
@@ -562,7 +560,6 @@ class CreateTestData extends Command
 
     private function createQuote($client)
     {
-
         $faker = Factory::create();
 
         //$quote = QuoteFactory::create($client->company->id, $client->user->id);//stub the company and user_id

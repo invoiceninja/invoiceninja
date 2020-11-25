@@ -104,6 +104,5 @@ class BaseMailerJob implements ShouldQueue
 
         LightLogs::create($job_failure)
                  ->batch();
-
     }
 }

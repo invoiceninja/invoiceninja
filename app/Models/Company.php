@@ -416,7 +416,7 @@ class Company extends BaseModel
         return User::find($c->user_id);
     }
 
-    public function resolveRouteBinding($value, $field = NULL)
+    public function resolveRouteBinding($value, $field = null)
     {
         return $this->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
@@ -439,6 +439,4 @@ class Company extends BaseModel
     {
         return $this->slack_webhook_url;
     }
-
-   
 }

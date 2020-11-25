@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CompanyUser extends Pivot
 {
-
     use SoftDeletes;
 
     //   protected $guarded = ['id'];

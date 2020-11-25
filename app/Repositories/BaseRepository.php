@@ -158,7 +158,6 @@ class BaseRepository
      */
     protected function alternativeSave($data, $model)
     {
-
         $class = new ReflectionClass($model);
 
         if (array_key_exists('client_id', $data)) {
@@ -233,9 +232,7 @@ class BaseRepository
                     //make sure we are creating an invite for a contact who belongs to the client only!
                     $contact = ClientContact::find($invitation['client_contact_id']);
 
-                    if ($contact && $model->client_id == $contact->client_id)
-                    {
-
+                    if ($contact && $model->client_id == $contact->client_id) {
                         $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
 
                         $new_invitation = $invitation_class::withTrashed()
@@ -251,7 +248,6 @@ class BaseRepository
                             $new_invitation->client_contact_id = $contact->id;
                             $new_invitation->save();
                         }
-
                     }
                 }
             }
@@ -286,11 +282,9 @@ class BaseRepository
 
             //links tasks and expenses back to the invoice.
             $model->service()->linkEntities()->save();
-
         }
 
         if ($class->name == Credit::class) {
-
             $model = $model->calc()->getCredit();
 
             $model->ledger()->updateCreditBalance(($state['finished_amount'] - $state['starting_amount']));

@@ -25,11 +25,6 @@ class ContactHashLoginController extends Controller
      */
     public function login(string $contact_key)
     {
-
         return redirect('/client/login');
-
     }
-
 }
-    
-

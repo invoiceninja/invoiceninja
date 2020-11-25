@@ -383,20 +383,19 @@ class StripePaymentDriver extends BaseDriver
     }
 
     /**
-     * Attach Stripe payment method to Stripe client. 
-     * 
-     * @param string $payment_method 
-     * @param mixed $customer 
-     * 
-     * @return void 
+     * Attach Stripe payment method to Stripe client.
+     *
+     * @param string $payment_method
+     * @param mixed $customer
+     *
+     * @return void
      */
     public function attach(string $payment_method, $customer): void
     {
         try {
             $stripe_payment_method = $this->getStripePaymentMethod($payment_method);
             $stripe_payment_method->attach(['customer' => $customer->id]);
-        }
-        catch(\Stripe\Exception\ApiErrorException | \Exception $e) {
+        } catch (\Stripe\Exception\ApiErrorException | \Exception $e) {
             $this->processInternallyFailedPayment($this, $e);
         }
     }
@@ -430,10 +429,10 @@ class StripePaymentDriver extends BaseDriver
 
     /**
      * Retrieve payment method from Stripe.
-     * 
-     * @param string $source 
      *
-     * @return \Stripe\PaymentMethod|void 
+     * @param string $source
+     *
+     * @return \Stripe\PaymentMethod|void
      */
     public function getStripePaymentMethod(string $source)
     {

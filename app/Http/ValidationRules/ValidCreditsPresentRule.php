@@ -60,7 +60,6 @@ class ValidCreditsPresentRule implements Rule
 
 
         if (request()->input('credits') && is_array(request()->input('credits'))) {
-
             $credit_collection = Credit::whereIn('id', $this->transformKeys(array_column(request()->input('credits'), 'credit_id')))
                                        ->where('balance', '>', 0)
                                        ->get();

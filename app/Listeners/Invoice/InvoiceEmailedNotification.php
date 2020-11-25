@@ -62,7 +62,6 @@ class InvoiceEmailedNotification implements ShouldQueue
 
                 EntitySentMailer::dispatch($event->invitation, 'invoice', $user, $event->invitation->company);
                 $first_notification_sent = false;
-
             }
 
             $notification->method = $methods;

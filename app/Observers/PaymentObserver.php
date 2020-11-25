@@ -26,13 +26,13 @@ class PaymentObserver
      */
     public function created(Payment $payment)
     {
-
         $subscriptions = Webhook::where('company_id', $payment->company->id)
                             ->where('event_id', Webhook::EVENT_CREATE_PAYMENT)
                             ->exists();
 
-        if($subscriptions)
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_PAYMENT, $payment, $payment->company);
+        }
     }
 
     /**
@@ -57,8 +57,9 @@ class PaymentObserver
                         ->where('event_id', Webhook::EVENT_DELETE_PAYMENT)
                         ->exists();
 
-        if($subscriptions)
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_DELETE_PAYMENT, $payment, $payment->company);
+        }
     }
 
     /**
