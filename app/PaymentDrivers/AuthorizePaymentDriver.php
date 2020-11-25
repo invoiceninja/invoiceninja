@@ -96,6 +96,12 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function authorizeView($payment_method)
     {
+        if (count($this->required_fields) > 0) {
+            return redirect()
+                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
+                ->with('missing_required_fields', $this->required_fields);
+        }
+
         return (new AuthorizePaymentMethod($this))->authorizeView($payment_method);
     }
 
@@ -111,11 +117,23 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function processPaymentView($data)
     {
+        if (count($this->required_fields) > 0) {
+            return redirect()
+                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
+                ->with('missing_required_fields', $this->required_fields);
+        }
+
         return $this->payment_method->processPaymentView($data);
     }
 
     public function processPaymentResponse($request)
     {
+        if (count($this->required_fields) > 0) {
+            return redirect()
+                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
+                ->with('missing_required_fields', $this->required_fields);
+        }
+
         return $this->payment_method->processPaymentResponse($request);
     }
 

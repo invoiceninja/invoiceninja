@@ -7,6 +7,20 @@
 @endsection
 
 @section('body')
+    @if(session()->has('missing_required_fields'))
+        <div class="validation validation-fail">
+            <p class="mb-3 font-semibold">{{ ctrans('texts.before_proceeding_with_payment_warning') }}:</p>
+
+            <ul>
+                @foreach(session()->get('missing_required_fields') as $field)
+                    <li class="block">— {{ ctrans("texts.{$field}") }}</li>
+                @endforeach    
+            </ul>
+
+            <button onclick="window.history.back();" class="block mt-3 button button-link pl-0 ml-0 underline">{{ ctrans('texts.after_completing_go_back_to_previous_page') }}</button>
+        </div>
+    @endif
+
     <!-- Basic information: first & last name, e-mail address etc. -->
     @livewire('profile.settings.general')
     
