@@ -12,6 +12,7 @@
 namespace App\Repositories;
 
 use App\Events\Payment\PaymentWasCreated;
+use App\Events\Payment\PaymentWasDeleted;
 use App\Factory\CreditFactory;
 use App\Jobs\Credit\ApplyCreditPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
@@ -146,7 +147,7 @@ class PaymentRepository extends BaseRepository
 
             //todo optimize into a single query
             foreach ($data['credits'] as $paid_credit) {
-                $credit = Credit::find($this->decodePrimaryKey($paid_credit['credit_id']))->withTrashed();
+                $credit = Credit::withTrashed()->find($this->decodePrimaryKey($paid_credit['credit_id']));
 
                 if ($credit) {
                     ApplyCreditPayment::dispatchNow($credit, $payment, $paid_credit['amount'], $credit->company);
@@ -198,9 +199,12 @@ class PaymentRepository extends BaseRepository
             return;
         }
 
-        $payment->service()->deletePayment();
+        $payment = $payment->service()->deletePayment();
 
-        return parent::delete($payment);
+        event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars()));
+
+        return $payment;
+        //return parent::delete($payment);
     }
 
     public function restore($payment)

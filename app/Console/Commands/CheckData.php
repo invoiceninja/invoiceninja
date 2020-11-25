@@ -22,6 +22,7 @@ use App\Models\Credit;
 use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Payment;
 use App\Utils\Ninja;
 use Carbon;
 use DB;
@@ -325,8 +326,11 @@ class CheckData extends Command
             $total_invoice_payments = 0;
 
             foreach ($client->invoices->where('is_deleted', false)->where('status_id', '>', 1) as $invoice) {
-                $total_amount = $invoice->payments->whereNull('deleted_at')->sum('pivot.amount');
-                $total_refund = $invoice->payments->whereNull('deleted_at')->sum('pivot.refunded');
+                // $total_amount = $invoice->payments->whereNull('deleted_at')->sum('pivot.amount');
+                // $total_refund = $invoice->payments->whereNull('deleted_at')->sum('pivot.refunded');
+
+                $total_amount = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.amount');
+                $total_refund = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
 
                  $total_invoice_payments += ($total_amount - $total_refund);
             }
@@ -360,8 +364,8 @@ class CheckData extends Command
 
         Client::cursor()->each(function ($client) use ($wrong_balances) {
             $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($wrong_balances, $client) {
-                $total_amount = $invoice->payments->sum('pivot.amount');
-                $total_refund = $invoice->payments->sum('pivot.refunded');
+                $total_amount = $invoice->payments->whereIn('status_id', [Payment::STATUS_PAID, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.amount');
+                $total_refund = $invoice->payments->whereIn('status_id', [Payment::STATUS_PAID, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
                 $total_credit = $invoice->credits->sum('amount');
 
                 $total_paid = $total_amount - $total_refund;
