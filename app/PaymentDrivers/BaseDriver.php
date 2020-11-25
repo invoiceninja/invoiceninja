@@ -60,22 +60,19 @@ class BaseDriver extends AbstractPaymentDriver
     /* The client */
     public $client;
 
-    /* The initiated gateway driver class*/
+    /* The initialized gateway driver class*/
     public $payment_method;
 
-    /**
-     * @var PaymentHash
-     */
+    /* PaymentHash */
     public $payment_hash;
 
+    /* Array of payment methods */
     public static $methods = [];
 
     public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
     {
         $this->company_gateway = $company_gateway;
-
         $this->invitation = $invitation;
-
         $this->client = $client;
     }
 
@@ -83,23 +80,35 @@ class BaseDriver extends AbstractPaymentDriver
      * Authorize a payment method.
      *
      * Returns a reusable token for storage for future payments
-     * @param const $payment_method The GatewayType::constant
-     * @return void Return a view for collecting payment method information
+     * 
+     * @param array $data
+     * @return mixed Return a view for collecting payment method information
      */
-    public function authorize($payment_method)
-    {
-    }
+    public function authorizeView(array $data) {}
 
     /**
-     * Executes purchase attempt for a given amount.
-     *
-     * @param  float   $amount                  The amount to be collected
-     * @param  bool $return_client_response     Whether the method needs to return a response (otherwise we assume an unattended payment)
-     * @return mixed
+     * The payment authorization response
+     *         
+     * @param  Request $request 
+     * @return mixed Return a response for collecting payment method information
      */
-    public function purchase($amount, $return_client_response = false)
-    {
-    }
+    public function authorizeResponse(Request $request) {}
+
+    /**
+     * Process a payment
+     * 
+     * @param  array $data 
+     * @return mixed Return a view for the payment
+     */
+    public function processPaymentView(array $data) {}
+
+    /**
+     * Process payment response
+     * 
+     * @param  Request $request
+     * @return mixed   Return a response for the payment
+     */
+    public function processPaymentResponse(Request $request) {}
 
     /**
      * Executes a refund attempt for a given amount with a transaction_reference.
@@ -109,23 +118,30 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  bool $return_client_response    Whether the method needs to return a response (otherwise we assume an unattended payment)
      * @return mixed
      */
-    public function refund(Payment $payment, $amount, $return_client_response = false)
-    {
-    }
+    public function refund(Payment $payment, $amount, $return_client_response = false) {}
+
+    /**
+     * Process an unattended payment.
+     *
+     * @param ClientGatewayToken $cgt The client gateway token object
+     * @param PaymentHash $payment_hash The Payment hash containing the payment meta data
+     * @return void The payment response
+     */
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash){}
 
     /**
      * Set the inbound request payment method type for access.
      *
      * @param int $payment_method_id The Payment Method ID
      */
-    public function setPaymentMethod($payment_method_id)
-    {
-    }
+    public function setPaymentMethod($payment_method_id){}
+
+
+    /************************** Helper methods *************************************/
 
     public function setPaymentHash(PaymentHash $payment_hash)
     {
         $this->payment_hash = $payment_hash;
-
         return $this;
     }
 
@@ -187,17 +203,6 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     /**
-     * Process an unattended payment.
-     *
-     * @param ClientGatewayToken $cgt The client gateway token object
-     * @param PaymentHash $payment_hash The Payment hash containing the payment meta data
-     * @return void The payment response
-     */
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
-    {
-    }
-
-    /**
      * When a successful payment is made, we need to append the gateway fee
      * to an invoice.
      *
@@ -212,7 +217,7 @@ class BaseDriver extends AbstractPaymentDriver
         /*Payment invoices*/
         $payment_invoices = $payment_hash->invoices();
 
-        // /*Fee charged at gateway*/
+        /*Fee charged at gateway*/
         $fee_total = $payment_hash->fee_total;
 
         // Sum of invoice amounts
@@ -261,7 +266,6 @@ class BaseDriver extends AbstractPaymentDriver
             return false;
         }
     }
-
 
     /**
      * Store payment method as company gateway token.
