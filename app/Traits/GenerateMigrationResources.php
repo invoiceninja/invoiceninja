@@ -321,6 +321,7 @@ trait GenerateMigrationResources
         $export_credits = Invoice::where('account_id', $this->account->id)
             ->where('amount', '<', '0')
             ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+            ->where('is_public', true)
             ->withTrashed()
             ->get();
 
@@ -333,7 +334,7 @@ trait GenerateMigrationResources
                 'status_id' => $credit->invoice_status_id,
                 'design_id' => $this->getDesignId($credit->invoice_design_id),
                 'number' => $credit->invoice_number,
-                'discount' => $credit->discount ?: 0,
+                'discount' => $credit->discount ? $credit->discount*-1: 0,
                 'is_amount_discount' => $credit->is_amount_discount ?: false,
                 'po_number' => $credit->po_number ?: '',
                 'date' => $credit->invoice_date,
@@ -354,11 +355,11 @@ trait GenerateMigrationResources
                 'custom_value1' => $credit->custom_value1 ?: '',
                 'custom_value2' => $credit->custom_value2 ?: '',
                 'next_send_date' => null,
-                'amount' => $credit->amount ?: 0,
-                'balance' => $credit->balance ?: 0,
-                'partial' => $credit->partial ?: 0,
+                'amount' => $credit->amount ? $credit->amount * -1: 0,
+                'balance' => $credit->balance ? $credit->balance * -1 : 0,
+                'partial' => $credit->partial ? $credit->partial * -1 : 0,
                 'partial_due_date' => $credit->partial_due_date,
-                'line_items' => $this->getInvoiceItems($credit->invoice_items),
+                'line_items' => $this->getCreditItems($credit->invoice_items),
                 'created_at' => $credit->created_at ? Carbon::parse($credit->created_at)->toDateString() : null,
                 'updated_at' => $credit->updated_at ? Carbon::parse($credit->updated_at)->toDateString() : null,
                 'deleted_at' => $credit->deleted_at ? Carbon::parse($credit->deleted_at)->toDateString() : null,
@@ -752,6 +753,43 @@ trait GenerateMigrationResources
         return $transformed;
     }
 
+    public function getCreditItems($items)
+    {
+        $transformed = [];
+
+        foreach ($items as $item) {
+
+            // if($item->cost < 0)
+            //     $item->cost = $item->cost * -1;
+
+            $item->qty = $item->qty * -1;
+
+            // if($item->discount < 0)
+            //     $item->discount = $item->discount * -1;
+
+            $transformed[] = [
+                'id' => $item->id,
+                'quantity' => (float) $item->qty,
+                'cost' => (float) $item->cost,
+                'product_key' => $item->product_key,
+                'notes' => $item->notes,
+                'discount' => (float) $item->discount,
+                'tax_name1' => (string)$item->tax_name1,
+                'tax_rate1' => (float) $item->tax_rate1,
+                'tax_name2' => (string) $item->tax_name2,
+                'tax_rate2' => (float) $item->tax_rate2,
+                'tax_name3' => (string) '',
+                'tax_rate3' => (float) 0,
+                'date' => Carbon::parse($item->created_at)->toDateString(),
+                'custom_value1' => $item->custom_value1,
+                'custom_value2' => $item->custom_value2,
+                'type_id' => (string)$item->invoice_item_type_id,
+            ];
+        }
+
+        return $transformed;
+    }
+
     public function getInvoiceItems($items)
     {
         $transformed = [];
@@ -958,6 +996,7 @@ trait GenerateMigrationResources
                 'height' => $document->height,
                 'created_at' => $document->created_at ? Carbon::parse($document->created_at)->toDateString() : null,
                 'updated_at' => $document->updated_at ? Carbon::parse($document->updated_at)->toDateString() : null,
+                'url' => $document->getUrl(),
             ];
         }
 
@@ -1188,7 +1227,6 @@ trait GenerateMigrationResources
 
         foreach ($tasks as $task)
         {
-
 
             if(!($task->deleted_at instanceof Carbon))
                 $task->deleted_at = Carbon::parse($task->deleted_at);
