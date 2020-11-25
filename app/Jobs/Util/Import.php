@@ -128,7 +128,7 @@ class Import implements ShouldQueue
         'task_statuses',
         'expenses',
         'tasks',
-        'documents',
+        // 'documents',
     ];
 
     /**

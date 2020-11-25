@@ -160,16 +160,16 @@ class InvoiceSum
     {
         $this->total += $this->total_taxes;
 
-        if($this->invoice->custom_value1 > 0)
+        if(is_numeric($this->invoice->custom_value1) && $this->invoice->custom_value1 > 0)
             $this->total += $this->invoice->custom_value1;
 
-        if($this->invoice->custom_value2 > 0)
+        if(is_numeric($this->invoice->custom_value2) && $this->invoice->custom_value2 > 0)
             $this->total += $this->invoice->custom_value2;
 
-        if($this->invoice->custom_value3 > 0)
+        if(is_numeric($this->invoice->custom_value3) && $this->invoice->custom_value3 > 0)
             $this->total += $this->invoice->custom_value3;
 
-        if($this->invoice->custom_value4 > 0)
+        if(is_numeric($this->invoice->custom_value4) && $this->invoice->custom_value4 > 0)
             $this->total += $this->invoice->custom_value4;
 
         return $this;
