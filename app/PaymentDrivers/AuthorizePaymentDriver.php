@@ -63,6 +63,38 @@ class AuthorizePaymentDriver extends BaseDriver
         return $types;
     }
 
+    public function authorizeView($payment_method)
+    {
+        return (new AuthorizePaymentMethod($this))->authorizeView();
+    }
+
+    public function authorizeResponse($request)
+    {
+        return (new AuthorizePaymentMethod($this))->authorizeResponseView($request);
+    }
+
+    public function processPaymentView($data)
+    {
+        return $this->payment_method->processPaymentView($data);
+    }
+
+    public function processPaymentResponse($request)
+    {
+        return $this->payment_method->processPaymentResponse($request);
+    }
+
+    public function refund(Payment $payment, $refund_amount, $return_client_response = false)
+    {
+        return (new RefundTransaction($this))->refundTransaction($payment, $refund_amount);
+    }
+
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    {
+        $this->setPaymentMethod($cgt->gateway_type_id);
+
+        return $this->payment_method->tokenBilling($cgt, $payment_hash);
+    }
+
     public function init()
     {
         error_reporting(E_ALL & ~E_DEPRECATED);
@@ -94,59 +126,6 @@ class AuthorizePaymentDriver extends BaseDriver
         return $env = ANetEnvironment::PRODUCTION;
     }
 
-    public function authorizeView($payment_method)
-    {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
-        return (new AuthorizePaymentMethod($this))->authorizeView($payment_method);
-    }
-
-    public function authorizeResponseView(array $data)
-    {
-        return (new AuthorizePaymentMethod($this))->authorizeResponseView($data);
-    }
-
-    public function authorize($payment_method)
-    {
-        return $this->authorizeView($payment_method);
-    }
-
-    public function processPaymentView($data)
-    {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
-        return $this->payment_method->processPaymentView($data);
-    }
-
-    public function processPaymentResponse($request)
-    {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
-        return $this->payment_method->processPaymentResponse($request);
-    }
-
-    public function purchase($amount, $return_client_response = false)
-    {
-        return false;
-    }
-
-    public function refund(Payment $payment, $refund_amount, $return_client_response = false)
-    {
-        return (new RefundTransaction($this))->refundTransaction($payment, $refund_amount);
-    }
-
     public function findClientGatewayRecord() :?ClientGatewayToken
     {
         return ClientGatewayToken::where('client_id', $this->client->id)
@@ -154,12 +133,6 @@ class AuthorizePaymentDriver extends BaseDriver
                                  ->first();
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
-    {
-        $this->setPaymentMethod($cgt->gateway_type_id);
-
-        return $this->payment_method->tokenBilling($cgt, $payment_hash);
-    }
 
     /**
      * Detach payment method from Authorize.net.
