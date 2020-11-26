@@ -15,8 +15,9 @@ namespace App\PaymentDrivers\Authorize;
 use App\Exceptions\GenericPaymentDriverFailure;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
-use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
 use App\PaymentDrivers\AuthorizePaymentDriver;
+use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
+use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
 use net\authorize\api\contract\v1\CreateCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\CreateCustomerProfileRequest;
 use net\authorize\api\contract\v1\CustomerAddressType;
@@ -39,27 +40,28 @@ class AuthorizePaymentMethod
 
     public $payment_method;
 
+    private $payment_method_id;
+
     public function __construct(AuthorizePaymentDriver $authorize)
     {
         $this->authorize = $authorize;
     }
 
-    public function authorizeView($payment_method)
+    public function authorizeView()
     {
-        $this->payment_method = $payment_method;
+        if($this->authorize->payment_method instanceof AuthorizeCreditCard){
 
-        switch ($payment_method) {
-            case GatewayType::CREDIT_CARD:
-                return $this->authorizeCreditCard();
-                break;
-            case GatewayType::BANK_TRANSFER:
-                return $this->authorizeBankTransfer();
-                break;
+            $this->payment_method_id = GatewayType::CREDIT_CARD;
 
-            default:
-                // code...
-                break;
+            return $this->authorizeCreditCard();
+
         }
+
+        
+        // case GatewayType::BANK_TRANSFER:
+        //     return $this->authorizeBankTransfer();
+        //     break;
+
     }
 
     public function authorizeResponseView($data)
@@ -115,19 +117,17 @@ class AuthorizePaymentMethod
 
     public function createClientGatewayToken($payment_profile, $gateway_customer_reference)
     {
-        //  info(print_r($payment_profile,1));
 
-        $client_gateway_token = new ClientGatewayToken();
-        $client_gateway_token->company_id = $this->authorize->client->company_id;
-        $client_gateway_token->client_id = $this->authorize->client->id;
-        $client_gateway_token->token = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
-        $client_gateway_token->company_gateway_id = $this->authorize->company_gateway->id;
-        $client_gateway_token->gateway_type_id = $this->payment_method;
-        $client_gateway_token->gateway_customer_reference = $gateway_customer_reference;
-        $client_gateway_token->meta = $this->buildPaymentMethod($payment_profile);
-        $client_gateway_token->save();
+        $data = [];
+        $additonal = [];
 
-        return $client_gateway_token;
+        $data['token'] = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
+        $data['payment_method_id'] = $this->payment_method_id;
+        $data['payment_meta'] = $this->buildPaymentMethod($payment_profile);
+
+        $additional['gateway_customer_reference'] = $gateway_customer_reference;
+
+        $this->authorize->storeGatewayToken($data, $additional);
     }
 
     public function buildPaymentMethod($payment_profile)

@@ -13,7 +13,6 @@ namespace App\PaymentDrivers;
 
 use App\Utils\Traits\MakesHash;
 
-
 class YourGatewayPaymentDriver extends BaseDriver
 {
     use MakesHash;
@@ -61,41 +60,14 @@ class YourGatewayPaymentDriver extends BaseDriver
         return $this->payment_method->paymentResponse($request); //this is your custom implementation from here
     }
 
-
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-    	return $this->payment_method->yourRefundImplementationHere();
+    	return $this->payment_method->yourRefundImplementationHere(); //this is your custom implementation from here
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        return $this->payment_method->yourTokenBillingImplmentation();
+        return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
     }
-
-    /**
-     * Creates a payment record for the given
-     * data array.
-     *
-     * @param  array $data   An array of payment attributes
-     * @param  float $amount The amount of the payment
-     * @return Payment       The payment object
-     */
-    public function createPaymentRecord($data, $amount): ?Payment
-    {
-        $payment = PaymentFactory::create($this->client->company_id, $this->client->user_id);
-        $payment->client_id = $this->client->id;
-        $payment->company_gateway_id = $this->company_gateway->id;
-        $payment->status_id = Payment::STATUS_COMPLETED;
-        $payment->gateway_type_id = $data['gateway_type_id'];
-        $payment->type_id = $data['type_id'];
-        $payment->currency_id = $this->client->getSetting('currency_id');
-        $payment->date = Carbon::now();
-        $payment->transaction_reference = $data['transaction_reference'];
-        $payment->amount = $amount;
-        $payment->save();
-
-        return $payment->service()->applyNumber()->save();
-    }
-
     
 }
