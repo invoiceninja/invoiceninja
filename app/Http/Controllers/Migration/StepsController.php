@@ -252,9 +252,11 @@ class StepsController extends BaseController
 
             $file = storage_path("migrations/{$fileName}.zip");
 
+            ksort($localMigrationData);
+
             $zip = new \ZipArchive();
             $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-            $zip->addFromString('migration.json', json_encode(ksort($localMigrationData), JSON_PRETTY_PRINT));
+            $zip->addFromString('migration.json', json_encode($localMigrationData, JSON_PRETTY_PRINT));
             $zip->close();
 
             $localMigrationData['file'] = $file;
