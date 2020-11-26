@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\TaxRate;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -53,6 +54,11 @@ class CompanyUser extends Pivot
     public function getEntityType()
     {
         return self::class;
+    }
+
+    public function tax_rates()
+    {
+        return $this->hasMany(TaxRate::class,'company_id', 'company_id');
     }
 
     public function account()

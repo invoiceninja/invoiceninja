@@ -87,7 +87,7 @@ class CreateEntityPdf implements ShouldQueue
 
     public function handle()
     {
-        if (config('ninja.phantomjs_key')) {
+        if (config('ninja.phantomjs_pdf_generation')) {
             return (new Phantom)->generate($this->invitation);
         }
 
