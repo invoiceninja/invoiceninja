@@ -100,18 +100,27 @@ class AuthorizeCreditCard
 
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amount);
 
+        /*Refactor and push to BaseDriver*/
         if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
-            $payment = $this->createPaymentRecord($data, $amount);
-            $payment->meta = $cgt->meta;
-            $payment->save();
+
+            $payment_record = [];
+            $payment_record['amount'] = $amount;
+            $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;;
+            $payment_record['transaction_reference'] = $data['response']->getTransactionResponse()->getTransId();
+
+            $this->authorize->createPayment($payment_record);
             
-            $payment_hash->payment_id = $payment->id;
-            $payment_hash->save();
+            // $payment = $this->createPaymentRecord($data, $amount);
+            // $payment->meta = $cgt->meta;
+            // $payment->save();
+            
+            // $payment_hash->payment_id = $payment->id;
+            // $payment_hash->save();
 
-            $this->authorize->attachInvoices($payment, $payment_hash);
-            $payment->service()->updateInvoicePayment($payment_hash);
+            // $this->authorize->attachInvoices($payment, $payment_hash);
+            // $payment->service()->updateInvoicePayment($payment_hash);
 
-            event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+            // event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
             $vars = [
                 'hashed_ids' => $invoice->hashed_id,
@@ -130,6 +139,37 @@ class AuthorizeCreditCard
             return false;
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private function handleResponse($data, $request)
     {
