@@ -12,10 +12,9 @@
 namespace App\Services\Credit;
 
 use App\Helpers\Email\CreditEmail;
-use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Credit\EmailCredit;
+use App\Jobs\Entity\EmailEntity;
 use App\Models\ClientContact;
-use App\Models\Credit;
 
 class SendEmail
 {

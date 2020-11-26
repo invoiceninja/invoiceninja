@@ -26,7 +26,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
-use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
@@ -69,6 +68,9 @@ class BaseDriver extends AbstractPaymentDriver
 
     /* Array of payment methods */
     public static $methods = [];
+    
+    /** @var array */
+    public $required_fields = [];
 
     public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
     {
@@ -328,5 +330,119 @@ class BaseDriver extends AbstractPaymentDriver
         );
 
         throw new PaymentFailed($error, $e->getCode());
+    }
+
+    /**
+     * Wrapper method for checking if resource is good.
+     * 
+     * @param mixed $resource 
+     * @return bool 
+     */
+    public function checkRequiredResource($resource): bool
+    {
+        if (is_null($resource) || empty($resource)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function checkRequirements()
+    {
+        if ($this->company_gateway->require_billing_address) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->address1)) {
+                $this->required_fields[] = 'billing_address1';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->address2)) {
+                $this->required_fields[] = 'billing_address2';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->city)) {
+                $this->required_fields[] = 'billing_city';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->state)) {
+                $this->required_fields[] = 'billing_state';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
+                $this->required_fields[] = 'billing_postal_code';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->country_id)) {
+                $this->required_fields[] = 'billing_country';
+            }
+        }
+
+        if ($this->company_gateway->require_shipping_address) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_address1)) {
+                $this->required_fields[] = 'shipping_address1';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_address2)) {
+                $this->required_fields[] = 'shipping_address2';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_city)) {
+                $this->required_fields[] = 'shipping_city';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_state)) {
+                $this->required_fields[] = 'shipping_state';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_postal_code)) {
+                $this->required_fields[] = 'shipping_postal_code';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_country_id)) {
+                $this->required_fields[] = 'shipping_country';
+            }
+        }
+
+        if ($this->company_gateway->require_client_name) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->name)) {
+                $this->required_fields[] = 'name';
+            }
+        }
+
+        if ($this->company_gateway->require_client_phone) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->phone)) {
+                $this->required_fields[] = 'phone';
+            }
+        }
+
+        if ($this->company_gateway->require_contact_email) {
+            if ($this->checkRequiredResource(auth()->user('contact')->email)) {
+                $this->required_fields[] = 'contact_email';
+            }
+        }
+
+        if ($this->company_gateway->require_contact_name) {
+            if ($this->checkRequiredResource(auth()->user('contact')->first_name)) {
+                $this->required_fields[] = 'contact_first_name';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->last_name)) {
+                $this->required_fields[] = 'contact_last_name';
+            }
+        }
+
+        if ($this->company_gateway->require_postal_code) {
+            // In case "require_postal_code" is true, we don't need billing address.
+
+            foreach ($this->required_fields as $position => $field) {
+                if (Str::startsWith($field, 'billing')) {
+                    unset($this->required_fields[$position]);
+                }
+            } 
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
+                $this->required_fields[] = 'postal_code';
+            }
+        }
+
+        return $this;
     }
 }

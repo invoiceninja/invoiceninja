@@ -12,11 +12,8 @@
 namespace App\Jobs\Util;
 
 use App\Events\Invoice\InvoiceWasEmailed;
-use App\Jobs\Invoice\EmailInvoice;
 use App\Libraries\MultiDB;
-use App\Models\Account;
 use App\Models\Invoice;
-use App\Utils\ClientPortal\CustomMessage\invitation;
 use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,7 +21,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 
 class ReminderJob implements ShouldQueue
 {

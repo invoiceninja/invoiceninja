@@ -16,8 +16,6 @@ use App\Http\ValidationRules\Invoice\LockedInvoiceRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 
 class UpdateInvoiceRequest extends Request
 {

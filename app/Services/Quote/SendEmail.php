@@ -12,9 +12,7 @@
 namespace App\Services\Quote;
 
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Quote\EmailQuote;
 use App\Models\ClientContact;
-use App\Models\Quote;
 
 class SendEmail
 {

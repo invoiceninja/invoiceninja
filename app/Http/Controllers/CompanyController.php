@@ -20,19 +20,14 @@ use App\Http\Requests\Company\EditCompanyRequest;
 use App\Http\Requests\Company\ShowCompanyRequest;
 use App\Http\Requests\Company\StoreCompanyRequest;
 use App\Http\Requests\Company\UpdateCompanyRequest;
-use App\Http\Requests\SignupRequest;
 use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\Ninja\RefundCancelledAccount;
-use App\Jobs\RegisterNewAccount;
-use App\Jobs\Util\UploadAvatar;
-use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyUser;
 use App\Repositories\CompanyRepository;
-use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyTransformer;
 use App\Transformers\CompanyUserTransformer;
 use App\Utils\Ninja;
@@ -42,7 +37,6 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Turbo124\Beacon\Facades\LightLogs;
 
 /**

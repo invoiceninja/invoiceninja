@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Factory\PaymentTermFactory;
-use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\PaymentTerm\CreatePaymentTermRequest;
 use App\Http\Requests\PaymentTerm\DestroyPaymentTermRequest;
 use App\Http\Requests\PaymentTerm\ShowPaymentTermRequest;

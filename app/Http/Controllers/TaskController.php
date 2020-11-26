@@ -21,14 +21,7 @@ use App\Http\Requests\Task\EditTaskRequest;
 use App\Http\Requests\Task\ShowTaskRequest;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
-use App\Jobs\Entity\ActionEntity;
-use App\Jobs\Util\ProcessBulk;
-use App\Jobs\Util\UploadAvatar;
-use App\Models\Country;
-use App\Models\Currency;
-use App\Models\Size;
 use App\Models\Task;
-use App\Repositories\BaseRepository;
 use App\Repositories\TaskRepository;
 use App\Transformers\TaskTransformer;
 use App\Utils\Ninja;
@@ -37,7 +30,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Class TaskController.

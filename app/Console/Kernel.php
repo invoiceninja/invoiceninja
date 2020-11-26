@@ -11,10 +11,8 @@
 
 namespace App\Console;
 
-use App\Console\Commands\CheckData;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
-use App\Jobs\Ninja\CheckDbStatus;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SendFailedEmails;

@@ -10,11 +10,8 @@
  */
 namespace Database\Factories;
 
-
-
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class ProjectFactory extends Factory
 {
@@ -31,10 +28,10 @@ class ProjectFactory extends Factory
      * @return array
      */
     public function definition()
-	    {
-	    return [
-	        'name' => $this->faker->name(),
-	        'public_notes' => $this->faker->text(50),
-	    ];
-	}
+    {
+        return [
+            'name' => $this->faker->name(),
+            'public_notes' => $this->faker->text(50),
+        ];
+    }
 }

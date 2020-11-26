@@ -12,7 +12,6 @@
 namespace App\Mail\Engine;
 
 use App\DataMapper\EmailTemplateDefaults;
-use App\Utils\HtmlEngine;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 

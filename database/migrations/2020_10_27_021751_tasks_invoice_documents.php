@@ -13,26 +13,25 @@ class TasksInvoiceDocuments extends Migration
      */
     public function up()
     {
-        Schema::table('tasks', function(Blueprint $table){
+        Schema::table('tasks', function (Blueprint $table) {
             $table->boolean('invoice_documents')->default(0);
         });
 
-        Schema::table('companies', function(Blueprint $table){
+        Schema::table('companies', function (Blueprint $table) {
             $table->boolean('show_tasks_table')->default();
         });
 
-        Schema::table('invoice_invitations', function(Blueprint $table){
+        Schema::table('invoice_invitations', function (Blueprint $table) {
             $table->text('signature_ip')->nullable();
         });
 
-        Schema::table('quote_invitations', function(Blueprint $table){
+        Schema::table('quote_invitations', function (Blueprint $table) {
             $table->text('signature_ip')->nullable();
         });
 
-        Schema::table('credit_invitations', function(Blueprint $table){
+        Schema::table('credit_invitations', function (Blueprint $table) {
             $table->text('signature_ip')->nullable();
         });
-        
     }
 
     /**

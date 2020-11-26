@@ -12,10 +12,6 @@
 namespace App\Services\Credit;
 
 use App\Models\Credit;
-use App\Services\Credit\ApplyPayment;
-use App\Services\Credit\CreateInvitations;
-use App\Services\Credit\MarkSent;
-use App\Services\Credit\SendEmail;
 use App\Utils\Traits\MakesHash;
 
 class CreditService

@@ -15,10 +15,6 @@ use App\Factory\PaymentFactory;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Services\Payment\ApplyNumber;
-use App\Services\Payment\DeletePayment;
-use App\Services\Payment\RefundPayment;
-use App\Services\Payment\UpdateInvoicePayment;
 
 class PaymentService
 {

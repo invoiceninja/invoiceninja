@@ -21,10 +21,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Services\AbstractService;
-use App\Services\Client\ClientService;
-use App\Services\Payment\PaymentService;
 use App\Utils\Ninja;
-use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Str;
 
 class AutoBillInvoice extends AbstractService

@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\ProcessQuotesInBulkRequest;
 use App\Http\Requests\ClientPortal\ShowQuoteRequest;
 use App\Jobs\Invoice\InjectSignature;
-use App\Models\Company;
 use App\Models\Quote;
 use App\Utils\Ninja;
 use App\Utils\TempFile;

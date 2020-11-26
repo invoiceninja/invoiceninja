@@ -11,8 +11,6 @@
 
 namespace App\Utils;
 
-use App\Models\Account;
-use App\Utils\CurlUtils;
 use Illuminate\Support\Facades\DB;
 
 /**

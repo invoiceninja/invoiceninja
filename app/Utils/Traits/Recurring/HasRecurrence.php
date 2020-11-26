@@ -12,7 +12,6 @@
 namespace App\Utils\Traits\Recurring;
 
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 trait HasRecurrence
 {

@@ -20,7 +20,6 @@ use App\Models\Company;
 use App\Models\GroupSetting;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Validation\Rule;
 
 class StoreShopClientRequest extends Request
 {

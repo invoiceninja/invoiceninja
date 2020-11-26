@@ -15,7 +15,6 @@ use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 /**
  * InvoiceFilters.

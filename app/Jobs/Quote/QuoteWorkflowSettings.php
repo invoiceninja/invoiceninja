@@ -12,7 +12,6 @@
 
 namespace App\Jobs\Quote;
 
-use App\Mail\Quote\QuoteWasApproved;
 use App\Models\Client;
 use App\Models\Quote;
 use App\Repositories\BaseRepository;

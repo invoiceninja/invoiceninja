@@ -21,14 +21,7 @@ use App\Http\Requests\Expense\EditExpenseRequest;
 use App\Http\Requests\Expense\ShowExpenseRequest;
 use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Expense\UpdateExpenseRequest;
-use App\Jobs\Entity\ActionEntity;
-use App\Jobs\Util\ProcessBulk;
-use App\Jobs\Util\UploadAvatar;
-use App\Models\Country;
-use App\Models\Currency;
 use App\Models\Expense;
-use App\Models\Size;
-use App\Repositories\BaseRepository;
 use App\Repositories\ExpenseRepository;
 use App\Transformers\ExpenseTransformer;
 use App\Utils\Ninja;
@@ -37,8 +30,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class ExpenseController.

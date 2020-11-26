@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Util;
 
-use App\Utils\Traits\BulkOptions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

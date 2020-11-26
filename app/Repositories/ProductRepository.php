@@ -13,7 +13,6 @@ namespace App\Repositories;
 
 use App\Models\Product;
 use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Request;
 
 class ProductRepository extends BaseRepository
 {

@@ -10,11 +10,8 @@
  */
 namespace Database\Factories;
 
-
-
 use App\Models\Payment;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class PaymentFactory extends Factory
 {
@@ -32,13 +29,13 @@ class PaymentFactory extends Factory
      */
     public function definition()
     {
-	    return [
-	        'is_deleted' => false,
-	        'amount' => $this->faker->numberBetween(1, 10),
-	        'date' => $this->faker->date(),
-	        'transaction_reference' => $this->faker->text(10),
-	        'type_id' => Payment::TYPE_CREDIT_CARD,
-	        'status_id' => Payment::STATUS_COMPLETED,
-	    ];
-	}
+        return [
+            'is_deleted' => false,
+            'amount' => $this->faker->numberBetween(1, 10),
+            'date' => $this->faker->date(),
+            'transaction_reference' => $this->faker->text(10),
+            'type_id' => Payment::TYPE_CREDIT_CARD,
+            'status_id' => Payment::STATUS_COMPLETED,
+        ];
+    }
 }

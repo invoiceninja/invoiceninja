@@ -3305,4 +3305,10 @@ return [
 
     'by_clicking_next_you_accept_terms' => 'By clicking "Next step" you accept terms.',
     'not_specified' => 'Not specified',
+
+    'before_proceeding_with_payment_warning' => 'Before proceeding with payment, you have to fill following fields',
+    'after_completing_go_back_to_previous_page' => 'After completing, go back to previous page.',
+
+    'billing_country' => 'Billing Country',
+    'shipping_country' => 'Shipping Country',
 ];

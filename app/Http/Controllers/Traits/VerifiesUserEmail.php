@@ -15,7 +15,6 @@ namespace App\Http\Controllers\Traits;
 use App\Models\User;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 /**

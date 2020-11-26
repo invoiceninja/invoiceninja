@@ -12,7 +12,6 @@
 namespace App\Http\Requests\TaxRate;
 
 use App\Http\Requests\Request;
-use App\Models\TaxRate;
 
 class StoreTaxRateRequest extends Request
 {

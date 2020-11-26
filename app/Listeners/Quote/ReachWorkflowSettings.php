@@ -4,8 +4,6 @@ namespace App\Listeners\Quote;
 
 use App\Jobs\Quote\QuoteWorkflowSettings;
 use App\Libraries\MultiDB;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class ReachWorkflowSettings
 {

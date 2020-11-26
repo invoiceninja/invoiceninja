@@ -14,13 +14,11 @@ namespace App\Jobs\User;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Events\User\UserWasCreated;
-use App\Models\CompanyUser;
 use App\Models\User;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class CreateUser
 {

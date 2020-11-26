@@ -11,7 +11,6 @@
 
 namespace App\Notifications\Admin;
 
-use App\Mail\Signup\NewSignup;
 use App\Utils\Number;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

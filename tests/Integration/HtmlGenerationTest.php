@@ -10,21 +10,19 @@
  */
 namespace Tests\Integration;
 
-use App\Designs\Bold;
-use App\Designs\Designer;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use App\Utils\HtmlEngine;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use Tests\MockAccountData;
-use Tests\TestCase;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
+use App\Utils\HtmlEngine;
+use App\Utils\Traits\MakesHash;
+use Tests\MockAccountData;
+use Tests\TestCase;
+
 /**
  * @test
  */
@@ -51,13 +49,11 @@ class HtmlGenerationTest extends TestCase
     {
         $entity_design_id = '';
 
-        if($entity instanceof Invoice || $entity instanceof RecurringInvoice){
+        if ($entity instanceof Invoice || $entity instanceof RecurringInvoice) {
             $entity_design_id = 'invoice_design_id';
-        }
-        elseif($entity instanceof Quote){
+        } elseif ($entity instanceof Quote) {
             $entity_design_id = 'quote_design_id';
-        }
-        elseif($entity instanceof Credit){
+        } elseif ($entity instanceof Credit) {
             $entity_design_id = 'credit_design_id';
         }
 
@@ -67,12 +63,12 @@ class HtmlGenerationTest extends TestCase
         $html = new HtmlEngine($entity->invitations->first());
 
         if ($design->is_custom) {
-          $options = [
+            $options = [
             'custom_partials' => json_decode(json_encode($design->design), true)
           ];
-          $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+            $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
         } else {
-          $template = new PdfMakerDesign(strtolower($design->name));
+            $template = new PdfMakerDesign(strtolower($design->name));
         }
 
         $state = [
@@ -94,6 +90,5 @@ class HtmlGenerationTest extends TestCase
         return $maker->design($template)
                      ->build()
                      ->getCompiledHTML(true);
-
     }
 }

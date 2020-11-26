@@ -14,7 +14,6 @@ namespace App\Repositories;
 use App\Factory\TaskFactory;
 use App\Models\Task;
 use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Http\Request;
 
 /**
  * TaskRepository.

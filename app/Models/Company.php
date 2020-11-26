@@ -11,40 +11,15 @@
 
 namespace App\Models;
 
-use App\DataMapper\CompanySettings;
-use App\Events\Company\CompanyDocumentsDeleted;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\CompanyGateway;
-use App\Models\CompanyUser;
-use App\Models\Country;
-use App\Models\Credit;
-use App\Models\Currency;
-use App\Models\Design;
-use App\Models\Expense;
-use App\Models\GroupSetting;
-use App\Models\Industry;
-use App\Models\Invoice;
-use App\Models\Language;
-use App\Models\Payment;
-use App\Models\PaymentType;
 use App\Models\Presenters\CompanyPresenter;
-use App\Models\Product;
-use App\Models\RecurringInvoice;
-use App\Models\TaxRate;
-use App\Models\Timezone;
-use App\Models\Traits\AccountTrait;
-use App\Models\User;
 use App\Services\Notification\NotificationService;
 use App\Utils\Ninja;
 use App\Utils\Traits\CompanySettingsSaver;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\ThrottlesEmail;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 
 class Company extends BaseModel

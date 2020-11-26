@@ -16,12 +16,9 @@ use App\Notifications\Ninja\VerifyUser;
 use App\Utils\Ninja;
 use Exception;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 
 class SendVerificationNotification implements ShouldQueue
 {

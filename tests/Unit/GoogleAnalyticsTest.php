@@ -10,11 +10,7 @@
  */
 namespace Tests\Unit;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use App\Models\GroupSetting;
 use App\Utils\Ninja;
-use App\Utils\Traits\ClientGroupSettingsSaver;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;

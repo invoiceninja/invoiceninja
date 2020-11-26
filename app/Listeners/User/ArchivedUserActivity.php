@@ -15,7 +15,6 @@ use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use stdClass;
 
 class ArchivedUserActivity implements ShouldQueue

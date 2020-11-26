@@ -11,12 +11,6 @@
 
 namespace App\Services\Recurring;
 
-use App\Factory\InvoiceInvitationFactory;
-use App\Factory\RecurringInvoiceFactory;
-use App\Models\Invoice;
-use App\Models\RecurringInvoice;
-use App\Models\InvoiceInvitation;
-use App\Models\RecurringInvoiceInvitation;
 use App\Services\AbstractService;
 use Exception;
 use Illuminate\Support\Str;

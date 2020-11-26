@@ -11,12 +11,8 @@
 
 namespace App\Models;
 
-use App\Models\Filterable;
 use App\Models\Presenters\VendorPresenter;
-use App\Models\VendorContact;
 use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 

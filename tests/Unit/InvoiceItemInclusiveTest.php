@@ -11,7 +11,6 @@
 namespace Tests\Unit;
 
 use App\Factory\InvoiceItemFactory;
-use App\Helpers\Invoice\InvoiceItemSum;
 use App\Helpers\Invoice\InvoiceItemSumInclusive;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;

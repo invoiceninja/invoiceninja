@@ -16,10 +16,6 @@ use App\Models\Client;
 use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
-use App\Transformers\ClientTransformer;
-use App\Transformers\DocumentTransformer;
-use App\Transformers\InvoiceHistoryTransformer;
-use App\Transformers\InvoiceInvitationTransformer;
 use App\Utils\Traits\MakesHash;
 
 class InvoiceTransformer extends EntityTransformer

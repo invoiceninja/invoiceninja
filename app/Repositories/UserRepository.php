@@ -13,7 +13,6 @@ namespace App\Repositories;
 
 use App\DataMapper\CompanySettings;
 use App\Events\User\UserWasDeleted;
-use App\Factory\CompanyUserFactory;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Utils\Ninja;

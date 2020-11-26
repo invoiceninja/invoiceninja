@@ -182,7 +182,6 @@ trait MockAccountData
         $this->user = User::whereEmail('user@example.com')->first();
 
         if (! $this->user) {
-
             $this->user = User::factory()->create([
                                 'account_id' => $this->account->id,
                                 'confirmation_code' => $this->createDbHash(config('database.default')),

@@ -11,7 +11,6 @@
 
 namespace App\Mail\Admin;
 
-use App\Models\User;
 use App\Utils\Number;
 use stdClass;
 

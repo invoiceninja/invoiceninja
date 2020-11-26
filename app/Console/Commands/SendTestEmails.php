@@ -14,7 +14,6 @@ namespace App\Console\Commands;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Factory\ClientFactory;
-use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceInvitationFactory;
 use App\Jobs\Invoice\CreateEntityPdf;
@@ -23,11 +22,9 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
-use App\Models\Invoice;
 use App\Models\User;
 use Faker\Factory;
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class SendTestEmails extends Command

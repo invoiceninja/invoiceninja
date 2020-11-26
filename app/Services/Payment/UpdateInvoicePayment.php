@@ -12,12 +12,9 @@
 namespace App\Services\Payment;
 
 use App\Events\Invoice\InvoiceWasUpdated;
-use App\Jobs\Payment\EmailPayment;
-use App\Jobs\Util\SystemLogger;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\SystemLog;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 

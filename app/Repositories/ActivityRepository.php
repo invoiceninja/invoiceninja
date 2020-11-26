@@ -11,24 +11,20 @@
 
 namespace App\Repositories;
 
-use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\Backup;
-use App\Models\Client;
 use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use App\Models\User;
-use App\Utils\HtmlEngine;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use Illuminate\Support\Facades\Log;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
+use App\Utils\HtmlEngine;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesInvoiceHtml;
 
 /**
  * Class for activity repository.

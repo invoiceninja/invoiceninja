@@ -11,7 +11,6 @@
 
 namespace App\Policies;
 
-use App\Models\RecurringQuote;
 use App\Models\User;
 
 /**

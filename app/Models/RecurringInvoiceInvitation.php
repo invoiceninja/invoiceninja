@@ -11,10 +11,8 @@
 
 namespace App\Models;
 
-use App\Models\RecurringInvoice;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 

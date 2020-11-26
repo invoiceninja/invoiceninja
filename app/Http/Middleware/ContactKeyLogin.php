@@ -14,7 +14,6 @@ namespace App\Http\Middleware;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\ClientContact;
-use App\Models\CompanyToken;
 use Auth;
 use Closure;
 use Illuminate\Http\Request;

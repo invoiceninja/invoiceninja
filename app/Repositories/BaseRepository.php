@@ -11,18 +11,12 @@
 
 namespace App\Repositories;
 
-use App\Events\Credit\CreditWasUpdated;
-use App\Events\Invoice\InvoiceWasUpdated;
-use App\Events\Quote\QuoteWasUpdated;
-use App\Factory\InvoiceInvitationFactory;
-use App\Factory\QuoteInvitationFactory;
 use App\Jobs\Product\UpdateOrCreateProduct;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
 use App\Models\Quote;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;

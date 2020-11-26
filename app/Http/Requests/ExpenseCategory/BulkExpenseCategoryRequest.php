@@ -12,9 +12,8 @@
 
 namespace App\Http\Requests\ExpenseCategory;
 
-use App\Models\ExpenseCategory;
-use App\Utils\Traits\BulkOptions;
 use App\Http\Requests\Request;
+use App\Utils\Traits\BulkOptions;
 
 class BulkExpenseCategoryRequest extends Request
 {
@@ -27,7 +26,7 @@ class BulkExpenseCategoryRequest extends Request
      */
     public function authorize()
     {
-        return auth()->user()->->isAdmin();
+        return auth()->user()->isAdmin();
     }
 
     /**

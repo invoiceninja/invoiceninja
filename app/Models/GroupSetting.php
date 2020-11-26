@@ -11,13 +11,7 @@
 
 namespace App\Models;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use App\Models\Client;
-use App\Models\Company;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use Hashids\Hashids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 

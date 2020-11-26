@@ -10,20 +10,9 @@
  */
 namespace Tests\Feature;
 
-use App\DataMapper\DefaultSettings;
-use App\Models\Account;
-use App\Models\Vendor;
-use App\Models\VendorContact;
-use App\Models\Company;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;

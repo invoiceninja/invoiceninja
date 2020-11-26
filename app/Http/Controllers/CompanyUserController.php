@@ -16,7 +16,6 @@ use App\Http\Requests\CompanyUser\UpdateCompanyUserRequest;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class CompanyUserController extends BaseController

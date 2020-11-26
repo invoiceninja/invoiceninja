@@ -12,10 +12,8 @@
 namespace App\Models\Presenters;
 
 use App\Utils\Traits\MakesHash;
-use Hashids\Hashids;
 use Laracasts\Presenter\Presenter;
 use URL;
-use Utils;
 
 /**
  * Class EntityPresenter.

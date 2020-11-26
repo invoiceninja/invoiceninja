@@ -11,11 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\Client;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\GatewayType;
-use App\Models\User;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
 

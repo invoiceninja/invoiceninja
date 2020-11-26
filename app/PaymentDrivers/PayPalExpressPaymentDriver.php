@@ -26,43 +26,13 @@ use App\Utils\Traits\MakesHash;
 use Exception;
 use Omnipay\Common\Item;
 use stdClass;
-
-/**
- * Response array
- * (.
-  'TOKEN' => 'EC-50V302605X606694D',
-  'SUCCESSPAGEREDIRECTREQUESTED' => 'false',
-  'TIMESTAMP' => '2019-09-30T22:21:21Z',
-  'CORRELATIONID' => '9e0da63193090',
-  'ACK' => 'SuccessWithWarning',
-  'VERSION' => '119.0',
-  'BUILD' => '53688488',
-  'L_ERRORCODE0' => '11607',
-  'L_SHORTMESSAGE0' => 'Duplicate Request',
-  'L_LONGMESSAGE0' => 'A successful transaction has already been completed for this token.',
-  'L_SEVERITYCODE0' => 'Warning',
-  'INSURANCEOPTIONSELECTED' => 'false',
-  'SHIPPINGOPTIONISDEFAULT' => 'false',
-  'PAYMENTINFO_0_TRANSACTIONID' => '5JE20141KL116573G',
-  'PAYMENTINFO_0_TRANSACTIONTYPE' => 'expresscheckout',
-  'PAYMENTINFO_0_PAYMENTTYPE' => 'instant',
-  'PAYMENTINFO_0_ORDERTIME' => '2019-09-30T22:20:57Z',
-  'PAYMENTINFO_0_AMT' => '31260.37',
-  'PAYMENTINFO_0_TAXAMT' => '0.00',
-  'PAYMENTINFO_0_CURRENCYCODE' => 'USD',
-  'PAYMENTINFO_0_EXCHANGERATE' => '0.692213615971749',
-  'PAYMENTINFO_0_PAYMENTSTATUS' => 'Pending',
-  'PAYMENTINFO_0_PENDINGREASON' => 'unilateral',
-  'PAYMENTINFO_0_REASONCODE' => 'None',
-  'PAYMENTINFO_0_PROTECTIONELIGIBILITY' => 'Ineligible',
-  'PAYMENTINFO_0_PROTECTIONELIGIBILITYTYPE' => 'None',
-  'PAYMENTINFO_0_ERRORCODE' => '0',
-  'PAYMENTINFO_0_ACK' => 'Success',
-)
- */
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
     use MakesHash;
+
+    public $payment_hash;
+
+    public $required_fields = [];
 
     protected $refundable = true;
 
@@ -86,6 +56,120 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYPAL;
 
+public function checkRequirements()
+    {
+        if ($this->company_gateway->require_billing_address) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->address1)) {
+                $this->required_fields[] = 'billing_address1';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->address2)) {
+                $this->required_fields[] = 'billing_address2';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->city)) {
+                $this->required_fields[] = 'billing_city';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->state)) {
+                $this->required_fields[] = 'billing_state';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
+                $this->required_fields[] = 'billing_postal_code';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->country_id)) {
+                $this->required_fields[] = 'billing_country';
+            }
+        }
+
+        if ($this->company_gateway->require_shipping_address) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_address1)) {
+                $this->required_fields[] = 'shipping_address1';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_address2)) {
+                $this->required_fields[] = 'shipping_address2';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_city)) {
+                $this->required_fields[] = 'shipping_city';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_state)) {
+                $this->required_fields[] = 'shipping_state';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_postal_code)) {
+                $this->required_fields[] = 'shipping_postal_code';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_country_id)) {
+                $this->required_fields[] = 'shipping_country';
+            }
+        }
+
+        if ($this->company_gateway->require_client_name) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->name)) {
+                $this->required_fields[] = 'name';
+            }
+        }
+
+        if ($this->company_gateway->require_client_phone) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->phone)) {
+                $this->required_fields[] = 'phone';
+            }
+        }
+
+        if ($this->company_gateway->require_contact_email) {
+            if ($this->checkRequiredResource(auth()->user('contact')->email)) {
+                $this->required_fields[] = 'contact_email';
+            }
+        }
+
+        if ($this->company_gateway->require_contact_name) {
+            if ($this->checkRequiredResource(auth()->user('contact')->first_name)) {
+                $this->required_fields[] = 'contact_first_name';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->last_name)) {
+                $this->required_fields[] = 'contact_last_name';
+            }
+        }
+
+        if ($this->company_gateway->require_postal_code) {
+            // In case "require_postal_code" is true, we don't need billing address.
+
+            foreach ($this->required_fields as $position => $field) {
+                if (Str::startsWith($field, 'billing')) {
+                    unset($this->required_fields[$position]);
+                }
+            } 
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
+                $this->required_fields[] = 'postal_code';
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Wrapper method for checking if resource is good.
+     * 
+     * @param mixed $resource 
+     * @return bool 
+     */
+    public function checkRequiredResource($resource): bool
+    {
+        if (is_null($resource) || empty($resource)) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Processes the payment with this gateway.
      *
@@ -96,6 +180,12 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
      */
     public function processPaymentView(array $data)
     {
+        if (count($this->required_fields) > 0) {
+            return redirect()
+                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
+                ->with('missing_required_fields', $this->required_fields);
+        }
+
         $response = $this->purchase($this->paymentDetails($data), $this->paymentItems($data));
 
         if ($response->isRedirect()) {
@@ -122,8 +212,21 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         }
     }
 
+    public function setPaymentHash(PaymentHash $payment_hash)
+    {
+        $this->payment_hash = $payment_hash;
+
+        return $this;
+    }
+
     public function processPaymentResponse($request)
     {
+        if (count($this->required_fields) > 0) {
+            return redirect()
+                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
+                ->with('missing_required_fields', $this->required_fields);
+        }
+        
         $response = $this->completePurchase($request->all());
 
         $transaction_reference = $response->getTransactionReference() ?: $request->input('token');
@@ -191,13 +294,11 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     private function buildReturnUrl($input): string
     {
-        $url = $this->client->company->domain().'/client/payments/process/response';
-        $url .= "?company_gateway_id={$this->company_gateway->id}&gateway_type_id=".GatewayType::PAYPAL;
-        $url .= '&payment_hash='.$input['payment_hash'];
-        $url .= '&amount='.$input['amount'];
-        $url .= '&fee='.$input['fee'];
-
-        return $url;
+        return route('client.payments.response', [
+            'company_gateway_id' => $this->company_gateway->id,
+            'payment_hash' => $this->payment_hash->hash,
+            'payment_method_id' => GatewayType::PAYPAL,
+        ]);
     }
 
     private function buildCancelUrl($input): string

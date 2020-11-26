@@ -13,7 +13,7 @@ class CompanyGatewayRenameColumn extends Migration
      */
     public function up()
     {
-        Schema::table('company_gateways', function(Blueprint $table){
+        Schema::table('company_gateways', function (Blueprint $table) {
             $table->renameColumn('require_zip', 'require_postal_code');
         });
     }

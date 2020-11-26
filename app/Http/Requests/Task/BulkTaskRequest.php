@@ -12,9 +12,9 @@
 
 namespace App\Http\Requests\Task;
 
+use App\Http\Requests\Request;
 use App\Models\Task;
 use App\Utils\Traits\BulkOptions;
-use App\Http\Requests\Request;
 
 class BulkTaskRequest extends Request
 {

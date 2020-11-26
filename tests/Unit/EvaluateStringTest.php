@@ -10,7 +10,6 @@
  */
 namespace Tests\Unit;
 
-use App\DataMapper\DefaultSettings;
 use App\Models\Client;
 use Tests\TestCase;
 

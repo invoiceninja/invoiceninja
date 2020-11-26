@@ -2,7 +2,6 @@
 
 namespace App\Helpers\Mail;
 
-use App\Helpers\Mail\GmailTransport;
 use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Illuminate\Mail\TransportManager;
 

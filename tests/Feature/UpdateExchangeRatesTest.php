@@ -10,25 +10,13 @@
  */
 namespace Tests\Feature;
 
-use App\DataMapper\DefaultSettings;
 use App\Jobs\Util\UpdateExchangeRates;
 use App\Libraries\Currency\Conversion\CurrencyApi;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
 use App\Models\Currency;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use AshAllenDesign\LaravelExchangeRates\Facades\ExchangeRate;
-use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;

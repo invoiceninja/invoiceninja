@@ -11,24 +11,16 @@
 
 namespace App\Jobs\Mail;
 
-use App\Jobs\Mail\BaseMailerJob;
-use App\Jobs\Util\SystemLogger;
-use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
-use App\Mail\Admin\EntityNotificationMailer;
-use App\Mail\Admin\EntitySentObject;
 use App\Models\ClientContact;
 use App\Models\Company;
-use App\Models\SystemLog;
 use App\Models\User;
-use App\Providers\MailServiceProvider;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 
 /*Multi Mailer Router implemented*/

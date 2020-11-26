@@ -11,32 +11,22 @@
 namespace Tests\Integration;
 
 use App\DataMapper\CompanySettings;
-use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\Invoice\InvoiceWasUpdated;
-use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CompanyUserFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Models\Account;
-use App\Models\Activity;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
-use App\Models\CompanyLedger;
 use App\Models\CompanyToken;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
-use Tests\MockAccountData;
-use Tests\TestCase;
 use Illuminate\Validation\ValidationException;
+use Tests\TestCase;
 
 /** @test*/
 class CompanyLedgerTest extends TestCase
@@ -227,11 +217,10 @@ class CompanyLedgerTest extends TestCase
         ];
 
         try {
-        $response = $this->withHeaders([
+            $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments/', $data);
-    
         } catch (ValidationException $e) {
             info(print_r($e->validator->getMessageBag(), 1));
         }

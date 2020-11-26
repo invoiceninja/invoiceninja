@@ -12,16 +12,9 @@
 
 namespace App\Jobs\Entity;
 
-use App\Designs\Custom;
-use App\Designs\Designer;
-use App\Designs\Modern;
-use App\Libraries\MultiDB;
-use App\Models\ClientContact;
-use App\Models\Company;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Design;
-use App\Models\Entity;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Quote;
@@ -45,7 +38,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Browsershot\Browsershot;
 
 class CreateEntityPdf implements ShouldQueue
 {

@@ -10,11 +10,10 @@
  */
 namespace Tests\Feature;
 
-use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
@@ -22,7 +21,6 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
  */
 class ActivityApiTest extends TestCase
 {
-
     use DatabaseTransactions;
     use MockAccountData;
 
@@ -35,8 +33,6 @@ class ActivityApiTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
-
     }
 
     public function testActivityGet()
@@ -48,5 +44,4 @@ class ActivityApiTest extends TestCase
 
         $response->assertStatus(200);
     }
-
 }

@@ -12,7 +12,6 @@
 namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
 
 class Activity extends StaticModel
 {

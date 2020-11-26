@@ -11,11 +11,7 @@
 
 namespace App\Console\Commands;
 
-use Composer\Composer;
 use Composer\Console\Application;
-use Composer\Factory;
-use Composer\Installer;
-use Composer\IO\NullIO;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Log;
@@ -66,7 +62,7 @@ class PostUpdate extends Command
 
         putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
 
-        $input = new ArrayInput(array('command' => 'install', '--no-dev' => 'true'));
+        $input = new ArrayInput(['command' => 'install', '--no-dev' => 'true']);
         $application = new Application();
         $application->setAutoExit(false);
         $application->run($input);

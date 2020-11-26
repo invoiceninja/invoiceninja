@@ -11,7 +11,6 @@
 
 namespace App\Utils\Traits;
 
-use App\Exceptions\ModelNotFoundException;
 use App\Libraries\MultiDB;
 use Hashids\Hashids;
 use Illuminate\Support\Str;

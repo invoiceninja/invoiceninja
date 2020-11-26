@@ -11,16 +11,8 @@
 
 namespace App\Repositories;
 
-use App\Factory\QuoteInvitationFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Quote\ApplyQuoteNumber;
-use App\Jobs\Quote\CreateQuoteInvitations;
-use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 
 /**
  * QuoteRepository.

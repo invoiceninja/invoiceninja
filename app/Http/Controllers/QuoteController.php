@@ -13,8 +13,6 @@ namespace App\Http\Controllers;
 
 use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasUpdated;
-use App\Factory\CloneInvoiceFactory;
-use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\CloneQuoteFactory;
 use App\Factory\CloneQuoteToInvoiceFactory;
 use App\Factory\QuoteFactory;

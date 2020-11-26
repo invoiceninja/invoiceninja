@@ -15,7 +15,6 @@ use App\Jobs\Entity\EmailEntity;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Services\AbstractService;
-use Illuminate\Support\Carbon;
 
 class SendEmail extends AbstractService
 {

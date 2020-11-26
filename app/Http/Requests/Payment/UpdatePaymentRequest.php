@@ -16,7 +16,6 @@ use App\Http\ValidationRules\PaymentAppliedValidAmount;
 use App\Http\ValidationRules\ValidCreditsPresentRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class UpdatePaymentRequest extends Request
 {

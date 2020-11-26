@@ -39,8 +39,6 @@ class IdNumberFieldsForMissingEntities extends Migration
         Schema::table('vendor_contacts', function (Blueprint $table) {
             $table->boolean('send_email')->default(0);
         });
-
-
     }
 
     /**

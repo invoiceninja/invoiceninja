@@ -13,14 +13,12 @@ namespace App\Repositories;
 
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
-use App\Factory\CreditFactory;
 use App\Jobs\Credit\ApplyCreditPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Repositories\CreditRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;

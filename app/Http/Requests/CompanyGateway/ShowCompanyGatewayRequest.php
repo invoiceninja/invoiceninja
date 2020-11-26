@@ -12,7 +12,6 @@
 namespace App\Http\Requests\CompanyGateway;
 
 use App\Http\Requests\Request;
-use App\Models\Company;
 
 class ShowCompanyGatewayRequest extends Request
 {

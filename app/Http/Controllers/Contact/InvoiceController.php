@@ -16,7 +16,6 @@ use App\Http\Controllers\BaseController;
 use App\Models\Invoice;
 use App\Transformers\Contact\InvoiceTransformer;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class InvoiceController extends BaseController

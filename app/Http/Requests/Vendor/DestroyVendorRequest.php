@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Vendor;
 
 use App\Http\Requests\Request;
-use App\Models\Vendor;
 
 class DestroyVendorRequest extends Request
 {

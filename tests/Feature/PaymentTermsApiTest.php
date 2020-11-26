@@ -10,26 +10,15 @@
  */
 namespace Tests\Feature;
 
-use App\DataMapper\DefaultSettings;
 use App\Factory\PaymentTermFactory;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
 use App\Models\PaymentTerm;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
@@ -56,7 +45,6 @@ class PaymentTermsApiTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
     }
 
     public function testPaymentTermsGet()

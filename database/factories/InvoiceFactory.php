@@ -10,13 +10,9 @@
  */
 namespace Database\Factories;
 
-
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Invoice;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class InvoiceFactory extends Factory
 {

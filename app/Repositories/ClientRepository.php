@@ -13,10 +13,8 @@ namespace App\Repositories;
 
 use App\Factory\ClientFactory;
 use App\Models\Client;
-use App\Repositories\ClientContactRepository;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Request;
 
 /**
  * ClientRepository.

@@ -11,19 +11,12 @@
 
 namespace App\Models;
 
-use App\Models\Company;
-use App\Models\CompanyToken;
-use App\Models\CompanyUser;
-use App\Models\Filterable;
-use App\Models\Language;
 use App\Models\Presenters\UserPresenter;
-use App\Models\Traits\UserTrait;
 use App\Notifications\ResetPasswordNotification;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\UserSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

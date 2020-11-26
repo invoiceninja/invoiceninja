@@ -13,9 +13,7 @@ namespace App\Repositories;
 
 use App\Factory\ExpenseFactory;
 use App\Models\Expense;
-use App\Repositories\VSendorContactRepository;
 use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Http\Request;
 
 /**
  * ExpenseRepository.

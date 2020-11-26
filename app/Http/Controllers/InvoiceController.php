@@ -12,9 +12,7 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\CompanySettings;
 use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\CloneInvoiceFactory;
 use App\Factory\CloneInvoiceToQuoteFactory;
@@ -33,7 +31,6 @@ use App\Jobs\Invoice\ZipInvoices;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
 use App\Models\Quote;
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;

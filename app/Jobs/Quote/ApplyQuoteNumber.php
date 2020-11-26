@@ -13,10 +13,7 @@ namespace App\Jobs\Quote;
 
 use App\Libraries\MultiDB;
 use App\Models\Company;
-use App\Models\Payment;
-use App\Models\PaymentTerm;
 use App\Models\Quote;
-use App\Repositories\QuoteRepository;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Bus\Queueable;
@@ -24,7 +21,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
 
 class ApplyQuoteNumber implements ShouldQueue
 {

@@ -11,11 +11,8 @@
 
 namespace App\Helpers\Mail;
 
-use App\Libraries\MultiDB;
-use App\Models\User;
 use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Illuminate\Mail\Transport\Transport;
-use Log;
 use Swift_Mime_SimpleMessage;
 
 /**

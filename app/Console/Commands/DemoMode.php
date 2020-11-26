@@ -25,7 +25,6 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
-use App\Models\Country;
 use App\Models\Credit;
 use App\Models\Expense;
 use App\Models\Product;
@@ -40,18 +39,12 @@ use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
-use Composer\Composer;
-use Composer\Console\Application;
-use Composer\Factory;
-use Composer\IO\NullIO;
-use Composer\Installer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use Symfony\Component\Console\Input\ArrayInput;
 
 class DemoMode extends Command
 {

@@ -11,9 +11,7 @@
 
 namespace App\Http\ValidationRules\Expense;
 
-use App\Libraries\MultiDB;
 use App\Models\Expense;
-use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**

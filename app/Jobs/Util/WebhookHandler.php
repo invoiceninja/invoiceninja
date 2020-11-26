@@ -10,6 +10,7 @@
  */
 namespace App\Jobs\Util;
 
+use App\Libraries\MultiDB;
 use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use GuzzleHttp\Client;
@@ -21,7 +22,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
-use App\Libraries\MultiDB;
 
 class WebhookHandler implements ShouldQueue
 {

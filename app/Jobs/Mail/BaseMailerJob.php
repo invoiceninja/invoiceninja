@@ -14,7 +14,6 @@ namespace App\Jobs\Mail;
 use App\DataMapper\Analytics\EmailFailure;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
-use App\Libraries\MultiDB;
 use App\Models\SystemLog;
 use App\Models\User;
 use App\Providers\MailServiceProvider;

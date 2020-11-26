@@ -10,10 +10,8 @@
  */
 namespace Database\Factories;
 
-
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class UserFactory extends Factory
 {
@@ -30,15 +28,15 @@ class UserFactory extends Factory
      * @return array
      */
     public function definition()
-	{
-	    return [
-	        'first_name'        => $this->faker->name,
-	        'last_name'         => $this->faker->name,
-	        'phone'             => $this->faker->phoneNumber,
-	        'email'             => config('ninja.testvars.username'),
-	        'email_verified_at' => now(),
-	        'password'          => bcrypt(config('ninja.testvars.password')), // secret
-	        'remember_token'    => \Illuminate\Support\Str::random(10),
-	    ];
-	}
+    {
+        return [
+            'first_name'        => $this->faker->name,
+            'last_name'         => $this->faker->name,
+            'phone'             => $this->faker->phoneNumber,
+            'email'             => config('ninja.testvars.username'),
+            'email_verified_at' => now(),
+            'password'          => bcrypt(config('ninja.testvars.password')), // secret
+            'remember_token'    => \Illuminate\Support\Str::random(10),
+        ];
+    }
 }

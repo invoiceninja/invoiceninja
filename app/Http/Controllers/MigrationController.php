@@ -21,7 +21,6 @@ use App\Models\Company;
 use App\Models\CompanyToken;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class MigrationController extends BaseController

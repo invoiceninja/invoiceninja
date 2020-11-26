@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Payment\PaymentWasUpdated;
 use App\Factory\PaymentFactory;
 use App\Filters\PaymentFilters;
 use App\Http\Requests\Payment\ActionPaymentRequest;
@@ -21,18 +22,14 @@ use App\Http\Requests\Payment\RefundPaymentRequest;
 use App\Http\Requests\Payment\ShowPaymentRequest;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Payment\UpdatePaymentRequest;
-use App\Jobs\Entity\ActionEntity;
-use App\Jobs\Invoice\ReverseInvoicePayment;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Repositories\BaseRepository;
 use App\Repositories\PaymentRepository;
 use App\Transformers\PaymentTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use App\Events\Payment\PaymentWasUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Utils\Ninja;
 
 /**
  * Class PaymentController.

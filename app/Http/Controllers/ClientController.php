@@ -11,12 +11,10 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\ClientSettings;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasUpdated;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
-use App\Http\Requests\Client\BulkClientRequest;
 use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\DestroyClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
@@ -25,15 +23,7 @@ use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Jobs\Client\StoreClient;
 use App\Jobs\Client\UpdateClient;
-use App\Jobs\Entity\ActionEntity;
-use App\Jobs\Util\ProcessBulk;
-use App\Jobs\Util\UploadAvatar;
 use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Country;
-use App\Models\Currency;
-use App\Models\Size;
-use App\Repositories\BaseRepository;
 use App\Repositories\ClientRepository;
 use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
@@ -42,8 +32,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class ClientController.

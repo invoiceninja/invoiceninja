@@ -13,13 +13,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Invoice\EmailInvoice;
 use App\Jobs\Mail\EntitySentMailer;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
-use App\Notifications\SendGenericNotification;
 use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;

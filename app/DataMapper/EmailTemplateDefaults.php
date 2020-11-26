@@ -12,7 +12,6 @@
 namespace App\DataMapper;
 
 use Illuminate\Support\Facades\App;
-use League\CommonMark\CommonMarkConverter;
 
 class EmailTemplateDefaults
 {

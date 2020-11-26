@@ -12,10 +12,8 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasReversed;
-use App\Events\Payment\PaymentWasCreated;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
-use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Client;
 use App\Models\Credit;
@@ -23,8 +21,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Services\AbstractService;
-use App\Services\Client\ClientService;
-use App\Services\Payment\PaymentService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 

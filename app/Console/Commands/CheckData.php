@@ -12,25 +12,21 @@
 namespace App\Console\Commands;
 
 use App;
-use App\Libraries\CurlUtils;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\CompanyLedger;
 use App\Models\Contact;
 use App\Models\Credit;
-use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Utils\Ninja;
-use Carbon;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
 use Mail;
 use Symfony\Component\Console\Input\InputOption;
-use Utils;
 
 /*
 

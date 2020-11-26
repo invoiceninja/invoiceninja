@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Filters\InvoiceFilters;
 use App\Filters\SystemLogFilters;
-use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Models\SystemLog;
 use App\Transformers\SystemLogTransformer;
 use App\Utils\Traits\MakesHash;

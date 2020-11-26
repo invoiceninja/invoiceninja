@@ -12,19 +12,10 @@
 namespace App\Console\Commands;
 
 use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\Invoice\InvoiceWasMarkedSent;
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
-use App\Factory\PaymentFactory;
-use App\Factory\QuoteFactory;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Quote\CreateQuoteInvitations;
-use App\Listeners\Credit\CreateCreditInvitation;
-use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -34,8 +25,6 @@ use App\Models\CompanyToken;
 use App\Models\Country;
 use App\Models\Credit;
 use App\Models\Expense;
-use App\Models\Payment;
-use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;

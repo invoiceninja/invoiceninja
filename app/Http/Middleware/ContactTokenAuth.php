@@ -13,8 +13,6 @@ namespace App\Http\Middleware;
 
 use App\Events\Contact\ContactLoggedIn;
 use App\Models\ClientContact;
-use App\Models\CompanyToken;
-use App\Models\User;
 use App\Utils\Ninja;
 use Closure;
 use Illuminate\Http\Request;

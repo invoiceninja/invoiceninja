@@ -11,14 +11,8 @@
 
 namespace App\Jobs\Credit;
 
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
-use App\Jobs\Credit\ApplyPaymentToCredit;
-use App\Libraries\MultiDB;
-use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Payment;
-use App\Repositories\CreditRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

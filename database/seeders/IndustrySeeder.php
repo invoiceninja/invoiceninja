@@ -10,7 +10,6 @@
  */
 namespace Database\Seeders;
 
-
 use App\Models\Industry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
@@ -63,6 +62,5 @@ class IndustrySeeder extends Seeder
                 Industry::create($industry);
             }
         }
-
     }
 }

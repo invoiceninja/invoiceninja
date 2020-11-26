@@ -13,10 +13,8 @@ namespace App\Jobs\Invoice;
 
 use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Util\UnlinkFile;
-use App\Libraries\MultiDB;
 use App\Mail\DownloadInvoices;
 use App\Models\Company;
-use App\Models\Invoice;
 use App\Utils\TempFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

@@ -11,7 +11,6 @@
 
 namespace App\Utils\PhantomJS;
 
-use App\Designs\Designer;
 use App\Models\CreditInvitation;
 use App\Models\Design;
 use App\Models\InvoiceInvitation;

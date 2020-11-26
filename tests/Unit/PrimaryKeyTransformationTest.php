@@ -10,10 +10,7 @@
  */
 namespace Tests\Unit;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**

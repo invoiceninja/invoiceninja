@@ -11,11 +11,6 @@
 
 namespace App\Services\Payment;
 
-use App\Exceptions\PaymentRefundFailed;
-use App\Factory\CreditFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Models\Activity;
-use App\Models\CompanyGateway;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;

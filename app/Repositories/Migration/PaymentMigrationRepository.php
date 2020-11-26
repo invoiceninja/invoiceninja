@@ -11,9 +11,6 @@
 
 namespace App\Repositories\Migration;
 
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\CreditFactory;
-use App\Jobs\Credit\ApplyCreditPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Activity;
 use App\Models\Client;

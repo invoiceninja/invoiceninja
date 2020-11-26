@@ -12,7 +12,6 @@
 namespace App\Utils\Traits;
 
 use App\DataMapper\BaseSettings;
-use App\DataMapper\CompanySettings;
 use App\DataMapper\FeesAndLimits;
 
 /**

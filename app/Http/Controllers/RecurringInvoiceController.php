@@ -11,8 +11,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Factory\CloneRecurringInvoiceFactory;
-use App\Factory\CloneRecurringInvoiceToQuoteFactory;
 use App\Factory\RecurringInvoiceFactory;
 use App\Filters\RecurringInvoiceFilters;
 use App\Http\Requests\RecurringInvoice\ActionRecurringInvoiceRequest;
@@ -22,15 +20,12 @@ use App\Http\Requests\RecurringInvoice\EditRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\ShowRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\StoreRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\UpdateRecurringInvoiceRequest;
-use App\Jobs\Entity\ActionEntity;
 use App\Models\RecurringInvoice;
-use App\Repositories\BaseRepository;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Transformers\RecurringInvoiceTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class RecurringInvoiceController.

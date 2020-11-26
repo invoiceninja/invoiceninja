@@ -13,38 +13,15 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\Factory\CompanyLedgerFactory;
-use App\Factory\CreditFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\QuoteFactory;
-use App\Models\Activity;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\Country;
-use App\Models\Credit;
-use App\Models\Currency;
-use App\Models\DateFormat;
-use App\Models\DatetimeFormat;
-use App\Models\Filterable;
-use App\Models\GatewayType;
-use App\Models\GroupSetting;
-use App\Models\Invoice;
-use App\Models\Language;
 use App\Models\Presenters\ClientPresenter;
-use App\Models\Quote;
-use App\Models\Timezone;
-use App\Models\User;
 use App\Services\Client\ClientService;
-use App\Utils\Traits\CompanyGatewaySettings;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Exception;
-use Hashids\Hashids;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\URL;
 use Laracasts\Presenter\PresentableTrait;
 
 class Client extends BaseModel implements HasLocalePreference

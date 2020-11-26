@@ -13,7 +13,6 @@ namespace App\Events\Design;
 
 use App\Models\Company;
 use App\Models\Design;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 
 /**

@@ -12,8 +12,8 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Credit\ValidCreditsRules;
 use App\Http\ValidationRules\Credit\CreditsSumRule;
+use App\Http\ValidationRules\Credit\ValidCreditsRules;
 use App\Http\ValidationRules\Payment\ValidInvoicesRules;
 use App\Http\ValidationRules\PaymentAmountsBalanceRule;
 use App\Http\ValidationRules\ValidCreditsPresentRule;

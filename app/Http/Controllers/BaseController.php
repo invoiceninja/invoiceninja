@@ -13,7 +13,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\Company;
-use App\Models\Design;
 use App\Models\User;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
@@ -23,9 +22,6 @@ use App\Utils\Traits\AppSetup;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Request as Input;
-use Illuminate\Support\Facades\Schema;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
-use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;

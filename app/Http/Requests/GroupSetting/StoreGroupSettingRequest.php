@@ -15,7 +15,6 @@ use App\DataMapper\ClientSettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use App\Models\GroupSetting;
-use Illuminate\Support\Facades\Log;
 
 class StoreGroupSettingRequest extends Request
 {

@@ -11,9 +11,7 @@
 
 namespace App\Http\ValidationRules\Invoice;
 
-use App\Libraries\MultiDB;
 use App\Models\Invoice;
-use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**

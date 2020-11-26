@@ -11,14 +11,10 @@
 
 namespace App\Transformers;
 
-use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
-use App\Transformers\CompanyTokenTransformer;
-use App\Transformers\CompanyTransformer;
-use App\Transformers\CompanyUserTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 

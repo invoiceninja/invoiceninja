@@ -12,7 +12,6 @@
 namespace App\Http\Requests\TaskStatus;
 
 use App\Http\Requests\Request;
-use App\Models\TaskStatus;
 use App\Utils\Traits\MakesHash;
 
 class StoreTaskStatusRequest extends Request

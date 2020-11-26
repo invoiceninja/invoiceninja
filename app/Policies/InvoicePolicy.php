@@ -11,7 +11,6 @@
 
 namespace App\Policies;
 
-use App\Models\Invoice;
 use App\Models\User;
 
 /**

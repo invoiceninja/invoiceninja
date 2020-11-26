@@ -10,23 +10,11 @@
  */
 namespace Tests\Feature;
 
-use App\Factory\CreditFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Listeners\Credit\CreateCreditInvitation;
-use App\Models\Client;
-use App\Models\Credit;
 use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Paymentable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Carbon;
-use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 

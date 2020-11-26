@@ -19,15 +19,12 @@ use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
 use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
 use net\authorize\api\contract\v1\CreateCustomerPaymentProfileRequest;
-use net\authorize\api\contract\v1\CreateCustomerProfileRequest;
 use net\authorize\api\contract\v1\CustomerAddressType;
 use net\authorize\api\contract\v1\CustomerPaymentProfileType;
-use net\authorize\api\contract\v1\CustomerProfileType;
 use net\authorize\api\contract\v1\GetCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\OpaqueDataType;
 use net\authorize\api\contract\v1\PaymentType;
 use net\authorize\api\controller\CreateCustomerPaymentProfileController;
-use net\authorize\api\controller\CreateCustomerProfileController;
 use net\authorize\api\controller\GetCustomerPaymentProfileController;
 use stdClass;
 

@@ -11,7 +11,6 @@
 
 namespace App\Policies;
 
-use App\Models\Expense;
 use App\Models\User;
 
 /**

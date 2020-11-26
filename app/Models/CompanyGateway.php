@@ -11,13 +11,8 @@
 
 namespace App\Models;
 
-use App\Models\Client;
-use App\Models\Company;
-use App\Models\Gateway;
-use App\Models\GatewayType;
 use App\PaymentDrivers\BasePaymentDriver;
 use App\Utils\Number;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use stdClass;
 

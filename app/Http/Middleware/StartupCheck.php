@@ -12,17 +12,10 @@
 namespace App\Http\Middleware;
 
 use App\DataMapper\EmailTemplateDefaults;
-use App\Models\Account;
-use App\Models\Language;
-use App\Utils\CurlUtils;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Request as Input;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Session;
 
 /**
  * Class StartupCheck.

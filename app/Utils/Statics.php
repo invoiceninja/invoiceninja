@@ -11,9 +11,7 @@
 
 namespace App\Utils;
 
-use App\Models\Gateway;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**

@@ -11,8 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\Filterable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CompanyToken extends BaseModel

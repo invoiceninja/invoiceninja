@@ -14,7 +14,6 @@ namespace App\Utils\Traits;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeZone;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class MakesDates.

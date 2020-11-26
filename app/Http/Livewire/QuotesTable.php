@@ -4,7 +4,6 @@ namespace App\Http\Livewire;
 
 use App\Models\Quote;
 use App\Utils\Traits\WithSorting;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 

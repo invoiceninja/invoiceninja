@@ -15,7 +15,6 @@ use App\Models\Presenters\AccountPresenter;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use DateTime;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laracasts\Presenter\PresentableTrait;
 

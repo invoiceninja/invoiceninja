@@ -10,29 +10,15 @@
  */
 namespace Tests\Feature;
 
-use App\DataMapper\FeesAndLimits;
-use App\Factory\CreditFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Listeners\Credit\CreateCreditInvitation;
 use App\Models\Client;
 use App\Models\CompanyGateway;
-use App\Models\Credit;
 use App\Models\GatewayType;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Paymentable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Carbon;
-use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use Illuminate\Support\Facades\Crypt;
 
 /**
  * @test
@@ -67,50 +53,48 @@ class CompanyGatewayResolutionTest extends TestCase
 
         $this->withoutExceptionHandling();
 
-            $data = [];
-            $data[1]['min_limit'] = -1;
-            $data[1]['max_limit'] = -1;
-            $data[1]['fee_amount'] = 0.00;
-            $data[1]['fee_percent'] = 2;
-            $data[1]['fee_tax_name1'] = 'GST';
-            $data[1]['fee_tax_rate1'] = 10;
-            $data[1]['fee_tax_name2'] = 'GST';
-            $data[1]['fee_tax_rate2'] = 10;
-            $data[1]['fee_tax_name3'] = 'GST';
-            $data[1]['fee_tax_rate3'] = 10;
-            $data[1]['adjust_fee_percent'] = true;
-            $data[1]['fee_cap'] = 0;
+        $data = [];
+        $data[1]['min_limit'] = -1;
+        $data[1]['max_limit'] = -1;
+        $data[1]['fee_amount'] = 0.00;
+        $data[1]['fee_percent'] = 2;
+        $data[1]['fee_tax_name1'] = 'GST';
+        $data[1]['fee_tax_rate1'] = 10;
+        $data[1]['fee_tax_name2'] = 'GST';
+        $data[1]['fee_tax_rate2'] = 10;
+        $data[1]['fee_tax_name3'] = 'GST';
+        $data[1]['fee_tax_rate3'] = 10;
+        $data[1]['adjust_fee_percent'] = true;
+        $data[1]['fee_cap'] = 0;
 
-            $data[2]['min_limit'] = -1;
-            $data[2]['max_limit'] = -1;
-            $data[2]['fee_amount'] = 0.00;
-            $data[2]['fee_percent'] = 1;
-            $data[2]['fee_tax_name1'] = 'GST';
-            $data[2]['fee_tax_rate1'] = 10;
-            $data[2]['fee_tax_name2'] = 'GST';
-            $data[2]['fee_tax_rate2'] = 10;
-            $data[2]['fee_tax_name3'] = 'GST';
-            $data[2]['fee_tax_rate3'] = 10;
-            $data[2]['adjust_fee_percent'] = true;
-            $data[2]['fee_cap'] = 0;
+        $data[2]['min_limit'] = -1;
+        $data[2]['max_limit'] = -1;
+        $data[2]['fee_amount'] = 0.00;
+        $data[2]['fee_percent'] = 1;
+        $data[2]['fee_tax_name1'] = 'GST';
+        $data[2]['fee_tax_rate1'] = 10;
+        $data[2]['fee_tax_name2'] = 'GST';
+        $data[2]['fee_tax_rate2'] = 10;
+        $data[2]['fee_tax_name3'] = 'GST';
+        $data[2]['fee_tax_rate3'] = 10;
+        $data[2]['adjust_fee_percent'] = true;
+        $data[2]['fee_cap'] = 0;
 
-            //disable ach here 
-            $json_config = json_decode(config('ninja.testvars.stripe'));
-            $json_config->enable_ach = "0";
+        //disable ach here
+        $json_config = json_decode(config('ninja.testvars.stripe'));
+        $json_config->enable_ach = "0";
 
-            $this->cg = new CompanyGateway;
-            $this->cg->company_id = $this->company->id;
-            $this->cg->user_id = $this->user->id;
-            $this->cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
-            $this->cg->require_cvv = true;
-            $this->cg->require_billing_address = true;
-            $this->cg->require_shipping_address = true;
-            $this->cg->update_details = true;
-            $this->cg->config = encrypt(json_encode($json_config));
-            $this->cg->fees_and_limits = $data;
-            $this->cg->save();
-   
-
+        $this->cg = new CompanyGateway;
+        $this->cg->company_id = $this->company->id;
+        $this->cg->user_id = $this->user->id;
+        $this->cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $this->cg->require_cvv = true;
+        $this->cg->require_billing_address = true;
+        $this->cg->require_shipping_address = true;
+        $this->cg->update_details = true;
+        $this->cg->config = encrypt(json_encode($json_config));
+        $this->cg->fees_and_limits = $data;
+        $this->cg->save();
     }
 
     /**
@@ -118,12 +102,10 @@ class CompanyGatewayResolutionTest extends TestCase
      */
     public function testGatewayResolution()
     {
-        
         $fee = $this->cg->calcGatewayFee(10, false, GatewayType::CREDIT_CARD);
         $this->assertEquals(0.2, $fee);
         $fee = $this->cg->calcGatewayFee(10, false, GatewayType::BANK_TRANSFER);
         $this->assertEquals(0.1, $fee);
-
     }
 
     /**
@@ -142,22 +124,16 @@ class CompanyGatewayResolutionTest extends TestCase
         $payment_methods = [];
 
         $this->assertInstanceOf("\\stdClass", $this->cg->fees_and_limits);
-        $this->assertObjectHasAttribute('min_limit',$this->cg->fees_and_limits->{1});
+        $this->assertObjectHasAttribute('min_limit', $this->cg->fees_and_limits->{1});
 
-        foreach ($this->cg->driver($this->client)->gatewayTypes() as $type) 
-        {
-
-            if(property_exists($this->cg->fees_and_limits, $type))
-            {
-                if($this->client->validGatewayForAmount($this->cg->fees_and_limits->{$type}, $amount)){
+        foreach ($this->cg->driver($this->client)->gatewayTypes() as $type) {
+            if (property_exists($this->cg->fees_and_limits, $type)) {
+                if ($this->client->validGatewayForAmount($this->cg->fees_and_limits->{$type}, $amount)) {
                     $payment_methods[] = [$this->cg->id => $type];
                 }
-            }
-            else 
-            {
+            } else {
                 $payment_methods[] = [$this->cg->id => $type];
             }
-
         }
 
         $this->assertEquals(3, count($payment_methods));

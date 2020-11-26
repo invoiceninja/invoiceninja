@@ -11,7 +11,6 @@
 
 namespace App\Http\ValidationRules\User;
 
-use App\Libraries\MultiDB;
 use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 

@@ -225,6 +225,7 @@ class PaymentController extends Controller
             ->driver(auth()->user()->client)
             ->setPaymentMethod($payment_method_id)
             ->setPaymentHash($payment_hash)
+            ->checkRequirements()
             ->processPaymentView($data);
     }
 
@@ -237,6 +238,7 @@ class PaymentController extends Controller
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->input('payment_method_id'))
             ->setPaymentHash($payment_hash)
+            ->checkRequirements()
             ->processPaymentResponse($request);
     }
 

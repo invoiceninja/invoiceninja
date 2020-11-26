@@ -15,10 +15,6 @@ use App\Models\Activity;
 use App\Models\Document;
 use App\Models\Vendor;
 use App\Models\VendorContact;
-use App\Models\VendorGatewayToken;
-use App\Transformers\ActivityTransformer;
-use App\Transformers\VendorContactTransformer;
-use App\Transformers\VendorGatewayTokenTransformer;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\Resource\Collection;
 

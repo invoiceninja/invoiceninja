@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Project;
 
 use App\Http\Requests\Request;
-use App\Models\Project;
 use App\Utils\Traits\ChecksEntityStatus;
 
 class UpdateProjectRequest extends Request

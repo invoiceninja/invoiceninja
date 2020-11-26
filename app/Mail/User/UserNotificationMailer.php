@@ -11,7 +11,6 @@
 
 namespace App\Mail\User;
 
-use App\Models\User;
 use Illuminate\Mail\Mailable;
 
 class UserNotificationMailer extends Mailable

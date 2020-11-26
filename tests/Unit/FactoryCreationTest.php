@@ -10,13 +10,11 @@
  */
 namespace Tests\Unit;
 
-use App\Factory\ClientContactFactory;
 use App\Factory\ClientFactory;
 use App\Factory\CloneInvoiceFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\ProductFactory;
 use App\Factory\UserFactory;
-use App\Models\Client;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
