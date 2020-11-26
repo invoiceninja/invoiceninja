@@ -114,9 +114,9 @@ class Phantom
 
         $state = [
             'template' => $template->elements([
-                'client' => $this->entity->client,
-                'entity' => $this->entity,
-                'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
+                'client' => $entity_obj->client,
+                'entity' => $entity_obj,
+                'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
                 '$product' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),
