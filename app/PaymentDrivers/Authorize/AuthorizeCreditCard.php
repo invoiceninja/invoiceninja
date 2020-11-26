@@ -103,10 +103,12 @@ class AuthorizeCreditCard
         /*Refactor and push to BaseDriver*/
         if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
 
+            $response = $data['response'];
+            
             $payment_record = [];
             $payment_record['amount'] = $amount;
             $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;;
-            $payment_record['transaction_reference'] = $data['response']->getTransactionResponse()->getTransId();
+            $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
 
             $this->authorize->createPayment($payment_record);
             
