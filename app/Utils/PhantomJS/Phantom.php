@@ -88,8 +88,7 @@ class Phantom
     {
         $key = $entity.'_id';
 
-        $invitation_instance = 'App\Models\\'.Str::camel(ucfirst($entity)).'Invitation';
-
+        $invitation_instance = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
         $invitation = $invitation_instance::whereRaw('BINARY `key`= ?', [$invitation_key])->first();
 
         $entity_obj = $invitation->{$entity};
@@ -115,9 +114,9 @@ class Phantom
 
         $state = [
             'template' => $template->elements([
-                'client' => $this->entity->client,
-                'entity' => $this->entity,
-                'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
+                'client' => $entity_obj->client,
+                'entity' => $entity_obj,
+                'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
                 '$product' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),
