@@ -8,7 +8,7 @@
                 <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}" class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
                 <h1 class="text-center text-3xl mt-10">{{ ctrans('texts.confirmation') }}</h1>
                 <p class="text-center opacity-75">{{ $message }}</p>
-                <a class="button button-primary text-center mt-8" href="{{ url('/') }}">{{ ctrans('texts.return_to_login') }}</a>
+                <a class="button button-primary text-blue-600 text-center mt-8" href="{{ url('/') }}">{{ ctrans('texts.return_to_login') }}</a>
             </div>
         </div>
     </div>
