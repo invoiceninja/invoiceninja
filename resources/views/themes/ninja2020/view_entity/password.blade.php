@@ -22,7 +22,7 @@
                         @endif
                     </div>
                     <div class="mt-5">
-                        <button class="button button-primary button-block">{{ ctrans('texts.continue') }}</button>
+                        <button class="button button-primary button-block bg-blue-600">{{ ctrans('texts.continue') }}</button>
                     </div>
                 </form>
             </div>

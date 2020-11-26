@@ -23,11 +23,11 @@
             </section>
             <div class="flex items-center">
                 @if($entity instanceof App\Models\Invoice)
-                    <button class="button button-primary">{{ ctrans('texts.pay_now') }}</button>
+                    <button class="button button-primary bg-blue-600">{{ ctrans('texts.pay_now') }}</button>
                 @elseif($$entity instanceof App\Models\Quote)
-                    <button class="button button-primary">{{ ctrans('texts.approve') }}</button>
+                    <button class="button button-primary bg-blue-600">{{ ctrans('texts.approve') }}</button>
                 @endif
-                <button class="button button-primary ml-2">{{ ctrans('texts.download') }}</button>
+                <button class="button button-primary bg-blue-600 ml-2">{{ ctrans('texts.download') }}</button>
                 <div x-data="{ open: false }" @keydown.escape="open = false" @click.away="open = false" class="relative inline-block text-left ml-2">
                     <div>
                         <button @click="open = !open" class="flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600">
