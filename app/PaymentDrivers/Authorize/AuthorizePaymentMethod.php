@@ -70,7 +70,7 @@ class AuthorizePaymentMethod
         
         $this->payment_method_id = $data['method'];
 
-        switch ($this->payment_method) {
+        switch ($this->payment_method_id) {
             case GatewayType::CREDIT_CARD:
                 return $this->authorizeCreditCardResponse($data);
                 break;
