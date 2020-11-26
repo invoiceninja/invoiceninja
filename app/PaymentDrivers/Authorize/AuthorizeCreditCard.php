@@ -103,14 +103,16 @@ class AuthorizeCreditCard
         /*Refactor and push to BaseDriver*/
         if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
 
-            $response = $data['response'];
-            
-            $payment_record = [];
-            $payment_record['amount'] = $amount;
-            $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;;
-            $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
+            // $response = $data['response'];
 
-            $this->authorize->createPayment($payment_record);
+            // $payment_record = [];
+            // $payment_record['amount'] = $amount;
+            // $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;;
+            // $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
+
+            // $this->authorize->createPayment($payment_record);
+            
+            $this->storePayment($payment_hash, $data);
             
             // $payment = $this->createPaymentRecord($data, $amount);
             // $payment->meta = $cgt->meta;
@@ -148,31 +150,6 @@ class AuthorizeCreditCard
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private function handleResponse($data, $request)
     {
         $response = $data['response'];
@@ -190,16 +167,14 @@ class AuthorizeCreditCard
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
-        $payment = $this->createPaymentRecord($data, $amount);
-        
-        $payment_hash->payment_id = $payment->id;
-        $payment_hash->save();
+        $response = $data['response'];
 
-        $this->authorize->attachInvoices($payment, $payment_hash);
+        $payment_record = [];
+        $payment_record['amount'] = $amount;
+        $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;;
+        $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
 
-        $payment->service()->updateInvoicePayment($payment_hash);
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+        $payment = $this->authorize->createPayment($payment_record);
 
         return $payment;
     }
