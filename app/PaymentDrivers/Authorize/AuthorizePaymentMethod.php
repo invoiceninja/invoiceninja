@@ -68,7 +68,7 @@ class AuthorizePaymentMethod
     {
         $data = $request->all();
         
-        $this->payment_method = $data['payment_method_id'];
+        $this->payment_method_id = $data['method'];
 
         switch ($this->payment_method) {
             case GatewayType::CREDIT_CARD:
