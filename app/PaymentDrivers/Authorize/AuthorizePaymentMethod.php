@@ -64,8 +64,10 @@ class AuthorizePaymentMethod
 
     }
 
-    public function authorizeResponseView($data)
+    public function authorizeResponseView($request)
     {
+        $data = $request->all();
+        
         $this->payment_method = $data['payment_method_id'];
 
         switch ($this->payment_method) {
