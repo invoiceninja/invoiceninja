@@ -86,11 +86,15 @@ class Phantom
 
     public function convertHtmlToPdf($html)
     {
-        // https://phantomjscloud.com/api/browser/v2/a-demo-key-with-low-quota-per-ip-address/?request=%7Bcontent:%22%3Chtml%3E%3Ch1%3Eboo%3C/h2%3E%3C/html%3E%22,renderType:%22pdf%22%7D
         
         $key = config('ninja.phantomjs_key');
         $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Bcontent:%22{$html}%22,renderType:%22pdf%22%7D";
-        return CurlUtils::get($phantom_url);
+        $pdf = CurlUtils::get($phantom_url);
+
+        $response = Response::make($pdf, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
     }
 
     public function displayInvitation(string $entity, string $invitation_key)
