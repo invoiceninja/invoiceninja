@@ -24,6 +24,8 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Cache;
 
 class Phantom
 {
@@ -75,13 +77,28 @@ class Phantom
         $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
         $pdf = CurlUtils::get($phantom_url);
 
-        //info($pdf);
-
         Storage::makeDirectory($path, 0775);
 
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 
         return $file_path;
+    }
+
+    public function convertHtmlToPdf($html)
+    {
+        $hash = Str::random(32);
+        Cache::put($hash, $html, 300);
+        
+        $url = route('tmp_pdf', ['hash' => $hash]);
+info($url);
+        $key = config('ninja.phantomjs_key');
+        $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
+        $pdf = CurlUtils::get($phantom_url);
+
+        $response = Response::make($pdf, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
     }
 
     public function displayInvitation(string $entity, string $invitation_key)
