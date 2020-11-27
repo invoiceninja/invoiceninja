@@ -44,8 +44,8 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
     /**
      * Initialize Omnipay PayPal_Express gateway.
-     * 
-     * @return void 
+     *
+     * @return void
      */
     private function initializeOmnipayGateway(): void
     {
@@ -58,7 +58,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
     public function setPaymentMethod($payment_method_id)
     {
-        // PayPal doesn't have multiple ways of paying. 
+        // PayPal doesn't have multiple ways of paying.
         // There's just one, off-site redirect.
 
         return $this;
@@ -80,6 +80,12 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
     public function processPaymentView($data)
     {
+        if (count($this->required_fields) > 0) {
+            return redirect()
+                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
+                ->with('missing_required_fields', $this->required_fields);
+        }
+
         $this->initializeOmnipayGateway();
 
         $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['amount_with_fee']]);
@@ -114,6 +120,12 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
     public function processPaymentResponse($request)
     {
+        if (count($this->required_fields) > 0) {
+            return redirect()
+                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
+                ->with('missing_required_fields', $this->required_fields);
+        }
+
         $this->initializeOmnipayGateway();
 
         $response = $this->omnipay_gateway

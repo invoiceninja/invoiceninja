@@ -330,9 +330,9 @@ class BaseDriver extends AbstractPaymentDriver
 
     /**
      * Wrapper method for checking if resource is good.
-     * 
-     * @param mixed $resource 
-     * @return bool 
+     *
+     * @param mixed $resource
+     * @return bool
      */
     public function checkRequiredResource($resource): bool
     {
@@ -432,7 +432,7 @@ class BaseDriver extends AbstractPaymentDriver
                 if (Str::startsWith($field, 'billing')) {
                     unset($this->required_fields[$position]);
                 }
-            } 
+            }
 
             if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
                 $this->required_fields[] = 'postal_code';
