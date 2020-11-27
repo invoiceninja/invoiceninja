@@ -88,7 +88,7 @@ class Phantom
     {
         $hash = Str::random(32);
         Cache::put($hash, $html, 300);
-
+        
         $url = route('tmp_pdf', ['hash' => $hash]);
 info($url);
         $key = config('ninja.phantomjs_key');

@@ -25,10 +25,10 @@ class TempRouteController extends Controller
      */
     public function index(string $hash)
     {
-        
-		$html = Cache::get($hash);
+        $data = [];
+		$data['html'] = Cache::get($hash);
 
-        return view('pdf.html', $html);
-        
+        return view('pdf.html', $data);
+
     }
 }
