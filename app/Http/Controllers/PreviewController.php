@@ -20,6 +20,7 @@ use App\Models\InvoiceInvitation;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HtmlEngine;
+use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Support\Facades\DB;
