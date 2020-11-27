@@ -24,6 +24,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Response;
 
 class Phantom
 {
