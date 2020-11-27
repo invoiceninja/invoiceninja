@@ -91,7 +91,7 @@ class Phantom
         $key = config('ninja.phantomjs_key');
         $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Bcontent:%22{$html}%22,renderType:%22pdf%22%7D";
         $pdf = CurlUtils::get($phantom_url);
-
+info($pdf);
         $response = Response::make($pdf, 200);
         $response->header('Content-Type', 'application/pdf');
 
