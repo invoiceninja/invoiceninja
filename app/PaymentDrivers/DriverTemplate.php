@@ -55,19 +55,18 @@ class YourGatewayPaymentDriver extends BaseDriver
         return $this->payment_method->paymentView($data);  //this is your custom implementation from here
     }
 
-    public function processPaymentResponse($request) 
+    public function processPaymentResponse($request)
     {
         return $this->payment_method->paymentResponse($request); //this is your custom implementation from here
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-    	return $this->payment_method->yourRefundImplementationHere(); //this is your custom implementation from here
+        return $this->payment_method->yourRefundImplementationHere(); //this is your custom implementation from here
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
     }
-    
 }

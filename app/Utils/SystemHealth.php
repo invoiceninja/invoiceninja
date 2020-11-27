@@ -79,14 +79,15 @@ class SystemHealth
             'npm_status' => self::checkNpm(),
             'node_status' => self::checkNode(),
             'cache_enabled' => self::checkConfigCache(),
-            'phantom_enabled' => (bool) config('ninja.phantomjs_pdf_generation'), 
+            'phantom_enabled' => (bool) config('ninja.phantomjs_pdf_generation'),
         ];
     }
 
     public static function checkConfigCache()
     {
-        if(env('APP_URL'))
+        if (env('APP_URL')) {
             return false;
+        }
 
         return true;
     }

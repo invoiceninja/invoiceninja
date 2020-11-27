@@ -31,8 +31,8 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Exception;
-use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 /**
  * Class BaseDriver.
@@ -83,35 +83,43 @@ class BaseDriver extends AbstractPaymentDriver
      * Authorize a payment method.
      *
      * Returns a reusable token for storage for future payments
-     * 
+     *
      * @param array $data
      * @return mixed Return a view for collecting payment method information
      */
-    public function authorizeView(array $data) {}
+    public function authorizeView(array $data)
+    {
+    }
 
     /**
      * The payment authorization response
-     *         
-     * @param  Request $request 
+     *
+     * @param  Request $request
      * @return mixed Return a response for collecting payment method information
      */
-    public function authorizeResponse(Request $request) {}
+    public function authorizeResponse(Request $request)
+    {
+    }
 
     /**
      * Process a payment
-     * 
-     * @param  array $data 
+     *
+     * @param  array $data
      * @return mixed Return a view for the payment
      */
-    public function processPaymentView(array $data) {}
+    public function processPaymentView(array $data)
+    {
+    }
 
     /**
      * Process payment response
-     * 
+     *
      * @param  Request $request
      * @return mixed   Return a response for the payment
      */
-    public function processPaymentResponse(Request $request) {}
+    public function processPaymentResponse(Request $request)
+    {
+    }
 
     /**
      * Executes a refund attempt for a given amount with a transaction_reference.
@@ -121,7 +129,9 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  bool $return_client_response    Whether the method needs to return a response (otherwise we assume an unattended payment)
      * @return mixed
      */
-    public function refund(Payment $payment, $amount, $return_client_response = false) {}
+    public function refund(Payment $payment, $amount, $return_client_response = false)
+    {
+    }
 
     /**
      * Process an unattended payment.
@@ -130,14 +140,18 @@ class BaseDriver extends AbstractPaymentDriver
      * @param PaymentHash $payment_hash The Payment hash containing the payment meta data
      * @return void The payment response
      */
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash){}
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    {
+    }
 
     /**
      * Set the inbound request payment method type for access.
      *
      * @param int $payment_method_id The Payment Method ID
      */
-    public function setPaymentMethod($payment_method_id){}
+    public function setPaymentMethod($payment_method_id)
+    {
+    }
 
 
     /************************** Helper methods *************************************/
@@ -334,9 +348,9 @@ class BaseDriver extends AbstractPaymentDriver
 
     /**
      * Wrapper method for checking if resource is good.
-     * 
-     * @param mixed $resource 
-     * @return bool 
+     *
+     * @param mixed $resource
+     * @return bool
      */
     public function checkRequiredResource($resource): bool
     {
@@ -436,7 +450,7 @@ class BaseDriver extends AbstractPaymentDriver
                 if (Str::startsWith($field, 'billing')) {
                     unset($this->required_fields[$position]);
                 }
-            } 
+            }
 
             if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
                 $this->required_fields[] = 'postal_code';

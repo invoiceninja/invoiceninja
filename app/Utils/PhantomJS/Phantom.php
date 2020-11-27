@@ -22,10 +22,10 @@ use App\Utils\CurlUtils;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Cache;
 
 class Phantom
 {
@@ -90,7 +90,7 @@ class Phantom
         Cache::put($hash, $html, 300);
         
         $url = route('tmp_pdf', ['hash' => $hash]);
-info($url);
+        info($url);
         $key = config('ninja.phantomjs_key');
         $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
         $pdf = CurlUtils::get($phantom_url);

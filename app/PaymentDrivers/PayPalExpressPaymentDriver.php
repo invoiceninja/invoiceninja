@@ -26,6 +26,7 @@ use App\Utils\Traits\MakesHash;
 use Exception;
 use Omnipay\Common\Item;
 use stdClass;
+
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
     use MakesHash;
@@ -56,7 +57,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYPAL;
 
-public function checkRequirements()
+    public function checkRequirements()
     {
         if ($this->company_gateway->require_billing_address) {
             if ($this->checkRequiredResource(auth()->user('contact')->client->address1)) {
@@ -145,7 +146,7 @@ public function checkRequirements()
                 if (Str::startsWith($field, 'billing')) {
                     unset($this->required_fields[$position]);
                 }
-            } 
+            }
 
             if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
                 $this->required_fields[] = 'postal_code';
@@ -157,9 +158,9 @@ public function checkRequirements()
 
     /**
      * Wrapper method for checking if resource is good.
-     * 
-     * @param mixed $resource 
-     * @return bool 
+     *
+     * @param mixed $resource
+     * @return bool
      */
     public function checkRequiredResource($resource): bool
     {

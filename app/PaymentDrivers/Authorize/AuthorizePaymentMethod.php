@@ -13,11 +13,8 @@
 namespace App\PaymentDrivers\Authorize;
 
 use App\Exceptions\GenericPaymentDriverFailure;
-use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
-use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
-use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
 use net\authorize\api\contract\v1\CreateCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\CustomerAddressType;
 use net\authorize\api\contract\v1\CustomerPaymentProfileType;
@@ -46,19 +43,16 @@ class AuthorizePaymentMethod
 
     public function authorizeView()
     {
-        if($this->authorize->payment_method instanceof AuthorizeCreditCard){
-
+        if ($this->authorize->payment_method instanceof AuthorizeCreditCard) {
             $this->payment_method_id = GatewayType::CREDIT_CARD;
 
             return $this->authorizeCreditCard();
-
         }
 
         
         // case GatewayType::BANK_TRANSFER:
         //     return $this->authorizeBankTransfer();
         //     break;
-
     }
 
     public function authorizeResponseView($request)
@@ -116,7 +110,6 @@ class AuthorizePaymentMethod
 
     public function createClientGatewayToken($payment_profile, $gateway_customer_reference)
     {
-
         $data = [];
         $additonal = [];
 
