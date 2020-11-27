@@ -198,6 +198,10 @@ class PreviewController extends BaseController
             ->design($design)
             ->build();
 
+            if (config('ninja.phantomjs_pdf_generation')) {
+                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            }
+            
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
         DB::rollBack();
