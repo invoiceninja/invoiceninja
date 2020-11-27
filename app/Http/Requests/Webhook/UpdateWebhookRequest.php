@@ -14,7 +14,6 @@ namespace App\Http\Requests\Webhook;
 use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class UpdateWebhookRequest extends Request
 {

@@ -11,11 +11,11 @@
 
 namespace App\Http\Requests\Credit;
 
+use App\Http\Requests\Request;
 use App\Http\ValidationRules\Credit\UniqueCreditNumberRule;
 use App\Models\Credit;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use App\Http\Requests\Request;
 
 class StoreCreditRequest extends Request
 {

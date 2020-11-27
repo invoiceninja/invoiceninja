@@ -10,7 +10,6 @@
  */
 namespace Tests\Integration;
 
-use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
 use App\Libraries\MultiDB;
 use App\Models\Account;
@@ -18,8 +17,6 @@ use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;

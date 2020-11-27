@@ -14,15 +14,15 @@ namespace App\Mail\Engine;
 use App\Utils\HtmlEngine;
 use App\Utils\Number;
 
-class CreditEmailEngine extends BaseEmailEngine 
+class CreditEmailEngine extends BaseEmailEngine
 {
-	public $invitation;
+    public $invitation;
 
-	public $client;
+    public $client;
 
-	public $credit;
+    public $credit;
 
-	public $contact;
+    public $contact;
 
     public $reminder_template;
 
@@ -30,7 +30,7 @@ class CreditEmailEngine extends BaseEmailEngine
 
     public function __construct($invitation, $reminder_template, $template_data)
     {
-    	$this->invitation = $invitation;
+        $this->invitation = $invitation;
         $this->reminder_template = $reminder_template;
         $this->client = $invitation->contact->client;
         $this->credit = $invitation->credit;
@@ -40,11 +40,11 @@ class CreditEmailEngine extends BaseEmailEngine
 
     public function build()
     {
-
-        if(is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0)
+        if (is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
-        else
+        } else {
             $body_template = $this->client->getSetting('email_template_'.$this->reminder_template);
+        }
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
@@ -60,13 +60,13 @@ class CreditEmailEngine extends BaseEmailEngine
             );
         }
 
-        if(is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0)
+        if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
-        else
+        } else {
             $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
+        }
 
         if (iconv_strlen($subject_template) == 0) {
-
             $subject_template = trans(
                 'texts.credit_subject',
                 [
@@ -76,7 +76,6 @@ class CreditEmailEngine extends BaseEmailEngine
                 null,
                 $this->client->locale()
             );
-        
         }
 
         $this->setTemplate($this->client->getSetting('email_style'))
@@ -93,8 +92,5 @@ class CreditEmailEngine extends BaseEmailEngine
         }
 
         return $this;
-
     }
-
 }
-

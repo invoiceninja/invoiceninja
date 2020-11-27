@@ -65,10 +65,9 @@ class SendRemindersCron extends Command
                           ->whereDate('due_date', now()->subDays(1)->startOfDay())
                           ->cursor();
     
-        $invoices->each(function ($invoice){
+        $invoices->each(function ($invoice) {
             WebHookHandler::dispatch(Webhook::EVENT_LATE_INVOICE, $invoice, $invoice->company);
         });
-
     }
 
     private function webHookExpiredQuotes()
@@ -78,7 +77,7 @@ class SendRemindersCron extends Command
                           ->whereDate('due_date', now()->subDays(1)->startOfDay())
                           ->cursor();
     
-        $quotes->each(function ($quote){
+        $quotes->each(function ($quote) {
             WebHookHandler::dispatch(Webhook::EVENT_EXPIRED_QUOTE, $quote, $quote->company);
         });
     }

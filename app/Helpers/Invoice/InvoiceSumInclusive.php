@@ -11,12 +11,6 @@
 
 namespace App\Helpers\Invoice;
 
-use App\Helpers\Invoice\Balancer;
-use App\Helpers\Invoice\CustomValuer;
-use App\Helpers\Invoice\Discounter;
-use App\Helpers\Invoice\InvoiceItemSum;
-use App\Helpers\Invoice\InvoiceItemSumInclusive;
-use App\Helpers\Invoice\Taxer;
 use App\Models\Invoice;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
@@ -66,7 +60,7 @@ class InvoiceSumInclusive
              ->calculateCustomValues()
              ->calculateInvoiceTaxes()
              ->setTaxMap()
-//			 ->calculateTotals()
+             ->calculateTotals() //just don't add the taxes!!
              ->calculateBalance()
              ->calculatePartial();
 
@@ -170,14 +164,29 @@ class InvoiceSumInclusive
 
     private function calculateTotals()
     {
-        $this->total += $this->total_taxes;
+        //$this->total += $this->total_taxes;
+
+        if (is_numeric($this->invoice->custom_value1)) {
+            $this->total += $this->invoice->custom_value1;
+        }
+
+        if (is_numeric($this->invoice->custom_value2)) {
+            $this->total += $this->invoice->custom_value2;
+        }
+
+        if (is_numeric($this->invoice->custom_value3)) {
+            $this->total += $this->invoice->custom_value3;
+        }
+
+        if (is_numeric($this->invoice->custom_value4)) {
+            $this->total += $this->invoice->custom_value4;
+        }
 
         return $this;
     }
 
     public function getRecurringInvoice()
     {
-
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
         $this->invoice->total_taxes = $this->getTotalTaxes();
         $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
@@ -317,7 +326,6 @@ class InvoiceSumInclusive
 
     public function purgeTaxes()
     {
-
         return $this;
     }
 }

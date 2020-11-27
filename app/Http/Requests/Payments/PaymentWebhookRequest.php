@@ -12,9 +12,9 @@
 
 namespace App\Http\Requests\Payments;
 
+use App\Http\Requests\Request;
 use App\Models\Company;
 use App\Models\CompanyGateway;
-use App\Http\Requests\Request;
 
 class PaymentWebhookRequest extends Request
 {

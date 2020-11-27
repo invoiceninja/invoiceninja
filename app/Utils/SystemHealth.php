@@ -78,7 +78,17 @@ class SystemHealth
             'simple_db_check' => (bool) self::simpleDbCheck(),
             'npm_status' => self::checkNpm(),
             'node_status' => self::checkNode(),
+            'cache_enabled' => self::checkConfigCache(),
+            'phantom_enabled' => (bool) config('ninja.phantomjs_pdf_generation'), 
         ];
+    }
+
+    public static function checkConfigCache()
+    {
+        if(env('APP_URL'))
+            return false;
+
+        return true;
     }
 
     public static function checkNode()
@@ -123,7 +133,6 @@ class SystemHealth
 
     private static function checkPhpCli()
     {
-
         try {
             exec('php -v', $foo, $exitCode);
 
@@ -133,7 +142,6 @@ class SystemHealth
         } catch (Exception $e) {
             return false;
         }
-
     }
 
     private static function extensions() :array
@@ -196,6 +204,10 @@ class SystemHealth
 
     public static function testMailServer($request = null)
     {
+        if ($request->driver == 'log') {
+            return [];
+        }
+
         if ($request && $request instanceof CheckMailRequest) {
             config(['mail.driver' => $request->input('driver')]);
             config(['mail.host' => $request->input('host')]);
@@ -225,7 +237,7 @@ class SystemHealth
             return Mail::failures();
         }
 
-        return response()->json(['message'=>'Success'], 200);
+        return response()->json(['message' => 'Success'], 200);
     }
 
     private static function checkEnvWritable()

@@ -10,14 +10,11 @@
  */
 namespace Database\Seeders;
 
-
 use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\User;
-use App\Models\UserAccount;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 

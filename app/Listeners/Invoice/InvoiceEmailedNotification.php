@@ -13,18 +13,9 @@ namespace App\Listeners\Invoice;
 
 use App\Jobs\Mail\EntitySentMailer;
 use App\Libraries\MultiDB;
-use App\Models\Activity;
-use App\Models\ClientContact;
-use App\Models\InvoiceInvitation;
 use App\Notifications\Admin\EntitySentNotification;
-use App\Notifications\Admin\InvoiceSentNotification;
-use App\Repositories\ActivityRepository;
-use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
 
 class InvoiceEmailedNotification implements ShouldQueue
 {
@@ -62,7 +53,6 @@ class InvoiceEmailedNotification implements ShouldQueue
 
                 EntitySentMailer::dispatch($event->invitation, 'invoice', $user, $event->invitation->company);
                 $first_notification_sent = false;
-
             }
 
             $notification->method = $methods;

@@ -12,8 +12,6 @@
 namespace App\Http\Requests\TaxRate;
 
 use App\Http\Requests\Request;
-use App\Models\TaxRate;
-use Illuminate\Support\Facades\Log;
 
 class UpdateTaxRateRequest extends Request
 {

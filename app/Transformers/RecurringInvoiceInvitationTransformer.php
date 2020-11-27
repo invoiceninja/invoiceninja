@@ -11,7 +11,6 @@
 
 namespace App\Transformers;
 
-use App\Models\InvoiceInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Traits\MakesHash;
 

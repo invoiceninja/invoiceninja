@@ -11,9 +11,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Designs\Custom;
 use App\Designs\Designer;
-use App\Factory\InvoiceFactory;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -22,11 +20,11 @@ use App\Models\InvoiceInvitation;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HtmlEngine;
+use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Storage;
 
 class PreviewController extends BaseController
 {
@@ -124,6 +122,12 @@ class PreviewController extends BaseController
                 ->design($design)
                 ->build();
 
+            //if phantom js...... inject here..
+            if (config('ninja.phantomjs_pdf_generation')) {
+                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            }
+
+            //else
             $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
             return response()->download($file_path)->deleteFileAfterSend(true);
@@ -195,6 +199,10 @@ class PreviewController extends BaseController
             ->design($design)
             ->build();
 
+            if (config('ninja.phantomjs_pdf_generation')) {
+                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            }
+            
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
         DB::rollBack();

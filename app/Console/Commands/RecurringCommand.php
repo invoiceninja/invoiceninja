@@ -12,7 +12,6 @@
 namespace App\Console\Commands;
 
 use App\Jobs\Cron\RecurringInvoicesCron;
-use App\Models\Design;
 use Illuminate\Console\Command;
 
 class RecurringCommand extends Command

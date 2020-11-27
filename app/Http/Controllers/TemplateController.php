@@ -11,14 +11,11 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\EmailTemplateDefaults;
 use App\Utils\TemplateEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
 use Illuminate\Http\Response;
-use Illuminate\Notifications\Messages\MailMessage;
-use League\CommonMark\CommonMarkConverter;
 
 class TemplateController extends BaseController
 {

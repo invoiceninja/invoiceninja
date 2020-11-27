@@ -14,7 +14,6 @@ namespace App\Jobs\Mail;
 use App\DataMapper\Analytics\EmailFailure;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
-use App\Libraries\MultiDB;
 use App\Models\SystemLog;
 use App\Models\User;
 use App\Providers\MailServiceProvider;
@@ -34,6 +33,12 @@ use Turbo124\Beacon\Facades\LightLogs;
 class BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public $tries = 5; //number of retries
+
+    public $backoff = 5; //seconds to wait until retry
+
+    public $deleteWhenMissingModels = true;
 
     public function setMailDriver()
     {
@@ -98,6 +103,5 @@ class BaseMailerJob implements ShouldQueue
 
         LightLogs::create($job_failure)
                  ->batch();
-
     }
 }

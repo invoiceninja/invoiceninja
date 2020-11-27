@@ -12,7 +12,6 @@
 namespace App\Http\Requests\TaskStatus;
 
 use App\Http\Requests\Request;
-use App\Models\TaskStatus;
 
 class DestroyTaskStatusRequest extends Request
 {

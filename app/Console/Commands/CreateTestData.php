@@ -12,29 +12,19 @@
 namespace App\Console\Commands;
 
 use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\Invoice\InvoiceWasMarkedSent;
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
-use App\Factory\PaymentFactory;
 use App\Factory\QuoteFactory;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Quote\CreateQuoteInvitations;
-use App\Listeners\Credit\CreateCreditInvitation;
-use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
-use App\Models\Credit;
 use App\Models\Country;
+use App\Models\Credit;
 use App\Models\Expense;
-use App\Models\Payment;
-use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
@@ -471,7 +461,6 @@ class CreateTestData extends Command
 
     private function createInvoice($client)
     {
-
         $faker = Factory::create();
 
         $invoice = InvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
@@ -522,7 +511,6 @@ class CreateTestData extends Command
 
     private function createCredit($client)
     {
-
         $faker = Factory::create();
 
         $credit = Credit::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
@@ -562,7 +550,6 @@ class CreateTestData extends Command
 
     private function createQuote($client)
     {
-
         $faker = Factory::create();
 
         //$quote = QuoteFactory::create($client->company->id, $client->user->id);//stub the company and user_id

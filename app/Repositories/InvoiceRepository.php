@@ -11,11 +11,6 @@
 
 namespace App\Repositories;
 
-use App\Events\Invoice\InvoiceWasDeleted;
-use App\Factory\InvoiceInvitationFactory;
-use App\Jobs\Product\UpdateOrCreateProduct;
-use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Utils\Traits\MakesHash;

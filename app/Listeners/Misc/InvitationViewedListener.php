@@ -16,7 +16,6 @@ use App\Libraries\MultiDB;
 use App\Notifications\Admin\EntityViewedNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Notification;
 
 class InvitationViewedListener implements ShouldQueue

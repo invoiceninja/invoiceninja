@@ -12,7 +12,6 @@
 namespace App\Http\Requests\RecurringInvoice;
 
 use App\Http\Requests\Request;
-use App\Models\RecurringInvoice;
 
 class ActionRecurringInvoiceRequest extends Request
 {

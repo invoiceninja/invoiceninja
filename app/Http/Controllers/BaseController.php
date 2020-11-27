@@ -13,7 +13,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\Company;
-use App\Models\Design;
 use App\Models\User;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
@@ -23,9 +22,6 @@ use App\Utils\Traits\AppSetup;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Request as Input;
-use Illuminate\Support\Facades\Schema;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
@@ -69,6 +65,7 @@ class BaseController extends Controller
           'company.task_statuses',
           'company.expense_categories',
           'company.documents',
+          'company.users',
           //'company.users.company_user',
           'company.clients.contacts.company',
           'company.clients.gateway_tokens',
@@ -207,12 +204,12 @@ class BaseController extends Controller
         $updated_at = date('Y-m-d H:i:s', $updated_at);
 
         $query->with(
-          [
+            [
             'company' => function ($query) use ($updated_at) {
                 $query->whereNotNull('updated_at')->with('documents');
             },
             'company.clients' => function ($query) use ($updated_at) {
-                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens','documents');
+                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens', 'documents');
             },
             'company.company_gateways' => function ($query) {
                 $query->whereNotNull('updated_at');
@@ -236,7 +233,7 @@ class BaseController extends Controller
                 $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
             },
             'company.payments'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('paymentables','documents');
+                $query->where('updated_at', '>=', $updated_at)->with('paymentables', 'documents');
             },
             'company.payment_terms'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at);
@@ -245,7 +242,7 @@ class BaseController extends Controller
                 $query->where('updated_at', '>=', $updated_at)->with('documents');
             },
             'company.projects'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('documents' );
+                $query->where('updated_at', '>=', $updated_at)->with('documents');
             },
             'company.quotes'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
@@ -254,13 +251,13 @@ class BaseController extends Controller
                 $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
             },
             'company.tasks'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('documents' );
+                $query->where('updated_at', '>=', $updated_at)->with('documents');
             },
             'company.tax_rates' => function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at);
             },
             'company.vendors'=> function ($query) use ($updated_at) {
-                $query->where('updated_at', '>=', $updated_at)->with('contacts','documents');
+                $query->where('updated_at', '>=', $updated_at)->with('contacts', 'documents');
             },
             'company.expense_categories'=> function ($query) use ($updated_at) {
                 $query->where('updated_at', '>=', $updated_at);
@@ -297,14 +294,17 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        if (auth()->user() && ! auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) 
+        if (auth()->user() && ! auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
             $query->where('user_id', '=', auth()->user()->id);
+        }
 
-        if (request()->has('updated_at') && request()->input('updated_at') > 0) 
+        if (request()->has('updated_at') && request()->input('updated_at') > 0) {
             $query->where('updated_at', '>=', date('Y-m-d H:i:s', intval(request()->input('updated_at'))));
+        }
 
-        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) 
+        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
             $this->entity_type = null;
+        }
 
         if ($query instanceof Builder) {
             $limit = request()->input('per_page', 20);
@@ -317,7 +317,6 @@ class BaseController extends Controller
         }
 
         return $this->response($this->manager->createData($resource)->toArray());
-
     }
 
     protected function response($response)
@@ -357,13 +356,15 @@ class BaseController extends Controller
 
         $transformer = new $this->entity_transformer(request()->input('serializer'));
 
-        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) 
+        if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
             $this->entity_type = null;
+        }
         
         $resource = new Item($item, $transformer, $this->entity_type);
 
-        if (auth()->user() && request()->include_static) 
+        if (auth()->user() && request()->include_static) {
             $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
+        }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -407,7 +408,6 @@ class BaseController extends Controller
 
     public function flutterRoute()
     {
-
         if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
             if (config('ninja.require_https') && ! request()->isSecure()) {
                 return redirect()->secure(request()->getRequestUri());

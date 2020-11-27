@@ -12,10 +12,7 @@
 namespace App\Jobs\Product;
 
 use App\Libraries\MultiDB;
-use App\Models\Company;
-use App\Models\Payment;
 use App\Models\Product;
-use App\Repositories\InvoiceRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -60,9 +57,7 @@ class UpdateOrCreateProduct implements ShouldQueue
         
         //only update / create products - not tasks or gateway fees
         $updateable_products = collect($this->products)->filter(function ($item) {
-
             return $item->type_id == 1;
-          
         });
 
         foreach ($updateable_products as $item) {
@@ -70,7 +65,7 @@ class UpdateOrCreateProduct implements ShouldQueue
                 continue;
             }
 
-            $product = Product::firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
+            $product = Product::withTrashed()->firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
 
             $product->product_key = $item->product_key;
             $product->notes = isset($item->notes) ? $item->notes : '';
@@ -93,5 +88,11 @@ class UpdateOrCreateProduct implements ShouldQueue
             $product->vendor_id = $this->invoice->vendor_id;
             $product->save();
         }
+    }
+
+    public function failed($exception = null)
+    {
+        info("update create failed with = ");
+        info(print_r($exception->getMessage(), 1));
     }
 }

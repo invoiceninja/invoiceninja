@@ -13,9 +13,7 @@ namespace App\Repositories;
 
 use App\Factory\VendorFactory;
 use App\Models\Vendor;
-use App\Repositories\VendorContactRepository;
 use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Http\Request;
 
 /**
  * VendorRepository.
@@ -45,7 +43,6 @@ class VendorRepository extends BaseRepository
      */
     public function save(array $data, Vendor $vendor) : ?Vendor
     {
-
         $vendor->fill($data);
 
         $vendor->save();

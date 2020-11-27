@@ -27,10 +27,9 @@ class AuthorizeAuthorizeCard {
         authData.apiLoginID = this.loginId;
 
         var cardData = {};
-        cardData.cardNumber = myCard.CardJs('cardNumber');
+        cardData.cardNumber = myCard.CardJs('cardNumber').replace(/[^\d]/g, '');
         cardData.month = myCard.CardJs('expiryMonth');
         cardData.year = myCard.CardJs('expiryYear');
-        ;
         cardData.cardCode = document.getElementById("cvv").value;
 
         var secureData = {};

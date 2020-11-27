@@ -10,25 +10,16 @@
  */
 namespace Tests\Feature;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
 use App\Factory\ClientFactory;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
-use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Models\Account;
-use App\Models\Activity;
-use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;

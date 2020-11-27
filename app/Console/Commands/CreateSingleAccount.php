@@ -12,19 +12,10 @@
 namespace App\Console\Commands;
 
 use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
 use App\Events\Invoice\InvoiceWasCreated;
-use App\Events\Invoice\InvoiceWasMarkedSent;
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
-use App\Factory\PaymentFactory;
-use App\Factory\QuoteFactory;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Jobs\Quote\CreateQuoteInvitations;
-use App\Listeners\Credit\CreateCreditInvitation;
-use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -34,8 +25,6 @@ use App\Models\CompanyToken;
 use App\Models\Country;
 use App\Models\Credit;
 use App\Models\Expense;
-use App\Models\Payment;
-use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
@@ -100,7 +89,6 @@ class CreateSingleAccount extends Command
         $this->warmCache();
 
         $this->createSmallAccount();
-
     }
 
     private function createSmallAccount()
@@ -205,7 +193,6 @@ class CreateSingleAccount extends Command
 
             $this->info('creating credit for client #'.$client->id);
             $this->createCredit($client);
-
         }
 
         $this->createGateways($company, $user);
@@ -299,7 +286,6 @@ class CreateSingleAccount extends Command
 
     private function createInvoice($client)
     {
-
         $faker = Factory::create();
 
         $invoice = InvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
@@ -369,7 +355,6 @@ class CreateSingleAccount extends Command
 
     private function createQuote($client)
     {
-
         $faker = Factory::create();
 
         $quote = Quote::factory()->create(['user_id' => $client->user->id, 'company_id' => $client->company->id, 'client_id' => $client->id]);
@@ -414,21 +399,21 @@ class CreateSingleAccount extends Command
     {
         $line_items = [];
 
-            $item = InvoiceItemFactory::create();
-            $item->quantity = 1;
-            $item->cost = 1000;
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 1000;
 
-            $product = Product::all()->random();
+        $product = Product::all()->random();
 
-            $item->cost = (float) $product->cost;
-            $item->product_key = $product->product_key;
-            $item->notes = $product->notes;
-            $item->custom_value1 = $product->custom_value1;
-            $item->custom_value2 = $product->custom_value2;
-            $item->custom_value3 = $product->custom_value3;
-            $item->custom_value4 = $product->custom_value4;
+        $item->cost = (float) $product->cost;
+        $item->product_key = $product->product_key;
+        $item->notes = $product->notes;
+        $item->custom_value1 = $product->custom_value1;
+        $item->custom_value2 = $product->custom_value2;
+        $item->custom_value3 = $product->custom_value3;
+        $item->custom_value4 = $product->custom_value4;
 
-            $line_items[] = $item;
+        $line_items[] = $item;
 
 
         return $line_items;
@@ -505,7 +490,6 @@ class CreateSingleAccount extends Command
 
     private function createGateways($company, $user)
     {
-
         if (config('ninja.testvars.stripe') && ($this->gateway == 'all' || $this->gateway == 'stripe')) {
             $cg = new CompanyGateway;
             $cg->company_id = $company->id;

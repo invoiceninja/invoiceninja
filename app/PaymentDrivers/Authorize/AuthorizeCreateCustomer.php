@@ -14,12 +14,8 @@ namespace App\PaymentDrivers\Authorize;
 
 use App\Exceptions\GenericPaymentDriverFailure;
 use App\Models\Client;
-use App\Models\GatewayType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
-use net\authorize\api\constants\ANetEnvironment;
 use net\authorize\api\contract\v1\CreateCustomerProfileRequest;
-use net\authorize\api\contract\v1\CustomerAddressType;
-use net\authorize\api\contract\v1\CustomerPaymentProfileType;
 use net\authorize\api\contract\v1\CustomerProfileType;
 use net\authorize\api\controller\CreateCustomerProfileController;
 

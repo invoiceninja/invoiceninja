@@ -12,7 +12,6 @@
 namespace App\Http\Requests\GroupSetting;
 
 use App\Http\Requests\Request;
-use App\Models\GroupSetting;
 
 class EditGroupSettingRequest extends Request
 {

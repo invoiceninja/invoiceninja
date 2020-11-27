@@ -13,13 +13,8 @@ namespace App\Listeners\Quote;
 
 use App\Libraries\MultiDB;
 use App\Models\Activity;
-use App\Models\ClientContact;
-use App\Models\QuoteInvitation;
 use App\Repositories\ActivityRepository;
-use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Log;
 use stdClass;
 
 class QuoteViewedActivity implements ShouldQueue

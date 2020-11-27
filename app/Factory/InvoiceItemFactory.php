@@ -12,7 +12,6 @@
 namespace App\Factory;
 
 use Faker\Factory;
-use Illuminate\Support\Carbon;
 use stdClass;
 
 //use Faker\Generator as Faker;

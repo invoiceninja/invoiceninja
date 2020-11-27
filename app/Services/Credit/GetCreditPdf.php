@@ -12,8 +12,6 @@
 namespace App\Services\Credit;
 
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Models\ClientContact;
-use App\Models\Credit;
 use App\Services\AbstractService;
 use Illuminate\Support\Facades\Storage;
 

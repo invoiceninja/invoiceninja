@@ -2,7 +2,8 @@
 @section('meta_title', ctrans('texts.approve'))
 
 @push('head')
-    <meta name="require-quote-signature" content="{{ $settings->require_invoice_signature ? true : false }}">
+    <meta name="show-quote-terms" content="{{ $settings->show_accept_quote_terms ? true : false }}">
+    <meta name="require-quote-signature" content="{{ $settings->require_quote_signature ? true : false }}">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
 @endpush
 
@@ -14,7 +15,9 @@
         @foreach($quotes as $quote)
             <input type="hidden" name="quotes[]" value="{{ $quote->hashed_id }}">
         @endforeach
+        <input type="hidden" name="signature">
     </form>
+
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">
             <div class="col-span-6 md:col-start-2 md:col-span-4">
@@ -78,6 +81,7 @@
         </div>
     </div>
 
+    @include('portal.ninja2020.invoices.includes.terms', ['entities' => $quotes, 'entity_type' => ctrans('texts.quote')])
     @include('portal.ninja2020.invoices.includes.signature')
 @endsection
 

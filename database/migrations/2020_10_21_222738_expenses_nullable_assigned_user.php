@@ -23,10 +23,8 @@ class ExpensesNullableAssignedUser extends Migration
      */
     public function up()
     {
-        Schema::table('expenses', function(Blueprint $table) {
-
+        Schema::table('expenses', function (Blueprint $table) {
             $table->unsignedInteger('assigned_user_id')->nullable()->change();
-
         });
     }
 

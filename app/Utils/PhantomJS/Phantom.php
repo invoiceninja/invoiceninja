@@ -11,7 +11,6 @@
 
 namespace App\Utils\PhantomJS;
 
-use App\Designs\Designer;
 use App\Models\CreditInvitation;
 use App\Models\Design;
 use App\Models\InvoiceInvitation;
@@ -25,6 +24,8 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Cache;
 
 class Phantom
 {
@@ -36,7 +37,7 @@ class Phantom
      *
      * @param $invitation
      */
-    public function generate($invitation) 
+    public function generate($invitation)
     {
         $entity = false;
 
@@ -68,6 +69,7 @@ class Phantom
         $file_path = $path.$entity_obj->number.'.pdf';
 
         $url = config('ninja.app_url').'phantom/'.$entity.'/'.$invitation->key.'?phantomjs_secret='.config('ninja.phantomjs_secret');
+        info($url);
 
         $key = config('ninja.phantomjs_key');
         $secret = config('ninja.phantomjs_key');
@@ -82,13 +84,28 @@ class Phantom
         return $file_path;
     }
 
+    public function convertHtmlToPdf($html)
+    {
+        $hash = Str::random(32);
+        Cache::put($hash, $html, 300);
+        
+        $url = route('tmp_pdf', ['hash' => $hash]);
+info($url);
+        $key = config('ninja.phantomjs_key');
+        $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
+        $pdf = CurlUtils::get($phantom_url);
+
+        $response = Response::make($pdf, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
+    }
+
     public function displayInvitation(string $entity, string $invitation_key)
     {
-
         $key = $entity.'_id';
 
-        $invitation_instance = 'App\Models\\'.Str::camel(ucfirst($entity)).'Invitation';
-
+        $invitation_instance = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
         $invitation = $invitation_instance::whereRaw('BINARY `key`= ?', [$invitation_key])->first();
 
         $entity_obj = $invitation->{$entity};
@@ -104,19 +121,19 @@ class Phantom
         $html = new HtmlEngine($invitation);
 
         if ($design->is_custom) {
-          $options = [
+            $options = [
             'custom_partials' => json_decode(json_encode($design->design), true)
           ];
-          $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+            $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
         } else {
-          $template = new PdfMakerDesign(strtolower($design->name));
+            $template = new PdfMakerDesign(strtolower($design->name));
         }
 
         $state = [
             'template' => $template->elements([
-                'client' => $this->entity->client,
-                'entity' => $this->entity,
-                'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
+                'client' => $entity_obj->client,
+                'entity' => $entity_obj,
+                'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
                 '$product' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),

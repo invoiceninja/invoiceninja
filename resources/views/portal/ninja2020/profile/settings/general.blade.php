@@ -18,7 +18,7 @@
                             <div class="grid grid-cols-6 gap-6">
                                 <div class="col-span-6 sm:col-span-3">
                                     <label for="first_name" class="input-label">@lang('texts.first_name')</label>
-                                    <input id="first_name" class="input w-full" name="first_name" wire:model.defer="first_name" />
+                                    <input id="first_name" class="input w-full {{ in_array('contact_first_name', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="first_name" wire:model.defer="first_name" />
                                     @error('first_name')
                                     <div class="validation validation-fail">
                                         {{ $message }}
@@ -28,7 +28,7 @@
 
                                 <div class="col-span-6 sm:col-span-3">
                                     <label for="last_name" class="input-label">@lang('texts.last_name')</label>
-                                    <input id="last_name" class="input w-full" name="last_name" wire:model.defer="last_name" />
+                                    <input id="last_name" class="input w-full {{ in_array('contact_last_name', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="last_name" wire:model.defer="last_name" />
                                     @error('last_name')
                                     <div class="validation validation-fail">
                                         {{ $message }}
@@ -38,7 +38,7 @@
 
                                 <div class="col-span-6 sm:col-span-4">
                                     <label for="email_address" class="input-label">@lang('texts.email_address')</label>
-                                    <input id="email_address" class="input w-full" type="email" name="email" wire:model.defer="email" />
+                                    <input id="email_address" class="input w-full {{ in_array('contact_email', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" type="email" name="email" wire:model.defer="email" />
                                     @error('email')
                                     <div class="validation validation-fail">
                                         {{ $message }}

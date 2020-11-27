@@ -10,7 +10,6 @@
  */
 namespace Tests\Feature;
 
-use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;

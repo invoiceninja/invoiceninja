@@ -78,5 +78,4 @@ trait UserNotifies
 
         return $notifiable_methods;
     }
-
 }

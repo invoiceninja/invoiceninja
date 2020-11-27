@@ -4,9 +4,7 @@ namespace App\Listeners\Document;
 
 use App\Libraries\MultiDB;
 use App\Models\Document;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Storage;
 
 class DeleteCompanyDocuments

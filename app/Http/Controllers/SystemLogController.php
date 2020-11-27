@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Filters\InvoiceFilters;
 use App\Filters\SystemLogFilters;
-use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Models\SystemLog;
 use App\Transformers\SystemLogTransformer;
 use App\Utils\Traits\MakesHash;
@@ -63,8 +61,9 @@ class SystemLogController extends BaseController
     {
         $system_logs = SystemLog::filter($filters);
 
-        if(auth()->user()->isAdmin())
+        if (auth()->user()->isAdmin()) {
             return $this->listResponse($system_logs);
+        }
 
         return $this->errorResponse('Insufficient permissions', 403);
     }

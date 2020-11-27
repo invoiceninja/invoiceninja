@@ -11,7 +11,6 @@
 
 namespace App\Utils\Traits;
 
-use App\Models\ClientContact;
 use App\Models\Quote;
 use Illuminate\Support\Carbon;
 use League\CommonMark\CommonMarkConverter;

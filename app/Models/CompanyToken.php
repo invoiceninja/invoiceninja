@@ -11,8 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\Filterable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CompanyToken extends BaseModel
@@ -51,7 +49,6 @@ class CompanyToken extends BaseModel
 
     public function company_user()
     {
-        
         return $this->hasOne(CompanyUser::class, 'user_id', 'user_id')
                     ->where('company_id', $this->company_id)
                     ->where('user_id', $this->user_id);

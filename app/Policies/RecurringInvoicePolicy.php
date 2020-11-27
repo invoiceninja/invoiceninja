@@ -11,7 +11,6 @@
 
 namespace App\Policies;
 
-use App\Models\RecurringInvoice;
 use App\Models\User;
 
 /**

@@ -17,9 +17,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\CreatePaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Models\ClientGatewayToken;
-use App\Models\CompanyGateway;
 use App\Models\GatewayType;
-use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use Exception;
@@ -57,6 +55,7 @@ class PaymentMethodController extends Controller
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->query('method'))
+            ->checkRequirements()
             ->authorizeView($data);
     }
 
@@ -73,6 +72,7 @@ class PaymentMethodController extends Controller
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->query('method'))
+            ->checkRequirements()
             ->authorizeResponse($request);
     }
 

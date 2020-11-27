@@ -15,9 +15,6 @@ use App\Models\Backup;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Document;
-use App\Transformers\CreditInvitationTransformer;
-use App\Transformers\DocumentTransformer;
-use App\Transformers\InvoiceHistoryTransformer;
 use App\Utils\Traits\MakesHash;
 
 class CreditTransformer extends EntityTransformer

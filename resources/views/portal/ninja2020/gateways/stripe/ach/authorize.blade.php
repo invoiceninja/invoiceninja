@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'ACH (Stripe)', 'card_title' => 'ACH (Stripe)'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'ACH', 'card_title' => 'ACH'])
 
 @section('gateway_head')
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
@@ -66,7 +66,9 @@
         <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->user()->company->present()->name, 'email' => auth()->user()->company->email]) }}</label>
     @endcomponent
 
-    @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'save-button'])
+    @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'save-button'])
+        {{ ctrans('texts.add_payment_method') }}
+    @endcomponent
 @endsection
 
 @section('gateway_footer')

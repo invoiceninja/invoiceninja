@@ -12,14 +12,13 @@
 namespace App\Repositories;
 
 use App\Events\Payment\PaymentWasCreated;
-use App\Factory\CreditFactory;
+use App\Events\Payment\PaymentWasDeleted;
 use App\Jobs\Credit\ApplyCreditPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Repositories\CreditRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
@@ -72,7 +71,7 @@ class PaymentRepository extends BaseRepository
             $this->processExchangeRates($data, $payment);
 
             $is_existing_payment = false;
-            $client = Client::find($data['client_id']);
+            $client = Client::where('id', $data['client_id'])->withTrashed()->first();
 
             /*We only update the paid to date ONCE per payment*/
             if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
@@ -81,20 +80,17 @@ class PaymentRepository extends BaseRepository
                 }
 
                 $client->service()->updatePaidToDate($data['amount'])->save();
-
             }
 
             if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
-
                 $_credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-                if($data['amount'] == $_credit_totals)
+                if ($data['amount'] == $_credit_totals) {
                     $data['amount'] = 0;
-                else
+                } else {
                     $client->service()->updatePaidToDate($_credit_totals)->save();
-
+                }
             }
-
         }
 
         /*Fill the payment*/
@@ -146,7 +142,7 @@ class PaymentRepository extends BaseRepository
 
             //todo optimize into a single query
             foreach ($data['credits'] as $paid_credit) {
-                $credit = Credit::find($this->decodePrimaryKey($paid_credit['credit_id']));
+                $credit = Credit::withTrashed()->find($this->decodePrimaryKey($paid_credit['credit_id']));
 
                 if ($credit) {
                     ApplyCreditPayment::dispatchNow($credit, $payment, $paid_credit['amount'], $credit->company);
@@ -154,12 +150,11 @@ class PaymentRepository extends BaseRepository
             }
         }
 
-        if(!$is_existing_payment)
+        if (!$is_existing_payment) {
             event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+        }
 
-
-
-         $payment->applied += ($invoice_totals - $credit_totals); //wont work because - check tests
+        $payment->applied += ($invoice_totals - $credit_totals); //wont work because - check tests
         // $payment->applied += $invoice_totals; //wont work because - check tests
 
         $payment->save();
@@ -200,9 +195,12 @@ class PaymentRepository extends BaseRepository
             return;
         }
 
-        $payment->service()->deletePayment();
+        $payment = $payment->service()->deletePayment();
 
-        return parent::delete($payment);
+        event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars()));
+
+        return $payment;
+        //return parent::delete($payment);
     }
 
     public function restore($payment)

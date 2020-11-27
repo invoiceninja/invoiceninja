@@ -10,17 +10,12 @@
  */
 namespace Tests\Unit;
 
-use App\Factory\CloneQuoteToInvoiceFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\InvoiceItemFactory;
 use App\Factory\RecurringInvoiceFactory;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Carbon;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use Illuminate\Support\Carbon;
 
 /**
  * @test
@@ -40,7 +35,6 @@ class RecurringDatesTest extends TestCase
 
     public function testRecurringDatesDraftInvoice()
     {
-
         $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
         $recurring_invoice->line_items = $this->buildLineItems();
         $recurring_invoice->client_id = $this->client->id;
@@ -49,12 +43,10 @@ class RecurringDatesTest extends TestCase
         $recurring_invoice->calc()->getInvoice();
 
         $this->assertEquals(0, count($recurring_invoice->recurringDates()));
-
     }
 
     public function testRecurringDatesPendingInvoice()
     {
-
         $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
         $recurring_invoice->line_items = $this->buildLineItems();
         $recurring_invoice->client_id = $this->client->id;
@@ -70,13 +62,11 @@ class RecurringDatesTest extends TestCase
         $recurring_invoice->calc()->getInvoice();
 
         $this->assertEquals(5, count($recurring_invoice->recurringDates()));
-
     }
 
 
     public function testRecurringDatesPendingInvoiceWithNoDueDate()
     {
-
         $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
         $recurring_invoice->line_items = $this->buildLineItems();
         $recurring_invoice->client_id = $this->client->id;
@@ -92,7 +82,6 @@ class RecurringDatesTest extends TestCase
         $recurring_invoice->calc()->getInvoice();
 
         $this->assertEquals(5, count($recurring_invoice->recurringDates()));
-
     }
 
     public function testCompareDatesLogic()
@@ -100,7 +89,5 @@ class RecurringDatesTest extends TestCase
         $date = now()->startOfDay()->format('Y-m-d');
 
         $this->assertTrue(Carbon::parse($date)->lte(now()->startOfDay()));
-
     }
-
 }

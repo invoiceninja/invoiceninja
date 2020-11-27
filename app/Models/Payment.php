@@ -12,11 +12,6 @@
 namespace App\Models;
 
 use App\Events\Payment\PaymentWasVoided;
-use App\Models\BaseModel;
-use App\Models\Credit;
-use App\Models\DateFormat;
-use App\Models\Filterable;
-use App\Models\Paymentable;
 use App\Services\Ledger\LedgerService;
 use App\Services\Payment\PaymentService;
 use App\Utils\Ninja;
@@ -24,7 +19,6 @@ use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Payment\Refundable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payment extends BaseModel
@@ -131,12 +125,12 @@ class Payment extends BaseModel
 
     public function invoices()
     {
-        return $this->morphedByMany(Invoice::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps();
+        return $this->morphedByMany(Invoice::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded')->withTimestamps();
     }
 
     public function credits()
     {
-        return $this->morphedByMany(Credit::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps();
+        return $this->morphedByMany(Credit::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded')->withTimestamps();
     }
 
     public function company_ledger()
@@ -207,7 +201,7 @@ class Payment extends BaseModel
         return new PaymentService($this);
     }
 
-    public function resolveRouteBinding($value, $field = NULL)
+    public function resolveRouteBinding($value, $field = null)
     {
         return $this
             ->withTrashed()
@@ -293,5 +287,4 @@ class Payment extends BaseModel
     {
         return route('client.payments.show', $this->hashed_id);
     }
-    
 }

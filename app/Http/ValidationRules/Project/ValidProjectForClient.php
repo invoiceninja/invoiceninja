@@ -35,11 +35,13 @@ class ValidProjectForClient implements Rule
      */
     public function passes($attribute, $value)
     {
-        if(empty($this->input['project_id']))
+        if (empty($this->input['project_id'])) {
             return true;
+        }
         
-        if(is_string($this->input['project_id']))
+        if (is_string($this->input['project_id'])) {
             $this->input['project_id'] = $this->decodePrimaryKey($this->input['project_id']);
+        }
 
         $project = Project::findOrFail($this->input['project_id']);
 
@@ -53,6 +55,4 @@ class ValidProjectForClient implements Rule
     {
         return "Project client does not match entity client";
     }
-
-
 }

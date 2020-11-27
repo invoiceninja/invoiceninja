@@ -11,7 +11,6 @@
 
 namespace App\Policies;
 
-use App\Models\TaxRate;
 use App\Models\User;
 
 /**

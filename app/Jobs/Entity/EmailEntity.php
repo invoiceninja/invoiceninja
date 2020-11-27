@@ -11,22 +11,18 @@
 
 namespace App\Jobs\Entity;
 
-use App\DataMapper\Analytics\EmailInvoiceFailure;
 use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Jobs\Mail\BaseMailerJob;
-use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
 use App\Models\Activity;
 use App\Models\Company;
 use App\Models\CreditInvitation;
-use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
-use App\Models\SystemLog;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
@@ -36,9 +32,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Swift_TransportException;
-use Symfony\Component\Mime\Test\Constraint\EmailTextBodyContains;
-use Turbo124\Beacon\Facades\LightLogs;
 
 /*Multi Mailer implemented*/
 
@@ -88,7 +81,6 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
         $this->template_data = $template_data;
 
         $this->email_entity_builder = $this->resolveEmailBuilder();
-
     }
 
     /**
@@ -99,8 +91,9 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        if($this->company->is_disabled)
+        if ($this->company->is_disabled) {
             return true;
+        }
         
         MultiDB::setDB($this->company->db);
 
@@ -132,14 +125,15 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
 
     private function resolveEntityString() :string
     {
-        if($this->invitation instanceof InvoiceInvitation)
+        if ($this->invitation instanceof InvoiceInvitation) {
             return 'invoice';
-        elseif($this->invitation instanceof QuoteInvitation)
+        } elseif ($this->invitation instanceof QuoteInvitation) {
             return 'quote';
-        elseif($this->invitation instanceof CreditInvitation)
+        } elseif ($this->invitation instanceof CreditInvitation) {
             return 'credit';
-        elseif($this->invitation instanceof RecurringInvoiceInvitation)
+        } elseif ($this->invitation instanceof RecurringInvoiceInvitation) {
             return 'recurring_invoice';
+        }
     }
 
     private function entityEmailFailed($message)
@@ -153,7 +147,6 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
                 # code...
                 break;
         }
-
     }
 
     private function entityEmailSucceeded()

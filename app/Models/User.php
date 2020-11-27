@@ -11,19 +11,12 @@
 
 namespace App\Models;
 
-use App\Models\Company;
-use App\Models\CompanyToken;
-use App\Models\CompanyUser;
-use App\Models\Filterable;
-use App\Models\Language;
 use App\Models\Presenters\UserPresenter;
-use App\Models\Traits\UserTrait;
 use App\Notifications\ResetPasswordNotification;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\UserSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -33,7 +26,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Laracasts\Presenter\PresentableTrait;
-use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -44,7 +36,6 @@ class User extends Authenticatable implements MustVerifyEmail
     use UserSessionAttributes;
     use UserSettings;
     use Filterable;
-    use HasRelationships;
     use HasFactory;
 
     protected $guard = 'user';
@@ -166,12 +157,11 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getCompany()
     {
-
         if ($this->company) {
             return $this->company;
         }
 
-        if(request()->header('X-API-TOKEN')){
+        if (request()->header('X-API-TOKEN')) {
             $company_token = CompanyToken::whereRaw('BINARY `token`= ?', [request()->header('X-API-TOKEN')])->first();
             return $company_token->company;
         }
@@ -207,13 +197,11 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->id = auth()->user()->id;
         }
 
-        if(request()->header('X-API-TOKEN')){
+        if (request()->header('X-API-TOKEN')) {
             return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
             ->where('company_tokens.token', request()->header('X-API-TOKEN'))
             ->withTrashed();
-        }
-        else {
-
+        } else {
             return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
             ->where('company_user.user_id', $this->id)
             ->withTrashed();
@@ -356,7 +344,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param null $field
      * @return Model|null
      */
-    public function resolveRouteBinding($value, $field = NULL)
+    public function resolveRouteBinding($value, $field = null)
     {
         return $this
             ->withTrashed()

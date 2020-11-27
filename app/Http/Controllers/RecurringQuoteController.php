@@ -22,17 +22,14 @@ use App\Http\Requests\RecurringQuote\EditRecurringQuoteRequest;
 use App\Http\Requests\RecurringQuote\ShowRecurringQuoteRequest;
 use App\Http\Requests\RecurringQuote\StoreRecurringQuoteRequest;
 use App\Http\Requests\RecurringQuote\UpdateRecurringQuoteRequest;
-use App\Jobs\Entity\ActionEntity;
 use App\Models\Quote;
 use App\Models\RecurringQuote;
-use App\Repositories\BaseRepository;
 use App\Repositories\RecurringQuoteRepository;
 use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringQuoteTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class RecurringQuoteController.

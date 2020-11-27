@@ -10,25 +10,13 @@
  */
 namespace Tests\Feature;
 
-use App\DataMapper\DefaultSettings;
 use App\DataMapper\FeesAndLimits;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
 use App\Models\CompanyGateway;
-use App\Models\User;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
-use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
-use PaymentLibrariesSeeder;
 use Tests\MockAccountData;
 use Tests\TestCase;
 

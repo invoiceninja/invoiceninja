@@ -32,8 +32,9 @@ class PortalComposer
     {
         $view->with($this->portalData());
 
-        if(auth()->user())
+        if (auth()->user()) {
             Lang::replace(Ninja::transformTranslations(auth()->user()->client->getMergedSettings()));
+        }
     }
 
     /**
@@ -71,6 +72,12 @@ class PortalComposer
         $data[] = ['title' => ctrans('texts.credits'), 'url' => 'client.credits.index', 'icon' => 'credit-card'];
         $data[] = ['title' => ctrans('texts.payment_methods'), 'url' => 'client.payment_methods.index', 'icon' => 'shield'];
         $data[] = ['title' => ctrans('texts.documents'), 'url' => 'client.documents.index', 'icon' => 'download'];
+
+        if (auth()->user('contact')->client->getSetting('enable_client_portal_tasks')) {
+            $data[] = ['title' => ctrans('texts.tasks'), 'url' => 'client.dashboard', 'icon' => 'clock'];
+            
+            // TODO: Update when 'tasks' module is available in client portal.
+        }
 
         return $data;
     }

@@ -12,7 +12,6 @@
 namespace App\Http\Requests\RecurringQuote;
 
 use App\Http\Requests\Request;
-use App\Models\RecurringQuote;
 
 class ShowRecurringQuoteRequest extends Request
 {

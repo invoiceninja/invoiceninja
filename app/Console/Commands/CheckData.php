@@ -12,24 +12,21 @@
 namespace App\Console\Commands;
 
 use App;
-use App\Libraries\CurlUtils;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\CompanyLedger;
 use App\Models\Contact;
 use App\Models\Credit;
-use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Payment;
 use App\Utils\Ninja;
-use Carbon;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
 use Mail;
 use Symfony\Component\Console\Input\InputOption;
-use Utils;
 
 /*
 
@@ -299,12 +296,15 @@ class CheckData extends Command
 
         foreach (Client::cursor() as $client) {
             $invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
+            $credit_balance = $client->credits->where('is_deleted', false)->sum('balance');
+
+            $invoice_balance -= $credit_balance;
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
             if ($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4)) {
                 $wrong_balances++;
-                $this->logMessage($client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
+                $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
 
                 $this->isValid = false;
             }
@@ -321,27 +321,30 @@ class CheckData extends Command
         Client::withTrashed()->cursor()->each(function ($client) use ($wrong_paid_to_dates, $credit_total_applied) {
             $total_invoice_payments = 0;
 
-            foreach ($client->invoices->where('is_deleted', false) as $invoice) {
-                $total_amount = $invoice->payments->whereNull('deleted_at')->sum('pivot.amount');
-                $total_refund = $invoice->payments->whereNull('deleted_at')->sum('pivot.refunded');
+            foreach ($client->invoices->where('is_deleted', false)->where('status_id', '>', 1) as $invoice) {
+                // $total_amount = $invoice->payments->whereNull('deleted_at')->sum('pivot.amount');
+                // $total_refund = $invoice->payments->whereNull('deleted_at')->sum('pivot.refunded');
 
-                 $total_invoice_payments += ($total_amount - $total_refund);
+                $total_amount = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.amount');
+                $total_refund = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
+
+                $total_invoice_payments += ($total_amount - $total_refund);
             }
 
-            foreach($client->payments as $payment)
-            {
-              $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(DB::raw('amount'));
+            foreach ($client->payments as $payment) {
+                $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(DB::raw('amount'));
             }
 
-            if($credit_total_applied < 0)
-                $total_invoice_payments += $credit_total_applied; //todo this is contentious
+            if ($credit_total_applied < 0) {
+                $total_invoice_payments += $credit_total_applied;
+            } //todo this is contentious
 
             info("total invoice payments = {$total_invoice_payments} with client paid to date of of {$client->paid_to_date}");
 
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
                 $wrong_paid_to_dates++;
 
-                $this->logMessage($client->present()->name.' - '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}");
+                $this->logMessage($client->present()->name.'id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}");
 
                 $this->isValid = false;
             }
@@ -357,8 +360,8 @@ class CheckData extends Command
 
         Client::cursor()->each(function ($client) use ($wrong_balances) {
             $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($wrong_balances, $client) {
-                $total_amount = $invoice->payments->sum('pivot.amount');
-                $total_refund = $invoice->payments->sum('pivot.refunded');
+                $total_amount = $invoice->payments->whereIn('status_id', [Payment::STATUS_PAID, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.amount');
+                $total_refund = $invoice->payments->whereIn('status_id', [Payment::STATUS_PAID, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
                 $total_credit = $invoice->credits->sum('amount');
 
                 $total_paid = $total_amount - $total_refund;
@@ -383,29 +386,23 @@ class CheckData extends Command
         $wrong_paid_to_dates = 0;
 
         foreach (Client::cursor() as $client) {
-            $invoice_balance = $client->invoices->sum('balance');
-            // $invoice_amounts = $client->invoices->sum('amount') - $invoice_balance;
+            //$invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
+            $invoice_balance = Invoice::where('client_id', $client->id)->where('is_deleted', false)->where('status_id', '>', 1)->withTrashed()->sum('balance');
+            $client_balance = Credit::where('client_id', $client->id)->where('is_deleted', false)->withTrashed()->sum('balance');
 
-            // $credit_amounts = 0;
-
-            // foreach ($client->invoices as $invoice) {
-            //     $credit_amounts += $invoice->credits->sum('amount');
-            // }
-
-            // /*To handle invoice reversals, we need to "ADD BACK" the credit amounts here*/
-            // $client_paid_to_date = $client->paid_to_date + $credit_amounts;
+            $invoice_balance -= $client_balance;
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
             if ($ledger && (string) $invoice_balance != (string) $client->balance) {
                 $wrong_paid_to_dates++;
-                $this->logMessage($client->present()->name.' - '.$client->id." - client paid to dates do not match {$invoice_balance} - ".rtrim($client->balance, '0'));
+                $this->logMessage($client->present()->name.' - '.$client->id." - calculated client balances do not match {$invoice_balance} - ".rtrim($client->balance, '0'));
 
                 $this->isValid = false;
             }
         }
 
-        $this->logMessage("{$wrong_paid_to_dates} clients with incorrect paid_to_dates");
+        $this->logMessage("{$wrong_paid_to_dates} clients with incorrect client balances");
     }
 
     private function checkLogoFiles()

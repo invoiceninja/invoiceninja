@@ -12,20 +12,16 @@
 
 namespace App\PaymentDrivers;
 
-use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Http\Requests\Request;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
-use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
@@ -163,6 +159,12 @@ class StripePaymentDriver extends BaseDriver
      */
     public function authorizeView(array $data)
     {
+        if (count($this->required_fields) > 0) {
+            return redirect()
+                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
+                ->with('missing_required_fields', $this->required_fields);
+        }
+
         return $this->payment_method->authorizeView($data);
     }
 
@@ -174,6 +176,12 @@ class StripePaymentDriver extends BaseDriver
      */
     public function authorizeResponse($request)
     {
+        if (count($this->required_fields) > 0) {
+            return redirect()
+                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
+                ->with('missing_required_fields', $this->required_fields);
+        }
+
         return $this->payment_method->authorizeResponse($request);
     }
 
@@ -185,41 +193,23 @@ class StripePaymentDriver extends BaseDriver
      */
     public function processPaymentView(array $data)
     {
+        if (count($this->required_fields) > 0) {
+            return redirect()
+                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
+                ->with('missing_required_fields', $this->required_fields);
+        }
+
         return $this->payment_method->paymentView($data);
     }
 
-    /**
-     * Payment Intent Reponse looks like this.
-     * +"id": "pi_1FMR7JKmol8YQE9DuC4zMeN3"
-     * +"object": "payment_intent"
-     * +"allowed_source_types": array:1 [▼
-     * 0 => "card"
-     * ]
-     * +"amount": 2372484
-     * +"canceled_at": null
-     * +"cancellation_reason": null
-     * +"capture_method": "automatic"
-     * +"client_secret": "pi_1FMR7JKmol8YQE9DuC4zMeN3_secret_J3yseWJG6uV0MmsrAT1FlUklV"
-     * +"confirmation_method": "automatic"
-     * +"created": 1569381877
-     * +"->currency()": "usd"
-     * +"description": "[3]"
-     * +"last_payment_error": null
-     * +"livemode": false
-     * +"next_action": null
-     * +"next_source_action": null
-     * +"payment_method": "pm_1FMR7ZKmol8YQE9DQWqPuyke"
-     * +"payment_method_types": array:1 [▶]
-     * +"receipt_email": null
-     * +"setup_future_usage": "off_session"
-     * +"shipping": null
-     * +"source": null
-     * +"status": "succeeded"
-     * @param $request
-     * @return
-     */
     public function processPaymentResponse($request) //We never have to worry about unsuccessful payments as failures are handled at the front end for this driver.
     {
+        if (count($this->required_fields) > 0) {
+            return redirect()
+                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
+                ->with('missing_required_fields', $this->required_fields);
+        }
+        
         return $this->payment_method->paymentResponse($request);
     }
 
@@ -383,20 +373,19 @@ class StripePaymentDriver extends BaseDriver
     }
 
     /**
-     * Attach Stripe payment method to Stripe client. 
-     * 
-     * @param string $payment_method 
-     * @param mixed $customer 
-     * 
-     * @return void 
+     * Attach Stripe payment method to Stripe client.
+     *
+     * @param string $payment_method
+     * @param mixed $customer
+     *
+     * @return void
      */
     public function attach(string $payment_method, $customer): void
     {
         try {
             $stripe_payment_method = $this->getStripePaymentMethod($payment_method);
             $stripe_payment_method->attach(['customer' => $customer->id]);
-        }
-        catch(\Stripe\Exception\ApiErrorException | \Exception $e) {
+        } catch (\Stripe\Exception\ApiErrorException | \Exception $e) {
             $this->processInternallyFailedPayment($this, $e);
         }
     }
@@ -430,10 +419,10 @@ class StripePaymentDriver extends BaseDriver
 
     /**
      * Retrieve payment method from Stripe.
-     * 
-     * @param string $source 
      *
-     * @return \Stripe\PaymentMethod|void 
+     * @param string $source
+     *
+     * @return \Stripe\PaymentMethod|void
      */
     public function getStripePaymentMethod(string $source)
     {

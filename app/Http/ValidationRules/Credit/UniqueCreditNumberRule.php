@@ -11,9 +11,7 @@
 
 namespace App\Http\ValidationRules\Credit;
 
-use App\Libraries\MultiDB;
 use App\Models\Credit;
-use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**

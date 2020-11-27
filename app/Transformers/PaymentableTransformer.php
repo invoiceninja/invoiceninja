@@ -12,7 +12,6 @@
 namespace App\Transformers;
 
 use App\Models\Credit;
-use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Utils\Traits\MakesHash;
 

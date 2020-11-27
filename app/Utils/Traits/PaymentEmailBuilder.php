@@ -11,9 +11,6 @@
 
 namespace App\Utils\Traits;
 
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use Illuminate\Support\Carbon;
 use League\CommonMark\CommonMarkConverter;
 use Parsedown;
 

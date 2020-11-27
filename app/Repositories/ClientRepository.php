@@ -13,10 +13,8 @@ namespace App\Repositories;
 
 use App\Factory\ClientFactory;
 use App\Models\Client;
-use App\Repositories\ClientContactRepository;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Request;
 
 /**
  * ClientRepository.
@@ -62,11 +60,13 @@ class ClientRepository extends BaseRepository
 
         $client->fill($data);
         
-        if (!isset($client->id_number)) 
+        if (!isset($client->id_number)) {
             $client->id_number = $this->getNextClientNumber($client);
+        }
 
-        if (empty($data['name'])) 
+        if (empty($data['name'])) {
             $data['name'] = $client->present()->name();
+        }
         
         $client->save();
 

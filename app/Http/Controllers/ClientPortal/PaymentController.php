@@ -77,8 +77,9 @@ class PaymentController extends Controller
         $is_credit_payment = false;
         $token = false;
 
-        if($request->input('company_gateway_id') == CompanyGateway::GATEWAY_CREDIT)
+        if ($request->input('company_gateway_id') == CompanyGateway::GATEWAY_CREDIT) {
             $is_credit_payment = true;
+        }
 
         $gateway = CompanyGateway::find($request->input('company_gateway_id'));
 
@@ -94,10 +95,8 @@ class PaymentController extends Controller
         $invoices = Invoice::whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->get();
 
         /* pop non payable invoice from the $payable_invoices array */
-        $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices){
-
+        $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) {
             return $invoices->where('hashed_id', $payable_invoice['invoice_id'])->first()->isPayable();
-
         });
 
         /*return early if no invoices*/
@@ -110,8 +109,7 @@ class PaymentController extends Controller
         $settings = auth()->user()->client->getMergedSettings();
 
         /*iterate through invoices and add gateway fees and other payment metadata*/
-        $payable_invoices = $payable_invoices->map(function($payable_invoice) use($invoices, $settings){
-
+        $payable_invoices = $payable_invoices->map(function ($payable_invoice) use ($invoices, $settings) {
             $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
 
             $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
@@ -167,11 +165,10 @@ class PaymentController extends Controller
             $payable_invoice['additional_info'] = $additional_info;
 
             return $payable_invoice;
-
         });
 
-        if ((bool) $request->signature) {
-            $invoices->each(function ($invoice) {
+        if (request()->has('signature') && !is_null(request()->signature) && !empty(request()->signature)) {
+            $invoices->each(function ($invoice) use ($request) {
                 InjectSignature::dispatch($invoice, $request->signature);
             });
         }
@@ -182,8 +179,9 @@ class PaymentController extends Controller
         $credit_totals = $first_invoice->client->getSetting('use_credits_payment') == 'off' ? 0 : $first_invoice->client->service()->getCreditBalance();
         $starting_invoice_amount = $first_invoice->amount;
 
-        if($gateway)
+        if ($gateway) {
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
+        }
 
         /**
          * Gateway fee is calculated
@@ -192,8 +190,9 @@ class PaymentController extends Controller
          */
         $fee_totals = $first_invoice->amount - $starting_invoice_amount;
 
-        if($gateway)
+        if ($gateway) {
             $token = auth()->user()->client->gateway_token($gateway->id, $payment_method_id);
+        }
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);
@@ -218,7 +217,7 @@ class PaymentController extends Controller
             'amount_with_fee' => $invoice_totals + $fee_totals,
         ];
 
-        if($is_credit_payment) {
+        if ($is_credit_payment) {
             return $this->processCreditPayment($request, $data);
         }
 
@@ -226,6 +225,7 @@ class PaymentController extends Controller
             ->driver(auth()->user()->client)
             ->setPaymentMethod($payment_method_id)
             ->setPaymentHash($payment_hash)
+            ->checkRequirements()
             ->processPaymentView($data);
     }
 
@@ -238,6 +238,7 @@ class PaymentController extends Controller
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->input('payment_method_id'))
             ->setPaymentHash($payment_hash)
+            ->checkRequirements()
             ->processPaymentResponse($request);
     }
 
@@ -252,9 +253,9 @@ class PaymentController extends Controller
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->first();
 
         /* Hydrate the $payment */
-        if($payment_hash->payment()->exists())
+        if ($payment_hash->payment()->exists()) {
             $payment = $payment_hash->payment;
-        else {
+        } else {
             $payment = PaymentFactory::create($payment_hash->fee_invoice->company_id, $payment_hash->fee_invoice->user_id);
             $payment->client_id = $payment_hash->fee_invoice->client_id;
             $payment->save();
@@ -264,8 +265,7 @@ class PaymentController extends Controller
         }
 
         /* Iterate through the invoices and apply credits to them */
-        collect($payment_hash->invoices())->each(function ($payable_invoice) use ($payment, $payment_hash){
-
+        collect($payment_hash->invoices())->each(function ($payable_invoice) use ($payment, $payment_hash) {
             $invoice = Invoice::find($this->decodePrimaryKey($payable_invoice->invoice_id));
             $amount = $payable_invoice->amount;
 
@@ -274,35 +274,31 @@ class PaymentController extends Controller
                                     ->service()
                                     ->getCredits();
 
-                foreach($credits as $credit)
-                {
-                    //starting invoice balance
-                    $invoice_balance = $invoice->balance;
+            foreach ($credits as $credit) {
+                //starting invoice balance
+                $invoice_balance = $invoice->balance;
 
-                    //credit payment applied
-                    $credit->service()->applyPayment($invoice, $amount, $payment);
+                //credit payment applied
+                $credit->service()->applyPayment($invoice, $amount, $payment);
 
-                    //amount paid from invoice calculated
-                    $remaining_balance = ($invoice_balance - $invoice->fresh()->balance);
+                //amount paid from invoice calculated
+                $remaining_balance = ($invoice_balance - $invoice->fresh()->balance);
 
-                    //reduce the amount to be paid on the invoice from the NEXT credit
-                    $amount -= $remaining_balance;
+                //reduce the amount to be paid on the invoice from the NEXT credit
+                $amount -= $remaining_balance;
 
-                    //break if the invoice is no longer PAYABLE OR there is no more amount to be applied
-                    if(!$invoice->isPayable() || (int)$amount == 0)
-                        break;
+                //break if the invoice is no longer PAYABLE OR there is no more amount to be applied
+                if (!$invoice->isPayable() || (int)$amount == 0) {
+                    break;
                 }
-
+            }
         });
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
-
     }
 
     public function processCreditPayment(Request $request, array $data)
     {
-
         return render('gateways.credit.index', $data);
-
     }
 }

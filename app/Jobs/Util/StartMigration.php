@@ -51,9 +51,11 @@ class StartMigration implements ShouldQueue
      * @param User $user
      * @param Company $company
      */
-    public $tries = 0;
+    public $tries = 1;
 
-    public $timeout = 86400;
+    public $timeout = 0;
+
+    //  public $maxExceptions = 2;
 
     //public $backoff = 86430;
 
@@ -105,11 +107,10 @@ class StartMigration implements ShouldQueue
                 throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
             }
 
-            $data = json_decode(file_get_contents($file), 1);
-
-            Import::dispatchNow($data, $this->company, $this->user);
+            //$data = json_decode(file_get_contents($file), 1);
+            //Import::dispatchNow($data['data'], $this->company, $this->user);
+            Import::dispatchNow($file, $this->company, $this->user);
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
-
             Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
 
             if (app()->environment() !== 'production') {
@@ -124,5 +125,6 @@ class StartMigration implements ShouldQueue
 
     public function failed($exception = null)
     {
+        info(print_r($exception->getMessage(), 1));
     }
 }

@@ -10,8 +10,6 @@
  */
 namespace Tests\Integration;
 
-use App\Designs\Bold;
-use App\Designs\Designer;
 use App\Events\Client\ClientWasArchived;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasDeleted;
@@ -53,18 +51,9 @@ use App\Events\Vendor\VendorWasCreated;
 use App\Events\Vendor\VendorWasDeleted;
 use App\Events\Vendor\VendorWasRestored;
 use App\Events\Vendor\VendorWasUpdated;
-use App\Models\Credit;
-use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Services\PdfMaker\Design as PdfDesignModel;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Services\PdfMaker\PdfMaker as PdfMakerService;
-use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use Faker\Factory;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -140,7 +129,6 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/expenses/bulk?action=delete', $data)
         ->assertStatus(200);
-
     }
 
 
@@ -200,7 +188,6 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/vendors/bulk?action=delete', $data)
         ->assertStatus(200);
-
     }
 
 
@@ -263,7 +250,6 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/tasks/bulk?action=delete', $data)
         ->assertStatus(200);
-
     }
 
     public function testCreditEvents()
@@ -325,7 +311,6 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/credits/bulk?action=delete', $data)
         ->assertStatus(200);
-
     }
 
     public function testQuoteEvents()
@@ -398,7 +383,6 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/quotes/bulk?action=delete', $data)
         ->assertStatus(200);
-
     }
 
 
@@ -407,7 +391,6 @@ class EventTest extends TestCase
 
     public function testPaymentEvents()
     {
-
         $this->expectsEvents([
             PaymentWasCreated::class,
             PaymentWasUpdated::class,
@@ -530,7 +513,6 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/invoices/bulk?action=delete', $data)
         ->assertStatus(200);
-
     }
 
 
@@ -590,7 +572,5 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/clients/bulk?action=delete', $data)
         ->assertStatus(200);
-
     }
-
 }

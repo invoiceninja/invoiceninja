@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\Authorize;
 
 use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -21,13 +20,9 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Authorize\AuthorizeCreateCustomer;
-use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
-use App\PaymentDrivers\Authorize\ChargePaymentProfile;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Carbon;
 
 /**
  * Class AuthorizeCreditCard.
@@ -100,18 +95,31 @@ class AuthorizeCreditCard
 
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amount);
 
+        /*Refactor and push to BaseDriver*/
         if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
-            $payment = $this->createPaymentRecord($data, $amount);
-            $payment->meta = $cgt->meta;
-            $payment->save();
+
+            // $response = $data['response'];
+
+            // $payment_record = [];
+            // $payment_record['amount'] = $amount;
+            // $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;;
+            // $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
+
+            // $this->authorize->createPayment($payment_record);
             
-            $payment_hash->payment_id = $payment->id;
-            $payment_hash->save();
+            $this->storePayment($payment_hash, $data);
+            
+            // $payment = $this->createPaymentRecord($data, $amount);
+            // $payment->meta = $cgt->meta;
+            // $payment->save();
+            
+            // $payment_hash->payment_id = $payment->id;
+            // $payment_hash->save();
 
-            $this->authorize->attachInvoices($payment, $payment_hash);
-            $payment->service()->updateInvoicePayment($payment_hash);
+            // $this->authorize->attachInvoices($payment, $payment_hash);
+            // $payment->service()->updateInvoicePayment($payment_hash);
 
-            event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+            // event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
             $vars = [
                 'hashed_ids' => $invoice->hashed_id,
@@ -131,13 +139,18 @@ class AuthorizeCreditCard
         }
     }
 
+
+
+
+
+
+
     private function handleResponse($data, $request)
     {
         $response = $data['response'];
 
         if ($response != null && $response->getMessages()->getResultCode() == 'Ok') {
-
-           $this->authorize->confirmGatewayFee($request);
+            $this->authorize->confirmGatewayFee($request);
 
             return $this->processSuccessfulResponse($data, $request);
         }
@@ -149,16 +162,14 @@ class AuthorizeCreditCard
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
-        $payment = $this->createPaymentRecord($data, $amount);
-        
-        $payment_hash->payment_id = $payment->id;
-        $payment_hash->save();
+        $response = $data['response'];
 
-        $this->authorize->attachInvoices($payment, $payment_hash);
+        $payment_record = [];
+        $payment_record['amount'] = $amount;
+        $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;;
+        $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
 
-        $payment->service()->updateInvoicePayment($payment_hash);
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+        $payment = $this->authorize->createPayment($payment_record);
 
         return $payment;
     }

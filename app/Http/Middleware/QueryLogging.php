@@ -31,7 +31,6 @@ class QueryLogging
      */
     public function handle(Request $request, Closure $next)
     {
-
         $timeStart = microtime(true);
 
         // Enable query logging for development
@@ -54,7 +53,6 @@ class QueryLogging
 
                 //  if($count > 50)
                 //   Log::info($queries);
-                
             }
         }
 

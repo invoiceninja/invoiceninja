@@ -11,7 +11,6 @@
 
 namespace App\Observers;
 
-use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Payment;
 use App\Models\Webhook;
@@ -26,7 +25,13 @@ class PaymentObserver
      */
     public function created(Payment $payment)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_CREATE_PAYMENT, $payment, $payment->company);
+        $subscriptions = Webhook::where('company_id', $payment->company->id)
+                            ->where('event_id', Webhook::EVENT_CREATE_PAYMENT)
+                            ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PAYMENT, $payment, $payment->company);
+        }
     }
 
     /**
@@ -47,7 +52,13 @@ class PaymentObserver
      */
     public function deleted(Payment $payment)
     {
-        WebhookHandler::dispatch(Webhook::EVENT_DELETE_PAYMENT, $payment, $payment->company);
+        $subscriptions = Webhook::where('company_id', $payment->company->id)
+                        ->where('event_id', Webhook::EVENT_DELETE_PAYMENT)
+                        ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_DELETE_PAYMENT, $payment, $payment->company);
+        }
     }
 
     /**

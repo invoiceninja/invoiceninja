@@ -11,11 +11,7 @@
 
 namespace App\Http\ValidationRules\Credit;
 
-use App\Libraries\MultiDB;
 use App\Models\Credit;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Validation\Rule;
 

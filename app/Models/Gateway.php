@@ -11,9 +11,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Omnipay\Omnipay;
-
 class Gateway extends StaticModel
 {
     protected $casts = [
@@ -66,7 +63,7 @@ class Gateway extends StaticModel
             $link = 'https://applications.sagepay.com/apply/2C02C252-0F8A-1B84-E10D-CF933EFCAA99';
         } elseif ($this->id == 20) {
             $link = 'https://dashboard.stripe.com/account/apikeys';
-        } 
+        }
 
         // $key = 'texts.gateway_help_'.$this->id;
         // $str = trans($key, [
@@ -82,8 +79,8 @@ class Gateway extends StaticModel
 
     /**
      * Returns an array of methods and the gatewaytypes possible
-     * 
-     * @return array 
+     *
+     * @return array
      *///todo remove methods replace with gatewaytype:: and then nest refund / token billing
     public function getMethods()
     {
@@ -97,7 +94,7 @@ class Gateway extends StaticModel
             case 20:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
                         GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true],
-                        GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false], 
+                        GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                         GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false]]; //Stripe
                 break;
             case 39:

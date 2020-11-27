@@ -15,7 +15,6 @@ use App\Models\GroupSetting;
 
 class GroupSettingRepository extends BaseRepository
 {
-
     public function save($data, GroupSetting $group_setting) :?GroupSetting
     {
         $group_setting->fill($data);

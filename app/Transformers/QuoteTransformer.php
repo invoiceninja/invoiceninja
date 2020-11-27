@@ -15,9 +15,6 @@ use App\Models\Backup;
 use App\Models\Document;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
-use App\Transformers\DocumentTransformer;
-use App\Transformers\InvoiceHistoryTransformer;
-use App\Transformers\QuoteInvitationTransformer;
 use App\Utils\Traits\MakesHash;
 
 class QuoteTransformer extends EntityTransformer

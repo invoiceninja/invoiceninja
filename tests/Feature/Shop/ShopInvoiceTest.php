@@ -10,8 +10,6 @@
  */
 namespace Tests\Feature\Shop;
 
-use App\Factory\CompanyUserFactory;
-use App\Models\CompanyToken;
 use App\Models\Product;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;

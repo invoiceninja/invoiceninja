@@ -14,7 +14,6 @@ namespace App\Listeners\Invoice;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Libraries\MultiDB;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class CreateInvoicePdf implements ShouldQueue
 {

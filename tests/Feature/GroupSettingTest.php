@@ -10,9 +10,6 @@
  */
 namespace Tests\Feature;
 
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\Credit;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;

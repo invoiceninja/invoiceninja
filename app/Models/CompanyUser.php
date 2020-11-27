@@ -11,13 +11,12 @@
 
 namespace App\Models;
 
+use App\Models\TaxRate;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class CompanyUser extends Pivot
 {
-    use HasRelationships;
     use SoftDeletes;
 
     //   protected $guarded = ['id'];
@@ -55,6 +54,11 @@ class CompanyUser extends Pivot
     public function getEntityType()
     {
         return self::class;
+    }
+
+    public function tax_rates()
+    {
+        return $this->hasMany(TaxRate::class,'company_id', 'company_id');
     }
 
     public function account()
@@ -95,7 +99,6 @@ class CompanyUser extends Pivot
         //return $this->hasMany(CompanyToken::class);
         //return $this->hasOne(CompanyToken::class, 'user_id', 'user_id','company_id', 'company_id');
 
-        //return $this->hasOneDeep(CompanyToken::class, [CompanyUser::class], ['user_id','company_id'], ['company_id','company_id']);
 
        //return $this->belongsTo(CompanyToken::class, 'user_id', 'user_id');
 

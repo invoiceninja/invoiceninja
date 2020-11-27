@@ -11,7 +11,6 @@
 
 namespace App\Http\ValidationRules\User;
 
-use App\Libraries\MultiDB;
 use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
@@ -50,9 +49,9 @@ class RelatedUserRule implements Rule
      */
     private function checkUserIsRelated($user_id) : bool
     {
-
-        if(empty($user_id))
+        if (empty($user_id)) {
             return true;
+        }
 
         return User::query()
                     ->where('id', $user_id)

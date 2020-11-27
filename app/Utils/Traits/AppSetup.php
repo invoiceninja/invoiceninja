@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -16,6 +17,7 @@ use App\Utils\Ninja;
 use App\Utils\SystemHealth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 trait AppSetup
 {
@@ -35,10 +37,10 @@ trait AppSetup
         $cached_tables = config('ninja.cached_tables');
 
         foreach ($cached_tables as $name => $class) {
-            if (request()->has('clear_cache') || ! Cache::has($name) || $force) {
+            if (request()->has('clear_cache') || !Cache::has($name) || $force) {
 
                 // check that the table exists in case the migration is pending
-                if (! Schema::hasTable((new $class())->getTable())) {
+                if (!Schema::hasTable((new $class())->getTable())) {
                     continue;
                 }
                 if ($name == 'payment_terms') {
@@ -58,8 +60,9 @@ trait AppSetup
         }
 
         /*Build template cache*/
-        if (request()->has('clear_cache') || ! Cache::has('templates')) 
+        if (request()->has('clear_cache') || !Cache::has('templates')) {
             $this->buildTemplates();
+        }
     }
 
 
@@ -67,49 +70,77 @@ trait AppSetup
     {
         $data = [
 
-        'invoice' => [
-            'subject' => EmailTemplateDefaults::emailInvoiceSubject(),
-            'body' => EmailTemplateDefaults::emailInvoiceTemplate(),
+            'invoice' => [
+                'subject' => EmailTemplateDefaults::emailInvoiceSubject(),
+                'body' => EmailTemplateDefaults::emailInvoiceTemplate(),
             ],
-        
-        'quote' => [
-            'subject' => EmailTemplateDefaults::emailQuoteSubject(),
-            'body' => EmailTemplateDefaults::emailQuoteTemplate(),
+
+            'quote' => [
+                'subject' => EmailTemplateDefaults::emailQuoteSubject(),
+                'body' => EmailTemplateDefaults::emailQuoteTemplate(),
             ],
-        'payment' => [
-            'subject' => EmailTemplateDefaults::emailPaymentSubject(),
-            'body' => EmailTemplateDefaults::emailPaymentTemplate(),
+            'payment' => [
+                'subject' => EmailTemplateDefaults::emailPaymentSubject(),
+                'body' => EmailTemplateDefaults::emailPaymentTemplate(),
             ],
-        'payment_partial' => [
-            'subject' => EmailTemplateDefaults::emailPaymentPartialSubject(),
-            'body' => EmailTemplateDefaults::emailPaymentPartialTemplate(),
+            'payment_partial' => [
+                'subject' => EmailTemplateDefaults::emailPaymentPartialSubject(),
+                'body' => EmailTemplateDefaults::emailPaymentPartialTemplate(),
             ],
-        'reminder1' => [
-            'subject' => EmailTemplateDefaults::emailReminder1Subject(),
-            'body' => EmailTemplateDefaults::emailReminder1Template(),
+            'reminder1' => [
+                'subject' => EmailTemplateDefaults::emailReminder1Subject(),
+                'body' => EmailTemplateDefaults::emailReminder1Template(),
             ],
-        'reminder2' => [
-            'subject' => EmailTemplateDefaults::emailReminder2Subject(),
-            'body' => EmailTemplateDefaults::emailReminder2Template(),
+            'reminder2' => [
+                'subject' => EmailTemplateDefaults::emailReminder2Subject(),
+                'body' => EmailTemplateDefaults::emailReminder2Template(),
             ],
-        'reminder3' => [
-            'subject' => EmailTemplateDefaults::emailReminder3Subject(),
-            'body' => EmailTemplateDefaults::emailReminder3Template(),
+            'reminder3' => [
+                'subject' => EmailTemplateDefaults::emailReminder3Subject(),
+                'body' => EmailTemplateDefaults::emailReminder3Template(),
             ],
-        'reminder_endless' => [
-            'subject' => EmailTemplateDefaults::emailReminderEndlessSubject(),
-            'body' => EmailTemplateDefaults::emailReminderEndlessTemplate(),
+            'reminder_endless' => [
+                'subject' => EmailTemplateDefaults::emailReminderEndlessSubject(),
+                'body' => EmailTemplateDefaults::emailReminderEndlessTemplate(),
             ],
-        'statement' => [
-            'subject' => EmailTemplateDefaults::emailStatementSubject(),
-            'body' => EmailTemplateDefaults::emailStatementTemplate(),
+            'statement' => [
+                'subject' => EmailTemplateDefaults::emailStatementSubject(),
+                'body' => EmailTemplateDefaults::emailStatementTemplate(),
             ],
-        'credit' => [
-            'subject' => EmailTemplateDefaults::emailCreditSubject(),
-            'body' => EmailTemplateDefaults::emailCreditTemplate(),
+            'credit' => [
+                'subject' => EmailTemplateDefaults::emailCreditSubject(),
+                'body' => EmailTemplateDefaults::emailCreditTemplate(),
             ],
         ];
 
         Cache::forever($name, $data);
+    }
+
+    private function updateEnvironmentProperty(string $property, $value): void
+    {
+        $env = file(base_path('.env'));
+
+        $position = null;
+
+        foreach ((array) $env as $key => $variable) {
+            if (Str::startsWith($variable, $property)) {
+                $position = $key;
+            }
+        }
+
+        // This should never happen, but this is login just in case.
+        // Variables that will be replaced (updated with different content) should already be in .env file.
+
+        if (is_null($position)) {
+            $env[] = "{$property}=" . $value . "\n";
+        } else {
+            $env[$position] = "{$property}=" . $value . "\n";
+        }
+
+        try {
+            file_put_contents(base_path('.env'), $env);
+        } catch (\Exception $e) {
+            info($e->getMessage());
+        }
     }
 }

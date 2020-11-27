@@ -26,13 +26,13 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
-use App\PaymentDrivers\AbstractPaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Http\Request;
 
 /**
  * Class BaseDriver.
@@ -60,22 +60,22 @@ class BaseDriver extends AbstractPaymentDriver
     /* The client */
     public $client;
 
-    /* The initiated gateway driver class*/
+    /* The initialized gateway driver class*/
     public $payment_method;
 
-    /**
-     * @var PaymentHash
-     */
+    /* PaymentHash */
     public $payment_hash;
 
+    /* Array of payment methods */
     public static $methods = [];
+    
+    /** @var array */
+    public $required_fields = [];
 
     public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
     {
         $this->company_gateway = $company_gateway;
-
         $this->invitation = $invitation;
-
         $this->client = $client;
     }
 
@@ -83,23 +83,35 @@ class BaseDriver extends AbstractPaymentDriver
      * Authorize a payment method.
      *
      * Returns a reusable token for storage for future payments
-     * @param const $payment_method The GatewayType::constant
-     * @return void Return a view for collecting payment method information
+     * 
+     * @param array $data
+     * @return mixed Return a view for collecting payment method information
      */
-    public function authorize($payment_method)
-    {
-    }
+    public function authorizeView(array $data) {}
 
     /**
-     * Executes purchase attempt for a given amount.
-     *
-     * @param  float   $amount                  The amount to be collected
-     * @param  bool $return_client_response     Whether the method needs to return a response (otherwise we assume an unattended payment)
-     * @return mixed
+     * The payment authorization response
+     *         
+     * @param  Request $request 
+     * @return mixed Return a response for collecting payment method information
      */
-    public function purchase($amount, $return_client_response = false)
-    {
-    }
+    public function authorizeResponse(Request $request) {}
+
+    /**
+     * Process a payment
+     * 
+     * @param  array $data 
+     * @return mixed Return a view for the payment
+     */
+    public function processPaymentView(array $data) {}
+
+    /**
+     * Process payment response
+     * 
+     * @param  Request $request
+     * @return mixed   Return a response for the payment
+     */
+    public function processPaymentResponse(Request $request) {}
 
     /**
      * Executes a refund attempt for a given amount with a transaction_reference.
@@ -109,23 +121,30 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  bool $return_client_response    Whether the method needs to return a response (otherwise we assume an unattended payment)
      * @return mixed
      */
-    public function refund(Payment $payment, $amount, $return_client_response = false)
-    {
-    }
+    public function refund(Payment $payment, $amount, $return_client_response = false) {}
+
+    /**
+     * Process an unattended payment.
+     *
+     * @param ClientGatewayToken $cgt The client gateway token object
+     * @param PaymentHash $payment_hash The Payment hash containing the payment meta data
+     * @return void The payment response
+     */
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash){}
 
     /**
      * Set the inbound request payment method type for access.
      *
      * @param int $payment_method_id The Payment Method ID
      */
-    public function setPaymentMethod($payment_method_id)
-    {
-    }
+    public function setPaymentMethod($payment_method_id){}
+
+
+    /************************** Helper methods *************************************/
 
     public function setPaymentHash(PaymentHash $payment_hash)
     {
         $this->payment_hash = $payment_hash;
-
         return $this;
     }
 
@@ -187,17 +206,6 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     /**
-     * Process an unattended payment.
-     *
-     * @param ClientGatewayToken $cgt The client gateway token object
-     * @param PaymentHash $payment_hash The Payment hash containing the payment meta data
-     * @return void The payment response
-     */
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
-    {
-    }
-
-    /**
      * When a successful payment is made, we need to append the gateway fee
      * to an invoice.
      *
@@ -212,7 +220,7 @@ class BaseDriver extends AbstractPaymentDriver
         /*Payment invoices*/
         $payment_invoices = $payment_hash->invoices();
 
-        // /*Fee charged at gateway*/
+        /*Fee charged at gateway*/
         $fee_total = $payment_hash->fee_total;
 
         // Sum of invoice amounts
@@ -239,13 +247,11 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function unWindGatewayFees(PaymentHash $payment_hash)
     {
-
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->get();
 
         $invoices->each(function ($invoice) {
             $invoice->service()->removeUnpaidGatewayFees();
         });
-
     }
 
     /**
@@ -263,7 +269,6 @@ class BaseDriver extends AbstractPaymentDriver
             return false;
         }
     }
-
 
     /**
      * Store payment method as company gateway token.
@@ -325,5 +330,119 @@ class BaseDriver extends AbstractPaymentDriver
         );
 
         throw new PaymentFailed($error, $e->getCode());
+    }
+
+    /**
+     * Wrapper method for checking if resource is good.
+     * 
+     * @param mixed $resource 
+     * @return bool 
+     */
+    public function checkRequiredResource($resource): bool
+    {
+        if (is_null($resource) || empty($resource)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function checkRequirements()
+    {
+        if ($this->company_gateway->require_billing_address) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->address1)) {
+                $this->required_fields[] = 'billing_address1';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->address2)) {
+                $this->required_fields[] = 'billing_address2';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->city)) {
+                $this->required_fields[] = 'billing_city';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->state)) {
+                $this->required_fields[] = 'billing_state';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
+                $this->required_fields[] = 'billing_postal_code';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->country_id)) {
+                $this->required_fields[] = 'billing_country';
+            }
+        }
+
+        if ($this->company_gateway->require_shipping_address) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_address1)) {
+                $this->required_fields[] = 'shipping_address1';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_address2)) {
+                $this->required_fields[] = 'shipping_address2';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_city)) {
+                $this->required_fields[] = 'shipping_city';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_state)) {
+                $this->required_fields[] = 'shipping_state';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_postal_code)) {
+                $this->required_fields[] = 'shipping_postal_code';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_country_id)) {
+                $this->required_fields[] = 'shipping_country';
+            }
+        }
+
+        if ($this->company_gateway->require_client_name) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->name)) {
+                $this->required_fields[] = 'name';
+            }
+        }
+
+        if ($this->company_gateway->require_client_phone) {
+            if ($this->checkRequiredResource(auth()->user('contact')->client->phone)) {
+                $this->required_fields[] = 'phone';
+            }
+        }
+
+        if ($this->company_gateway->require_contact_email) {
+            if ($this->checkRequiredResource(auth()->user('contact')->email)) {
+                $this->required_fields[] = 'contact_email';
+            }
+        }
+
+        if ($this->company_gateway->require_contact_name) {
+            if ($this->checkRequiredResource(auth()->user('contact')->first_name)) {
+                $this->required_fields[] = 'contact_first_name';
+            }
+
+            if ($this->checkRequiredResource(auth()->user('contact')->last_name)) {
+                $this->required_fields[] = 'contact_last_name';
+            }
+        }
+
+        if ($this->company_gateway->require_postal_code) {
+            // In case "require_postal_code" is true, we don't need billing address.
+
+            foreach ($this->required_fields as $position => $field) {
+                if (Str::startsWith($field, 'billing')) {
+                    unset($this->required_fields[$position]);
+                }
+            } 
+
+            if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
+                $this->required_fields[] = 'postal_code';
+            }
+        }
+
+        return $this;
     }
 }

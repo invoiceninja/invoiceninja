@@ -23,14 +23,11 @@ use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
-use App\Transformers\UserTransformer;
 use App\Utils\Traits\UserSessionAttributes;
 use Google_Client;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Laravel\Socialite\Facades\Socialite;
 use Turbo124\Beacon\Facades\LightLogs;
 
 class LoginController extends BaseController
@@ -173,8 +170,7 @@ class LoginController extends BaseController
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
 
-                return $this->listResponse($cu);
-
+            return $this->listResponse($cu);
         } else {
             LightLogs::create(new LoginFailure())
                 ->increment()

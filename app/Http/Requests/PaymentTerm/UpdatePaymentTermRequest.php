@@ -13,7 +13,6 @@ namespace App\Http\Requests\PaymentTerm;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class UpdatePaymentTermRequest extends Request
 {

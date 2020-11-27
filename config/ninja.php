@@ -12,7 +12,7 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/').'/',
     'app_domain' => env('APP_DOMAIN', ''),
-    'app_version' => '5.0.25',
+    'app_version' => '5.0.26',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -29,6 +29,7 @@ return [
     'enabled_modules' => 32767,
     'phantomjs_key' => env('PHANTOMJS_KEY', false),
     'phantomjs_secret' => env('PHANTOMJS_SECRET', false),
+    'phantomjs_pdf_generation' => env('PHANTOMJS_PDF_GENERATION', true),
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
     
     'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://9b4e15e575214354a7d666489783904a@sentry.invoicing.co/6'),

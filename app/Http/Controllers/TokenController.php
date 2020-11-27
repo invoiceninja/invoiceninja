@@ -19,16 +19,13 @@ use App\Http\Requests\Token\EditTokenRequest;
 use App\Http\Requests\Token\ShowTokenRequest;
 use App\Http\Requests\Token\StoreTokenRequest;
 use App\Http\Requests\Token\UpdateTokenRequest;
-use App\Jobs\Entity\ActionEntity;
 use App\Models\CompanyToken;
-use App\Repositories\BaseRepository;
 use App\Repositories\TokenRepository;
 use App\Transformers\CompanyTokenTransformer;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Class TokenController.

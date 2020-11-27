@@ -11,20 +11,14 @@
 
 namespace App\Jobs\Mail;
 
-use App\Jobs\Util\SystemLogger;
-use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\EntityViewedObject;
-use App\Models\SystemLog;
-use App\Models\User;
-use App\Providers\MailServiceProvider;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 
 /*Multi Mailer implemented*/
@@ -76,8 +70,9 @@ class EntityViewedMailer extends BaseMailerJob implements ShouldQueue
     public function handle()
     {
         /*If we are migrating data we don't want to fire these notification*/
-        if ($this->company->is_disabled) 
+        if ($this->company->is_disabled) {
             return true;
+        }
         
         //Set DB
         MultiDB::setDb($this->company->db);
@@ -89,15 +84,12 @@ class EntityViewedMailer extends BaseMailerJob implements ShouldQueue
         $mail_obj->from = [$this->entity->user->email, $this->entity->user->present()->name()];
 
         //send email
-        try{
+        try {
             Mail::to($this->user->email)
                 ->send(new EntityNotificationMailer($mail_obj));
-        }
-        catch (\Exception $e) {
-
+        } catch (\Exception $e) {
             $this->failed($e);
             $this->logMailError($e->getMessage(), $this->entity->client);
-
         }
     }
 }

@@ -10,21 +10,11 @@
  */
 namespace Tests\Feature;
 
-use App\Jobs\Account\CreateAccount;
-use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
-use App\Models\User;
-use App\Utils\Traits\UserSessionAttributes;
-use Faker\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -83,7 +73,5 @@ class MigrationTest extends TestCase
 
         $this->assertEquals($co->count(), 1);
         $this->assertEquals($inv->count(), 1);
-
     }
-
 }

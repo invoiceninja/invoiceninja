@@ -13,129 +13,132 @@ namespace App\Mail\Engine;
 
 class BaseEmailEngine implements EngineInterface
 {
-	public $footer;
+    public $footer;
 
-	public $variables;
+    public $variables;
 
-	public $contact;
+    public $contact;
 
-	public $subject;
+    public $subject;
 
-	public $body;
+    public $body;
 
-	public $template_style;
+    public $template_style;
 
-	public $attachments;
+    public $attachments;
 
-	public $link;
+    public $link;
 
-	public $text;
+    public $text;
 
     public function setFooter($footer)
     {
-    	$this->footer = $footer;
+        $this->footer = $footer;
 
-    	return $this;
+        return $this;
     }
 
     public function setVariables($variables)
     {
-    	$this->variables = $variables;
+        $this->variables = $variables;
 
-    	return $this;
+        return $this;
     }
 
     public function setContact($contact)
     {
-    	$this->contact = $contact;
+        $this->contact = $contact;
 
-    	return $this;
+        return $this;
     }
 
     public function setSubject($subject)
     {
-        if (! empty($this->variables)) 
+        if (! empty($this->variables)) {
             $subject = str_replace(array_keys($this->variables), array_values($this->variables), $subject);
+        }
 
-    	$this->subject = $subject;
+        $this->subject = $subject;
 
-    	return $this;
+        return $this;
     }
     
     public function setBody($body)
     {
-        if (! empty($this->variables)) 
+        if (! empty($this->variables)) {
             $body = str_replace(array_keys($this->variables), array_values($this->variables), $body);
+        }
 
-    	$this->body = $body;
+        $this->body = $body;
 
-    	return $this;
+        return $this;
     }
     
     public function setTemplate($template_style)
     {
-    	$this->template_style = $template_style;
+        $this->template_style = $template_style;
 
-    	return $this;
+        return $this;
     }
 
     public function setAttachments($attachments)
     {
-    	$this->attachments = $attachments;
+        $this->attachments = $attachments;
 
-    	return $this;
+        return $this;
     }
     
     public function setViewLink($link)
     {
-    	$this->link = $link;
+        $this->link = $link;
 
-    	return $this;
+        return $this;
     }
     
     public function setViewText($text)
     {
-    	$this->text = $text;
+        $this->text = $text;
 
-    	return $this;
+        return $this;
     }
     
     public function getSubject()
     {
-    	return $this->subject;
+        return $this->subject;
     }
     
     public function getBody()
     {
-    	return $this->body;
+        return $this->body;
     }
 
     public function getAttachments()
     {
-    	return $this->attachments;
+        return $this->attachments;
     }
     
     public function getFooter()
     {
-    	return $this->footer;
+        return $this->footer;
     }
     
     public function getTemplate()
     {
-    	return $this->template_style;
+        return $this->template_style;
     }
 
     public function getViewLink()
     {
-    	return $this->link;
+        return $this->link;
     }
     
 
     public function getViewText()
     {
-    	return $this->text;
+        return $this->text;
     }
     
-    public function build(){}
-
+    public function build()
+    {
+    }
 }

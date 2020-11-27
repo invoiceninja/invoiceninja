@@ -12,24 +12,16 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-use App\Events\Payment\PaymentWasCreated;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
-use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
-use App\Utils\Ninja;
-use Exception;
-use stdClass;
-use Stripe\PaymentIntent;
-use Stripe\PaymentMethod;
 
 class CreditCard
 {

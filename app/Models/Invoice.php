@@ -11,34 +11,21 @@
 
 namespace App\Models;
 
-use App\Events\Invoice\InvoiceWasMarkedSent;
-use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Client\UpdateClientBalance;
-use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Models\Backup;
-use App\Models\CompanyLedger;
-use App\Models\Currency;
-use App\Models\Filterable;
-use App\Models\PaymentTerm;
 use App\Models\Presenters\InvoicePresenter;
 use App\Services\Invoice\InvoiceService;
 use App\Services\Ledger\LedgerService;
 use App\Utils\Ninja;
-use App\Utils\Number;
-use App\Utils\Traits\Archivable;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\MakesReminders;
 use App\Utils\Traits\NumberFormatter;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -186,7 +173,7 @@ class Invoice extends BaseModel
 
     public function payments()
     {
-        return $this->morphToMany(Payment::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps()->withTrashed();
+        return $this->morphToMany(Payment::class, 'paymentable')->withTrashed()->withPivot('amount', 'refunded')->withTimestamps();
     }
 
     public function company_ledger()

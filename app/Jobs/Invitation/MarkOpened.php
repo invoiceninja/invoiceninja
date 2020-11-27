@@ -11,17 +11,12 @@
 
 namespace App\Jobs\Invitation;
 
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Repositories\InvoiceRepository;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Mail;
 
 //todo - ensure we are MultiDB Aware in dispatched jobs
 

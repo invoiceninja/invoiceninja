@@ -11,11 +11,8 @@
 
 namespace App\Factory;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
 use App\Models\Payment;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class PaymentFactory
 {

@@ -19,7 +19,6 @@ use App\Utils\Ninja;
  */
 class DocumentRepository extends BaseRepository
 {
-
     public function delete($document)
     {
         $document->deleteFile();

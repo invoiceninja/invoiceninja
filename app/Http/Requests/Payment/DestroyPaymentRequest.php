@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
-use App\Models\Payment;
 
 class DestroyPaymentRequest extends Request
 {

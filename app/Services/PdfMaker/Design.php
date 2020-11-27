@@ -214,9 +214,9 @@ class Design extends BaseDesign
 
     public function deliveryNoteTable(): array
     {
-         if ($this->type !== 'delivery_note') {
-             return [];
-         }
+        if ($this->type !== 'delivery_note') {
+            return [];
+        }
 
         $elements = [
             ['element' => 'thead', 'elements' => [
@@ -232,8 +232,8 @@ class Design extends BaseDesign
 
     /**
      * Parent method for building products table.
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public function productTable(): array
     {
@@ -257,8 +257,8 @@ class Design extends BaseDesign
 
     /**
      * Parent method for building tasks table.
-     * 
-     * @return array 
+     *
+     * @return array
      */
     public function taskTable(): array
     {
@@ -282,9 +282,9 @@ class Design extends BaseDesign
 
     /**
      * Generate the structure of table headers. (<thead/>)
-     * 
+     *
      * @param string $type "product" or "task"
-     * @return array 
+     * @return array
      */
     public function buildTableHeader(string $type): array
     {
@@ -301,9 +301,9 @@ class Design extends BaseDesign
 
     /**
      * Generate the structure of table body. (<tbody/>)
-     * 
+     *
      * @param string $type "$product" or "$task"
-     * @return array 
+     * @return array
      */
     public function buildTableBody(string $type): array
     {
@@ -315,7 +315,7 @@ class Design extends BaseDesign
             return [];
         }
 
-        if ($type == 'delivery_note') {            
+        if ($type == 'delivery_note') {
             foreach ($items as $row) {
                 $element = ['element' => 'tr', 'elements' => []];
 
@@ -365,9 +365,9 @@ class Design extends BaseDesign
 
                     if ($cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.cost']];
-                    } else if ($cell == '$task.hours') {
+                    } elseif ($cell == '$task.hours') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.quantity']];
-                    } else if ($cell == '$task.notes') {
+                    } elseif ($cell == '$task.description') {
                         $_element = ['element' => 'td', 'content' => '', 'elements' => [
                             ['element' => 'span', 'content' => $row[$cell]],
                         ]];

@@ -11,7 +11,6 @@
 
 namespace App\Notifications\Ninja;
 
-use App\Mail\Signup\NewSignup;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

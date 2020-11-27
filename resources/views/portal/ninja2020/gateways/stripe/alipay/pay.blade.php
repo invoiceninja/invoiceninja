@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Alipay (Stripe)', 'card_title' => 'Alipay (Stripe)'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Alipay', 'card_title' => 'Alipay'])
 
 @section('gateway_head')
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">

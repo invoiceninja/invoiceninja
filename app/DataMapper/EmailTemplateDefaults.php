@@ -12,7 +12,6 @@
 namespace App\DataMapper;
 
 use Illuminate\Support\Facades\App;
-use League\CommonMark\CommonMarkConverter;
 
 class EmailTemplateDefaults
 {
@@ -148,11 +147,9 @@ class EmailTemplateDefaults
 
     public static function emailPaymentTemplate()
     {
-
         $payment_message = '<p>'.self::transformText('payment_message').'</p><br><br><p>$view_link</p>';
 
         return $payment_message;
-
     }
 
     public static function emailCreditTemplate()
@@ -164,11 +161,9 @@ class EmailTemplateDefaults
 
     public static function emailPaymentPartialTemplate()
     {
-
         $payment_message = '<p>'.self::transformText('payment_message').'</p><br><br><p>$view_link</p>';
 
         return $payment_message;
-
     }
 
     public static function emailPaymentPartialSubject()

@@ -12,11 +12,8 @@
 namespace App\Http\Requests\Expense;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\IsDeletedRule;
-use App\Http\ValidationRules\ValidExpenseGroupSettingsRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class UpdateExpenseRequest extends Request
@@ -42,8 +39,9 @@ class UpdateExpenseRequest extends Request
         //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
         $rules['contacts.*.email'] = 'nullable|distinct';
 
-        if(isset($this->number))
+        if (isset($this->number)) {
             $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id)->ignore($this->expense->id);
+        }
 
         return $this->globalRules($rules);
     }

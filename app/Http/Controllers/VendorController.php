@@ -21,14 +21,7 @@ use App\Http\Requests\Vendor\EditVendorRequest;
 use App\Http\Requests\Vendor\ShowVendorRequest;
 use App\Http\Requests\Vendor\StoreVendorRequest;
 use App\Http\Requests\Vendor\UpdateVendorRequest;
-use App\Jobs\Entity\ActionEntity;
-use App\Jobs\Util\ProcessBulk;
-use App\Jobs\Util\UploadAvatar;
-use App\Models\Country;
-use App\Models\Currency;
-use App\Models\Size;
 use App\Models\Vendor;
-use App\Repositories\BaseRepository;
 use App\Repositories\VendorRepository;
 use App\Transformers\VendorTransformer;
 use App\Utils\Ninja;
@@ -37,8 +30,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class VendorController.

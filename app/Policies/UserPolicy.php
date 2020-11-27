@@ -11,7 +11,6 @@
 
 namespace App\Policies;
 
-use App\Models\Client;
 use App\Models\CompanyUser;
 use App\Models\User;
 

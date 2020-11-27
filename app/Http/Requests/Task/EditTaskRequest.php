@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Task;
 
 use App\Http\Requests\Request;
-use App\Models\Task;
 
 class EditTaskRequest extends Request
 {

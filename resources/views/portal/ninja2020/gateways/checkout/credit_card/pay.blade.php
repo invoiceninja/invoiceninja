@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Checkout.com', 'card_title' => 'Checkout.com'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Credit card', 'card_title' => 'Credit card'])
 
 @section('gateway_head')
     <meta name="public-key" content="{{ $gateway->getPublishableKey() }}">

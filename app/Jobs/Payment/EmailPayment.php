@@ -11,21 +11,15 @@
 
 namespace App\Jobs\Payment;
 
-use App\DataMapper\Analytics\EmailInvoiceFailure;
-use App\Events\Invoice\InvoiceWasEmailed;
-use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
-use App\Helpers\Email\BuildEmail;
 use App\Jobs\Mail\BaseMailerJob;
-use App\Jobs\Utils\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\Engine\PaymentEmailEngine;
 use App\Mail\TemplateEmail;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Payment;
-use App\Models\SystemLog;
 use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -33,7 +27,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
-use Turbo124\Beacon\Facades\LightLogs;
 
 class EmailPayment extends BaseMailerJob implements ShouldQueue
 {
@@ -73,37 +66,29 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        
-        if($this->company->is_disabled)
+        if ($this->company->is_disabled) {
             return true;
+        }
         
         if ($this->contact->email) {
-
-            MultiDB::setDb($this->company->db); 
+            MultiDB::setDb($this->company->db);
 
             //if we need to set an email driver do it now
             $this->setMailDriver();
 
             $email_builder = (new PaymentEmailEngine($this->payment, $this->contact))->build();
 
-            try{
-
+            try {
                 $mail = Mail::to($this->contact->email, $this->contact->present()->name());
                 $mail->send(new TemplateEmail($email_builder, $this->contact->user, $this->contact->client));
-
-            }catch(\Exception $e) {
-
+            } catch (\Exception $e) {
                 info("mailing failed with message " . $e->getMessage());
                 event(new PaymentWasEmailedAndFailed($this->payment, $this->company, Mail::failures(), Ninja::eventVars()));
                 $this->failed($e);
                 return $this->logMailError($e->getMessage(), $this->payment->client);
-
             }
 
             event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars()));
-
         }
     }
-
-
 }

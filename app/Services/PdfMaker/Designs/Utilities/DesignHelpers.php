@@ -98,7 +98,7 @@ trait DesignHelpers
      *
      * Logic below will help us calculate that & inject the result in the
      * global state of the $context (design state).
-     * 
+     *
      * @param string $type "product" or "task"
      * @return void
      */
@@ -195,6 +195,11 @@ trait DesignHelpers
         // Extract $invoice.date => date
         // so we can append date as $entity->date and not $entity->$invoice.date;
 
+        // When it comes to invoice balance, we'll always show it.
+        if ($variable == '$invoice.total') {
+            return false;
+        }
+
         try {
             $_variable = explode('.', $variable)[1];
         } catch (Exception $e) {
@@ -236,9 +241,19 @@ trait DesignHelpers
             return [];
         }
 
-        foreach (json_decode($task['time_log']) as $log) {
-            info($log);
-            $logs[] = sprintf('%s - %s', \Carbon\Carbon::createFromTimestamp($log[0])->toDateTimeString(), \Carbon\Carbon::createFromTimestamp($log[1])->toDateTimeString());
+        $logs = [];
+        $_logs = json_decode($task->time_log);
+
+        if (!$_logs) {
+            $_logs = [];
+        }
+
+        foreach ($_logs as $log) {
+            $logs[] = sprintf(
+                '%s - %s',
+                \Carbon\Carbon::createFromTimestamp($log[0])->format($task->client->date_format() . ' h:i:s'),
+                \Carbon\Carbon::createFromTimestamp($log[1])->format($task->client->date_format() . ' h:i:s')
+            );
         }
 
         return $logs;
