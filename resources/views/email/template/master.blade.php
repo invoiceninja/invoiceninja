@@ -45,7 +45,9 @@ if(!isset($design)) $design = 'light';
           {{ $greeting }}
           @endisset
 
-          {{ $slot }}
+          <div class="break-all">
+            {{ $slot}}
+          </div>
 
           @isset($signature)
           {{ $signature }}
