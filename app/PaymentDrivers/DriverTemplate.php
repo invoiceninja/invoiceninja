@@ -13,7 +13,7 @@ namespace App\PaymentDrivers;
 
 use App\Utils\Traits\MakesHash;
 
-class YourGatewayPaymentDriver extends BaseDriver
+class DriverTemplate extends BaseDriver
 {
     use MakesHash;
 
