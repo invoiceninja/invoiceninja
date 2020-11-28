@@ -25,6 +25,15 @@
                                 @enderror
                             </div>
                             <div class="col-span-6 sm:col-span-3">
+                                <label for="street" class="input-label">{{ ctrans('texts.phone') }}</label>
+                                <input id="phone" class="input w-full {{ in_array('phone', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" name="phone" wire:model.defer="phone" />
+                                @error('phone')
+                                    <div class="validation validation-fail">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                            <div class="col-span-6 sm:col-span-3">
                                 <label for="website" class="input-label">{{ ctrans('texts.website') }}</label>
                                 <input id="website" class="input w-full" name="website" wire:model.defer="website" />
                                 @error('website')

@@ -22,6 +22,8 @@ use App\Utils\CurlUtils;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -82,12 +84,28 @@ class Phantom
         return $file_path;
     }
 
+    public function convertHtmlToPdf($html)
+    {
+        $hash = Str::random(32);
+        Cache::put($hash, $html, 300);
+        
+        $url = route('tmp_pdf', ['hash' => $hash]);
+        info($url);
+        $key = config('ninja.phantomjs_key');
+        $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
+        $pdf = CurlUtils::get($phantom_url);
+
+        $response = Response::make($pdf, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
+    }
+
     public function displayInvitation(string $entity, string $invitation_key)
     {
         $key = $entity.'_id';
 
-        $invitation_instance = 'App\Models\\'.Str::camel(ucfirst($entity)).'Invitation';
-
+        $invitation_instance = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
         $invitation = $invitation_instance::whereRaw('BINARY `key`= ?', [$invitation_key])->first();
 
         $entity_obj = $invitation->{$entity};
@@ -113,9 +131,9 @@ class Phantom
 
         $state = [
             'template' => $template->elements([
-                'client' => $this->entity->client,
-                'entity' => $this->entity,
-                'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
+                'client' => $entity_obj->client,
+                'entity' => $entity_obj,
+                'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
                 '$product' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),
