@@ -1107,12 +1107,20 @@ class Import implements ShouldQueue
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
-            $this->ids['expense_categories'] = [
-                "expense_categories_{$old_user_key}" => [
-                    'old' => $resource['id'],
+
+            $key = "expense_categories_{$resource['id']}";
+
+            $this->ids['expense_categories'][$key] = [
+                'old' => $resource['id'],
                     'new' => $expense_category->id,
-                ],
             ];
+
+            // $this->ids['expense_categories'] = [
+            //     "expense_categories_{$old_user_key}" => [
+            //         'old' => $resource['id'],
+            //         'new' => $expense_category->id,
+            //     ],
+            // ];
         }
         
         ExpenseCategory::reguard();
