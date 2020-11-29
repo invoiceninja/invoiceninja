@@ -321,7 +321,7 @@ class MigrationController extends BaseController
                 ->storeAs(
                     'migrations',
                     $request->file($company->company_index)->getClientOriginalName(),
-                    'local'
+                    'public'
                 );
 
             if (app()->environment() == 'testing') {
