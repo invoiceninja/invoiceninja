@@ -128,13 +128,14 @@ trait AppSetup
             }
         }
 
-        // This should never happen, but this is login just in case.
-        // Variables that will be replaced (updated with different content) should already be in .env file.
+        $words_count = count(explode(' ', trim($value)));
 
         if (is_null($position)) {
-            $env[] = "{$property}=" . $value . "\n";
+            $words_count > 1 ? $env[] = "{$property}=" . '"' . $value . '"' . "\n" : $env[] = "{$property}=" . $value . "\n";
+        } else if ($words_count > 1) {
+            $env[$position] = "{$property}=" . '"' . $value . '"' . "\n"; // If value of variable is more than one word, surround with quotes.
         } else {
-            $env[$position] = "{$property}=" . $value . "\n";
+            $env[$position] = "{$property}=" . $value . "\n"; // Just a normal variable update, with prexisting keys.
         }
 
         try {

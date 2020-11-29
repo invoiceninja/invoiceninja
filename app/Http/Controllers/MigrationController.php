@@ -320,7 +320,8 @@ class MigrationController extends BaseController
             $migration_file = $request->file($company->company_index)
                 ->storeAs(
                     'migrations',
-                    $request->file($company->company_index)->getClientOriginalName()
+                    $request->file($company->company_index)->getClientOriginalName(),
+                    'local'
                 );
 
             if (app()->environment() == 'testing') {
@@ -328,7 +329,9 @@ class MigrationController extends BaseController
             }
 
             try {
-                StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $fresh_company)->delay(now()->addSeconds(5));
+                // StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $fresh_company)->delay(now()->addSeconds(5));
+                info($migration_file);
+                StartMigration::dispatch($migration_file, $user, $fresh_company);
             } catch (\Exception $e) {
                 info($e->getMessage());
             }
