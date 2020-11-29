@@ -131,7 +131,7 @@ trait AppSetup
         $words_count = count(explode(' ', trim($value)));
 
         if (is_null($position)) {
-            $env[] = "{$property}=" . $value . "\n"; // If we don't have entry for variable in the .env, write it.
+            $words_count > 1 ? $env[] = "{$property}=" . '"' . $value . '"' . "\n" : $env[] = "{$property}=" . $value . "\n";
         } else if ($words_count > 1) {
             $env[$position] = "{$property}=" . '"' . $value . '"' . "\n"; // If value of variable is more than one word, surround with quotes.
         } else {
