@@ -85,8 +85,7 @@ class StartMigration implements ShouldQueue
         $this->company->save();
 
         $zip = new ZipArchive();
-        $archive = $zip->open($this->filepath);
-
+        $archive = $zip->open(storage_path("app/{$this->filepath}"));
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);
 
         try {
@@ -94,14 +93,14 @@ class StartMigration implements ShouldQueue
                 throw new ProcessingMigrationArchiveFailed('Processing migration archive failed. Migration file is possibly corrupted.');
             }
 
-            $zip->extractTo(storage_path("migrations/{$filename}"));
+            $zip->extractTo(storage_path("app/migrations/{$filename}"));
             $zip->close();
 
             if (app()->environment() == 'testing') {
                 return true;
             }
 
-            $file = storage_path("migrations/$filename/migration.json");
+            $file = storage_path("app/migrations/$filename/migration.json");
 
             if (! file_exists($file)) {
                 throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
