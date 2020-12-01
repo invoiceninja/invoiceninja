@@ -20,6 +20,8 @@
                 </a>
                 @endforeach
             </nav>
+
+            @if(!auth('contact')->user()->user->account->isPaid())
             <div class="flex-shrink-0 flex bg-primary p-4 justify-center">
                 <div class="flex items-center">
                     <a href="https://www.facebook.com/invoiceninja/">
@@ -44,6 +46,7 @@
                     </a>
                 </div>
             </div>
+            @endif
         </div>
         <div class="flex-shrink-0 w-14"></div>
     </div>
