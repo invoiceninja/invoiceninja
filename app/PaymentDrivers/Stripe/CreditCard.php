@@ -111,13 +111,14 @@ class CreditCard
     private function processSuccessfulPayment()
     {
         $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
-
+        
         $data = [
             'payment_method' => $this->stripe->payment_hash->data->server_response->payment_method,
             'payment_type' => PaymentType::parseCardType(strtolower($stripe_method->card->brand)),
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->server_response->amount, $this->stripe->client->currency()->precision),
-            'transaction_reference' => $this->stripe->payment_hash->data->server_response->id,
+            'transaction_reference' => optional($this->stripe->payment_hash->data->payment_intent->charges->data[0])->id,
         ];
+
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['amount' => $data['amount']]);
         $this->stripe->payment_hash->save();
