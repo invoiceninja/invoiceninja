@@ -55,7 +55,7 @@ class CompanySettings extends BaseSettings
     public $default_task_rate = 0; // @TODO Where do we inject this?
 
     public $payment_terms = ''; //@implemented
-    public $send_reminders = false; //@TODO
+    public $send_reminders = true; //@TODO
 
     public $custom_message_dashboard = ''; // @TODO There currently is no dashboard so this is pending
     public $custom_message_unpaid_invoice = '';

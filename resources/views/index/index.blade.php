@@ -88,7 +88,7 @@
     
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/flutter_service_worker.js?v={{ config('ninja.app_version') }}');
+        navigator.serviceWorker.register('flutter_service_worker.js?v={{ config('ninja.app_version') }}');
       });
     }
 

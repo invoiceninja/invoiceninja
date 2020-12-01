@@ -177,6 +177,9 @@ class Import implements ShouldQueue
     {
         set_time_limit(0);
 
+        auth()->login($this->user, false);
+        auth()->user()->setCompany($this->company);
+
         //   $jsonStream = \JsonMachine\JsonMachine::fromFile($this->file_path, "/data");
         $array = json_decode(file_get_contents($this->file_path), 1);
         $data = $array['data'];
