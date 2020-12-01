@@ -2,8 +2,6 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
     <head>
-
-        <!-- Source: https://github.com/invoiceninja/invoiceninja -->
         <!-- Error: {{ session('error') }} -->
 
         @if (config('services.analytics.tracking_id'))
@@ -32,8 +30,15 @@
             </script>
         @endif
 
+
         <!-- Title -->
-        <title>@yield('meta_title', 'Invoice Ninja') — {{ config('app.name') }}</title>
+        @auth()
+            <title>@yield('meta_title', '') — {{ auth('contact')->user()->user->account->isPaid() ? auth('contact')->user()->company->present()->name() : 'Invoice Ninja' }}</title>
+        @endauth
+
+        @guest
+            <title>@yield('meta_title', '') — {{ config('app.name') }}</title>
+        @endguest
 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
