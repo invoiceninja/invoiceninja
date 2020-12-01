@@ -1,7 +1,7 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteRule "^.env" - [F,L]
-  RewriteRule "^storage" - [F,L]
+#  RewriteRule "^storage" - [F,L]
   RewriteRule ^(.well-known)($|/) - [L]
   
   RewriteRule ^(.*)$ public/$1 [L]
