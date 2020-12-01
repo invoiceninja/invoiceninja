@@ -251,8 +251,8 @@ trait DesignHelpers
         foreach ($_logs as $log) {
             $logs[] = sprintf(
                 '%s - %s',
-                \Carbon\Carbon::createFromTimestamp($log[0])->format($task->client->date_format() . ' h:i:s'),
-                \Carbon\Carbon::createFromTimestamp($log[1])->format($task->client->date_format() . ' h:i:s')
+                \Carbon\Carbon::createFromTimestamp($log[0])->format($this->entity->client->date_format() . ' h:i:s'),
+                \Carbon\Carbon::createFromTimestamp($log[1])->format($this->entity->client->date_format() . ' h:i:s')
             );
         }
 
