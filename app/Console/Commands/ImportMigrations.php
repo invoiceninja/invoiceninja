@@ -12,7 +12,15 @@
 namespace App\Console\Commands;
 
 use App\DataMapper\CompanySettings;
+use App\Exceptions\MigrationValidatorFailed;
+use App\Exceptions\NonExistingMigrationFile;
+use App\Exceptions\ProcessingMigrationArchiveFailed;
+use App\Exceptions\ResourceDependencyMissing;
+use App\Exceptions\ResourceNotAvailableForMigration;
+use App\Jobs\Util\Import;
 use App\Jobs\Util\StartMigration;
+use App\Libraries\MultiDB;
+use App\Mail\MigrationFailed;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyToken;
@@ -24,6 +32,7 @@ use Faker\Factory;
 use Faker\Generator;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use ZipArchive;
 
 class ImportMigrations extends Command
 {
@@ -69,17 +78,45 @@ class ImportMigrations extends Command
     public function handle()
     {
         $this->buildCache();
-        
-        $path = $this->option('path') ?? storage_path('migrations/import');
+    
+        $path = $this->option('path') ?? public_path('storage/migrations/import');
 
         $directory = new DirectoryIterator($path);
 
         foreach ($directory as $file) {
             if ($file->getExtension() === 'zip') {
+
+                $user = $this->getUser();
+                $company = $this->getUser()->companies()->first();
+
                 $this->info('Started processing: '.$file->getBasename().' at '.now());
-                StartMigration::dispatch($file->getRealPath(), $this->getUser(), $this->getUser()->companies()->first());
-            }
-        }
+
+                $zip = new ZipArchive();
+                $archive = $zip->open($file->getRealPath());
+
+                try {
+                    if (! $archive) {
+                        throw new ProcessingMigrationArchiveFailed('Processing migration archive failed. Migration file is possibly corrupted.');
+                    }
+
+                        $filename = pathinfo($file->getRealPath(), PATHINFO_FILENAME);
+                        
+                        $zip->extractTo(public_path("storage/migrations/{$filename}"));
+                        $zip->close();
+
+                        $import_file = public_path("storage/migrations/$filename/migration.json");
+
+                         Import::dispatch($import_file,  $this->getUser()->companies()->first(), $this->getUser());
+                     //   StartMigration::dispatch($file->getRealPath(), $this->getUser(), $this->getUser()->companies()->first());
+                }
+                catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
+                \Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
+
+                if (app()->environment() !== 'production') {
+                    info($e->getMessage());
+                }
+            
+        }}}
     }
 
     public function getUser(): User
