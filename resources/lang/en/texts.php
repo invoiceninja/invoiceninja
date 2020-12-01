@@ -3311,4 +3311,6 @@ return [
 
     'billing_country' => 'Billing Country',
     'shipping_country' => 'Shipping Country',
+
+    'service' => 'Service',
 ];
