@@ -88,7 +88,7 @@ class QuoteEmailEngine extends BaseEmailEngine
             ->setViewText(ctrans('texts.view_quote'));
 
         if ($this->client->getSetting('pdf_email_attachment') !== false) {
-            $this->setAttachments($this->invitation->pdf_file_path());
+            $this->setAttachments([$this->invitation->pdf_file_path()]);
         }
 
         return $this;
