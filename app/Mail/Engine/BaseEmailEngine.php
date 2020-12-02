@@ -25,7 +25,7 @@ class BaseEmailEngine implements EngineInterface
 
     public $template_style;
 
-    public $attachments;
+    public $attachments = [];
 
     public $link;
 
@@ -83,7 +83,8 @@ class BaseEmailEngine implements EngineInterface
 
     public function setAttachments($attachments)
     {
-        $this->attachments = $attachments;
+
+        $this->attachments = array_merge($this->getAttachments(), $attachments);
 
         return $this;
     }

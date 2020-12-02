@@ -91,7 +91,7 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
                 unset($methods[$key]);
 
                 $mail_obj = (new PaymentFailureObject($this->client, $this->message, $this->amount, $this->company))->build();
-                $mail_obj->from = [$this->company->owner()->email, $this->company->owner()->present()->name()];
+                $mail_obj->from = [config('mail.from.address'), config('mail.from.name')];
 
                 //send email
                 try {

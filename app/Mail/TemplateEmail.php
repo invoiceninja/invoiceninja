@@ -52,7 +52,7 @@ class TemplateEmail extends Mailable
 
         $company = $this->client->company;
 
-        $this->from($this->user->email, $this->user->present()->name());
+        $this->from(config('mail.from.address'), config('mail.from.name'));
 
         if (strlen($settings->reply_to_email) > 1) {
             $this->replyTo($settings->reply_to_email, $settings->reply_to_email);
