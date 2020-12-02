@@ -21,6 +21,8 @@ class MarkInvoiceDeleted extends AbstractService
 
     private $invoice;
 
+    private $adjustment_amount = 0;
+
     public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
@@ -28,7 +30,36 @@ class MarkInvoiceDeleted extends AbstractService
 
     public function run()
     {
+        if($this->invoice->is_deleted)
+            return $this->invoice;
+
+        // if(in_array($this->invoice->status_id, ['currencies', 'industries', 'languages', 'countries', 'banks']))
+        //     return $this->
+             
+        $this->cleanup()
+             ->setAdjustmentAmount()
+             ->deletePaymentables();
+    }
+
+
+    private function setAdjustmentAmount()
+    {
+
+        foreach ($this->invoice->payments as $payment) { 
+            $this->adjustment_amount += $payment->paymentables
+                                                ->where('paymentable_type', '=', 'invoices')
+                                                ->where('paymentable_id', $this->invoice->id)
+                                                ->sum(DB::raw('amount'));
+        }
+
+        return $this;
+    }
+
+    private function cleanup()
+    {
+
         $check = false;
+        
         $x=0;
 
         do {
@@ -43,9 +74,9 @@ class MarkInvoiceDeleted extends AbstractService
         $this->invoice->tasks()->update(['invoice_id' => null]);
         $this->invoice->expenses()->update(['invoice_id' => null]);
 
-        return $this->invoice;
+        return $this;
+    
     }
-
 
     private function calcNumber($x)
     {
@@ -56,5 +87,20 @@ class MarkInvoiceDeleted extends AbstractService
         }
 
         return $number;
+    }
+
+
+    private function deletePaymentables()
+    {
+
+        $this->invoice->payments->each(function ($payment){
+            $payment->paymentables()
+                    ->where('paymentable_type', '=', 'invoices')
+                    ->where('paymentable_id', $this->invoice->id)
+                    ->update(['deleted_at' => now()]);
+        });
+
+        
+        return $this;
     }
 }
