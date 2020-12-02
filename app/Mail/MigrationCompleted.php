@@ -28,7 +28,8 @@ class MigrationCompleted extends Mailable
     public function build()
     {
         $data['settings'] = auth()->user()->company()->settings;
-        
-        return $this->view('email.migration.completed', $data);
+
+        return $this->from(config('mail.from.name'), config('mail.from.address'))
+                    ->view('email.migration.completed', $data);
     }
 }

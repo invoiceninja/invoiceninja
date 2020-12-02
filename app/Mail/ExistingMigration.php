@@ -27,6 +27,8 @@ class ExistingMigration extends Mailable
      */
     public function build()
     {
-        return $this->view('email.migration.existing');
+
+        return $this->from(config('mail.from.name'), config('mail.from.address'))
+                    ->view('email.migration.existing');
     }
 }
