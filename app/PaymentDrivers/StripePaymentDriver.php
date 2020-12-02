@@ -172,7 +172,7 @@ class StripePaymentDriver extends BaseDriver
      * Processes the gateway response for credit card authorization.
      *
      * @param Request $request The returning request object
- * @return Factory|View
+     * @return Factory|View
      */
     public function authorizeResponse($request)
     {
@@ -189,7 +189,7 @@ class StripePaymentDriver extends BaseDriver
      * Process the payment with gateway.
      *
      * @param array $data
- * @return Factory|View|void
+     * @return Factory|View|void
      */
     public function processPaymentView(array $data)
     {
@@ -209,7 +209,7 @@ class StripePaymentDriver extends BaseDriver
                 ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
                 ->with('missing_required_fields', $this->required_fields);
         }
-        
+
         return $this->payment_method->paymentResponse($request);
     }
 
@@ -279,7 +279,7 @@ class StripePaymentDriver extends BaseDriver
         }
 
         if (!$customer) {
-            throw new Exception('Unable to create gateway customer');
+            throw new \Exception('Unable to create gateway customer');
         }
 
         return $customer;
@@ -289,37 +289,48 @@ class StripePaymentDriver extends BaseDriver
     {
         $this->init();
 
-        $response = $this->stripe
-            ->refunds
-            ->create(['charge' => $payment->transaction_reference, 'amount' => $amount]);
+        /** Response from Stripe SDK/API. */
+        $response = null;
 
-        // $response = $this->gateway
-        //     ->refund(['transactionReference' => $payment->transaction_reference, 'amount' => $amount, 'currency' => $payment->client->getCurrencyCode()])
-        //     ->send();
+        try {
+            $response = $this->stripe
+                ->refunds
+                ->create(['charge' => $payment->transaction_reference, 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision)]);
 
-        if ($response->status == $response::STATUS_SUCCEEDED) {
-            SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),
-            ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client);
+            if ($response->status == $response::STATUS_SUCCEEDED) {
+                SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client);
+
+                return [
+                    'transaction_reference' => $response->charge,
+                    'transaction_response' => json_encode($response),
+                    'success' => $response->status == $response::STATUS_SUCCEEDED ? true : false,
+                    'description' => $response->metadata,
+                    'code' => $response,
+                ];
+            }
+
+            SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
 
             return [
-                'transaction_reference' => $response->charge,
+                'transaction_reference' => null,
                 'transaction_response' => json_encode($response),
-                'success' => $response->status == $response::STATUS_SUCCEEDED ? true : false,
-                'description' => $response->metadata,
-                'code' => $response,
+                'success' => false,
+                'description' => $response->failure_reason,
+                'code' => 422,
+            ];
+        } catch (\Exception $e) {
+            SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
+
+            info($e->getMessage());
+
+            return [
+                'transaction_reference' => null,
+                'transaction_response' => json_encode($response),
+                'success' => false,
+                'description' => $e->getMessage(),
+                'code' => 422,
             ];
         }
-
-        SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),
-        ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
-
-        return [
-            'transaction_reference' => null,
-            'transaction_response' => json_encode($response),
-            'success' => false,
-            'description' => $response->failure_reason,
-            'code' => 422,
-        ];
     }
 
     public function verificationView(ClientGatewayToken $payment_method)
@@ -395,8 +406,8 @@ class StripePaymentDriver extends BaseDriver
      * https://stripe.com/docs/api/payment_methods/detach
      *
      * @param ClientGatewayToken $token
-* @return void
-*/
+     * @return void
+     */
     public function detach(ClientGatewayToken $token)
     {
         $stripe = new StripeClient(
@@ -411,7 +422,7 @@ class StripePaymentDriver extends BaseDriver
             ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
         }
     }
-    
+
     public function getCompanyGatewayId(): int
     {
         return $this->company_gateway->id;

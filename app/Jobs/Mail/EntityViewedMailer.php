@@ -81,7 +81,7 @@ class EntityViewedMailer extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver();
 
         $mail_obj = (new EntityViewedObject($this->invitation, $this->entity_type))->build();
-        $mail_obj->from = [$this->entity->user->email, $this->entity->user->present()->name()];
+        $mail_obj->from = [config('mail.from.address'), config('mail.from.name')];
 
         //send email
         try {

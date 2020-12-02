@@ -59,7 +59,7 @@ class SupportMessageSent extends Mailable
 
         $subject = "Customer MSG {$user->present()->name} - [{$plan} - DB:{$company->db}]";
 
-        return $this->from(config('mail.from.address')) //todo this needs to be fixed to handle the hosted version
+        return $this->from(config('mail.from.address'), config('mail.from.name')) //todo this needs to be fixed to handle the hosted version
             ->subject($subject)
             ->markdown('email.support.message', [
                 'message' => $this->message,

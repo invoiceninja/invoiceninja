@@ -36,7 +36,7 @@ class TestMailServer extends Mailable
      */
     public function build()
     {
-        return $this->from($this->from_email) //todo this needs to be fixed to handle the hosted version
+        return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.email'))
             ->markdown('email.support.message', [
                 'message' => $this->message,

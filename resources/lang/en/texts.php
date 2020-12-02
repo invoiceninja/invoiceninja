@@ -3214,7 +3214,7 @@ return [
 
     'checkout_com' => 'Checkout.com',
 
-    'footer_label' => 'Copyright © :year Invoice Ninja. All rights reserved.',
+    'footer_label' => 'Copyright © :year :company. All rights reserved.',
 
     'credit_card_invalid' => 'Provided credit card number is not valid.',
     'month_invalid' => 'Provided month is not valid.',
@@ -3311,4 +3311,6 @@ return [
 
     'billing_country' => 'Billing Country',
     'shipping_country' => 'Shipping Country',
+
+    'service' => 'Service',
 ];

@@ -27,6 +27,6 @@ class InvoiceWasPaid extends Mailable
      */
     public function build()
     {
-        return $this->view('email.invoices.paid');
+        return $this->from(config('mail.from.address'), config('mail.from.name'))->view('email.invoices.paid');
     }
 }

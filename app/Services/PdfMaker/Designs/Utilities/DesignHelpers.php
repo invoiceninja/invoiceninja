@@ -14,6 +14,7 @@ namespace App\Services\PdfMaker\Designs\Utilities;
 
 use App\Models\Task;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 use DOMDocument;
 use DOMXPath;
 use Exception;
@@ -249,11 +250,18 @@ trait DesignHelpers
         }
 
         foreach ($_logs as $log) {
-            $logs[] = sprintf(
-                '%s - %s',
-                \Carbon\Carbon::createFromTimestamp($log[0])->format($task->client->date_format() . ' h:i:s'),
-                \Carbon\Carbon::createFromTimestamp($log[1])->format($task->client->date_format() . ' h:i:s')
-            );
+            $start = Carbon::createFromTimestamp($log[0]);
+            $finish = Carbon::createFromTimestamp($log[1]);
+
+            if ($start->isSameDay($finish)) {
+                $logs[] = sprintf('%s: %s - %s', $start->format($this->entity->client->date_format()), $start->format('h:i:s'), $finish->format('h:i:s'));
+            } else {
+                $logs[] = sprintf(
+                    '%s - %s',
+                    $start->format($this->entity->client->date_format() . ' h:i:s'),
+                    $finish->format($this->entity->client->date_format() . ' h:i:s')
+                );
+            }
         }
 
         return $logs;

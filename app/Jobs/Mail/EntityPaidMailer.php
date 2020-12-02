@@ -77,7 +77,7 @@ class EntityPaidMailer extends BaseMailerJob implements ShouldQueue
 
         try {
             $mail_obj = (new EntityPaidObject($this->payment))->build();
-            $mail_obj->from = [$this->user->email, $this->user->present()->name()];
+            $mail_obj->from = [config('mail.from.address'), config('mail.from.name')];
 
             //send email
             Mail::to($this->user->email)
