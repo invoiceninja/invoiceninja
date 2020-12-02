@@ -97,7 +97,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
             ->setViewText(ctrans('texts.view_invoice'));
 
         if ($this->client->getSetting('pdf_email_attachment') !== false) {
-            $this->setAttachments($this->invoice->pdf_file_path());
+            $this->setAttachments([$this->invoice->pdf_file_path()]);
         }
 
         return $this;

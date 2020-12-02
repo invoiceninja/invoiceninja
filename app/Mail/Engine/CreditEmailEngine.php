@@ -88,7 +88,7 @@ class CreditEmailEngine extends BaseEmailEngine
             ->setViewText(ctrans('texts.view_credit'));
 
         if ($this->client->getSetting('pdf_email_attachment') !== false) {
-            $this->setAttachments($invitation->pdf_file_path());
+            $this->setAttachments([$this->credit->pdf_file_path()]);
         }
 
         return $this;
