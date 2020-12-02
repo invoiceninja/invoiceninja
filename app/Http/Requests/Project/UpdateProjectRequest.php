@@ -13,6 +13,7 @@ namespace App\Http\Requests\Project;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
+use Illuminate\Validation\Rule;
 
 class UpdateProjectRequest extends Request
 {
