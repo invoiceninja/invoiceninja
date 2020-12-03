@@ -70,9 +70,21 @@ class InvoiceRepository extends BaseRepository
         }
 
 //        $invoice->service()->markDeleted()->handleCancellation()->save();
-        $invoice->service()->markDeleted()->save();
+        $invoice = $invoice->service()->markDeleted()->save();
 
         parent::delete($invoice);
+
+        return $invoice;
+    }
+
+    public function restore() :Invoice
+    {
+        if(!$invoice->is_deleted)
+            return $invoice
+
+        $invoice = $invoice->service()->handeRestore()->save()
+
+        parent::restore($invoice);
 
         return $invoice;
     }
