@@ -23,6 +23,8 @@ class MarkInvoiceDeleted extends AbstractService
 
     private $adjustment_amount = 0;
 
+    private $total_payments = 0;
+
     public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
@@ -38,9 +40,54 @@ class MarkInvoiceDeleted extends AbstractService
              
         $this->cleanup()
              ->setAdjustmentAmount()
-             ->deletePaymentables();
+             ->deletePaymentables()
+             ->adjustPayments()
+             ->adjustPaidToDate()
+             ->adjustLedger();
     }
 
+    private function adjustLedger()
+    {
+        $this->invoice->ledger()->updatePaymentBalance($this->adjustment_amount * -1);
+        
+        return $this;
+    }
+
+    private function adjustPaidToDate()
+    {
+        $this->invoice->client->service()->updatePaidToDate($this->adjustment_amount * -1)->save();
+
+        return $this;   
+    }
+
+    private function adjustPayments()
+    {
+        //if total payments = adjustment amount - that means we need to delete the payments as well.
+        
+        if($this->adjustment_amount == $this->total_payments) {
+
+            $this->invoice->payments()->update(['deleted_at'=> now(), 'is_deleted' => true]);
+
+        }
+        else {
+            //adjust payments down by the amount applied to the invoice payment.
+            
+            $this->invoice->payments->each(function ($payment){
+
+                $payment_adjustment = $payment->paymentables
+                                                ->where('paymentable_type', '=', 'invoices')
+                                                ->where('paymentable_id', $this->invoice->id)
+                                                ->sum(DB::raw('amount'));
+
+                $payment->amount -= $payment_adjustment;
+                $payment->applied -= $payment_adjustment;
+                $payment->save();
+
+            });
+        }
+
+        return $this;
+    }
 
     private function setAdjustmentAmount()
     {
@@ -51,6 +98,9 @@ class MarkInvoiceDeleted extends AbstractService
                                                 ->where('paymentable_id', $this->invoice->id)
                                                 ->sum(DB::raw('amount'));
         }
+
+
+        $this->total_payments = $this->invoice->payments->sum('amount');
 
         return $this;
     }
