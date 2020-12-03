@@ -32,7 +32,9 @@ class Setup {
 
         Axios.post('/setup/check_db', data)
             .then((response) => this.handleSuccess(this.checkDbAlert))
-            .catch((e) => this.handleFailure(this.checkDbAlert, e.response.data.message));
+            .catch((e) =>
+                this.handleFailure(this.checkDbAlert, e.response.data.message)
+            );
     }
 
     handleSmtpCheck() {
@@ -51,9 +53,14 @@ class Setup {
                 .value,
         };
 
+        this.checkSmtpButton.disabled = true;
+
         Axios.post('/setup/check_mail', data)
             .then((response) => this.handleSuccess(this.checkSmtpAlert))
-            .catch((e) => this.handleFailure(this.checkSmtpAlert));
+            .catch((e) =>
+                this.handleFailure(this.checkSmtpAlert, e.response.data.message)
+            )
+            .finally(() => (this.checkSmtpButton.disabled = false));
     }
 
     handleTestPdfCheck() {
@@ -71,7 +78,7 @@ class Setup {
             })
             .catch((error) => {
                 console.log(error);
-                this.handleFailure(this.checkPdfAlert)
+                this.handleFailure(this.checkPdfAlert);
             });
     }
 
@@ -83,7 +90,9 @@ class Setup {
 
     handleFailure(element, message = null) {
         element.classList.remove('alert-success');
-        element.innerText = message ? message : "Oops, looks like something isn't correct!";
+        element.innerText = message
+            ? message
+            : "Oops, looks like something isn't correct!";
         element.classList.add('alert-failure');
     }
 

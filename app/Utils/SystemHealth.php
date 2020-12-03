@@ -221,10 +221,9 @@ class SystemHealth
         }
 
         try {
-            Mail::to(config('mail.from.address'))
-            ->send(new TestMailServer('Email Server Works!', config('mail.from.address')));
+            Mail::to(config('mail.from.address'))->send(new TestMailServer('Email Server Works!', config('mail.from.address')));
         } catch (Exception $e) {
-            return $e->getMessage();
+            return [$e->getMessage()];
         }
 
         /*
