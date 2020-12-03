@@ -33,6 +33,7 @@ use Checkout\Library\Exceptions\CheckoutHttpException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Class BaseDriver.
