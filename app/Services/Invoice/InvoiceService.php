@@ -164,6 +164,13 @@ class InvoiceService
         return $this;
     }
 
+    public function handleRestore()
+    {
+        $this->invoice = (new HandleRestore($this->invoice))->run();
+
+        return $this;
+    }
+
     public function reverseCancellation()
     {
         $this->invoice = (new HandleCancellation($this->invoice))->reverse();
