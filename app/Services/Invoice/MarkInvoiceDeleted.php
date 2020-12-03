@@ -14,6 +14,7 @@ namespace App\Services\Invoice;
 use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Support\Facades\DB;
 
 class MarkInvoiceDeleted extends AbstractService
 {
@@ -44,12 +45,14 @@ class MarkInvoiceDeleted extends AbstractService
              ->adjustPayments()
              ->adjustPaidToDate()
              ->adjustLedger();
+
+         return $this->invoice;
     }
 
     private function adjustLedger()
     {
         $this->invoice->ledger()->updatePaymentBalance($this->adjustment_amount * -1);
-        
+
         return $this;
     }
 
@@ -66,7 +69,7 @@ class MarkInvoiceDeleted extends AbstractService
         
         if($this->adjustment_amount == $this->total_payments) {
 
-            $this->invoice->payments()->update(['deleted_at'=> now(), 'is_deleted' => true]);
+            $this->invoice->payments()->update(['payments.deleted_at' => now(), 'payments.is_deleted' => true]);
 
         }
         else {
