@@ -23,7 +23,7 @@ return [
     'date_time_format' => 'Y-m-d H:i',
     'daily_email_limit' => 300,
     'error_email' => env('ERROR_EMAIL', ''),
-    'mailer' => env('MAIL_MAILER',''),
+    'mailer' => env('MAIL_MAILER', ''),
     'company_id' => 0,
     'hash_salt' => env('HASH_SALT', ''),
     'currency_converter_api_key' => env('OPENEXCHANGE_APP_ID', ''),
