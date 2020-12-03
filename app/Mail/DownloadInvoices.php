@@ -32,6 +32,7 @@ class DownloadInvoices extends Mailable
     {
         
         return $this->from(config('mail.from.address'), config('mail.from.name'))
+
             ->subject(ctrans('texts.download_files'))
             ->markdown(
                 'email.admin.download_files',

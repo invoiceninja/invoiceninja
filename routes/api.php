@@ -180,6 +180,6 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('support/messages/send', 'Support\Messages\SendingController');
 });
 
-Route::match(['get', 'post'], 'payment_webhook/{company_key}/{gateway_key}', 'PaymentWebhookController');
+Route::match(['get', 'post'], 'payment_webhook/{company_key?}/{gateway_key?}', 'PaymentWebhookController');
 
 Route::fallback('BaseController@notFound');

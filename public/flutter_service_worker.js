@@ -5,10 +5,10 @@ const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
   "version.json": "32afcc2282ccf7746c00708ef0601017",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
-"main.dart.js": "93b0d3c3a17ae9148c1dfd198f6b450e",
+"main.dart.js": "b3c0b8b130688ccb988a28e1ec1f4a26",
 "/": "23224b5e03519aaa87594403d54412cf",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"assets/AssetManifest.json": "ea09ed4b9b8b6c83d6896248aac7c527",
+"assets/AssetManifest.json": "659dcf9d1baf3aed3ab1b9c42112bf8f",
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "c1242726c7eac4eb5e843d826f78fb1b",
@@ -29,7 +29,7 @@ const RESOURCES = {
 "assets/assets/images/payment_types/switch.png": "4fa11c45327f5fdc20205821b2cfd9cc",
 "assets/assets/images/payment_types/jcb.png": "07e0942d16c5592118b72e74f2f7198c",
 "assets/assets/images/payment_types/discover.png": "6c0a386a00307f87db7bea366cca35f5",
-"assets/NOTICES": "02aa30cfaaab572341a87cc774e7ef24",
+"assets/NOTICES": "7d8f2aa600c3ae24c9efdad38c9f53b4",
 "manifest.json": "77215c1737c7639764e64a192be2f7b8",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35"
