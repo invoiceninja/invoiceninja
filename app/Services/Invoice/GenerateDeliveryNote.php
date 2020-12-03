@@ -84,7 +84,7 @@ class GenerateDeliveryNote
             ->design($template)
             ->build();
 
-        Storage::makeDirectory($this->invoice->client->invoice_filepath(), 0775);
+        // Storage::makeDirectory($this->invoice->client->invoice_filepath(), 0775);
 
         $pdf = $this->makePdf(null, null, $maker->getCompiledHTML());
 
