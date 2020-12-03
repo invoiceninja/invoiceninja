@@ -17,7 +17,7 @@ local_version.txt
 
 /resources/assets/bower
 /public/logo
-
+/storage/*
 .env.dusk.local
 /public/vendors/*
 *.log

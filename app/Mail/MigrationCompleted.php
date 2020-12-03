@@ -29,7 +29,7 @@ class MigrationCompleted extends Mailable
     {
         $data['settings'] = auth()->user()->company()->settings;
 
-        return $this->from(config('mail.from.name'), config('mail.from.address'))
+        return $this->from(config('mail.from.address'), config('mail.from.name'))
                     ->view('email.migration.completed', $data);
     }
 }
