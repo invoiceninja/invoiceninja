@@ -102,7 +102,6 @@ class InvoiceController extends BaseController
      *          response=422,
      *          description="Validation error",
      *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
      *       ),
      *       @OA\Response(
      *           response="default",
@@ -691,7 +690,7 @@ class InvoiceController extends BaseController
                 break;
             case 'delete':
                 //need to make sure the invoice is cancelled first!!
-                $invoice->service()->handleCancellation()->save();
+                //$invoice->service()->handleCancellation()->save();
 
                 $this->invoice_repo->delete($invoice);
 

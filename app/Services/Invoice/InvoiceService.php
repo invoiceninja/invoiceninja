@@ -164,9 +164,9 @@ class InvoiceService
         return $this;
     }
 
-    public function handeRestore()
+    public function handleRestore()
     {
-        $this->invoice = (new HandleInvoiceRestore($this->invoice))->run();
+        $this->invoice = (new HandleRestore($this->invoice))->run();
 
         return $this;
     }

@@ -44,6 +44,7 @@ class MarkInvoiceDeleted extends AbstractService
              ->deletePaymentables()
              ->adjustPayments()
              ->adjustPaidToDate()
+             ->adjustBalance()
              ->adjustLedger();
 
          return $this->invoice;
@@ -61,6 +62,13 @@ class MarkInvoiceDeleted extends AbstractService
         $this->invoice->client->service()->updatePaidToDate($this->adjustment_amount * -1)->save();
 
         return $this;   
+    }
+
+    private function adjustBalance()
+    {
+        $this->invoice->client->service()->updateBalance($this->invoice->balance * -1)->save();
+
+        return $this;
     }
 
     private function adjustPayments()
