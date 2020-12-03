@@ -105,11 +105,11 @@ class CreditCard
     }
 
     private function attemptPaymentUsingCreditCard(PaymentResponseRequest $request)
-    {
+    { 
         $checkout_response = $this->checkout->payment_hash->data->server_response;
 
         $method = new TokenSource(
-            $checkout_response->cardToken
+            $checkout_response->token
         );
 
         return $this->completePayment($method, $request);

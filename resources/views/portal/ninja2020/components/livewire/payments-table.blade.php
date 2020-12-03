@@ -55,7 +55,7 @@
                             {!! \App\Utils\Number::formatMoney($payment->amount, $payment->client) !!}
                         </td>
                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                            {{ $payment->transaction_reference }}
+                            {{ \Illuminate\Support\Str::limit($payment->transaction_reference, 35) }}
                         </td>
                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                             {!! \App\Models\Payment::badgeForStatus($payment->status_id) !!}
