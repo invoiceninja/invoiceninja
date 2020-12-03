@@ -176,7 +176,7 @@ class SetupController extends Controller
             if (count($response_array) == 0) {
                 return response([], 200);
             } else {
-                return response()->json($response_array, 200);
+                return response()->json(['message' => $response_array[0]], 400);
             }
         } catch (Exception $e) {
             info(['message' => $e->getMessage(), 'action' => 'SetupController::checkMail()']);
