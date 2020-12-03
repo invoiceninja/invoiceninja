@@ -83,7 +83,6 @@ class BaseEmailEngine implements EngineInterface
 
     public function setAttachments($attachments)
     {
-
         $this->attachments = array_merge($this->getAttachments(), $attachments);
 
         return $this;

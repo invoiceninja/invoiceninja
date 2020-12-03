@@ -11,7 +11,6 @@
 
 namespace App\Http\ViewComposers;
 
-use App\Models\ClientContact;
 use App\Utils\Ninja;
 use App\Utils\TranslationHelper;
 use Illuminate\Support\Facades\Lang;
@@ -55,7 +54,7 @@ class PortalComposer
         $data['settings'] = auth()->user()->client->getMergedSettings();
         $data['currencies'] = TranslationHelper::getCurrencies();
 
-        $data['multiple_contacts'] = ClientContact::where('email', auth('contact')->user()->email)->whereNotNull('email')->distinct('company_id')->get();
+        $data['multiple_contacts'] = session()->get('multiple_contacts');
 
         return $data;
     }

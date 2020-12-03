@@ -19,7 +19,6 @@ use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Jobs\Util\Import;
 use App\Jobs\Util\StartMigration;
-use App\Libraries\MultiDB;
 use App\Mail\MigrationFailed;
 use App\Models\Account;
 use App\Models\Company;
@@ -85,7 +84,6 @@ class ImportMigrations extends Command
 
         foreach ($directory as $file) {
             if ($file->getExtension() === 'zip') {
-
                 $user = $this->getUser();
                 $company = $this->getUser()->companies()->first();
 
@@ -99,24 +97,24 @@ class ImportMigrations extends Command
                         throw new ProcessingMigrationArchiveFailed('Processing migration archive failed. Migration file is possibly corrupted.');
                     }
 
-                        $filename = pathinfo($file->getRealPath(), PATHINFO_FILENAME);
+                    $filename = pathinfo($file->getRealPath(), PATHINFO_FILENAME);
                         
-                        $zip->extractTo(public_path("storage/migrations/{$filename}"));
-                        $zip->close();
+                    $zip->extractTo(public_path("storage/migrations/{$filename}"));
+                    $zip->close();
 
-                        $import_file = public_path("storage/migrations/$filename/migration.json");
+                    $import_file = public_path("storage/migrations/$filename/migration.json");
 
-                         Import::dispatch($import_file,  $this->getUser()->companies()->first(), $this->getUser());
-                     //   StartMigration::dispatch($file->getRealPath(), $this->getUser(), $this->getUser()->companies()->first());
+                    Import::dispatch($import_file, $this->getUser()->companies()->first(), $this->getUser());
+                    //   StartMigration::dispatch($file->getRealPath(), $this->getUser(), $this->getUser()->companies()->first());
+                } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
+                    \Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
+
+                    if (app()->environment() !== 'production') {
+                        info($e->getMessage());
+                    }
                 }
-                catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
-                \Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
-
-                if (app()->environment() !== 'production') {
-                    info($e->getMessage());
-                }
-            
-        }}}
+            }
+        }
     }
 
     public function getUser(): User
