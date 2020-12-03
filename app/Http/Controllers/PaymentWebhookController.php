@@ -23,14 +23,17 @@ class PaymentWebhookController extends Controller
         $this->middleware('guest');
     }
 
-    public function __invoke(PaymentWebhookRequest $request, string $company_key, string $gateway_key)
+    public function __invoke(PaymentWebhookRequest $request, string $company_key = null, string $gateway_key = null)
     {
-        $transaction_reference = $this->getTransactionReference($request->all());
+        $transaction_reference = $this->getTransactionReference($request->all(), $request);
 
         $payment = Payment::where('transaction_reference', $transaction_reference)->first();
 
         if (is_null($payment)) {
-            return response([], 404); /* Record event, throw an exception.. */
+            return response([
+                'message' => 'Sorry, we couldn\'t find requested payment.',
+                'status_code' => 404,
+            ], 404); /* Record event, throw an exception.. */
         }
 
         return $request
@@ -40,12 +43,16 @@ class PaymentWebhookController extends Controller
             ->processWebhookRequest($request->all(), $request->company(), $request->companyGateway(), $payment);
     }
 
-    public function getTransactionReference(array $data)
+    public function getTransactionReference(array $data, PaymentWebhookRequest $request)
     {
         $flatten = Arr::dot($data);
 
         if (isset($flatten['data.object.id'])) {
-            return $flatten['data.object.id']; // Request from Stripe
+            return $flatten['data.object.id']; // stripe.com
+        }
+
+        if ($request->has('cko-session-id')) {
+            // checkout.com
         }
     }
 }

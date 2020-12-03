@@ -60,7 +60,7 @@ trait Utilities
             'payment_method' => $_payment->source['id'],
             'payment_type' => PaymentType::parseCardType(strtolower($_payment->source['scheme'])),
             'amount' => $this->checkout->payment_hash->data->raw_value,
-            'transaction_reference' => $_payment->reference,
+            'transaction_reference' => $_payment->id,
         ];
 
         $payment = $this->checkout->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
@@ -104,9 +104,10 @@ trait Utilities
     private function processPendingPayment(Payment $_payment)
     {
         $data = [
-            'payment_method' => $_payment->source['id'],
-            'payment_type' => PaymentType::parseCardType(strtolower($_payment->source['scheme'])),
+            'payment_method' => $_payment->source->id,
+            'payment_type' => PaymentType::CREDIT_CARD_OTHER,
             'amount' => $this->checkout->payment_hash->data->value,
+            'transaction_reference' => $_payment->id,
         ];
 
         $payment = $this->checkout->createPayment($data, \App\Models\Payment::STATUS_PENDING);
