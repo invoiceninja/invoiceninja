@@ -43,6 +43,7 @@ class MarkSent
              ->service()
              ->setStatus(Credit::STATUS_SENT)
              ->applyNumber()
+             ->adjustBalance($this->credit->amount)
              ->save();
 
 
