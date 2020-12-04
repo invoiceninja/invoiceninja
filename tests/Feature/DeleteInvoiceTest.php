@@ -11,6 +11,8 @@
 namespace Tests\Feature;
 
 use App\Factory\InvoiceItemFactory;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -58,7 +60,7 @@ class DeleteInvoiceTest extends TestCase
 
         //create new invoice.
 
-        // $line_items = [];
+        $line_items = [];
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
@@ -74,7 +76,7 @@ class DeleteInvoiceTest extends TestCase
 
         $invoice = [
             'status_id' => 1,
-            'number' => 'dfdfd',
+            'number' => '',
             'discount' => 0,
             'is_amount_discount' => 1,
             'po_number' => '3434343',
@@ -94,18 +96,68 @@ class DeleteInvoiceTest extends TestCase
             ])->post('/api/v1/invoices/', $invoice)
             ->assertStatus(200);
 
+        $arr = $response->json();
+    
+        $invoice_one_hashed_id = $arr['data']['id'];
 
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/invoices/', $invoice)
+            ->assertStatus(200);
 
+        $arr = $response->json();
 
+        $invoice_two_hashed_id = $arr['data']['id'];
 
-
-
-        
         //mark as paid
-        
+
+        $data = [
+            'amount' => 40.0,
+            'client_id' => $client_hash_id,
+            'invoices' => [
+                [
+                'invoice_id' => $invoice_one_hashed_id,
+                'amount' => 20.0,
+                ],
+                [
+                'invoice_id' => $invoice_two_hashed_id,
+                'amount' => 20.0,
+                ],
+            ],
+            'date' => '2020/12/01',
+        ];
+
+        $response = false;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments?include=invoices', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+        }
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+        $payment_hashed_id = $arr['data']['id'];
+
+        $invoice_one = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
+        $invoice_two = Invoice::find($this->decodePrimaryKey($invoice_two_hashed_id));
+        $payment = Payment::find($this->decodePrimaryKey($payment_hashed_id));
+
         //test balance
-        
+        $this->assertEquals($invoice_one->amount, 20);
+        $this->assertEquals($invoice_one->balance, 0);
+        $this->assertEquals($invoice_two->amount, 20);
+        $this->assertEquals($invoice_two->balance, 0);
+
         //hydrate associated payment
+        $this->assertEquals($payment->amount, 40);
+        $this->assertEquals($payment->applied, 40);
+
         
         //delete invoice
         
