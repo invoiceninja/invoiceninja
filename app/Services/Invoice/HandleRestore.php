@@ -20,6 +20,8 @@ class HandleRestore extends AbstractService
 
     private $invoice;
 
+    private $payment_total = 0;
+
     public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
@@ -61,6 +63,7 @@ class HandleRestore extends AbstractService
                 $payment->is_deleted = false;
                 $payment->save();
 
+                $this->payment_total += $payment_amount;
             }
             else {
 
@@ -68,6 +71,8 @@ class HandleRestore extends AbstractService
                 $payment->amount += ($payment_amount - $pre_restore_amount);
                 $payment->applied += ($payment_amount - $pre_restore_amount);
                 $payment->save();
+
+                $this->payment_total += ($payment_amount - $pre_restore_amount);
             }
 
         }
@@ -76,11 +81,11 @@ class HandleRestore extends AbstractService
     	$this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance, 'Restored invoice {$this->invoice->number}')->save();
 
     	//adjust paid to dates
-        $this->invoice->client->service()->updatePaidToDate($payment_amount - $pre_restore_amount)->save();
+        $this->invoice->client->service()->updatePaidToDate($this->payment_total)->save();
 
         $this->invoice->client->service()->updateBalance($this->invoice->balance)->save();
 
-        $this->invoice->ledger()->updatePaymentBalance(($payment_amount - $pre_restore_amount), 'Restored payment for invoice {$this->invoice->number}')->save();
+        $this->invoice->ledger()->updatePaymentBalance($this->payment_total, 'Restored payment for invoice {$this->invoice->number}')->save();
 
         $this->windBackInvoiceNumber();
 
