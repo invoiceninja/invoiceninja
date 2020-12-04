@@ -11,6 +11,7 @@
 namespace Tests\Feature;
 
 use App\Factory\InvoiceItemFactory;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
@@ -57,7 +58,10 @@ class DeleteInvoiceTest extends TestCase
         $arr = $response->json();
 
         $client_hash_id = $arr['data']['id'];
-
+        $client = Client::find($this->decodePrimaryKey($client_hash_id));
+        
+        $this->assertEquals($client->balance, 0);
+        $this->assertEquals($client->paid_to_date, 0);
         //create new invoice.
 
         $line_items = [];
@@ -147,20 +151,38 @@ class DeleteInvoiceTest extends TestCase
         $invoice_one = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
         $invoice_two = Invoice::find($this->decodePrimaryKey($invoice_two_hashed_id));
         $payment = Payment::find($this->decodePrimaryKey($payment_hashed_id));
-
+        
         //test balance
         $this->assertEquals($invoice_one->amount, 20);
         $this->assertEquals($invoice_one->balance, 0);
         $this->assertEquals($invoice_two->amount, 20);
         $this->assertEquals($invoice_two->balance, 0);
 
+        $this->assertEquals($client->fresh()->paid_to_date, 40);
+        $this->assertEquals($client->balance, 0);
+
         //hydrate associated payment
         $this->assertEquals($payment->amount, 40);
         $this->assertEquals($payment->applied, 40);
-
         
         //delete invoice
-        
+        $data = [
+            'ids' => [$invoice_one_hashed_id],
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/invoices/bulk?action=delete', $data);
+
+        $arr = $response->json();
+
+        $this->assertTrue($arr['data'][0]['is_deleted']);
+
+        $this->assertEquals($client->fresh()->paid_to_date, 20);
+
+        $this->assertEquals($payment->fresh()->applied, 20);
+        $this->assertEquals($payment->fresh()->amount, 20);
         //test ledger balance
         
         //test client balance
