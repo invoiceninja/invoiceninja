@@ -24,7 +24,7 @@ Route::get('tmp_pdf/{hash}', 'ClientPortal\TempRouteController@index')->name('tm
 Route::get('client/key_login/{contact_key}', 'ClientPortal\ContactHashLoginController@login')->name('client.contact_login')->middleware(['contact_key_login']);
 
 //todo implement domain DB
-Route::group(['middleware' => ['auth:contact', 'locale'], 'prefix' => 'client', 'as' => 'client.'], function () {
+Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 
     Route::get('invoices', 'ClientPortal\InvoiceController@index')->name('invoices.index')->middleware('portal_enabled');

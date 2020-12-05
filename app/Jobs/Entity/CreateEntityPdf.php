@@ -146,7 +146,8 @@ class CreateEntityPdf implements ShouldQueue
             ->build();
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
-       // Storage::makeDirectory($path, 0775);
+        //info("make dir => {$path}");
+        //Storage::makeDirectory($path, 0775);
 
         $pdf = null;
 

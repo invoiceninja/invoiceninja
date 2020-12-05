@@ -77,7 +77,7 @@ class Phantom
         $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
         $pdf = CurlUtils::get($phantom_url);
 
-        Storage::makeDirectory($path, 0775);
+        // Storage::makeDirectory($path, 0775);
 
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 

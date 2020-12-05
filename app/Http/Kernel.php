@@ -13,6 +13,7 @@ namespace App\Http;
 
 use App\Http\Middleware\ApiSecretCheck;
 use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\CheckClientExistence;
 use App\Http\Middleware\CheckForMaintenanceMode;
 use App\Http\Middleware\ClientPortalEnabled;
 use App\Http\Middleware\ContactKeyLogin;
@@ -155,5 +156,6 @@ class Kernel extends HttpKernel
         'shop_token_auth' => ShopTokenAuth::class,
         'phantom_secret' => PhantomSecret::class,
         'contact_key_login' => ContactKeyLogin::class,
+        'check_client_existence' => CheckClientExistence::class,
     ];
 }

@@ -47,6 +47,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class MockAccountData.
@@ -157,6 +158,9 @@ trait MockAccountData
                             'account_id' => $this->account->id,
                         ]);
 
+        Storage::makeDirectory($this->company->company_key.'/documents', 0755, true);
+        Storage::makeDirectory($this->company->company_key.'/images', 0755, true);
+
         $settings = CompanySettings::defaults();
 
         $settings->company_logo = 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
@@ -218,6 +222,10 @@ trait MockAccountData
                 'user_id' => $this->user->id,
                 'company_id' => $this->company->id,
         ]);
+
+        Storage::makeDirectory($this->company->company_key.'/'.$this->client->client_hash.'/invoices', 0755, true);
+        Storage::makeDirectory($this->company->company_key.'/'.$this->client->client_hash.'/credits', 0755, true);
+        Storage::makeDirectory($this->company->company_key.'/'.$this->client->client_hash.'/quotes', 0755, true);
 
         $contact = ClientContact::factory()->create([
                 'user_id' => $this->user->id,

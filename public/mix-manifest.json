@@ -6,7 +6,7 @@
     "/js/clients/payment_methods/authorize-authorize-card.js": "/js/clients/payment_methods/authorize-authorize-card.js?id=cddcd46c630c71737bda",
     "/js/clients/payments/authorize-credit-card-payment.js": "/js/clients/payments/authorize-credit-card-payment.js?id=caff3774673a6c683e74",
     "/js/clients/payments/card-js.min.js": "/js/clients/payments/card-js.min.js?id=5469146cd629ea1b5c20",
-    "/js/clients/payments/checkout.com.js": "/js/clients/payments/checkout.com.js?id=4d5d992da65a0c422291",
+    "/js/clients/payments/checkout.com.js": "/js/clients/payments/checkout.com.js?id=ce184db42e52d403c21b",
     "/js/clients/payments/stripe-ach.js": "/js/clients/payments/stripe-ach.js?id=c4012ad90f17d60432ad",
     "/js/clients/payments/stripe-alipay.js": "/js/clients/payments/stripe-alipay.js?id=6dbe9316b98deea55421",
     "/js/clients/payments/stripe-credit-card.js": "/js/clients/payments/stripe-credit-card.js?id=f4659d26a26d2f408397",
@@ -15,6 +15,6 @@
     "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=85bcae0a646882e56b12",
     "/js/clients/shared/multiple-downloads.js": "/js/clients/shared/multiple-downloads.js?id=5c35d28cf0a3286e7c45",
     "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=fa54bb4229aba6b0817c",
-    "/js/setup/setup.js": "/js/setup/setup.js?id=f42b2dee6575623822c2",
+    "/js/setup/setup.js": "/js/setup/setup.js?id=34b53878aeaca14a2b33",
     "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ad"
 }

@@ -45,7 +45,7 @@ class BouncedEmail extends Mailable implements ShouldQueue
         $subject = ctrans("texts.notification_{$entity_type}_bounced_subject", ['invoice' => $invoice->number]);
         
         return
-            $this->from(config('mail.from.name'), config('mail.from.address'))
+            $this->from(config('mail.from.address'), config('mail.from.name'))
                 ->text()
                 ->subject($subject);
 
