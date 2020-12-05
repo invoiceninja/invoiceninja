@@ -51,7 +51,7 @@
         "league/flysystem-cached-adapter": "^1.1",
         "league/fractal": "^0.17.0",
         "league/omnipay": "^3.0",
-        "livewire/livewire": "^1.3",
+        "livewire/livewire": "^2.0",
         "maennchen/zipstream-php": "^1.2",
         "nwidart/laravel-modules": "^6.0",
         "omnipay/paypal": "^3.0",

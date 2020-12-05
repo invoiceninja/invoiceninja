@@ -3,7 +3,7 @@
 @push('head')
     <meta name="pdf-url" content="{{ asset($entity->pdf_file_path()) }}">
     <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.x/dist/alpine.min.js" defer></script>
 @endpush
 
 @section('body')

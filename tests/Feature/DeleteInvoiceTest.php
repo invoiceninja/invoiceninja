@@ -45,7 +45,6 @@ class DeleteInvoiceTest extends TestCase
      */
     public function testInvoiceDeletion()
     {
-
         $data = [
                     'name' => 'A Nice Client',
                 ];
@@ -148,7 +147,6 @@ class DeleteInvoiceTest extends TestCase
         $this->assertFalse((bool)$invoice->is_deleted);
         $this->assertNull($invoice->deleted_at);
         $this->assertEquals(20, $invoice->client->fresh()->balance);
-
     }
 
     /**
