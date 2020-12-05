@@ -37,17 +37,23 @@ class HandleRestore extends AbstractService
     	
         foreach($this->invoice->payments as $payment)
         {
-
+            //restore the payment record
             $payment->restore();
 
+            //determine the paymentable amount before paymentable restoration
+            $pre_restore_amount =    $payment->paymentables()
+                                     ->where('paymentable_type', '=', 'invoices')
+                                     ->sum(\DB::raw('amount'));
+
+            //restore the paymentables
             $payment->paymentables()
                     ->where('paymentable_type', '=', 'invoices')
                     ->where('paymentable_id', $this->invoice->id)
                     ->restore();
 
+            //determine the post restore paymentable amount (we need to increment the payment amount by the difference between pre and post)
             $payment_amount = $payment->paymentables()
                                      ->where('paymentable_type', '=', 'invoices')
-                                     ->where('paymentable_id', $this->invoice->id)
                                      ->sum(\DB::raw('amount'));
 
             info($payment->amount . " == " . $payment_amount);
@@ -57,21 +63,19 @@ class HandleRestore extends AbstractService
                 $payment->is_deleted = false;
                 $payment->save();
 
+                $this->payment_total += $payment_amount;
             }
             else {
 
                 $payment->is_deleted = false;
-                $payment->amount += $this->payment_total;
-                $payment->applied += $this->payment_total;
+                $payment->amount += ($payment_amount - $pre_restore_amount);
+                $payment->applied += ($payment_amount - $pre_restore_amount);
                 $payment->save();
+
+                $this->payment_total += ($payment_amount - $pre_restore_amount);
             }
 
-            $this->payment_total += $payment_amount;
-
         }
-
-
-
 
     	//adjust ledger balance
     	$this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance, 'Restored invoice {$this->invoice->number}')->save();

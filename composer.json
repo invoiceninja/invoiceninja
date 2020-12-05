@@ -25,7 +25,7 @@
     ],
     "type": "project",
     "require": {
-        "php": ">=7.3",
+        "php": "^7.3|^7.4",
         "ext-json": "*",
         "asgrim/ofxparser": "^1.2",
         "authorizenet/authorizenet": "^2.0",
@@ -66,7 +66,6 @@
     "require-dev": {
         "anahkiasen/former": "^4.2",
         "barryvdh/laravel-debugbar": "^3.4",
-        "brianium/paratest": "^5.0",
         "darkaonline/l5-swagger": "^8.0",
         "facade/ignition": "^2.3.6",
         "filp/whoops": "^2.7",
