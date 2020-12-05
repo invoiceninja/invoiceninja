@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
 namespace App\Http\Livewire;
 
 use App\Models\Invoice;
@@ -8,9 +18,6 @@ use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-/**
- * @todo: Integrate InvoiceFilters
- */
 class InvoicesTable extends Component
 {
     use WithPagination, WithSorting;

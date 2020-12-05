@@ -116,6 +116,6 @@
             </span>
         @endif
 
-        {{ $payment_methods->links() }}
+        {{ $payment_methods->links('portal/ninja2020/vendor/pagination') }}
     </div>
 </div>

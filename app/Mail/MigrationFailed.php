@@ -31,7 +31,6 @@ class MigrationFailed extends Mailable
      */
     public function build()
     {
-        
         return $this->from(config('mail.from.address'), config('mail.from.name'))
 
                     ->view('email.migration.failed');
