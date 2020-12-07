@@ -45,7 +45,7 @@ class CardconnectPaymentDriver extends BasePaymentDriver
     }
 
 
-    protected function paymentDetails($paymentMethod = false)
+    protected function paymentDetails($paymentMethod = false, $recurring = false)
     {
         $invoice = $this->invoice();
         $gatewayTypeAlias = $this->gatewayType == GATEWAY_TYPE_TOKEN ? $this->gatewayType : GatewayType::getAliasFromId($this->gatewayType);
@@ -56,9 +56,9 @@ class CardconnectPaymentDriver extends BasePaymentDriver
             'currency' => $invoice->getCurrencyCode(),
             'orderid' => $invoice->invoice_number,
             'profile' => $this->customer()->token . (!empty($paymentMethod) ? '/'.$paymentMethod->source_reference : ''),
-            'capture' => true
+            'capture' => true,
+            'ecomind' => ($recurring === true ? 'R' : 'E')
         ];
-
         return $data;
     }
 
@@ -77,13 +77,12 @@ class CardconnectPaymentDriver extends BasePaymentDriver
         if(!empty($this->sourceId) && empty($paymentMethod)){
             $paymentMethod = PaymentMethod::where('id', $this->sourceId)->firstOrFail();
         }
-
         if(empty($paymentMethod)){ // Customer has entered in credit card info manually
             if(!empty($input['cctoken'])){
                 $this->cctoken = $input['cctoken'];
             }
 
-            $paymentDetails = $this->prepareOnsitePurchase($input, $paymentMethod);
+            $paymentDetails = $this->prepareOnsitePurchase($input, $paymentMethod, $offSession);
 
             if (!$paymentDetails) {
                 // No payment method to charge against yet; probably a 2-step or capture-only transaction.
@@ -141,6 +140,7 @@ class CardconnectPaymentDriver extends BasePaymentDriver
             $request['profile'] = $updateProfile;
         }
         $profile = $this->cardconnect->createProfile($request);
+
         if(isset($profile) && (empty($profile['respstat']) || $profile['respstat'] == 'A')){
             if(empty($updateProfile)){
                 //CardConnect profile created, Create customer in invoice ninja
@@ -197,28 +197,28 @@ class CardconnectPaymentDriver extends BasePaymentDriver
                 $customer->default_payment_method_id = $paymentMethod->id;
                 $customer->save();
             }
-            return true;
+            return $paymentMethod;
         }
 
         throw new Exception(trans('texts.payment_error'));
         return false;
     }
 
-    protected function prepareOnsitePurchase($input = false, $paymentMethod = false)
+    protected function prepareOnsitePurchase($input = false, $paymentMethod = false, $recurring = false)
     {
         $this->input = $input && count($input) ? $input : false;
         // $this->client() # has client info
         // $this->customer() # has card connect profile
         $customer = $this->customer();
         if(empty($customer)){
-            $this->createCardConnectProfile($this->client());
+            $paymentMethod = $this->createCardConnectProfile($this->client());
         }else{
             // Update new payment method
-            $this->createCardConnectProfile($this->client(), $this->customer()->token);
+            $paymentMethod = $this->createCardConnectProfile($this->client(), $this->customer()->token);
         }
 
         // load up payment token
-        if ( ! $paymentMethod) {
+        if (empty($paymentMethod)) {
             $paymentMethod = PaymentMethod::clientId($this->client()->id)
                                           ->whereContactId($this->contact()->id)
                                           ->firstOrFail();
@@ -237,7 +237,7 @@ class CardconnectPaymentDriver extends BasePaymentDriver
         
 
         // prepare and process payment
-        return $this->paymentDetails($paymentMethod);
+        return $this->paymentDetails($paymentMethod, $recurring);
     }
 
     protected function doCardConnectOnsitePurchase($paymentData)
