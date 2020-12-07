@@ -83,6 +83,10 @@ API documentation is hosted using Swagger and can be found [HERE](https://app.sw
 * [Holger Lösken](https://github.com/codedge) - [codedge](http://codedge.de)
 * [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
 * [Alexander Vanderveen](https://blog.technicallycomputers.ca/) - [Technically Computers](https://www.technicallycomputers.ca/)
+* [Efthymios Sarmpanis](https://github.com/esarbanis)
+* [Gianfranco Gasbarri](https://github.com/gincos)
+* [Clemens Mol](https://github.com/clemensmol)
+* [Benjamin Beganović](https://github.com/beganovich)
 
 ## Current work in progress
 
