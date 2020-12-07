@@ -233,10 +233,10 @@ class StepsController extends BaseController
                 'vendors' => $this->getVendors(),
                 'projects' => $this->getProjects(),
                 'products' => $this->getProducts(),
+                'credits' => $this->getCreditsNotes(),
                 'invoices' => $this->getInvoices(),
                 'recurring_invoices' => $this->getRecurringInvoices(),
                 'quotes' => $this->getQuotes(),
-                'credits' => $this->getCreditsNotes(),
                 'payments' => array_merge($this->getPayments(), $this->getCredits()),
                 'documents' => $this->getDocuments(),
                 'company_gateways' => $this->getCompanyGateways(),
@@ -245,11 +245,14 @@ class StepsController extends BaseController
                 'task_statuses' => $this->getTaskStatuses(),
                 'expenses' => $this->getExpenses(),
                 'tasks' => $this->getTasks(),
+                'documents' => $this->getDocuments(),
             ];
 
             $localMigrationData['force'] = array_key_exists('force', $company) ? true : false;
 
             $file = storage_path("migrations/{$fileName}.zip");
+
+            ksort($localMigrationData);
 
             $zip = new \ZipArchive();
             $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);

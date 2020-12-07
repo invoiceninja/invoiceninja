@@ -43,8 +43,10 @@ class CompleteService
         $files = [];
 
         foreach ($this->data as $companyKey => $companyData) {
+
             $data[] = [
-                'company_key' => $companyKey,
+                'company_index' => $companyKey,
+                'company_key' => $companyData['data']['company']['company_key'],
                 'force' => $companyData['force'],
             ];
 

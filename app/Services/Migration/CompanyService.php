@@ -14,16 +14,24 @@ class CompanyService
     public function start()
     {
         try {
-            foreach (session(SESSION_USER_ACCOUNTS) as $company) {
-                $account = Account::find($company->account_id);
+            if (session(SESSION_USER_ACCOUNTS)) {
+                foreach (session(SESSION_USER_ACCOUNTS) as $company) {
+                    $account = Account::find($company->account_id);
 
-                if ($account) {
-                    $this->companies[] = [
-                        'id' => $company->account_id, 
-                        'name' => $account->name,
-                        'company_key' => $account->account_key, 
-                    ];
+                    if ($account) {
+                        $this->companies[] = [
+                            'id' => $account->id,
+                            'name' => $account->present()->name(),
+                            'company_key' => $account->account_key,
+                        ];
+                    }
                 }
+            } else {
+                $this->companies[] = [
+                    'id' => auth()->user()->account->id,
+                    'name' => auth()->user()->account->present()->name(),
+                    'company_key' => auth()->user()->account->account_key,
+                ];
             }
 
             $this->isSuccessful = true;

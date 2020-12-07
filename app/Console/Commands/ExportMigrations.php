@@ -17,7 +17,7 @@ class ExportMigrations extends Command
      *
      * @var string
      */
-    protected $signature = 'migrations:export {--user=}';
+    protected $signature = 'migrations:export {--user=} {--random=}';
 
     /**
      * The console command description.
@@ -50,6 +50,15 @@ class ExportMigrations extends Command
             return $this->export($record);
         }
 
+        if($this->option('random')){
+
+            User::all()->random(200)->each(function ($user){
+                 $this->export($user);
+            });
+
+            return;
+        }
+
         $users = User::all();
 
         foreach($users as $user) {
@@ -68,7 +77,7 @@ class ExportMigrations extends Command
 
         $fileName = "{$accountKey}-{$date}-invoiceninja";
 
-        $data = [
+        $data['data'] = [
             'company' => $this->getCompany(),
             'users' => $this->getUsers(),
             'tax_rates' => $this->getTaxRates(),
