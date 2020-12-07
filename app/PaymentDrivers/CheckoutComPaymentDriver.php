@@ -13,14 +13,11 @@
 namespace App\PaymentDrivers;
 
 use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\Company;
-use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\CheckoutCom\CreditCard;
 use App\PaymentDrivers\CheckoutCom\Utilities;

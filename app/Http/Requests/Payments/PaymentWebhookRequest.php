@@ -35,9 +35,9 @@ class PaymentWebhookRequest extends Request
 
     /**
      * Resolve company gateway.
-     * 
-     * @param mixed $id 
-     * @return null|\App\Models\CompanyGateway 
+     *
+     * @param mixed $id
+     * @return null|\App\Models\CompanyGateway
      */
     public function getCompanyGateway(): ?CompanyGateway
     {
@@ -46,9 +46,9 @@ class PaymentWebhookRequest extends Request
 
     /**
      * Resolve payment hash.
-     * 
-     * @param string $hash 
-     * @return null|\App\Http\Requests\Payments\PaymentHash 
+     *
+     * @param string $hash
+     * @return null|\App\Http\Requests\Payments\PaymentHash
      */
     public function getPaymentHash(): ?PaymentHash
     {
@@ -59,8 +59,8 @@ class PaymentWebhookRequest extends Request
 
     /**
      * Resolve possible payment in the request.
-     * 
-     * @return null|\App\Models\Payment 
+     *
+     * @return null|\App\Models\Payment
      */
     public function getPayment(): ?Payment
     {
@@ -71,8 +71,8 @@ class PaymentWebhookRequest extends Request
 
     /**
      * Resolve client from payment hash.
-     * 
-     * @return null|\App\Models\Client 
+     *
+     * @return null|\App\Models\Client
      */
     public function getClient(): ?Client
     {
@@ -83,8 +83,8 @@ class PaymentWebhookRequest extends Request
 
     /**
      * Resolve company from company_key parameter.
-     * 
-     * @return null|\App\Models\Company 
+     *
+     * @return null|\App\Models\Company
      */
     public function getCompany(): ?Company
     {

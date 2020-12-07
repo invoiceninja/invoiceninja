@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\CheckoutCom;
 
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Models\GatewayType;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\IdSource;
