@@ -3,7 +3,7 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "version.json": "32afcc2282ccf7746c00708ef0601017",
+  "version.json": "aeea8a1fbb79cee45facc28ba9a6baf7",
 "assets/assets/images/logo.png": "090f69e23311a4b6d851b3880ae52541",
 "assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
 "assets/assets/images/payment_types/paypal.png": "8e06c094c1871376dfea1da8088c29d1",
@@ -26,7 +26,7 @@ const RESOURCES = {
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/NOTICES": "7d8f2aa600c3ae24c9efdad38c9f53b4",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "c1242726c7eac4eb5e843d826f78fb1b",
-"main.dart.js": "5d7561854b75a09de36355b64ab631fd",
+"main.dart.js": "f796a2569497c27779c8b5e81bce9555",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
 "/": "23224b5e03519aaa87594403d54412cf",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
