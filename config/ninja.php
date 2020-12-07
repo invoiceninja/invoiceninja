@@ -10,7 +10,7 @@ return [
     'app_name' => env('APP_NAME'),
     'app_env' => env('APP_ENV', 'selfhosted'),
     'require_https' => env('REQUIRE_HTTPS', true),
-    'app_url' => rtrim(env('APP_URL', ''), '/').'/',
+    'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', ''),
     'app_version' => '5.0.33',
     'minimum_client_version' => '5.0.16',

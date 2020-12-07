@@ -89,7 +89,7 @@ class NewPartialPaymentNotification extends Notification implements ShouldQueue
                 'invoice' => $invoice_texts,
             ]
             ),
-            'url' => config('ninja.app_url').'payments/'.$this->payment->hashed_id,
+            'url' => config('ninja.app_url').'/payments/'.$this->payment->hashed_id,
             'button' => ctrans('texts.view_payment'),
             'signature' => $this->settings->email_signature,
             'logo' => $this->company->present()->logo(),

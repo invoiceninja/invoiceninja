@@ -617,7 +617,6 @@ class CompanySettings extends BaseSettings
                 '$quote.po_number',
                 '$quote.date',
                 '$quote.valid_until',
-                '$quote.balance_due',
                 '$quote.total',
             ],
             'credit_details' => [
