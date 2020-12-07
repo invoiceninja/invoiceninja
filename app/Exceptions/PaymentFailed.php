@@ -13,7 +13,14 @@ class PaymentFailed extends Exception
 
     public function render($request)
     {
-        return render('gateways.unsuccessful', [
+        if (auth()->user()) {
+            return render('gateways.unsuccessful', [
+                'message' => $this->getMessage(),
+                'code' => $this->getCode(),
+            ]);
+        }
+
+        return response([
             'message' => $this->getMessage(),
             'code' => $this->getCode(),
         ]);
