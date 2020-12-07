@@ -314,7 +314,7 @@ class CreditController extends BaseController
      *
      * @throws \ReflectionException
      * @OA\Put(
-     *      path="/api/v1/Credits/{id}",
+     *      path="/api/v1/credits/{id}",
      *      operationId="updateCredit",
      *      tags={"Credits"},
      *      summary="Updates an Credit",
