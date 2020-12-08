@@ -307,7 +307,7 @@ class HtmlEngine
 
         $data['$task.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$task.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
-        $data['$task.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
+        $data['$task.service'] = ['value' => '', 'label' => ctrans('texts.service')];
         $data['$task.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$task.rate'] = ['value' => '', 'label' => ctrans('texts.rate')];
         $data['$task.hours'] = ['value' => '', 'label' => ctrans('texts.hours')];
