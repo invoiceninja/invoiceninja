@@ -73,7 +73,7 @@ class SetupController extends Controller
             if ($db['success'] == false) {
                 throw new \Exception($db['message']);
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response([
                 'message' => 'Oops, connection to database was not successful.',
                 'error' => $e->getMessage(),

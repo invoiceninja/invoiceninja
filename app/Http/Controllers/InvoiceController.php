@@ -847,7 +847,7 @@ class InvoiceController extends BaseController
             $file = base_path("public/storage/{$file_path}");
 
             return response()->download($file, basename($file));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response(['message' => 'Oops, something went wrong. Make sure you have symlink to storage/ in public/ directory.'], 500);
         }
     }
