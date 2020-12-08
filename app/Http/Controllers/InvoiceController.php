@@ -843,8 +843,12 @@ class InvoiceController extends BaseController
     {
         $file_path = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
         
-        $file = base_path("storage/app/public/{$file_path}");
+        try {
+            $file = base_path("public/storage/{$file_path}");
 
-        return response()->download($file, basename($file));
+            return response()->download($file, basename($file));
+        } catch(\Exception $e) {
+            return response(['message' => 'Oops, something went wrong. Make sure you have symlink to storage/ in public/ directory.'], 500);
+        }
     }
 }
