@@ -69,10 +69,6 @@ class SetupController extends Controller
 
         $mail_driver = $request->input('mail_driver');
 
-        if (!$this->failsafeMailCheck($request)) {
-            $mail_driver = 'log';
-        }
-
         $url = $request->input('url');
 
         if (substr($url, -1) != '/') {
