@@ -11,8 +11,6 @@
 
 namespace App\Utils;
 
-use App\Http\Requests\Setup\CheckDatabaseRequest;
-use App\Http\Requests\Setup\CheckMailRequest;
 use App\Libraries\MultiDB;
 use App\Mail\TestMailServer;
 use Exception;
@@ -160,11 +158,11 @@ class SystemHealth
     {
         $result = ['success' => false];
 
-        if ($request && $request instanceof CheckDatabaseRequest) {
-            config(['database.connections.db-ninja-01.host'=> $request->input('host')]);
-            config(['database.connections.db-ninja-01.database'=> $request->input('database')]);
-            config(['database.connections.db-ninja-01.username'=> $request->input('username')]);
-            config(['database.connections.db-ninja-01.password'=> $request->input('password')]);
+        if ($request) {
+            config(['database.connections.db-ninja-01.host'=> $request->input('db_host')]);
+            config(['database.connections.db-ninja-01.database'=> $request->input('db_database')]);
+            config(['database.connections.db-ninja-01.username'=> $request->input('db_username')]);
+            config(['database.connections.db-ninja-01.password'=> $request->input('db_password')]);
             config(['database.default' => 'db-ninja-01']);
 
             DB::purge('db-ninja-01');
@@ -191,6 +189,7 @@ class SystemHealth
                 } catch (Exception $e) {
                     $result[] = [config('database.connections.'.config('database.default').'.database') => false];
                     $result['success'] = false;
+                    $result['message'] = $e->getMessage();
                 }
             }
         }
@@ -209,35 +208,24 @@ class SystemHealth
             return [];
         }
 
-        if ($request && $request instanceof CheckMailRequest) {
-            config(['mail.driver' => $request->input('driver')]);
-            config(['mail.host' => $request->input('host')]);
-            config(['mail.port' => $request->input('port')]);
-            config(['mail.from.address' => $request->input('from_address')]);
-            config(['mail.from.name' => $request->input('from_name')]);
+        if ($request) {
+            config(['mail.driver' => $request->input('mail_driver')]);
+            config(['mail.host' => $request->input('mail_host')]);
+            config(['mail.port' => $request->input('mail_port')]);
+            config(['mail.from.address' => $request->input('mail_address')]);
+            config(['mail.from.name' => $request->input('mail_name')]);
             config(['mail.encryption' => $request->input('encryption')]);
-            config(['mail.username' => $request->input('username')]);
-            config(['mail.password' => $request->input('password')]);
+            config(['mail.username' => $request->input('mail_username')]);
+            config(['mail.password' => $request->input('mail_password')]);
         }
 
         try {
             Mail::to(config('mail.from.address'))->send(new TestMailServer('Email Server Works!', config('mail.from.address')));
         } catch (Exception $e) {
-            return [$e->getMessage()];
+            return ['success' => false, 'message' => $e->getMessage()];
         }
 
-        /*
-         * 'message' => 'count(): Parameter must be an array or an object that implements Countable',
-         * 'action' => 'SetupController::checkMail()',
-         *
-         * count(Mail::failures())
-         */
-
-        if (Mail::failures() > 0) {
-            return Mail::failures();
-        }
-
-        return response()->json(['message' => 'Success'], 200);
+        return ['success' => true];
     }
 
     private static function checkEnvWritable()

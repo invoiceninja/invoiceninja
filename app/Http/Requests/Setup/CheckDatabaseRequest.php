@@ -34,9 +34,9 @@ class CheckDatabaseRequest extends Request
     public function rules()
     {
         return [
-            'host' => ['required'],
-            'database' => ['required'],
-            'username' => ['required'],
+            'db_host' => ['required'],
+            'db_database' => ['required'],
+            'db_username' => ['required'],
         ];
     }
 }

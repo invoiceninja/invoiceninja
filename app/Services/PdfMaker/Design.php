@@ -192,6 +192,13 @@ class Design extends BaseDesign
 
         $elements = [];
 
+        // We don't want to show account balance or invoice total on PDF.. or any amount with currency.
+        if ($this->type == 'delivery_note') {
+            $variables = array_filter($variables, function ($m) {
+                return !in_array($m, ['$invoice.balance_due', '$invoice.total']);
+            });
+        }
+
         foreach ($variables as $variable) {
             $_variable = explode('.', $variable)[1];
             $_customs = ['custom1', 'custom2', 'custom3', 'custom4'];
@@ -293,9 +300,7 @@ class Design extends BaseDesign
         $elements = [];
 
         // Some of column can be aliased. This is simple workaround for these.
-        $aliases = [
-            '$task.product_key' => '$task.service',
-        ];
+        $aliases = [];
 
         foreach ($this->context['pdf_variables']["{$type}_columns"] as $column) {
             if (array_key_exists($column, $aliases)) {

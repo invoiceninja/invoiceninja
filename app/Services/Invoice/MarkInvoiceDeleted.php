@@ -33,8 +33,9 @@ class MarkInvoiceDeleted extends AbstractService
 
     public function run()
     {
-        if($this->invoice->is_deleted)
+        if ($this->invoice->is_deleted) {
             return $this->invoice;
+        }
 
         // if(in_array($this->invoice->status_id, ['currencies', 'industries', 'languages', 'countries', 'banks']))
         //     return $this->
@@ -47,7 +48,7 @@ class MarkInvoiceDeleted extends AbstractService
              ->adjustBalance()
              ->adjustLedger();
 
-         return $this->invoice;
+        return $this->invoice;
     }
 
     private function adjustLedger()
@@ -61,7 +62,7 @@ class MarkInvoiceDeleted extends AbstractService
     {
         $this->invoice->client->service()->updatePaidToDate($this->adjustment_amount * -1)->save();
 
-        return $this;   
+        return $this;
     }
 
     private function adjustBalance()
@@ -75,16 +76,12 @@ class MarkInvoiceDeleted extends AbstractService
     {
         //if total payments = adjustment amount - that means we need to delete the payments as well.
         
-        if($this->adjustment_amount == $this->total_payments) {
-            
+        if ($this->adjustment_amount == $this->total_payments) {
             $this->invoice->payments()->update(['payments.deleted_at' => now(), 'payments.is_deleted' => true]);
-            
-        }
-        else {
+        } else {
             //adjust payments down by the amount applied to the invoice payment.
             
-            $this->invoice->payments->each(function ($payment){
-
+            $this->invoice->payments->each(function ($payment) {
                 $payment_adjustment = $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
@@ -93,7 +90,6 @@ class MarkInvoiceDeleted extends AbstractService
                 $payment->amount -= $payment_adjustment;
                 $payment->applied -= $payment_adjustment;
                 $payment->save();
-
             });
         }
 
@@ -102,8 +98,7 @@ class MarkInvoiceDeleted extends AbstractService
 
     private function setAdjustmentAmount()
     {
-
-        foreach ($this->invoice->payments as $payment) { 
+        foreach ($this->invoice->payments as $payment) {
             $this->adjustment_amount += $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
@@ -118,7 +113,6 @@ class MarkInvoiceDeleted extends AbstractService
 
     private function cleanup()
     {
-
         $check = false;
         
         $x=0;
@@ -136,7 +130,6 @@ class MarkInvoiceDeleted extends AbstractService
         $this->invoice->expenses()->update(['invoice_id' => null]);
 
         return $this;
-    
     }
 
     private function calcNumber($x)
@@ -153,8 +146,7 @@ class MarkInvoiceDeleted extends AbstractService
 
     private function deletePaymentables()
     {
-
-        $this->invoice->payments->each(function ($payment){
+        $this->invoice->payments->each(function ($payment) {
             $payment->paymentables()
                     ->where('paymentable_type', '=', 'invoices')
                     ->where('paymentable_id', $this->invoice->id)

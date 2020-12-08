@@ -48,7 +48,7 @@
 
         <!-- Scripts -->
         <script src="{{ mix('js/app.js') }}" defer></script>
-        <script src="{{ asset('js/vendor/alpinejs/alpine.js') }}" defer></script>
+        <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.x/dist/alpine.min.js" defer></script>
 
         <!-- Fonts -->
         <link rel="dns-prefetch" href="https://fonts.gstatic.com">
@@ -58,7 +58,7 @@
         <link href="{{ mix('css/app.css') }}" rel="stylesheet">
         {{-- <link href="{{ mix('favicon.png') }}" rel="shortcut icon" type="image/png"> --}}
 
-        <link rel="canonical" href="{{ config('ninja.app_url') }}{{ request()->path() }}"/>
+        <link rel="canonical" href="{{ config('ninja.app_url') }}/{{ request()->path() }}"/>
 
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')

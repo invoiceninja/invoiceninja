@@ -16,6 +16,7 @@ use App\Events\Invoice\InvoiceWasEmailed;
 use App\Jobs\Entity\EmailEntity;
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
+use App\Models\Webhook;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesReminders;
@@ -25,6 +26,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use App\Jobs\Util\WebHookHandler;
 
 class SendReminders implements ShouldQueue
 {
@@ -81,6 +83,7 @@ class SendReminders implements ShouldQueue
                 
             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'endless_reminder'])) {
                 $this->sendReminder($invoice, $reminder_template);
+                WebHookHandler::dispatch(Webhook::EVENT_REMIND_INVOICE, $invoice, $invoice->company);
             }
         });
     }

@@ -26,8 +26,7 @@ class UserTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
-        //'company_users',
-        //   'token',
+        //'company_user'
     ];
 
     /**

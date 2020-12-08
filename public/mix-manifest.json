@@ -1,6 +1,6 @@
 {
     "/js/app.js": "/js/app.js?id=a33a5a58bfc6e2174841",
-    "/css/app.css": "/css/app.css?id=2fee89354bd20f89bf73",
+    "/css/app.css": "/css/app.css?id=fb5c591f4280af2b670a",
     "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=a09bb529b8e1826f13b4",
     "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=8ce8955ba775ea5f47d1",
     "/js/clients/payment_methods/authorize-authorize-card.js": "/js/clients/payment_methods/authorize-authorize-card.js?id=cddcd46c630c71737bda",
@@ -15,6 +15,6 @@
     "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=85bcae0a646882e56b12",
     "/js/clients/shared/multiple-downloads.js": "/js/clients/shared/multiple-downloads.js?id=5c35d28cf0a3286e7c45",
     "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=fa54bb4229aba6b0817c",
-    "/js/setup/setup.js": "/js/setup/setup.js?id=34b53878aeaca14a2b33",
+    "/js/setup/setup.js": "/js/setup/setup.js?id=725362f2ed393909fc8b",
     "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ad"
 }

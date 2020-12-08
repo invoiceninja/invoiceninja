@@ -617,7 +617,6 @@ class CompanySettings extends BaseSettings
                 '$quote.po_number',
                 '$quote.date',
                 '$quote.valid_until',
-                '$quote.balance_due',
                 '$quote.total',
             ],
             'credit_details' => [
@@ -636,7 +635,7 @@ class CompanySettings extends BaseSettings
                 '$product.line_total',
             ],
             'task_columns' =>[
-                '$task.product_key',
+                '$task.service',
                 '$task.description',
                 '$task.rate',
                 '$task.hours',

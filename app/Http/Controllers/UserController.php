@@ -372,7 +372,7 @@ class UserController extends BaseController
 
         $user = $this->user_repo->save($request->all(), $user);
 
-        if ($user) {
+        if ($old_email != $new_email) {
             UserEmailChanged::dispatch($new_email, $old_email, auth()->user()->company());
         }
 

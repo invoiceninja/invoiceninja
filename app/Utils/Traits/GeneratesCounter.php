@@ -601,22 +601,37 @@ trait GeneratesCounter
             $replace[] = str_replace($format, $date, $matches[1]);
         }
 
-        if ($entity instanceof Client || $entity instanceof Vendor) {
-            $search[] = '{$client_custom1}';
-            $replace[] = $entity->custom_value1;
+        if ($entity instanceof Vendor) {
 
-            $search[] = '{$client_custom2}';
-            $replace[] = $entity->custom_value2;
-
-            $search[] = '{$client_custom3}';
-            $replace[] = $entity->custom_value3;
-
-            $search[] = '{$client_custom4}';
-            $replace[] = $entity->custom_value4;
-
-            $search[] = '{$id_number}';
+            $search[] = '{$vendor_id_number}';
             $replace[] = $entity->id_number;
-        } else {
+
+        } 
+        
+        if ($entity instanceof Expense) {
+
+            if($entity->vendor){
+                $search[] = '{$vendor_id_number}';
+                $replace[] = $entity->vendor->id_number;
+
+                $search[] = '{$vendor_custom1}';
+                $replace[] = $entity->vendor->custom_value1;
+
+                $search[] = '{$vendor_custom2}';
+                $replace[] = $entity->vendor->custom_value2;
+
+                $search[] = '{$vendor_custom3}';
+                $replace[] = $entity->vendor->custom_value3;
+
+                $search[] = '{$vendor_custom4}';
+                $replace[] = $entity->vendor->custom_value4;
+            }
+
+            $search[] = '{$expense_id_number}';
+            $replace[] = $entity->id_number;
+        } 
+        
+        if ($entity->client) {
             $search[] = '{$client_custom1}';
             $replace[] = $entity->client->custom_value1;
 
@@ -629,7 +644,7 @@ trait GeneratesCounter
             $search[] = '{$client_custom4}';
             $replace[] = $entity->client->custom_value4;
 
-            $search[] = '{$id_number}';
+            $search[] = '{$client_id_number}';
             $replace[] = $entity->client->id_number;
         }
 

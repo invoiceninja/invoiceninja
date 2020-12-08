@@ -12,7 +12,9 @@
 
 namespace App\PaymentDrivers;
 
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Models\ClientGatewayToken;
+use App\Models\Company;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
@@ -23,6 +25,7 @@ use App\Utils\Traits\SystemLogTrait;
 use Checkout\CheckoutApi;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\Refund;
+use Exception;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -134,7 +137,7 @@ class CheckoutComPaymentDriver extends BaseDriver
                 ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
                 ->with('missing_required_fields', $this->required_fields);
         }
-        
+
         return $this->payment_method->authorizeResponse($data);
     }
 
@@ -209,5 +212,24 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
+        // ..
+    }
+
+    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    {
+        $this->init();
+        $this->setPaymentHash($request->getPaymentHash());
+
+        try {
+            $payment = $this->gateway->payments()->details($request->query('cko-session-id'));
+
+            if ($payment->approved) {
+                return $this->processSuccessfulPayment($payment);
+            } else {
+                return $this->processUnsuccessfulPayment($payment);
+            }
+        } catch (CheckoutHttpException | Exception $e) {
+            return $this->processInternallyFailedPayment($this, $e);
+        }
     }
 }

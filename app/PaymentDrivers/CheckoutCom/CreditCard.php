@@ -82,6 +82,7 @@ class CreditCard
             'currency' => $request->currency,
             'payment_hash' => $request->payment_hash,
             'reference' => $request->payment_hash,
+            'client_id' => $this->checkout->client->id,
         ];
 
         $state = array_merge($state, $request->all());
@@ -121,8 +122,17 @@ class CreditCard
         $payment->amount = $this->checkout->payment_hash->data->value;
         $payment->reference = $this->checkout->payment_hash->data->reference;
 
+        $this->checkout->payment_hash->data = array_merge((array) $this->checkout->payment_hash->data, ['checkout_payment_ref' => $payment]);
+        $this->checkout->payment_hash->save();
+
         if ($this->checkout->client->currency()->code === 'EUR') {
             $payment->{'3ds'} = ['enabled' => true];
+
+            $payment->{'success_url'} = route('payment_webhook', [
+                'gateway_key' => $this->checkout->company_gateway->gateway_key,
+                'company_key' => $this->checkout->client->company->company_key,
+                'hash' => $this->checkout->payment_hash->hash,
+            ]);
         }
 
         try {

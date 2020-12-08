@@ -68,8 +68,8 @@ $LANG = [
     'tax_rates' => 'Steuersätze',
     'rate' => 'Satz',
     'settings' => 'Einstellungen',
-    'enable_invoice_tax' => 'Ermögliche das Bestimmen einer <strong>Rechnungssteuer</strong>',
-    'enable_line_item_tax' => 'Ermögliche das Bestimmen von <strong>Steuern für Belegpositionen</strong>',
+    'enable_invoice_tax' => 'Ermögliche das Bestimmen einer Rechnungssteuer',
+    'enable_line_item_tax' => 'Ermögliche das Bestimmen von Steuern für Belegpositionen',
     'dashboard' => 'Dashboard',
     'clients' => 'Kunden',
     'invoices' => 'Rechnungen',
@@ -95,9 +95,9 @@ $LANG = [
     'powered_by' => 'Unterstützt durch',
     'no_items' => 'Keine Objekte',
     'recurring_invoices' => 'Wiederkehrende Rechnungen',
-    'recurring_help' => '<p>Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. </p>
-        <p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
-        <p>Examples of dynamic invoice variables:</p>
+    'recurring_help' => 'Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. 
+        Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.
+        Examples of dynamic invoice variables:
         <ul>
           <li>"Gym membership for the month of :MONTH" >> "Gym membership for the month of July"</li>
           <li>":YEAR+1 yearly subscription" >> "2015 Yearly Subscription"</li>
@@ -172,9 +172,9 @@ $LANG = [
     'payment_gateway' => 'Zahlungseingang',
     'gateway_id' => 'Zahlungsanbieter',
     'email_notifications' => 'E-Mail Benachrichtigungen',
-    'email_sent' => 'Benachrichtigen, wenn eine Rechnung <strong>versendet</strong> wurde',
-    'email_viewed' => 'Benachrichtigen, wenn eine Rechnung <strong>betrachtet</strong> wurde',
-    'email_paid' => 'Benachrichtigen, wenn eine Rechnung <strong>bezahlt</strong> wurde',
+    'email_sent' => 'Benachrichtigen, wenn eine Rechnung versendet wurde',
+    'email_viewed' => 'Benachrichtigen, wenn eine Rechnung betrachtet wurde',
+    'email_paid' => 'Benachrichtigen, wenn eine Rechnung bezahlt wurde',
     'site_updates' => 'Webseitenaktualisierungen',
     'custom_messages' => 'Benutzerdefinierte Nachrichten',
     'default_email_footer' => 'Standard-E-Mail Signatur',
@@ -271,7 +271,7 @@ $LANG = [
     'password' => 'Passwort',
     'pro_plan_product' => 'Pro Plan',
     'pro_plan_success' => 'Danke, dass Sie Invoice Ninja\'s Pro gewählt haben!<p/>&nbsp;<br/>
-                          <b>Nächste Schritte</b>Eine bezahlbare Rechnung wurde an die Mailadresse,
+                          Nächste SchritteEine bezahlbare Rechnung wurde an die Mailadresse,
                           welche mit Ihrem Account verbunden ist, geschickt. Um alle der umfangreichen
                           Pro Funktionen freizuschalten, folgen Sie bitte den Anweisungen in der Rechnung um ein Jahr
                           die Pro Funktionen zu nutzen.
@@ -290,9 +290,9 @@ $LANG = [
     'product' => 'Produkt',
     'products' => 'Produkte',
     'fill_products' => 'Produkte automatisch ausfüllen',
-    'fill_products_help' => 'Beim Auswählen eines Produktes werden automatisch <strong>Beschreibung und Kosten ausgefüllt</strong>',
+    'fill_products_help' => 'Beim Auswählen eines Produktes werden automatisch Beschreibung und Kosten ausgefüllt',
     'update_products' => 'Produkte automatisch aktualisieren',
-    'update_products_help' => 'Beim Aktualisieren einer Rechnung werden die <strong>Produkte automatisch aktualisiert</strong>',
+    'update_products_help' => 'Beim Aktualisieren einer Rechnung werden die Produkte automatisch aktualisiert',
     'create_product' => 'Produkt erstellen',
     'edit_product' => 'Produkt bearbeiten',
     'archive_product' => 'Produkt archivieren',
@@ -498,7 +498,7 @@ $LANG = [
     'send_email' => 'E-Mail senden',
     'set_password' => 'Passwort festlegen',
     'converted' => 'Umgewandelt',
-    'email_approved' => 'Per E-Mail benachrichtigen, wenn ein Angebot  <b>angenommen</b> wurde',
+    'email_approved' => 'Per E-Mail benachrichtigen, wenn ein Angebot  angenommen wurde',
     'notification_quote_approved_subject' => 'Angebot :invoice wurde von :client angenommen.',
     'notification_quote_approved' => 'Der folgende Kunde :client nahm das Angebot :invoice über :amount an.',
     'resend_confirmation' => 'Bestätigungsmail erneut senden',
@@ -617,7 +617,7 @@ $LANG = [
     'email_error' => 'Es gab ein Problem beim Senden dieser E-Mail.',
     'confirm_recurring_timing' => 'Beachten Sie: E-Mails werden zu jeder vollen Stunde versendet.',
     'confirm_recurring_timing_not_sent' => 'Beachten Sie: E-Mails werden zu jeder vollen Stunde versendet.',
-    'payment_terms_help' => 'Setzt das <b>Standardfälligkeitsdatum</b>',
+    'payment_terms_help' => 'Setzt das Standardfälligkeitsdatum',
     'unlink_account' => 'Konten trennen',
     'unlink' => 'Trennen',
     'show_address' => 'Adresse anzeigen',
@@ -660,8 +660,8 @@ $LANG = [
     'created_by_invoice' => 'Erstellt durch :invoice',
     'primary_user' => 'Primärer Benutzer',
     'help' => 'Hilfe',
-    'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
-                        <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
+    'customize_help' => 'We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.
+                        If you need help figuring something out post a question to our :forum_link with the design you\'re using.',
     'playground' => 'Spielplatz',
     'support_forum' => 'Support-Forum',
     'invoice_due_date' => 'Fälligkeitsdatum',
@@ -678,7 +678,7 @@ $LANG = [
     'status_paid' => 'Bezahlt',
     'status_unpaid' => 'Unbezahlt',
     'status_all' => 'Alle',
-    'show_line_item_tax' => '<b>Steuern für Belegpositionen</b> in der jeweiligen Zeile anzeigen',
+    'show_line_item_tax' => 'Steuern für Belegpositionen in der jeweiligen Zeile anzeigen',
     'iframe_url' => 'Webseite',
     'iframe_url_help1' => 'Kopiere den folgenden Code in eine Seite auf deiner Website.',
     'iframe_url_help2' => 'Du kannst diese Funktion testen, in dem du für eine Rechnung \'Als Empfänger betrachten\'. anklickst.',
@@ -934,15 +934,15 @@ $LANG = [
     'edit_payment_term' => 'Bearbeite Zahlungsbedingungen',
     'archive_payment_term' => 'Archiviere Zahlungsbedingungen',
     'recurring_due_dates' => 'Wiederkehrende Rechnungen Fälligkeitsdatum',
-    'recurring_due_date_help' => '<p>Legt automatisch ein Fälligkeitsdatem für die Rechnung fest.</p>
-<p>Auf einen monatlichen oder jährlichen Wiederkehrungszyklus eingestellte Rechnungen werden erst im nächsten Monat bzw. Jahr fällig, sofern das Fälligkeitsdatum älter oder gleich dem Erstellungsdatum der Rechnung ist. Am 29. oder 30. eines Monats fällige Rechnungen werden stattdessen am letzten vorhandenen Tag eines Monats fällig, wenn er diese Tage nicht beinhaltet.</p>
-<p>Auf einen wöchentlichen Wiederkehrungszyklus eingestellte Rechnungen, werden erst in der nächsten Woche fällig, wenn der Wochentag mit dem Wochentag des Erstellungsdatums übereinstimmt.</p>
-<p>Zum Beispiel:</p>
+    'recurring_due_date_help' => 'Legt automatisch ein Fälligkeitsdatem für die Rechnung fest.
+Auf einen monatlichen oder jährlichen Wiederkehrungszyklus eingestellte Rechnungen werden erst im nächsten Monat bzw. Jahr fällig, sofern das Fälligkeitsdatum älter oder gleich dem Erstellungsdatum der Rechnung ist. Am 29. oder 30. eines Monats fällige Rechnungen werden stattdessen am letzten vorhandenen Tag eines Monats fällig, wenn er diese Tage nicht beinhaltet.
+Auf einen wöchentlichen Wiederkehrungszyklus eingestellte Rechnungen, werden erst in der nächsten Woche fällig, wenn der Wochentag mit dem Wochentag des Erstellungsdatums übereinstimmt.
+Zum Beispiel:
 <ul>
 <li>Heute ist der 15. Januar, das Fälligkeitsdatum ist der 1. eines Monats. Das nächste Fälligkeitsdatum entspricht dem 1. des nächsten Monats, also dem 1. Februar.</li>
 <li>Heute ist der 15. Januar, das Fälligkeitsdatum ist der letzte Tag eines Monats. Das nächste Fälligkeitsdatum entspricht dem letzten Tag des aktuellen Monats, also dem 31. Januar.
 </li>
-<li>Heute ist der 15. Januar, das Fälligkeitsdatum ist der 15. eines Moants. Das nächste Fälligkeitsdatum entspricht dem 15. des <strong>nächsten</strong> Monats, also dem 15. Februar.
+<li>Heute ist der 15. Januar, das Fälligkeitsdatum ist der 15. eines Moants. Das nächste Fälligkeitsdatum entspricht dem 15. des nächsten Monats, also dem 15. Februar.
 </li>
 <li>Heute ist Freitag, das Fälligkeitsdatum ist der Freitag einer jeden Woche. Das nächste Fälligkeitsdatum entspricht dem nächsten Freitag, also nicht heute.
 </li>
@@ -1342,7 +1342,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'see_whats_new' => 'Neu in v:version',
     'wait_for_upload' => 'Bitte warten Sie bis der Dokumentenupload abgeschlossen wurde.',
     'upgrade_for_permissions' => 'Führen Sie ein Upgrade auf unseren Enterprise-Plan durch um Zugriffsrechte zu aktivieren.',
-    'enable_second_tax_rate' => 'Aktiviere Spezifizierung einer <b>zweiten Steuerrate</b>',
+    'enable_second_tax_rate' => 'Aktiviere Spezifizierung einer zweiten Steuerrate',
     'payment_file' => 'Zahlungsdatei',
     'expense_file' => 'Ausgabenakte',
     'product_file' => 'Produktdatei',
@@ -1850,10 +1850,10 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'security_code_email_subject' => 'Sicherheitscode für Invoice Ninja Bot',
     'security_code_email_line1' => 'Dies ist Ihr Invoice Ninja Bot Sicherheitscode.',
     'security_code_email_line2' => 'Anmerkung: Er wird in 10 Minuten ablaufen.',
-    'bot_help_message' => 'Ich unterstütze derzeit:<br/>• Erstellung\Aktualisierung\E-Mail-Versand von Rechnungen<br/>• Auflistung von Produkten<br/>Zum Beispiel:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
+    'bot_help_message' => 'Ich unterstütze derzeit:<br/>• Erstellung\Aktualisierung\E-Mail-Versand von Rechnungen<br/>• Auflistung von Produkten<br/>Zum Beispiel:<br/>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
     'list_products' => 'Produkte anzeigen',
 
-    'include_item_taxes_inline' => 'Steuern für Belegpositionen <b>in der  Summe anzeigen</b>',
+    'include_item_taxes_inline' => 'Steuern für Belegpositionen in der  Summe anzeigen',
     'created_quotes' => 'Erfolgreich :count Angebot(e) erstellt',
     'limited_gateways' => 'Anmerkung: Wir unterstützen ein Kreditkarten-Gateway pro Unternehmen.',
 
@@ -1863,7 +1863,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'update_invoiceninja_warning' => 'Vor dem Update von Invoice Ninja sollte ein Backup der Datenbank und der Dateien erstellt werden!',
     'update_invoiceninja_available' => 'Eine neue Version von Invoice Ninja ist verfügbar.',
     'update_invoiceninja_unavailable' => 'Keine neue Version von Invoice Ninja verfügbar.',
-    'update_invoiceninja_instructions' => 'Bitte benutze den <em>Update durchführen</em>-Button, um die neue Version <strong>:version</strong> zu installieren. Du wirst danach zum Dashboard weitergeleitet.',
+    'update_invoiceninja_instructions' => 'Bitte benutze den <em>Update durchführen</em>-Button, um die neue Version :version zu installieren. Du wirst danach zum Dashboard weitergeleitet.',
     'update_invoiceninja_update_start' => 'Update durchführen',
     'update_invoiceninja_download_start' => 'Download :version',
     'create_new' => 'Neu...',
@@ -1963,7 +1963,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     // BlueVine
     'bluevine_promo' => 'Factoring und Bonitätsauskünfte von BlueVine bestellen.',
     'bluevine_modal_label' => 'Anmelden mit BlueVine',
-    'bluevine_modal_text' => '<h3>Schnelle Finanzierung ohne Papierkram.</h3>
+    'bluevine_modal_text' => 'Schnelle Finanzierung ohne Papierkram.
 <ul><li>Flexible Bonitätsprüfung und Factoring.</li></ul>',
     'bluevine_create_account' => 'Konto erstellen',
     'quote_types' => 'Angebot erhalten für',
@@ -2119,8 +2119,8 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'recipients' => 'Empfänger',
     'save_as_default' => 'Als Standard speichern',
     'template' => 'Vorlage',
-    'start_of_week_help' => 'Verwendet von <b>Datums</b>selektoren',
-    'financial_year_start_help' => 'Verwendet von <b>Datum-Bereichs</b>selektoren',
+    'start_of_week_help' => 'Verwendet von Datumsselektoren',
+    'financial_year_start_help' => 'Verwendet von Datum-Bereichsselektoren',
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'Dieses Jahr',
 
@@ -2144,7 +2144,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'freq_two_months' => 'Zwei Monate',
     'freq_yearly' => 'Jährlich',
     'profile' => 'Profil',
-    'payment_type_help' => 'Setze die Standard <b>manuelle Zahlungsmethode</b>.',
+    'payment_type_help' => 'Setze die Standard manuelle Zahlungsmethode.',
     'industry_Construction' => 'Bauwesen',
     'your_statement' => 'Deine Abrechnung',
     'statement_issued_to' => 'Abrechnung ausgestellt für',
@@ -2236,8 +2236,8 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'payment_type_Venmo' => 'Venmo',
     'payment_type_Money Order' => 'Zahlunganweisung',
     'archived_products' => 'Archivierung erfolgreich :Produktzähler',
-    'recommend_on' => 'Wir empfehlen diese Einstellung zu <b>aktivieren</b>.',
-    'recommend_off' => 'Wir empfehlen diese Einstellung zu <b>deaktivieren</b>.',
+    'recommend_on' => 'Wir empfehlen diese Einstellung zu aktivieren.',
+    'recommend_off' => 'Wir empfehlen diese Einstellung zu deaktivieren.',
     'notes_auto_billed' => 'Automatisch verrechnet',
     'surcharge_label' => 'Aufschlagsfeldbezeichnung',
     'contact_fields' => 'Kontaktfelder',
@@ -2325,7 +2325,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'app_version' => 'App-Version',
     'ofx_version' => 'OFX-Version',
     'gateway_help_23' => ':link um Ihre Stripe API-Keys zu erhalten.',
-    'error_app_key_set_to_default' => 'Fehler: APP_KEY ist auf einen Standardwert gesetzt. Um ihn zu aktualisieren, sichere deine Datenbank und führe dann <code>php artisan ninja:update-key</code> aus',
+    'error_app_key_set_to_default' => 'Fehler: APP_KEY ist auf einen Standardwert gesetzt. Um ihn zu aktualisieren, sichere deine Datenbank und führe dann php artisan ninja:update-key aus',
     'charge_late_fee' => 'Verspätungszuschlag berechnen',
     'late_fee_amount' => 'Höhe des Verspätungszuschlags',
     'late_fee_percent' => 'Verspätungszuschlag Prozent',
@@ -2584,7 +2584,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'subdomain_is_set' => 'subdomain is set',
     'verification_file' => 'Verifizierungsdatei',
     'verification_file_missing' => 'The verification file is needed to accept payments.',
-    'apple_pay_domain' => 'Use <code>:domain</code> as the domain in :link.',
+    'apple_pay_domain' => 'Use :domain as the domain in :link.',
     'apple_pay_not_supported' => 'Sorry, Apple/Google Pay isn\'t supported by your browser',
     'optional_payment_methods' => 'Optionale Zahlungsmethoden',
     'add_subscription' => 'Abonnement hinzufügen',
@@ -2635,7 +2635,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'processing_request' => 'Anfrage verarbeiten',
     'mcrypt_warning' => 'Warning: Mcrypt is deprecated, run :command to update your cipher.',
     'edit_times' => 'Zeiten bearbeiten',
-    'inclusive_taxes_help' => 'Include <b>taxes in the cost</b>',
+    'inclusive_taxes_help' => 'Include taxes in the cost',
     'inclusive_taxes_notice' => 'This setting can not be changed once an invoice has been created.',
     'inclusive_taxes_warning' => 'Warning: existing invoices will need to be resaved',
     'copy_shipping' => 'Copy Shipping',
@@ -2667,7 +2667,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'return_to_login' => 'Zurück zum Login',
     'convert_products_tip' => 'Note: add a :link named ":name" to see the exchange rate.',
     'amount_greater_than_balance' => 'The amount is greater than the invoice balance, a credit will be created with the remaining amount.',
-    'custom_fields_tip' => 'Use <code>Label|Option1,Option2</code> to show a select box.',
+    'custom_fields_tip' => 'Use Label|Option1,Option2 to show a select box.',
     'client_information' => 'Client Information',
     'updated_client_details' => 'Successfully updated client details',
     'auto' => 'Auto',
