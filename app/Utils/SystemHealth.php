@@ -160,7 +160,7 @@ class SystemHealth
     {
         $result = ['success' => false];
 
-        if ($request && $request instanceof CheckDatabaseRequest) {
+        if ($request) {
             config(['database.connections.db-ninja-01.host'=> $request->input('db_host')]);
             config(['database.connections.db-ninja-01.database'=> $request->input('db_database')]);
             config(['database.connections.db-ninja-01.username'=> $request->input('db_username')]);
@@ -191,6 +191,7 @@ class SystemHealth
                 } catch (Exception $e) {
                     $result[] = [config('database.connections.'.config('database.default').'.database') => false];
                     $result['success'] = false;
+                    $result['message'] = $e->getMessage();
                 }
             }
         }
@@ -209,7 +210,7 @@ class SystemHealth
             return [];
         }
 
-        if ($request && $request instanceof CheckMailRequest) {
+        if ($request) {
             config(['mail.driver' => $request->input('mail_driver')]);
             config(['mail.host' => $request->input('mail_host')]);
             config(['mail.port' => $request->input('mail_port')]);
@@ -223,21 +224,10 @@ class SystemHealth
         try {
             Mail::to(config('mail.from.address'))->send(new TestMailServer('Email Server Works!', config('mail.from.address')));
         } catch (Exception $e) {
-            return [$e->getMessage()];
+            return ['success' => false, 'message' => $e->getMessage()];
         }
 
-        /*
-         * 'message' => 'count(): Parameter must be an array or an object that implements Countable',
-         * 'action' => 'SetupController::checkMail()',
-         *
-         * count(Mail::failures())
-         */
-
-        if (Mail::failures() > 0) {
-            return Mail::failures();
-        }
-
-        return response()->json(['message' => 'Success'], 200);
+        return ['success' => true];
     }
 
     private static function checkEnvWritable()
