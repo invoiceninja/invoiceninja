@@ -161,10 +161,10 @@ class SystemHealth
         $result = ['success' => false];
 
         if ($request && $request instanceof CheckDatabaseRequest) {
-            config(['database.connections.db-ninja-01.host'=> $request->input('host')]);
-            config(['database.connections.db-ninja-01.database'=> $request->input('database')]);
-            config(['database.connections.db-ninja-01.username'=> $request->input('username')]);
-            config(['database.connections.db-ninja-01.password'=> $request->input('password')]);
+            config(['database.connections.db-ninja-01.host'=> $request->input('db_host')]);
+            config(['database.connections.db-ninja-01.database'=> $request->input('db_database')]);
+            config(['database.connections.db-ninja-01.username'=> $request->input('db_username')]);
+            config(['database.connections.db-ninja-01.password'=> $request->input('db_password')]);
             config(['database.default' => 'db-ninja-01']);
 
             DB::purge('db-ninja-01');

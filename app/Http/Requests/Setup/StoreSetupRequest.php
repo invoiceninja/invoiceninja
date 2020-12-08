@@ -31,8 +31,8 @@ class StoreSetupRequest extends Request
           /*System*/
           'url' => 'required',
           /*Database*/
-          'host' => 'required',
-          'database' => 'required',
+          'db_host' => 'required',
+          'db_database' => 'required',
           'db_username' => 'required',
           'db_password' => '',
           /*Mail driver*/

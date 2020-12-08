@@ -24,10 +24,10 @@ class Setup {
 
     handleDatabaseCheck() {
         let data = {
-            host: document.querySelector('input[name="host"]').value,
-            database: document.querySelector('input[name="database"]').value,
-            username: document.querySelector('input[name="db_username"]').value,
-            password: document.querySelector('input[name="db_password"]').value,
+            db_host: document.querySelector('input[name="db_host"]').value,
+            db_database: document.querySelector('input[name="db_database"]').value,
+            db_username: document.querySelector('input[name="db_username"]').value,
+            db_password: document.querySelector('input[name="db_password"]').value,
         };
 
         Axios.post('/setup/check_db', data)
