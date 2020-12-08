@@ -210,14 +210,14 @@ class SystemHealth
         }
 
         if ($request && $request instanceof CheckMailRequest) {
-            config(['mail.driver' => $request->input('driver')]);
-            config(['mail.host' => $request->input('host')]);
-            config(['mail.port' => $request->input('port')]);
-            config(['mail.from.address' => $request->input('from_address')]);
-            config(['mail.from.name' => $request->input('from_name')]);
+            config(['mail.driver' => $request->input('mail_driver')]);
+            config(['mail.host' => $request->input('mail_host')]);
+            config(['mail.port' => $request->input('mail_port')]);
+            config(['mail.from.address' => $request->input('mail_address')]);
+            config(['mail.from.name' => $request->input('mail_name')]);
             config(['mail.encryption' => $request->input('encryption')]);
-            config(['mail.username' => $request->input('username')]);
-            config(['mail.password' => $request->input('password')]);
+            config(['mail.username' => $request->input('mail_username')]);
+            config(['mail.password' => $request->input('mail_password')]);
         }
 
         try {

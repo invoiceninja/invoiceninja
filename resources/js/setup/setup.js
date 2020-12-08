@@ -39,17 +39,17 @@ class Setup {
 
     handleSmtpCheck() {
         let data = {
-            driver: document.querySelector('select[name="mail_driver"]').value,
-            from_name: document.querySelector('input[name="mail_name"]').value,
-            from_address: document.querySelector('input[name="mail_address"]')
+            mail_driver: document.querySelector('select[name="mail_driver"]').value,
+            mail_name: document.querySelector('input[name="mail_name"]').value,
+            mail_address: document.querySelector('input[name="mail_address"]')
                 .value,
-            username: document.querySelector('input[name="mail_username"]')
+            mail_username: document.querySelector('input[name="mail_username"]')
                 .value,
-            host: document.querySelector('input[name="mail_host"]').value,
-            port: document.querySelector('input[name="mail_port"]').value,
+            mail_host: document.querySelector('input[name="mail_host"]').value,
+            mail_port: document.querySelector('input[name="mail_port"]').value,
             encryption: document.querySelector('select[name="encryption"]')
                 .value,
-            password: document.querySelector('input[name="mail_password"]')
+            mail_password: document.querySelector('input[name="mail_password"]')
                 .value,
         };
 

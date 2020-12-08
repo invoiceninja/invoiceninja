@@ -80,8 +80,8 @@ class SetupController extends Controller
             'REQUIRE_HTTPS' => $request->input('https') ? 'true' : 'false',
             'APP_DEBUG' => $request->input('debug') ? 'true' : 'false',
 
-            'DB_HOST1' => $request->input('host'),
-            'DB_DATABASE1' => $request->input('database'),
+            'DB_HOST1' => $request->input('db_host'),
+            'DB_DATABASE1' => $request->input('db_database'),
             'DB_USERNAME1' => $request->input('db_username'),
             'DB_PASSWORD1' => $request->input('db_password'),
 
@@ -166,6 +166,8 @@ class SetupController extends Controller
      */
     public function checkMail(CheckMailRequest $request)
     {
+        info($request->all());
+
         try {
             $response_array = SystemHealth::testMailServer($request);
 
