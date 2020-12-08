@@ -74,8 +74,26 @@ To improve chances of PRs being merged please include tests to ensure your code 
 
 API documentation is hosted using Swagger and can be found [HERE](https://app.swaggerhub.com/apis/invoiceninja/invoiceninja)
 
+## Credits
+* [Hillel Coren](https://hillelcoren.com/)
+* [David Bomba](https://github.com/turbo124)
+* [All contributors](https://github.com/invoiceninja/invoiceninja/graphs/contributors)
+
+**Special thanks to:**
+* [Holger Lösken](https://github.com/codedge) - [codedge](http://codedge.de)
+* [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
+* [Alexander Vanderveen](https://blog.technicallycomputers.ca/) - [Technically Computers](https://www.technicallycomputers.ca/)
+* [Efthymios Sarmpanis](https://github.com/esarbanis)
+* [Gianfranco Gasbarri](https://github.com/gincos)
+* [Clemens Mol](https://github.com/clemensmol)
+* [Benjamin Beganović](https://github.com/beganovich)
+
 ## Current work in progress
 
 Invoice Ninja is currently being written in a combination of Laravel for the API and Client Portal and Flutter for the front end management console. This will allow an immersive and consistent experience across any device: mobile, tablet or desktop.
 
 To manage our workflow we will be creating separate branches for the client (Flutter) and server (Laravel API / Client Portal) and merge these into a release branch for deployments.
+
+## License
+Invoice Ninja is released under the Attribution Assurance License.  
+See [LICENSE](LICENSE) for details.

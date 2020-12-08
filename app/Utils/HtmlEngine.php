@@ -156,10 +156,10 @@ class HtmlEngine
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
         }
         
-        $data['$quote.balance_due'] = &$data['$balance_due'];
-        $data['$invoice.balance_due'] = &$data['$balance_due'];
-        $data['$balance_due'] = &$data['$balance_due'];
-        $data['$outstanding'] = &$data['$balance_due'];
+        $data['$quote.balance_due'] = $data['$balance_due'];
+        $data['$invoice.balance_due'] = $data['$balance_due'];
+        $data['$balance_due'] = $data['$balance_due'];
+        $data['$outstanding'] = $data['$balance_due'];
         $data['$partial_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         $data['$total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.total')];
         $data['$amount'] = &$data['$total'];
@@ -307,7 +307,7 @@ class HtmlEngine
 
         $data['$task.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$task.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
-        $data['$task.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
+        $data['$task.service'] = ['value' => '', 'label' => ctrans('texts.service')];
         $data['$task.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$task.rate'] = ['value' => '', 'label' => ctrans('texts.rate')];
         $data['$task.hours'] = ['value' => '', 'label' => ctrans('texts.hours')];
@@ -342,6 +342,8 @@ class HtmlEngine
 
         $data['$item'] = ['value' => '', 'label' => ctrans('texts.item')];
         $data['$description'] = ['value' => '', 'label' => ctrans('texts.description')];
+
+        $data['$entity_footer'] = ['value' => $this->client->getSetting("{$this->entity_string}_footer"), 'label' => '']; 
 
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];

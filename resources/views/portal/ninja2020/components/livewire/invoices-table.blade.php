@@ -122,11 +122,11 @@
     </div>
     <div class="flex justify-center mt-6 mb-6 md:justify-between">
         @if($invoices->total() > 0)
-            <span class="hidden text-sm text-gray-700 md:block">
+            <span class="hidden text-sm text-gray-700 md:block mr-2">
                 {{ ctrans('texts.showing_x_of', ['first' => $invoices->firstItem(), 'last' => $invoices->lastItem(), 'total' => $invoices->total()]) }}
             </span>
         @endif
-        {{ $invoices->links() }}
+        {{ $invoices->links('portal/ninja2020/vendor/pagination') }}
     </div>
 </div>
 

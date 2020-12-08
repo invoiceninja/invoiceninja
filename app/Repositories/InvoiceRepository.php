@@ -79,15 +79,14 @@ class InvoiceRepository extends BaseRepository
 
     /**
      * Handles the restoration on a deleted invoice.
-     * 
+     *
      * @param  [type] $invoice [description]
      * @return [type]          [description]
      */
     public function restore($invoice) :Invoice
     {
         //if we have just archived, only perform a soft restore
-        if(!$invoice->is_deleted) {
-
+        if (!$invoice->is_deleted) {
             parent::restore($invoice);
 
             return $invoice;

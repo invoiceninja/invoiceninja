@@ -76,6 +76,6 @@
                 {{ ctrans('texts.showing_x_of', ['first' => $credits->firstItem(), 'last' => $credits->lastItem(), 'total' => $credits->total()]) }}
             </span>
         @endif
-        {{ $credits->links() }}
+        {{ $credits->links('portal/ninja2020/vendor/pagination') }}
     </div>
 </div>

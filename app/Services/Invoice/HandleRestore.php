@@ -13,11 +13,9 @@ namespace App\Services\Invoice;
 
 use App\Models\Invoice;
 use App\Services\AbstractService;
-use Illuminate\Support\Facades\DB;
 
 class HandleRestore extends AbstractService
 {
-
     private $invoice;
 
     private $payment_total = 0;
@@ -29,14 +27,13 @@ class HandleRestore extends AbstractService
 
     public function run()
     {
-
-        if(!$this->invoice->is_deleted)
+        if (!$this->invoice->is_deleted) {
             return $this->invoice;
+        }
 
-    	//determine whether we need to un-delete payments OR just modify the payment amount /applied balances.
-    	
-        foreach($this->invoice->payments as $payment)
-        {
+        //determine whether we need to un-delete payments OR just modify the payment amount /applied balances.
+        
+        foreach ($this->invoice->payments as $payment) {
             //restore the payment record
             $payment->restore();
 
@@ -58,15 +55,12 @@ class HandleRestore extends AbstractService
 
             info($payment->amount . " == " . $payment_amount);
 
-            if($payment->amount == $payment_amount) {
-
+            if ($payment->amount == $payment_amount) {
                 $payment->is_deleted = false;
                 $payment->save();
 
                 $this->payment_total += $payment_amount;
-            }
-            else {
-
+            } else {
                 $payment->is_deleted = false;
                 $payment->amount += ($payment_amount - $pre_restore_amount);
                 $payment->applied += ($payment_amount - $pre_restore_amount);
@@ -74,13 +68,12 @@ class HandleRestore extends AbstractService
 
                 $this->payment_total += ($payment_amount - $pre_restore_amount);
             }
-
         }
 
-    	//adjust ledger balance
-    	$this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance, 'Restored invoice {$this->invoice->number}')->save();
+        //adjust ledger balance
+        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance, 'Restored invoice {$this->invoice->number}')->save();
 
-    	//adjust paid to dates
+        //adjust paid to dates
         $this->invoice->client->service()->updatePaidToDate($this->payment_total)->save();
 
         $this->invoice->client->service()->updateBalance($this->invoice->balance)->save();
@@ -89,13 +82,12 @@ class HandleRestore extends AbstractService
 
         $this->windBackInvoiceNumber();
 
-        return $this->invoice;    	
+        return $this->invoice;
     }
 
 
     private function windBackInvoiceNumber()
     {
-
         $findme = '_' . ctrans('texts.deleted');
 
         $pos = strpos($this->invoice->number, $findme);
@@ -105,11 +97,8 @@ class HandleRestore extends AbstractService
         try {
             $this->invoice->number = $new_invoice_number;
             $this->invoice->save();
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             info("I could not wind back the invoice number");
         }
-
     }
 }
-
