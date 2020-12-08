@@ -68,7 +68,7 @@ class Phantom
 
         $file_path = $path.$entity_obj->number.'.pdf';
 
-        $url = config('ninja.app_url').'phantom/'.$entity.'/'.$invitation->key.'?phantomjs_secret='.config('ninja.phantomjs_secret');
+        $url = config('ninja.app_url').'/phantom/'.$entity.'/'.$invitation->key.'?phantomjs_secret='.config('ninja.phantomjs_secret');
         info($url);
 
         $key = config('ninja.phantomjs_key');

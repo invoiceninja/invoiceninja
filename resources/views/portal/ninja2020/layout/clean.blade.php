@@ -58,7 +58,7 @@
         <link href="{{ mix('css/app.css') }}" rel="stylesheet">
         {{-- <link href="{{ mix('favicon.png') }}" rel="shortcut icon" type="image/png"> --}}
 
-        <link rel="canonical" href="{{ config('ninja.app_url') }}{{ request()->path() }}"/>
+        <link rel="canonical" href="{{ config('ninja.app_url') }}/{{ request()->path() }}"/>
 
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')

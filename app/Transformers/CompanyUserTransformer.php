@@ -23,7 +23,7 @@ class CompanyUserTransformer extends EntityTransformer
      * @var array
      */
     protected $defaultIncludes = [
-         'user',
+        // 'user',
      ];
 
     /**

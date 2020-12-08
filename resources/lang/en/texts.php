@@ -72,8 +72,8 @@ return [
     'tax_rates' => 'Tax Rates',
     'rate' => 'Rate',
     'settings' => 'Settings',
-    'enable_invoice_tax' => 'Enable specifying an <b>invoice tax</b>',
-    'enable_line_item_tax' => 'Enable specifying <b>line item taxes</b>',
+    'enable_invoice_tax' => 'Enable specifying an invoice tax',
+    'enable_line_item_tax' => 'Enable specifying line item taxes',
     'dashboard' => 'Dashboard',
     'dashboard_totals_in_all_currencies_help' => 'Note: add a :link named ":name" to show the totals using a single base currency.',
     'clients' => 'Clients',
@@ -100,9 +100,9 @@ return [
     'powered_by' => 'Powered by',
     'no_items' => 'No items',
     'recurring_invoices' => 'Recurring Invoices',
-    'recurring_help' => '<p>Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. </p>
-        <p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
-        <p>Examples of dynamic invoice variables:</p>
+    'recurring_help' => 'Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. 
+        Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.
+        Examples of dynamic invoice variables:
         <ul>
           <li>"Gym membership for the month of :MONTH" >> "Gym membership for the month of July"</li>
           <li>":YEAR+1 yearly subscription" >> "2015 Yearly Subscription"</li>
@@ -177,12 +177,12 @@ return [
     'payment_gateway' => 'Payment Gateway',
     'gateway_id' => 'Gateway',
     'email_notifications' => 'Email Notifications',
-    'email_sent' => 'Email me when an invoice is <b>sent</b>',
-    'email_viewed' => 'Email me when an invoice is <b>viewed</b>',
-    'email_paid' => 'Email me when an invoice is <b>paid</b>',
+    'email_sent' => 'Email me when an invoice is sent',
+    'email_viewed' => 'Email me when an invoice is viewed',
+    'email_paid' => 'Email me when an invoice is paid',
     'site_updates' => 'Site Updates',
     'custom_messages' => 'Custom Messages',
-    'default_email_footer' => 'Set default <b>email signature</b>',
+    'default_email_footer' => 'Set default email signature',
     'select_file' => 'Please select a file',
     'first_row_headers' => 'Use first row as headers',
     'column' => 'Column',
@@ -285,11 +285,11 @@ return [
     'erase_data' => 'Your account is not registered, this will permanently erase your data.',
     'password' => 'Password',
     'pro_plan_product' => 'Pro Plan',
-    'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!<p/>&nbsp;<br/>
-                          <b>Next Steps</b><p/>A payable invoice has been sent to the email
+    'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!&nbsp;<br/>
+                          Next StepsA payable invoice has been sent to the email
                           address associated with your account. To unlock all of the awesome
                           Pro features, please follow the instructions on the invoice to pay
-                          for a year of Pro-level invoicing.<p/>
+                          for a year of Pro-level invoicing.
                           Can\'t find the invoice? Need further assistance? We\'re happy to help
                           -- email us at contact@invoiceninja.com',
     'unsaved_changes' => 'You have unsaved changes',
@@ -305,9 +305,9 @@ return [
     'product' => 'Product',
     'products' => 'Products',
     'fill_products' => 'Auto-fill products',
-    'fill_products_help' => 'Selecting a product will automatically <b>fill in the description and cost</b>',
+    'fill_products_help' => 'Selecting a product will automatically fill in the description and cost',
     'update_products' => 'Auto-update products',
-    'update_products_help' => 'Updating an invoice will automatically <b>update the product library</b>',
+    'update_products_help' => 'Updating an invoice will automatically update the product library',
     'create_product' => 'Add Product',
     'edit_product' => 'Edit Product',
     'archive_product' => 'Archive Product',
@@ -514,7 +514,7 @@ return [
     'send_email' => 'Send Email',
     'set_password' => 'Set Password',
     'converted' => 'Converted',
-    'email_approved' => 'Email me when a quote is <b>approved</b>',
+    'email_approved' => 'Email me when a quote is approved',
     'notification_quote_approved_subject' => 'Quote :invoice was approved by :client',
     'notification_quote_approved' => 'The following client :client approved Quote :invoice for :amount.',
     'resend_confirmation' => 'Resend confirmation email',
@@ -634,7 +634,7 @@ return [
     'email_error' => 'There was a problem sending the email',
     'confirm_recurring_timing' => 'Note: emails are sent at the start of the hour.',
     'confirm_recurring_timing_not_sent' => 'Note: invoices are created at the start of the hour.',
-    'payment_terms_help' => 'Sets the default <b>invoice due date</b>',
+    'payment_terms_help' => 'Sets the default invoice due date',
     'unlink_account' => 'Unlink Account',
     'unlink' => 'Unlink',
     'show_address' => 'Show Address',
@@ -677,8 +677,8 @@ return [
     'created_by_invoice' => 'Created by :invoice',
     'primary_user' => 'Primary User',
     'help' => 'Help',
-    'customize_help' => '<p>We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.</p>
-                        <p>If you need help figuring something out post a question to our :forum_link with the design you\'re using.</p>',
+    'customize_help' => 'We use :pdfmake_link to define the invoice designs declaratively. The pdfmake :playground_link provides a great way to see the library in action.
+                        If you need help figuring something out post a question to our :forum_link with the design you\'re using.',
     'playground' => 'playground',
     'support_forum' => 'support forum',
     'invoice_due_date' => 'Due Date',
@@ -695,7 +695,7 @@ return [
     'status_paid' => 'Paid',
     'status_unpaid' => 'Unpaid',
     'status_all' => 'All',
-    'show_line_item_tax' => 'Display <b>line item taxes inline</b>',
+    'show_line_item_tax' => 'Display line item taxes inline',
     'iframe_url' => 'Website',
     'iframe_url_help1' => 'Copy the following code to a page on your site.',
     'iframe_url_help2' => 'You can test the feature by clicking \'View as recipient\' for an invoice.',
@@ -965,10 +965,10 @@ return [
     'edit_payment_term' => 'Edit Payment Term',
     'archive_payment_term' => 'Archive Payment Term',
     'recurring_due_dates' => 'Recurring Invoice Due Dates',
-    'recurring_due_date_help' => '<p>Automatically sets a due date for the invoice.</p>
-        <p>Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.</p>
-        <p>Invoices on a weekly cycle set to be due on the day of the week they are created will be due the next week.</p>
-        <p>For example:</p>
+    'recurring_due_date_help' => 'Automatically sets a due date for the invoice.
+        Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.
+        Invoices on a weekly cycle set to be due on the day of the week they are created will be due the next week.
+        For example:
         <ul>
           <li>Today is the 15th, due date is 1st of the month. The due date should likely be the 1st of the next month.</li>
           <li>Today is the 15th, due date is the last day of the month. The due date will be the last day of the this month.
@@ -1377,7 +1377,7 @@ return [
     'see_whats_new' => 'See what\'s new in v:version',
     'wait_for_upload' => 'Please wait for the document upload to complete.',
     'upgrade_for_permissions' => 'Upgrade to our Enterprise plan to enable permissions.',
-    'enable_second_tax_rate' => 'Enable specifying a <b>second tax rate</b>',
+    'enable_second_tax_rate' => 'Enable specifying a second tax rate',
     'payment_file' => 'Payment File',
     'expense_file' => 'Expense File',
     'product_file' => 'Product File',
@@ -1885,10 +1885,10 @@ return [
     'security_code_email_subject' => 'Security code for Invoice Ninja Bot',
     'security_code_email_line1' => 'This is your Invoice Ninja Bot security code.',
     'security_code_email_line2' => 'Note: it will expire in 10 minutes.',
-    'bot_help_message' => 'I currently support:<br/>• Create\update\email an invoice<br/>• List products<br/>For example:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
+    'bot_help_message' => 'I currently support:<br/>• Create\update\email an invoice<br/>• List products<br/>For example:<br/>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent',
     'list_products' => 'List Products',
 
-    'include_item_taxes_inline' => 'Include <b>line item taxes in line total</b>',
+    'include_item_taxes_inline' => 'Include line item taxes in line total',
     'created_quotes' => 'Successfully created :count quotes(s)',
     'limited_gateways' => 'Note: we support one credit card gateway per company.',
 
@@ -1898,7 +1898,7 @@ return [
     'update_invoiceninja_warning' => 'Before start upgrading Invoice Ninja create a backup of your database and files!',
     'update_invoiceninja_available' => 'A new version of Invoice Ninja is available.',
     'update_invoiceninja_unavailable' => 'No new version of Invoice Ninja available.',
-    'update_invoiceninja_instructions' => 'Please install the new version <strong>:version</strong> by clicking the <em>Update now</em> button below. Afterwards you\'ll be redirected to the dashboard.',
+    'update_invoiceninja_instructions' => 'Please install the new version <strong>:version</strong> by clicking the Update now button below. Afterwards you\'ll be redirected to the dashboard.',
     'update_invoiceninja_update_start' => 'Update now',
     'update_invoiceninja_download_start' => 'Download :version',
     'create_new' => 'Create New',
@@ -1999,7 +1999,7 @@ return [
     // BlueVine
     'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
     'bluevine_modal_label' => 'Sign up with BlueVine',
-    'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
+    'bluevine_modal_text' => 'Fast funding for your business. No paperwork.
 <ul><li>Flexible business lines of credit and invoice factoring.</li></ul>',
     'bluevine_create_account' => 'Create an account',
     'quote_types' => 'Get a quote for',
@@ -2155,8 +2155,8 @@ return [
     'recipients' => 'Recipients',
     'save_as_default' => 'Save as default',
     'template' => 'Template',
-    'start_of_week_help' => 'Used by <b>date</b> selectors',
-    'financial_year_start_help' => 'Used by <b>date range</b> selectors',
+    'start_of_week_help' => 'Used by date selectors',
+    'financial_year_start_help' => 'Used by date range selectors',
     'reports_help' => 'Shift + Click to sort by multiple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'This Year',
 
@@ -2180,7 +2180,7 @@ return [
     'freq_two_months' => 'Two months',
     'freq_yearly' => 'Annually',
     'profile' => 'Profile',
-    'payment_type_help' => 'Sets the default <b>manual payment type</b>.',
+    'payment_type_help' => 'Sets the default manual payment type.',
     'industry_Construction' => 'Construction',
     'your_statement' => 'Your Statement',
     'statement_issued_to' => 'Statement issued to',
@@ -2273,8 +2273,8 @@ return [
     'payment_type_Venmo' => 'Venmo',
     'payment_type_Money Order' => 'Money Order',
     'archived_products' => 'Successfully archived :count products',
-    'recommend_on' => 'We recommend <b>enabling</b> this setting.',
-    'recommend_off' => 'We recommend <b>disabling</b> this setting.',
+    'recommend_on' => 'We recommend enabling this setting.',
+    'recommend_off' => 'We recommend disabling this setting.',
     'notes_auto_billed' => 'Auto-billed',
     'surcharge_label' => 'Surcharge Label',
     'contact_fields' => 'Contact Fields',
@@ -2362,7 +2362,7 @@ return [
     'app_version' => 'App Version',
     'ofx_version' => 'OFX Version',
     'gateway_help_23' => ':link to get your Stripe API keys.',
-    'error_app_key_set_to_default' => 'Error: APP_KEY is set to a default value, to update it backup your database and then run <code>php artisan ninja:update-key</code>',
+    'error_app_key_set_to_default' => 'Error: APP_KEY is set to a default value, to update it backup your database and then run php artisan ninja:update-key',
     'charge_late_fee' => 'Charge Late Fee',
     'late_fee_amount' => 'Late Fee Amount',
     'late_fee_percent' => 'Late Fee Percent',
@@ -2622,7 +2622,7 @@ return [
     'subdomain_is_set' => 'subdomain is set',
     'verification_file' => 'Verification File',
     'verification_file_missing' => 'The verification file is needed to accept payments.',
-    'apple_pay_domain' => 'Use <code>:domain</code> as the domain in :link.',
+    'apple_pay_domain' => 'Use :domain as the domain in :link.',
     'apple_pay_not_supported' => 'Sorry, Apple/Google Pay isn\'t supported by your browser',
     'optional_payment_methods' => 'Optional Payment Methods',
     'add_subscription' => 'Add Subscription',
@@ -2674,7 +2674,7 @@ return [
     'processing_request' => 'Processing request',
     'mcrypt_warning' => 'Warning: Mcrypt is deprecated, run :command to update your cipher.',
     'edit_times' => 'Edit Times',
-    'inclusive_taxes_help' => 'Include <b>taxes in the cost</b>',
+    'inclusive_taxes_help' => 'Include taxes in the cost',
     'inclusive_taxes_notice' => 'This setting can not be changed once an invoice has been created.',
     'inclusive_taxes_warning' => 'Warning: existing invoices will need to be resaved',
     'copy_shipping' => 'Copy Shipping',
@@ -2706,7 +2706,7 @@ return [
     'return_to_login' => 'Return to Login',
     'convert_products_tip' => 'Note: add a :link named ":name" to see the exchange rate.',
     'amount_greater_than_balance' => 'The amount is greater than the invoice balance, a credit will be created with the remaining amount.',
-    'custom_fields_tip' => 'Use <code>Label|Option1,Option2</code> to show a select box.',
+    'custom_fields_tip' => 'Use Label|Option1,Option2 to show a select box.',
     'client_information' => 'Client Information',
     'client_information_text' => 'Use a permanent address where you can receive mail.',
     'updated_client_details' => 'Successfully updated client details',

@@ -64,7 +64,6 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
 
     Route::get('credits/{credit_invitation}', 'ClientPortal\CreditController@show')->name('credits.show_invitation');
 
-
     Route::get('client/switch_company/{contact}', 'ClientPortal\SwitchCompanyController')->name('switch_company');
 
     Route::post('documents/download_multiple', 'ClientPortal\DocumentController@downloadMultiple')->name('documents.download_multiple');
@@ -84,8 +83,6 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('credit/{invitation_key}/download_pdf', 'CreditController@downloadPdf')->name('credit.download_invitation_key');
     Route::get('{entity}/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
     Route::get('{entity}/{client_hash}/{invitation_key}', 'ClientPortal\InvitationController@routerForIframe')->name('invoice.client_hash_and_invitation_key'); //should never need this
-
-    Route::get('payment_hook/{company_gateway_id}/{gateway_type_id}', 'ClientPortal\PaymentHookController@process');
 });
 
 Route::get('phantom/{entity}/{invitation_key}', '\App\Utils\PhantomJS\Phantom@displayInvitation')->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
