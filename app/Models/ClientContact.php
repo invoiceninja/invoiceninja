@@ -207,6 +207,6 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     {
         $domain = isset($this->company->portal_domain) ?: $this->company->domain();
 
-        return $domain . 'client/key_login/' . $this->contact_key;
+        return $domain . '/client/key_login/' . $this->contact_key;
     }
 }

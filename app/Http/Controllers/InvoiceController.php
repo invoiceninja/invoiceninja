@@ -843,7 +843,7 @@ class InvoiceController extends BaseController
     {
         $file_path = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
         
-        $file = base_path("storage/app/public/{$file_path}");
+        $file = public_path("storage/{$file_path}");
 
         return response()->download($file, basename($file));
     }
