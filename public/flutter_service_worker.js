@@ -26,7 +26,7 @@ const RESOURCES = {
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/NOTICES": "7d8f2aa600c3ae24c9efdad38c9f53b4",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "c1242726c7eac4eb5e843d826f78fb1b",
-"main.dart.js": "f796a2569497c27779c8b5e81bce9555",
+"main.dart.js": "d361e1c5411cf7fe77a39c60139a0073",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
 "/": "23224b5e03519aaa87594403d54412cf",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
