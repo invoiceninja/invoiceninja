@@ -377,8 +377,6 @@ class Design extends BaseDesign
                     // $task.cost => $task.rate
                     // $task.quantity => $task.hours
 
-                    info($row);
-
                     if ($cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.cost']];
                     } elseif ($cell == '$task.hours') {
