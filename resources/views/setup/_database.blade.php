@@ -38,7 +38,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.host') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input w-full" name="host" required value="{{ old('host') ?: 'localhost'}}">
+                    <input type="text" class="input w-full" name="db_host" required value="{{ old('host') ?: 'localhost'}}">
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -46,7 +46,7 @@ FLUSH PRIVILEGES;
                     {{ ctrans('texts.database') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input w-full" name="database" required value="{{ old('database') ?: 'db-ninja-01'}}">
+                    <input type="text" class="input w-full" name="db_database" required value="{{ old('database') ?: 'db-ninja-01'}}">
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">

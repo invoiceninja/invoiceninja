@@ -67,11 +67,33 @@ class SetupController extends Controller
             return response('Oops, something went wrong. Check your logs.'); /* We should never reach this block, but just in case. */
         }
 
-        $mail_driver = $request->input('mail_driver');
-
-        if (!$this->failsafeMailCheck($request)) {
-            $mail_driver = 'log';
+        try {
+            $db = SystemHealth::dbCheck($request);
+            
+            if ($db['success'] == false) {
+                throw new \Exception($db['message']);
+            }
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Oops, connection to database was not successful.',
+                'error' => $e->getMessage(),
+            ]);
         }
+
+        try {
+            $smtp = SystemHealth::testMailServer($request);
+
+            if ($smtp['success'] == false) {
+                throw new \Exception($smtp['message']);
+            }
+        } catch (\Exception $e) {
+            return response([
+                'message' => 'Oops, connection to mail server was not successful.',
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        $mail_driver = $request->input('mail_driver');
 
         $url = $request->input('url');
 
@@ -84,8 +106,8 @@ class SetupController extends Controller
             'REQUIRE_HTTPS' => $request->input('https') ? 'true' : 'false',
             'APP_DEBUG' => $request->input('debug') ? 'true' : 'false',
 
-            'DB_HOST1' => $request->input('host'),
-            'DB_DATABASE1' => $request->input('database'),
+            'DB_HOST1' => $request->input('db_host'),
+            'DB_DATABASE1' => $request->input('db_database'),
             'DB_USERNAME1' => $request->input('db_username'),
             'DB_PASSWORD1' => $request->input('db_password'),
 
@@ -171,12 +193,12 @@ class SetupController extends Controller
     public function checkMail(CheckMailRequest $request)
     {
         try {
-            $response_array = SystemHealth::testMailServer($request);
+            $response = SystemHealth::testMailServer($request);
 
-            if (count($response_array) == 0) {
+            if ($response['success']) {
                 return response([], 200);
             } else {
-                return response()->json(['message' => $response_array[0]], 400);
+                return response()->json(['message' => $response['message']], 400);
             }
         } catch (Exception $e) {
             info(['message' => $e->getMessage(), 'action' => 'SetupController::checkMail()']);
@@ -187,10 +209,10 @@ class SetupController extends Controller
 
     private function failsafeMailCheck($request)
     {
-        $response_array = SystemHealth::testMailServer($request);
+        $response = SystemHealth::testMailServer($request);
 
-        if ($response_array instanceof Response) {
-            return true;
+        if ($response['success']) {
+            true;
         }
 
         return false;
