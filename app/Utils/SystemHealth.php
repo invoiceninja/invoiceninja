@@ -11,8 +11,6 @@
 
 namespace App\Utils;
 
-use App\Http\Requests\Setup\CheckDatabaseRequest;
-use App\Http\Requests\Setup\CheckMailRequest;
 use App\Libraries\MultiDB;
 use App\Mail\TestMailServer;
 use Exception;
