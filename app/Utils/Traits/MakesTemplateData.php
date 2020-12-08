@@ -191,7 +191,7 @@ trait MakesTemplateData
         $data['$product.line_total'] = ['value' => '$20.00', 'label' => ctrans('texts.line_total')];
         $data['$task.date'] = ['value' => '2010-02-03', 'label' => ctrans('texts.date')];
         $data['$task.discount'] = ['value' => '5%', 'label' => ctrans('texts.discount')];
-        $data['$task.product_key'] = ['value' => 'key', 'label' => ctrans('texts.product_key')];
+        $data['$task.service'] = ['value' => 'key', 'label' => ctrans('texts.service')];
         $data['$task.notes'] = ['value' => 'Note for Tasks', 'label' => ctrans('texts.notes')];
         $data['$task.rate'] = ['value' => '$100.00', 'label' => ctrans('texts.rate')];
         $data['$task.hours'] = ['value' => '1', 'label' => ctrans('texts.hours')];

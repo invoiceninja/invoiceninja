@@ -300,9 +300,7 @@ class Design extends BaseDesign
         $elements = [];
 
         // Some of column can be aliased. This is simple workaround for these.
-        $aliases = [
-            '$task.product_key' => '$task.service',
-        ];
+        $aliases = [];
 
         foreach ($this->context['pdf_variables']["{$type}_columns"] as $column) {
             if (array_key_exists($column, $aliases)) {

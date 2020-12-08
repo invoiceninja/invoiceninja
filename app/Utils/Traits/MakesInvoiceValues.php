@@ -617,6 +617,7 @@ trait MakesInvoiceValues
             }
 
             $data[$key][$table_type.'.product_key'] = $item->product_key;
+            $data[$key][$table_type.'.service'] = is_null(optional($item)->service) ? $item->product_key : $item->service;
             $data[$key][$table_type.'.notes'] = $item->notes;
             $data[$key][$table_type.'.description'] = $item->notes;
             $data[$key][$table_type.'.custom_value1'] = $item->custom_value1;
