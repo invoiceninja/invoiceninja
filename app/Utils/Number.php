@@ -103,7 +103,9 @@ class Number
         $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
 
-        if ($client->getSetting('show_currency_code') === true) {
+        if ($client->getSetting('show_currency_code') === true && $currency->code == 'CHF'){
+            return "{$code} {$value}";
+        } elseif ($client->getSetting('show_currency_code') === true) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
             return "{$value} ".trim($symbol);
