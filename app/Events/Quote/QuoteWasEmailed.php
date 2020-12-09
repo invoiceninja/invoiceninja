@@ -27,8 +27,6 @@ class QuoteWasEmailed
 
     public $company;
 
-    public $notes;
-
     public $event_vars;
 
     /**
@@ -39,10 +37,9 @@ class QuoteWasEmailed
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(QuoteInvitation $invitation, string $notes, Company $company, array $event_vars)
+    public function __construct(QuoteInvitation $invitation, Company $company, array $event_vars)
     {
         $this->invitation = $invitation;
-        $this->notes = $notes;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }

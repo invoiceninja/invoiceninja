@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Credit\CreditWasEmailed;
 use App\Events\Quote\QuoteWasEmailed;
 use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\Entity\EmailEntity;
@@ -131,6 +132,8 @@ class EmailController extends BaseController
             }
         });
 
+        $entity_obj->service()->markSent()->save();
+
         $entity_obj->last_sent_date = now();
         $entity_obj->save();
 
@@ -152,13 +155,16 @@ class EmailController extends BaseController
             $this->entity_transformer = QuoteTransformer::class;
 
             if($entity_obj->invitations->count() >= 1)
-                event(new QuoteWasEmailed($entity_obj->invitations->first(), '', $entity_obj->company, Ninja::eventVars()));
+                event(new QuoteWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars()));
 
         }
 
         if ($entity_obj instanceof Credit) {
             $this->entity_type = Credit::class;
             $this->entity_transformer = CreditTransformer::class;
+
+            if($entity_obj->invitations->count() >= 1)
+                event(new CreditWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars()));
         }
 
         if ($entity_obj instanceof RecurringInvoice) {

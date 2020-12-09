@@ -24,6 +24,7 @@ use App\Events\Contact\ContactLoggedIn;
 use App\Events\Credit\CreditWasArchived;
 use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasDeleted;
+use App\Events\Credit\CreditWasEmailed;
 use App\Events\Credit\CreditWasEmailedAndFailed;
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Events\Credit\CreditWasRestored;
@@ -110,6 +111,7 @@ use App\Listeners\Activity\VendorDeletedActivity;
 use App\Listeners\Activity\VendorRestoredActivity;
 use App\Listeners\Activity\VendorUpdatedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
+use App\Listeners\Credit\CreditEmailedNotification;
 use App\Listeners\Credit\CreditRestoredActivity;
 use App\Listeners\Credit\CreditViewedActivity;
 use App\Listeners\Document\DeleteCompanyDocuments;
@@ -227,6 +229,7 @@ class EventServiceProvider extends ServiceProvider
         CreditWasEmailedAndFailed::class => [
         ],
         CreditWasEmailed::class => [
+            CreditEmailedNotification::class,
         ],
         CreditWasMarkedSent::class => [
         ],
