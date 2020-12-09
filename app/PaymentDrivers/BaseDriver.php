@@ -460,4 +460,9 @@ class BaseDriver extends AbstractPaymentDriver
 
         return $this;
     }
+
+    public function getCompanyGatewayId(): int
+    {
+        return $this->company_gateway->id;
+    }
 }

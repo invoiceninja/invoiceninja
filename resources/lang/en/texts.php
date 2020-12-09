@@ -3314,4 +3314,6 @@ return [
 
     'service' => 'Service',
     'pay' => 'Pay',
+
+    'instructions' => 'Instructions',
 ];

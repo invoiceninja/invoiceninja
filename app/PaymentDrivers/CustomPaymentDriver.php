@@ -12,9 +12,12 @@
 
 namespace App\PaymentDrivers;
 
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
+use App\Models\PaymentType;
+use App\Models\SystemLog;
 
 /**
  * Class CustomPaymentDriver.
@@ -28,25 +31,13 @@ class CustomPaymentDriver extends BaseDriver
     /**
      * Returns the gateway types.
      */
-    public function gatewayTypes() :array
+    public function gatewayTypes(): array
     {
         $types = [
             GatewayType::CREDIT_CARD,
         ];
 
         return $types;
-    }
-
-    public function authorize($payment_method)
-    {
-    }
-
-    public function purchase($amount, $return_client_response = false)
-    {
-    }
-
-    public function refund(Payment $payment, $amount, $return_client_response = false)
-    {
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -58,11 +49,37 @@ class CustomPaymentDriver extends BaseDriver
 
     public function processPaymentView($data)
     {
-        return render('gateways.custom.landing_page', $data);
+        $data['title'] = $this->company_gateway->getConfigField('name');
+        $data['instructions'] = $this->company_gateway->getConfigField('text');
+        
+        $this->payment_hash->data = array_merge((array) $this->payment_hash->data, $data);
+        $this->payment_hash->save();
+        
+        $data['gateway'] = $this;
+
+        return render('gateways.custom.payment', $data);
     }
 
     public function processPaymentResponse($request)
     {
+        $data = [
+            'payment_method' => GatewayType::CREDIT_CARD,
+            'payment_type' => PaymentType::CREDIT_CARD_OTHER,
+            'amount' => $this->payment_hash->data->amount_with_fee,
+            'transaction_reference' => \Illuminate\Support\Str::uuid(),
+        ];
+
+        $payment = $this->createPayment($data, Payment::STATUS_PENDING);
+
+        SystemLogger::dispatch(
+            ['response' => $data, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_STRIPE,
+            $this->client,
+        );
+
+        return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }
 
     /**
