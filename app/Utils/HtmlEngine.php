@@ -343,7 +343,7 @@ class HtmlEngine
         $data['$item'] = ['value' => '', 'label' => ctrans('texts.item')];
         $data['$description'] = ['value' => '', 'label' => ctrans('texts.description')];
 
-        $data['$entity_footer'] = ['value' => $this->client->getSetting("{$this->entity_string}_footer"), 'label' => '']; 
+        $data['$entity_footer'] = ['value' => $this->client->getSetting("{$this->entity_string}_footer"), 'label' => ''];
 
         // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
         // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];

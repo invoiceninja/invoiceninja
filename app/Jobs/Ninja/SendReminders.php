@@ -14,6 +14,7 @@ namespace App\Jobs\Ninja;
 use App\DataMapper\InvoiceItem;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Jobs\Entity\EmailEntity;
+use App\Jobs\Util\WebHookHandler;
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
 use App\Models\Webhook;
@@ -26,7 +27,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
-use App\Jobs\Util\WebHookHandler;
 
 class SendReminders implements ShouldQueue
 {
