@@ -11,10 +11,13 @@
 
 namespace App\Models;
 
+use App\Events\Invoice\InvoiceReminderWasEmailed;
+use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Models\Activity;
 use App\Models\Presenters\InvoicePresenter;
 use App\Services\Invoice\InvoiceService;
 use App\Services\Ledger\LedgerService;
@@ -430,5 +433,31 @@ class Invoice extends BaseModel
     public function getTotalAttribute()
     {
         return $this->calc()->getTotal();
+    }
+
+
+    public function entityEmailEvent($invitation, $reminder_template)
+    {
+
+        switch ($reminder_template) {
+            case 'invoice':
+                event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars()));
+                break;
+            case 'reminder1':
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(), Activity::INVOICE_REMINDER1_SENT));
+                break;
+            case 'reminder2':
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(), Activity::INVOICE_REMINDER2_SENT));
+                break;
+            case 'reminder3':
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(), Activity::INVOICE_REMINDER3_SENT));
+                break;
+            case 'reminder_endless':
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(), Activity::INVOICE_REMINDER_ENDLESS_SENT));
+                break;
+            default:
+                # code...
+                break;
+        }
     }
 }
