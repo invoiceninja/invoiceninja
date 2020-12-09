@@ -602,15 +602,12 @@ trait GeneratesCounter
         }
 
         if ($entity instanceof Vendor) {
-
             $search[] = '{$vendor_id_number}';
             $replace[] = $entity->id_number;
-
-        } 
+        }
         
         if ($entity instanceof Expense) {
-
-            if($entity->vendor){
+            if ($entity->vendor) {
                 $search[] = '{$vendor_id_number}';
                 $replace[] = $entity->vendor->id_number;
 
@@ -629,7 +626,7 @@ trait GeneratesCounter
 
             $search[] = '{$expense_id_number}';
             $replace[] = $entity->id_number;
-        } 
+        }
         
         if ($entity->client) {
             $search[] = '{$client_custom1}';

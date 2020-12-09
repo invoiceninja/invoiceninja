@@ -69,7 +69,7 @@ class SetupController extends Controller
 
         try {
             $db = SystemHealth::dbCheck($request);
-            
+
             if ($db['success'] == false) {
                 throw new \Exception($db['message']);
             }
@@ -81,10 +81,12 @@ class SetupController extends Controller
         }
 
         try {
-            $smtp = SystemHealth::testMailServer($request);
+            if ($request->mail_driver != 'log') {
+                $smtp = SystemHealth::testMailServer($request);
 
-            if ($smtp['success'] == false) {
-                throw new \Exception($smtp['message']);
+                if ($smtp['success'] == false) {
+                    throw new \Exception($smtp['message']);
+                }
             }
         } catch (\Exception $e) {
             return response([
