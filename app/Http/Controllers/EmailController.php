@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Quote\QuoteWasEmailed;
 use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Mail\EntitySentMailer;
@@ -22,6 +23,7 @@ use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
@@ -117,6 +119,7 @@ class EmailController extends BaseController
         $template = $request->input('template');
         $template = str_replace("email_template_", "", $template);
 
+
         $entity_obj->invitations->each(function ($invitation) use ($subject, $body, $entity_string, $entity_obj, $template) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 $data = [
@@ -138,11 +141,19 @@ class EmailController extends BaseController
         if ($entity_obj instanceof Invoice) {
             $this->entity_type = Invoice::class;
             $this->entity_transformer = InvoiceTransformer::class;
+
+            if($entity_obj->invitations->count() >= 1)
+                $entity_obj->entityEmailEvent($entity_obj->invitations->first(), 'invoice');
+            
         }
 
         if ($entity_obj instanceof Quote) {
             $this->entity_type = Quote::class;
             $this->entity_transformer = QuoteTransformer::class;
+
+            if($entity_obj->invitations->count() >= 1)
+                event(new QuoteWasEmailed($entity_obj->invitations->first(), '', $entity_obj->company, Ninja::eventVars()));
+
         }
 
         if ($entity_obj instanceof Credit) {
@@ -154,7 +165,6 @@ class EmailController extends BaseController
             $this->entity_type = RecurringInvoice::class;
             $this->entity_transformer = RecurringInvoiceTransformer::class;
         }
-
 
         $entity_obj->service()->markSent()->save();
 
