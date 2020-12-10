@@ -14,7 +14,6 @@ namespace App\Console\Commands;
 use Composer\Console\Application;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use Log;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class PostUpdate extends Command
@@ -48,14 +47,14 @@ class PostUpdate extends Command
 
         try {
             Artisan::call('migrate', ['--force' => true]);
-        } catch (Exception $e) {
-            Log::error("I wasn't able to migrate the data.");
+        } catch (\Exception $e) {
+            info("I wasn't able to migrate the data.");
         }
 
         try {
             Artisan::call('optimize');
-        } catch (Exception $e) {
-            Log::error("I wasn't able to optimize.");
+        } catch (\Exception $e) {
+            info("I wasn't able to optimize.");
         }
 
         /* For the following to work, the web user (www-data) must own all the directories */
