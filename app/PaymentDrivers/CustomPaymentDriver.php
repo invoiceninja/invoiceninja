@@ -34,7 +34,7 @@ class CustomPaymentDriver extends BaseDriver
     public function gatewayTypes(): array
     {
         $types = [
-            GatewayType::CREDIT_CARD,
+            GatewayType::CUSTOM,
         ];
 
         return $types;
@@ -47,6 +47,12 @@ class CustomPaymentDriver extends BaseDriver
         return $this;
     }
 
+    /**
+     * View for displaying custom content of the driver.
+     * 
+     * @param array $data 
+     * @return mixed 
+     */
     public function processPaymentView($data)
     {
         $data['title'] = $this->company_gateway->getConfigField('name');
@@ -60,26 +66,14 @@ class CustomPaymentDriver extends BaseDriver
         return render('gateways.custom.payment', $data);
     }
 
+    /**
+     * Processing method for payment. Should never be reached with this driver.
+     * 
+     * @return mixed 
+     */
     public function processPaymentResponse($request)
     {
-        $data = [
-            'payment_method' => GatewayType::CREDIT_CARD,
-            'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-            'amount' => $this->payment_hash->data->amount_with_fee,
-            'transaction_reference' => \Illuminate\Support\Str::uuid(),
-        ];
-
-        $payment = $this->createPayment($data, Payment::STATUS_PENDING);
-
-        SystemLogger::dispatch(
-            ['response' => $data, 'data' => $data],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_STRIPE,
-            $this->client,
-        );
-
-        return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+        return redirect()->route('client.invoices');
     }
 
     /**
