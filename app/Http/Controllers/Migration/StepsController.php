@@ -124,12 +124,13 @@ class StepsController extends BaseController
             return back()->with('responseErrors', [trans('texts.cross_migration_message')]);
         }
 
-        $authentication = (new AuthService($request->email, $request->password))
+        $authentication = (new AuthService($request->email, $request->password, $request->has('api_secret') ? $request->api_secret : null))
             ->endpoint(session('MIGRATION_ENDPOINT'))
             ->start();
 
         if ($authentication->isSuccessful()) {
             session()->put('MIGRATION_ACCOUNT_TOKEN', $authentication->getAccountToken());
+            session()->put('MIGRAITON_API_SECRET', $authentication->getApiSecret());
 
             return redirect(
                 url('/migration/companies')

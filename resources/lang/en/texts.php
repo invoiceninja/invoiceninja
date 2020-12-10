@@ -3816,6 +3816,9 @@ $LANG = array(
     'activity_65' => ':user emailed third reminder for invoice :invoice to :contact',
     'activity_66' => ':user emailed endless reminder for invoice :invoice to :contact',
     'expense_category_id' => 'Expense Category ID',
+    'migration_auth_label' => 'Let\'s continue by authenticating.',
+    'api_secret' => 'API secret',
+    'migration_api_secret_notice' => 'You can find API_SECRET in the .env file or Invoice Ninja v5. If property is missing, leave field blank.',
 );
 
 return $LANG;
