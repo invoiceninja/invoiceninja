@@ -13,6 +13,8 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Models\CompanyGateway;
+use App\Models\Gateway;
 use App\Models\Presenters\ClientPresenter;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\GeneratesCounter;
@@ -452,11 +454,15 @@ class Client extends BaseModel implements HasLocalePreference
             $gateways = $this->company
                              ->company_gateways
                              ->whereIn('id', $transformed_ids)
+                             ->where('gateway_key', '!=', '54faab2ab6e3223dbe848b1686490baa')
                              ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority
                                  return array_search($model->id, $transformed_ids);// this closure sorts for us
                              });
         } else {
-            $gateways = $this->company->company_gateways->where('is_deleted', false);
+            $gateways = $this->company
+                             ->company_gateways
+                             ->where('gateway_key', '!=', '54faab2ab6e3223dbe848b1686490baa')
+                             ->where('is_deleted', false);
         }
 
         $payment_methods = [];
@@ -478,11 +484,49 @@ class Client extends BaseModel implements HasLocalePreference
         //** Plucks the remaining keys into its own collection
         $payment_methods_intersect = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
 
+        //handle custom gateways which are not unique'd()
+
+        //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
+        if ($company_gateways || $company_gateways == '0') {
+            $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
+            $gateways = $this->company
+                             ->company_gateways
+                             ->whereIn('id', $transformed_ids)
+                             ->where('gateway_key', '=', '54faab2ab6e3223dbe848b1686490baa')
+                             ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority
+                                 return array_search($model->id, $transformed_ids);// this closure sorts for us
+                             });
+        } else {
+            $gateways = $this->company
+                             ->company_gateways
+                             ->where('gateway_key', '=', '54faab2ab6e3223dbe848b1686490baa')
+                             ->where('is_deleted', false);
+        }
+
+        //note we have to use GatewayType::CREDIT_CARD as alias for CUSTOM
+        foreach ($gateways as $gateway) {
+            foreach ($gateway->driver($this)->gatewayTypes() as $type) {
+                if (isset($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {
+                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $amount)) {
+                        $payment_methods_intersect->push([$gateway->id => $type]);
+                    }
+                } else {
+                        $payment_methods_intersect->push([$gateway->id => $type]);
+                }
+            }
+        }
+
+        //handle custom gateways which are not unique'd()
+
+
+
+
+
         $payment_urls = [];
 
         foreach ($payment_methods_intersect as $key => $child_array) {
             foreach ($child_array as $gateway_id => $gateway_type_id) {
-                $gateway = $gateways->where('id', $gateway_id)->first();
+                $gateway = CompanyGateway::find($gateway_id);
 
                 $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
 
