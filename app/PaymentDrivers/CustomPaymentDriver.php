@@ -12,12 +12,9 @@
 
 namespace App\PaymentDrivers;
 
-use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
-use App\Models\PaymentType;
-use App\Models\SystemLog;
 
 /**
  * Class CustomPaymentDriver.
@@ -49,9 +46,9 @@ class CustomPaymentDriver extends BaseDriver
 
     /**
      * View for displaying custom content of the driver.
-     * 
-     * @param array $data 
-     * @return mixed 
+     *
+     * @param array $data
+     * @return mixed
      */
     public function processPaymentView($data)
     {
@@ -68,8 +65,8 @@ class CustomPaymentDriver extends BaseDriver
 
     /**
      * Processing method for payment. Should never be reached with this driver.
-     * 
-     * @return mixed 
+     *
+     * @return mixed
      */
     public function processPaymentResponse($request)
     {
