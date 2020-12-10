@@ -99,10 +99,10 @@ class SystemHealth
                 return empty($foo[0]) ? 'Found node, but no version information' : $foo[0];
             }
 
-            return false;
+            return 'Node not found.';
             
         } catch (Exception $e) {
-            return false;
+            return 'Node not found.';
         }
     }
 
@@ -115,10 +115,10 @@ class SystemHealth
                 return empty($foo[0]) ? 'Found npm, but no version information' : $foo[0];
             }
 
-            return false;
+            return 'NPM not found';
 
         } catch (Exception $e) {
-            return false;
+            return 'NPM not found';
         }
     }
 
