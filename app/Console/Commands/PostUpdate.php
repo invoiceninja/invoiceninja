@@ -11,6 +11,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\Util\VersionCheck;
 use Composer\Console\Application;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -65,6 +66,8 @@ class PostUpdate extends Command
         $application = new Application();
         $application->setAutoExit(false);
         $application->run($input);
+
+        VersionCheck::dispatch();
 
         echo "Done.";
     }
