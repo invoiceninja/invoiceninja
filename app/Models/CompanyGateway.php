@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\GatewayType;
 use App\PaymentDrivers\BasePaymentDriver;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -234,6 +235,9 @@ class CompanyGateway extends BaseModel
         if (is_null($this->fees_and_limits) || empty($this->fees_and_limits)) {
             return false;
         }
+
+        if($gateway_type_id == GatewayType::CUSTOM)
+            $gateway_type_id = GatewayType::CREDIT_CARD;
 
         return $this->fees_and_limits->{$gateway_type_id};
     }
