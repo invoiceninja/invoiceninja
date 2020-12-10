@@ -17,6 +17,7 @@ use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Libraries\MultiDB;
 use App\Models\User;
+use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends Request
 {
@@ -37,9 +38,11 @@ class StoreUserRequest extends Request
         $rules['first_name'] = 'required|string|max:100';
         $rules['last_name'] = 'required|string|max:100';
 
-        if (config('ninja.db.multi_db_enabled')) {
-            $rules['email'] = new ValidUserForCompany();
-        }
+        if (config('ninja.db.multi_db_enabled')) 
+            $rules['email'] = [new ValidUserForCompany(), Rule::unique('users')];
+        else
+            $rules['email'] = Rule::unique('users');
+
 
         if (auth()->user()->company()->account->isFreeHostedClient()) {
             $rules['hosted_users'] = new CanAddUserRule(auth()->user()->company()->account);

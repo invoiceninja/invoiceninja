@@ -13,6 +13,7 @@ namespace App\Events\Quote;
 
 use App\Models\Company;
 use App\Models\Quote;
+use App\Models\QuoteInvitation;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -22,11 +23,9 @@ class QuoteWasEmailed
 {
     use SerializesModels;
 
-    public $quote;
+    public $invitation;
 
     public $company;
-
-    public $notes;
 
     public $event_vars;
 
@@ -38,10 +37,9 @@ class QuoteWasEmailed
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(Quote $quote, string $notes, Company $company, array $event_vars)
+    public function __construct(QuoteInvitation $invitation, Company $company, array $event_vars)
     {
-        $this->quote = $quote;
-        $this->notes = $notes;
+        $this->invitation = $invitation;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }

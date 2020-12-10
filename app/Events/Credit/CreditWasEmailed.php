@@ -11,7 +11,8 @@
 
 namespace App\Events\Credit;
 
-use App\Models\Credit;
+use App\Models\Company;
+use App\Models\CreditInvitation;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -20,7 +21,7 @@ class CreditWasEmailed
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $credit;
+    public $invitation;
 
     public $company;
 
@@ -33,9 +34,9 @@ class CreditWasEmailed
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(Credit $credit, Company $company, array $event_vars)
+    public function __construct(CreditInvitation $invitation, Company $company, array $event_vars)
     {
-        $this->credit = $credit;
+        $this->invitation = $invitation;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }

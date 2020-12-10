@@ -24,6 +24,7 @@ use App\Events\Contact\ContactLoggedIn;
 use App\Events\Credit\CreditWasArchived;
 use App\Events\Credit\CreditWasCreated;
 use App\Events\Credit\CreditWasDeleted;
+use App\Events\Credit\CreditWasEmailed;
 use App\Events\Credit\CreditWasEmailedAndFailed;
 use App\Events\Credit\CreditWasMarkedSent;
 use App\Events\Credit\CreditWasRestored;
@@ -110,6 +111,7 @@ use App\Listeners\Activity\VendorDeletedActivity;
 use App\Listeners\Activity\VendorRestoredActivity;
 use App\Listeners\Activity\VendorUpdatedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
+use App\Listeners\Credit\CreditEmailedNotification;
 use App\Listeners\Credit\CreditRestoredActivity;
 use App\Listeners\Credit\CreditViewedActivity;
 use App\Listeners\Document\DeleteCompanyDocuments;
@@ -120,8 +122,8 @@ use App\Listeners\Invoice\InvoiceArchivedActivity;
 use App\Listeners\Invoice\InvoiceCancelledActivity;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
-use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
+use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Invoice\InvoiceReminderEmailActivity;
 use App\Listeners\Invoice\InvoiceRestoredActivity;
@@ -129,14 +131,15 @@ use App\Listeners\Invoice\InvoiceReversedActivity;
 use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Misc\InvitationViewedListener;
-use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Payment\PaymentEmailFailureActivity;
+use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
 use App\Listeners\Quote\QuoteApprovedActivity;
 use App\Listeners\Quote\QuoteArchivedActivity;
 use App\Listeners\Quote\QuoteDeletedActivity;
 use App\Listeners\Quote\QuoteEmailActivity;
+use App\Listeners\Quote\QuoteEmailedNotification;
 use App\Listeners\Quote\QuoteRestoredActivity;
 use App\Listeners\Quote\QuoteViewedActivity;
 use App\Listeners\Quote\ReachWorkflowSettings;
@@ -226,6 +229,7 @@ class EventServiceProvider extends ServiceProvider
         CreditWasEmailedAndFailed::class => [
         ],
         CreditWasEmailed::class => [
+            CreditEmailedNotification::class,
         ],
         CreditWasMarkedSent::class => [
         ],
@@ -332,6 +336,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         QuoteWasEmailed::class => [
             QuoteEmailActivity::class,
+            QuoteEmailedNotification::class,
         ],
         QuoteWasViewed::class => [
             QuoteViewedActivity::class,
