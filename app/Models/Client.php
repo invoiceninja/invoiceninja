@@ -484,9 +484,10 @@ class Client extends BaseModel implements HasLocalePreference
         //** Plucks the remaining keys into its own collection
         $payment_methods_intersect = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
 
-        //handle custom gateways which are not unique'd()
-
-        //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
+        // handle custom gateways as they are not unique'd()---------------------------------------------------------
+        // we need to split the query here as we allow multiple custom gateways, so we must show all of them, they query logic 
+        // above only pulls in unique gateway types.. ie.. we only allow 1 credit card gateway, but many custom gateways.
+        
         if ($company_gateways || $company_gateways == '0') {
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
             $gateways = $this->company
@@ -516,10 +517,7 @@ class Client extends BaseModel implements HasLocalePreference
             }
         }
 
-        //handle custom gateways which are not unique'd()
-
-
-
+        //handle custom gateways as they are not unique'd()---------------------------------------------------------
 
 
         $payment_urls = [];
