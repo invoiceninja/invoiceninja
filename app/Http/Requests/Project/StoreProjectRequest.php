@@ -15,6 +15,7 @@ use App\Http\Requests\Request;
 use App\Models\Client;
 use App\Models\Project;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class StoreProjectRequest extends Request
 {
@@ -36,7 +37,10 @@ class StoreProjectRequest extends Request
 
         $rules['name'] = 'required';
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
-        $rules['number'] = 'unique:projects,number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
+
+        if (isset($this->number)) {
+            $rules['number'] = Rule::unique('projects')->where('company_id', auth()->user()->company()->id);
+        }
 
         return $this->globalRules($rules);
     }
