@@ -116,16 +116,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.168.1",
+            "version": "3.168.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "d648085cce7bfadc8973a8ded401921583c1e3f9"
+                "reference": "1d6a976da857d13b156bd63613ee086c13f6dc29"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d648085cce7bfadc8973a8ded401921583c1e3f9",
-                "reference": "d648085cce7bfadc8973a8ded401921583c1e3f9",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/1d6a976da857d13b156bd63613ee086c13f6dc29",
+                "reference": "1d6a976da857d13b156bd63613ee086c13f6dc29",
                 "shasum": ""
             },
             "require": {
@@ -200,9 +200,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.168.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.168.2"
             },
-            "time": "2020-12-09T19:17:01+00:00"
+            "time": "2020-12-10T19:35:18+00:00"
         },
         {
             "name": "brick/math",
@@ -1778,16 +1778,16 @@
         },
         {
             "name": "fzaninotto/faker",
-            "version": "v1.9.1",
+            "version": "v1.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "fc10d778e4b84d5bd315dad194661e091d307c6f"
+                "reference": "848d8125239d7dbf8ab25cb7f054f1a630e68c2e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/fc10d778e4b84d5bd315dad194661e091d307c6f",
-                "reference": "fc10d778e4b84d5bd315dad194661e091d307c6f",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/848d8125239d7dbf8ab25cb7f054f1a630e68c2e",
+                "reference": "848d8125239d7dbf8ab25cb7f054f1a630e68c2e",
                 "shasum": ""
             },
             "require": {
@@ -1826,10 +1826,10 @@
             ],
             "support": {
                 "issues": "https://github.com/fzaninotto/Faker/issues",
-                "source": "https://github.com/fzaninotto/Faker/tree/v1.9.1"
+                "source": "https://github.com/fzaninotto/Faker/tree/v1.9.2"
             },
             "abandoned": true,
-            "time": "2019-12-12T13:22:17+00:00"
+            "time": "2020-12-11T09:56:16+00:00"
         },
         {
             "name": "google/apiclient",
@@ -13101,16 +13101,16 @@
         },
         {
             "name": "swagger-api/swagger-ui",
-            "version": "v3.37.2",
+            "version": "v3.38.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swagger-api/swagger-ui.git",
-                "reference": "f568592c176aa479e507e5b9480bd10a36202ba3"
+                "reference": "bf97e1f2439c26421fa36f187f675b6c81701368"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/f568592c176aa479e507e5b9480bd10a36202ba3",
-                "reference": "f568592c176aa479e507e5b9480bd10a36202ba3",
+                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/bf97e1f2439c26421fa36f187f675b6c81701368",
+                "reference": "bf97e1f2439c26421fa36f187f675b6c81701368",
                 "shasum": ""
             },
             "type": "library",
@@ -13156,9 +13156,9 @@
             ],
             "support": {
                 "issues": "https://github.com/swagger-api/swagger-ui/issues",
-                "source": "https://github.com/swagger-api/swagger-ui/tree/v3.37.2"
+                "source": "https://github.com/swagger-api/swagger-ui/tree/v3.38.0"
             },
-            "time": "2020-11-26T21:19:40+00:00"
+            "time": "2020-12-10T20:44:28+00:00"
         },
         {
             "name": "symfony/debug",

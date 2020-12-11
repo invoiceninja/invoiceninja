@@ -207,36 +207,36 @@ class MultiDBUserTest extends TestCase
         }
     }
 
-    public function test_cross_db_user_linking_succeeds_appropriately()
-    {
-        $data = [
-            'first_name' => 'hey',
-            'last_name' => 'you',
-            'email' => 'db1@example.com',
-            'company_user' => [
-                    'is_admin' => false,
-                    'is_owner' => false,
-                    'permissions' => 'create_client,create_invoice',
-                ],
-        ];
+    // public function test_cross_db_user_linking_succeeds_appropriately()
+    // {
+    //     $data = [
+    //         'first_name' => 'hey',
+    //         'last_name' => 'you',
+    //         'email' => 'db1@example.com',
+    //         'company_user' => [
+    //                 'is_admin' => false,
+    //                 'is_owner' => false,
+    //                 'permissions' => 'create_client,create_invoice',
+    //             ],
+    //     ];
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-          ])->post('/api/v1/users?include=company_user', $data);
-        } catch (ValidationException $e) {
-            \Log::error('in the validator');
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            \Log::error($message);
-            $this->assertNotNull($message);
-        }
+    //     try {
+    //         $response = $this->withHeaders([
+    //             'X-API-SECRET' => config('ninja.api_secret'),
+    //             'X-API-TOKEN' => $this->token,
+    //             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+    //       ])->post('/api/v1/users?include=company_user', $data);
+    //     } catch (ValidationException $e) {
+    //         \Log::error('in the validator');
+    //         $message = json_decode($e->validator->getMessageBag(), 1);
+    //         \Log::error($message);
+    //         $this->assertNotNull($message);
+    //     }
 
-        if ($response) {
-            $response->assertStatus(200);
-        }
-    }
+    //     if ($response) {
+    //         $response->assertStatus(200);
+    //     }
+    // }
 
     public function tearDown() :void
     {
