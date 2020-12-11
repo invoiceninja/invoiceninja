@@ -98,8 +98,11 @@ class SystemHealth
             if ($exitCode === 0) {
                 return empty($foo[0]) ? 'Found node, but no version information' : $foo[0];
             }
+
+            return 'Node not found.';
+            
         } catch (Exception $e) {
-            return false;
+            return 'Node not found.';
         }
     }
 
@@ -111,8 +114,11 @@ class SystemHealth
             if ($exitCode === 0) {
                 return empty($foo[0]) ? 'Found npm, but no version information' : $foo[0];
             }
+
+            return 'NPM not found';
+
         } catch (Exception $e) {
-            return false;
+            return 'NPM not found';
         }
     }
 

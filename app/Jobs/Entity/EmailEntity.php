@@ -56,6 +56,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
     public $email_entity_builder;
 
     public $template_data;
+
     /**
      * EmailEntity constructor.
      * @param Invitation $invitation
@@ -100,7 +101,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver();
 
         try {
-            /** @noinspection PhpMethodParametersCountMismatchInspection */
+
             Mail::to($this->invitation->contact->email, $this->invitation->contact->present()->name())
                 ->send(
                     new TemplateEmail(
@@ -115,9 +116,9 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
             $this->logMailError($e->getMessage(), $this->entity->client);
         }
 
-        if (count(Mail::failures()) == 0) {
-            $this->entityEmailSucceeded();
-        }
+        // if (count(Mail::failures()) == 0) {
+        //     $this->entityEmailSucceeded();
+        // }
 
         /* Mark entity sent */
         $this->entity->service()->markSent()->save();
@@ -149,29 +150,29 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
         }
     }
 
-    private function entityEmailSucceeded()
-    {
-        switch ($this->reminder_template) {
-            case 'invoice':
-                event(new InvoiceWasEmailed($this->invitation, $this->company, Ninja::eventVars()));
-                break;
-            case 'reminder1':
-                event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER1_SENT));
-                break;
-            case 'reminder2':
-                event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER2_SENT));
-                break;
-            case 'reminder3':
-                event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER3_SENT));
-                break;
-            case 'reminder_endless':
-                event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER_ENDLESS_SENT));
-                break;
-            default:
-                # code...
-                break;
-        }
-    }
+    // private function entityEmailSucceeded()
+    // {
+    //     switch ($this->reminder_template) {
+    //         case 'invoice':
+    //             event(new InvoiceWasEmailed($this->invitation, $this->company, Ninja::eventVars()));
+    //             break;
+    //         case 'reminder1':
+    //             event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER1_SENT));
+    //             break;
+    //         case 'reminder2':
+    //             event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER2_SENT));
+    //             break;
+    //         case 'reminder3':
+    //             event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER3_SENT));
+    //             break;
+    //         case 'reminder_endless':
+    //             event(new InvoiceReminderWasEmailed($this->invitation, $this->company, Ninja::eventVars(), Activity::INVOICE_REMINDER_ENDLESS_SENT));
+    //             break;
+    //         default:
+    //             # code...
+    //             break;
+    //     }
+    // }
 
     private function resolveEmailBuilder()
     {

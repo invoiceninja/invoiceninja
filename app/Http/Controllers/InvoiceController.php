@@ -12,7 +12,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\Events\Invoice\InvoiceWasCreated;
+use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Factory\CloneInvoiceFactory;
 use App\Factory\CloneInvoiceToQuoteFactory;
@@ -29,6 +31,7 @@ use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\StoreInvoice;
 use App\Jobs\Invoice\ZipInvoices;
 use App\Jobs\Util\UnlinkFile;
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Quote;
@@ -721,13 +724,14 @@ class InvoiceController extends BaseController
                 }
 
                 //touch reminder1,2,3_sent + last_sent here if the email is a reminder.
-
                 $invoice->service()->touchReminder($this->reminder_template)->save();
 
                 $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
-                    info("firing email");
                     EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template);
                 });
+
+                if($invoice->invitations->count() >= 1)
+                    $invoice->entityEmailEvent($invoice->invitations->first(), $this->reminder_template);
 
                 if (! $bulk) {
                     return response()->json(['message' => 'email sent'], 200);
@@ -844,7 +848,7 @@ class InvoiceController extends BaseController
         $file_path = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
         
         try {
-        $file = public_path("storage/{$file_path}");
+            $file = public_path("storage/{$file_path}");
 
 
             return response()->download($file, basename($file));
