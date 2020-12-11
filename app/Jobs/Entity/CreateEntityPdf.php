@@ -87,12 +87,14 @@ class CreateEntityPdf implements ShouldQueue
 
     public function handle()
     {
-        if (config('ninja.phantomjs_pdf_generation')) {
-            return (new Phantom)->generate($this->invitation);
-        }
 
         App::setLocale($this->contact->preferredLocale());
         App::forgetInstance('translator');
+        Lang::replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
+
+        if (config('ninja.phantomjs_pdf_generation')) {
+            return (new Phantom)->generate($this->invitation);
+        }
 
         $entity_design_id = '';
 
@@ -107,7 +109,6 @@ class CreateEntityPdf implements ShouldQueue
             $entity_design_id = 'credit_design_id';
         }
 
-        Lang::replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
 
         $file_path = $path.$this->entity->number.'.pdf';
 

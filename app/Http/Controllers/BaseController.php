@@ -421,8 +421,6 @@ class BaseController extends Controller
                 $data['report_errors'] = true;
             }
 
-            // $data['hash'] = md5_file(public_path('main.dart.js'));
-
             $this->buildCache();
 
             return view('index.index', $data);
