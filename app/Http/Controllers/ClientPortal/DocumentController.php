@@ -15,6 +15,7 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Documents\ShowDocumentRequest;
 use App\Http\Requests\Document\DownloadMultipleDocumentsRequest;
+use App\Models\ClientContact;
 use App\Models\Document;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
@@ -51,6 +52,17 @@ class DocumentController extends Controller
     public function download(ShowDocumentRequest $request, Document $document)
     {
         return Storage::disk($document->disk)->download($document->url, $document->name);
+    }
+
+    public function publicDownload(string $contact_key, Document $document)
+    {
+        //return failure if the contact is not associated with the document
+        $contact = ClientContact::where('contact_key', $contact_key)->firstOrFail();
+
+        if($contact->company_id == $document->company_id)
+            return Storage::disk($document->disk)->download($document->url, $document->name);
+
+        return response()->json(['message' => 'Access denied']);
     }
 
     public function downloadMultiple(DownloadMultipleDocumentsRequest $request)

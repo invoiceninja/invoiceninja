@@ -15,6 +15,7 @@ use App\DataMapper\CompanySettings;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
+use App\Factory\RecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
@@ -30,6 +31,7 @@ use App\Models\Expense;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
@@ -238,43 +240,26 @@ class DemoMode extends Command
             $this->info('creating entities for client #'.$client->id);
             $this->createInvoice($client, $u2->id);
 
-            // for($y=0; $y<($this->count); $y++){
-            //     $this->info("creating invoice #{$y} for client #".$client->id);
-            // }
+            $this->createRecurringInvoice($client, $u2->id);
 
             $client = $company->clients->random();
             $this->createCredit($client, $u2->id);
 
-            // for($y=0; $y<($this->count); $y++){
-            //     $this->info("creating credit #{$y} for client #".$client->id);
-            // }
-
             $client = $company->clients->random();
             $this->createQuote($client, $u2->id);
-
-            // for($y=0; $y<($this->count); $y++){
-            //     $this->info("creating quote #{$y}  for client #".$client->id);
-            // }
 
             $client = $company->clients->random();
             $this->createExpense($client);
 
-            //$this->info("creating expense for client #".$client->id);
-
             $client = $company->clients->random();
             $this->createVendor($client, $u2->id);
-
-            // $this->info("creating vendor for client #".$client->id);
 
             $client = $company->clients->random();
             $this->createTask($client, $u2->id);
 
-            // $this->info("creating task for client #".$client->id);
-
             $client = $company->clients->random();
             $this->createProject($client, $u2->id);
 
-            // $this->info("creating project for client #".$client->id);
         }
     }
 
@@ -352,6 +337,7 @@ class DemoMode extends Command
         $vendor = Task::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company_id,
+                'client_id' => $client->id
             ]);
     }
 
@@ -429,6 +415,60 @@ class DemoMode extends Command
         }
 
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
+    }
+
+    private function createRecurringInvoice($client, $assigned_user_id = null)
+    {
+        $faker = \Faker\Factory::create();
+
+        $invoice = RecurringInvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
+        $invoice->client_id = $client->id;
+        $invoice->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
+        $invoice->last_sent_date = now()->subMonth();
+        $invoice->next_send_date = now()->addMonthNoOverflow();
+
+        if ((bool) rand(0, 1)) {
+            $dateable = Carbon::now()->subDays(rand(0, 90));
+        } else {
+            $dateable = Carbon::now()->addDays(rand(0, 90));
+        }
+
+        $invoice->date = $dateable;
+
+        $invoice->line_items = $this->buildLineItems(rand(1, 10));
+        $invoice->uses_inclusive_taxes = false;
+
+        if (rand(0, 1)) {
+            $invoice->tax_name1 = 'GST';
+            $invoice->tax_rate1 = 10.00;
+        }
+
+        if (rand(0, 1)) {
+            $invoice->tax_name2 = 'VAT';
+            $invoice->tax_rate2 = 17.50;
+        }
+
+        if (rand(0, 1)) {
+            $invoice->tax_name3 = 'CA Sales Tax';
+            $invoice->tax_rate3 = 5;
+        }
+
+        // $invoice->custom_value1 = $faker->date;
+        // $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
+
+        $invoice->save();
+
+        $invoice_calc = new InvoiceSum($invoice);
+        $invoice_calc->build();
+
+        $invoice = $invoice_calc->getInvoice();
+
+        if (rand(0, 1)) {
+            $invoice->assigned_user_id = $assigned_user_id;
+        }
+
+        $invoice->save();
+
     }
 
     private function createCredit($client, $assigned_user_id = null)
