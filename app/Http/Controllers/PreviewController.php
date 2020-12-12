@@ -122,6 +122,9 @@ class PreviewController extends BaseController
                 ->design($design)
                 ->build();
 
+            if(request()->has('html') && request()->input('html') == true)
+                return $maker->getCompiledHTML;
+
             //if phantom js...... inject here..
             if (config('ninja.phantomjs_pdf_generation')) {
                 return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));

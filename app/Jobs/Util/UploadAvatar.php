@@ -36,11 +36,6 @@ class UploadAvatar implements ShouldQueue
     public function handle() : ?string
     {
 
-        //make dir
-        // info("avatar dir creation => ". $this->directory);
-        
-        // Storage::makeDirectory($this->directory, 0775);
-
         $tmp_file = sha1(time()).'.png';
 
         $im = imagecreatefromstring(file_get_contents($this->file));
@@ -50,8 +45,8 @@ class UploadAvatar implements ShouldQueue
 
         $path = Storage::putFile($this->directory, new File(sys_get_temp_dir().'/'.$tmp_file));
 
-        info($path);
-        info($tmp_file);
+        // info($path);
+        // info($tmp_file);
 
         $url = Storage::url($path);
 

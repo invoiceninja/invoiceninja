@@ -47,6 +47,7 @@
         "laravel/socialite": "^5",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
+        "league/csv": "^9.6",
         "league/flysystem-aws-s3-v3": "~1.0",
         "league/flysystem-cached-adapter": "^1.1",
         "league/fractal": "^0.17.0",

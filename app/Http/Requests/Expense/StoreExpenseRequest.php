@@ -35,9 +35,12 @@ class StoreExpenseRequest extends Request
     {
         $rules = [];
 
-        $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id);
+        if (isset($this->number)) {
+            $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id);
+        }
+        
         // $rules['number'] = 'unique:expenses,number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
-        $rules['contacts.*.email'] = 'nullable|distinct';
+        // $rules['contacts.*.email'] = 'nullable|distinct';
         //$rules['number'] = new UniqueExpenseNumberRule($this->all());
         $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
@@ -55,6 +58,10 @@ class StoreExpenseRequest extends Request
             $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
         }
 
+        if (! array_key_exists('currency_id', $input)) {
+            $input['currency_id'] = auth()->user()->company()->settings->currency_id;
+        }
+
         $this->replace($input);
     }
 
@@ -62,8 +69,6 @@ class StoreExpenseRequest extends Request
     {
         return [
             'unique' => ctrans('validation.unique', ['attribute' => 'email']),
-            //'required' => trans('validation.required', ['attribute' => 'email']),
-            'contacts.*.email.required' => ctrans('validation.email', ['attribute' => 'email']),
         ];
     }
 }

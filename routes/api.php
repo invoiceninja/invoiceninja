@@ -168,6 +168,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     /*Company Ledger */
     Route::get('company_ledger', 'CompanyLedgerController@index')->name('company_ledger.index');
 
+    Route::post('preimport', 'ImportController@preimport')->name('import.preimport');
+    
     /*
     Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
 
