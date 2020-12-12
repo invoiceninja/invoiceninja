@@ -38,6 +38,17 @@ class ImportController extends Controller
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\RequestBody(
+     *         description="The CSV file",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 type="string",
+     *                 format="binary"
+     *             )
+     *         )
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Returns a reference to the file",
@@ -68,6 +79,13 @@ class ImportController extends Controller
 
         //parse CSV
         $csv_array = $this->getCsvData(file_get_contents($request->file('file')->getPathname()));
+
+        $data['data'] = [
+            'hash' => $hash,
+            'headers' => array_slice($csv_array, 0, 2)
+        ];
+
+        return response()->json($data);
     }
 
 
@@ -79,7 +97,6 @@ class ImportController extends Controller
         }
 
         $csv = Reader::createFromString($csvfile);
-        //$csv->setHeaderOffset(0); //set the CSV header offset
         $stmt = new Statement();
         $data = iterator_to_array($stmt->process($csv));
 

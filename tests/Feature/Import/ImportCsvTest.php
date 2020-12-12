@@ -37,10 +37,9 @@ class ImportCsvTest extends TestCase
             ThrottleRequests::class
         );
 
-        $this->faker = \Faker\Factory::create();
+        // $this->faker = \Faker\Factory::create();
 
-
-        $this->makeTestData();
+        // $this->makeTestData();
 
         $this->withoutExceptionHandling();
     }
@@ -49,7 +48,7 @@ class ImportCsvTest extends TestCase
     {
         $csv = file_get_contents(base_path().'/tests/Feature/Import/invoice.csv');
 
-        return $this->getCsvData($csv);
+        $this->assertTrue(is_array($this->getCsvData($csv)));
     }
 
 
@@ -61,7 +60,6 @@ class ImportCsvTest extends TestCase
         }
 
         $csv = Reader::createFromString($csvfile);
-        //$csv->setHeaderOffset(0); //set the CSV header offset
         $stmt = new Statement();
         $data = iterator_to_array($stmt->process($csv));
 
@@ -78,7 +76,7 @@ class ImportCsvTest extends TestCase
                 }
             }
         }
-info(print_r($data,1));
+
         return $data;
     }
 }
