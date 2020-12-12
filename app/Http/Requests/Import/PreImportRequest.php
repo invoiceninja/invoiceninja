@@ -30,7 +30,7 @@ class PreImportRequest extends Request
     {
 
     	return [
-    		'file' => 'required|mimes:csv'
+    		'file' => 'required|file|mimes:csv,txt'
     	];
 
     }
