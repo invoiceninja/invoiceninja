@@ -132,7 +132,7 @@ class EmailController extends BaseController
             }
         });
 
-        $entity_obj->service()->markSent()->save();
+        $entity_obj = $entity_obj->service()->markSent()->save();
 
         $entity_obj->last_sent_date = now();
         $entity_obj->save();
@@ -171,8 +171,6 @@ class EmailController extends BaseController
             $this->entity_type = RecurringInvoice::class;
             $this->entity_transformer = RecurringInvoiceTransformer::class;
         }
-
-        $entity_obj->service()->markSent()->save();
 
         return $this->itemResponse($entity_obj);
     }
