@@ -78,7 +78,25 @@ class SystemHealth
             'node_status' => self::checkNode(),
             'cache_enabled' => self::checkConfigCache(),
             'phantom_enabled' => (bool) config('ninja.phantomjs_pdf_generation'),
+            'exec' => (bool) self::checkExecWorks(),
+            'open_basedir' => (bool) self::checkOpenBaseDir(),
         ];
+    }
+
+    public static function checkOpenBaseDir()
+    {
+        if(strlen(ini_get('open_basedir') == 0))
+            return true;
+
+        return false;
+    }
+
+    public static function checkExecWorks()
+    {
+        if(function_exists('exec')) 
+            return true;
+
+        return false;
     }
 
     public static function checkConfigCache()
