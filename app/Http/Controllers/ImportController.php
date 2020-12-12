@@ -75,7 +75,7 @@ class ImportController extends Controller
         $hash = Str::random(32);
 
         //store the csv in cache with an expiry of 10 minutes
-        Cache::put($hash, base64_encode(file_get_contents($request->file('file')->getPathname())), 10);
+        Cache::put($hash, base64_encode(file_get_contents($request->file('file')->getPathname())), 60);
 
         //parse CSV
         $csv_array = $this->getCsvData(file_get_contents($request->file('file')->getPathname()));
