@@ -20,11 +20,14 @@ use App\Models\InvoiceInvitation;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HtmlEngine;
+use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Lang;
 
 class PreviewController extends BaseController
 {
@@ -96,14 +99,15 @@ class PreviewController extends BaseController
 
             $entity_obj->load('client');
 
+            App::setLocale($entity_obj->client->primary_contact()->preferredLocale());
+            App::forgetInstance('translator');
+            Lang::replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
+
             $html = new HtmlEngine($entity_obj->invitations()->first());
 
             $design_namespace = 'App\Services\PdfMaker\Designs\\'.request()->design['name'];
 
             $design_class = new $design_namespace();
-
-            // $designer = new Designer($entity_obj, $design_object, $entity_obj->client->getSetting('pdf_variables'), lcfirst($entity));
-            // $html = $this->generateEntityHtml($designer, $entity_obj);
 
             $state = [
                 'template' => $design_class->elements([
@@ -141,6 +145,10 @@ class PreviewController extends BaseController
 
     private function blankEntity()
     {
+
+        App::forgetInstance('translator');
+        Lang::replace(Ninja::transformTranslations(auth()->user()->company()->settings));
+
         DB::beginTransaction();
 
         $client = Client::factory()->create([

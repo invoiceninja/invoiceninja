@@ -101,8 +101,6 @@ class Handler extends ExceptionHandler
 
     private function validException($exception) 
     {
-        info("the exception is ");
-        info($exception->getMessage());
 
         if(strpos($exception->getMessage(), 'file_put_contents') === TRUE)
             return FALSE;
@@ -110,6 +108,10 @@ class Handler extends ExceptionHandler
         if(strpos($exception->getMessage(), 'Permission denied') === TRUE)
             return FALSE;
         
+        if(strpos($exception->getMessage(), 'flock()') === TRUE)
+            return FALSE;
+        
+
         return TRUE;
     }
 
