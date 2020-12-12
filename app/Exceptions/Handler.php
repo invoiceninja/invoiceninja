@@ -72,10 +72,6 @@ class Handler extends ExceptionHandler
             info('account table not found');
             return;
         }
-        // if(Account::count() == 0){
-        //     info("handler - account table not found");
-        //     return;
-        // }
 
         if (app()->bound('sentry') && $this->shouldReport($exception)) {
             app('sentry')->configureScope(function (Scope $scope): void {
@@ -95,10 +91,26 @@ class Handler extends ExceptionHandler
             });
 
 //            app('sentry')->setRelease(config('ninja.app_version'));
-            app('sentry')->captureException($exception);
+
+             if($this->validException($exception))
+                app('sentry')->captureException($exception);
         }
 
         parent::report($exception);
+    }
+
+    private function validException($exception) 
+    {
+        info("the exception is ");
+        info($exception->getMessage());
+
+        if(strpos($exception->getMessage(), 'file_put_contents') === TRUE)
+            return FALSE;
+
+        if(strpos($exception->getMessage(), 'Permission denied') === TRUE)
+            return FALSE;
+        
+        return TRUE;
     }
 
     /**
