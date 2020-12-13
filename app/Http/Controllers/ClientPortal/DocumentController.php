@@ -54,15 +54,12 @@ class DocumentController extends Controller
         return Storage::disk($document->disk)->download($document->url, $document->name);
     }
 
-    public function publicDownload(string $contact_key, Document $document)
+    public function publicDownload(string $document_hash)
     {
-        //return failure if the contact is not associated with the document
-        $contact = ClientContact::where('contact_key', $contact_key)->firstOrFail();
 
-        if($contact->company_id == $document->company_id)
+        $document = Document::where('hash', $document_hash)->firstOrFail();
+
             return Storage::disk($document->disk)->download($document->url, $document->name);
-
-        return response()->json(['message' => 'Access denied']);
     }
 
     public function downloadMultiple(DownloadMultipleDocumentsRequest $request)

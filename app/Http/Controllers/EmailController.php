@@ -170,6 +170,6 @@ class EmailController extends BaseController
             $this->entity_transformer = RecurringInvoiceTransformer::class;
         }
 
-        return $this->itemResponse($entity_obj);
+        return $this->itemResponse($entity_obj->fresh());
     }
 }

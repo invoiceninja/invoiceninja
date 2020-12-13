@@ -37,9 +37,6 @@ class MarkSent extends AbstractService
             return $this->invoice;
         }
 
-info("in mark sent");
-info($this->invoice->balance);
-
         $this->invoice->markInvitationsSent();
 
         $this->invoice->setReminder();
@@ -52,11 +49,7 @@ info($this->invoice->balance);
              ->updateBalance($this->invoice->amount)
              ->save();
 
-info($this->invoice->balance);
-
         $this->client->service()->updateBalance($this->invoice->balance)->save();
-
-info($this->client->balance);
 
         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance);
 
