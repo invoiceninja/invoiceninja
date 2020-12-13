@@ -11,6 +11,7 @@
 
 namespace App\Events\Product;
 
+use App\Models\Company;
 use App\Models\Product;
 use Illuminate\Queue\SerializesModels;
 
