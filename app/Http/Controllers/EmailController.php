@@ -132,8 +132,6 @@ class EmailController extends BaseController
             }
         });
 
-        $entity_obj = $entity_obj->service()->markSent()->save();
-
         $entity_obj->last_sent_date = now();
         $entity_obj->save();
 
