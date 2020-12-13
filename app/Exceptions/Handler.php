@@ -67,7 +67,7 @@ class Handler extends ExceptionHandler
      * @throws Throwable
      */
     public function report(Throwable $exception)
-    {
+    {info("errrrrrrrrrrrrrrrrrr");
         if (! Schema::hasTable('accounts')) {
             info('account table not found');
             return;
@@ -101,6 +101,7 @@ class Handler extends ExceptionHandler
 
     private function validException($exception) 
     {
+        info("valid exception = " .$exception->getMessage());
 
         if(strpos($exception->getMessage(), 'file_put_contents') === TRUE)
             return FALSE;
