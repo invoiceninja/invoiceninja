@@ -22,7 +22,7 @@ Route::post('view/{entity_type}/{invitation_key}/password', 'ClientPortal\Entity
 Route::get('tmp_pdf/{hash}', 'ClientPortal\TempRouteController@index')->name('tmp_pdf');
 
 Route::get('client/key_login/{contact_key}', 'ClientPortal\ContactHashLoginController@login')->name('client.contact_login')->middleware(['contact_key_login']);
-Route::get('documents/{contact_key}/{document}/download', 'ClientPortal\DocumentController@publicDownload')->name('documents.public_download');
+Route::get('documents/{document_hash}', 'ClientPortal\DocumentController@publicDownload')->name('documents.public_download');
 
 //todo implement domain DB
 Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence'], 'prefix' => 'client', 'as' => 'client.'], function () {

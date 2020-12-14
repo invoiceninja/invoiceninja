@@ -13,11 +13,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Import\PreImportRequest;
+use App\Import\Definitions\Import\ImportMap;
 use Illuminate\Http\Request;
-use League\Csv\Reader;
-use League\Csv\Statement;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use League\Csv\Reader;
+use League\Csv\Statement;
 
 class ImportController extends Controller
 {
@@ -80,8 +81,9 @@ class ImportController extends Controller
         //parse CSV
         $csv_array = $this->getCsvData(file_get_contents($request->file('file')->getPathname()));
 
-        $data['data'] = [
+        $data = [
             'hash' => $hash,
+            'available' => InvoiceMap::importable(),
             'headers' => array_slice($csv_array, 0, 2)
         ];
 

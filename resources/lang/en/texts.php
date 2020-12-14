@@ -3321,4 +3321,9 @@ return [
     'notification_invoice_reminder2_sent_subject' => 'Reminder 2 for Invoice :invoice was sent to :client',
     'notification_invoice_reminder3_sent_subject' => 'Reminder 3 for Invoice :invoice was sent to :client',
     'notification_invoice_reminder_endless_sent_subject' => 'Endless reminder for Invoice :invoice was sent to :client',
+    'assigned_user' => 'Assigned User',
+    'custom_value3' => 'Custom Value',
+    'custom_value4' => 'Custom Value',
+    'inclusive_taxes' => 'Include taxes',
+
 ];

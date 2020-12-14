@@ -1048,13 +1048,11 @@ class Import implements ShouldQueue
 
             $cgt = ClientGatewayToken::Create($modified);
 
-            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+            $key = "client_gateway_tokens_{$resource['id']}";
 
-            $this->ids['client_gateway_tokens'] = [
-                "client_gateway_tokens_{$old_user_key}" => [
-                    'old' => $resource['id'],
-                    'new' => $cgt->id,
-                ],
+            $this->ids['client_gateway_tokens'][$key] = [
+                'old' => $resource['id'],
+                'new' => $cgt->id,
             ];
         }
 
@@ -1079,13 +1077,11 @@ class Import implements ShouldQueue
 
             $task_status = TaskStatus::Create($modified);
 
-            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+            $key = "task_statuses_{$resource['id']}";
 
-            $this->ids['task_statuses'] = [
-                "task_statuses_{$old_user_key}" => [
-                    'old' => $resource['id'],
-                    'new' => $task_status->id,
-                ],
+            $this->ids['task_statuses'][$key] = [
+                'old' => $resource['id'],
+                'new' => $task_status->id,
             ];
         }
 

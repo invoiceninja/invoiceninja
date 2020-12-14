@@ -68,6 +68,7 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
+
         if (! Schema::hasTable('accounts')) {
             info('account table not found');
             return;
@@ -90,8 +91,6 @@ class Handler extends ExceptionHandler
                 }
             });
 
-//            app('sentry')->setRelease(config('ninja.app_version'));
-
              if($this->validException($exception))
                 app('sentry')->captureException($exception);
         }
@@ -102,15 +101,14 @@ class Handler extends ExceptionHandler
     private function validException($exception) 
     {
 
-        if(strpos($exception->getMessage(), 'file_put_contents') === TRUE)
+        if(strpos($exception->getMessage(), 'file_put_contents') !== FALSE)
             return FALSE;
 
-        if(strpos($exception->getMessage(), 'Permission denied') === TRUE)
+        if(strpos($exception->getMessage(), 'Permission denied') !== FALSE)
             return FALSE;
         
-        if(strpos($exception->getMessage(), 'flock()') === TRUE)
-            return FALSE;
-        
+        if(strpos($exception->getMessage(), 'flock()') !== FALSE)
+            return FALSE;        
 
         return TRUE;
     }
