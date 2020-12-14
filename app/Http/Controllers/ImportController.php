@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Import\PreImportRequest;
 use App\Import\Definitions\Import\ImportMap;
+use App\Import\Definitions\InvoiceMap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
