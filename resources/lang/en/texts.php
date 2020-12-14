@@ -3314,6 +3314,9 @@ return [
 
     'service' => 'Service',
     'pay' => 'Pay',
+
+    'instructions' => 'Instructions',
+  
     'notification_invoice_reminder1_sent_subject' => 'Reminder 1 for Invoice :invoice was sent to :client',
     'notification_invoice_reminder2_sent_subject' => 'Reminder 2 for Invoice :invoice was sent to :client',
     'notification_invoice_reminder3_sent_subject' => 'Reminder 3 for Invoice :invoice was sent to :client',

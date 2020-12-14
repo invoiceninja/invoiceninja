@@ -36,9 +36,15 @@
                                 <div class="bg-white rounded-md shadow-xs">
                                     <div class="py-1">
                                         @foreach($payment_methods as $payment_method)
-                                        <a href="#" @click="{ open = false }" data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}" data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" data-cy="payment-method">
-                                            {{ $payment_method['label'] }}
-                                        </a>
+                                            @if($payment_method['label'] == 'Custom')
+                                                <a href="#" @click="{ open = false }" data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}" data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" data-cy="payment-method">
+                                                    {{ \App\Models\CompanyGateway::find($payment_method['company_gateway_id'])->firstOrFail()->getConfigField('name') }}
+                                                </a>
+                                            @else
+                                                <a href="#" @click="{ open = false }" data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}" data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" data-cy="payment-method">
+                                                    {{ $payment_method['label'] }}
+                                                </a>
+                                            @endif
                                         @endforeach
                                     </div>
                                 </div>
@@ -67,7 +73,7 @@
                     <div>
                         <dl>
                             @if(!empty($invoice->number) && !is_null($invoice->number))
-                            <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium leading-5 text-gray-500">
                                     {{ ctrans('texts.invoice_number') }}
                                 </dt>
@@ -88,7 +94,7 @@
                             </div>
                             @endif
 
-                            <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium leading-5 text-gray-500">
                                     {{ ctrans('texts.additional_info') }}
                                 </dt>
