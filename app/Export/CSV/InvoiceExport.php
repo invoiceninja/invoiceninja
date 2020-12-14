@@ -9,9 +9,10 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Export\CSV
+namespace App\Export\CSV;
 
 use App\Models\Company;
+use Excel;
 
 class InvoiceExport
 {
@@ -24,15 +25,15 @@ class InvoiceExport
 
 	public function export()
 	{
-		$fileName = 'test.csv';
+		// $fileName = 'test.csv';
 		
-		$data = $this->company->invoices->get();
+		// $data = $this->company->invoices->get();
 
-        return Excel::create($fileName, function ($excel) use ($data) {
-            $excel->sheet('', function ($sheet) use ($data) {
-                $sheet->loadView('export', $data);
-            });
-        })->download('csv');
+  //       return Excel::create($fileName, function ($excel) use ($data) {
+  //           $excel->sheet('', function ($sheet) use ($data) {
+  //               $sheet->loadView('export', $data);
+  //           });
+  //       })->download('csv');
 
 	}
 }
