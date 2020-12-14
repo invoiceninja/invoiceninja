@@ -11,7 +11,28 @@
 
 namespace App\Export\CSV
 
+use App\Models\Company;
+
 class InvoiceExport
 {
+	private $company;
 
+	public function __construct(Company $company)
+	{
+		$this->company = $company;
+	}
+
+	public function export()
+	{
+		$fileName = 'test.csv';
+		
+		$data = $this->company->invoices->get();
+
+        return Excel::create($fileName, function ($excel) use ($data) {
+            $excel->sheet('', function ($sheet) use ($data) {
+                $sheet->loadView('export', $data);
+            });
+        })->download('csv');
+
+	}
 }
