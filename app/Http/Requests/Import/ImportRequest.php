@@ -13,7 +13,7 @@ namespace App\Http\Requests\Import;
 
 use App\Http\Requests\Request;
 
-class PreImportRequest extends Request
+class ImportRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -29,7 +29,7 @@ class PreImportRequest extends Request
     {
 
     	return [
-    		'file' => 'required|file|mimes:csv,txt',
+    		'hash' => 'required',
             'entity_type' => 'required',
     	];
 

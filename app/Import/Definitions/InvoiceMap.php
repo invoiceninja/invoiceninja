@@ -54,6 +54,9 @@ class InvoiceMap
 			34 => 'invoice.line_items',
 			35 => 'client.name',
 			36 => 'client.email',
+			37 => 'payment.date',
+			38 => 'payment.amount',
+			39 => 'payment.transaction_reference',
 		];
 	}
 
@@ -75,7 +78,7 @@ class InvoiceMap
 			12 => 'texts.public_notes',
 			13 => 'texts.private_notes',
 			14 => 'texts.uses_inclusive_taxes',
-			15 => 'texts.tax_name1',
+			15 => 'texts.tax_name',
 			16 => 'texts.tax_rate',
 			17 => 'texts.tax_name',
 			18 => 'texts.tax_rate',
@@ -95,6 +98,11 @@ class InvoiceMap
 			32 => 'texts.surcharge',
 			33 => 'texts.exchange_rate',
 			34 => 'texts.items',
+			35 => 'texts.client_name',
+			36 => 'texts.email',
+			37 => 'texts.payment_date',
+			38 => 'texts.payment_amount',
+			39 => 'texts.transaction_reference',
 		];
 	}
 }
