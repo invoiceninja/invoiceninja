@@ -225,6 +225,7 @@ class StepsController extends BaseController
             $fileName = "{$accountKey}-{$date}-invoiceninja";
 
             $localMigrationData['data'] = [
+                'account' => $this->getAccount(),
                 'company' => $this->getCompany(),
                 'users' => $this->getUsers(),
                 'tax_rates' => $this->getTaxRates(),
