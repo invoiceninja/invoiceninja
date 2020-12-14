@@ -87,11 +87,17 @@ class CompleteService
 
     private function getHeaders()
     {
-        return [
+        $headers =  [
             'X-Requested-With' => 'XMLHttpRequest',
             'X-Api-Token' => $this->token,
             'Content-Type' => 'multipart/form-data',
         ];
+
+        if (session('MIGRATION_API_SECRET')) {
+            $headers['X-Api-Secret'] = session('MIGRATION_API_SECRET');
+        }
+
+        return $headers;
     }
 
     private function getUrl()
