@@ -104,6 +104,7 @@ class Import implements ShouldQueue
      * @var array
      */
     private $available_imports = [
+        'account',
         'company',
         'users',
         'payment_terms',
@@ -223,6 +224,13 @@ class Import implements ShouldQueue
 
             $client->company_ledger()->save($company_ledger);
         });
+    }
+
+    private function processAccount(array $data) :void
+    {
+        $account = $this->company->account;
+        $account->fill($data);
+        $account->save();
     }
 
     /**

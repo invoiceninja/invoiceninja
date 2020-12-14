@@ -66,6 +66,7 @@ class TaskTransformer extends EntityTransformer
             'custom_value4' => $task->custom_value4 ?: '',
             'status_id' => $this->encodePrimaryKey($task->status_id) ?: '',
             'status_sort_order' => (int) $task->status_sort_order,
+            'is_date_based' => (bool) $task->is_date_based,
         ];
     }
 }

@@ -79,6 +79,7 @@ class Company extends BaseModel
         'invoice_task_timelog',
         'auto_start_tasks',
         'is_disabled',
+        'default_task_is_date_based',
     ];
 
     protected $hidden = [
