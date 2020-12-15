@@ -16,6 +16,7 @@ use Composer\Console\Application;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 class PostUpdate extends Command
 {
@@ -57,10 +58,11 @@ class PostUpdate extends Command
         $input = new ArrayInput(['command' => 'install', '--no-dev' => 'true']);
         $application = new Application();
         $application->setAutoExit(false);
+        $output = new BufferedOutput();
         $application->run($input, $output);
         
         info(print_r($output->fetch(),1));
-        
+
         try {
             Artisan::call('optimize');
         } catch (\Exception $e) {
