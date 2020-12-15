@@ -10,11 +10,8 @@
  */
 namespace Tests\Feature\Import;
 
-use App\Models\Product;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Validation\ValidationException;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use Tests\MockAccountData;
@@ -54,7 +51,6 @@ class ImportCsvTest extends TestCase
 
     private function getCsvData($csvfile)
     {
-
         if (! ini_get('auto_detect_line_endings')) {
             ini_set('auto_detect_line_endings', '1');
         }

@@ -259,7 +259,6 @@ class DemoMode extends Command
 
             $client = $company->clients->random();
             $this->createProject($client, $u2->id);
-
         }
     }
 
@@ -468,7 +467,6 @@ class DemoMode extends Command
         }
 
         $invoice->save();
-
     }
 
     private function createCredit($client, $assigned_user_id = null)

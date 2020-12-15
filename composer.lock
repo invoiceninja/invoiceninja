@@ -210,12 +210,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/beganovich/chromium-pdf.git",
-                "reference": "0f1641f0f8272b68aa4942307b85fba5596a90c3"
+                "reference": "f6f32bb99616a1c1b7108250ccc438210134a99f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beganovich/chromium-pdf/zipball/0f1641f0f8272b68aa4942307b85fba5596a90c3",
-                "reference": "0f1641f0f8272b68aa4942307b85fba5596a90c3",
+                "url": "https://api.github.com/repos/beganovich/chromium-pdf/zipball/f6f32bb99616a1c1b7108250ccc438210134a99f",
+                "reference": "f6f32bb99616a1c1b7108250ccc438210134a99f",
                 "shasum": ""
             },
             "require": {
@@ -246,7 +246,7 @@
                 "issues": "https://github.com/beganovich/chromium-pdf/issues",
                 "source": "https://github.com/beganovich/chromium-pdf/tree/master"
             },
-            "time": "2020-12-14T15:49:17+00:00"
+            "time": "2020-12-15T10:16:36+00:00"
         },
         {
             "name": "brick/math",
