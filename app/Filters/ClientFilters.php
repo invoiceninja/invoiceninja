@@ -22,6 +22,18 @@ use Illuminate\Support\Facades\Gate;
  */
 class ClientFilters extends QueryFilters
 {
+
+    /**
+     * Filter by name.
+     *
+     * @param string $name
+     * @return Builder
+     */
+    public function name(string $name): Builder
+    {
+        return $this->builder->where('name', 'like', '%'.$name.'%');
+    }
+
     /**
      * Filter by balance.
      *
