@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "75cb7287f45830678381d8e27486cf4a",
+    "content-hash": "4b6a413f1316b8afef90d5a411e7d155",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -9558,22 +9558,22 @@
         },
         {
             "name": "turbo124/beacon",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/beacon.git",
-                "reference": "687484955bdc8bfca957ccd060e6c1fa41ada056"
+                "reference": "ae328ad12364186dd07d893d35f6991880b97f18"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/beacon/zipball/687484955bdc8bfca957ccd060e6c1fa41ada056",
-                "reference": "687484955bdc8bfca957ccd060e6c1fa41ada056",
+                "url": "https://api.github.com/repos/turbo124/beacon/zipball/ae328ad12364186dd07d893d35f6991880b97f18",
+                "reference": "ae328ad12364186dd07d893d35f6991880b97f18",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^7",
                 "illuminate/support": "^6.0|^7.0|^8.0",
-                "php": "^7.3"
+                "php": "^7.3|^7.4|^8"
             },
             "require-dev": {
                 "orchestra/testbench": "^4.0",
@@ -9615,9 +9615,9 @@
                 "turbo124"
             ],
             "support": {
-                "source": "https://github.com/turbo124/beacon/tree/1.0.3"
+                "source": "https://github.com/turbo124/beacon/tree/1.0.4"
             },
-            "time": "2020-10-01T05:21:36+00:00"
+            "time": "2020-12-15T20:56:25+00:00"
         },
         {
             "name": "turbo124/laravel-gmail",
@@ -13887,7 +13887,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.3|^7.4",
+        "php": "^7.3|^7.4|^8",
         "ext-json": "*"
     },
     "platform-dev": [],
