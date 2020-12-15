@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits\Pdf;
 
+use Beganovich\ChromiumPdf\ChromiumPdf;
 use Spatie\Browsershot\Browsershot;
 
 trait PdfMaker
@@ -26,6 +27,15 @@ trait PdfMaker
      */
     public function makePdf($header, $footer, $html)
     {
+        if (config('ninja.experimental_pdf_engine')) {
+            $pdf = new ChromiumPdf();
+
+            return $pdf
+                ->setChromiumPath(config('ninja.experimental_pdf_engine_chromium_path'))
+                ->setHtml($html)
+                ->generate();
+        }
+
         $browser = Browsershot::html($html);
 
         if (config('ninja.system.node_path')) {

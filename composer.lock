@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "35318cb6b03b84487f53dc09f2262030",
+    "content-hash": "75cb7287f45830678381d8e27486cf4a",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -203,6 +203,50 @@
                 "source": "https://github.com/aws/aws-sdk-php/tree/3.169.0"
             },
             "time": "2020-12-14T19:12:33+00:00"
+        },
+        {
+            "name": "beganovich/chromium-pdf",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/beganovich/chromium-pdf.git",
+                "reference": "0f1641f0f8272b68aa4942307b85fba5596a90c3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/beganovich/chromium-pdf/zipball/0f1641f0f8272b68aa4942307b85fba5596a90c3",
+                "reference": "0f1641f0f8272b68aa4942307b85fba5596a90c3",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.3|^7.4|^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Beganovich\\ChromiumPdf\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Benjamin Beganović",
+                    "email": "k1pstabug@gmail.com"
+                }
+            ],
+            "description": "Generate PDFs using headless Chromium",
+            "support": {
+                "issues": "https://github.com/beganovich/chromium-pdf/issues",
+                "source": "https://github.com/beganovich/chromium-pdf/tree/master"
+            },
+            "time": "2020-12-14T15:49:17+00:00"
         },
         {
             "name": "brick/math",
@@ -13837,6 +13881,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "beganovich/chromium-pdf": 20,
         "webpatser/laravel-countries": 20
     },
     "prefer-stable": true,

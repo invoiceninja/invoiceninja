@@ -32,7 +32,7 @@ return [
     'phantomjs_secret' => env('PHANTOMJS_SECRET', false),
     'phantomjs_pdf_generation' => env('PHANTOMJS_PDF_GENERATION', true),
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
-    
+
     'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://9b4e15e575214354a7d666489783904a@sentry.invoicing.co/6'),
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 
@@ -135,4 +135,6 @@ return [
     'designs' => [
         'base_path' => resource_path('views/pdf-designs/'),
     ],
+    'experimental_pdf_engine' => env('EXPERIMENTAL_PDF_ENGINE', false),
+    'experimental_pdf_engine_chromium_path' => env('EXPERIMENTAL_PDF_ENGINE_CHROMIUM_PATH', null),
 ];
