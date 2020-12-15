@@ -100,7 +100,7 @@ return [
     'powered_by' => 'Powered by',
     'no_items' => 'No items',
     'recurring_invoices' => 'Recurring Invoices',
-    'recurring_help' => 'Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. 
+    'recurring_help' => 'Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually.
         Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.
         Examples of dynamic invoice variables:
         <ul>
@@ -3277,7 +3277,7 @@ return [
 
     'under_payments_disabled' => 'Company doesn\'t support under payments.',
     'over_payments_disabled' => 'Company doesn\'t support over payments.',
-  
+
     'paused' => 'Paused',
 
     'saved_at' => 'Saved at :time',
@@ -3292,7 +3292,7 @@ return [
 
     'pay_with_credit' => 'Pay with credit',
     'payment_method_saving_failed' => 'Payment method can\'t be saved for future use.',
-    
+
     'pay_with' => 'Pay with',
 
     'n/a' => 'N/A',
@@ -3316,7 +3316,7 @@ return [
     'pay' => 'Pay',
 
     'instructions' => 'Instructions',
-  
+
     'notification_invoice_reminder1_sent_subject' => 'Reminder 1 for Invoice :invoice was sent to :client',
     'notification_invoice_reminder2_sent_subject' => 'Reminder 2 for Invoice :invoice was sent to :client',
     'notification_invoice_reminder3_sent_subject' => 'Reminder 3 for Invoice :invoice was sent to :client',
@@ -3326,4 +3326,6 @@ return [
     'custom_value4' => 'Custom Value',
     'inclusive_taxes' => 'Include taxes',
     'sort_order' => 'Sort Order',
+
+    'setup_steps_notice' => 'To proceed to next step, make sure you test each section.',
 ];
