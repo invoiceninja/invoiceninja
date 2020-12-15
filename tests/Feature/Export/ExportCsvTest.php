@@ -11,14 +11,9 @@
 namespace Tests\Feature\Export;
 
 use App\Models\Invoice;
-use App\Models\Product;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
-use League\Csv\Reader;
-use League\Csv\Statement;
 use League\Csv\Writer;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -63,31 +58,24 @@ class ExportCsvTest extends TestCase
         $merged_values = array_merge($header_invoice_values, (array)$header_item_values);
         $merged_keys = array_merge($header_invoice_keys, (array)$header_item_keys);
 
-        info(print_r( $merged_keys,1));
-        info(print_r( $merged_values,1));
+        info(print_r($merged_keys, 1));
+        info(print_r($merged_values, 1));
 
 
-        foreach($merged_keys as &$key) {
+        foreach ($merged_keys as &$key) {
             $key = ctrans('texts.'.$key);
         }
 
         $csv->insertOne($merged_keys);
 
-        foreach(Invoice::take(10)->get() as $invoice){
-        
-            foreach($invoice->line_items as $item) {
-
+        foreach (Invoice::take(10)->get() as $invoice) {
+            foreach ($invoice->line_items as $item) {
                 unset($invoice->line_items);
 
                 $csv->insertOne(array_merge($invoice->toArray(), (array)$item));
-
             }
-
-
         }
 
-        Storage::put(base_path('invy.csv'), $csv->getContent());                
-
+        Storage::put(base_path('invy.csv'), $csv->getContent());
     }
-
 }

@@ -13,7 +13,6 @@ class TaskFields extends Migration
      */
     public function up()
     {
-
         Schema::table('tasks', function (Blueprint $table) {
             $table->boolean('is_date_based')->default(false);
         });
@@ -21,7 +20,6 @@ class TaskFields extends Migration
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('default_task_is_date_based')->default(false);
         });
-
     }
 
     /**
