@@ -9,7 +9,7 @@ on:
 name: phpunit
 jobs:
   phpunit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
         php-versions: ['7.3', '7.4']
