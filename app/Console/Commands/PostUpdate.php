@@ -52,20 +52,28 @@ class PostUpdate extends Command
             info("I wasn't able to migrate the data.");
         }
 
+        putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
+
+        $input = new ArrayInput(['command' => 'install', '--no-dev' => 'true']);
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->run($input, $output);
+        
+        info(print_r($output->fetch(),1));
+        
         try {
             Artisan::call('optimize');
         } catch (\Exception $e) {
             info("I wasn't able to optimize.");
         }
 
+        try {
+            Artisan::call('view:clear');
+        } catch (\Exception $e) {
+            info("I wasn't able to clear the views.");
+        }
+
         /* For the following to work, the web user (www-data) must own all the directories */
-
-        putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
-
-        $input = new ArrayInput(['command' => 'install', '--no-dev' => 'true']);
-        $application = new Application();
-        $application->setAutoExit(false);
-        $application->run($input);
 
         VersionCheck::dispatch();
 
