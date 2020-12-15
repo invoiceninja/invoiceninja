@@ -1,4 +1,4 @@
-<div class="bg-white shadow overflow-hidden rounded-lg mt-6" x-data="{ option: 'log' }">
+<div class="bg-white shadow overflow-hidden rounded-lg mt-6 hidden" id="mail-wrapper" x-data="{ option: 'log' }">
     <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900">
             {{ ctrans('texts.email_settings') }}
@@ -81,7 +81,7 @@
                     <input type="password" class="input w-full" name="mail_password">
                 </dd>
             </div>
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center" x-show="option != 'log'">
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
                 <dt class="text-sm leading-5 font-medium text-gray-500">
                     <button type="button" class="button button-primary bg-blue-600 py-2 px-3 text-xs" id="test-smtp-connection">
                         {{ ctrans('texts.send_test_email') }}
