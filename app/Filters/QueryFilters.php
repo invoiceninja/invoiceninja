@@ -104,11 +104,11 @@ abstract class QueryFilters
      * @param  string $value
      * @return stdClass
      */
-    public function split($value) : stdClass
+    public function split($value) : \stdClass
     {
         $exploded_array = explode(':', $value);
 
-        $parts = new stdClass;
+        $parts = new \stdClass;
 
         $parts->value = $exploded_array[0];
         $parts->operator = $this->operatorConvertor($exploded_array[1]);

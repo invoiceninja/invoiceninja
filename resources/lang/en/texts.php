@@ -3325,5 +3325,5 @@ return [
     'custom_value3' => 'Custom Value',
     'custom_value4' => 'Custom Value',
     'inclusive_taxes' => 'Include taxes',
-
+    'sort_order' => 'Sort Order',
 ];

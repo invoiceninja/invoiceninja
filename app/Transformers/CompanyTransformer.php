@@ -146,6 +146,7 @@ class CompanyTransformer extends EntityTransformer
             'invoice_task_documents' => (bool) $company->invoice_task_documents,
             'show_tasks_table' => (bool) $company->show_tasks_table,
             'use_credits_payment' => 'always', //todo remove
+            'default_task_is_date_based' => (bool)$company->default_task_is_date_based,
         ];
     }
 

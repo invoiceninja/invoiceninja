@@ -12,8 +12,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Import\ImportRequest;
 use App\Http\Requests\Import\PreImportRequest;
 use App\Import\Definitions\Import\ImportMap;
+use App\Import\Definitions\InvoiceMap;
+use App\Jobs\Import\CSVImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -90,6 +93,12 @@ class ImportController extends Controller
         return response()->json($data);
     }
 
+    public function import(ImportRequest $request)
+    {
+        CSVImport::dispatch($request, auth()->user()->company());
+        
+        return response()->json(['message' => 'Importing data, email will be sent on completion'], 200);
+    }
 
     private function getCsvData($csvfile)
     {
