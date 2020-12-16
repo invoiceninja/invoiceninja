@@ -80,6 +80,6 @@ class PostUpdate extends Command
 
         info("sent for version check");
         
-        echo "Done.";
+        // echo "Done.";
     }
 }
