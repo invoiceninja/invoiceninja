@@ -10,7 +10,8 @@
         "CRM",
         "Credit card billing",
         "projects",
-        "tasks"
+        "tasks",
+        "freelancer"
     ],
     "license": "Attribution Assurance License",
     "authors": [
@@ -52,7 +53,7 @@
         "league/flysystem-aws-s3-v3": "~1.0",
         "league/flysystem-cached-adapter": "^1.1",
         "league/fractal": "^0.17.0",
-        "league/omnipay": "^3.0",
+        "league/omnipay": "^3",
         "livewire/livewire": "^2.0",
         "maennchen/zipstream-php": "^1.2",
         "nwidart/laravel-modules": "^8.0",

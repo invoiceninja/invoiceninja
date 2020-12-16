@@ -29,8 +29,10 @@ class ImportRequest extends Request
     {
 
     	return [
-    		'hash' => 'required',
-            'entity_type' => 'required',
+    		'hash' => 'required|string',
+            'entity_type' => 'required|string',
+            'column_map' => 'required|array',
+            'skip_header' => 'required|boolean'
     	];
 
     }
