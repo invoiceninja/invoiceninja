@@ -116,16 +116,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.170.0",
+            "version": "3.171.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "7f457a08219173eba4b856cb7aef3a903cd790cc"
+                "reference": "e88837e34fe798484f4589ad30c597a231750b10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7f457a08219173eba4b856cb7aef3a903cd790cc",
-                "reference": "7f457a08219173eba4b856cb7aef3a903cd790cc",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/e88837e34fe798484f4589ad30c597a231750b10",
+                "reference": "e88837e34fe798484f4589ad30c597a231750b10",
                 "shasum": ""
             },
             "require": {
@@ -200,9 +200,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.170.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.171.0"
             },
-            "time": "2020-12-15T19:13:22+00:00"
+            "time": "2020-12-16T19:12:20+00:00"
         },
         {
             "name": "beganovich/chromium-pdf",
