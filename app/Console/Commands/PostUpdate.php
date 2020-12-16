@@ -53,6 +53,8 @@ class PostUpdate extends Command
             info("I wasn't able to migrate the data.");
         }
 
+        info("finished migrating");
+
         putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
 
         $input = new ArrayInput(['command' => 'install', '--no-dev' => 'true']);
@@ -60,6 +62,8 @@ class PostUpdate extends Command
         $application->setAutoExit(false);
         $output = new BufferedOutput();
         $application->run($input, $output);
+        
+        info("finished running composer install ");
         
         info(print_r($output->fetch(), 1));
 
