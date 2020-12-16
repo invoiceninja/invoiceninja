@@ -84,9 +84,11 @@ class ImportController extends Controller
         //parse CSV
         $csv_array = $this->getCsvData(file_get_contents($request->file('file')->getPathname()));
 
+        $class_map = $this->getEntityMap($request->input('entity_type'));
+
         $data = [
             'hash' => $hash,
-            'available' => InvoiceMap::importable(),
+            'available' => $class_map::importable(),
             'headers' => array_slice($csv_array, 0, 2)
         ];
 
@@ -95,9 +97,15 @@ class ImportController extends Controller
 
     public function import(ImportRequest $request)
     {
-        CSVImport::dispatch($request, auth()->user()->company());
+
+        CSVImport::dispatch($request->all(), auth()->user()->company());
         
         return response()->json(['message' => 'Importing data, email will be sent on completion'], 200);
+    }
+
+    private function getEntityMap($entity_type)
+    {
+        return sprintf('App\\Import\\Definitions\%sMap', ucfirst($entity_type));
     }
 
     private function getCsvData($csvfile)
