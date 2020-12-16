@@ -69,16 +69,22 @@ class PostUpdate extends Command
             info("I wasn't able to optimize.");
         }
 
+        info("optimized");
+
         try {
             Artisan::call('view:clear');
         } catch (\Exception $e) {
             info("I wasn't able to clear the views.");
         }
 
+        info("view cleared");
+
         /* For the following to work, the web user (www-data) must own all the directories */
 
         VersionCheck::dispatch();
 
+        info("sent for version check");
+        
         echo "Done.";
     }
 }
