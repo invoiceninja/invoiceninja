@@ -20,10 +20,10 @@ class ClientTransformer extends BaseTransformer
             return false;
         }
 
-            $settings = new \stdClass;
-            $settings->currency_id = (string)$this->getCurrencyByCode($data);
+        $settings = new \stdClass;
+        $settings->currency_id = (string)$this->getCurrencyByCode($data);
 
-            return [
+        return [
                 'company_id' => $this->maps['company']->id,
                 'name' => $this->getString($data, 'client.name'),
                 'work_phone' => $this->getString($data, 'client.phone'),
@@ -65,6 +65,5 @@ class ClientTransformer extends BaseTransformer
                 'country_id' => isset($data->country_id) ? $this->getCountryId($data->country_id) : null,
                 'shipping_country_id' => isset($data->shipping_country_id) ? $this->getCountryId($data->shipping_country_id) : null,
             ];
-
     }
 }

@@ -11,7 +11,6 @@
 
 namespace App\Exceptions;
 
-use App\Models\Account;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -68,7 +67,6 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
-
         if (! Schema::hasTable('accounts')) {
             info('account table not found');
             return;
@@ -91,26 +89,29 @@ class Handler extends ExceptionHandler
                 }
             });
 
-             if($this->validException($exception))
+            if ($this->validException($exception)) {
                 app('sentry')->captureException($exception);
+            }
         }
 
         parent::report($exception);
     }
 
-    private function validException($exception) 
+    private function validException($exception)
     {
+        if (strpos($exception->getMessage(), 'file_put_contents') !== false) {
+            return false;
+        }
 
-        if(strpos($exception->getMessage(), 'file_put_contents') !== FALSE)
-            return FALSE;
-
-        if(strpos($exception->getMessage(), 'Permission denied') !== FALSE)
-            return FALSE;
+        if (strpos($exception->getMessage(), 'Permission denied') !== false) {
+            return false;
+        }
         
-        if(strpos($exception->getMessage(), 'flock()') !== FALSE)
-            return FALSE;        
+        if (strpos($exception->getMessage(), 'flock()') !== false) {
+            return false;
+        }
 
-        return TRUE;
+        return true;
     }
 
     /**

@@ -16,24 +16,23 @@ use Excel;
 
 class InvoiceExport
 {
-	private $company;
+    private $company;
 
-	public function __construct(Company $company)
-	{
-		$this->company = $company;
-	}
+    public function __construct(Company $company)
+    {
+        $this->company = $company;
+    }
 
-	public function export()
-	{
-		// $fileName = 'test.csv';
-		
-		// $data = $this->company->invoices->get();
+    public function export()
+    {
+        // $fileName = 'test.csv';
+        
+        // $data = $this->company->invoices->get();
 
   //       return Excel::create($fileName, function ($excel) use ($data) {
   //           $excel->sheet('', function ($sheet) use ($data) {
   //               $sheet->loadView('export', $data);
   //           });
   //       })->download('csv');
-
-	}
+    }
 }

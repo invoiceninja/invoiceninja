@@ -209,7 +209,4 @@ trait MakesReminders
                 return null;
         }
     }
-
 }
-
-

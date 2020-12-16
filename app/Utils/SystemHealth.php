@@ -85,16 +85,18 @@ class SystemHealth
 
     public static function checkOpenBaseDir()
     {
-        if(strlen(ini_get('open_basedir') == 0))
+        if (strlen(ini_get('open_basedir') == 0)) {
             return true;
+        }
 
         return false;
     }
 
     public static function checkExecWorks()
     {
-        if(function_exists('exec')) 
+        if (function_exists('exec')) {
             return true;
+        }
 
         return false;
     }
@@ -118,7 +120,6 @@ class SystemHealth
             }
 
             return 'Node not found.';
-            
         } catch (Exception $e) {
             return 'Node not found.';
         }
@@ -134,7 +135,6 @@ class SystemHealth
             }
 
             return 'NPM not found';
-
         } catch (Exception $e) {
             return 'NPM not found';
         }

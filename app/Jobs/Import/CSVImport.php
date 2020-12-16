@@ -21,19 +21,16 @@ use App\Models\Currency;
 use App\Models\User;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
-use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 use League\Csv\Reader;
 use League\Csv\Statement;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 
 class CSVImport implements ShouldQueue
 {
@@ -116,11 +113,11 @@ class CSVImport implements ShouldQueue
         $client_repository = new ClientRepository($contact_repository);
         $client_transformer = new ClientTransformer($this->maps);
 
-        if($this->skip_header)
+        if ($this->skip_header) {
             array_shift($records);
+        }
 
-        foreach($records as $record) {
-
+        foreach ($records as $record) {
             $keys = $this->column_map;
             $values = array_intersect_key($record, $this->column_map);
 
@@ -132,31 +129,29 @@ class CSVImport implements ShouldQueue
 
             if ($validator->fails()) {
                 $this->error_array[] = ['client' => $client, 'error' => json_encode($validator->errors())];
-            }
-            else{
+            } else {
                 $client = $client_repository->save($client, ClientFactory::create($this->company->id, $this->setUser($record)));
 
-                if(array_key_exists('client.balance', $client_data))
+                if (array_key_exists('client.balance', $client_data)) {
                     $client->balance = preg_replace('/[^0-9,.]+/', '', $client_data['client.balance']);
+                }
 
-                if(array_key_exists('client.paid_to_date', $client_data))
+                if (array_key_exists('client.paid_to_date', $client_data)) {
                     $client->paid_to_date = preg_replace('/[^0-9,.]+/', '', $client_data['client.paid_to_date']);
+                }
 
                 $client->save();
 
                 $this->import_array['clients'][] = $client->id;
             }
-
         }
-
     }
 
     public function failed($exception)
     {
-
     }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private function buildMaps()
     {
         $this->maps['currencies'] = Currency::all();
@@ -171,24 +166,24 @@ class CSVImport implements ShouldQueue
     {
         $user_key_exists = array_search('client.user_id', $this->column_map);
 
-        if($user_key_exists)
+        if ($user_key_exists) {
             return $this->findUser($record[$user_key_exists]);
-        else
+        } else {
             return $this->company->owner()->id;
-
+        }
     }
 
-    private function findUser($user_hash) 
+    private function findUser($user_hash)
     {
         $user = User::where('company_id', $this->company->id)
                     ->where(\DB::raw('CONCAT_WS(" ", first_name, last_name)'), 'like', '%' . $user_hash . '%')
                     ->first();
 
-        if($user)
+        if ($user) {
             return $user->id;
-        else
+        } else {
             return $this->company->owner()->id;
-
+        }
     }
 
     private function getCsvData()
@@ -215,8 +210,5 @@ class CSVImport implements ShouldQueue
         }
 
         return $data;
-
-
-
     }
 }

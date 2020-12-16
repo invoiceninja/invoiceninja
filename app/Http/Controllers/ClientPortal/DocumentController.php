@@ -15,7 +15,6 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Documents\ShowDocumentRequest;
 use App\Http\Requests\Document\DownloadMultipleDocumentsRequest;
-use App\Models\ClientContact;
 use App\Models\Document;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
@@ -56,10 +55,9 @@ class DocumentController extends Controller
 
     public function publicDownload(string $document_hash)
     {
-
         $document = Document::where('hash', $document_hash)->firstOrFail();
 
-            return Storage::disk($document->disk)->download($document->url, $document->name);
+        return Storage::disk($document->disk)->download($document->url, $document->name);
     }
 
     public function downloadMultiple(DownloadMultipleDocumentsRequest $request)

@@ -27,13 +27,11 @@ class ImportRequest extends Request
 
     public function rules()
     {
-
-    	return [
-    		'hash' => 'required|string',
+        return [
+            'hash' => 'required|string',
             'entity_type' => 'required|string',
             'column_map' => 'required|array',
             'skip_header' => 'required|boolean'
-    	];
-
+        ];
     }
 }

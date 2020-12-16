@@ -8,7 +8,7 @@ use Exception;
 /**
  * Class BaseTransformer.
  */
-class BaseTransformer 
+class BaseTransformer
 {
     /**
      * @var
@@ -41,10 +41,11 @@ class BaseTransformer
     {
         $code = array_key_exists('client.currency_id', $data) ? $data['client.currency_id'] : false;
 
-        if($code)
-            return $this->maps['currencies']->where('code', $code)->first()->id;  
+        if ($code) {
+            return $this->maps['currencies']->where('code', $code)->first()->id;
+        }
 
-        return $this->maps['company']->settings->currency_id;      
+        return $this->maps['company']->settings->currency_id;
     }
 
     /**

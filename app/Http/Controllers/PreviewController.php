@@ -11,7 +11,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Designs\Designer;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -24,10 +23,10 @@ use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Response;
 
 class PreviewController extends BaseController
 {
@@ -126,8 +125,9 @@ class PreviewController extends BaseController
                 ->design($design)
                 ->build();
 
-            if(request()->has('html') && request()->input('html') == true)
+            if (request()->has('html') && request()->input('html') == true) {
                 return $maker->getCompiledHTML;
+            }
 
             //if phantom js...... inject here..
             if (config('ninja.phantomjs_pdf_generation')) {
@@ -145,7 +145,6 @@ class PreviewController extends BaseController
 
     private function blankEntity()
     {
-
         App::forgetInstance('translator');
         Lang::replace(Ninja::transformTranslations(auth()->user()->company()->settings));
 
