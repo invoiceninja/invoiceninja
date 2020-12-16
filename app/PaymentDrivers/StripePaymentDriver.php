@@ -343,9 +343,9 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->processVerification($request, $payment_method);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Company $company, CompanyGateway $company_gateway, Payment $payment)
+    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment)
     {
-        if ($request->type == 'source.chargable') {
+        if ($request->type == 'source.chargeable') {
             $payment->status_id = Payment::STATUS_COMPLETED;
             $payment->save();
         }
