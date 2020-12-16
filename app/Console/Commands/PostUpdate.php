@@ -55,16 +55,21 @@ class PostUpdate extends Command
 
         info("finished migrating");
 
-        putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
+        try {
+            putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
 
-        $input = new ArrayInput(['command' => 'install', '--no-dev' => 'true']);
-        $application = new Application();
-        $application->setAutoExit(false);
-        $output = new BufferedOutput();
-        $application->run($input, $output);
-        
+            $input = new ArrayInput(['command' => 'install', '--no-dev' => 'true']);
+            $application = new Application();
+            $application->setAutoExit(false);
+            $output = new BufferedOutput();
+            $application->run($input, $output);
+        }catch(\Exception $e) {
+            info("i wasn't able to compser install");
+            info(print_r($e->getMessage(),1));
+        }
+
         info("finished running composer install ");
-        
+
         info(print_r($output->fetch(), 1));
 
         try {
