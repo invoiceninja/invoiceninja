@@ -101,7 +101,6 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver();
 
         try {
-
             Mail::to($this->invitation->contact->email, $this->invitation->contact->present()->name())
                 ->send(
                     new TemplateEmail(

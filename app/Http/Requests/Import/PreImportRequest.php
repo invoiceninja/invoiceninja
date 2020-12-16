@@ -27,11 +27,9 @@ class PreImportRequest extends Request
 
     public function rules()
     {
-
-    	return [
-    		'file' => 'required|file|mimes:csv,txt',
+        return [
+            'file' => 'required|file|mimes:csv,txt',
             'entity_type' => 'required',
-    	];
-
+        ];
     }
 }

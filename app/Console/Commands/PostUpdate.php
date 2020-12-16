@@ -61,7 +61,7 @@ class PostUpdate extends Command
         $output = new BufferedOutput();
         $application->run($input, $output);
         
-        info(print_r($output->fetch(),1));
+        info(print_r($output->fetch(), 1));
 
         try {
             Artisan::call('optimize');
