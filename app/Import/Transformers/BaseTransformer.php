@@ -39,10 +39,8 @@ class BaseTransformer
 
     public function getCurrencyByCode($data)
     {
-        $code = $data['client.currency_id'];
+        $code = array_key_exists('client.currency_id', $data) ? $data['client.currency_id'] : false;
 
-        info(print_r($this->maps['currencies']->where('code', $code)->first(),1));
-        
         if($code)
             return $this->maps['currencies']->where('code', $code)->first()->id;  
 
