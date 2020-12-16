@@ -59,6 +59,10 @@
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     <div class="alert py-2 bg-gray-50" id="test-pdf-response"></div>
                 </dd>
+                <a target="_blank" class="block text-sm text-gray-900 leading-5 underline"
+                   href="https://invoiceninja.github.io/selfhost.html#phantom-js">
+                    {{ ctrans('texts.setup_phantomjs_note') }}
+                </a>
             </div>
         </dl>
     </div>
