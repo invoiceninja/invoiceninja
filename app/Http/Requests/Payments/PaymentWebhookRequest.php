@@ -18,9 +18,12 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Utils\Traits\MakesHash;
 
 class PaymentWebhookRequest extends Request
 {
+    use MakesHash;
+
     public function authorize()
     {
         return true;
@@ -41,7 +44,7 @@ class PaymentWebhookRequest extends Request
      */
     public function getCompanyGateway(): ?CompanyGateway
     {
-        return CompanyGateway::where('gateway_key', $this->gateway_key)->firstOrFail();
+        return CompanyGateway::find($this->decodePrimaryKey($this->company_gateway_id))->firstOrFail();
     }
 
     /**
@@ -55,6 +58,8 @@ class PaymentWebhookRequest extends Request
         if ($this->query('hash')) {
             return PaymentHash::where('hash', $this->query('hash'))->firstOrFail();
         }
+
+        return null;
     }
 
     /**
