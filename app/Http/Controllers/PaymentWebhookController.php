@@ -13,7 +13,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Payments\PaymentWebhookRequest;
-use Illuminate\Support\Arr;
 
 class PaymentWebhookController extends Controller
 {
@@ -25,9 +24,10 @@ class PaymentWebhookController extends Controller
     public function __invoke(PaymentWebhookRequest $request, string $company_gateway_id, string $company_key)
     {
         $payment = $request->getPayment();
+        $client = is_null($payment) ? $request->getClient() : $payment->client;
 
         return $request->getCompanyGateway()
-            ->driver($payment->client)
+            ->driver($client)
             ->processWebhookRequest($request, $payment);
     }
 }

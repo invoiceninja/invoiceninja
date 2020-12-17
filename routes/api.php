@@ -188,5 +188,3 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 Route::match(['get', 'post'], 'payment_webhook/{company_gateway_id}/{company_key}', 'PaymentWebhookController')->name('payment_webhook');
 
 Route::fallback('BaseController@notFound');
-
-// localhost:8080/payment_webhook/VolejRejNm/wrsef2tiyrwbcnrruwl24iqplayx0idmtjevmnyqniekawtwcgirgpzyceka4bd8

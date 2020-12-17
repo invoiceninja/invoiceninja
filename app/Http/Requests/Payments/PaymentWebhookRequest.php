@@ -77,23 +77,6 @@ class PaymentWebhookRequest extends Request
             return $this->getPaymentHash()->payment;
         }
 
-        /**
-         * Some gateways, like Stripe, send us transcation reference via webhook,
-         * so we can resolve payment from there.
-         */
-        if ($this->has('data') && $this->has('type')) {
-            $src = $this->data['object']['id'];
-
-            info('Using src: ' . $src);
-
-            $payment = \App\Models\Payment::where('transaction_reference', $src)->first();
-
-            info('payment fetched!');
-            info($payment);
-        }
-
-        info('before abort, 97');
-
         abort(404);
     }
 
