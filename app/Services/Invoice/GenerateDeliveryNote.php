@@ -88,6 +88,10 @@ class GenerateDeliveryNote
 
         $pdf = $this->makePdf(null, null, $maker->getCompiledHTML());
 
+        if (config('ninja.log_pdf_html')) {
+            info($maker->getCompiledHTML());
+        }
+
         Storage::disk($this->disk)->put($file_path, $pdf);
 
         return $file_path;

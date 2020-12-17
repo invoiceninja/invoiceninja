@@ -28,6 +28,7 @@
     "require": {
         "php": "^7.3|^7.4",
         "ext-json": "*",
+        "ext-libxml": "*",
         "asgrim/ofxparser": "^1.2",
         "authorizenet/authorizenet": "^2.0",
         "beganovich/chromium-pdf": "dev-master",
@@ -64,7 +65,8 @@
         "stripe/stripe-php": "^7.50",
         "turbo124/beacon": "^1",
         "turbo124/laravel-gmail": "^5.0",
-        "webpatser/laravel-countries": "dev-master#75992ad"
+        "webpatser/laravel-countries": "dev-master#75992ad",
+        "ext-dom": "*"
     },
     "require-dev": {
         "anahkiasen/former": "^4.2",

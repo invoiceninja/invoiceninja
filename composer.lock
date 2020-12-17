@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aeacc9e2738ddc41353c497c14feadb0",
+    "content-hash": "591cb6a81d2d0b2f4cc0bf1db7fde22c",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -13888,7 +13888,9 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^7.3|^7.4",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-dom": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.0.0"
