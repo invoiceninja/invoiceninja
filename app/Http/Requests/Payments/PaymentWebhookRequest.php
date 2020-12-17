@@ -18,9 +18,12 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Utils\Traits\MakesHash;
 
 class PaymentWebhookRequest extends Request
 {
+    use MakesHash;
+
     public function authorize()
     {
         return true;
@@ -41,20 +44,22 @@ class PaymentWebhookRequest extends Request
      */
     public function getCompanyGateway(): ?CompanyGateway
     {
-        return CompanyGateway::where('gateway_key', $this->gateway_key)->firstOrFail();
+        return CompanyGateway::find($this->decodePrimaryKey($this->company_gateway_id))->firstOrFail();
     }
 
     /**
      * Resolve payment hash.
      *
      * @param string $hash
-     * @return null|\App\Http\Requests\Payments\PaymentHash
+     * @return null|\App\Models\PaymentHash
      */
     public function getPaymentHash(): ?PaymentHash
     {
         if ($this->query('hash')) {
             return PaymentHash::where('hash', $this->query('hash'))->firstOrFail();
         }
+
+        return null;
     }
 
     /**
@@ -64,9 +69,32 @@ class PaymentWebhookRequest extends Request
      */
     public function getPayment(): ?Payment
     {
-        $hash = $this->getPaymentHash();
+        /**
+         * Some gateways, like Checkout, we can dynamically pass payment hash,
+         * which we will resolve here and get payment information from it.
+         */
+        if ($this->getPaymentHash()) {
+            return $this->getPaymentHash()->payment;
+        }
 
-        return $hash->payment;
+        /**
+         * Some gateways, like Stripe, send us transcation reference via webhook,
+         * so we can resolve payment from there.
+         */
+        if ($this->has('data') && $this->has('type')) {
+            $src = $this->data['object']['id'];
+
+            info('Using src: ' . $src);
+
+            $payment = \App\Models\Payment::where('transaction_reference', $src)->first();
+
+            info('payment fetched!');
+            info($payment);
+        }
+
+        info('before abort, 97');
+
+        abort(404);
     }
 
     /**

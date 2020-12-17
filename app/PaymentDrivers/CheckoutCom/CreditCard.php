@@ -129,7 +129,7 @@ class CreditCard
             $payment->{'3ds'} = ['enabled' => true];
 
             $payment->{'success_url'} = route('payment_webhook', [
-                'gateway_key' => $this->checkout->company_gateway->gateway_key,
+                'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
                 'company_key' => $this->checkout->client->company->company_key,
                 'hash' => $this->checkout->payment_hash->hash,
             ]);

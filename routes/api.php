@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Route;
+
 Route::group(['middleware' => ['api_secret_check']], function () {
     Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
     Route::post('api/v1/oauth_login', 'Auth\LoginController@oauthApiLogin');
@@ -170,7 +172,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('preimport', 'ImportController@preimport')->name('import.preimport');
     Route::post('import', 'ImportController@import')->name('import.import');
-    
+
     /*
     Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
 
@@ -183,6 +185,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('support/messages/send', 'Support\Messages\SendingController');
 });
 
-Route::match(['get', 'post'], 'payment_webhook/{gateway_key}/{company_key}', 'PaymentWebhookController')->name('payment_webhook');
+Route::match(['get', 'post'], 'payment_webhook/{company_gateway_id}/{company_key}', 'PaymentWebhookController')->name('payment_webhook');
 
 Route::fallback('BaseController@notFound');
+
+// localhost:8080/payment_webhook/VolejRejNm/wrsef2tiyrwbcnrruwl24iqplayx0idmtjevmnyqniekawtwcgirgpzyceka4bd8
