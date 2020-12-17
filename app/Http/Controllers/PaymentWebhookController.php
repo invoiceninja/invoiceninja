@@ -21,7 +21,7 @@ class PaymentWebhookController extends Controller
         $this->middleware('guest');
     }
 
-    public function __invoke(PaymentWebhookRequest $request, string $company_gateway_id, string $company_key)
+    public function __invoke(PaymentWebhookRequest $request, string $company_key, string $company_gateway_id)
     {
         $payment = $request->getPayment();
         $client = is_null($payment) ? $request->getClient() : $payment->client;
