@@ -19,6 +19,8 @@ class Country extends StaticModel
         'eea' => 'boolean',
         'swap_postal_code' => 'boolean',
         'swap_currency_symbol' => 'boolean',
+        'thousand_separator' => 'string',
+        'decimal_separator' => 'string',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
