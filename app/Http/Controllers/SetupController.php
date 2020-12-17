@@ -98,14 +98,8 @@ class SetupController extends Controller
 
         $mail_driver = $request->input('mail_driver');
 
-        $url = $request->input('url');
-
-        if (substr($url, -1) != '/') {
-            $url = $url . '/';
-        }
-
         $env_values = [
-            'APP_URL' => $url,
+            'APP_URL' => $request->input('url'),
             'REQUIRE_HTTPS' => $request->input('https') ? 'true' : 'false',
             'APP_DEBUG' => $request->input('debug') ? 'true' : 'false',
 
@@ -165,12 +159,12 @@ class SetupController extends Controller
     }
 
     /**
-     * Return status based on check of database connection.
+     * Return status based on database check.
      *
      * @param CheckDatabaseRequest $request
-     * @return Response
+     * @return Application|ResponseFactory|JsonResponse|Response
      */
-    public function checkDB(CheckDatabaseRequest $request): Response
+    public function checkDB(CheckDatabaseRequest $request)
     {
         try {
             $status = SystemHealth::dbCheck($request);
