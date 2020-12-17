@@ -12,7 +12,6 @@
 namespace App\Console\Commands;
 
 use App\Jobs\Util\VersionCheck;
-use Composer\Console\Application;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 

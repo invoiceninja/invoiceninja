@@ -75,10 +75,8 @@ class SelfUpdateController extends BaseController
         }
         info('Are there any changes to pull? '.$repo->hasChanges());
 
-        dispatch(function (){
-            
+        dispatch(function () {
             Artisan::call('ninja:post-update');
-
         });
 
         return response()->json(['message' => ''], 200);
