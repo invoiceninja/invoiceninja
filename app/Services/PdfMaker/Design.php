@@ -413,7 +413,7 @@ class Design extends BaseDesign
 
         $elements = [
             ['element' => 'div', 'elements' => [
-                ['element' => 'span', 'content' => '$entity.public_notes', 'properties' => ['data-element' => 'total-table-public-notes-label']],
+                ['element' => 'span', 'content' => '$entity.public_notes', 'properties' => ['data-element' => 'total-table-public-notes-label', 'style' => 'text-align: left;']],
             ]],
         ];
 
