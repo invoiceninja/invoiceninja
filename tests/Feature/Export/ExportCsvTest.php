@@ -77,5 +77,7 @@ class ExportCsvTest extends TestCase
         }
 
         Storage::put(base_path('invy.csv'), $csv->getContent());
+
+        $this->markTestSkipped();
     }
 }
