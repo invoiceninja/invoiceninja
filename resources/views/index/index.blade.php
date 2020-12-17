@@ -96,7 +96,7 @@
       document.getElementById('loader').style.display = 'none';
     });
 
-    
+    /*
     function invokeServiceWorkerUpdateFlow() {
       // you have a better UI here, reloading is not a great user experince here.
       const confirmed = confirm('New version of the app is available. Refresh now');
@@ -143,7 +143,7 @@
     }
 
     handleServiceWorker();
-  
+  */
   </script>
 
   <script defer src="main.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
