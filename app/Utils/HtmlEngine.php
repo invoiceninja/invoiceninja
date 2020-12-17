@@ -183,7 +183,7 @@ class HtmlEngine
         $data['$invoice.custom2'] = ['value' => $this->formatCustomFieldValue('invoice2', $this->entity->custom_value2) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
         $data['$invoice.custom3'] = ['value' => $this->formatCustomFieldValue('invoice3', $this->entity->custom_value3) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
         $data['$invoice.custom4'] = ['value' => $this->formatCustomFieldValue('invoice4', $this->entity->custom_value4) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
-        $data['$invoice.public_notes'] = ['value' => $this->entity->public_notes ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
+        $data['$invoice.public_notes'] = ['value' => nl2br($this->entity->public_notes) ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
 
         $data['$entity_issued_to'] = ['value' => '', 'label' => ctrans("texts.{$this->entity_string}_issued_to")];
