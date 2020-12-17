@@ -48,7 +48,7 @@ class ProjectTransformer extends EntityTransformer
             'assigned_user_id' => (string) $this->encodePrimaryKey($project->assigned_user_id),
             'client_id' => (string) $this->encodePrimaryKey($project->client_id),
             'name' => $project->name ?: '',
-            'number' => $project->number,
+            'number' => $project->number ?: '',
             'created_at' => (int) $project->created_at,
             'updated_at' => (int) $project->updated_at,
             'archived_at' => (int) $project->deleted_at,

@@ -94,6 +94,9 @@ class HandleRestore extends AbstractService
 
         $new_invoice_number = substr($this->invoice->number, 0, $pos);
 
+        if(strlen($new_invoice_number) == 0)
+            $new_invoice_number = null;
+        
         try {
             $this->invoice->number = $new_invoice_number;
             $this->invoice->save();
