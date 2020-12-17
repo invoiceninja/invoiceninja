@@ -12,8 +12,11 @@
 namespace App\Jobs\Import;
 
 use App\Factory\ClientFactory;
+use App\Factory\ProductFactory;
 use App\Http\Requests\Client\StoreClientRequest;
+use App\Http\Requests\Product\StoreProductRequest;
 use App\Import\Transformers\ClientTransformer;
+use App\Import\Transformers\ProductTransformer;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
@@ -21,6 +24,7 @@ use App\Models\Currency;
 use App\Models\User;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
+use App\Repositories\ProductRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -54,27 +58,6 @@ class CSVImport implements ShouldQueue
 
     public $maps;
 
-    /*
-        [hash] => 2lTm7HVR3i9Zv3y86eQYZIO16yVJ7J6l
-        [entity_type] => client
-        [skip_header] => 1
-        [column_map] => Array
-        (
-            [0] => client.name
-            [1] => client.user_id
-            [2] => client.balance
-            [3] => client.paid_to_date
-            [4] => client.address1
-            [5] => client.address2
-            [6] => client.city
-            [7] => client.state
-            [8] => client.postal_code
-            [9] => client.country_id
-            [20] => client.currency_id
-            [21] => client.public_notes
-            [22] => client.private_notes
-        )
-     */
     public function __construct(array $request, Company $company)
     {
         $this->company = $company;
@@ -106,6 +89,51 @@ class CSVImport implements ShouldQueue
         //sort the array by key
         ksort($this->column_map);
 
+        $this->{"import".ucfirst($this->entity_type)}();
+    }
+
+    public function failed($exception)
+    {
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    private function importProduct()
+    {
+        $product_repository = new ProductRepository();
+        $product_transformer new ProductTransformer($this->maps);
+
+        $records = $this->getCsvData();
+
+        if ($this->skip_header) 
+            array_shift($records);
+
+        foreach ($records as $record) 
+        {
+            $keys = $this->column_map;
+            $values = array_intersect_key($record, $this->column_map);
+
+            $product_data = array_combine($keys, $values);
+
+            $product = $product_transformer->transform($product_data);
+
+            $validator = Validator::make($client, (new StoreProductRequest())->rules());
+
+            if ($validator->fails()) {
+                $this->error_array[] = ['product' => $product, 'error' => json_encode($validator->errors())];
+            } else {
+                $product = $product_repository->save($product, ProductFactory::create($this->company->id, $this->setUser($record)));
+
+                $product->save();
+
+                $this->maps['products'][] = $product->id;
+            }
+        }
+    }
+
+    //todo limit client imports for hosted version
+    private function importClient()
+    {
         //clients
         $records = $this->getCsvData();
 
@@ -113,9 +141,8 @@ class CSVImport implements ShouldQueue
         $client_repository = new ClientRepository($contact_repository);
         $client_transformer = new ClientTransformer($this->maps);
 
-        if ($this->skip_header) {
+        if ($this->skip_header) 
             array_shift($records);
-        }
 
         foreach ($records as $record) {
             $keys = $this->column_map;
@@ -142,13 +169,9 @@ class CSVImport implements ShouldQueue
 
                 $client->save();
 
-                $this->import_array['clients'][] = $client->id;
+                $this->maps['clients'][] = $client->id;
             }
         }
-    }
-
-    public function failed($exception)
-    {
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,6 +180,8 @@ class CSVImport implements ShouldQueue
         $this->maps['currencies'] = Currency::all();
         $this->maps['users'] = $this->company->users;
         $this->maps['company'] = $this->company;
+        $this->maps['clients'] = [];
+        $this->maps['products'] = [];
 
         return $this;
     }
