@@ -17,11 +17,7 @@ jobs:
         phpunit-versions: ['latest']
         include:
         - operating-system: 'ubuntu-latest'  
-  phpunit:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php-versions: ['7.3', '7.4']
+        
     env:
       DB_DATABASE1: ninja
       DB_USERNAME1: root
