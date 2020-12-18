@@ -15,8 +15,6 @@ jobs:
         operating-system: ['ubuntu-18.04', 'ubuntu-20.04']
         php-versions: ['7.3', '7.4']
         phpunit-versions: ['latest']
-        include:
-        - operating-system: 'ubuntu-latest'  
 
     env:
       DB_DATABASE1: ninja
