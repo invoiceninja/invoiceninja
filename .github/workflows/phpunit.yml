@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-latest']
-        php-versions: ['7.3', '7.4']
+        php-versions: ['7.3', '7.4', '8.0']
         phpunit-versions: ['latest']
         include:
         - operating-system: 'ubuntu-latest'  
@@ -69,7 +69,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        
+
     - uses: actions/checkout@v1
       with:
         ref: v5-develop
