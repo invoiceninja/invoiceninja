@@ -2,7 +2,7 @@
     <img src="https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png" alt="Sublime's custom image"/>
 </p>
 
-![phpunit](https://github.com/turbo124/invoiceninja/workflows/phpunit/badge.svg?branch=v2)
+![phpunit](https://github.com/turbo124/invoiceninja/workflows/phpunit/badge.svg?branch=v5-develop)
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=v2)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![codecov](https://codecov.io/gh/invoiceninja/invoiceninja/branch/v2/graph/badge.svg)](https://codecov.io/gh/invoiceninja/invoiceninja)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d39acb4bf0f74a0698dc77f382769ba5)](https://www.codacy.com/app/turbo124/invoiceninja?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=invoiceninja/invoiceninja&amp;utm_campaign=Badge_Grade)
