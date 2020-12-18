@@ -12,7 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        operating-system: ['ubuntu-latest']
         php-versions: ['7.3', '7.4']
+        - operating-system: 'ubuntu-latest'
     env:
       DB_DATABASE1: ninja
       DB_USERNAME1: root

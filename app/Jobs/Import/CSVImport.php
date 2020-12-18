@@ -100,8 +100,9 @@ class CSVImport implements ShouldQueue
     
     private function importProduct()
     {
+        info("importing product");
         $product_repository = new ProductRepository();
-        $product_transformer new ProductTransformer($this->maps);
+        $product_transformer = new ProductTransformer($this->maps);
 
         $records = $this->getCsvData();
 
@@ -112,6 +113,10 @@ class CSVImport implements ShouldQueue
         {
             $keys = $this->column_map;
             $values = array_intersect_key($record, $this->column_map);
+
+
+info(print_r($keys,1));
+info(print_r($values,1));
 
             $product_data = array_combine($keys, $values);
 
@@ -145,6 +150,7 @@ class CSVImport implements ShouldQueue
             array_shift($records);
 
         foreach ($records as $record) {
+
             $keys = $this->column_map;
             $values = array_intersect_key($record, $this->column_map);
 

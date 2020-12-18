@@ -11,7 +11,7 @@
 
 namespace App\Utils\Traits\Pdf;
 
-use Beganovich\ChromiumPdf\ChromiumPdf;
+//use Beganovich\ChromiumPdf\ChromiumPdf;
 use Spatie\Browsershot\Browsershot;
 
 trait PdfMaker
@@ -54,34 +54,3 @@ trait PdfMaker
                 ->pdf();
     }
 }
-
-        // if($header && $footer){
-        //    $browser = Browsershot::html($html)
-        //         ->headerHtml($header)
-        //         ->footerHtml($footer);
-        // }
-        // elseif($header){
-        //     $browser = Browsershot::html($html)
-        //         ->headerHtml($header);
-        // }
-        // else if($footer){
-        //     $browser = Browsershot::html($html)
-        //         ->footerHtml($footer);
-        // }
-        // else {
-        //     $browser = Browsershot::html($html);
-        // }
-        //
-        //
-        //         // return Browsershot::html($html)
-        // //->showBrowserHeaderAndFooter()
-        // //->headerHtml($header)
-        // //->footerHtml($footer)
-        //     ->deviceScaleFactor(1)
-        //     ->showBackground()
-        //     ->waitUntilNetworkIdle(true)    ->pdf();
-        // //->margins(10,10,10,10)
-        // //->savePdf('test.pdf');
-        //
-        // $browser->format('A4');
-        // $browser->landscape();
