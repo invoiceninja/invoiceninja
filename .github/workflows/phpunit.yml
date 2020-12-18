@@ -8,13 +8,20 @@ on:
       
 name: phpunit
 jobs:
-  phpunit:
-    runs-on: ubuntu-latest
+  run:
+    runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
         operating-system: ['ubuntu-latest']
         php-versions: ['7.3', '7.4']
-        - operating-system: 'ubuntu-latest'
+        phpunit-versions: ['latest']
+        include:
+        - operating-system: 'ubuntu-latest'  
+  phpunit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: ['7.3', '7.4']
     env:
       DB_DATABASE1: ninja
       DB_USERNAME1: root
