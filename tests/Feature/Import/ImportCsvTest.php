@@ -80,6 +80,31 @@ class ImportCsvTest extends TestCase
         // CSVImport::dispatchNow($data, $this->company);
     }
 
+
+    public function testProductCsvImport()
+    {
+        $csv = file_get_contents(base_path().'/tests/Feature/Import/products.csv');
+        $hash = Str::random(32);
+        $column_map = [
+            1 => 'product.product_key',
+            2 => 'product.notes',
+            3 => 'product.cost',
+            4 => 'product.user_id',
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => $column_map,
+            'skip_header' => true,
+            'entity_type'=> 'product',
+        ];
+
+        Cache::put($hash, base64_encode($csv), 360);
+        $this->markTestSkipped();
+
+        CSVImport::dispatchNow($data, $this->company);
+    }
+
     private function getCsvData($csvfile)
     {
         if (! ini_get('auto_detect_line_endings')) {

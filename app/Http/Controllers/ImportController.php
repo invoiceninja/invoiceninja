@@ -119,7 +119,8 @@ class ImportController extends Controller
             // Remove Invoice Ninja headers
             if (count($headers) && count($data) > 4) {
                 $firstCell = $headers[0];
-                if (strstr($firstCell, config('ninja.app_name'))) {
+
+                if (strstr($firstCell, (string)config('ninja.app_name'))) {
                     array_shift($data); // Invoice Ninja...
                     array_shift($data); // <blank line>
                     array_shift($data); // Enitty Type Header
