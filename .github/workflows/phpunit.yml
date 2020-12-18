@@ -17,7 +17,7 @@ jobs:
         phpunit-versions: ['latest']
         include:
         - operating-system: 'ubuntu-latest'  
-        
+
     env:
       DB_DATABASE1: ninja
       DB_USERNAME1: root
@@ -65,6 +65,11 @@ jobs:
           sleep 1
         done
     
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
+        
     - uses: actions/checkout@v1
       with:
         ref: v5-develop
