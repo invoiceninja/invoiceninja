@@ -67,8 +67,8 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        extensions: mysql, mysqlnd, sqlite3
-
+        extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml
+        
     - uses: actions/checkout@v1
       with:
         ref: v5-develop
