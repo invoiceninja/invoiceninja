@@ -16,11 +16,6 @@ use App\Http\Requests\Payments\PaymentWebhookRequest;
 
 class PaymentWebhookController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('guest');
-    }
-
     public function __invoke(PaymentWebhookRequest $request, string $company_key, string $company_gateway_id)
     {
         $payment = $request->getPayment();
