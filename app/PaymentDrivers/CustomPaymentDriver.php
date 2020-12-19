@@ -28,25 +28,13 @@ class CustomPaymentDriver extends BaseDriver
     /**
      * Returns the gateway types.
      */
-    public function gatewayTypes() :array
+    public function gatewayTypes(): array
     {
         $types = [
-            GatewayType::CREDIT_CARD,
+            GatewayType::CUSTOM,
         ];
 
         return $types;
-    }
-
-    public function authorize($payment_method)
-    {
-    }
-
-    public function purchase($amount, $return_client_response = false)
-    {
-    }
-
-    public function refund(Payment $payment, $amount, $return_client_response = false)
-    {
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -56,13 +44,33 @@ class CustomPaymentDriver extends BaseDriver
         return $this;
     }
 
+    /**
+     * View for displaying custom content of the driver.
+     *
+     * @param array $data
+     * @return mixed
+     */
     public function processPaymentView($data)
     {
-        return render('gateways.custom.landing_page', $data);
+        $data['title'] = $this->company_gateway->getConfigField('name');
+        $data['instructions'] = $this->company_gateway->getConfigField('text');
+        
+        $this->payment_hash->data = array_merge((array) $this->payment_hash->data, $data);
+        $this->payment_hash->save();
+        
+        $data['gateway'] = $this;
+
+        return render('gateways.custom.payment', $data);
     }
 
+    /**
+     * Processing method for payment. Should never be reached with this driver.
+     *
+     * @return mixed
+     */
     public function processPaymentResponse($request)
     {
+        return redirect()->route('client.invoices');
     }
 
     /**

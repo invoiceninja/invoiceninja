@@ -31,7 +31,7 @@ class Setup {
         };
 
         Axios.post('/setup/check_db', data)
-            .then((response) => this.handleSuccess(this.checkDbAlert))
+            .then((response) => this.handleSuccess(this.checkDbAlert, 'mail-wrapper'))
             .catch((e) =>
                 this.handleFailure(this.checkDbAlert, e.response.data.message)
             );
@@ -55,6 +55,13 @@ class Setup {
 
         this.checkSmtpButton.disabled = true;
 
+        if (data.mail_driver === 'log') {
+            this.handleSuccess(this.checkSmtpAlert, 'account-wrapper');
+            this.handleSuccess(this.checkSmtpAlert, 'submit-wrapper');
+
+            return this.checkSmtpButton.disabled = false;
+        }
+
         Axios.post('/setup/check_mail', data)
             .then((response) => this.handleSuccess(this.checkSmtpAlert))
             .catch((e) =>
@@ -70,9 +77,9 @@ class Setup {
                     let win = window.open(response.data.url, '_blank');
                     win.focus();
 
-                    return this.handleSuccess(this.checkPdfAlert);
+                    return this.handleSuccess(this.checkPdfAlert, 'database-wrapper');
                 } catch (error) {
-                    this.handleSuccess(this.checkPdfAlert);
+                    this.handleSuccess(this.checkPdfAlert, 'database-wrapper');
                     this.checkPdfAlert.textContent = `Success! You can preview test PDF here: ${response.data.url}`;
                 }
             })
@@ -82,10 +89,15 @@ class Setup {
             });
     }
 
-    handleSuccess(element) {
+    handleSuccess(element, nextStep = null) {
         element.classList.remove('alert-failure');
         element.innerText = 'Success!';
         element.classList.add('alert-success');
+
+        if (nextStep) {
+            document.getElementById(nextStep).classList.remove('hidden');
+            document.getElementById(nextStep).scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
     }
 
     handleFailure(element, message = null) {

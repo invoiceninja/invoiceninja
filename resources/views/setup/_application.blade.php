@@ -22,7 +22,8 @@
                     {{ ctrans('texts.https') }}
                 </dt>
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="checkbox" class="form-checkbox mr-1" name="https" {{ old('https') ? 'checked': '' }} checked>
+                    <input type="checkbox" class="form-checkbox mr-1" name="https"
+                           {{ old('https') ? 'checked': '' }} checked>
                     <span>{{ ctrans('texts.require') }}</span>
                     <span class="text-gray-600 text-xs ml-2">({{ ctrans('texts.recommended_in_production') }})</span>
                 </dd>
@@ -42,9 +43,11 @@
                     {{ ctrans('texts.reports') }}
                 </dt>
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="checkbox" class="form-checkbox mr-1" name="send_logs" {{ old('send_logs' ? 'checked': '') }}>
+                    <input type="checkbox" class="form-checkbox mr-1"
+                           name="send_logs" {{ old('send_logs' ? 'checked': '') }}>
                     <span>{{ ctrans('texts.send_fail_logs_to_our_server') }}</span>
-                    <a class="button-link mt-1 block" href="https://www.invoiceninja.com/privacy-policy/">Read more about how we use this.</a>
+                    <a class="button-link mt-1 block" href="https://www.invoiceninja.com/privacy-policy/">Read more
+                        about how we use this.</a>
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -56,6 +59,10 @@
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     <div class="alert py-2 bg-gray-50" id="test-pdf-response"></div>
                 </dd>
+                <a target="_blank" class="block text-sm text-gray-900 leading-5 underline"
+                   href="https://invoiceninja.github.io/selfhost.html#phantom-js">
+                    {{ ctrans('texts.setup_phantomjs_note') }}
+                </a>
             </div>
         </dl>
     </div>

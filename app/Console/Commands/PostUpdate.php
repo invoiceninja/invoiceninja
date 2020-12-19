@@ -12,10 +12,8 @@
 namespace App\Console\Commands;
 
 use App\Jobs\Util\VersionCheck;
-use Composer\Console\Application;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
-use Symfony\Component\Console\Input\ArrayInput;
 
 class PostUpdate extends Command
 {
@@ -52,23 +50,35 @@ class PostUpdate extends Command
             info("I wasn't able to migrate the data.");
         }
 
+        info("finished migrating");
+
+        exec('vendor/bin/composer install --no-dev:');
+
+        info("finished running composer install ");
+
+
         try {
             Artisan::call('optimize');
         } catch (\Exception $e) {
             info("I wasn't able to optimize.");
         }
 
+        info("optimized");
+
+        try {
+            Artisan::call('view:clear');
+        } catch (\Exception $e) {
+            info("I wasn't able to clear the views.");
+        }
+
+        info("view cleared");
+
         /* For the following to work, the web user (www-data) must own all the directories */
-
-        putenv('COMPOSER_HOME=' . __DIR__ . '/vendor/bin/composer');
-
-        $input = new ArrayInput(['command' => 'install', '--no-dev' => 'true']);
-        $application = new Application();
-        $application->setAutoExit(false);
-        $application->run($input);
 
         VersionCheck::dispatch();
 
-        echo "Done.";
+        info("sent for version check");
+        
+        // echo "Done.";
     }
 }

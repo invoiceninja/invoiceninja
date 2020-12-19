@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits\Pdf;
 
+//use Beganovich\ChromiumPdf\ChromiumPdf;
 use Spatie\Browsershot\Browsershot;
 
 trait PdfMaker
@@ -26,6 +27,15 @@ trait PdfMaker
      */
     public function makePdf($header, $footer, $html)
     {
+        if (config('ninja.experimental_pdf_engine')) {
+            $pdf = new ChromiumPdf();
+
+            return $pdf
+                ->setChromiumPath(config('ninja.experimental_pdf_engine_chromium_path'))
+                ->setHtml($html)
+                ->generate();
+        }
+
         $browser = Browsershot::html($html);
 
         if (config('ninja.system.node_path')) {
@@ -44,34 +54,3 @@ trait PdfMaker
                 ->pdf();
     }
 }
-
-        // if($header && $footer){
-        //    $browser = Browsershot::html($html)
-        //         ->headerHtml($header)
-        //         ->footerHtml($footer);
-        // }
-        // elseif($header){
-        //     $browser = Browsershot::html($html)
-        //         ->headerHtml($header);
-        // }
-        // else if($footer){
-        //     $browser = Browsershot::html($html)
-        //         ->footerHtml($footer);
-        // }
-        // else {
-        //     $browser = Browsershot::html($html);
-        // }
-        //
-        //
-        //         // return Browsershot::html($html)
-        // //->showBrowserHeaderAndFooter()
-        // //->headerHtml($header)
-        // //->footerHtml($footer)
-        //     ->deviceScaleFactor(1)
-        //     ->showBackground()
-        //     ->waitUntilNetworkIdle(true)    ->pdf();
-        // //->margins(10,10,10,10)
-        // //->savePdf('test.pdf');
-        //
-        // $browser->format('A4');
-        // $browser->landscape();

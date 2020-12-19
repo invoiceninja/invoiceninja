@@ -51,7 +51,9 @@
                     @include('setup._mail')
                     @include('setup._account')
 
-                    <div class="flex justify-center mt-4">
+                    <p class="mt-4 text-sm">{{ ctrans('texts.setup_steps_notice') }}</p>
+
+                    <div class="flex justify-center mt-4 hidden" id="submit-wrapper">
                         <div class="flex flex-col">
                             <div class="mt-4 text-sm">
                                 <input type="checkbox" class="form-checkbox mr-2" name="terms_of_service" required>

@@ -27,3 +27,5 @@ storage/migrations
 nbproject
 
 .php_cs.cache
+public/test.pdf
+public/storage/test.pdf

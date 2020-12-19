@@ -21,6 +21,7 @@ use App\Models\Account;
 use App\Utils\CurlUtils;
 use App\Utils\SystemHealth;
 use App\Utils\Traits\AppSetup;
+use Beganovich\ChromiumPdf\ChromiumPdf;
 use DB;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
@@ -97,14 +98,8 @@ class SetupController extends Controller
 
         $mail_driver = $request->input('mail_driver');
 
-        $url = $request->input('url');
-
-        if (substr($url, -1) != '/') {
-            $url = $url . '/';
-        }
-
         $env_values = [
-            'APP_URL' => $url,
+            'APP_URL' => $request->input('url'),
             'REQUIRE_HTTPS' => $request->input('https') ? 'true' : 'false',
             'APP_DEBUG' => $request->input('debug') ? 'true' : 'false',
 
@@ -164,12 +159,12 @@ class SetupController extends Controller
     }
 
     /**
-     * Return status based on check of database connection.
+     * Return status based on database check.
      *
      * @param CheckDatabaseRequest $request
-     * @return Response
+     * @return Application|ResponseFactory|JsonResponse|Response
      */
-    public function checkDB(CheckDatabaseRequest $request): Response
+    public function checkDB(CheckDatabaseRequest $request)
     {
         try {
             $status = SystemHealth::dbCheck($request);
@@ -227,15 +222,26 @@ class SetupController extends Controller
                 return $this->testPhantom();
             }
 
-            Browsershot::html('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
-                ->setNodeBinary(config('ninja.system.node_path'))
-                ->setNpmBinary(config('ninja.system.npm_path'))
-                ->noSandbox()
-                ->savePdf(
-                    public_path('test.pdf')
-                );
+            if (config('ninja.experimental_pdf_engine')) {
+                $chromium_pdf = new ChromiumPdf();
 
-            return response(['url' => asset('test.pdf')], 200);
+                $pdf = $chromium_pdf
+                    ->setChromiumPath(config('ninja.experimental_pdf_engine_chromium_path'))
+                    ->setHtml('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
+                    ->generate();
+
+                Storage::put('public/test.pdf', $pdf);
+            } else {
+                Browsershot::html('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
+                    ->setNodeBinary(config('ninja.system.node_path'))
+                    ->setNpmBinary(config('ninja.system.npm_path'))
+                    ->noSandbox()
+                    ->savePdf(
+                        public_path('storage/test.pdf')
+                    );
+            }
+
+            return response(['url' => asset('storage/test.pdf')], 200);
         } catch (Exception $e) {
             info($e->getMessage());
 

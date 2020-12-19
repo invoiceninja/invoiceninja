@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\GatewayType;
 use App\PaymentDrivers\BasePaymentDriver;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -236,8 +235,9 @@ class CompanyGateway extends BaseModel
             return false;
         }
 
-        if($gateway_type_id == GatewayType::CUSTOM)
+        if ($gateway_type_id == GatewayType::CUSTOM) {
             $gateway_type_id = GatewayType::CREDIT_CARD;
+        }
 
         return $this->fees_and_limits->{$gateway_type_id};
     }
@@ -280,7 +280,7 @@ class CompanyGateway extends BaseModel
 
         if ($fees_and_limits->fee_amount) {
             $fee += $fees_and_limits->fee_amount;
-            info("fee after adding fee amount = {$fee}");
+            // info("fee after adding fee amount = {$fee}");
         }
 
         if ($fees_and_limits->fee_percent) {
@@ -289,7 +289,7 @@ class CompanyGateway extends BaseModel
             } else {
                 $fee += round(($amount * $fees_and_limits->fee_percent / 100), 2);
             }
-            info("fee after adding fee percent = {$fee}");
+            // info("fee after adding fee percent = {$fee}");
         }
 
         /* Cap fee if we have to here. */
@@ -303,17 +303,17 @@ class CompanyGateway extends BaseModel
         if ($include_taxes) {
             if ($fees_and_limits->fee_tax_rate1) {
                 $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100), 2);
-                info("fee after adding fee tax 1 = {$fee}");
+                // info("fee after adding fee tax 1 = {$fee}");
             }
 
             if ($fees_and_limits->fee_tax_rate2) {
                 $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100), 2);
-                info("fee after adding fee tax 2 = {$fee}");
+                // info("fee after adding fee tax 2 = {$fee}");
             }
 
             if ($fees_and_limits->fee_tax_rate3) {
                 $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100), 2);
-                info("fee after adding fee tax 3 = {$fee}");
+                // info("fee after adding fee tax 3 = {$fee}");
             }
         }
 

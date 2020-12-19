@@ -38,10 +38,11 @@ class StoreUserRequest extends Request
         $rules['first_name'] = 'required|string|max:100';
         $rules['last_name'] = 'required|string|max:100';
 
-        if (config('ninja.db.multi_db_enabled')) 
+        if (config('ninja.db.multi_db_enabled')) {
             $rules['email'] = [new ValidUserForCompany(), Rule::unique('users')];
-        else
+        } else {
             $rules['email'] = Rule::unique('users');
+        }
 
 
         if (auth()->user()->company()->account->isFreeHostedClient()) {

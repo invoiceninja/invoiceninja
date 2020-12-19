@@ -92,8 +92,7 @@ class HtmlEngine
         }
 
         $data = [];
-        $data['$global-margin'] = ['value' => 'm-8', 'label' => ''];
-        $data['$global-padding'] = ['value' => 'p-8', 'label' => ''];
+        $data['$global_margin'] = ['value' => config('ninja.experimental_pdf_engine') ? '0cm' : '1cm', 'label' => ''];
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
@@ -155,7 +154,7 @@ class HtmlEngine
         } else {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
         }
-        
+
         $data['$quote.balance_due'] = $data['$balance_due'];
         $data['$invoice.balance_due'] = $data['$balance_due'];
         $data['$balance_due'] = $data['$balance_due'];
@@ -184,7 +183,7 @@ class HtmlEngine
         $data['$invoice.custom2'] = ['value' => $this->formatCustomFieldValue('invoice2', $this->entity->custom_value2) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
         $data['$invoice.custom3'] = ['value' => $this->formatCustomFieldValue('invoice3', $this->entity->custom_value3) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
         $data['$invoice.custom4'] = ['value' => $this->formatCustomFieldValue('invoice4', $this->entity->custom_value4) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
-        $data['$invoice.public_notes'] = ['value' => $this->entity->public_notes ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
+        $data['$invoice.public_notes'] = ['value' => nl2br($this->entity->public_notes) ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
 
         $data['$entity_issued_to'] = ['value' => '', 'label' => ctrans("texts.{$this->entity_string}_issued_to")];
@@ -243,7 +242,7 @@ class HtmlEngine
         $data['$client.postal_city_state'] = &$data['$postal_city_state'];
         $data['$client.country'] = &$data['$country'];
         $data['$client.email'] = &$data['$email'];
-        
+
         $data['$client.currency'] = ['value' => $this->client->currency()->code, 'label' => ''];
 
         $data['$client.balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];

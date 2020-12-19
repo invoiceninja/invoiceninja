@@ -60,13 +60,13 @@ class Alipay
         $this->stripe->payment_hash->save();
 
         if ($request->redirect_status == 'succeeded') {
-            return $this->processSuccesfulRedirect();
+            return $this->processSuccesfulRedirect($request->source);
         }
 
         return $this->processUnsuccesfulRedirect();
     }
 
-    public function processSuccesfulRedirect()
+    public function processSuccesfulRedirect(string $source)
     {
         $this->stripe->init();
 
@@ -74,7 +74,7 @@ class Alipay
             'payment_method' => $this->stripe->payment_hash->data->source,
             'payment_type' => PaymentType::ALIPAY,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision),
-            'transaction_reference' => ctrans('texts.n/a'),
+            'transaction_reference' => $source,
         ];
 
         $payment = $this->stripe->createPayment($data, \App\Models\Payment::STATUS_PENDING);

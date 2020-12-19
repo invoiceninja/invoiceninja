@@ -17,8 +17,6 @@ use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
-use App\Models\Company;
-use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
@@ -343,9 +341,9 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->processVerification($request, $payment_method);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Company $company, CompanyGateway $company_gateway, Payment $payment)
+    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment)
     {
-        if ($request->type == 'source.chargable') {
+        if ($request->type == 'source.chargeable') {
             $payment->status_id = Payment::STATUS_COMPLETED;
             $payment->save();
         }

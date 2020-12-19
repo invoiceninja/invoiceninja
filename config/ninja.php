@@ -7,12 +7,12 @@ return [
     'production' => env('NINJA_PROD', false),
     'license'   => env('NINJA_LICENSE', ''),
     'version_url' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-stable/VERSION.txt',
-    'app_name' => env('APP_NAME'),
+    'app_name' => env('APP_NAME','Invoice Ninja'),
     'app_env' => env('APP_ENV', 'selfhosted'),
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', ''),
-    'app_version' => '5.0.35',
+    'app_version' => '5.0.36',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -32,7 +32,7 @@ return [
     'phantomjs_secret' => env('PHANTOMJS_SECRET', false),
     'phantomjs_pdf_generation' => env('PHANTOMJS_PDF_GENERATION', true),
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
-    
+
     'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://9b4e15e575214354a7d666489783904a@sentry.invoicing.co/6'),
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 
@@ -135,4 +135,7 @@ return [
     'designs' => [
         'base_path' => resource_path('views/pdf-designs/'),
     ],
+    'experimental_pdf_engine' => env('EXPERIMENTAL_PDF_ENGINE', false),
+    'experimental_pdf_engine_chromium_path' => env('EXPERIMENTAL_PDF_ENGINE_CHROMIUM_PATH', null),
+    'log_pdf_html' => env('LOG_PDF_HTML', false),
 ];

@@ -17,7 +17,6 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Models\Activity;
 use App\Models\Presenters\InvoicePresenter;
 use App\Services\Invoice\InvoiceService;
 use App\Services\Ledger\LedgerService;
@@ -438,7 +437,6 @@ class Invoice extends BaseModel
 
     public function entityEmailEvent($invitation, $reminder_template)
     {
-
         switch ($reminder_template) {
             case 'invoice':
                 event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars()));

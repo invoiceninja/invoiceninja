@@ -22,6 +22,18 @@ use Illuminate\Support\Facades\Gate;
  */
 class ClientFilters extends QueryFilters
 {
+
+    /**
+     * Filter by name.
+     *
+     * @param string $name
+     * @return Builder
+     */
+    public function name(string $name): Builder
+    {
+        return $this->builder->where('name', 'like', '%'.$name.'%');
+    }
+
     /**
      * Filter by balance.
      *
@@ -190,7 +202,6 @@ class ClientFilters extends QueryFilters
          * limit the user to only the invoices they have created
          */
         if (Gate::denies('view-list', Client::class)) {
-            info('the gate!');
             $query->where('clients.user_id', '=', $user->id);
         }
 

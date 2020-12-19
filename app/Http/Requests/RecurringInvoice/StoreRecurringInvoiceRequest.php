@@ -113,11 +113,12 @@ class StoreRecurringInvoiceRequest extends Request
 
     private function setAutoBillFlag($auto_bill)
     {
-        if ($auto_bill == 'always') 
+        if ($auto_bill == 'always') {
             return true;
+        }
         
 
-       //if ($auto_bill == 'off' || $auto_bill == 'optin') {
+        //if ($auto_bill == 'off' || $auto_bill == 'optin') {
         return false;
         //}
     }

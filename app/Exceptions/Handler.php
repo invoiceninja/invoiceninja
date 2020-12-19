@@ -11,7 +11,6 @@
 
 namespace App\Exceptions;
 
-use App\Models\Account;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -72,10 +71,6 @@ class Handler extends ExceptionHandler
             info('account table not found');
             return;
         }
-        // if(Account::count() == 0){
-        //     info("handler - account table not found");
-        //     return;
-        // }
 
         if (app()->bound('sentry') && $this->shouldReport($exception)) {
             app('sentry')->configureScope(function (Scope $scope): void {
@@ -94,11 +89,29 @@ class Handler extends ExceptionHandler
                 }
             });
 
-//            app('sentry')->setRelease(config('ninja.app_version'));
-            app('sentry')->captureException($exception);
+            if ($this->validException($exception)) {
+                app('sentry')->captureException($exception);
+            }
         }
 
         parent::report($exception);
+    }
+
+    private function validException($exception)
+    {
+        if (strpos($exception->getMessage(), 'file_put_contents') !== false) {
+            return false;
+        }
+
+        if (strpos($exception->getMessage(), 'Permission denied') !== false) {
+            return false;
+        }
+        
+        if (strpos($exception->getMessage(), 'flock()') !== false) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

@@ -8,11 +8,14 @@ on:
       
 name: phpunit
 jobs:
-  phpunit:
-    runs-on: ubuntu-latest
+  run:
+    runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        php-versions: ['7.3', '7.4', '8.0']
+        operating-system: ['ubuntu-18.04', 'ubuntu-20.04']
+        php-versions: ['7.3', '7.4']
+        phpunit-versions: ['latest']
+
     env:
       DB_DATABASE1: ninja
       DB_USERNAME1: root
@@ -60,6 +63,12 @@ jobs:
           sleep 1
         done
     
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
+        extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml
+        
     - uses: actions/checkout@v1
       with:
         ref: v5-develop

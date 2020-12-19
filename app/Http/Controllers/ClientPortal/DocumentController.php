@@ -53,6 +53,13 @@ class DocumentController extends Controller
         return Storage::disk($document->disk)->download($document->url, $document->name);
     }
 
+    public function publicDownload(string $document_hash)
+    {
+        $document = Document::where('hash', $document_hash)->firstOrFail();
+
+        return Storage::disk($document->disk)->download($document->url, $document->name);
+    }
+
     public function downloadMultiple(DownloadMultipleDocumentsRequest $request)
     {
         $documents = Document::whereIn('id', $this->transformKeys($request->file_hash))

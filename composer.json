@@ -10,7 +10,8 @@
         "CRM",
         "Credit card billing",
         "projects",
-        "tasks"
+        "tasks",
+        "freelancer"
     ],
     "license": "Attribution Assurance License",
     "authors": [
@@ -27,8 +28,10 @@
     "require": {
         "php": "^7.3|^7.4",
         "ext-json": "*",
+        "ext-libxml": "*",
         "asgrim/ofxparser": "^1.2",
         "authorizenet/authorizenet": "^2.0",
+        "beganovich/chromium-pdf": "dev-master",
         "checkout/checkout-sdk-php": "^1.0",
         "cleverit/ubl_invoice": "^1.3",
         "composer/composer": "^2",
@@ -47,10 +50,11 @@
         "laravel/socialite": "^5",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
+        "league/csv": "^9.6",
         "league/flysystem-aws-s3-v3": "~1.0",
         "league/flysystem-cached-adapter": "^1.1",
         "league/fractal": "^0.17.0",
-        "league/omnipay": "^3.0",
+        "league/omnipay": "^3",
         "livewire/livewire": "^2.0",
         "maennchen/zipstream-php": "^1.2",
         "nwidart/laravel-modules": "^8.0",
@@ -61,7 +65,8 @@
         "stripe/stripe-php": "^7.50",
         "turbo124/beacon": "^1",
         "turbo124/laravel-gmail": "^5.0",
-        "webpatser/laravel-countries": "dev-master#75992ad"
+        "webpatser/laravel-countries": "dev-master#75992ad",
+        "ext-dom": "*"
     },
     "require-dev": {
         "anahkiasen/former": "^4.2",

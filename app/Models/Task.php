@@ -38,6 +38,7 @@ class Task extends BaseModel
         'invoice_documents',
         'rate',
         'number',
+        'is_date_based',
     ];
 
     protected $touches = [];

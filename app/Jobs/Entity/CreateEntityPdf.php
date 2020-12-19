@@ -87,7 +87,6 @@ class CreateEntityPdf implements ShouldQueue
 
     public function handle()
     {
-
         App::setLocale($this->contact->preferredLocale());
         App::forgetInstance('translator');
         Lang::replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
@@ -158,10 +157,19 @@ class CreateEntityPdf implements ShouldQueue
             info(print_r($e->getMessage(), 1));
         }
 
+        if (config('ninja.log_pdf_html')) {
+            info($maker->getCompiledHTML());
+        }
+
         if ($pdf) {
             $instance = Storage::disk($this->disk)->put($file_path, $pdf);
         }
 
         return $file_path;
+    }
+
+    public function failed(\Exception $exception)
+    {
+        info("help!");
     }
 }
