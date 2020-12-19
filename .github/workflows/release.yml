@@ -4,6 +4,7 @@ on:
 
 name: Upload Release Asset
 
+jobs:
   build:
     name: Upload Release Asset
     runs-on: ubuntu-latest
