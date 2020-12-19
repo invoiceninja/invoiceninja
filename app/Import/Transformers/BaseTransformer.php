@@ -47,6 +47,11 @@ class BaseTransformer
         return (isset($data[$field]) && $data[$field]) ? $data[$field] : '';
     }
 
+    public function getInvoiceTypeId($data, $field)
+    {
+        return (isset($data[$field]) && $data[$field]) ? $data[$field] : '1';        
+    }
+
     public function getCurrencyByCode($data)
     {
         $code = array_key_exists('client.currency_id', $data) ? $data['client.currency_id'] : false;

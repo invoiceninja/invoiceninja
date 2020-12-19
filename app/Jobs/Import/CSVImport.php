@@ -18,6 +18,7 @@ use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Import\Transformers\ClientTransformer;
+use App\Import\Transformers\InvoiceItemTransformer;
 use App\Import\Transformers\InvoiceTransformer;
 use App\Import\Transformers\ProductTransformer;
 use App\Libraries\MultiDB;
@@ -99,7 +100,8 @@ class CSVImport implements ShouldQueue
 
 
         info("errors");
-        info(print_r($this->$this->error_array,1));
+
+        info(print_r($this->error_array,1));
 
     }
 
@@ -146,10 +148,13 @@ class CSVImport implements ShouldQueue
     private function importInvoice()
     {
 
-        $invoice_repository = new InvoiceRepository();
         $invoice_transformer = new InvoiceTransformer($this->maps);
 
         info("import invoices");
+
+        info("column_map");
+
+        info(print_r($this->column_map,1));
 
         $records = $this->getCsvData();
 
@@ -160,77 +165,63 @@ class CSVImport implements ShouldQueue
         if ($this->skip_header) 
             array_shift($records);
 
+        if(!$invoice_number_key){
+            info("no invoice number to use as key - returning");
+            return;
+        }
+
         $unique_array_filter = array_unique($records[$invoice_number_key]);
-
-info('unique array_filter');
-info(print_r($unique_array_filter,1));
-
         $unique_invoices = array_intersect_key( $records, $unique_array_filter );
 
-info("unique invoices");
+        foreach($unique_invoices as $unique)
+        {
 
-info(print_r($unique_invoices,1));
+            $keys = $this->column_map;
+            $values = array_intersect_key($unique, $this->column_map);
+            $invoice_data = array_combine($keys, $values);
 
-        $invoice = $invoice_transformer->transform(reset($records));
+            $invoice = $invoice_transformer->transform($invoice_data);
 
-        foreach($unique_invoices as $val) {
+            foreach($unique_invoices as $val) {
 
-            $invoices = array_filter($records, function($item) use ($val, $invoice_number_key){
-             return $item[$invoice_number_key] == $val[$invoice_number_key];
-            });
+                $invoices = array_filter($records, function($item) use ($val, $invoice_number_key){
+                 return $item[$invoice_number_key] == $val[$invoice_number_key];
+                });
+
+            }
 
             $this->processInvoice($invoices, $invoice);
+
         }
+
 
     }
 
     private function processInvoice($invoices, $invoice)
     {
-
+        $invoice_repository = new InvoiceRepository();
+        $item_transformer = new InvoiceItemTransformer($this->maps);
         $items = [];
-
-info("invoice = ");
-info(print_r($invoice,1));
 
         foreach($invoices as $record)
         {
-            $keys = $this->column_map;
-
-            $item_keys = [
-                    36 => 'item.quantity',
-                    37 => 'item.cost',
-                    38 => 'item.product_key',
-                    39 => 'item.notes',
-                    40 => 'item.discount',
-                    41 => 'item.is_amount_discount',
-                    42 => 'item.tax_name1',
-                    43 => 'item.tax_rate1',
-                    44 => 'item.tax_name2',
-                    45 => 'item.tax_rate2',
-                    46 => 'item.tax_name3',
-                    47 => 'item.tax_rate3',
-                    48 => 'item.custom_value1',
-                    49 => 'item.custom_value2',
-                    50 => 'item.custom_value3',
-                    51 => 'item.custom_value4',
-                    52 => 'item.type_id',
-                ];
-
-            $values = array_intersect_key($record, $item_keys);
             
-            $items[] = array_combine($keys, $values);
+            $keys = $this->column_map;
+            $values = array_intersect_key($record, $this->column_map);
+            $invoice_data = array_combine($keys, $values);
+
+            $items[] = $item_transformer->transform($invoice_data);
 
         }
 
-info("items");
-info(print_r($items,1));
+        $invoice['line_items'] = $items;
 
-        $invoice->line_items = $items;
+info(print_r($invoice->toArray(),1));
 
             $validator = Validator::make($invoice, (new StoreInvoiceRequest())->rules());
 
             if ($validator->fails()) {
-                $this->error_array[] = ['product' => $invoice, 'error' => json_encode($validator->errors())];
+                $this->error_array[] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
             } else {
                 $invoice = $invoice_repository->save($invoice, InvoiceFactory::create($this->company->id, $this->setUser($record)));
 
@@ -279,6 +270,8 @@ info(print_r($items,1));
     {
         //clients
         $records = $this->getCsvData();
+
+info(print_r($this->column_map,1));
 
         $contact_repository = new ClientContactRepository();
         $client_repository = new ClientRepository($contact_repository);
