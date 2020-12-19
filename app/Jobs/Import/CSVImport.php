@@ -89,9 +89,9 @@ class CSVImport implements ShouldQueue
         //sort the array by key
         ksort($this->column_map);
 
+        info("import".ucfirst($this->entity_type));
         $this->{"import".ucfirst($this->entity_type)}();
 
-        info(print_r($this->maps,1));
     }
 
     public function failed($exception)
