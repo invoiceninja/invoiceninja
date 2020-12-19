@@ -90,6 +90,8 @@ class CSVImport implements ShouldQueue
         ksort($this->column_map);
 
         $this->{"import".ucfirst($this->entity_type)}();
+
+        info(print_r($this->maps,1));
     }
 
     public function failed($exception)
@@ -100,7 +102,7 @@ class CSVImport implements ShouldQueue
     
     private function importProduct()
     {
-        info("importing product");
+        info("importing products");
         $product_repository = new ProductRepository();
         $product_transformer = new ProductTransformer($this->maps);
 
@@ -113,16 +115,12 @@ class CSVImport implements ShouldQueue
         {
             $keys = $this->column_map;
             $values = array_intersect_key($record, $this->column_map);
-
-
-info(print_r($keys,1));
-info(print_r($values,1));
-
+            
             $product_data = array_combine($keys, $values);
 
             $product = $product_transformer->transform($product_data);
 
-            $validator = Validator::make($client, (new StoreProductRequest())->rules());
+            $validator = Validator::make($product, (new StoreProductRequest())->rules());
 
             if ($validator->fails()) {
                 $this->error_array[] = ['product' => $product, 'error' => json_encode($validator->errors())];

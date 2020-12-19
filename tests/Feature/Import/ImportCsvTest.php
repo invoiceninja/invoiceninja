@@ -11,6 +11,8 @@
 namespace Tests\Feature\Import;
 
 use App\Jobs\Import\CSVImport;
+use App\Models\Client;
+use App\Models\Product;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Cache;
@@ -74,10 +76,13 @@ class ImportCsvTest extends TestCase
             'entity_type'=> 'client',
         ];
 
+        $pre_import = Client::count();
+
         Cache::put($hash, base64_encode($csv), 360);
 
-        $this->markTestSkipped();
-        // CSVImport::dispatchNow($data, $this->company);
+        CSVImport::dispatchNow($data, $this->company);
+
+        $this->assertGreaterThan($pre_import, Client::count());
     }
 
 
@@ -85,11 +90,10 @@ class ImportCsvTest extends TestCase
     {
         $csv = file_get_contents(base_path().'/tests/Feature/Import/products.csv');
         $hash = Str::random(32);
+
         $column_map = [
-            1 => 'product.product_key',
             2 => 'product.notes',
             3 => 'product.cost',
-            4 => 'product.user_id',
         ];
 
         $data = [
@@ -99,10 +103,14 @@ class ImportCsvTest extends TestCase
             'entity_type'=> 'product',
         ];
 
+        $pre_import = Product::count();
+        
         Cache::put($hash, base64_encode($csv), 360);
-        $this->markTestSkipped();
 
         CSVImport::dispatchNow($data, $this->company);
+
+        $this->assertGreaterThan($pre_import, Product::count());
+
     }
 
     private function getCsvData($csvfile)

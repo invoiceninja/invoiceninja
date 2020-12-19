@@ -28,7 +28,7 @@ class SystemHealth
         'gd',
         'curl',
         'zip',
-        'gmp',
+//        'gmp',
         'openssl',
         'mbstring',
         'xml',
