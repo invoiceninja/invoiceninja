@@ -42,6 +42,7 @@ class PaymentTransformer extends BaseTransformer
                 'custom_value4' =>  $this->getString($data, 'custom_value4'),
                 'client_id' =>  $this->getString($data, 'client_id'),
                 'invoice_number' => $this->getString($data, 'payment.invoice_number'),
+                'method' => $this
             ];
     }
 }

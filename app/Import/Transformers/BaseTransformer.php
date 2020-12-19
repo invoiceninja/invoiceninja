@@ -51,12 +51,38 @@ class BaseTransformer
         $code = array_key_exists('client.currency_id', $data) ? $data['client.currency_id'] : false;
 
         if ($code) {
-            return $this->maps['currencies']->where('code', $code)->first()->id;
+            $currency = $this->maps['currencies']->where('code', $code)->first();
+
+            if($currency_id)
+                return $currency->id;
         }
 
         return $this->maps['company']->settings->currency_id;
     }
 
+    public function getClient($client_key)
+    {
+        $clients = $this->maps['company']->clients;
+
+        $clients = $clients->where('name', $client_key);
+
+        if($clients->count() >= 1)
+            return $clients->first()->id;
+
+        $contacts = ClientContact::where('company_id', $this->maps['company']->id)
+                                 ->where('email', $client_key);
+
+        if($contacts->count() >=1)
+            return $contact->first()->client_id;
+
+
+        return NULL;
+
+    }
+
+
+
+///////////////////////////////////////////////////////////////////////////////////
     /**
      * @param $name
      *

@@ -12,18 +12,23 @@
 namespace App\Jobs\Import;
 
 use App\Factory\ClientFactory;
+use App\Factory\InvoiceFactory;
 use App\Factory\ProductFactory;
 use App\Http\Requests\Client\StoreClientRequest;
+use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Import\Transformers\ClientTransformer;
+use App\Import\Transformers\InvoiceTransformer;
 use App\Import\Transformers\ProductTransformer;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Currency;
+use App\Models\Invoice;
 use App\Models\User;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
+use App\Repositories\InvoiceRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -132,6 +137,133 @@ class CSVImport implements ShouldQueue
                 $this->maps['products'][] = $product->id;
             }
         }
+    }
+
+    private function importInvoice()
+    {
+        info("import invoices");
+
+        $records = $this->getCsvData();
+
+        $invoice_number_key = array_search('Invoice Number', reset($records));
+
+        info("number key = {$invoice_number_key}");
+        
+        $unique_array_filter = array_unique(array_column($records, 'Invoice Number'));
+
+info('unique array_filter');
+info(print_r($unique_array_filter,1));
+
+        $unique_invoices = array_intersect_key( $records, $unique_array_filter );
+
+info("unique invoices");
+
+info(print_r($unique_invoices,1));
+
+        $invoice = $invoice_transformer->transform(reset($invoices));
+
+        foreach($unique_invoices as $val) {
+
+            $invoices = array_filter($arr, function($item) use ($val){
+             return $item['Invoice Number'] == $val['Invoice Number'];
+            });
+
+            $this->processInvoice($invoices);
+        }
+
+    }
+
+    private function processInvoices($invoices)
+    {
+
+        $invoice_repository = new InvoiceRepository();
+        $invoice_transformer = new InvoiceTransformer($this->maps);
+
+        $items = [];
+
+info("invoice = ");
+info(print_r($invoice,1));
+
+        foreach($invoices as $record)
+        {
+            $keys = $this->column_map;
+
+            $item_keys = [
+                    36 => 'item.quantity',
+                    37 => 'item.cost',
+                    38 => 'item.product_key',
+                    39 => 'item.notes',
+                    40 => 'item.discount',
+                    41 => 'item.is_amount_discount',
+                    42 => 'item.tax_name1',
+                    43 => 'item.tax_rate1',
+                    44 => 'item.tax_name2',
+                    45 => 'item.tax_rate2',
+                    46 => 'item.tax_name3',
+                    47 => 'item.tax_rate3',
+                    48 => 'item.custom_value1',
+                    49 => 'item.custom_value2',
+                    50 => 'item.custom_value3',
+                    51 => 'item.custom_value4',
+                    52 => 'item.type_id',
+                ];
+
+            $values = array_intersect_key($record, $item_keys);
+            
+            $items[] = array_combine($keys, $values);
+
+        }
+
+info("items");
+info(print_r($items,1));
+
+        $invoice->line_items = $items;
+
+            $validator = Validator::make($invoice, (new StoreInvoiceRequest())->rules());
+
+            if ($validator->fails()) {
+                $this->error_array[] = ['product' => $invoice, 'error' => json_encode($validator->errors())];
+            } else {
+                $invoice = $invoice_repository->save($invoice, InvoiceFactory::create($this->company->id, $this->setUser($record)));
+
+                $invoice->save();
+
+                $this->maps['invoices'][] = $invoice->id;
+
+                $this->performInvoiceActions($invoice, $record, $invoice_repository);
+            }
+    }
+
+    private function performInvoiceActions($invoice, $record, $invoice_repository)
+    {
+
+        $invoice = $this->actionInvoiceStatus($invoice, $record, $invoice_repository);
+    }
+
+    private function actionInvoiceStatus($invoice, $status, $invoice_repository)
+    {
+        switch ($status) {
+            case 'Archived':
+                $invoice_repository->archive($invoice);
+                $invoice->fresh();
+                break;
+            case 'Sent':
+                $invoice = $invoice->service()->markSent()->save();
+                break;
+            case 'Viewed';
+                $invoice = $invoice->service()->markSent()->save();
+                break;
+            default:
+                # code...
+                break;
+        }
+
+        if($invoice->balance < $invoice->amount && $invoice->status_id <= Invoice::STATUS_SENT){
+            $invoice->status_id = Invoice::STATUS_PARTIAL;
+            $invoice->save();
+        }
+
+        return $invoice;
     }
 
     //todo limit client imports for hosted version
