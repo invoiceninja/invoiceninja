@@ -11,6 +11,7 @@
 
 namespace App\Import\Transformers;
 
+use App\Models\ClientContact;
 use Carbon;
 use Exception;
 

@@ -97,6 +97,10 @@ class CSVImport implements ShouldQueue
         info("import".ucfirst($this->entity_type));
         $this->{"import".ucfirst($this->entity_type)}();
 
+
+        info("errors");
+        info(print_r($this->$this->error_array,1));
+
     }
 
     public function failed($exception)
@@ -141,6 +145,10 @@ class CSVImport implements ShouldQueue
 
     private function importInvoice()
     {
+
+        $invoice_repository = new InvoiceRepository();
+        $invoice_transformer = new InvoiceTransformer($this->maps);
+
         info("import invoices");
 
         $records = $this->getCsvData();
@@ -148,8 +156,11 @@ class CSVImport implements ShouldQueue
         $invoice_number_key = array_search('Invoice Number', reset($records));
 
         info("number key = {$invoice_number_key}");
-        
-        $unique_array_filter = array_unique(array_column($records, 'Invoice Number'));
+
+        if ($this->skip_header) 
+            array_shift($records);
+
+        $unique_array_filter = array_unique($records[$invoice_number_key]);
 
 info('unique array_filter');
 info(print_r($unique_array_filter,1));
@@ -160,24 +171,21 @@ info("unique invoices");
 
 info(print_r($unique_invoices,1));
 
-        $invoice = $invoice_transformer->transform(reset($invoices));
+        $invoice = $invoice_transformer->transform(reset($records));
 
         foreach($unique_invoices as $val) {
 
-            $invoices = array_filter($arr, function($item) use ($val){
-             return $item['Invoice Number'] == $val['Invoice Number'];
+            $invoices = array_filter($records, function($item) use ($val, $invoice_number_key){
+             return $item[$invoice_number_key] == $val[$invoice_number_key];
             });
 
-            $this->processInvoice($invoices);
+            $this->processInvoice($invoices, $invoice);
         }
 
     }
 
-    private function processInvoices($invoices)
+    private function processInvoice($invoices, $invoice)
     {
-
-        $invoice_repository = new InvoiceRepository();
-        $invoice_transformer = new InvoiceTransformer($this->maps);
 
         $items = [];
 
