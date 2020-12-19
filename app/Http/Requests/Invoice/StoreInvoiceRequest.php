@@ -51,10 +51,13 @@ class StoreInvoiceRequest extends Request
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
-        if ($this->input('number')) {
-            $rules['number'] = 'unique:invoices,number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
+        // if ($this->input('number')) {
+        //     $rules['number'] = 'unique:invoices,number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
+        // }
+        if (isset($this->number)) {
+            $rules['number'] = Rule::unique('invoices')->where('company_id', auth()->user()->company()->id);
         }
-//        $rules['number'] = new UniqueInvoiceNumberRule($this->all());
+
 
         $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 

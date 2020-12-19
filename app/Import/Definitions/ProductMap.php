@@ -31,7 +31,6 @@ class ProductMap
             12 => 'product.custom_value2',
             13 => 'product.custom_value3',
             14 => 'product.custom_value4',
-            15 => 'product.user_id',
         ];
     }
 
@@ -53,7 +52,6 @@ class ProductMap
             12 => 'texts.custom_value',
             13 => 'texts.custom_value',
             14 => 'texts.custom_value',
-            15 => 'texts.user',
         ];
     }
 }
