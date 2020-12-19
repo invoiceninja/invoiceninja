@@ -112,6 +112,9 @@ class InvoiceItemSum
     {
         $item_tax = 0;
 
+// info(print_r($this->item,1));
+// info(print_r($this->invoice,1));
+
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
         $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
 
