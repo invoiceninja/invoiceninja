@@ -171,8 +171,14 @@ class CSVImport implements ShouldQueue
         }
 
         $unique_array_filter = array_unique($records[$invoice_number_key]);
+
+        info(print_r($unique_array_filter,1));
+
         $unique_invoices = array_intersect_key( $records, $unique_array_filter );
 
+        info(print_r($unique_invoices,1));
+        
+        
         foreach($unique_invoices as $unique)
         {
 
@@ -189,6 +195,8 @@ class CSVImport implements ShouldQueue
                 });
 
             }
+
+        info(print_r($invoices,1));
 
             $this->processInvoice($invoices, $invoice);
 

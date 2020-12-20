@@ -17,6 +17,7 @@ use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Models\Invoice;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class StoreInvoiceRequest extends Request
 {
