@@ -11,7 +11,7 @@
 
 namespace App\Utils\Traits\Pdf;
 
-//use Beganovich\ChromiumPdf\ChromiumPdf;
+use Beganovich\ChromiumPdf\ChromiumPdf;
 use Spatie\Browsershot\Browsershot;
 
 trait PdfMaker

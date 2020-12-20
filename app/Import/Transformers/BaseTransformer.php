@@ -66,22 +66,29 @@ class BaseTransformer
         return $this->maps['company']->settings->currency_id;
     }
 
-    public function getClient($client_key)
+    public function getClient($client_name, $client_email)
     {
+        info("search for {$client_name}");
+
         $clients = $this->maps['company']->clients;
 
-        $clients = $clients->where('name', $client_key);
+        $clients = $clients->where('name', $client_name);
 
         if($clients->count() >= 1)
             return $clients->first()->id;
 
+
         $contacts = ClientContact::where('company_id', $this->maps['company']->id)
-                                 ->where('email', $client_key);
+                                 ->where('email', $client_email);
+
+        info("search for {$client_email}");
 
         if($contacts->count() >=1)
-            return $contact->first()->client_id;
+            return $contacts->first()->client_id;
 
 
+        info("no client found!!");
+        
         return NULL;
 
     }

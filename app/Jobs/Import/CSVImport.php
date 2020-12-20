@@ -111,39 +111,7 @@ class CSVImport implements ShouldQueue
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    private function importProduct()
-    {
-        info("importing products");
-        $product_repository = new ProductRepository();
-        $product_transformer = new ProductTransformer($this->maps);
 
-        $records = $this->getCsvData();
-
-        if ($this->skip_header) 
-            array_shift($records);
-
-        foreach ($records as $record) 
-        {
-            $keys = $this->column_map;
-            $values = array_intersect_key($record, $this->column_map);
-            
-            $product_data = array_combine($keys, $values);
-
-            $product = $product_transformer->transform($product_data);
-
-            $validator = Validator::make($product, (new StoreProductRequest())->rules());
-
-            if ($validator->fails()) {
-                $this->error_array[] = ['product' => $product, 'error' => json_encode($validator->errors())];
-            } else {
-                $product = $product_repository->save($product, ProductFactory::create($this->company->id, $this->setUser($record)));
-
-                $product->save();
-
-                $this->maps['products'][] = $product->id;
-            }
-        }
-    }
 
     private function importInvoice()
     {
@@ -153,8 +121,6 @@ class CSVImport implements ShouldQueue
         info("import invoices");
 
         info("column_map");
-
-        info(print_r($this->column_map,1));
 
         $records = $this->getCsvData();
 
@@ -170,38 +136,31 @@ class CSVImport implements ShouldQueue
             return;
         }
 
-        $unique_array_filter = array_unique($records[$invoice_number_key]);
+        $unique_invoices = [];
 
-        info(print_r($unique_array_filter,1));
+        //get an array of unique invoice numbers
+        foreach($records as $key => $value) 
+        {
+            $unique_invoices[] = $value[$invoice_number_key];
+        }
 
-        $unique_invoices = array_intersect_key( $records, $unique_array_filter );
-
-        info(print_r($unique_invoices,1));
-        
-        
         foreach($unique_invoices as $unique)
         {
+            info("inside item loop {$unique}");
+
+            $invoices = array_filter($records, function($value) use($invoice_number_key, $unique){
+                return $value[$invoice_number_key] == $unique;
+            });
 
             $keys = $this->column_map;
-            $values = array_intersect_key($unique, $this->column_map);
+            $values = array_intersect_key(reset($invoices), $this->column_map);
             $invoice_data = array_combine($keys, $values);
 
             $invoice = $invoice_transformer->transform($invoice_data);
 
-            foreach($unique_invoices as $val) {
-
-                $invoices = array_filter($records, function($item) use ($val, $invoice_number_key){
-                 return $item[$invoice_number_key] == $val[$invoice_number_key];
-                });
-
-            }
-
-        info(print_r($invoices,1));
-
             $this->processInvoice($invoices, $invoice);
 
         }
-
 
     }
 
@@ -224,16 +183,13 @@ class CSVImport implements ShouldQueue
 
         $invoice['line_items'] = $items;
 
-info(print_r($invoice->toArray(),1));
-
             $validator = Validator::make($invoice, (new StoreInvoiceRequest())->rules());
 
             if ($validator->fails()) {
                 $this->error_array[] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
             } else {
-                $invoice = $invoice_repository->save($invoice, InvoiceFactory::create($this->company->id, $this->setUser($record)));
 
-                $invoice->save();
+                $invoice = $invoice_repository->save($invoice, InvoiceFactory::create($this->company->id, $this->setUser($record)));
 
                 $this->maps['invoices'][] = $invoice->id;
 
@@ -315,6 +271,41 @@ info(print_r($this->column_map,1));
                 $client->save();
 
                 $this->maps['clients'][] = $client->id;
+            }
+        }
+    }
+
+
+    private function importProduct()
+    {
+        info("importing products");
+        $product_repository = new ProductRepository();
+        $product_transformer = new ProductTransformer($this->maps);
+
+        $records = $this->getCsvData();
+
+        if ($this->skip_header) 
+            array_shift($records);
+
+        foreach ($records as $record) 
+        {
+            $keys = $this->column_map;
+            $values = array_intersect_key($record, $this->column_map);
+            
+            $product_data = array_combine($keys, $values);
+
+            $product = $product_transformer->transform($product_data);
+
+            $validator = Validator::make($product, (new StoreProductRequest())->rules());
+
+            if ($validator->fails()) {
+                $this->error_array[] = ['product' => $product, 'error' => json_encode($validator->errors())];
+            } else {
+                $product = $product_repository->save($product, ProductFactory::create($this->company->id, $this->setUser($record)));
+
+                $product->save();
+
+                $this->maps['products'][] = $product->id;
             }
         }
     }

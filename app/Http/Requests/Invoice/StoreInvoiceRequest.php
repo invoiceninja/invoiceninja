@@ -55,7 +55,7 @@ class StoreInvoiceRequest extends Request
         // if ($this->input('number')) {
         //     $rules['number'] = 'unique:invoices,number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
         // }
-        if (isset($this->number)) {
+        if ($this->input('number')) {
             $rules['number'] = Rule::unique('invoices')->where('company_id', auth()->user()->company()->id);
         }
 
