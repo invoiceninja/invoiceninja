@@ -3329,5 +3329,7 @@ return [
 
     'setup_steps_notice' => 'To proceed to next step, make sure you test each section.',
 
-    'setup_phantomjs_note' => 'Note about Phantom JS. Read more.'
+    'setup_phantomjs_note' => 'Note about Phantom JS. Read more.',
+    'currency_armenian_dram' => 'Armenian Dram',
+    
 ];
