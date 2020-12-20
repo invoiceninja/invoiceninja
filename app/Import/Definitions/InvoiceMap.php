@@ -20,7 +20,7 @@ class InvoiceMap
             1 => 'invoice.user_id',
             2 => 'invoice.amount',
             3 => 'invoice.balance',
-            4 => 'invoice.client_id',
+            4 => 'client.name',
             5 => 'invoice.discount',
             6 => 'invoice.po_number',
             7 => 'invoice.date',
@@ -69,6 +69,7 @@ class InvoiceMap
             50 => 'item.custom_value3',
             51 => 'item.custom_value4',
             52 => 'item.type_id',
+            53 => 'client.email',
         ];
     }
 
@@ -128,6 +129,7 @@ class InvoiceMap
             50 => 'texts.custom_value',
             51 => 'texts.custom_value',
             52 => 'texts.type',
+            53 => 'texts.email',
         ];
     }
 }

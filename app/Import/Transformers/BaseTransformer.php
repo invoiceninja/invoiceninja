@@ -12,6 +12,7 @@
 namespace App\Import\Transformers;
 
 use App\Models\ClientContact;
+use App\Utils\Number;
 use Carbon;
 use Exception;
 
@@ -66,22 +67,23 @@ class BaseTransformer
         return $this->maps['company']->settings->currency_id;
     }
 
-    public function getClient($client_key)
+    public function getClient($client_name, $client_email)
     {
+        
         $clients = $this->maps['company']->clients;
 
-        $clients = $clients->where('name', $client_key);
+        $clients = $clients->where('name', $client_name);
 
         if($clients->count() >= 1)
             return $clients->first()->id;
 
+
         $contacts = ClientContact::where('company_id', $this->maps['company']->id)
-                                 ->where('email', $client_key);
+                                 ->where('email', $client_email);
 
         if($contacts->count() >=1)
-            return $contact->first()->client_id;
-
-
+            return $contacts->first()->client_id;
+        
         return NULL;
 
     }
@@ -145,8 +147,14 @@ class BaseTransformer
      * @return float
      */
     public function getFloat($data, $field)
-    {
-        return (isset($data->$field) && $data->$field) ? Utils::parseFloat($data->$field) : 0;
+    {   
+
+        if(array_key_exists($field, $data))
+            $number = preg_replace('/[^0-9-.]+/', '', $data[$field]);
+        else
+            $number = 0;
+
+        return Number::parseStringFloat($number);
     }
 
     /**

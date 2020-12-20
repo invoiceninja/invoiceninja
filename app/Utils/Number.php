@@ -70,6 +70,20 @@ class Number
         return (float) $s;
     }
 
+    public static function parseStringFloat($value)
+    {
+        $value = preg_replace('/[^0-9-.]+/', '', $value);
+
+        // check for comma as decimal separator
+        if (preg_match('/,[\d]{1,2}$/', $value)) {
+            $value = str_replace(',', '.', $value);
+        }
+
+        $value = preg_replace('/[^0-9\.\-]/', '', $value);
+
+        return floatval($value);
+    }
+    
     /**
      * Formats a given value based on the clients currency AND country.
      *

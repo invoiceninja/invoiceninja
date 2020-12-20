@@ -5,9 +5,6 @@ on:
 name: Upload Release Asset
 
 jobs:
-  run:
-    runs-on: ubuntu-18.04
-
   build:
     name: Upload Release Asset
     runs-on: ubuntu-latest
