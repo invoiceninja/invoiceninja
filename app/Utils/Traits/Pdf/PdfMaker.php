@@ -51,6 +51,7 @@ trait PdfMaker
                 ->deviceScaleFactor(1)
                 ->waitUntilNetworkIdle(true)
                 ->noSandbox()
+                ->ignoreHttpsErrors()
                 ->pdf();
     }
 }
