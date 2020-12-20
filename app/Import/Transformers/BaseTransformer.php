@@ -12,6 +12,7 @@
 namespace App\Import\Transformers;
 
 use App\Models\ClientContact;
+use App\Utils\Number;
 use Carbon;
 use Exception;
 
@@ -68,8 +69,7 @@ class BaseTransformer
 
     public function getClient($client_name, $client_email)
     {
-        info("search for {$client_name}");
-
+        
         $clients = $this->maps['company']->clients;
 
         $clients = $clients->where('name', $client_name);
@@ -81,13 +81,8 @@ class BaseTransformer
         $contacts = ClientContact::where('company_id', $this->maps['company']->id)
                                  ->where('email', $client_email);
 
-        info("search for {$client_email}");
-
         if($contacts->count() >=1)
             return $contacts->first()->client_id;
-
-
-        info("no client found!!");
         
         return NULL;
 
@@ -152,8 +147,14 @@ class BaseTransformer
      * @return float
      */
     public function getFloat($data, $field)
-    {
-        return (isset($data->$field) && $data->$field) ? Utils::parseFloat($data->$field) : 0;
+    {   
+
+        if(array_key_exists($field, $data))
+            $number = preg_replace('/[^0-9-.]+/', '', $data[$field]);
+        else
+            $number = 0;
+
+        return Number::parseStringFloat($number);
     }
 
     /**

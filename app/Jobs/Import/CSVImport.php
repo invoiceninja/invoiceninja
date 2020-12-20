@@ -31,6 +31,7 @@ use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\ProductRepository;
+use App\Utils\Traits\CleanLineItems;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -44,7 +45,7 @@ use League\Csv\Statement;
 
 class CSVImport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CleanLineItems;
 
     public $invoice;
 
@@ -118,15 +119,9 @@ class CSVImport implements ShouldQueue
 
         $invoice_transformer = new InvoiceTransformer($this->maps);
 
-        info("import invoices");
-
-        info("column_map");
-
         $records = $this->getCsvData();
 
         $invoice_number_key = array_search('Invoice Number', reset($records));
-
-        info("number key = {$invoice_number_key}");
 
         if ($this->skip_header) 
             array_shift($records);
@@ -146,7 +141,6 @@ class CSVImport implements ShouldQueue
 
         foreach($unique_invoices as $unique)
         {
-            info("inside item loop {$unique}");
 
             $invoices = array_filter($records, function($value) use($invoice_number_key, $unique){
                 return $value[$invoice_number_key] == $unique;
@@ -181,7 +175,7 @@ class CSVImport implements ShouldQueue
 
         }
 
-        $invoice['line_items'] = $items;
+        $invoice['line_items'] = $this->cleanItems($items);
 
             $validator = Validator::make($invoice, (new StoreInvoiceRequest())->rules());
 
@@ -235,8 +229,6 @@ class CSVImport implements ShouldQueue
         //clients
         $records = $this->getCsvData();
 
-info(print_r($this->column_map,1));
-
         $contact_repository = new ClientContactRepository();
         $client_repository = new ClientRepository($contact_repository);
         $client_transformer = new ClientTransformer($this->maps);
@@ -278,7 +270,7 @@ info(print_r($this->column_map,1));
 
     private function importProduct()
     {
-        info("importing products");
+
         $product_repository = new ProductRepository();
         $product_transformer = new ProductTransformer($this->maps);
 
