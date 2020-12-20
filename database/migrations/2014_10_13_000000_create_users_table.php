@@ -50,8 +50,8 @@ class CreateUsersTable extends Migration
             $table->boolean('eea')->default(0);
             $table->boolean('swap_postal_code')->default(0);
             $table->boolean('swap_currency_symbol')->default(false);
-            $table->string('thousand_separator')->nullable();
-            $table->string('decimal_separator')->nullable();
+            $table->string('thousand_separator')->nullable()->default('');
+            $table->string('decimal_separator')->nullable()->default('');
         });
 
         Schema::create('payment_types', function ($table) {

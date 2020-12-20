@@ -50,6 +50,8 @@ class CountriesSeeder extends Seeder
                     'region_code' => $country['region-code'],
                     'sub_region_code' => $country['sub-region-code'],
                     'eea' => (bool) $country['eea'],
+                    'thousand_separator' => '',
+                    'decimal_separator' => '', 
                 ]);
             }
         }
