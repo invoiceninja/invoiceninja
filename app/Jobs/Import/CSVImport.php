@@ -21,7 +21,9 @@ use App\Import\Transformers\ClientTransformer;
 use App\Import\Transformers\InvoiceItemTransformer;
 use App\Import\Transformers\InvoiceTransformer;
 use App\Import\Transformers\ProductTransformer;
+use App\Jobs\Mail\MailRouter;
 use App\Libraries\MultiDB;
+use App\Mail\Import\ImportCompleted;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Currency;
@@ -98,11 +100,16 @@ class CSVImport implements ShouldQueue
 
         info("import".ucfirst($this->entity_type));
         $this->{"import".ucfirst($this->entity_type)}();
+        
+        $data = [
+            'entity' => $this->entity_type,
+            'errors' => $this->error_array,
+            'clients' => $this->maps['clients'],
+            'products' => $this->maps['products'],
+            'invoices' => $this->maps['invoices'],
+        ];
 
-
-        info("errors");
-
-        info(print_r($this->error_array,1));
+        MailRouter::dispatch(new ImportCompleted($data), $this->company, auth()->user());
 
     }
 
@@ -180,7 +187,7 @@ class CSVImport implements ShouldQueue
             $validator = Validator::make($invoice, (new StoreInvoiceRequest())->rules());
 
             if ($validator->fails()) {
-                $this->error_array[] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
+                $this->error_array['invoices'] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
             } else {
 
                 $invoice = $invoice_repository->save($invoice, InvoiceFactory::create($this->company->id, $this->setUser($record)));
@@ -248,7 +255,7 @@ class CSVImport implements ShouldQueue
             $validator = Validator::make($client, (new StoreClientRequest())->rules());
 
             if ($validator->fails()) {
-                $this->error_array[] = ['client' => $client, 'error' => json_encode($validator->errors())];
+                $this->error_array['clients'] = ['client' => $client, 'error' => json_encode($validator->errors())];
             } else {
                 $client = $client_repository->save($client, ClientFactory::create($this->company->id, $this->setUser($record)));
 
@@ -291,7 +298,7 @@ class CSVImport implements ShouldQueue
             $validator = Validator::make($product, (new StoreProductRequest())->rules());
 
             if ($validator->fails()) {
-                $this->error_array[] = ['product' => $product, 'error' => json_encode($validator->errors())];
+                $this->error_array['products'] = ['product' => $product, 'error' => json_encode($validator->errors())];
             } else {
                 $product = $product_repository->save($product, ProductFactory::create($this->company->id, $this->setUser($record)));
 
@@ -310,6 +317,7 @@ class CSVImport implements ShouldQueue
         $this->maps['company'] = $this->company;
         $this->maps['clients'] = [];
         $this->maps['products'] = [];
+        $this->maps['invoices'] = [];
 
         return $this;
     }

@@ -1,0 +1,41 @@
+@component('email.template.master', ['design' => 'light', 'settings' =>$settings])
+
+@slot('header')
+    @component('email.components.header')
+        Migration already completed
+    @endcomponent
+@endslot
+
+@slot('greeting')
+	Hello,
+@endslot
+
+Here is the output of your recent import job.
+
+Entity Type: {{ $entity_type }}
+
+@if(count($errors['invoices']) >=1)
+	<ul>
+	@foreach($errors as $error)
+		<li>{{ $error['invoice'] }} - {{ $error['error'] }}</li>
+	@endforeach
+	</ul>
+@endif
+
+@component('email.components.button', ['url' => url('/')])
+    Visit portal
+@endcomponent
+
+
+@slot('signature')
+Thank you, <br>
+Invoice Ninja    
+@endslot
+
+@slot('footer')
+    @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
+        For any info, please visit InvoiceNinja.
+    @endcomponent
+@endslot
+
+@endcomponent
