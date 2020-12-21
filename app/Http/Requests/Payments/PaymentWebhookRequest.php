@@ -44,7 +44,7 @@ class PaymentWebhookRequest extends Request
      */
     public function getCompanyGateway(): ?CompanyGateway
     {
-        return CompanyGateway::find($this->decodePrimaryKey($this->company_gateway_id))->firstOrFail();
+        return CompanyGateway::findOrFail($this->decodePrimaryKey($this->company_gateway_id));
     }
 
     /**
@@ -67,16 +67,30 @@ class PaymentWebhookRequest extends Request
      *
      * @return null|\App\Models\Payment
      */
-    public function getPayment(): ?Payment
+    public function getPayment()
     {
-        /**
-         * Some gateways, like Checkout, we can dynamically pass payment hash,
-         * which we will resolve here and get payment information from it.
-         */
+        // For testing purposes we'll slow down the webhook processing by 2 seconds
+        // to make sure webhook request doesn't came before our processing.
+        if (app()->environment() !== 'production') {
+            sleep(2);
+        }
+
+        // Some gateways, like Checkout, we can dynamically pass payment hash,
+        // which we will resolve here and get payment information from it.
         if ($this->getPaymentHash()) {
             return $this->getPaymentHash()->payment;
         }
 
+        // While for some gateways, we need to extract the payment source/reference from the webhook request.
+        // Gateways like this: Stripe
+        if ($this->has('api_version') && $this->has('type') && $this->has('data')) {
+            $src = $this->data['object']['id'];
+
+            return Payment::where('transaction_reference', $src)->firstOrFail();
+        }
+
+        // If none of previously done logics is correct, we'll just display
+        // not found page.
         abort(404);
     }
 
