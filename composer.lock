@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5e9ee9e0cebf1e6f892c6b16d043de50",
+    "content-hash": "669af9e67b79e872aa671420cfb14ddd",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -203,50 +203,6 @@
                 "source": "https://github.com/aws/aws-sdk-php/tree/3.171.2"
             },
             "time": "2020-12-18T19:12:13+00:00"
-        },
-        {
-            "name": "beganovich/chromium-pdf",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/beganovich/chromium-pdf.git",
-                "reference": "f6f32bb99616a1c1b7108250ccc438210134a99f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/beganovich/chromium-pdf/zipball/f6f32bb99616a1c1b7108250ccc438210134a99f",
-                "reference": "f6f32bb99616a1c1b7108250ccc438210134a99f",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.3|^7.4|^8.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^9.5"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Beganovich\\ChromiumPdf\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Benjamin Beganović",
-                    "email": "k1pstabug@gmail.com"
-                }
-            ],
-            "description": "Generate PDFs using headless Chromium",
-            "support": {
-                "issues": "https://github.com/beganovich/chromium-pdf/issues",
-                "source": "https://github.com/beganovich/chromium-pdf/tree/master"
-            },
-            "time": "2020-12-15T10:16:36+00:00"
         },
         {
             "name": "beganovich/snappdf",
@@ -13935,7 +13891,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "beganovich/chromium-pdf": 20,
         "webpatser/laravel-countries": 20
     },
     "prefer-stable": true,
