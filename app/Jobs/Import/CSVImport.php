@@ -110,6 +110,8 @@ class CSVImport implements ShouldQueue
             'settings' => $this->company->settings
         ];
 
+info(print_r($data,1));
+
         MailRouter::dispatch(new ImportCompleted($data), $this->company, auth()->user());
 
     }
