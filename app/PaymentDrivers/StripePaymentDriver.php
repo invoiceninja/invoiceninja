@@ -21,17 +21,19 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
+use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use Stripe\Customer;
+use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
+use Stripe\PaymentMethod;
 use Stripe\SetupIntent;
 use Stripe\Stripe;
 use Stripe\StripeClient;
@@ -55,7 +57,7 @@ class StripePaymentDriver extends BaseDriver
 
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
-        GatewayType::BANK_TRANSFER => ACH::class,
+        GatewayType::BANK_TRANSFER => SOFORT::class,
         GatewayType::ALIPAY => Alipay::class,
         GatewayType::SOFORT => SOFORT::class,
         GatewayType::APPLE_PAY => 1, // TODO
@@ -152,8 +154,7 @@ class StripePaymentDriver extends BaseDriver
      * Proxy method to pass the data into payment method authorizeView().
      *
      * @param array $data
-     *
-     * @return Factory|View
+     * @return \Illuminate\Http\RedirectResponse|mixed
      */
     public function authorizeView(array $data)
     {
@@ -169,8 +170,8 @@ class StripePaymentDriver extends BaseDriver
     /**
      * Processes the gateway response for credit card authorization.
      *
-     * @param Request $request The returning request object
-     * @return Factory|View
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse|mixed
      */
     public function authorizeResponse($request)
     {
@@ -187,7 +188,7 @@ class StripePaymentDriver extends BaseDriver
      * Process the payment with gateway.
      *
      * @param array $data
-     * @return Factory|View|void
+     * @return \Illuminate\Http\RedirectResponse|mixed
      */
     public function processPaymentView(array $data)
     {
@@ -216,7 +217,7 @@ class StripePaymentDriver extends BaseDriver
      *
      * @param array $data The data array to be passed to Stripe
      * @return PaymentIntent       The Stripe payment intent object
-     * @throws \Stripe\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
     public function createPaymentIntent($data): ?PaymentIntent
     {
@@ -230,7 +231,7 @@ class StripePaymentDriver extends BaseDriver
      * to enter card details without initiating a transaction.
      *
      * @return SetupIntent
-     * @throws \Stripe\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
     public function getSetupIntent(): SetupIntent
     {
@@ -253,7 +254,7 @@ class StripePaymentDriver extends BaseDriver
      *
      * @return null|Customer A Stripe customer object
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
-     * @throws \Stripe\Exception\ApiErrorException
+     * @throws ApiErrorException
      */
     public function findOrCreateCustomer(): ?Customer
     {
@@ -277,7 +278,7 @@ class StripePaymentDriver extends BaseDriver
         }
 
         if (!$customer) {
-            throw new \Exception('Unable to create gateway customer');
+            throw new Exception('Unable to create gateway customer');
         }
 
         return $customer;
@@ -316,7 +317,7 @@ class StripePaymentDriver extends BaseDriver
                 'description' => $response->failure_reason,
                 'code' => 422,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
 
             info($e->getMessage());
@@ -394,7 +395,7 @@ class StripePaymentDriver extends BaseDriver
         try {
             $stripe_payment_method = $this->getStripePaymentMethod($payment_method);
             $stripe_payment_method->attach(['customer' => $customer->id]);
-        } catch (\Stripe\Exception\ApiErrorException | \Exception $e) {
+        } catch (ApiErrorException | Exception $e) {
             $this->processInternallyFailedPayment($this, $e);
         }
     }
@@ -413,7 +414,7 @@ class StripePaymentDriver extends BaseDriver
         );
 
         try {
-            $response = $stripe->paymentMethods->detach($token->token);
+            $stripe->paymentMethods->detach($token->token);
         } catch (Exception $e) {
             SystemLogger::dispatch([
                 'server_response' => $e->getMessage(), 'data' => request()->all(),
@@ -431,13 +432,13 @@ class StripePaymentDriver extends BaseDriver
      *
      * @param string $source
      *
-     * @return \Stripe\PaymentMethod|void
+     * @return PaymentMethod|void
      */
     public function getStripePaymentMethod(string $source)
     {
         try {
-            return \Stripe\PaymentMethod::retrieve($source);
-        } catch (\Stripe\Exception\ApiErrorException | \Exception $e) {
+            return PaymentMethod::retrieve($source);
+        } catch (ApiErrorException | Exception $e) {
             return $this->processInternallyFailedPayment($this, $e);
         }
     }
