@@ -30,6 +30,3 @@ class ChangeProductsTableCostResolution extends Migration
         //
     }
 }
-
-
-            

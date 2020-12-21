@@ -150,7 +150,6 @@ class ImportCsvTest extends TestCase
         CSVImport::dispatchNow($data, $this->company);
 
         $this->assertGreaterThan($pre_import, Product::count());
-
     }
 
     private function getCsvData($csvfile)

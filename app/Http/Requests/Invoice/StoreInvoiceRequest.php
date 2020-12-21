@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Invoice\UniqueInvoiceNumberRule;
 use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Models\Invoice;
 use App\Utils\Traits\CleanLineItems;

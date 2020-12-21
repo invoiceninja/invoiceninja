@@ -29,7 +29,6 @@ use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
 use Exception;
 use Illuminate\Support\Carbon;
-use Illuminate\View\View;
 use Stripe\Customer;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
