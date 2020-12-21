@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Payments;
 
 use App\Http\Requests\Request;
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -26,6 +27,8 @@ class PaymentWebhookRequest extends Request
 
     public function authorize()
     {
+        MultiDB::findAndSetDbByCompanyKey($this->getCompany()->company_key);
+
         return true;
     }
 
