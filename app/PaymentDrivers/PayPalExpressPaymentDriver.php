@@ -88,7 +88,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
         $this->initializeOmnipayGateway();
 
-        $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['amount_with_fee']]);
+        $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
         $this->payment_hash->save();
 
         $response = $this->omnipay_gateway
@@ -100,7 +100,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             return $response->redirect();
         }
 
-        PaymentFailureMailer::dispatch($this->client, $response->getData(), $this->client->company, $data['amount_with_fee']);
+        PaymentFailureMailer::dispatch($this->client, $response->getData(), $this->client->company, $data['total']['amount_with_fee']);
 
         $message = [
             'server_response' => $response->getMessage(),
@@ -183,7 +183,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             'currency' => $this->client->getCurrencyCode(),
             'transactionType' => 'Purchase',
             'clientIp' => request()->getClientIp(),
-            'amount' => $data['amount_with_fee'],
+            'amount' => $data['total']['amount_with_fee'],
             'returnUrl' => route('client.payments.response', [
                 'company_gateway_id' => $this->company_gateway->id,
                 'payment_hash' => $this->payment_hash->hash,
@@ -223,11 +223,11 @@ class PayPalExpressPaymentDriver extends BaseDriver
             });
         });
 
-        if ($total != $data['amount_with_fee']) {
+        if ($total != $data['total']['amount_with_fee']) {
             $items[0][] = new Item([
                 'name' => trans('texts.taxes_and_fees'),
                 'description' => '',
-                'price' => $data['amount_with_fee'] - $total,
+                'price' => $data['total']['amount_with_fee'] - $total,
                 'quantity' => 1,
             ]);
         }
