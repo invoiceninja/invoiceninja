@@ -43,14 +43,14 @@ class QuoteViewedActivity implements ShouldQueue
 
         $fields = new stdClass;
 
-        $fields->user_id = $event->quote->user_id;
-        $fields->company_id = $event->quote->company_id;
+        $fields->user_id = $event->invitation->quote->user_id;
+        $fields->company_id = $event->invitation->company_id;
         $fields->activity_type_id = Activity::VIEW_QUOTE;
         $fields->client_id = $event->invitation->client_id;
         $fields->client_contact_id = $event->invitation->client_contact_id;
         $fields->invitation_id = $event->invitation->id;
         $fields->quote_id = $event->invitation->quote_id;
 
-        $this->activity_repo->save($fields, $event->quote, $event->event_vars);
+        $this->activity_repo->save($fields, $event->invitation->quote, $event->event_vars);
     }
 }
