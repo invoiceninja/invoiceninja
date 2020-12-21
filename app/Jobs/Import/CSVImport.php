@@ -102,11 +102,12 @@ class CSVImport implements ShouldQueue
         $this->{"import".ucfirst($this->entity_type)}();
         
         $data = [
-            'entity' => $this->entity_type,
+            'entity' => ucfirst($this->entity_type),
             'errors' => $this->error_array,
             'clients' => $this->maps['clients'],
             'products' => $this->maps['products'],
             'invoices' => $this->maps['invoices'],
+            'settings' => $this->company->settings
         ];
 
         MailRouter::dispatch(new ImportCompleted($data), $this->company, auth()->user());

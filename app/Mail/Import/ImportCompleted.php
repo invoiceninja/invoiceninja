@@ -30,6 +30,6 @@ class ImportCompleted extends Mailable
     public function build()
     {
         return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->view('email.import.completed', compact($this->data));
+                    ->view('email.import.completed', $this->data);
     }
 }
