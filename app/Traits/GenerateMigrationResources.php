@@ -28,6 +28,26 @@ trait GenerateMigrationResources
 {
     protected $account;
 
+    protected function getAccount()
+    {
+        return [
+            'plan' => $this->account->company->plan,
+            'plan_term' =>$this->account->company->plan_term,
+            'plan_started' =>$this->account->company->plan_started,
+            'plan_paid' =>$this->account->company->plan_paid,
+            'plan_expires' =>$this->account->company->plan_expires,
+            'trial_started' =>$this->account->company->trial_started,
+            'trial_plan' =>$this->account->company->trial_plan,
+            'plan_price' =>$this->account->company->plan_price,
+            'num_users' =>$this->account->company->num_users,
+            'utm_source' =>$this->account->company->utm_source,
+            'utm_medium' =>$this->account->company->utm_medium,
+            'utm_campaign' =>$this->account->company->utm_campaign,
+            'utm_term' =>$this->account->company->utm_term,
+            'utm_content' =>$this->account->company->utm_content,
+        ];
+    }
+
     protected function getCompany()
     {
         return [
