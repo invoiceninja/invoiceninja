@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "591cb6a81d2d0b2f4cc0bf1db7fde22c",
+    "content-hash": "669af9e67b79e872aa671420cfb14ddd",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -205,30 +205,38 @@
             "time": "2020-12-18T19:12:13+00:00"
         },
         {
-            "name": "beganovich/chromium-pdf",
-            "version": "dev-master",
+            "name": "beganovich/snappdf",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/beganovich/chromium-pdf.git",
-                "reference": "f6f32bb99616a1c1b7108250ccc438210134a99f"
+                "url": "https://github.com/beganovich/snappdf.git",
+                "reference": "96e0e2176f01ae712ab06dad0da6d2d79f7c1832"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beganovich/chromium-pdf/zipball/f6f32bb99616a1c1b7108250ccc438210134a99f",
-                "reference": "f6f32bb99616a1c1b7108250ccc438210134a99f",
+                "url": "https://api.github.com/repos/beganovich/snappdf/zipball/96e0e2176f01ae712ab06dad0da6d2d79f7c1832",
+                "reference": "96e0e2176f01ae712ab06dad0da6d2d79f7c1832",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.3|^7.4|^8.0"
+                "ext-json": "*",
+                "ext-zip": "*",
+                "php": "^7.3|^7.4|^8.0",
+                "symfony/console": "^5.2",
+                "symfony/filesystem": "^5.2",
+                "symfony/process": "^5.2"
             },
             "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.17",
                 "phpunit/phpunit": "^9.5"
             },
-            "default-branch": true,
+            "bin": [
+                "snappdf"
+            ],
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Beganovich\\ChromiumPdf\\": "src/"
+                    "Beganovich\\Snappdf\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -241,12 +249,12 @@
                     "email": "k1pstabug@gmail.com"
                 }
             ],
-            "description": "Generate PDFs using headless Chromium",
+            "description": "Convert webpages or HTML into the PDF file using Chromium or Google Chrome.",
             "support": {
-                "issues": "https://github.com/beganovich/chromium-pdf/issues",
-                "source": "https://github.com/beganovich/chromium-pdf/tree/master"
+                "issues": "https://github.com/beganovich/snappdf/issues",
+                "source": "https://github.com/beganovich/snappdf/tree/v1.0.0"
             },
-            "time": "2020-12-15T10:16:36+00:00"
+            "time": "2020-12-21T14:55:21+00:00"
         },
         {
             "name": "brick/math",
@@ -13883,16 +13891,15 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "beganovich/chromium-pdf": 20,
         "webpatser/laravel-countries": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^7.3|^7.4",
+        "ext-dom": "*",
         "ext-json": "*",
-        "ext-libxml": "*",
-        "ext-dom": "*"
+        "ext-libxml": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.0.0"

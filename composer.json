@@ -27,11 +27,12 @@
     "type": "project",
     "require": {
         "php": "^7.3|^7.4",
+        "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
         "asgrim/ofxparser": "^1.2",
         "authorizenet/authorizenet": "^2.0",
-        "beganovich/chromium-pdf": "dev-master",
+        "beganovich/snappdf": "^1.0",
         "checkout/checkout-sdk-php": "^1.0",
         "cleverit/ubl_invoice": "^1.3",
         "composer/composer": "^2",
@@ -65,8 +66,7 @@
         "stripe/stripe-php": "^7.50",
         "turbo124/beacon": "^1",
         "turbo124/laravel-gmail": "^5.0",
-        "webpatser/laravel-countries": "dev-master#75992ad",
-        "ext-dom": "*"
+        "webpatser/laravel-countries": "dev-master#75992ad"
     },
     "require-dev": {
         "anahkiasen/former": "^4.2",

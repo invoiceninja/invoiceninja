@@ -96,6 +96,8 @@ class ImportCsvTest extends TestCase
 
     public function testClientCsvImport()
     {
+        $this->markTestSkipped();
+
         $csv = file_get_contents(base_path().'/tests/Feature/Import/clients.csv');
         $hash = Str::random(32);
         $column_map = [
