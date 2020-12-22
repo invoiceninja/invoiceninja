@@ -11,8 +11,6 @@
 
 namespace App\Import\Transformers;
 
-use Illuminate\Support\Str;
-
 /**
  * Class InvoiceItemTransformer.
  */

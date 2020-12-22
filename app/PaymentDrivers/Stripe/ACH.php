@@ -22,6 +22,8 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
+use Exception;
+use Stripe\Customer;
 use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 
@@ -68,10 +70,10 @@ class ACH
     {
         $this->stripe->init();
 
-        $bank_account = \Stripe\Customer::retrieveSource($request->customer, $request->source);
+        $bank_account = Customer::retrieveSource($request->customer, $request->source);
 
         try {
-            $status = $bank_account->verify(['amounts' => request()->transactions]);
+            $bank_account->verify(['amounts' => request()->transactions]);
 
             $token->meta->verified_at = now();
             $token->save();
@@ -90,7 +92,7 @@ class ACH
         $data['currency'] = $this->stripe->client->getCurrencyCode();
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
         $data['customer'] = $this->stripe->findOrCreateCustomer();
-        $data['amount'] = $this->stripe->convertToStripeAmount($data['amount_with_fee'], $this->stripe->client->currency()->precision);
+        $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision);
 
         return render('gateways.stripe.ach.pay', $data);
     }
@@ -205,7 +207,7 @@ class ACH
             ];
 
             return $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
         }
     }

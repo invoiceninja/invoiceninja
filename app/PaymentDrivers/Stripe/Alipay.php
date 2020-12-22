@@ -17,6 +17,7 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
@@ -36,7 +37,7 @@ class Alipay
         $data['gateway'] = $this->stripe;
         $data['return_url'] = $this->buildReturnUrl();
         $data['currency'] = $this->stripe->client->getCurrencyCode();
-        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['amount_with_fee'], $this->stripe->client->currency()->precision);
+        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision);
         $data['invoices'] = $this->stripe->payment_hash->invoices();
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
@@ -77,7 +78,7 @@ class Alipay
             'transaction_reference' => $source,
         ];
 
-        $payment = $this->stripe->createPayment($data, \App\Models\Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],

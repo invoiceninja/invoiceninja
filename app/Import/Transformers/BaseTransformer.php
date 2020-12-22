@@ -50,7 +50,7 @@ class BaseTransformer
 
     public function getInvoiceTypeId($data, $field)
     {
-        return (isset($data[$field]) && $data[$field]) ? $data[$field] : '1';        
+        return (isset($data[$field]) && $data[$field]) ? $data[$field] : '1';
     }
 
     public function getCurrencyByCode($data)
@@ -60,8 +60,9 @@ class BaseTransformer
         if ($code) {
             $currency = $this->maps['currencies']->where('code', $code)->first();
 
-            if($currency_id)
+            if ($currency_id) {
                 return $currency->id;
+            }
         }
 
         return $this->maps['company']->settings->currency_id;
@@ -69,28 +70,28 @@ class BaseTransformer
 
     public function getClient($client_name, $client_email)
     {
-        
         $clients = $this->maps['company']->clients;
 
         $clients = $clients->where('name', $client_name);
 
-        if($clients->count() >= 1)
+        if ($clients->count() >= 1) {
             return $clients->first()->id;
+        }
 
 
         $contacts = ClientContact::where('company_id', $this->maps['company']->id)
                                  ->where('email', $client_email);
 
-        if($contacts->count() >=1)
+        if ($contacts->count() >=1) {
             return $contacts->first()->client_id;
+        }
         
-        return NULL;
-
+        return null;
     }
 
 
 
-///////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////
     /**
      * @param $name
      *
@@ -147,12 +148,12 @@ class BaseTransformer
      * @return float
      */
     public function getFloat($data, $field)
-    {   
-
-        if(array_key_exists($field, $data))
+    {
+        if (array_key_exists($field, $data)) {
             $number = preg_replace('/[^0-9-.]+/', '', $data[$field]);
-        else
+        } else {
             $number = 0;
+        }
 
         return Number::parseStringFloat($number);
     }

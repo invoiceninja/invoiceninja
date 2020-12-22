@@ -126,17 +126,17 @@ info(print_r($data,1));
 
     private function importInvoice()
     {
-
         $invoice_transformer = new InvoiceTransformer($this->maps);
 
         $records = $this->getCsvData();
 
         $invoice_number_key = array_search('Invoice Number', reset($records));
 
-        if ($this->skip_header) 
+        if ($this->skip_header) {
             array_shift($records);
+        }
 
-        if(!$invoice_number_key){
+        if (!$invoice_number_key) {
             info("no invoice number to use as key - returning");
             return;
         }
@@ -144,15 +144,12 @@ info(print_r($data,1));
         $unique_invoices = [];
 
         //get an array of unique invoice numbers
-        foreach($records as $key => $value) 
-        {
+        foreach ($records as $key => $value) {
             $unique_invoices[] = $value[$invoice_number_key];
         }
 
-        foreach($unique_invoices as $unique)
-        {
-
-            $invoices = array_filter($records, function($value) use($invoice_number_key, $unique){
+        foreach ($unique_invoices as $unique) {
+            $invoices = array_filter($records, function ($value) use ($invoice_number_key, $unique) {
                 return $value[$invoice_number_key] == $unique;
             });
 
@@ -163,9 +160,7 @@ info(print_r($data,1));
             $invoice = $invoice_transformer->transform($invoice_data);
 
             $this->processInvoice($invoices, $invoice);
-
         }
-
     }
 
     private function processInvoice($invoices, $invoice)
@@ -174,15 +169,12 @@ info(print_r($data,1));
         $item_transformer = new InvoiceItemTransformer($this->maps);
         $items = [];
 
-        foreach($invoices as $record)
-        {
-            
+        foreach ($invoices as $record) {
             $keys = $this->column_map;
             $values = array_intersect_key($record, $this->column_map);
             $invoice_data = array_combine($keys, $values);
 
             $items[] = $item_transformer->transform($invoice_data);
-
         }
 
         $invoice['line_items'] = $this->cleanItems($items);
@@ -193,17 +185,19 @@ info(print_r($data,1));
                 $this->error_array['invoices'] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
             } else {
 
-                $invoice = $invoice_repository->save($invoice, InvoiceFactory::create($this->company->id, $this->setUser($record)));
+        if ($validator->fails()) {
+            $this->error_array[] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
+        } else {
+            $invoice = $invoice_repository->save($invoice, InvoiceFactory::create($this->company->id, $this->setUser($record)));
 
-                $this->maps['invoices'][] = $invoice->id;
+            $this->maps['invoices'][] = $invoice->id;
 
-                $this->performInvoiceActions($invoice, $record, $invoice_repository);
-            }
+            $this->performInvoiceActions($invoice, $record, $invoice_repository);
+        }
     }
 
     private function performInvoiceActions($invoice, $record, $invoice_repository)
     {
-
         $invoice = $this->actionInvoiceStatus($invoice, $record, $invoice_repository);
     }
 
@@ -217,7 +211,7 @@ info(print_r($data,1));
             case 'Sent':
                 $invoice = $invoice->service()->markSent()->save();
                 break;
-            case 'Viewed';
+            case 'Viewed':
                 $invoice = $invoice->service()->markSent()->save();
                 break;
             default:
@@ -225,7 +219,7 @@ info(print_r($data,1));
                 break;
         }
 
-        if($invoice->balance < $invoice->amount && $invoice->status_id <= Invoice::STATUS_SENT){
+        if ($invoice->balance < $invoice->amount && $invoice->status_id <= Invoice::STATUS_SENT) {
             $invoice->status_id = Invoice::STATUS_PARTIAL;
             $invoice->save();
         }
@@ -243,11 +237,11 @@ info(print_r($data,1));
         $client_repository = new ClientRepository($contact_repository);
         $client_transformer = new ClientTransformer($this->maps);
 
-        if ($this->skip_header) 
+        if ($this->skip_header) {
             array_shift($records);
+        }
 
         foreach ($records as $record) {
-
             $keys = $this->column_map;
             $values = array_intersect_key($record, $this->column_map);
 
@@ -280,17 +274,16 @@ info(print_r($data,1));
 
     private function importProduct()
     {
-
         $product_repository = new ProductRepository();
         $product_transformer = new ProductTransformer($this->maps);
 
         $records = $this->getCsvData();
 
-        if ($this->skip_header) 
+        if ($this->skip_header) {
             array_shift($records);
+        }
 
-        foreach ($records as $record) 
-        {
+        foreach ($records as $record) {
             $keys = $this->column_map;
             $values = array_intersect_key($record, $this->column_map);
             
