@@ -70,6 +70,20 @@ class Number
         return (float) $s;
     }
 
+    public static function parseStringFloat($value)
+    {
+        $value = preg_replace('/[^0-9-.]+/', '', $value);
+
+        // check for comma as decimal separator
+        if (preg_match('/,[\d]{1,2}$/', $value)) {
+            $value = str_replace(',', '.', $value);
+        }
+
+        $value = preg_replace('/[^0-9\.\-]/', '', $value);
+
+        return floatval($value);
+    }
+    
     /**
      * Formats a given value based on the clients currency AND country.
      *
@@ -88,15 +102,15 @@ class Number
         $swapSymbol = $currency->swap_currency_symbol;
 
         /* Country settings override client settings */
-        if (isset($client->country->thousand_separator)) {
+        if (isset($client->country->thousand_separator) && strlen($client->country->thousand_separator) >= 1) {
             $thousand = $client->country->thousand_separator;
         }
 
-        if (isset($client->country->decimal_separator)) {
+        if (isset($client->country->decimal_separator) && strlen($client->country->decimal_separator) >= 1) {
             $decimal = $client->country->decimal_separator;
         }
 
-        if (isset($client->country->swap_currency_symbol)) {
+        if (isset($client->country->swap_currency_symbol) && strlen($client->country->swap_currency_symbol) >= 1) {
             $swapSymbol = $client->country->swap_currency_symbol;
         }
 

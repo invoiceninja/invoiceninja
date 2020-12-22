@@ -50,6 +50,8 @@ class CountriesSeeder extends Seeder
                     'region_code' => $country['region-code'],
                     'sub_region_code' => $country['sub-region-code'],
                     'eea' => (bool) $country['eea'],
+                    'thousand_separator' => '',
+                    'decimal_separator' => '',
                 ]);
             }
         }
@@ -195,10 +197,10 @@ class CountriesSeeder extends Seeder
                 $country->swap_currency_symbol = true;
             }
             if (isset($data['thousand_separator'])) {
-                $country->thousand_separator = $data['thousand_separator'];
+                $country->thousand_separator = $data['thousand_separator'] ?: '';
             }
             if (isset($data['decimal_separator'])) {
-                $country->decimal_separator = $data['decimal_separator'];
+                $country->decimal_separator = $data['decimal_separator'] ?: '';
             }
             $country->save();
         }

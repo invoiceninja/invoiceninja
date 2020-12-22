@@ -12,11 +12,11 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Invoice\UniqueInvoiceNumberRule;
 use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Models\Invoice;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class StoreInvoiceRequest extends Request
 {
@@ -51,13 +51,7 @@ class StoreInvoiceRequest extends Request
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
-        // if ($this->input('number')) {
-        //     $rules['number'] = 'unique:invoices,number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
-        // }
-        if (isset($this->number)) {
-            $rules['number'] = Rule::unique('invoices')->where('company_id', auth()->user()->company()->id);
-        }
-
+        $rules['number'] = ['nullable',Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)];
 
         $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 

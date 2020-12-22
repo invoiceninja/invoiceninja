@@ -980,7 +980,8 @@ class Import implements ShouldQueue
         $modified = collect($data)->map(function ($item) {
             $item['user_id'] = $this->user->id;
             $item['company_id'] = $this->company->id;
-
+            $item['is_deleted'] = isset($item['is_deleted']) ? $item['is_deleted'] : 0;
+            
             return $item;
         })->toArray();
 

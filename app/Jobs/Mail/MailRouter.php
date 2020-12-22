@@ -12,6 +12,7 @@
 namespace App\Jobs\Mail;
 
 use App\Libraries\MultiDB;
+use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\User;
@@ -74,7 +75,9 @@ class MailRouter extends BaseMailerJob implements ShouldQueue
                 ->send($this->mailable);
         } catch (\Exception $e) {
             $this->failed($e);
-            $this->logMailError($e->getMessage(), $this->to_user);
+            
+            if($this->to_user instanceof ClientContact)
+                $this->logMailError($e->getMessage(), $this->to_user->client);
         }
     }
 }

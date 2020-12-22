@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -11,8 +12,7 @@
 
 namespace App\Utils\Traits\Pdf;
 
-//use Beganovich\ChromiumPdf\ChromiumPdf;
-use Spatie\Browsershot\Browsershot;
+use Beganovich\Snappdf\Snappdf;
 
 trait PdfMaker
 {
@@ -27,30 +27,10 @@ trait PdfMaker
      */
     public function makePdf($header, $footer, $html)
     {
-        if (config('ninja.experimental_pdf_engine')) {
-            $pdf = new ChromiumPdf();
+        $pdf = new Snappdf();
 
-            return $pdf
-                ->setChromiumPath(config('ninja.experimental_pdf_engine_chromium_path'))
-                ->setHtml($html)
-                ->generate();
-        }
-
-        $browser = Browsershot::html($html);
-
-        if (config('ninja.system.node_path')) {
-            $browser->setNodeBinary(config('ninja.system.node_path'));
-        }
-
-        if (config('ninja.system.npm_path')) {
-            $browser->setNpmBinary(config('ninja.system.npm_path'));
-        }
-
-        return $browser->deviceScaleFactor(1)
-                ->showBackground()
-                ->deviceScaleFactor(1)
-                ->waitUntilNetworkIdle(true)
-                ->noSandbox()
-                ->pdf();
+        return $pdf
+            ->setHtml($html)
+            ->generate();
     }
 }

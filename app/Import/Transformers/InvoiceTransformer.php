@@ -11,8 +11,6 @@
 
 namespace App\Import\Transformers;
 
-use Illuminate\Support\Str;
-
 /**
  * Class InvoiceTransformer.
  */
@@ -31,7 +29,7 @@ class InvoiceTransformer extends BaseTransformer
                 'user_id' => $this->getString($data, 'invoice.user_id'),
                 'amount' => $this->getFloat($data, 'invoice.amount'),
                 'balance' => $this->getFloat($data, 'invoice.balance'),
-                'client_id' => $this->getClient($this->getString($data, 'invoice.client_id')),
+                'client_id' => $this->getClient($this->getString($data, 'client.name'), $this->getString($data, 'client.email')),
                 'discount' => $this->getFloat($data, 'invoice.discount'),
                 'po_number' => $this->getString($data, 'invoice.po_number'),
                 'date' => $this->getString($data, 'invoice.date'),

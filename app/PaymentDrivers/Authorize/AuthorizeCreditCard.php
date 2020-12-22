@@ -75,7 +75,7 @@ class AuthorizeCreditCard
             $client_gateway_token = $authorise_payment_method->createClientGatewayToken($payment_profile, $gateway_customer_reference);
         }
 
-        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $data['amount_with_fee']);
+        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $data['total']['amount_with_fee']);
 
         return $this->handleResponse($data, $request);
     }
@@ -106,13 +106,13 @@ class AuthorizeCreditCard
             // $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
 
             // $this->authorize->createPayment($payment_record);
-            
+
             $this->storePayment($payment_hash, $data);
-            
+
             // $payment = $this->createPaymentRecord($data, $amount);
             // $payment->meta = $cgt->meta;
             // $payment->save();
-            
+
             // $payment_hash->payment_id = $payment->id;
             // $payment_hash->save();
 

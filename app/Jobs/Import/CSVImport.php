@@ -21,7 +21,9 @@ use App\Import\Transformers\ClientTransformer;
 use App\Import\Transformers\InvoiceItemTransformer;
 use App\Import\Transformers\InvoiceTransformer;
 use App\Import\Transformers\ProductTransformer;
+use App\Jobs\Mail\MailRouter;
 use App\Libraries\MultiDB;
+use App\Mail\Import\ImportCompleted;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Currency;
@@ -31,6 +33,7 @@ use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\ProductRepository;
+use App\Utils\Traits\CleanLineItems;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -44,7 +47,7 @@ use League\Csv\Statement;
 
 class CSVImport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CleanLineItems;
 
     public $invoice;
 
@@ -97,11 +100,19 @@ class CSVImport implements ShouldQueue
 
         info("import".ucfirst($this->entity_type));
         $this->{"import".ucfirst($this->entity_type)}();
+        
+        $data = [
+            'entity' => ucfirst($this->entity_type),
+            'errors' => $this->error_array,
+            'clients' => $this->maps['clients'],
+            'products' => $this->maps['products'],
+            'invoices' => $this->maps['invoices'],
+            'settings' => $this->company->settings
+        ];
 
+info(print_r($data,1));
 
-        info("errors");
-
-        info(print_r($this->error_array,1));
+        MailRouter::dispatch(new ImportCompleted($data), $this->company, auth()->user());
 
     }
 
@@ -111,90 +122,45 @@ class CSVImport implements ShouldQueue
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    private function importProduct()
-    {
-        info("importing products");
-        $product_repository = new ProductRepository();
-        $product_transformer = new ProductTransformer($this->maps);
 
-        $records = $this->getCsvData();
-
-        if ($this->skip_header) 
-            array_shift($records);
-
-        foreach ($records as $record) 
-        {
-            $keys = $this->column_map;
-            $values = array_intersect_key($record, $this->column_map);
-            
-            $product_data = array_combine($keys, $values);
-
-            $product = $product_transformer->transform($product_data);
-
-            $validator = Validator::make($product, (new StoreProductRequest())->rules());
-
-            if ($validator->fails()) {
-                $this->error_array[] = ['product' => $product, 'error' => json_encode($validator->errors())];
-            } else {
-                $product = $product_repository->save($product, ProductFactory::create($this->company->id, $this->setUser($record)));
-
-                $product->save();
-
-                $this->maps['products'][] = $product->id;
-            }
-        }
-    }
 
     private function importInvoice()
     {
-
         $invoice_transformer = new InvoiceTransformer($this->maps);
-
-        info("import invoices");
-
-        info("column_map");
-
-        info(print_r($this->column_map,1));
 
         $records = $this->getCsvData();
 
         $invoice_number_key = array_search('Invoice Number', reset($records));
 
-        info("number key = {$invoice_number_key}");
-
-        if ($this->skip_header) 
+        if ($this->skip_header) {
             array_shift($records);
+        }
 
-        if(!$invoice_number_key){
+        if (!$invoice_number_key) {
             info("no invoice number to use as key - returning");
             return;
         }
 
-        $unique_array_filter = array_unique($records[$invoice_number_key]);
-        $unique_invoices = array_intersect_key( $records, $unique_array_filter );
+        $unique_invoices = [];
 
-        foreach($unique_invoices as $unique)
-        {
+        //get an array of unique invoice numbers
+        foreach ($records as $key => $value) {
+            $unique_invoices[] = $value[$invoice_number_key];
+        }
+
+        foreach ($unique_invoices as $unique) {
+            $invoices = array_filter($records, function ($value) use ($invoice_number_key, $unique) {
+                return $value[$invoice_number_key] == $unique;
+            });
 
             $keys = $this->column_map;
-            $values = array_intersect_key($unique, $this->column_map);
+            $values = array_intersect_key(reset($invoices), $this->column_map);
             $invoice_data = array_combine($keys, $values);
 
             $invoice = $invoice_transformer->transform($invoice_data);
 
-            foreach($unique_invoices as $val) {
-
-                $invoices = array_filter($records, function($item) use ($val, $invoice_number_key){
-                 return $item[$invoice_number_key] == $val[$invoice_number_key];
-                });
-
-            }
-
             $this->processInvoice($invoices, $invoice);
-
         }
-
-
     }
 
     private function processInvoice($invoices, $invoice)
@@ -203,39 +169,35 @@ class CSVImport implements ShouldQueue
         $item_transformer = new InvoiceItemTransformer($this->maps);
         $items = [];
 
-        foreach($invoices as $record)
-        {
-            
+        foreach ($invoices as $record) {
             $keys = $this->column_map;
             $values = array_intersect_key($record, $this->column_map);
             $invoice_data = array_combine($keys, $values);
 
             $items[] = $item_transformer->transform($invoice_data);
-
         }
 
-        $invoice['line_items'] = $items;
-
-info(print_r($invoice->toArray(),1));
+        $invoice['line_items'] = $this->cleanItems($items);
 
             $validator = Validator::make($invoice, (new StoreInvoiceRequest())->rules());
 
             if ($validator->fails()) {
-                $this->error_array[] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
+                $this->error_array['invoices'] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
             } else {
-                $invoice = $invoice_repository->save($invoice, InvoiceFactory::create($this->company->id, $this->setUser($record)));
 
-                $invoice->save();
+        if ($validator->fails()) {
+            $this->error_array[] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
+        } else {
+            $invoice = $invoice_repository->save($invoice, InvoiceFactory::create($this->company->id, $this->setUser($record)));
 
-                $this->maps['invoices'][] = $invoice->id;
+            $this->maps['invoices'][] = $invoice->id;
 
-                $this->performInvoiceActions($invoice, $record, $invoice_repository);
-            }
+            $this->performInvoiceActions($invoice, $record, $invoice_repository);
+        }
     }
 
     private function performInvoiceActions($invoice, $record, $invoice_repository)
     {
-
         $invoice = $this->actionInvoiceStatus($invoice, $record, $invoice_repository);
     }
 
@@ -249,7 +211,7 @@ info(print_r($invoice->toArray(),1));
             case 'Sent':
                 $invoice = $invoice->service()->markSent()->save();
                 break;
-            case 'Viewed';
+            case 'Viewed':
                 $invoice = $invoice->service()->markSent()->save();
                 break;
             default:
@@ -257,7 +219,7 @@ info(print_r($invoice->toArray(),1));
                 break;
         }
 
-        if($invoice->balance < $invoice->amount && $invoice->status_id <= Invoice::STATUS_SENT){
+        if ($invoice->balance < $invoice->amount && $invoice->status_id <= Invoice::STATUS_SENT) {
             $invoice->status_id = Invoice::STATUS_PARTIAL;
             $invoice->save();
         }
@@ -271,17 +233,15 @@ info(print_r($invoice->toArray(),1));
         //clients
         $records = $this->getCsvData();
 
-info(print_r($this->column_map,1));
-
         $contact_repository = new ClientContactRepository();
         $client_repository = new ClientRepository($contact_repository);
         $client_transformer = new ClientTransformer($this->maps);
 
-        if ($this->skip_header) 
+        if ($this->skip_header) {
             array_shift($records);
+        }
 
         foreach ($records as $record) {
-
             $keys = $this->column_map;
             $values = array_intersect_key($record, $this->column_map);
 
@@ -292,7 +252,7 @@ info(print_r($this->column_map,1));
             $validator = Validator::make($client, (new StoreClientRequest())->rules());
 
             if ($validator->fails()) {
-                $this->error_array[] = ['client' => $client, 'error' => json_encode($validator->errors())];
+                $this->error_array['clients'] = ['client' => $client, 'error' => json_encode($validator->errors())];
             } else {
                 $client = $client_repository->save($client, ClientFactory::create($this->company->id, $this->setUser($record)));
 
@@ -311,6 +271,40 @@ info(print_r($this->column_map,1));
         }
     }
 
+
+    private function importProduct()
+    {
+        $product_repository = new ProductRepository();
+        $product_transformer = new ProductTransformer($this->maps);
+
+        $records = $this->getCsvData();
+
+        if ($this->skip_header) {
+            array_shift($records);
+        }
+
+        foreach ($records as $record) {
+            $keys = $this->column_map;
+            $values = array_intersect_key($record, $this->column_map);
+            
+            $product_data = array_combine($keys, $values);
+
+            $product = $product_transformer->transform($product_data);
+
+            $validator = Validator::make($product, (new StoreProductRequest())->rules());
+
+            if ($validator->fails()) {
+                $this->error_array['products'] = ['product' => $product, 'error' => json_encode($validator->errors())];
+            } else {
+                $product = $product_repository->save($product, ProductFactory::create($this->company->id, $this->setUser($record)));
+
+                $product->save();
+
+                $this->maps['products'][] = $product->id;
+            }
+        }
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private function buildMaps()
     {
@@ -319,6 +313,7 @@ info(print_r($this->column_map,1));
         $this->maps['company'] = $this->company;
         $this->maps['clients'] = [];
         $this->maps['products'] = [];
+        $this->maps['invoices'] = [];
 
         return $this;
     }

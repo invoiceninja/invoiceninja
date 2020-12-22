@@ -64,8 +64,8 @@ class CreditCard
         $data['company_gateway'] = $this->checkout->company_gateway;
         $data['client'] = $this->checkout->client;
         $data['currency'] = $this->checkout->client->getCurrencyCode();
-        $data['value'] = $this->checkout->convertToCheckoutAmount($data['amount_with_fee'], $this->checkout->client->getCurrencyCode());
-        $data['raw_value'] = $data['amount_with_fee'];
+        $data['value'] = $this->checkout->convertToCheckoutAmount($data['total']['amount_with_fee'], $this->checkout->client->getCurrencyCode());
+        $data['raw_value'] = $data['total']['amount_with_fee'];
         $data['customer_email'] = $this->checkout->client->present()->email;
 
         return render('gateways.checkout.credit_card.pay', $data);

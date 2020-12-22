@@ -63,7 +63,10 @@ class Setup {
         }
 
         Axios.post('/setup/check_mail', data)
-            .then((response) => this.handleSuccess(this.checkSmtpAlert))
+            .then((response) => {
+                this.handleSuccess(this.checkSmtpAlert, 'account-wrapper');
+                this.handleSuccess(this.checkSmtpAlert, 'submit-wrapper');
+            })
             .catch((e) =>
                 this.handleFailure(this.checkSmtpAlert, e.response.data.message)
             )
