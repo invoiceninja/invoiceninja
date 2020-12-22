@@ -620,10 +620,17 @@ trait MakesInvoiceValues
             $data[$key][$table_type.'.service'] = is_null(optional($item)->service) ? $item->product_key : $item->service;
             $data[$key][$table_type.'.notes'] = $item->notes;
             $data[$key][$table_type.'.description'] = $item->notes;
-            $data[$key][$table_type.'.custom_value1'] = $item->custom_value1;
-            $data[$key][$table_type.'.custom_value2'] = $item->custom_value2;
-            $data[$key][$table_type.'.custom_value3'] = $item->custom_value3;
-            $data[$key][$table_type.'.custom_value4'] = $item->custom_value4;
+            
+            // $data[$key][$table_type.'.custom_value1'] = $item->custom_value1;
+            // $data[$key][$table_type.'.custom_value2'] = $item->custom_value2;
+            // $data[$key][$table_type.'.custom_value3'] = $item->custom_value3;
+            // $data[$key][$table_type.'.custom_value4'] = $item->custom_value4;
+
+            $data[$key][$table_type . '.' . ltrim($table_type, '$') . '1'] = $item->custom_value1; // $product.product1
+            $data[$key][$table_type . '.' . ltrim($table_type, '$') . '2'] = $item->custom_value2;
+            $data[$key][$table_type . '.' . ltrim($table_type, '$') . '3'] = $item->custom_value3;
+            $data[$key][$table_type . '.' . ltrim($table_type, '$') . '4'] = $item->custom_value4;
+
             $data[$key][$table_type.'.quantity'] = $item->quantity;
 
             $data[$key][$table_type.'.unit_cost'] = Number::formatMoney($item->cost, $this->client);
