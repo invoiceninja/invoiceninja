@@ -92,7 +92,7 @@ class HtmlEngine
         }
 
         $data = [];
-        $data['$global_margin'] = ['value' => '1cm', 'label' => ''];
+        $data['$global_margin'] = ['value' => '0cm', 'label' => ''];
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
