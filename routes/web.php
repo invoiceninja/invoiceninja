@@ -56,6 +56,8 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('client/documents', 'ClientPortalController@documentIndex');
     Route::get('client/payments', 'ClientPortalController@paymentIndex');
     Route::get('client/tasks', 'ClientPortalController@taskIndex');
+    Route::get('client/backups', 'ClientPortalController@backupsIndex');
+    Route::get('client/backups/download/{filename}', 'ClientPortalController@downloadBackup');
     Route::get('client/dashboard/{contact_key?}', 'ClientPortalController@dashboard');
     Route::get('client/documents/js/{documents}/{filename}', 'ClientPortalController@getDocumentVFSJS');
     Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'ClientPortalController@getDocument');
@@ -69,6 +71,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('api/client.documents', ['as' => 'api.client.documents', 'uses' => 'ClientPortalController@documentDatatable']);
     Route::get('api/client.payments', ['as' => 'api.client.payments', 'uses' => 'ClientPortalController@paymentDatatable']);
     Route::get('api/client.tasks', ['as' => 'api.client.tasks', 'uses' => 'ClientPortalController@taskDatatable']);
+    Route::get('api/client.backups', ['as' => 'api.client.backups', 'uses' => 'ClientPortalController@backupDatatable']);
     Route::get('api/client.activity', ['as' => 'api.client.activity', 'uses' => 'ClientPortalController@activityDatatable']);
 });
 

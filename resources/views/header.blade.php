@@ -437,30 +437,7 @@
                 @include('partials.navigation_option', ['option' => 'reports'])
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])
-            <li style="width:100%;">
-                <div class="nav-footer">
-                    @if (Auth::user()->registered)
-                        <a href="javascript:showContactUs()" title="{{ trans('texts.contact_us') }}">
-                            <i class="fa fa-envelope"></i>
-                        </a>
-                    @endif
-                    <a href="{{ url(NINJA_FORUM_URL) }}" target="_blank" title="{{ trans('texts.support_forum') }}">
-                        <i class="fa fa-list-ul"></i>
-                    </a>
-                    <a href="javascript:showKeyboardShortcuts()" title="{{ trans('texts.help') }}">
-                        <i class="fa fa-question-circle"></i>
-                    </a>
-                    <a href="{{ url(SOCIAL_LINK_FACEBOOK) }}" target="_blank" title="Facebook">
-                        <i class="fa fa-facebook-square"></i>
-                    </a>
-                    <a href="{{ url(SOCIAL_LINK_TWITTER) }}" target="_blank" title="Twitter">
-                        <i class="fa fa-twitter-square"></i>
-                    </a>
-                    <a href="{{ url(SOCIAL_LINK_GITHUB) }}" target="_blank" title="GitHub">
-                        <i class="fa fa-github-square"></i>
-                    </a>
-                </div>
-            </li>
+            
         </ul>
     </div>
     <!-- /#left-sidebar-wrapper -->

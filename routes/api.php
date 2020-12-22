@@ -16,6 +16,7 @@ Route::get('quotes', 'QuoteApiController@index');
 Route::get('download/{invoice_id}', 'InvoiceApiController@download');
 Route::resource('invoices', 'InvoiceApiController');
 Route::resource('payments', 'PaymentApiController');
+Route::resource('backups', 'BackupApiController');
 Route::resource('tasks', 'TaskApiController');
 Route::resource('credits', 'CreditApiController');
 Route::post('hooks', 'IntegrationController@subscribe');

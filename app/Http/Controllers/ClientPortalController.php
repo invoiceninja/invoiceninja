@@ -555,6 +555,111 @@ class ClientPortalController extends BaseController
         return $this->creditRepo->getClientDatatable($contact->client_id);
     }
 
+    public function backupsIndex()
+    {
+        if (! $contact = $this->getContact()) {
+            return $this->returnError();
+        }
+
+        if(empty($contact->client->custom_value1)){
+            return $this->returnError();
+        }
+
+        $account = $contact->account;
+
+        //Fix this
+        // if (! $contact->client->show_tasks_in_portal) {
+        //     return redirect()->to($account->enable_client_portal_dashboard ? '/client/dashboard' : '/client/payment_methods/');
+        // }
+
+        if (! $account->enable_client_portal) {
+            return $this->returnError();
+        }
+
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+
+        $data = [
+          'color' => $color,
+          'account' => $account,
+          'title' => 'Backups',
+          'entityType' => ENTITY_BACKUP,
+          'columns' => Utils::trans(['name', 'size', 'date']),
+          'sortColumn' => 1,
+        ];
+
+        return response()->view('public_list', $data);
+    }
+
+    public function backupDatatable()
+    {
+        if (! $contact = $this->getContact()) {
+            return false;
+        }
+
+        if(empty($contact->client->custom_value1)){
+            return false;
+        }
+
+        // Server credentials
+        $vst_hostname = 'blazerunner44.me';
+        $vst_username = $contact->client->custom_value1;
+        $vst_command = 'v-list-user-backups';
+        $format = 'json';
+
+        // Prepare POST query
+        $postvars = array(
+            'hash' => 'f9K0mUXb-tJXT7YsPGl84W0kKO0tdXof',
+            'cmd' => $vst_command,
+            'arg1' => $vst_username,
+            'arg3' => $format
+        );
+        $postdata = http_build_query($postvars);
+
+        // Send POST query via cURL
+        $postdata = http_build_query($postvars);
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, 'https://' . $vst_hostname . ':8083/api/');
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER,true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $postdata);
+        $answer = curl_exec($curl);
+
+        // Parse JSON output
+        $data = json_decode($answer, true);
+
+        // Print result
+        $response = array('aaData' => array(), 'iTotalDisplayRecords' => 0, 'iTotalRecords' => 0, 'sEcho' => 2);
+        if(!empty($data)){
+            foreach ($data as $filename => $details) {
+                array_push($response['aaData'], array('<a href="/client/backups/download/' . $filename . '">'. $filename . '</a>', $details['SIZE'] . ' MB', $details['DATE'] . ' ' . $details['TIME']));
+                $response['iTotalDisplayRecords']++;
+                $response['iTotalRecords']++;
+            }
+        }
+        return $response;
+    }
+
+    public function downloadBackup($filename){
+        if (! $contact = $this->getContact()) {
+            return false;
+        }
+
+        if(empty($contact->client->custom_value1)){
+            return false;
+        }
+
+        if (strpos($filename, $contact->client->custom_value1) === false || !file_exists('/backup/'.$filename)) {
+            return false;
+        }
+
+        header('Content-type: application/gzip');
+        header("Content-Disposition: attachment; filename=\"".$filename."\";" ); 
+        header( 'Content-Length: ' . filesize( '/backup/'. $filename ) );
+        readfile( '/backup/' . $filename );
+    }
+
     public function taskIndex()
     {
         if (! $contact = $this->getContact()) {

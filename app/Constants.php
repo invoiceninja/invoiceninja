@@ -23,6 +23,7 @@ if (! defined('APP_NAME')) {
     define('ENTITY_CREDIT', 'credit');
     define('ENTITY_QUOTE', 'quote');
     define('ENTITY_TASK', 'task');
+    define('ENTITY_BACKUP', 'backup');
     define('ENTITY_TASK_STATUS', 'task_status');
     define('ENTITY_ACCOUNT_GATEWAY', 'account_gateway');
     define('ENTITY_USER', 'user');

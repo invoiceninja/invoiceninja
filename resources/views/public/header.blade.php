@@ -124,6 +124,11 @@
                             {!! link_to('/client/logout?account_key=' . $account->account_key, trans('texts.logout')) !!}
                         </li>
                     @endif
+                    @if (!empty(request()->contact->client->custom_value1))
+                        <li {!! Request::is('*client/backups') ? 'class="active"' : '' !!}>
+                            {!! link_to('/client/backups', 'Download Data' ) !!}
+                        </li>
+                    @endif
                 @elseif (! empty($account))
                     @if (isset($hasPaymentMethods) && $hasPaymentMethods)
                         <li {!! Request::is('*client/payment_methods') ? 'class="active"' : '' !!}>
