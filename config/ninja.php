@@ -135,7 +135,5 @@ return [
     'designs' => [
         'base_path' => resource_path('views/pdf-designs/'),
     ],
-    'experimental_pdf_engine' => env('EXPERIMENTAL_PDF_ENGINE', false),
-    'experimental_pdf_engine_chromium_path' => env('EXPERIMENTAL_PDF_ENGINE_CHROMIUM_PATH', null),
     'log_pdf_html' => env('LOG_PDF_HTML', false),
 ];

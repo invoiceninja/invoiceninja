@@ -62,7 +62,6 @@
         "omnipay/paypal": "^3.0",
         "predis/predis": "^1.1",
         "sentry/sentry-laravel": "^2",
-        "spatie/browsershot": "3.40.2",
         "stripe/stripe-php": "^7.50",
         "turbo124/beacon": "^1",
         "turbo124/laravel-gmail": "^5.0",
