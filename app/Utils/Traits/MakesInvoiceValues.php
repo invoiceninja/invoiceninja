@@ -15,6 +15,7 @@ use App\Models\Country;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
+use App\Utils\Helpers;
 use App\Utils\Number;
 
 /**
@@ -591,9 +592,12 @@ trait MakesInvoiceValues
 
     /**
      * Formats the line items for display.
-     * @param array $items The array of invoice items
+     *
+     * @param mixed $items
      * @param string $table_type
-     * @return array        The formatted array of invoice items
+     * @param mixed|null $custom_fields
+     *
+     * @return array
      */
     public function transformLineItems($items, $table_type = '$product') :array
     {
@@ -616,14 +620,24 @@ trait MakesInvoiceValues
                 }
             }
 
+            $helpers = new Helpers();
+            $_table_type = ltrim($table_type, '$'); // From $product -> product.
+
+
             $data[$key][$table_type.'.product_key'] = $item->product_key;
             $data[$key][$table_type.'.service'] = is_null(optional($item)->service) ? $item->product_key : $item->service;
             $data[$key][$table_type.'.notes'] = $item->notes;
             $data[$key][$table_type.'.description'] = $item->notes;
-            $data[$key][$table_type.'.custom_value1'] = $item->custom_value1;
-            $data[$key][$table_type.'.custom_value2'] = $item->custom_value2;
-            $data[$key][$table_type.'.custom_value3'] = $item->custom_value3;
-            $data[$key][$table_type.'.custom_value4'] = $item->custom_value4;
+
+
+            $data[$key][$table_type . ".{$_table_type}1"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}1", $item->custom_value1, $this->client);
+            $data[$key][$table_type . ".{$_table_type}2"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}2", $item->custom_value2, $this->client);
+            ;
+            $data[$key][$table_type . ".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}3", $item->custom_value3, $this->client);
+            ;
+            $data[$key][$table_type . ".{$_table_type}4"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}4", $item->custom_value4, $this->client);
+            ;
+
             $data[$key][$table_type.'.quantity'] = $item->quantity;
 
             $data[$key][$table_type.'.unit_cost'] = Number::formatMoney($item->cost, $this->client);

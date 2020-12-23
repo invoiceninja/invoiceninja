@@ -266,4 +266,23 @@ trait DesignHelpers
 
         return $logs;
     }
+
+    public function processCustomColumns(string $type): void
+    {
+        $custom_columns = [];
+
+        foreach ((array) $this->client->company->custom_fields as $field => $value) {
+            info($field);
+
+            if (\Illuminate\Support\Str::startsWith($field, $type)) {
+                $custom_columns[] = '$' . $type . '.' . $field;
+            }
+        }
+
+        $key = array_search(sprintf('%s%s.description', '$', $type), $this->context['pdf_variables']["{$type}_columns"], true);
+
+        if ($key) {
+            array_splice($this->context['pdf_variables']["{$type}_columns"], $key + 1, 0, $custom_columns);
+        }
+    }
 }
