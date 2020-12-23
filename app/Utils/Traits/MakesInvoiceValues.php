@@ -624,7 +624,7 @@ trait MakesInvoiceValues
             $_table_type = ltrim($table_type, '$'); // From $product -> product.
 
 
-            $data[$key][$table_type.'.product_key'] = $item->product_key;
+            $data[$key][$table_type.'.item'] = is_null(optional($item)->item) ? $item->product_key : $item->item;
             $data[$key][$table_type.'.service'] = is_null(optional($item)->service) ? $item->product_key : $item->service;
             $data[$key][$table_type.'.notes'] = $item->notes;
             $data[$key][$table_type.'.description'] = $item->notes;
@@ -632,11 +632,8 @@ trait MakesInvoiceValues
 
             $data[$key][$table_type . ".{$_table_type}1"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}1", $item->custom_value1, $this->client);
             $data[$key][$table_type . ".{$_table_type}2"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}2", $item->custom_value2, $this->client);
-            ;
             $data[$key][$table_type . ".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}3", $item->custom_value3, $this->client);
-            ;
             $data[$key][$table_type . ".{$_table_type}4"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}4", $item->custom_value4, $this->client);
-            ;
 
             $data[$key][$table_type.'.quantity'] = $item->quantity;
 
