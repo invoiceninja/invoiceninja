@@ -592,12 +592,12 @@ trait MakesInvoiceValues
 
     /**
      * Formats the line items for display.
-     * 
-     * @param mixed $items 
-     * @param string $table_type 
-     * @param mixed|null $custom_fields 
-     * 
-     * @return array 
+     *
+     * @param mixed $items
+     * @param string $table_type
+     * @param mixed|null $custom_fields
+     *
+     * @return array
      */
     public function transformLineItems($items, $table_type = '$product') :array
     {
@@ -631,9 +631,12 @@ trait MakesInvoiceValues
 
 
             $data[$key][$table_type . ".{$_table_type}1"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}1", $item->custom_value1, $this->client);
-            $data[$key][$table_type . ".{$_table_type}2"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}2", $item->custom_value2, $this->client);;
-            $data[$key][$table_type . ".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}3", $item->custom_value3, $this->client);;
-            $data[$key][$table_type . ".{$_table_type}4"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}4", $item->custom_value4, $this->client);;
+            $data[$key][$table_type . ".{$_table_type}2"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}2", $item->custom_value2, $this->client);
+            ;
+            $data[$key][$table_type . ".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}3", $item->custom_value3, $this->client);
+            ;
+            $data[$key][$table_type . ".{$_table_type}4"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}4", $item->custom_value4, $this->client);
+            ;
 
             $data[$key][$table_type.'.quantity'] = $item->quantity;
 

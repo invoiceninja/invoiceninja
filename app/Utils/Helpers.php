@@ -41,13 +41,13 @@ class Helpers
 
     /**
      * A centralised way to format the custom fields content.
-     * 
-     * @param mixed $custom_fields 
-     * @param mixed $field 
-     * @param mixed $value 
-     * @param null|\App\Models\Client $client 
-     * 
-     * @return null|string 
+     *
+     * @param mixed $custom_fields
+     * @param mixed $field
+     * @param mixed $value
+     * @param null|\App\Models\Client $client
+     *
+     * @return null|string
      */
     public function formatCustomFieldValue($custom_fields, $field, $value, ?Client $client): ?string
     {

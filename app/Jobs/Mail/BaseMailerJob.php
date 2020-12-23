@@ -96,7 +96,6 @@ class BaseMailerJob implements ShouldQueue
 
     public function failed($exception = null)
     {
-
         info('the job failed');
         info($exception->getMessage());
         
