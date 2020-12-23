@@ -628,7 +628,7 @@ class CompanySettings extends BaseSettings
                 '$credit.total',
             ],
             'product_columns' => [
-                '$product.product_key',
+                '$product.item',
                 '$product.description',
                 '$product.unit_cost',
                 '$product.quantity',

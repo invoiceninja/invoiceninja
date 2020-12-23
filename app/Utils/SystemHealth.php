@@ -74,8 +74,6 @@ class SystemHealth
             'env_writable' => self::checkEnvWritable(),
             //'mail' => self::testMailServer(),
             'simple_db_check' => (bool) self::simpleDbCheck(),
-            // 'npm_status' => self::checkNpm(),
-            // 'node_status' => self::checkNode(),
             'cache_enabled' => self::checkConfigCache(),
             'phantom_enabled' => (bool) config('ninja.phantomjs_pdf_generation'),
             'exec' => (bool) self::checkExecWorks(),
@@ -108,36 +106,6 @@ class SystemHealth
         }
 
         return true;
-    }
-
-    public static function checkNode()
-    {
-        try {
-            exec('node -v', $foo, $exitCode);
-
-            if ($exitCode === 0) {
-                return empty($foo[0]) ? 'Found node, but no version information' : $foo[0];
-            }
-
-            return 'Node not found.';
-        } catch (Exception $e) {
-            return 'Node not found.';
-        }
-    }
-
-    public static function checkNpm()
-    {
-        try {
-            exec('npm -v', $foo, $exitCode);
-
-            if ($exitCode === 0) {
-                return empty($foo[0]) ? 'Found npm, but no version information' : $foo[0];
-            }
-
-            return 'NPM not found';
-        } catch (Exception $e) {
-            return 'NPM not found';
-        }
     }
 
     private static function simpleDbCheck() :bool

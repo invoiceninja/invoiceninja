@@ -110,10 +110,9 @@ class CSVImport implements ShouldQueue
             'settings' => $this->company->settings
         ];
 
-info(print_r($data,1));
+        info(print_r($data, 1));
 
         MailRouter::dispatch(new ImportCompleted($data), $this->company, auth()->user());
-
     }
 
     public function failed($exception)
@@ -179,20 +178,20 @@ info(print_r($data,1));
 
         $invoice['line_items'] = $this->cleanItems($items);
 
-            $validator = Validator::make($invoice, (new StoreInvoiceRequest())->rules());
-
-            if ($validator->fails()) {
-                $this->error_array['invoices'] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
-            } else {
+        $validator = Validator::make($invoice, (new StoreInvoiceRequest())->rules());
 
         if ($validator->fails()) {
-            $this->error_array[] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
+            $this->error_array['invoices'] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
         } else {
-            $invoice = $invoice_repository->save($invoice, InvoiceFactory::create($this->company->id, $this->setUser($record)));
+            if ($validator->fails()) {
+                $this->error_array[] = ['invoice' => $invoice, 'error' => json_encode($validator->errors())];
+            } else {
+                $invoice = $invoice_repository->save($invoice, InvoiceFactory::create($this->company->id, $this->setUser($record)));
 
-            $this->maps['invoices'][] = $invoice->id;
+                $this->maps['invoices'][] = $invoice->id;
 
-            $this->performInvoiceActions($invoice, $record, $invoice_repository);
+                $this->performInvoiceActions($invoice, $record, $invoice_repository);
+            }
         }
     }
 

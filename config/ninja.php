@@ -12,7 +12,7 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', ''),
-    'app_version' => '5.0.39',
+    'app_version' => '5.0.40',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -135,7 +135,5 @@ return [
     'designs' => [
         'base_path' => resource_path('views/pdf-designs/'),
     ],
-    'experimental_pdf_engine' => env('EXPERIMENTAL_PDF_ENGINE', false),
-    'experimental_pdf_engine_chromium_path' => env('EXPERIMENTAL_PDF_ENGINE_CHROMIUM_PATH', null),
     'log_pdf_html' => env('LOG_PDF_HTML', false),
 ];

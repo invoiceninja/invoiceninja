@@ -294,6 +294,7 @@ class HtmlEngine
         $data['$custom_surcharge3'] = ['value' => $this->entity->custom_surcharge3 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge3')];
         $data['$custom_surcharge4'] = ['value' => $this->entity->custom_surcharge4 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge4')];
 
+        $data['$product.item'] = ['value' => '', 'label' => ctrans('texts.item')];
         $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$product.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$product.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
@@ -307,6 +308,10 @@ class HtmlEngine
         $data['$product.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
         $data['$product.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$product.unit_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
+        $data['$product.product1'] = ['value' => '', 'label' => $this->makeCustomField('product1')];
+        $data['$product.product2'] = ['value' => '', 'label' => $this->makeCustomField('product2')];
+        $data['$product.product3'] = ['value' => '', 'label' => $this->makeCustomField('product3')];
+        $data['$product.product4'] = ['value' => '', 'label' => $this->makeCustomField('product4')];
 
         $data['$task.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$task.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];

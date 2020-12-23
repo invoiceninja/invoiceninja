@@ -298,11 +298,14 @@ class Design extends BaseDesign
     public function buildTableHeader(string $type): array
     {
         $this->processTaxColumns($type);
+        $this->processCustomColumns($type);
 
         $elements = [];
 
         // Some of column can be aliased. This is simple workaround for these.
-        $aliases = [];
+        $aliases = [
+            '$product.product_key' => '$product.item',
+        ];
 
         foreach ($this->context['pdf_variables']["{$type}_columns"] as $column) {
             if (array_key_exists($column, $aliases)) {
