@@ -111,6 +111,10 @@ trait PdfMakerUtilities
     {
         foreach ($children as $child) {
             $contains_html = false;
+            
+            if (isset($child['content'])) {
+                $child['content'] = nl2br($child['content']);
+            }
 
             // "/\/[a-z]*>/i" -> checks for HTML-like tags:
             // <my-tag></my-tag> => true
