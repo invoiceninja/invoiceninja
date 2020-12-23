@@ -13,10 +13,13 @@
 namespace App\Utils;
 
 use App\Models\Client;
+use App\Utils\Traits\MakesDates;
 use stdClass;
 
 class Helpers
 {
+    use MakesDates;
+
     public static function sharedEmailVariables(?Client $client, array $settings = null): array
     {
         if (!$client) {
@@ -34,5 +37,43 @@ class Helpers
         $elements['whitelabel'] = $client->user->account->isPaid() ? true : false;
 
         return $elements;
+    }
+
+    /**
+     * A centralised way to format the custom fields content.
+     * 
+     * @param mixed $custom_fields 
+     * @param mixed $field 
+     * @param mixed $value 
+     * @param null|\App\Models\Client $client 
+     * 
+     * @return null|string 
+     */
+    public function formatCustomFieldValue($custom_fields, $field, $value, ?Client $client): ?string
+    {
+        $custom_field = '';
+
+        if ($custom_fields && property_exists($custom_fields, $field)) {
+            $custom_field = $custom_fields->{$field};
+            $custom_field_parts = explode('|', $custom_field);
+
+            if (count($custom_field_parts) >= 2) {
+                $custom_field = $custom_field_parts[1];
+            }
+        }
+
+        switch ($custom_field) {
+            case 'date':
+                return $this->formatDate($value, $client->date_format());
+                break;
+
+            case 'switch':
+                return trim($value) == 'yes' ? ctrans('texts.yes') : ctrans('texts.no');
+                break;
+
+            default:
+                return is_null($value) ? '' : $value;
+                break;
+        }
     }
 }
