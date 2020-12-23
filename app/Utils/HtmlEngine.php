@@ -294,6 +294,7 @@ class HtmlEngine
         $data['$custom_surcharge3'] = ['value' => $this->entity->custom_surcharge3 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge3')];
         $data['$custom_surcharge4'] = ['value' => $this->entity->custom_surcharge4 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge4')];
 
+        $data['$product.item'] = ['value' => '', 'label' => ctrans('texts.item')];
         $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
         $data['$product.discount'] = ['value' => '', 'label' => ctrans('texts.discount')];
         $data['$product.product_key'] = ['value' => '', 'label' => ctrans('texts.product_key')];
