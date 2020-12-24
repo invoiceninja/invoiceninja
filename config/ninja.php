@@ -136,4 +136,5 @@ return [
         'base_path' => resource_path('views/pdf-designs/'),
     ],
     'log_pdf_html' => env('LOG_PDF_HTML', false),
+    'expanded_logging' => env('EXPANDED_LOGGING', false),
 ];
