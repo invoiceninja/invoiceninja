@@ -120,6 +120,10 @@ class SetupController extends Controller
             'DB_CONNECTION' => 'db-ninja-01',
         ];
 
+        if ($request->has('generate_app_key') && $request->generate_app_key) {
+            $env_values['APP_KEY'] = $this->generateAppKey();
+        }
+
         try {
             foreach ($env_values as $property => $value) {
                 $this->updateEnvironmentProperty($property, $value);

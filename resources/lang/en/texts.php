@@ -3332,4 +3332,9 @@ return [
     'setup_phantomjs_note' => 'Note about Phantom JS. Read more.',
     'currency_armenian_dram' => 'Armenian Dram',
     'currency_albanian_lek' => 'Albanian Lek',
+
+    'application_key' => 'Application key',
+    'generate_app_key_label' => 'Generate random APP_KEY',
+    
+    'recommended' => 'Recommended',
 ];

@@ -144,4 +144,11 @@ trait AppSetup
             info($e->getMessage());
         }
     }
+    
+    private function generateAppKey(): ?string
+    {
+        $randomString = base64_encode(\Illuminate\Support\Str::random(32));
+
+        return "base64:{$randomString}";
+    }
 }
