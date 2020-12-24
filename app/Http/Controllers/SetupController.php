@@ -229,7 +229,7 @@ class SetupController extends Controller
 
             Storage::put('public/test.pdf', $pdf);
 
-            return response(['url' => asset('storage/test.pdf')], 200);
+            return response(['url' => asset('test.pdf')], 200);
         } catch (Exception $e) {
             info($e->getMessage());
 
