@@ -68,21 +68,6 @@ trait MakesInvoiceValues
         'company4',
     ];
 
-    public function makeCustomField($field) :string
-    {
-        $custom_fields = $this->company->custom_fields;
-
-        if ($custom_fields && property_exists($custom_fields, $field)) {
-            $custom_field = $custom_fields->{$field};
-            
-            $custom_field_parts = explode('|', $custom_field);
-
-            return $custom_field_parts[0];
-        }
-
-        return '';
-    }
-
     private function findCustomType($field)
     {
         $custom_fields = $this->company->custom_fields;
