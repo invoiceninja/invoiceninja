@@ -74,6 +74,7 @@ trait MakesInvoiceValues
 
         if ($custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
+            
             $custom_field_parts = explode('|', $custom_field);
 
             return $custom_field_parts[0];
@@ -94,35 +95,6 @@ trait MakesInvoiceValues
         }
 
         return '';
-    }
-
-    /**
-     * This method produces the key /value pairs for
-     * custom fields.
-     *
-     * We need to explode the field name and search for the |
-     * we split on the pipe, the first value is the field name
-     * and the second is the field _type_
-     *
-     * We transform the $value depending the $field type
-     *
-     * @param  string $field The full field name
-     * @param  string $value The custom value
-     * @return array         The key value pair
-     */
-    private function makeCustomFieldKeyValuePair($field, $value)
-    {
-        if ($this->findCustomType($field) == 'date') {
-            $value = $this->formatDate($value, $this->client->date_format());
-        } elseif ($this->findCustomType($field) == 'switch') {
-            $value = ctrans('texts.'.$value);
-        }
-
-        if (! $value) {
-            $value = '';
-        }
-
-        return ['value' => $value, 'field' => $this->makeCustomField($field)];
     }
 
     public function makeLabels($contact = null) :array
