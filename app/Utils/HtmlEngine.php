@@ -41,6 +41,8 @@ class HtmlEngine
 
     public $entity_string;
 
+    private $helpers;
+
     public function __construct($invitation)
     {
         $this->invitation = $invitation;
@@ -58,6 +60,8 @@ class HtmlEngine
         $this->settings = $this->client->getMergedSettings();
 
         $this->entity_calc = $this->entity->calc();
+
+        $this->helpers = new Helpers();
     }
 
 
@@ -179,10 +183,10 @@ class HtmlEngine
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes'] = &$data['$taxes'];
 
-        $data['$invoice.custom1'] = ['value' => $this->formatCustomFieldValue('invoice1', $this->entity->custom_value1) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice1')];
-        $data['$invoice.custom2'] = ['value' => $this->formatCustomFieldValue('invoice2', $this->entity->custom_value2) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
-        $data['$invoice.custom3'] = ['value' => $this->formatCustomFieldValue('invoice3', $this->entity->custom_value3) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
-        $data['$invoice.custom4'] = ['value' => $this->formatCustomFieldValue('invoice4', $this->entity->custom_value4) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
+        $data['$invoice.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice1', $this->entity->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice1')];
+        $data['$invoice.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice2', $this->entity->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice2')];
+        $data['$invoice.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice3', $this->entity->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice3')];
+        $data['$invoice.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice4', $this->entity->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('invoice4')];
         $data['$invoice.public_notes'] = ['value' => nl2br($this->entity->public_notes) ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
 
@@ -214,10 +218,10 @@ class HtmlEngine
         // $data['$details'] = ;
         $data['$invoice_no'] = &$data['$number'];
         $data['$invoice.invoice_no'] = &$data['$number'];
-        $data['$client1'] = ['value' => $this->formatCustomFieldValue('client1', $this->client->custom_value1) ?: '&nbsp;', 'label' => $this->makeCustomField('client1')];
-        $data['$client2'] = ['value' => $this->formatCustomFieldValue('client2', $this->client->custom_value2) ?: '&nbsp;', 'label' => $this->makeCustomField('client2')];
-        $data['$client3'] = ['value' => $this->formatCustomFieldValue('client3', $this->client->custom_value3) ?: '&nbsp;', 'label' => $this->makeCustomField('client3')];
-        $data['$client4'] = ['value' => $this->formatCustomFieldValue('client4', $this->client->custom_value4) ?: '&nbsp;', 'label' => $this->makeCustomField('client4')];
+        $data['$client1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client1', $this->client->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('client1')];
+        $data['$client2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client2', $this->client->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('client2')];
+        $data['$client3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client3', $this->client->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('client3')];
+        $data['$client4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client4', $this->client->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('client4')];
         $data['$address1'] = ['value' => $this->client->address1 ?: '&nbsp;', 'label' => ctrans('texts.address1')];
         $data['$address2'] = ['value' => $this->client->address2 ?: '&nbsp;', 'label' => ctrans('texts.address2')];
         $data['$id_number'] = ['value' => $this->client->id_number ?: '&nbsp;', 'label' => ctrans('texts.id_number')];
@@ -284,10 +288,10 @@ class HtmlEngine
 
         $data['$company.logo'] = ['value' => $logo ?: '&nbsp;', 'label' => ctrans('texts.logo')];
         $data['$company_logo'] = &$data['$company.logo'];
-        $data['$company1'] = ['value' => $this->formatCustomFieldValue('company1', $this->settings->custom_value1) ?: '&nbsp;', 'label' => $this->makeCustomField('company1')];
-        $data['$company2'] = ['value' => $this->formatCustomFieldValue('company2', $this->settings->custom_value2) ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];
-        $data['$company3'] = ['value' => $this->formatCustomFieldValue('company3', $this->settings->custom_value3) ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
-        $data['$company4'] = ['value' => $this->formatCustomFieldValue('company4', $this->settings->custom_value4) ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
+        $data['$company1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('company1')];
+        $data['$company2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company2', $this->settings->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('company2')];
+        $data['$company3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company3', $this->settings->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('company3')];
+        $data['$company4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company4', $this->settings->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->makeCustomField('company4')];
 
         $data['$custom_surcharge1'] = ['value' => $this->entity->custom_surcharge1 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge1')];
         $data['$custom_surcharge2'] = ['value' => $this->entity->custom_surcharge2 ?: '&nbsp;', 'label' => $this->makeCustomField('custom_surcharge2')];
@@ -530,31 +534,6 @@ class HtmlEngine
         }
 
         return '';
-    }
-
-    private function formatCustomFieldValue($field, $value) :string
-    {
-        $custom_fields = $this->company->custom_fields;
-        $custom_field = '';
-
-        if ($custom_fields && property_exists($custom_fields, $field)) {
-            $custom_field = $custom_fields->{$field};
-            $custom_field_parts = explode('|', $custom_field);
-
-            if (count($custom_field_parts) >= 2) {
-                $custom_field = $custom_field_parts[1];
-            }
-        }
-
-        switch ($custom_field) {
-            case 'date':
-                return $this->formatDate($value, $this->client->date_format());
-                break;
-
-            default:
-                return is_null($value) ? '' : $value;
-                break;
-        }
     }
 
     private function makeTotalTaxes() :string
