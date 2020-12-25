@@ -102,7 +102,7 @@ return [
 
         'invoiceninja' => [
             'driver' => 'single',
-            'path' => storage_path('logs/invoiceninja.log'), 
+            'path' => storage_path('logs/invoiceninja.log'),
         ],
     ],
 

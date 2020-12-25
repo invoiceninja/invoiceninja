@@ -13,11 +13,11 @@
 /**
  * Simple helper function that will log into "invoiceninja.log" file
  * only when extended logging is enabled.
- * 
- * @param mixed $output 
- * @param array $context 
  *
- * @return void 
+ * @param mixed $output
+ * @param array $context
+ *
+ * @return void
  */
 function nlog($output, $context = []): void
 {

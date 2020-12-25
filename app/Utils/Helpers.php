@@ -41,13 +41,13 @@ class Helpers
 
     /**
      * A centralised method to format the custom fields content.
-     * 
+     *
      * @param mixed|null $custom_fields
-     * @param mixed $field 
-     * @param mixed $value 
-     * @param \App\Models\Client|null $client 
-     * 
-     * @return null|string 
+     * @param mixed $field
+     * @param mixed $value
+     * @param \App\Models\Client|null $client
+     *
+     * @return null|string
      */
     public function formatCustomFieldValue($custom_fields = null, $field, $value, Client $client = null): ?string
     {
@@ -79,10 +79,10 @@ class Helpers
 
     /**
      * A centralised method to make custom field.
-     * @param mixed|null $custom_fields 
-     * @param mixed $field 
-     * 
-     * @return string 
+     * @param mixed|null $custom_fields
+     * @param mixed $field
+     *
+     * @return string
      */
     public function makeCustomField($custom_fields = null, $field): string
     {
