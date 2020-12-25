@@ -137,4 +137,5 @@ return [
     ],
     'log_pdf_html' => env('LOG_PDF_HTML', false),
     'expanded_logging' => env('EXPANDED_LOGGING', false),
+    'snappdf_chromium_path' => env('SNAPPDF_CHROMIUM_PATH', false),
 ];
