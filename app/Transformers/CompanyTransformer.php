@@ -211,7 +211,12 @@ class CompanyTransformer extends EntityTransformer
     {
         $transformer = new UserTransformer($this->serializer);
 
-        return $this->includeCollection($company->users, $transformer, User::class);
+            $users = $company->users->map(function ($user) use ($company){
+                $user->company_id = $company->id;
+                return $user;
+            });
+
+        return $this->includeCollection($users, $transformer, User::class);
     }
 
     public function includeCompanyGateways(Company $company)

@@ -191,6 +191,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(CompanyUser::class)->withTrashed();
     }
 
+    public function co_user()
+    {
+        return $this->company_user();
+    }
+
     public function company_user()
     {
         if (! $this->id && auth()->user()) {
