@@ -1023,6 +1023,25 @@ trait GenerateMigrationResources
         return $transformed;
     }
 
+    private function buildFeesAndLimits($gateway_types)
+    {
+        $fees = new \stdClass;
+
+        foreach($gateway_types as $gateway_type)
+        {
+            if($gateway_type == 'token')
+                continue;
+            
+            $fees_and_limits = $this->transformFeesAndLimits($gateway_type);
+
+            $translated_gateway_type = $this->translateGatewayTypeId($gateway_type);
+
+            $fees->{$translated_gateway_type} = $fees_and_limits;
+        }
+
+        return $fees;
+    }
+
     private function getCompanyGateways()
     {
         $account_gateways = AccountGateway::where('account_id', $this->account->id)->withTrashed()->get();
@@ -1031,29 +1050,30 @@ trait GenerateMigrationResources
 
         foreach ($account_gateways as $account_gateway) {
 
-            if($account_gateway->gateway_id > 55)
-                continue;
+            // if($account_gateway->gateway_id > 55)
+            //     continue;
 
             $gateway_types = $account_gateway->paymentDriver()->gatewayTypes();
 
-            foreach ($gateway_types as $gateway_type_id) {
+            // foreach ($gateway_types as $gateway_type_id) {
                 $transformed[] = [
-                    'id' => $this->translateGatewaysId($account_gateway->id),
+                    'id' => $account_gateway->id,
+                    //'id' => $this->translateGatewaysId($account_gateway->id),
                     'user_id' => $account_gateway->user_id,
-                    'gateway_key' => $this->getGatewayKeyById($account_gateway->gateway_id),
+                    'gateway_key' => $this->getGatewayKeyById($this->translateGatewaysId($account_gateway->gateway_id)),
                     'accepted_credit_cards' => $account_gateway->accepted_credit_cards,
                     'require_cvv' => $account_gateway->require_cvv,
                     'require_billing_address' => $account_gateway->show_billing_address,
                     'require_shipping_address' => $account_gateway->show_shipping_address,
                     'update_details' => $account_gateway->update_details,
                     'config' => Crypt::decrypt($account_gateway->config),
-                    'fees_and_limits' => $this->transformFeesAndLimits($gateway_type_id),
+                    'fees_and_limits' => $this->buildFeesAndLimits($gateway_types),
                     'custom_value1' => '',
                     'custom_value2' => '',
                     'custom_value3' => '',
                     'custom_value4' => '',
                 ];
-            }
+            // }
         }
 
         return $transformed;
@@ -1567,6 +1587,7 @@ trait GenerateMigrationResources
 
     private function transformFeesAndLimits($gateway_type_id)
     {
+
         $ags = AccountGatewaySettings::where('account_id', $this->account->id)
             ->where('gateway_type_id', $gateway_type_id)
             ->first();
@@ -1587,9 +1608,73 @@ trait GenerateMigrationResources
         $fees_and_limits->fee_tax_name3 = '';
         $fees_and_limits->fee_tax_rate3 = 0;
 
-        $data = [];
-        $data[1] = $fees_and_limits;
-        return $data;
+        return $fees_and_limits;
+       // $data = [];
+       // $data[1] = $fees_and_limits;
+       // return $data;
+    }
+
+    /*
+    v4
+    define('GATEWAY_TYPE_CREDIT_CARD', 1);
+    define('GATEWAY_TYPE_BANK_TRANSFER', 2);
+    define('GATEWAY_TYPE_PAYPAL', 3);
+    define('GATEWAY_TYPE_BITCOIN', 4);
+    define('GATEWAY_TYPE_DWOLLA', 5);
+    define('GATEWAY_TYPE_CUSTOM1', 6);
+    define('GATEWAY_TYPE_ALIPAY', 7);
+    define('GATEWAY_TYPE_SOFORT', 8);
+    define('GATEWAY_TYPE_SEPA', 9);
+    define('GATEWAY_TYPE_GOCARDLESS', 10);
+    define('GATEWAY_TYPE_APPLE_PAY', 11);
+    define('GATEWAY_TYPE_CUSTOM2', 12);
+    define('GATEWAY_TYPE_CUSTOM3', 13);
+    define('GATEWAY_TYPE_TOKEN', 'token');
+
+    v5
+    const CREDIT_CARD = 1;
+    const BANK_TRANSFER = 2;
+    const PAYPAL = 3;
+    const CRYPTO = 4;
+    const CUSTOM = 5;
+    const ALIPAY = 6;
+    const SOFORT = 7;
+    const APPLE_PAY = 8;
+    const SEPA = 9;
+    const CREDIT = 10;
+    */
+    private function translateGatewayTypeId($type)
+    {
+        switch ($type) {
+            case 1:
+                return 1;
+            case 2:
+                return 2;
+            case 3:
+                return 3;
+            case 4;
+                return 4;
+            case 5:
+                return 1; // ?
+            case 6:
+                return 5;
+            case 7:
+                return 6;
+            case 8:
+                return 7;
+            case 9:
+                return 9;
+            case 10:
+                return 1;
+            case 11:
+                return 8;
+            case 12:
+            case 13:
+                return 5;
+            default:
+                return 1;
+                break;
+        }
     }
 
     private function getGatewayKeyById($gateway_id)
