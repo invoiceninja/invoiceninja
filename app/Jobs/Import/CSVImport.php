@@ -98,7 +98,7 @@ class CSVImport implements ShouldQueue
         //sort the array by key
         ksort($this->column_map);
 
-        info("import".ucfirst($this->entity_type));
+        nlog("import".ucfirst($this->entity_type));
         $this->{"import".ucfirst($this->entity_type)}();
         
         $data = [
@@ -110,7 +110,7 @@ class CSVImport implements ShouldQueue
             'settings' => $this->company->settings
         ];
 
-        info(print_r($data, 1));
+        //info(print_r($data, 1));
 
         MailRouter::dispatch(new ImportCompleted($data), $this->company, auth()->user());
     }
