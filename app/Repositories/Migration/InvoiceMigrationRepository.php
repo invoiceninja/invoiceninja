@@ -16,8 +16,10 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\RecurringInvoiceInvitation;
 use App\Repositories\BaseRepository;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
@@ -86,10 +88,25 @@ class InvoiceMigrationRepository extends BaseRepository
             }
         }
 
+        InvoiceInvitation::unguard();
+        RecurringInvoiceInvitation::unguard();
+        
+        foreach($data['invitations'] as $invitation)
+        {
+            nlog($invitation);
+            
+            $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
+            $new_invitation->{$lcfirst_resource_id} = $model->id;
+            $new_invitation->fill($invitation);
+            $new_invitation->save();
+        }
+
+        InvoiceInvitation::reguard();
+        RecurringInvoiceInvitation::reguard();
+/*
         if (isset($data['invitations'])) {
             $invitations = collect($data['invitations']);
 
-            /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
                 $this->getInvitation($invitation, $resource)->delete();
             });
@@ -114,7 +131,7 @@ class InvoiceMigrationRepository extends BaseRepository
                 }
             }
         }
-
+*/
         $model->load('invitations');
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
