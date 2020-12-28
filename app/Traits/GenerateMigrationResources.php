@@ -1031,7 +1031,7 @@ trait GenerateMigrationResources
         {
             if($gateway_type == 'token')
                 continue;
-            
+
             $fees_and_limits = $this->transformFeesAndLimits($gateway_type);
 
             $translated_gateway_type = $this->translateGatewayTypeId($gateway_type);
@@ -1655,7 +1655,7 @@ trait GenerateMigrationResources
             case 4;
                 return 4;
             case 5:
-                return 1; // ?
+                return 2; // ?
             case 6:
                 return 5;
             case 7:
