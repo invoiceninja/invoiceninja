@@ -206,16 +206,16 @@
         },
         {
             "name": "beganovich/snappdf",
-            "version": "v1.0.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beganovich/snappdf.git",
-                "reference": "96e0e2176f01ae712ab06dad0da6d2d79f7c1832"
+                "reference": "5f5e9bb17ddc9d9f16df7c20b7af35f04ffcddbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beganovich/snappdf/zipball/96e0e2176f01ae712ab06dad0da6d2d79f7c1832",
-                "reference": "96e0e2176f01ae712ab06dad0da6d2d79f7c1832",
+                "url": "https://api.github.com/repos/beganovich/snappdf/zipball/5f5e9bb17ddc9d9f16df7c20b7af35f04ffcddbd",
+                "reference": "5f5e9bb17ddc9d9f16df7c20b7af35f04ffcddbd",
                 "shasum": ""
             },
             "require": {
@@ -252,9 +252,9 @@
             "description": "Convert webpages or HTML into the PDF file using Chromium or Google Chrome.",
             "support": {
                 "issues": "https://github.com/beganovich/snappdf/issues",
-                "source": "https://github.com/beganovich/snappdf/tree/v1.0.0"
+                "source": "https://github.com/beganovich/snappdf/tree/v1.2.0"
             },
-            "time": "2020-12-21T14:55:21+00:00"
+            "time": "2020-12-28T11:57:06+00:00"
         },
         {
             "name": "brick/math",
