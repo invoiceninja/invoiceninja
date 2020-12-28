@@ -110,6 +110,8 @@ class Import implements ShouldQueue
         'payment_terms',
         'tax_rates',
         'clients',
+        'company_gateways',
+        'client_gateway_tokens',
         'vendors',
         'projects',
         'products',
@@ -118,8 +120,6 @@ class Import implements ShouldQueue
         'recurring_invoices',
         'quotes',
         'payments',
-        'company_gateways',
-        'client_gateway_tokens',
         'expense_categories',
         'task_statuses',
         'expenses',
@@ -811,6 +811,11 @@ class Import implements ShouldQueue
             //$modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
             $modified['company_id'] = $this->company->id;
 
+// nlog($resource);
+// nlog($resource['company_gateway_id']);
+// nlog(strlen($resource['company_gateway_id']));
+
+
             //unset($modified['invoices']);
             unset($modified['invoice_id']);
 
@@ -829,6 +834,12 @@ class Import implements ShouldQueue
                 $modified,
                 PaymentFactory::create($this->company->id, $modified['user_id'])
             );
+
+            if($resource['company_gateway_id'] != 'NULL' && $resource['company_gateway_id'] != NULL){
+                $payment->company_gateway_id = $this->transformId('company_gateways', $resource['company_gateway_id']);
+                $payment->save();
+            }
+            
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
@@ -1026,13 +1037,11 @@ class Import implements ShouldQueue
 
             $company_gateway = CompanyGateway::create($modified);
 
-            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+            $key = "company_gateways_{$resource['id']}";
 
-            $this->ids['company_gateways'] = [
-                "company_gateways_{$old_user_key}" => [
+            $this->ids['company_gateways'][$key] = [
                     'old' => $resource['id'],
                     'new' => $company_gateway->id,
-                ],
             ];
         }
 
