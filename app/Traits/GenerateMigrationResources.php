@@ -437,7 +437,7 @@ trait GenerateMigrationResources
                 'created_at' => $invoice->created_at ? Carbon::parse($invoice->created_at)->toDateString() : null,
                 'updated_at' => $invoice->updated_at ? Carbon::parse($invoice->updated_at)->toDateString() : null,
                 'deleted_at' => $invoice->deleted_at ? Carbon::parse($invoice->deleted_at)->toDateString() : null,
-                //'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
+                'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
             ];
         }
 
