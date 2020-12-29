@@ -640,6 +640,8 @@ class Import implements ShouldQueue
                     unset($resource['invitations'][$key]['recurring_invoice_id']);
 
                 }
+            
+                $modified['invitations'] = $resource['invitations'];
             }
             
             $invoice = $invoice_repository->save(
