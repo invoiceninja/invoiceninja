@@ -3882,6 +3882,20 @@ $LANG = array(
     'restored_invoices' => 'Successfully restored :value invoices',
     'restored_payments' => 'Successfully restored :value payments',
     'restored_quotes' => 'Successfully restored :value quotes',
+    'update_app' => 'Update App',
+    'started_import' => 'Successfully started import',
+    'duplicate_column_mapping' => 'Duplicate column mapping',
+    'uses_inclusive_taxes' => 'Uses Inclusive Taxes',
+    'is_amount_discount' => 'Is Amount Discount',
+    'map_to' => 'Map To',
+    'first_row_as_column_names' => 'Use first row as column names',
+    'no_file_selected' => 'No File Selected',
+    'import_type' => 'Import Type',
+    'draft_mode' => 'Draft Mode',
+    'draft_mode_help' => 'Preview updates faster but is less accurate',
+    'show_product_discount' => 'Show Product Discount',
+    'show_product_discount_help' => 'Display a line item discount field',
+    'tax_name3' => 'Tax Name 3',
 );
 
 return $LANG;
