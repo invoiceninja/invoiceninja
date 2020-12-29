@@ -506,7 +506,7 @@ trait GenerateMigrationResources
                 'frequency_id' => $this->transformFrequencyId($invoice),
                 'due_date_days' => $this->transformDueDate($invoice),
                 'remaining_cycles' => $this->getRemainingCycles($invoice),
-                //'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
+                'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
             ];
         }
 
