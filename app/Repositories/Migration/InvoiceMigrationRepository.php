@@ -70,6 +70,7 @@ class InvoiceMigrationRepository extends BaseRepository
         }
 
         $model->fill($tmp_data);
+        $model->status_id = $tmp_data['status_id'];
         $model->save();
 
         if (array_key_exists('documents', $data)) {
