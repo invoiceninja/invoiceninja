@@ -39,7 +39,7 @@ class StorePaymentRequest extends Request
     {
         $input = $this->all();
 
-        // info(print_r($input,1));
+        // nlog(print_r($input,1));
 
         $invoices_total = 0;
         $credits_total = 0;

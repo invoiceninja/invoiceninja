@@ -110,7 +110,7 @@ class CSVImport implements ShouldQueue
             'settings' => $this->company->settings
         ];
 
-        //info(print_r($data, 1));
+        //nlog(print_r($data, 1));
 
         MailRouter::dispatch(new ImportCompleted($data), $this->company, auth()->user());
     }
@@ -136,7 +136,7 @@ class CSVImport implements ShouldQueue
         }
 
         if (!$invoice_number_key) {
-            info("no invoice number to use as key - returning");
+            nlog("no invoice number to use as key - returning");
             return;
         }
 

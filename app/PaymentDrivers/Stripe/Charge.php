@@ -168,7 +168,7 @@ class Charge
         }
 
         $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
-        //info($payment_method_type);
+        //nlog($payment_method_type);
 
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,

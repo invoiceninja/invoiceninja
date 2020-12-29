@@ -58,7 +58,7 @@ class ExampleIntegrationTest extends TestCase
 
         //      exec('echo "" > storage/logs/laravel.log');
 
-//        info($maker->getCompiledHTML(true));
+//        nlog($maker->getCompiledHTML(true));
 
         $this->assertTrue(true);
     }

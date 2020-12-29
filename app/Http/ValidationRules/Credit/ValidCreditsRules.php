@@ -85,10 +85,10 @@ class ValidCreditsRules implements Rule
 
         //    $total_payments = $this->input['amount'] + array_sum(array_column($this->input['credits'], 'amount'));
 
-// info(print_r($this->input,1));
-// info("total payments = {$total_payments}");
-// info("total credits available = " . array_sum(array_column($this->input['credits'], 'amount')));
-// info("total invoices payable = " . array_sum(array_column($this->input['invoices'], 'amount')));
+// nlog(print_r($this->input,1));
+// nlog("total payments = {$total_payments}");
+// nlog("total credits available = " . array_sum(array_column($this->input['credits'], 'amount')));
+// nlog("total invoices payable = " . array_sum(array_column($this->input['invoices'], 'amount')));
 
             // if($total_payments > array_sum(array_column($this->input['invoices'], 'amount'))){
 

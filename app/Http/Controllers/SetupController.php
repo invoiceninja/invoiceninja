@@ -56,13 +56,13 @@ class SetupController extends Controller
         try {
             $check = SystemHealth::check(false);
         } catch (\Exception $e) {
-            info(['message' => $e->getMessage(), 'action' => 'SetupController::doSetup()']);
+            nlog(['message' => $e->getMessage(), 'action' => 'SetupController::doSetup()']);
 
             return response()->json(['message' => $e->getMessage()], 400);
         }
 
         if ($check['system_health'] === false) {
-            info($check);
+            nlog($check);
 
             return response('Oops, something went wrong. Check your logs.'); /* We should never reach this block, but just in case. */
         }
@@ -149,7 +149,7 @@ class SetupController extends Controller
 
             return redirect('/');
         } catch (Exception $e) {
-            info($e->getMessage());
+            nlog($e->getMessage());
 
             return redirect()
                 ->back()
@@ -174,7 +174,7 @@ class SetupController extends Controller
 
             return response($status, 400);
         } catch (\Exception $e) {
-            info(['message' => $e->getMessage(), 'action' => 'SetupController::checkDB()']);
+            nlog(['message' => $e->getMessage(), 'action' => 'SetupController::checkDB()']);
 
             return response()->json(['message' => $e->getMessage()], 400);
         }
@@ -197,7 +197,7 @@ class SetupController extends Controller
                 return response()->json(['message' => $response['message']], 400);
             }
         } catch (Exception $e) {
-            info(['message' => $e->getMessage(), 'action' => 'SetupController::checkMail()']);
+            nlog(['message' => $e->getMessage(), 'action' => 'SetupController::checkMail()']);
 
             return response()->json(['message' => $e->getMessage()], 400);
         }
@@ -235,7 +235,7 @@ class SetupController extends Controller
 
             return response(['url' => asset('test.pdf')], 200);
         } catch (Exception $e) {
-            info($e->getMessage());
+            nlog($e->getMessage());
 
             return response([], 500);
         }

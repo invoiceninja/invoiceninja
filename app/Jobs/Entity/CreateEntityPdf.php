@@ -146,7 +146,7 @@ class CreateEntityPdf implements ShouldQueue
             ->build();
 
         //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
-        //info("make dir => {$path}");
+        //nlog("make dir => {$path}");
         //Storage::makeDirectory($path, 0775);
 
         $pdf = null;
@@ -154,11 +154,11 @@ class CreateEntityPdf implements ShouldQueue
         try {
             $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
         } catch (\Exception $e) {
-            info(print_r($e->getMessage(), 1));
+            nlog(print_r($e->getMessage(), 1));
         }
 
         if (config('ninja.log_pdf_html')) {
-            info($maker->getCompiledHTML());
+            nlog($maker->getCompiledHTML());
         }
 
         if ($pdf) {
@@ -170,6 +170,6 @@ class CreateEntityPdf implements ShouldQueue
 
     public function failed(\Exception $exception)
     {
-        info("help!");
+        nlog("help!");
     }
 }

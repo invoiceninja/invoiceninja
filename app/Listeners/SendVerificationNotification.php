@@ -49,7 +49,7 @@ class SendVerificationNotification implements ShouldQueue
 
             Ninja::registerNinjaUser($event->user);
         } catch (Exception $e) {
-            info("I couldn't send the email " . $e->getMessage());
+            nlog("I couldn't send the email " . $e->getMessage());
         }
     }
 }

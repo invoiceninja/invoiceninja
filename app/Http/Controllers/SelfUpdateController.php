@@ -65,12 +65,12 @@ class SelfUpdateController extends BaseController
         /* .git MUST be owned/writable by the webserver user */
         $repo = new GitRepository(base_path());
 
-        info('Are there changes to pull? '.$repo->hasChanges());
+        nlog('Are there changes to pull? '.$repo->hasChanges());
 
         try {
             $res = $repo->pull();
         } catch (GitException $e) {
-            info($e->getMessage());
+            nlog($e->getMessage());
             return response()->json(['message'=>$e->getMessage()], 500);
         }
 

@@ -222,7 +222,7 @@ class CompanyLedgerTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments/', $data);
         } catch (ValidationException $e) {
-            info(print_r($e->validator->getMessageBag(), 1));
+            nlog(print_r($e->validator->getMessageBag(), 1));
         }
 
         $acc = $response->json();
@@ -231,7 +231,7 @@ class CompanyLedgerTest extends TestCase
 
         $payment_ledger = $payment->company_ledger->sortByDesc('id')->first();
 
-        //info($payment->client->balance);
+        //nlog($payment->client->balance);
 
         $this->assertEquals($payment->client->balance, $payment_ledger->balance);
         $this->assertEquals($payment->client->paid_to_date, 10);
