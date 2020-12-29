@@ -190,12 +190,12 @@ class LoginTest extends TestCase
             ])->post('/api/v1/login', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            info(print_r($message, 1));
+            nlog(print_r($message, 1));
         }
 
         $arr = $response->json();
 
-        info(print_r($arr, 1));
+        nlog(print_r($arr, 1));
         
         $response->assertStatus(200);
     }

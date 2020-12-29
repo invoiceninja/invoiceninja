@@ -33,7 +33,7 @@ class SetEmailDb
         ];
 
         if ($request->input('email') && config('ninja.db.multi_db_enabled')) {
-            info("trying to find db");
+            nlog("trying to find db");
             if (! MultiDB::userFindAndSetDb($request->input('email'))) {
                 return response()->json($error, 400);
             }

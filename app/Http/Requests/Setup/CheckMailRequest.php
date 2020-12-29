@@ -33,7 +33,7 @@ class CheckMailRequest extends Request
      */
     public function rules()
     {
-        info($this->driver);
+        nlog($this->driver);
 
         return [
             'mail_driver' => 'required',

@@ -40,7 +40,7 @@ class PaymentEmailFailureActivity implements ShouldQueue
 
         $payment = $event->payment;
 
-        info("i failed emailing {$payment->number}");
-        // info(print_r($event->errors,1));
+        nlog("i failed emailing {$payment->number}");
+        // nlog(print_r($event->errors,1));
     }
 }

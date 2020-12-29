@@ -319,7 +319,7 @@ class StripePaymentDriver extends BaseDriver
         } catch (Exception $e) {
             SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
 
-            info($e->getMessage());
+            nlog($e->getMessage());
 
             return [
                 'transaction_reference' => null,

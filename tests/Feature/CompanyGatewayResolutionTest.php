@@ -150,6 +150,6 @@ class CompanyGatewayResolutionTest extends TestCase
 
         $this->assertEquals(4, count($this->cg->driver($this->client)->gatewayTypes()));
 
-        // info(print_r($this->client->getPaymentMethods(10),1));
+        // nlog(print_r($this->client->getPaymentMethods(10),1));
     }
 }

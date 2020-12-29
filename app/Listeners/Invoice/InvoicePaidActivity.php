@@ -53,7 +53,7 @@ class InvoicePaidActivity implements ShouldQueue
         try {
             $event->invoice->service()->touchPdf();
         } catch (\Exception $e) {
-            info(print_r($e->getMessage(), 1));
+            nlog(print_r($e->getMessage(), 1));
         }
     }
 }

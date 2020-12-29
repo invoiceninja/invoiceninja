@@ -221,7 +221,7 @@ class MigrationController extends BaseController
         $companies = json_decode($request->companies);
 
         if (app()->environment() === 'local') {
-            info($request->all());
+            nlog($request->all());
         }
 
         foreach ($companies as $company) {
@@ -244,7 +244,7 @@ class MigrationController extends BaseController
 
             // If there's existing company and ** no ** force is provided - skip migration.
             if ($checks['existing_company'] == true && $checks['force'] == false) {
-                info('Migrating: Existing company without force. (CASE_01)');
+                nlog('Migrating: Existing company without force. (CASE_01)');
 
                 MailRouter::dispatch(new ExistingMigration(), $existing_company, $user);
 
@@ -257,7 +257,7 @@ class MigrationController extends BaseController
 
             // If there's existing company and force ** is provided ** - purge the company and migrate again.
             if ($checks['existing_company'] == true && $checks['force'] == true) {
-                info("purging the existing company here");
+                nlog("purging the existing company here");
                 $this->purgeCompanyWithForceFlag($existing_company);
 
                 $account = auth()->user()->account;
@@ -330,10 +330,10 @@ class MigrationController extends BaseController
 
             try {
                 // StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $fresh_company)->delay(now()->addSeconds(5));
-                info($migration_file);
+                nlog($migration_file);
                 StartMigration::dispatch($migration_file, $user, $fresh_company);
             } catch (\Exception $e) {
-                info($e->getMessage());
+                nlog($e->getMessage());
             }
         }
 

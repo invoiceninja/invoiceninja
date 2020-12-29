@@ -101,10 +101,10 @@ class CompanyGatewayTest extends TestCase
         }
 
         if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $amount < $fees_and_limits->min_limit) {
-            info("amount {$amount} less than ".$fees_and_limits->min_limit);
+            nlog("amount {$amount} less than ".$fees_and_limits->min_limit);
             $passes = false;
         } elseif ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $amount > $fees_and_limits->max_limit) {
-            info("amount {$amount} greater than ".$fees_and_limits->max_limit);
+            nlog("amount {$amount} greater than ".$fees_and_limits->max_limit);
             $passes = false;
         } else {
             $passes = true;

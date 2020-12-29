@@ -181,7 +181,7 @@ class PreviewController extends BaseController
         $invoice->setRelation('company', auth()->user()->company());
         $invoice->load('client');
 
-        // info(print_r($invoice->toArray(),1));
+        // nlog(print_r($invoice->toArray(),1));
 
         $design_object = json_decode(json_encode(request()->input('design')));
 

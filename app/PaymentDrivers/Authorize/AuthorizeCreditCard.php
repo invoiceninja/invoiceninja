@@ -213,7 +213,7 @@ class AuthorizeCreditCard
     private function processFailedResponse($data, $request)
     {
         //dd($data);
-//        info(print_r($data, 1));
+//        nlog(print_r($data, 1));
     }
 
     private function formatGatewayResponse($data, $vars)
