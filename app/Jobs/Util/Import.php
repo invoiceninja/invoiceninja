@@ -689,6 +689,8 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
                 
+            if(array_key_exists('invitations', $resource))
+            {
                 foreach($resource['invitations'] as $key => $invite)
                 {
                     $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
@@ -699,8 +701,10 @@ class Import implements ShouldQueue
                     nlog("find a match for " . $invite['client_contact_id'] . " " .$resource['invitations'][$key]['client_contact_id']);
                 }
 
-            $modified['invitations'] = $resource['invitations'];
+                $modified['invitations'] = $resource['invitations'];
 
+            }
+            
             $invoice = $invoice_repository->save(
                 $modified,
                 InvoiceFactory::create($this->company->id, $modified['user_id'])
