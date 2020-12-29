@@ -56,7 +56,7 @@ class ImportCsvTest extends TestCase
 
     public function testInvoiceCsvImport()
     {
-                $this->markTestSkipped();
+        $this->markTestSkipped();
 
         $csv = file_get_contents(base_path().'/tests/Feature/Import/invoice.csv');
         $hash = Str::random(32);
@@ -132,7 +132,7 @@ class ImportCsvTest extends TestCase
 
     public function testProductCsvImport()
     {
-                $this->markTestSkipped();
+        $this->markTestSkipped();
 
 
         $csv = file_get_contents(base_path().'/tests/Feature/Import/products.csv');

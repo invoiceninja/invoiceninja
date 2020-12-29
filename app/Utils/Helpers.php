@@ -40,16 +40,16 @@ class Helpers
     }
 
     /**
-     * A centralised way to format the custom fields content.
+     * A centralised method to format the custom fields content.
      *
-     * @param mixed $custom_fields
+     * @param mixed|null $custom_fields
      * @param mixed $field
      * @param mixed $value
-     * @param null|\App\Models\Client $client
+     * @param \App\Models\Client|null $client
      *
      * @return null|string
      */
-    public function formatCustomFieldValue($custom_fields, $field, $value, ?Client $client): ?string
+    public function formatCustomFieldValue($custom_fields = null, $field, $value, Client $client = null): ?string
     {
         $custom_field = '';
 
@@ -64,7 +64,7 @@ class Helpers
 
         switch ($custom_field) {
             case 'date':
-                return $this->formatDate($value, $client->date_format());
+                return is_null($client) ? $value : $this->formatDate($value, $client->date_format());
                 break;
 
             case 'switch':
@@ -75,5 +75,25 @@ class Helpers
                 return is_null($value) ? '' : $value;
                 break;
         }
+    }
+
+    /**
+     * A centralised method to make custom field.
+     * @param mixed|null $custom_fields
+     * @param mixed $field
+     *
+     * @return string
+     */
+    public function makeCustomField($custom_fields = null, $field): string
+    {
+        if ($custom_fields && property_exists($custom_fields, $field)) {
+            $custom_field = $custom_fields->{$field};
+
+            $custom_field_parts = explode('|', $custom_field);
+
+            return $custom_field_parts[0];
+        }
+
+        return '';
     }
 }

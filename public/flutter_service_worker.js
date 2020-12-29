@@ -30,8 +30,8 @@ const RESOURCES = {
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
 "/": "23224b5e03519aaa87594403d54412cf",
-"version.json": "2337a2140fc2ea8baeb10b0e5a200f59",
-"main.dart.js": "cb45263da95ac53b92a95e621c5880a8",
+"version.json": "304f9dfb96375c4f92a1f5eb00536410",
+"main.dart.js": "f64e2f489dc693583352428978fbbf8f",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b"
 };
 

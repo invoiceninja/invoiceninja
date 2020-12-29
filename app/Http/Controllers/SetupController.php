@@ -221,15 +221,19 @@ class SetupController extends Controller
                 return $this->testPhantom();
             }
 
-            $snappdf = new Snappdf();
+            $pdf = new Snappdf();
 
-            $pdf = $snappdf
+            if (config('ninja.snappdf_chromium_path')) {
+                $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
+            }
+
+            $pdf = $pdf
                 ->setHtml('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
                 ->generate();
 
             Storage::put('public/test.pdf', $pdf);
 
-            return response(['url' => asset('storage/test.pdf')], 200);
+            return response(['url' => asset('test.pdf')], 200);
         } catch (Exception $e) {
             info($e->getMessage());
 

@@ -116,16 +116,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.171.4",
+            "version": "3.171.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "6a6b5b2e48ad18c2bfa48b7035e09d220d0e3984"
+                "reference": "5587d22e63ef82ef74dffca5d47f307b84137b51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/6a6b5b2e48ad18c2bfa48b7035e09d220d0e3984",
-                "reference": "6a6b5b2e48ad18c2bfa48b7035e09d220d0e3984",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/5587d22e63ef82ef74dffca5d47f307b84137b51",
+                "reference": "5587d22e63ef82ef74dffca5d47f307b84137b51",
                 "shasum": ""
             },
             "require": {
@@ -200,22 +200,22 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.171.4"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.171.6"
             },
-            "time": "2020-12-22T19:23:05+00:00"
+            "time": "2020-12-23T19:12:28+00:00"
         },
         {
             "name": "beganovich/snappdf",
-            "version": "v1.0.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beganovich/snappdf.git",
-                "reference": "96e0e2176f01ae712ab06dad0da6d2d79f7c1832"
+                "reference": "5f5e9bb17ddc9d9f16df7c20b7af35f04ffcddbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beganovich/snappdf/zipball/96e0e2176f01ae712ab06dad0da6d2d79f7c1832",
-                "reference": "96e0e2176f01ae712ab06dad0da6d2d79f7c1832",
+                "url": "https://api.github.com/repos/beganovich/snappdf/zipball/5f5e9bb17ddc9d9f16df7c20b7af35f04ffcddbd",
+                "reference": "5f5e9bb17ddc9d9f16df7c20b7af35f04ffcddbd",
                 "shasum": ""
             },
             "require": {
@@ -252,9 +252,9 @@
             "description": "Convert webpages or HTML into the PDF file using Chromium or Google Chrome.",
             "support": {
                 "issues": "https://github.com/beganovich/snappdf/issues",
-                "source": "https://github.com/beganovich/snappdf/tree/v1.0.0"
+                "source": "https://github.com/beganovich/snappdf/tree/v1.2.0"
             },
-            "time": "2020-12-21T14:55:21+00:00"
+            "time": "2020-12-28T11:57:06+00:00"
         },
         {
             "name": "brick/math",
@@ -10619,16 +10619,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v2.17.2",
+            "version": "v2.17.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfPHP/PHP-CS-Fixer.git",
-                "reference": "aaee4f3d16a996fc0b570be0c69d3b80c909c507"
+                "reference": "bd32f5dd72cdfc7b53f54077f980e144bfa2f595"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/aaee4f3d16a996fc0b570be0c69d3b80c909c507",
-                "reference": "aaee4f3d16a996fc0b570be0c69d3b80c909c507",
+                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/bd32f5dd72cdfc7b53f54077f980e144bfa2f595",
+                "reference": "bd32f5dd72cdfc7b53f54077f980e144bfa2f595",
                 "shasum": ""
             },
             "require": {
@@ -10654,7 +10654,7 @@
                 "justinrainbow/json-schema": "^5.0",
                 "keradus/cli-executor": "^1.4",
                 "mikey179/vfsstream": "^1.6",
-                "php-coveralls/php-coveralls": "^2.4.1",
+                "php-coveralls/php-coveralls": "^2.4.2",
                 "php-cs-fixer/accessible-object": "^1.0",
                 "php-cs-fixer/phpunit-constraint-isidenticalstring": "^1.2",
                 "php-cs-fixer/phpunit-constraint-xmlmatchesxsd": "^1.2.1",
@@ -10711,7 +10711,7 @@
             "description": "A tool to automatically fix PHP code style",
             "support": {
                 "issues": "https://github.com/FriendsOfPHP/PHP-CS-Fixer/issues",
-                "source": "https://github.com/FriendsOfPHP/PHP-CS-Fixer/tree/v2.17.2"
+                "source": "https://github.com/FriendsOfPHP/PHP-CS-Fixer/tree/v2.17.3"
             },
             "funding": [
                 {
@@ -10719,7 +10719,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-12-17T16:41:55+00:00"
+            "time": "2020-12-24T11:14:44+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",

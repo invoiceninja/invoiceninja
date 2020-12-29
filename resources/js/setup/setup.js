@@ -25,13 +25,18 @@ class Setup {
     handleDatabaseCheck() {
         let data = {
             db_host: document.querySelector('input[name="db_host"]').value,
-            db_database: document.querySelector('input[name="db_database"]').value,
-            db_username: document.querySelector('input[name="db_username"]').value,
-            db_password: document.querySelector('input[name="db_password"]').value,
+            db_database: document.querySelector('input[name="db_database"]')
+                .value,
+            db_username: document.querySelector('input[name="db_username"]')
+                .value,
+            db_password: document.querySelector('input[name="db_password"]')
+                .value,
         };
 
         Axios.post('/setup/check_db', data)
-            .then((response) => this.handleSuccess(this.checkDbAlert, 'mail-wrapper'))
+            .then((response) =>
+                this.handleSuccess(this.checkDbAlert, 'mail-wrapper')
+            )
             .catch((e) =>
                 this.handleFailure(this.checkDbAlert, e.response.data.message)
             );
@@ -39,7 +44,8 @@ class Setup {
 
     handleSmtpCheck() {
         let data = {
-            mail_driver: document.querySelector('select[name="mail_driver"]').value,
+            mail_driver: document.querySelector('select[name="mail_driver"]')
+                .value,
             mail_name: document.querySelector('input[name="mail_name"]').value,
             mail_address: document.querySelector('input[name="mail_address"]')
                 .value,
@@ -59,7 +65,7 @@ class Setup {
             this.handleSuccess(this.checkSmtpAlert, 'account-wrapper');
             this.handleSuccess(this.checkSmtpAlert, 'submit-wrapper');
 
-            return this.checkSmtpButton.disabled = false;
+            return (this.checkSmtpButton.disabled = false);
         }
 
         Axios.post('/setup/check_mail', data)
@@ -74,13 +80,18 @@ class Setup {
     }
 
     handleTestPdfCheck() {
+        this.checkPdfButton.disabled = true;
+
         Axios.post('/setup/check_pdf', {})
             .then((response) => {
                 try {
                     let win = window.open(response.data.url, '_blank');
                     win.focus();
 
-                    return this.handleSuccess(this.checkPdfAlert, 'database-wrapper');
+                    return this.handleSuccess(
+                        this.checkPdfAlert,
+                        'database-wrapper'
+                    );
                 } catch (error) {
                     this.handleSuccess(this.checkPdfAlert, 'database-wrapper');
                     this.checkPdfAlert.textContent = `Success! You can preview test PDF here: ${response.data.url}`;
@@ -89,7 +100,8 @@ class Setup {
             .catch((error) => {
                 console.log(error);
                 this.handleFailure(this.checkPdfAlert);
-            });
+            })
+            .finally(() => (this.checkPdfButton.disabled = false));
     }
 
     handleSuccess(element, nextStep = null) {
@@ -99,7 +111,9 @@ class Setup {
 
         if (nextStep) {
             document.getElementById(nextStep).classList.remove('hidden');
-            document.getElementById(nextStep).scrollIntoView({behavior: 'smooth', block: 'center'});
+            document
+                .getElementById(nextStep)
+                .scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
 

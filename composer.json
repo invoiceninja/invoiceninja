@@ -102,6 +102,12 @@
         }
     },
     "scripts": {
+        "post-install-cmd": [
+            "vendor/bin/snappdf download"
+        ],
+        "post-update-cmd": [
+            "vendor/bin/snappdf download"
+        ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],

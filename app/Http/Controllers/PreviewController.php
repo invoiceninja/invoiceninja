@@ -125,7 +125,7 @@ class PreviewController extends BaseController
                 ->design($design)
                 ->build();
 
-            if (request()->query('html') == true) {
+            if (request()->query('html') == 'true') {
                 return $maker->getCompiledHTML;
             }
 
@@ -208,6 +208,10 @@ class PreviewController extends BaseController
         $maker
             ->design($design)
             ->build();
+
+        if (request()->query('html') == 'true') {
+            return $maker->getCompiledHTML();
+        }
 
         if (config('ninja.phantomjs_pdf_generation')) {
             return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
