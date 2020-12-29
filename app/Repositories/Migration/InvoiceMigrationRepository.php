@@ -91,6 +91,9 @@ class InvoiceMigrationRepository extends BaseRepository
         InvoiceInvitation::unguard();
         RecurringInvoiceInvitation::unguard();
         
+        if($model instanceof RecurringInvoice)
+            $lcfirst_resource_id = 'recurring_invoice_id';
+        
         foreach($data['invitations'] as $invitation)
         {
             nlog($invitation);
