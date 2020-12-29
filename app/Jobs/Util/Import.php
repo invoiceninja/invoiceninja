@@ -629,6 +629,8 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
+            if(array_key_exists('invitations', $resource))
+            {    
                 foreach($resource['invitations'] as $key => $invite)
                 {
 
@@ -638,7 +640,8 @@ class Import implements ShouldQueue
                     unset($resource['invitations'][$key]['recurring_invoice_id']);
 
                 }
-
+            }
+            
             $invoice = $invoice_repository->save(
                 $modified,
                 RecurringInvoiceFactory::create($this->company->id, $modified['user_id'])
@@ -704,7 +707,6 @@ class Import implements ShouldQueue
                 $modified['invitations'] = $resource['invitations'];
 
             }
-            
             $invoice = $invoice_repository->save(
                 $modified,
                 InvoiceFactory::create($this->company->id, $modified['user_id'])
