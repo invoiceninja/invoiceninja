@@ -37,7 +37,7 @@ if(!isset($design)) $design = 'light';
   <div class="grid grid-cols-6">
     <div class="col-span-4 col-start-2">
       <div class="{{ $design == 'light' ? 'bg-white' : 'bg-gray-900' }} shadow border-t-2 {{ $design == 'light' ? 'border-primary' : 'border-gray-800' }}">
-        <div class="px-10">
+        <div class="px-10 break-all">
           {{ $header }}
         </div>
         <div id="text" class="flex flex-col px-10 py-6">
