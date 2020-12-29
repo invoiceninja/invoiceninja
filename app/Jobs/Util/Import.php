@@ -459,6 +459,24 @@ class Import implements ShouldQueue
                 $saveable_contacts['contacts'] = $modified_contacts;
 
                 $contact_repository->save($saveable_contacts, $client);
+
+                //link contact ids
+                $client->fresh();
+                $new_contacts = $client->contacts;
+
+                foreach($resource['contacts'] as $key => $old_contact)
+                {
+                    $contact_match = $new_contacts->where('contact_key', $old_contact['contact_key'])->first();
+
+                    if($contact_match)
+                    {                        
+                        $this->ids['client_contacts']['client_contacts_'.$old_contact['id']] = [
+                            'old' => $old_contact['id'],
+                            'new' => $contact_match->id,
+                        ];
+                    }
+                }
+
             }
 
             $key = "clients_{$resource['id']}";
@@ -611,6 +629,16 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
+                foreach($resource['invitations'] as $key => $invite)
+                {
+
+                    $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
+                    $resource['invitations'][$key]['user_id'] = $modified['user_id'];
+                    $resource['invitations'][$key]['company_id'] = $this->company->id;
+                    unset($resource['invitations'][$key]['recurring_invoice_id']);
+
+                }
+
             $invoice = $invoice_repository->save(
                 $modified,
                 RecurringInvoiceFactory::create($this->company->id, $modified['user_id'])
@@ -660,6 +688,18 @@ class Import implements ShouldQueue
             $modified['line_items'] = $this->cleanItems($modified['line_items']);
 
             unset($modified['id']);
+                
+                foreach($resource['invitations'] as $key => $invite)
+                {
+                    $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
+                    $resource['invitations'][$key]['user_id'] = $modified['user_id'];
+                    $resource['invitations'][$key]['company_id'] = $this->company->id;
+                    unset($resource['invitations'][$key]['invoice_id']);
+
+                    nlog("find a match for " . $invite['client_contact_id'] . " " .$resource['invitations'][$key]['client_contact_id']);
+                }
+
+            $modified['invitations'] = $resource['invitations'];
 
             $invoice = $invoice_repository->save(
                 $modified,
@@ -810,11 +850,6 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
             //$modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
             $modified['company_id'] = $this->company->id;
-
-// nlog($resource);
-// nlog($resource['company_gateway_id']);
-// nlog(strlen($resource['company_gateway_id']));
-
 
             //unset($modified['invoices']);
             unset($modified['invoice_id']);
