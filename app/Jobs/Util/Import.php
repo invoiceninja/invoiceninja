@@ -703,7 +703,6 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
                     unset($resource['invitations'][$key]['invoice_id']);
 
-                    nlog("find a match for " . $invite['client_contact_id'] . " " .$resource['invitations'][$key]['client_contact_id']);
                 }
 
                 $modified['invitations'] = $resource['invitations'];
