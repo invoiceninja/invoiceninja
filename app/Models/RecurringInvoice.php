@@ -369,10 +369,10 @@ class RecurringInvoice extends BaseModel
         
         $data = [];
             
-        $next_send_date = Carbon::parse($this->next_send_date)->copy();
-
-        if(!$next_send_date)
+        if(!Carbon::parse($this->next_send_date))
             return $data;
+
+        $next_send_date = Carbon::parse($this->next_send_date)->copy();
 
         for ($x=0; $x<$iterations; $x++) {
             // we don't add the days... we calc the day of the month!!
