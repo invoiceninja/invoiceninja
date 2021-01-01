@@ -29,7 +29,10 @@ class UpdateUserRequest extends Request
     public function rules()
     {
         $input = $this->all();
-        $rules = [];
+
+        $rules = [
+            'password' => 'nullable|string|min:6',
+        ];
 
         if (isset($input['email'])) {
             $rules['email'] = ['email:rfc,dns', 'sometimes', new UniqueUserRule($this->user, $input['email'])];
