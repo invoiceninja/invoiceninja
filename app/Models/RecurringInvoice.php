@@ -193,6 +193,8 @@ class RecurringInvoice extends BaseModel
         }
 
         switch ($this->frequency_id) {
+            case self::FREQUENCY_DAILY:
+                return Carbon::parse($this->next_send_date)->addDay();
             case self::FREQUENCY_WEEKLY:
                 return Carbon::parse($this->next_send_date)->addWeek();
             case self::FREQUENCY_TWO_WEEKS:
@@ -223,6 +225,8 @@ class RecurringInvoice extends BaseModel
     public function nextDateByFrequency($date)
     {
         switch ($this->frequency_id) {
+            case self::FREQUENCY_DAILY:
+                return Carbon::parse($this->next_send_date)->addDay();
             case self::FREQUENCY_WEEKLY:
                 return Carbon::parse($date)->addWeek();
             case self::FREQUENCY_TWO_WEEKS:
