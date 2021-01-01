@@ -936,7 +936,7 @@ trait GenerateMigrationResources
                 'client_contact_id' => $payment->contact_id,
                 'invitation_id' => $payment->invitation_id,
                 'company_gateway_id' => $payment->account_gateway_id,
-                'type_id' => $payment->payment_type_id,
+                'type_id' => $this->transformPaymentType($payment->payment_type_id),
                 'status_id' => $this->transformPaymentStatus($payment),
                 'amount' => $payment->amount ?: 0,
                 'applied' => $payment->amount ?: 0,
@@ -955,6 +955,87 @@ trait GenerateMigrationResources
         }
 
         return $transformed;
+    }
+
+    /*
+    v5
+    const CREDIT = 1;
+    const ACH = 4;
+    const VISA = 5;
+    const MASTERCARD = 6;
+    const AMERICAN_EXPRESS = 7;
+    const DISCOVER = 8;
+    const DINERS = 9;
+    const EUROCARD = 10;
+    const NOVA = 11;
+    const CREDIT_CARD_OTHER = 12;
+    const PAYPAL = 13;
+    const CARTE_BLANCHE = 16;
+    const UNIONPAY = 17;
+    const JCB = 18;
+    const LASER = 19;
+    const MAESTRO = 20;
+    const SOLO = 21;
+    const SWITCH = 22;
+    const ALIPAY = 27;
+    const SOFORT = 28;
+    const SEPA = 29;
+    const GOCARDLESS = 30;
+    const CRYPTO = 31;
+    */
+    private function transformPaymentType($payment_type_id)
+    {
+        switch ($payment_type_id) {
+            case PAYMENT_TYPE_CREDIT:
+                return 1;
+            case PAYMENT_TYPE_ACH:
+                return 4;
+            case PAYMENT_TYPE_VISA:
+                return 5;
+            case PAYMENT_TYPE_MASTERCARD:
+                return 6;
+            case PAYMENT_TYPE_AMERICAN_EXPRESS:
+                return 7;
+            case PAYMENT_TYPE_DISCOVER:
+                return 8;
+            case PAYMENT_TYPE_DINERS:
+                return 9;
+            case PAYMENT_TYPE_EUROCARD:
+                return 10;
+            case PAYMENT_TYPE_NOVA:
+                return 11;
+            case PAYMENT_TYPE_CREDIT_CARD_OTHER:
+                return 12;
+            case PAYMENT_TYPE_PAYPAL:
+                return 13;
+            case PAYMENT_TYPE_CARTE_BLANCHE:
+                return 16;
+            case PAYMENT_TYPE_UNIONPAY:
+                return 17;
+            case PAYMENT_TYPE_JCB:
+                return 18;
+            case PAYMENT_TYPE_LASER:
+                return 19;
+            case PAYMENT_TYPE_MAESTRO:
+                return 20;
+            case PAYMENT_TYPE_SOLO:
+                return 21;
+            case PAYMENT_TYPE_SWITCH:
+                return 22;
+            case PAYMENT_TYPE_ALIPAY:
+                return 27;
+            case PAYMENT_TYPE_SOFORT:
+                return 28;
+            case PAYMENT_TYPE_SEPA:
+                return 29;
+            case PAYMENT_TYPE_GOCARDLESS:
+                return 30;
+            case PAYMENT_TYPE_BITCOIN:
+                return 31;
+
+            default:
+                return $payment_type_id;
+        }
     }
 
     private function transformPaymentStatus($payment)
